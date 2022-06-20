@@ -3,16 +3,16 @@ import { getIsolate } from '../isolate';
 import { describe, it, expect } from 'vitest';
 import { HandlerRequest } from '..';
 
-const deployment: Deployment = {
+const getDeployment = (): Deployment => ({
   functionId: 'functionId',
   functionName: 'functionName',
-  deploymentId: 'deploymentId',
+  deploymentId: Math.random().toString(),
   domains: [],
   memory: 128,
   timeout: 50,
   env: {},
   isCurrent: false,
-};
+});
 
 const request: HandlerRequest = {
   input: 'http://localhost',
@@ -24,10 +24,10 @@ const request: HandlerRequest = {
 
 describe('Isolate', () => {
   it('should inject env variables', async () => {
+    const deployment = getDeployment();
     const runIsolate = await getIsolate({
       deployment: {
         ...deployment,
-        deploymentId: Math.random().toString(),
         env: { TEST_VAR: 'test' },
       },
       getDeploymentCode: async () => `export function handler(request) {
@@ -43,10 +43,10 @@ describe('Isolate', () => {
   });
 
   it('should inject multiple env variables', async () => {
+    const deployment = getDeployment();
     const runIsolate = await getIsolate({
       deployment: {
         ...deployment,
-        deploymentId: Math.random().toString(),
         env: { JOHN: 'John', JANE: 'Jane' },
       },
       getDeploymentCode: async () => `export function handler(request) {
@@ -62,10 +62,10 @@ describe('Isolate', () => {
   });
 
   it('should capitalize env variables', async () => {
+    const deployment = getDeployment();
     const runIsolate = await getIsolate({
       deployment: {
         ...deployment,
-        deploymentId: Math.random().toString(),
         env: { hello: 'world' },
       },
       getDeploymentCode: async () => `export function handler(request) {

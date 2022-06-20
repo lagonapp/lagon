@@ -3,16 +3,16 @@ import { getIsolate } from '../isolate';
 import { describe, it, expect, vi } from 'vitest';
 import { HandlerRequest } from '..';
 
-const deployment: Deployment = {
+const getDeployment = (): Deployment => ({
   functionId: 'functionId',
   functionName: 'functionName',
-  deploymentId: 'deploymentId',
+  deploymentId: Math.random().toString(),
   domains: [],
   memory: 128,
   timeout: 50,
   env: {},
   isCurrent: false,
-};
+});
 
 const request: HandlerRequest = {
   input: 'http://localhost',
@@ -25,24 +25,20 @@ const request: HandlerRequest = {
 describe('Logs', () => {
   it('should receive logs', async () => {
     const onDeploymentLog = vi.fn();
-    const deploymentId = Math.random().toString();
-
+    const deployment = getDeployment();
     const runIsolate = await getIsolate({
-      deployment: {
-        ...deployment,
-        deploymentId,
-      },
+      deployment,
       getDeploymentCode: async () => `export function handler(request) {
-    console.log('Hello World');
-    return new Response('');
-  }`,
+  console.log('Hello World');
+  return new Response('');
+}`,
       onDeploymentLog,
     });
 
     await runIsolate(request);
 
     expect(onDeploymentLog).toHaveBeenCalledWith({
-      deploymentId,
+      deploymentId: deployment.deploymentId,
       log: {
         content: '"Hello World"',
         level: 'log',
@@ -54,24 +50,20 @@ describe('Logs', () => {
 
   it('should log objects', async () => {
     const onDeploymentLog = vi.fn();
-    const deploymentId = Math.random().toString();
-
+    const deployment = getDeployment();
     const runIsolate = await getIsolate({
-      deployment: {
-        ...deployment,
-        deploymentId,
-      },
+      deployment,
       getDeploymentCode: async () => `export function handler(request) {
-    console.log({ hello: 'world' });
-    return new Response('');
-  }`,
+  console.log({ hello: 'world' });
+  return new Response('');
+}`,
       onDeploymentLog,
     });
 
     await runIsolate(request);
 
     expect(onDeploymentLog).toHaveBeenCalledWith({
-      deploymentId,
+      deploymentId: deployment.deploymentId,
       log: {
         content: '{"hello":"world"}',
         level: 'log',
@@ -83,24 +75,20 @@ describe('Logs', () => {
 
   it('should log arrays', async () => {
     const onDeploymentLog = vi.fn();
-    const deploymentId = Math.random().toString();
-
+    const deployment = getDeployment();
     const runIsolate = await getIsolate({
-      deployment: {
-        ...deployment,
-        deploymentId,
-      },
+      deployment,
       getDeploymentCode: async () => `export function handler(request) {
-    console.log(['hello', 'world', 3]);
-    return new Response('');
-  }`,
+  console.log(['hello', 'world', 3]);
+  return new Response('');
+}`,
       onDeploymentLog,
     });
 
     await runIsolate(request);
 
     expect(onDeploymentLog).toHaveBeenCalledWith({
-      deploymentId,
+      deploymentId: deployment.deploymentId,
       log: {
         content: '["hello","world",3]',
         level: 'log',
@@ -112,27 +100,23 @@ describe('Logs', () => {
 
   it('should receive all logs type', async () => {
     const onDeploymentLog = vi.fn();
-    const deploymentId = Math.random().toString();
-
+    const deployment = getDeployment();
     const runIsolate = await getIsolate({
-      deployment: {
-        ...deployment,
-        deploymentId,
-      },
+      deployment,
       getDeploymentCode: async () => `export function handler(request) {
-    console.info('Info log');
-    console.warn('Warn log');
-    console.error('Error log');
-    console.debug('Debug log');
-    return new Response('');
-  }`,
+  console.info('Info log');
+  console.warn('Warn log');
+  console.error('Error log');
+  console.debug('Debug log');
+  return new Response('');
+}`,
       onDeploymentLog,
     });
 
     await runIsolate(request);
 
     expect(onDeploymentLog).toHaveBeenNthCalledWith(1, {
-      deploymentId,
+      deploymentId: deployment.deploymentId,
       log: {
         content: '"Info log"',
         level: 'info',
@@ -140,7 +124,7 @@ describe('Logs', () => {
     });
 
     expect(onDeploymentLog).toHaveBeenNthCalledWith(2, {
-      deploymentId,
+      deploymentId: deployment.deploymentId,
       log: {
         content: '"Warn log"',
         level: 'warn',
@@ -148,7 +132,7 @@ describe('Logs', () => {
     });
 
     expect(onDeploymentLog).toHaveBeenNthCalledWith(3, {
-      deploymentId,
+      deploymentId: deployment.deploymentId,
       log: {
         content: '"Error log"',
         level: 'error',
@@ -156,7 +140,7 @@ describe('Logs', () => {
     });
 
     // expect(onDeploymentLog).toHaveBeenNthCalledWith(4, {
-    //   deploymentId,
+    //   deploymentId: deployment.deploymentId,
     //   log: {
     //     content: '"Debug log"',
     //     level: 'debug',
