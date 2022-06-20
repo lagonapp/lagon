@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "lint": "eslint --cache .",
-    "test": "vitest run --coverage",
+    "test": "vitest run --coverage --isolate false",
     "test:watch": "vitest",
     "prepare": "husky install"
   },
