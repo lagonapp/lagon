@@ -35,9 +35,11 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'pnpm'
-    - name: Run Vitest
+    - name: Install dependencies
+      run: pnpm install
+    - name: Build @lagon/runtime
       run: |
-        pnpm install
-        cd packages/runtime && pnpm build
-        cd ../.. && pnpm test
+        cd packages/runtime
+        pnpm build
+    - name: Run Vitest
+      run: pnpm test
