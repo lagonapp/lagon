@@ -10,7 +10,7 @@
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
     "postinstall": "prisma generate",
-    "clickhouse": "node scripts/clickhouse.js"
+    "clickhouse": "node scripts/clickhouse.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.100.0",
