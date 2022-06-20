@@ -19,6 +19,7 @@
     "@monaco-editor/react": "^4.4.5",
     "@next-auth/prisma-adapter": "^1.0.3",
     "@prisma/client": "^3.15.2",
+    "@radix-ui/react-alert-dialog": "^0.1.7",
     "@radix-ui/react-tabs": "^0.1.5",
     "@scaleway/use-random-name": "^0.2.3",
     "@sentry/nextjs": "^7.1.1",
