@@ -1,0 +1,24 @@
+{
+  "name": "@lagon/runtime",
+  "version": "0.0.1",
+  "description": "JavaScript Serverless Runtime for Lagon",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "watch": "tsup src/index.ts src/runtime/* --format=esm --dts --no-splitting --watch",
+    "build": "tsup src/index.ts src/runtime/* --format=esm --dts --no-splitting"
+  },
+  "dependencies": {
+    "isolated-vm": "^4.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.35"
+  },
+  "peerDependencies": {
+    "isolated-vm": "^4.4.1"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "@lagon/serverless",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "watch": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm --watch",
+    "build": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm",
+    "dev": "nodemon dist/index.js",
+    "start": "node dist/index.js",
+    "tailwind": "npx tailwindcss -o public/main.css -c tailwind.config.cjs"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.100.0",
+    "@lagon/runtime": "workspace:0.0.1",
+    "@sentry/node": "^7.1.1",
+    "@sentry/tracing": "^7.1.1",
+    "clickhouse": "^2.5.0",
+    "dotenv": "^16.0.1",
+    "fastify": "^3.29.0",
+    "isolated-vm": "^4.4.1",
+    "redis": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.35"
+  }
+}

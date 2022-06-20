@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Radix UI Tabs */
+button[data-state="active"] {
+  @apply border-b-2 border-b-blue-500 !text-gray-800
+}
+
+* {
+  @apply focus-visible:outline-1 focus-visible:outline-blue-500 focus-visible:outline-offset-2
+}

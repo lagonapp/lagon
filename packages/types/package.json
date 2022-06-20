@@ -1,0 +1,16 @@
+{
+  "name": "@lagon/types",
+  "version": "0.0.1",
+  "description": "Type definitions for Lagon Serverless Functions",
+  "type": "module",
+  "types": "types.d.ts",
+  "files": [
+    "types.d.ts"
+  ],
+  "scripts": {
+    "generate": "zx generate.mjs"
+  },
+  "devDependencies": {
+    "zx": "^7.0.0"
+  }
+}
