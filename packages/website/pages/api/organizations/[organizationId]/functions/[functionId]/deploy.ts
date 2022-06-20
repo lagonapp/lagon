@@ -1,10 +1,7 @@
-import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
-import { transform } from 'esbuild';
 import { NextApiRequest, NextApiResponse } from 'next';
 import apiHandler from 'lib/api';
 import prisma from 'lib/prisma';
-import redis from 'lib/redis';
-import s3 from 'lib/s3';
+import { createDeployment, removeCurrentDeployment, removeDeployment, setCurrentDeployment } from 'lib/api/deployments';
 
 export type CreateDeploymentResponse = {
   functionId: string;
@@ -13,6 +10,15 @@ export type CreateDeploymentResponse = {
   updatedAt: Date;
   isCurrent: boolean;
 };
+
+export type SetCurrentDeploymentResponse = {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  isCurrent: boolean;
+};
+
+export type RemoveDeploymentResponse = CreateDeploymentResponse;
 
 const post = async (request: NextApiRequest, response: NextApiResponse<CreateDeploymentResponse>) => {
   const functionId = request.query.functionId as string;
@@ -35,149 +41,23 @@ const post = async (request: NextApiRequest, response: NextApiResponse<CreateDep
     },
   });
 
-  const currentDeployment = await prisma.deployment.findFirst({
-    where: {
-      functionId,
-      isCurrent: true,
-    },
-    select: {
-      id: true,
-    },
-  });
+  await removeCurrentDeployment(func.id);
 
-  await prisma.deployment.update({
-    data: {
-      isCurrent: false,
-    },
-    where: {
-      id: currentDeployment.id,
-    },
-  });
-
-  const deployment = await prisma.deployment.create({
-    data: {
-      isCurrent: true,
-      functionId,
-    },
-    select: {
-      id: true,
-      createdAt: true,
-      updatedAt: true,
-      isCurrent: true,
-      functionId: true,
-    },
-  });
-
-  const { code: finalCode } = await transform(code, {
-    loader: 'ts',
-    format: 'esm',
-  });
-
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: 'lagonapp',
-      Key: `${deployment.id}.js`,
-      Body: finalCode,
-    }),
-  );
-
-  await redis.publish(
-    'deploy',
-    JSON.stringify({
-      functionId: func.id,
-      functionName: func.name,
-      deploymentId: deployment.id,
-      domains: func.domains,
-      memory: func.memory,
-      timeout: func.timeout,
-      env: func.env.reduce((acc, current) => {
-        const [key, value] = current.split('=');
-
-        return {
-          ...acc,
-          [key]: value,
-        };
-      }, {}),
-      isCurrent: deployment.isCurrent,
-    }),
-  );
+  const deployment = await createDeployment(func, code);
 
   response.json(deployment);
 };
 
-const patch = async (request: NextApiRequest, response: NextApiResponse<CreateDeploymentResponse>) => {
+const patch = async (request: NextApiRequest, response: NextApiResponse<SetCurrentDeploymentResponse>) => {
   const functionId = request.query.functionId as string;
   const deploymentId = request.query.deploymentId as string;
 
-  const func = await prisma.function.findFirst({
-    where: {
-      id: functionId,
-    },
-    select: {
-      id: true,
-      name: true,
-      domains: true,
-      memory: true,
-      timeout: true,
-      env: true,
-    },
-  });
+  const deployment = await setCurrentDeployment(functionId, deploymentId);
 
-  const currentDeployment = await prisma.deployment.findFirst({
-    where: {
-      functionId,
-      isCurrent: true,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  const previousDeployment = await prisma.deployment.update({
-    data: {
-      isCurrent: false,
-    },
-    where: {
-      id: currentDeployment.id,
-    },
-    select: {
-      id: true,
-    },
-  });
-
-  await prisma.deployment.update({
-    data: {
-      isCurrent: true,
-    },
-    where: {
-      id: deploymentId,
-    },
-  });
-
-  await redis.publish(
-    'current',
-    JSON.stringify({
-      previousDeploymentId: previousDeployment.id,
-      functionId: func.id,
-      functionName: func.name,
-      deploymentId: deploymentId,
-      domains: func.domains,
-      memory: func.memory,
-      timeout: func.timeout,
-      env: func.env.reduce((acc, current) => {
-        const [key, value] = current.split('=');
-
-        return {
-          ...acc,
-          [key]: value,
-        };
-      }, {}),
-      isCurrent: true,
-    }),
-  );
+  response.json(deployment);
 };
 
-const del = async (request: NextApiRequest, response: NextApiResponse<CreateDeploymentResponse>) => {
+const del = async (request: NextApiRequest, response: NextApiResponse<RemoveDeploymentResponse>) => {
   const functionId = request.query.functionId as string;
   const deploymentId = request.query.deploymentId as string;
 
@@ -195,46 +75,7 @@ const del = async (request: NextApiRequest, response: NextApiResponse<CreateDepl
     },
   });
 
-  const deployment = await prisma.deployment.delete({
-    where: {
-      id: deploymentId,
-    },
-    select: {
-      id: true,
-      createdAt: true,
-      updatedAt: true,
-      functionId: true,
-      isCurrent: true,
-    },
-  });
-
-  await s3.send(
-    new DeleteObjectCommand({
-      Bucket: 'lagonapp',
-      Key: `${deployment.id}.js`,
-    }),
-  );
-
-  await redis.publish(
-    'undeploy',
-    JSON.stringify({
-      functionId: func.id,
-      functionName: func.name,
-      deploymentId: deployment.id,
-      domains: func.domains,
-      memory: func.memory,
-      timeout: func.timeout,
-      env: func.env.reduce((acc, current) => {
-        const [key, value] = current.split('=');
-
-        return {
-          ...acc,
-          [key]: value,
-        };
-      }, {}),
-      isCurrent: deployment.isCurrent,
-    }),
-  );
+  const deployment = await removeDeployment(func, deploymentId);
 
   response.json(deployment);
 };

@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import apiHandler from 'lib/api';
 import prisma from 'lib/prisma';
+import { envStringToObject } from 'lib/api/env';
 
 // Should match Deployment in @lagon/runtime
 export type GetDeploymentsResponse = {
@@ -45,14 +46,7 @@ const handler = async (request: NextApiRequest, response: NextApiResponse<GetDep
         domains,
         memory,
         timeout,
-        env: env.reduce((acc, current) => {
-          const [key, value] = current.split('=');
-
-          return {
-            ...acc,
-            [key]: value,
-          };
-        }, {}),
+        env: envStringToObject(env),
         isCurrent,
       }),
     ),

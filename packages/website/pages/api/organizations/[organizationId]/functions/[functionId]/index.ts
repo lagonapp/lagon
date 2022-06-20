@@ -1,10 +1,8 @@
-import { DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from 'lib/prisma';
-import redis from 'lib/redis';
-import s3 from 'lib/s3';
 import { ClickHouse } from 'clickhouse';
 import apiHandler from 'lib/api';
+import { removeDeployment } from 'lib/api/deployments';
 
 const clickhouse = new ClickHouse({});
 
@@ -25,6 +23,10 @@ export type GetFunctionResponse = {
     updatedAt: Date;
   }[];
 };
+
+export type UpdateFunctionResponse = GetFunctionResponse;
+
+export type DeleteFunctionResponse = GetFunctionResponse;
 
 const get = async (request: NextApiRequest, response: NextApiResponse<GetFunctionResponse>) => {
   const organizationId = request.query.organizationId as string;
@@ -59,7 +61,7 @@ const get = async (request: NextApiRequest, response: NextApiResponse<GetFunctio
   response.json(func);
 };
 
-const patch = async (request: NextApiRequest, response: NextApiResponse<GetFunctionResponse>) => {
+const patch = async (request: NextApiRequest, response: NextApiResponse<UpdateFunctionResponse>) => {
   const functionId = request.query.functionId as string;
 
   const { name, domains, cron, env } = JSON.parse(request.body) as {
@@ -105,7 +107,7 @@ const patch = async (request: NextApiRequest, response: NextApiResponse<GetFunct
   response.json(func);
 };
 
-const del = async (request: NextApiRequest, response: NextApiResponse) => {
+const del = async (request: NextApiRequest, response: NextApiResponse<DeleteFunctionResponse>) => {
   const functionId = request.query.functionId as string;
 
   const func = await prisma.function.delete({
@@ -114,6 +116,8 @@ const del = async (request: NextApiRequest, response: NextApiResponse) => {
     },
     select: {
       id: true,
+      createdAt: true,
+      updatedAt: true,
       name: true,
       domains: true,
       memory: true,
@@ -123,45 +127,21 @@ const del = async (request: NextApiRequest, response: NextApiResponse) => {
         select: {
           id: true,
           isCurrent: true,
+          createdAt: true,
+          updatedAt: true,
         },
       },
     },
   });
 
   for (const deployment of func.deployments) {
-    await s3.send(
-      new DeleteObjectCommand({
-        Bucket: 'lagonapp',
-        Key: `${deployment.id}.js`,
-      }),
-    );
-
-    await redis.publish(
-      'undeploy',
-      JSON.stringify({
-        functionId: func.id,
-        functionName: func.name,
-        deploymentId: deployment.id,
-        domains: func.domains,
-        memory: func.memory,
-        timeout: func.timeout,
-        env: func.env.reduce((acc, current) => {
-          const [key, value] = current.split('=');
-
-          return {
-            ...acc,
-            [key]: value,
-          };
-        }, {}),
-        isCurrent: deployment.isCurrent,
-      }),
-    );
+    await removeDeployment(func, deployment.id);
   }
 
   await clickhouse.query(`alter table functions_result delete where functionId='${func.id}'`).toPromise();
   await clickhouse.query(`alter table logs delete where functionId='${func.id}'`).toPromise();
 
-  response.end();
+  response.json(func);
 };
 
 const handler = async (request: NextApiRequest, response: NextApiResponse) => {
