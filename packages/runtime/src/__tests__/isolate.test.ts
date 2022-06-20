@@ -115,7 +115,7 @@ export function handler(request) {
       deployment,
       getDeploymentCode: async () => `export async function handler(request) {
   const storage = [];
-  const twoMegabytes = 1024 * 1024 * 2;
+  const twoMegabytes = 1024 * 1024 * 20;
   while (true) {
     const array = new Uint8Array(twoMegabytes);
     for (let ii = 0; ii < twoMegabytes; ii += 4096) {
