@@ -35,7 +35,7 @@ const server = createServer((request, response) => {
 });
 
 beforeAll(() => {
-  server.listen(80);
+  server.listen(8000);
 });
 
 afterAll(() => {
@@ -50,7 +50,7 @@ describe('fetch', () => {
         deploymentId: Math.random().toString(),
       },
       getDeploymentCode: async () => `export async function handler(request) {
-  const response = await fetch('http://localhost');
+  const response = await fetch('http://localhost:8000');
   return new Response(await response.text());
 }`,
     });
@@ -69,7 +69,7 @@ describe('fetch', () => {
         deploymentId: Math.random().toString(),
       },
       getDeploymentCode: async () => `export async function handler(request) {
-  const response = await fetch('http://localhost/json');
+  const response = await fetch('http://localhost:8000/json');
   return new Response(await response.json());
 }`,
     });
