@@ -78,7 +78,9 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
       console.log('Run cron');
 
       return fetch(`http://${func.domains[0]}`);
-    } catch {}
+    } catch (e) {
+      console.error(e);
+    }
   });
 
   // await Promise.all(promises);

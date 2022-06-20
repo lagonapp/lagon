@@ -1,4 +1,4 @@
-const { ClickHouse } = require('clickhouse');
+import { ClickHouse } from 'clickhouse';
 
 const clickhouse = new ClickHouse({});
 

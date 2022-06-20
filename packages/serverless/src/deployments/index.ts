@@ -27,5 +27,7 @@ export function deleteDeploymentCode(deployment: Deployment) {
 
   try {
     fs.rmSync(file);
-  } catch (e) {}
+  } catch (e) {
+    console.error(e);
+  }
 }
