@@ -1,4 +1,4 @@
-name: pnpm Example Workflow
+name: CI
 on:
   pull_request:
 jobs:
