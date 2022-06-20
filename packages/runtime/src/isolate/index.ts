@@ -30,16 +30,19 @@ async function getHandler({
   isolate: ivm.Isolate;
   context: ivm.Context;
   code: string;
-}): Promise<ivm.Reference | undefined> {
+}): Promise<{ handler: ivm.Reference | undefined; masterHandler: ivm.Reference }> {
   const module = await isolate.compileModule(code);
 
-  await module.instantiate(context, specifier => {
-    throw new Error(`Module ${specifier} not implemented`);
+  await module.instantiate(context, () => {
+    throw new Error(`Can't import module, you must bundle all your code in a single file.`);
   });
 
   await module.evaluate();
 
-  return module.namespace.get('masterHandler', { reference: true });
+  return {
+    handler: await module.namespace.get('handler', { reference: true }),
+    masterHandler: await module.namespace.get('masterHandler', { reference: true })!,
+  };
 }
 
 export async function getIsolate({
@@ -72,14 +75,14 @@ export async function getIsolate({
   }`;
 
     const { isolate, context } = await createIsolate({ deployment, onDeploymentLog });
-    const handler = await getHandler({ isolate, context, code });
+    const { handler, masterHandler } = await getHandler({ isolate, context, code });
 
     if (!handler || handler.typeof !== 'function') {
-      throw new Error('Function did not export a handler');
+      throw new Error('Function did not export a handler function.');
     }
 
     deploymentCache = {
-      handler,
+      handler: masterHandler,
       isolate,
       context,
     };

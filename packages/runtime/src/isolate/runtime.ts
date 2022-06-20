@@ -8,7 +8,7 @@ import { RequestInit } from '../runtime/Request';
 function getEnvironmentVariables(deployment: Deployment): string {
   let environmentVariables = '';
 
-  for (const [key, value] of Object.entries(deployment.env || {})) {
+  for (const [key, value] of Object.entries(deployment.env)) {
     environmentVariables += `global.${key.toUpperCase()} = "${value}"\n`;
   }
 
@@ -66,7 +66,13 @@ function readRuntimeFile(filename: string) {
   return {
     filename: `file:///${filename.toLowerCase()}.js`,
     code: fs
-      .readFileSync(new URL(`runtime/${filename}.js`, import.meta.url))
+      .readFileSync(
+        /* c8 ignore start */
+        process.env.NODE_ENV === 'test'
+          ? new URL(`../../dist/runtime/${filename}.js`, import.meta.url)
+          : new URL(`runtime/${filename}.js`, import.meta.url),
+        /* c8 ignore end */
+      )
       .toString('utf-8')
       .replace(/export((.|\n)*);/gm, ''),
   };
