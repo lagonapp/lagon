@@ -38,5 +38,9 @@ jobs:
         cache: 'pnpm'
     - name: Install dependencies
       run: pnpm install
+    - name: Build @lagon/runtime
+      run: |
+        cd packages/runtime
+        pnpm build
     - name: Run Vitest
       run: pnpm test
