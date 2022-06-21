@@ -47,9 +47,12 @@ declare class URL {
     host: string;
     hostname: string;
     href: string;
+    pathname: string;
     port: string;
     protocol: string;
+    search: string;
     constructor(url: string, base?: string);
+    toString(): string;
 }
 
 

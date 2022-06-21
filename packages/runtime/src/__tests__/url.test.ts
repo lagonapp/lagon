@@ -2,6 +2,24 @@ import { describe, expect, it } from 'vitest';
 import { URL } from '../runtime/URL';
 
 describe('URL', () => {
+  describe('base url', () => {
+    it('should work with base url single slash', () => {
+      expect(new URL('/', 'https://developer.mozilla.org').toString()).toEqual('https://developer.mozilla.org/');
+    });
+
+    it('should work with base url path without slash', () => {
+      expect(new URL('en-US/docs', 'https://developer.mozilla.org').toString()).toEqual(
+        'https://developer.mozilla.org/en-US/docs',
+      );
+    });
+
+    it('should work with base url path with slash', () => {
+      expect(new URL('/en-US/docs', 'https://developer.mozilla.org').toString()).toEqual(
+        'https://developer.mozilla.org/en-US/docs',
+      );
+    });
+  });
+
   describe('hash', () => {
     it('should return the hash', () => {
       expect(new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/href#Examples').hash).toEqual('#Examples');
@@ -15,7 +33,7 @@ describe('URL', () => {
       );
     });
 
-    it('should return the host without port if scheme match', () => {
+    it.todo('should return the host without port if scheme match', () => {
       expect(new URL('https://developer.mozilla.org:443/en-US/docs/Web/API/URL/host').host).toEqual(
         'developer.mozilla.org',
       );
@@ -59,7 +77,7 @@ describe('URL', () => {
   });
 
   describe('pathname', () => {
-    it.todo('should return the pathname', () => {
+    it('should return the pathname', () => {
       expect(new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/pathname?q=value').pathname).toEqual(
         '/en-US/docs/Web/API/URL/pathname',
       );
@@ -79,7 +97,7 @@ describe('URL', () => {
   });
 
   describe('search', () => {
-    it.todo('should return the search', () => {
+    it('should return the search', () => {
       expect(new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/search?q=123').search).toEqual('?q=123');
     });
   });
