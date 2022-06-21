@@ -6,6 +6,7 @@ import Layout from 'lib/Layout';
 import FunctionsList from 'lib/pages/functions/FunctionsList';
 import { useSession } from 'next-auth/react';
 import useRandomName from '@scaleway/use-random-name';
+import { CreateFunctionResponse } from 'pages/api/organizations/[organizationId]/functions';
 
 const Home = () => {
   const router = useRouter();
@@ -41,7 +42,7 @@ const Home = () => {
               }),
             });
 
-            const func = await response.json();
+            const func = (await response.json()) as CreateFunctionResponse;
 
             setIsCreating(false);
             router.push(`/playground/${func.id}`);

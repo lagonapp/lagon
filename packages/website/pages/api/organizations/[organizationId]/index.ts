@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import apiHandler from 'lib/api';
 import prisma from 'lib/prisma';
 
-export type PatchOrganizationResponse = {
+export type UpdateOrganizationResponse = {
   name: string;
   description: string;
   id: string;
@@ -10,7 +10,7 @@ export type PatchOrganizationResponse = {
   updatedAt: Date;
 };
 
-const patch = async (request: NextApiRequest, response: NextApiResponse<PatchOrganizationResponse>) => {
+const patch = async (request: NextApiRequest, response: NextApiResponse<UpdateOrganizationResponse>) => {
   const organizationId = request.query.organizationId as string;
 
   const { name, description } = JSON.parse(request.body) as {

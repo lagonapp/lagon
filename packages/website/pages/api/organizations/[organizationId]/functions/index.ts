@@ -1,10 +1,7 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from 'lib/prisma';
-import redis from 'lib/redis';
-import s3 from 'lib/s3';
-import { transform } from 'esbuild';
 import apiHandler from 'lib/api';
+import { createDeployment } from 'lib/api/deployments';
 
 export type GetFunctionsResponse = {
   id: string;
@@ -109,52 +106,7 @@ const post = async (request: NextApiRequest, response: NextApiResponse<CreateFun
     },
   });
 
-  const deployment = await prisma.deployment.create({
-    data: {
-      isCurrent: true,
-      functionId: func.id,
-    },
-    select: {
-      id: true,
-      isCurrent: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
-
-  const { code: finalCode } = await transform(code, {
-    loader: 'ts',
-    format: 'esm',
-  });
-
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: 'lagonapp',
-      Key: `${deployment.id}.js`,
-      Body: finalCode,
-    }),
-  );
-
-  await redis.publish(
-    'deploy',
-    JSON.stringify({
-      functionId: func.id,
-      functionName: func.name,
-      deploymentId: deployment.id,
-      domains: func.domains,
-      memory: func.memory,
-      timeout: func.timeout,
-      env: func.env.reduce((acc, current) => {
-        const [key, value] = current.split('=');
-
-        return {
-          ...acc,
-          [key]: value,
-        };
-      }, {}),
-      isCurrent: deployment.isCurrent,
-    }),
-  );
+  const deployment = await createDeployment(func, code);
 
   response.json({ ...func, deployment });
 };
