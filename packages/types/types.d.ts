@@ -42,6 +42,17 @@ declare class Response {
 }
 
 
+declare class URL {
+    hash: string;
+    host: string;
+    hostname: string;
+    href: string;
+    port: string;
+    protocol: string;
+    constructor(url: string, base?: string);
+}
+
+
 
 
 

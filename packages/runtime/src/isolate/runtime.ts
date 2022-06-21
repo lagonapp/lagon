@@ -60,6 +60,7 @@ export const snapshot = ivm.Isolate.createSnapshot([
   readRuntimeFile('Response'),
   readRuntimeFile('Request'),
   readRuntimeFile('parseMultipart'),
+  readRuntimeFile('URL'),
 ]);
 
 function readRuntimeFile(filename: string) {
