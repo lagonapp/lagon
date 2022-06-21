@@ -11,5 +11,4 @@ export async function fetch(resource: string, init: RequestInit) {
   return new Response(result.body, result.options);
 }
 
-// @ts-expect-error global.fetch is not defined
 global.fetch = fetch;

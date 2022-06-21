@@ -43,6 +43,11 @@ declare class Response {
 
 
 
+
+
+declare function fetch(resource: string, init: RequestInit): Promise<Response>;
+
+
 declare const parseMultipart: (headers: Record<string, string | string[] | undefined>, body?: string | undefined) => Record<string, string>;
 
 
