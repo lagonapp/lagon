@@ -77,6 +77,20 @@ declare class URL {
 }
 
 
+declare function atob(encodedData: string): string;
+declare function btoa(stringToEncode: string): string;
+
+
+declare class TextEncoder {
+    encoding: string;
+    encode(string: string): Uint8Array;
+}
+declare class TextDecoder {
+    encoding: string;
+    decode(buffer: Iterable<number>): string;
+}
+
+
 
 
 
