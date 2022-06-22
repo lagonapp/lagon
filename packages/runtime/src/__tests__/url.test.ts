@@ -167,7 +167,23 @@ describe('URL', () => {
   });
 
   describe('origin', () => {
-    it.todo('should return the origin', () => {
+    it('should return the origin for https', () => {
+      expect(new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/origin').origin).toEqual(
+        'https://developer.mozilla.org',
+      );
+    });
+
+    it('should return the origin for http', () => {
+      expect(new URL('http://developer.mozilla.org/en-US/docs/Web/API/URL/origin').origin).toEqual(
+        'http://developer.mozilla.org',
+      );
+    });
+
+    it('should return the origin for file', () => {
+      expect(new URL('file:https://mozilla.org:443/').origin).toEqual('https://mozilla.org');
+    });
+
+    it('should return the origin for blob', () => {
       expect(new URL('blob:https://mozilla.org:443/').origin).toEqual('https://mozilla.org');
     });
   });

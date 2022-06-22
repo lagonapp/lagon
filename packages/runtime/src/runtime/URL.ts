@@ -73,7 +73,7 @@ export class URL {
   public host = '';
   public hostname = '';
   public href = '';
-  // public origin = '';
+  public origin = '';
   // public password = '';
   public pathname = '';
   public port = '';
@@ -97,20 +97,25 @@ export class URL {
     }
 
     // eslint-disable-next-line
-    const result = /^(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/.exec(finalUrl);
+    const result = /((?:blob|file):)?(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/.exec(finalUrl);
 
     if (result) {
-      const [href, protocol, host, hostname, port, pathname, search, hash] = result;
+      const [href, origin, protocol, host, hostname, port, pathname, search, hash] = result;
 
       this.hash = hash;
       this.host = host;
       this.hostname = hostname;
       this.href = href;
+
+      if (['http:', 'https:'].includes(protocol) || ['blob:', 'file:'].includes(origin)) {
+        this.origin = protocol + '//' + hostname;
+      }
+
       this.pathname = pathname;
       this.port = port;
       this.protocol = protocol;
       this.search = search;
-      this.searchParams = new URLSearchParams(this.search);
+      this.searchParams = new URLSearchParams(search);
     }
   }
 
