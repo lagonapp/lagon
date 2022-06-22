@@ -56,6 +56,20 @@ async function mockFetch(context: ivm.Context) {
   );
 }
 
+async function mockBase64(context: ivm.Context) {
+  const { code, filename } = readRuntimeFile('base64');
+
+  await context.evalClosure(
+    code,
+    [
+      (encodedData: string): string => {
+        return Buffer.from(encodedData, 'base64').toString('binary');
+      },
+    ],
+    { result: { reference: true }, arguments: { reference: true }, filename },
+  );
+}
+
 export const snapshot = ivm.Isolate.createSnapshot([
   readRuntimeFile('Response'),
   readRuntimeFile('Request'),
@@ -97,5 +111,6 @@ export async function initRuntime({
     context.eval(environmentVariables),
     mockConsole({ deployment, context, onDeploymentLog }),
     mockFetch(context),
+    mockBase64(context),
   ]);
 }
