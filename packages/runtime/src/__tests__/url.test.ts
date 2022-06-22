@@ -15,12 +15,17 @@ describe('URLSearchParams', () => {
       expect(new URLSearchParams('?a=b&c=d').toString()).toEqual('a=b&c=d');
     });
 
-    it.todo('should instanciate with init as object', () => {
-      // expect(new URLSearchParams({ a: 'b', c: 'd' }).toString()).toEqual('a=b&c=d');
+    it('should instanciate with init as object', () => {
+      expect(new URLSearchParams({ a: 'b', c: 'd' }).toString()).toEqual('a=b&c=d');
     });
 
-    it.todo('should instanciate with init as array', () => {
-      // expect(new URLSearchParams([["a", "b"], ["c", "d"]]).toString()).toEqual('a=b&c=d');
+    it('should instanciate with init as array', () => {
+      expect(
+        new URLSearchParams([
+          ['a', 'b'],
+          ['c', 'd'],
+        ]).toString(),
+      ).toEqual('a=b&c=d');
     });
   });
 

@@ -1,16 +1,28 @@
 export class URLSearchParams {
   private params: Map<string, string> = new Map();
 
-  constructor(init?: string) {
+  constructor(init?: string | Record<string, string> | string[][]) {
     if (init) {
-      init
-        .replace('?', '')
-        .split('&')
-        .forEach(entry => {
-          const [key, value] = entry.split('=');
+      if (typeof init === 'string') {
+        init
+          .replace('?', '')
+          .split('&')
+          .forEach(entry => {
+            const [key, value] = entry.split('=');
 
-          this.params.set(key, value);
-        });
+            this.params.set(key, value);
+          });
+      } else if (typeof init === 'object') {
+        if (Array.isArray(init)) {
+          init.forEach(([key, value]) => {
+            this.params.set(key, value);
+          });
+        } else {
+          Object.entries(init).forEach(([key, value]) => {
+            this.params.set(key, value);
+          });
+        }
+      }
     }
   }
 
