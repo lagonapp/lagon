@@ -64,11 +64,13 @@ declare class URL {
     hostname: string;
     href: string;
     origin: string;
+    password: string;
     pathname: string;
     port: string;
     protocol: string;
     search: string;
     searchParams: URLSearchParams | null;
+    username: string;
     constructor(url: string, base?: string);
     toString(): string;
 }

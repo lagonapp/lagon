@@ -189,7 +189,7 @@ describe('URL', () => {
   });
 
   describe('password', () => {
-    it.todo('should return the password', () => {
+    it('should return the password', () => {
       expect(
         new URL('https://anonymous:flabada@developer.mozilla.org/en-US/docs/Web/API/URL/password').password,
       ).toEqual('flabada');
@@ -231,7 +231,7 @@ describe('URL', () => {
   });
 
   describe('username', () => {
-    it.todo('should return the username', () => {
+    it('should return the username', () => {
       expect(
         new URL('https://anonymous:flabada@developer.mozilla.org/en-US/docs/Web/API/URL/username').username,
       ).toEqual('anonymous');

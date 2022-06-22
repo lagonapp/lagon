@@ -74,13 +74,13 @@ export class URL {
   public hostname = '';
   public href = '';
   public origin = '';
-  // public password = '';
+  public password = '';
   public pathname = '';
   public port = '';
   public protocol = '';
   public search = '';
   public searchParams: URLSearchParams | null = null;
-  // public username = '';
+  public username = '';
 
   constructor(url: string, base?: string) {
     let finalUrl = url;
@@ -96,11 +96,14 @@ export class URL {
       finalUrl += url;
     }
 
-    // eslint-disable-next-line
-    const result = /((?:blob|file):)?(https?\:)\/\/(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/.exec(finalUrl);
+    const result =
+      // eslint-disable-next-line
+      /((?:blob|file):)?(https?\:)\/\/(?:(.*):(.*)@)?(([^:\/?#]*)(?:\:([0-9]+))?)([\/]{0,1}[^?#]*)(\?[^#]*|)(#.*|)$/.exec(
+        finalUrl,
+      );
 
     if (result) {
-      const [href, origin, protocol, host, hostname, port, pathname, search, hash] = result;
+      const [href, origin, protocol, username, password, host, hostname, port, pathname, search, hash] = result;
 
       this.hash = hash;
       this.host = host;
@@ -111,11 +114,13 @@ export class URL {
         this.origin = protocol + '//' + hostname;
       }
 
+      this.password = password;
       this.pathname = pathname;
       this.port = port;
       this.protocol = protocol;
       this.search = search;
       this.searchParams = new URLSearchParams(search);
+      this.username = username;
     }
   }
 
