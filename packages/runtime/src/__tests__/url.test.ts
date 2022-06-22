@@ -1,5 +1,109 @@
-import { describe, expect, it } from 'vitest';
-import { URL } from '../runtime/URL';
+import { describe, expect, it, vi } from 'vitest';
+import { URL, URLSearchParams } from '../runtime/URL';
+
+describe('URLSearchParams', () => {
+  describe('instanciate', () => {
+    it('should instanciate without init', () => {
+      expect(new URLSearchParams().toString()).toEqual('');
+    });
+
+    it('should instanciate with init as string', () => {
+      expect(new URLSearchParams('a=b&c=d').toString()).toEqual('a=b&c=d');
+    });
+
+    it('should instanciate with init as string with ?', () => {
+      expect(new URLSearchParams('?a=b&c=d').toString()).toEqual('a=b&c=d');
+    });
+
+    it.todo('should instanciate with init as object', () => {
+      // expect(new URLSearchParams({ a: 'b', c: 'd' }).toString()).toEqual('a=b&c=d');
+    });
+
+    it.todo('should instanciate with init as array', () => {
+      // expect(new URLSearchParams([["a", "b"], ["c", "d"]]).toString()).toEqual('a=b&c=d');
+    });
+  });
+
+  it('should append', () => {
+    const params = new URLSearchParams();
+    params.append('a', 'b');
+    params.append('c', 'd');
+    expect(params.toString()).toEqual('a=b&c=d');
+  });
+
+  it('should delete', () => {
+    const params = new URLSearchParams('a=b&c=d');
+    params.delete('a');
+    expect(params.toString()).toEqual('c=d');
+  });
+
+  it('should return entries', () => {
+    const params = new URLSearchParams('a=b&c=d');
+    expect(Array.from(params.entries())).toEqual([
+      ['a', 'b'],
+      ['c', 'd'],
+    ]);
+  });
+
+  it('should call forEach', () => {
+    const params = new URLSearchParams('a=b&c=d');
+    const callback = vi.fn();
+    params.forEach(callback);
+    expect(callback).toHaveBeenCalledTimes(2);
+    expect(callback).toHaveBeenCalledWith('b', 'a', params);
+    expect(callback).toHaveBeenCalledWith('d', 'c', params);
+  });
+
+  it('should get', () => {
+    const params = new URLSearchParams('a=b&c=d');
+    expect(params.get('a')).toEqual('b');
+    expect(params.get('c')).toEqual('d');
+    expect(params.get('e')).toBeUndefined();
+  });
+
+  it.todo('should getAll', () => {
+    // TODO
+  });
+
+  it('should has', () => {
+    const params = new URLSearchParams('a=b&c=d');
+    expect(params.has('a')).toBeTruthy();
+    expect(params.has('c')).toBeTruthy();
+    expect(params.has('e')).toBeFalsy();
+  });
+
+  it('should return keys', () => {
+    const params = new URLSearchParams('a=b&c=d');
+    expect(Array.from(params.keys())).toEqual(['a', 'c']);
+  });
+
+  describe('set', () => {
+    it('should set without init', () => {
+      const params = new URLSearchParams();
+      params.set('a', 'b');
+      params.set('c', 'd');
+      expect(params.toString()).toEqual('a=b&c=d');
+    });
+
+    it('should set with init', () => {
+      const params = new URLSearchParams('a=b&c=d');
+      params.set('a', 'e');
+      params.set('c', 'f');
+      expect(params.toString()).toEqual('a=e&c=f');
+    });
+  });
+
+  it.todo('should sort', () => {
+    const params = new URLSearchParams('c=d&a=b');
+    params.sort();
+    expect(params.toString()).toEqual('a=b&c=d');
+  });
+
+  it('should return values', () => {
+    const params = new URLSearchParams('a=b&c=d');
+    expect(Array.from(params.values())).toEqual(['b', 'd']);
+  });
+});
 
 describe('URL', () => {
   describe('base url', () => {
@@ -103,8 +207,10 @@ describe('URL', () => {
   });
 
   describe('searchParams', () => {
-    it.todo('should return the searchParams', () => {
-      // expect(new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/protocol').searchParams).toEqual('https:');
+    it('should return the searchParams', () => {
+      const { searchParams } = new URL('https://example.com/?name=Jonathan%20Smith&age=18');
+      expect(searchParams?.get('name')).toEqual('Jonathan%20Smith');
+      expect(searchParams?.get('age')).toEqual('18');
     });
   });
 

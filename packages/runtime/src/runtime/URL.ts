@@ -1,3 +1,73 @@
+export class URLSearchParams {
+  private params: Map<string, string> = new Map();
+
+  constructor(init?: string) {
+    if (init) {
+      init
+        .replace('?', '')
+        .split('&')
+        .forEach(entry => {
+          const [key, value] = entry.split('=');
+
+          this.params.set(key, value);
+        });
+    }
+  }
+
+  append(name: string, value: string) {
+    this.params.set(name, value);
+  }
+
+  delete(name: string) {
+    this.params.delete(name);
+  }
+
+  entries(): IterableIterator<[string, string]> {
+    return this.params.entries();
+  }
+
+  forEach(callback: (value: string, key: string, parent: URLSearchParams) => void, thisArg?: any) {
+    this.params.forEach((value, key) => {
+      callback.call(thisArg, value, key, this);
+    });
+  }
+
+  get(name: string): string | undefined {
+    return this.params.get(name);
+  }
+
+  getAll(name: string): string[] | undefined {
+    // TODO
+    return [];
+  }
+
+  has(name: string): boolean {
+    return this.params.has(name);
+  }
+
+  keys(): IterableIterator<string> {
+    return this.params.keys();
+  }
+
+  set(name: string, value: string) {
+    this.params.set(name, value);
+  }
+
+  sort() {
+    // TODO
+  }
+
+  toString(): string {
+    return Array.from(this.params.entries())
+      .map(([key, value]) => `${key}=${value}`)
+      .join('&');
+  }
+
+  values(): IterableIterator<string> {
+    return this.params.values();
+  }
+}
+
 export class URL {
   public hash = '';
   public host = '';
@@ -9,7 +79,7 @@ export class URL {
   public port = '';
   public protocol = '';
   public search = '';
-  // public searchParams: any;
+  public searchParams: URLSearchParams | null = null;
   // public username = '';
 
   constructor(url: string, base?: string) {
@@ -40,6 +110,7 @@ export class URL {
       this.port = port;
       this.protocol = protocol;
       this.search = search;
+      this.searchParams = new URLSearchParams(this.search);
     }
   }
 

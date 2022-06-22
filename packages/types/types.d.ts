@@ -42,6 +42,22 @@ declare class Response {
 }
 
 
+declare class URLSearchParams {
+    private params;
+    constructor(init?: string);
+    append(name: string, value: string): void;
+    delete(name: string): void;
+    entries(): IterableIterator<[string, string]>;
+    forEach(callback: (value: string, key: string, parent: URLSearchParams) => void, thisArg?: any): void;
+    get(name: string): string | undefined;
+    getAll(name: string): string[] | undefined;
+    has(name: string): boolean;
+    keys(): IterableIterator<string>;
+    set(name: string, value: string): void;
+    sort(): void;
+    toString(): string;
+    values(): IterableIterator<string>;
+}
 declare class URL {
     hash: string;
     host: string;
@@ -51,6 +67,7 @@ declare class URL {
     port: string;
     protocol: string;
     search: string;
+    searchParams: URLSearchParams | null;
     constructor(url: string, base?: string);
     toString(): string;
 }
