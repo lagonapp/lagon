@@ -39,4 +39,22 @@ describe('base64', () => {
 
     clearCache(deployment);
   });
+
+  it('should decode with btoa', async () => {
+    const deployment = getDeployment();
+    const runIsolate = await getIsolate({
+      deployment,
+      getDeploymentCode: async () => `export function handler(request) {
+  const encoded = atob("Hello World")
+  const result = btoa(encoded)
+  return new Response(result);
+}`,
+    });
+
+    const { response } = await runIsolate(request);
+
+    expect(response.body).toEqual('HelloWorlQ==');
+
+    clearCache(deployment);
+  });
 });
