@@ -45,6 +45,7 @@ declare class Response {
 declare class URLSearchParams {
     private params;
     constructor(init?: string | Record<string, string> | string[][]);
+    private addValue;
     append(name: string, value: string): void;
     delete(name: string): void;
     entries(): IterableIterator<[string, string]>;

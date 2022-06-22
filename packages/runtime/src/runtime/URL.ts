@@ -1,5 +1,5 @@
 export class URLSearchParams {
-  private params: Map<string, string> = new Map();
+  private params: Map<string, string[]> = new Map();
 
   constructor(init?: string | Record<string, string> | string[][]) {
     if (init) {
@@ -10,47 +10,62 @@ export class URLSearchParams {
           .forEach(entry => {
             const [key, value] = entry.split('=');
 
-            this.params.set(key, value);
+            this.addValue(key, value);
           });
       } else if (typeof init === 'object') {
         if (Array.isArray(init)) {
           init.forEach(([key, value]) => {
-            this.params.set(key, value);
+            this.addValue(key, value);
           });
         } else {
           Object.entries(init).forEach(([key, value]) => {
-            this.params.set(key, value);
+            this.addValue(key, value);
           });
         }
       }
     }
   }
 
+  private addValue(name: string, value: string) {
+    const values = this.params.get(name);
+
+    if (values) {
+      values.push(value);
+    } else {
+      this.params.set(name, [value]);
+    }
+  }
+
   append(name: string, value: string) {
-    this.params.set(name, value);
+    this.addValue(name, value);
   }
 
   delete(name: string) {
     this.params.delete(name);
   }
 
-  entries(): IterableIterator<[string, string]> {
-    return this.params.entries();
+  *entries(): IterableIterator<[string, string]> {
+    for (const [key, values] of this.params) {
+      for (const value of values) {
+        yield [key, value];
+      }
+    }
   }
 
   forEach(callback: (value: string, key: string, parent: URLSearchParams) => void, thisArg?: any) {
-    this.params.forEach((value, key) => {
-      callback.call(thisArg, value, key, this);
+    this.params.forEach((values, key) => {
+      values.forEach(value => {
+        callback.call(thisArg, value, key, this);
+      });
     });
   }
 
   get(name: string): string | undefined {
-    return this.params.get(name);
+    return this.params.get(name)?.[0];
   }
 
   getAll(name: string): string[] | undefined {
-    // TODO
-    return [];
+    return this.params.get(name);
   }
 
   has(name: string): boolean {
@@ -62,11 +77,11 @@ export class URLSearchParams {
   }
 
   set(name: string, value: string) {
-    this.params.set(name, value);
+    this.params.set(name, [value]);
   }
 
   sort() {
-    // TODO
+    this.params = new Map([...this.params].sort());
   }
 
   toString(): string {
@@ -75,8 +90,12 @@ export class URLSearchParams {
       .join('&');
   }
 
-  values(): IterableIterator<string> {
-    return this.params.values();
+  *values(): IterableIterator<string> {
+    for (const [, values] of this.params) {
+      for (const value of values) {
+        yield value;
+      }
+    }
   }
 }
 

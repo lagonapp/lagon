@@ -66,8 +66,10 @@ describe('URLSearchParams', () => {
     expect(params.get('e')).toBeUndefined();
   });
 
-  it.todo('should getAll', () => {
-    // TODO
+  it('should getAll', () => {
+    const params = new URLSearchParams('foo=1&bar=2');
+    params.append('foo', '3');
+    expect(params.getAll('foo')).toEqual(['1', '3']);
   });
 
   it('should has', () => {
@@ -98,7 +100,7 @@ describe('URLSearchParams', () => {
     });
   });
 
-  it.todo('should sort', () => {
+  it('should sort', () => {
     const params = new URLSearchParams('c=d&a=b');
     params.sort();
     expect(params.toString()).toEqual('a=b&c=d');
