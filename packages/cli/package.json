@@ -2,5 +2,17 @@
   "name": "@lagon/cli",
   "version": "0.0.1",
   "description": "CLI for Lagon",
-  "type": "module"
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "watch": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm --watch",
+    "build": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm"
+  },
+  "dependencies": {
+    "chalk": "^5.0.1",
+    "commander": "^9.3.0",
+    "inquirer": "^9.0.0"
+  }
 }
