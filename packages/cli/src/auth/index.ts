@@ -5,6 +5,7 @@ import os from 'node:os';
 const AUTH_FILE = path.join(os.homedir(), '.lagon', 'auth');
 const KEY = 'token';
 
+export let authToken = '';
 export let isLoggedIn = false;
 
 export function deleteAuthFile() {
@@ -30,6 +31,7 @@ export function checkLoggedIn() {
     throw new Error('Auth file is invalid. Please log in again.');
   }
 
+  authToken = token;
   isLoggedIn = true;
 }
 
