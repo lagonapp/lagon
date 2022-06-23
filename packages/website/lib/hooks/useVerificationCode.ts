@@ -7,7 +7,9 @@ const useVerificationCode = () => {
     data: { user },
   } = useSession();
 
-  return useSWR<GetVerificationCodeResponse>(`/api/cli/verification-code?userId=${user.id}`);
+  return useSWR<GetVerificationCodeResponse>(`/api/cli/verification-code?userId=${user.id}`, {
+    refreshInterval: 1000,
+  });
 };
 
 export default useVerificationCode;

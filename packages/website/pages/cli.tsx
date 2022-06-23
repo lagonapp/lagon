@@ -1,14 +1,9 @@
-import { useRouter } from 'next/router';
 import Layout from 'lib/Layout';
-import { useSession } from 'next-auth/react';
 import Button from 'lib/components/Button';
 import Text from 'lib/components/Text';
 import useVerificationCode from 'lib/hooks/useVerificationCode';
 
 const CLI = () => {
-  const router = useRouter();
-  const { data: session } = useSession();
-
   const {
     data: { code },
   } = useVerificationCode();

@@ -53,5 +53,5 @@ export async function login() {
   const { token } = json;
 
   setAuthFile(token);
-  logSuccess('Logged in successfully.');
+  logSuccess('Logged in successfully. You can now clone the browser tab.');
 }

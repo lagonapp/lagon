@@ -20,6 +20,15 @@ const post = async (request: NextApiRequest, response: NextApiResponse) => {
     return;
   }
 
+  await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      verificationCode: null,
+    },
+  });
+
   let token = await prisma.token.findFirst({
     where: {
       userId: user.id,
