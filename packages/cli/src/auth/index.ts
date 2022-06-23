@@ -12,6 +12,7 @@ export function deleteAuthFile() {
 }
 
 export function setAuthFile(token: string) {
+  fs.mkdirSync(path.dirname(AUTH_FILE), { recursive: true });
   fs.writeFileSync(AUTH_FILE, `${KEY}=${token}`);
 }
 

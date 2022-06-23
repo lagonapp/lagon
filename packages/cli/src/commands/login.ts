@@ -30,7 +30,7 @@ export async function login() {
 
   const { code } = answers;
 
-  const response = await fetch(`${API_URL}/organizations/cli`, {
+  const response = await fetch(`${API_URL}/cli/authenticate`, {
     method: 'POST',
     body: JSON.stringify({
       code,

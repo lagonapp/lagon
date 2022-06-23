@@ -7,30 +7,28 @@ export type GetVerificationCodeResponse = {
 };
 
 const get = async (request: NextApiRequest, response: NextApiResponse<GetVerificationCodeResponse>) => {
-  const organizationId = request.query.organizationId as string;
+  const userId = request.query.userId as string;
 
-  const organization = await prisma.organization.findFirst({
+  const user = await prisma.user.findFirst({
     where: {
-      id: organizationId,
+      id: userId,
     },
     select: {
+      id: true,
       verificationCode: true,
     },
   });
 
-  let verificationCode: string | null = organization.verificationCode;
+  let verificationCode: string | null = user.verificationCode;
 
-  if (!organization.verificationCode) {
+  if (!verificationCode) {
     verificationCode = (
-      await prisma.organization.update({
+      await prisma.user.update({
         where: {
-          id: organizationId,
+          id: user.id,
         },
         data: {
           verificationCode: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
-        },
-        select: {
-          verificationCode: true,
         },
       })
     ).verificationCode;

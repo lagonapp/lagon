@@ -1,15 +1,13 @@
 import { useSession } from 'next-auth/react';
-import { GetVerificationCodeResponse } from 'pages/api/organizations/[organizationId]/cli';
+import { GetVerificationCodeResponse } from 'pages/api/cli/verification-code';
 import useSWR from 'swr';
 
 const useVerificationCode = () => {
   const {
-    data: {
-      organization: { id },
-    },
+    data: { user },
   } = useSession();
 
-  return useSWR<GetVerificationCodeResponse>(`/api/organizations/${id}/cli`);
+  return useSWR<GetVerificationCodeResponse>(`/api/cli/verification-code?userId=${user.id}`);
 };
 
 export default useVerificationCode;

@@ -5,22 +5,45 @@ import prisma from 'lib/prisma';
 const post = async (request: NextApiRequest, response: NextApiResponse) => {
   const { code } = JSON.parse(request.body) as { code: string };
 
-  const organization = await prisma.organization.findFirst({
+  const user = await prisma.user.findFirst({
     where: {
       verificationCode: code,
     },
     select: {
       id: true,
+      currentOrganizationId: true,
     },
   });
 
-  if (!organization) {
+  if (!user) {
     response.json({ error: 'Invalid verification code' });
     return;
   }
 
-  // TODO: return generated token
-  response.json({ token: organization.id });
+  let token = await prisma.token.findFirst({
+    where: {
+      userId: user.id,
+      organizationId: user.currentOrganizationId,
+    },
+    select: {
+      value: true,
+    },
+  });
+
+  if (!token) {
+    token = await prisma.token.create({
+      data: {
+        value: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+        userId: user.id,
+        organizationId: user.currentOrganizationId,
+      },
+      select: {
+        value: true,
+      },
+    });
+  }
+
+  response.json({ token: token.value });
 };
 
 const handler = async (request: NextApiRequest, response: NextApiResponse) => {
