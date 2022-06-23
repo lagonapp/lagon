@@ -63,10 +63,9 @@ export async function deploy({ file, prod }: { file: string; prod: boolean }) {
       body: JSON.stringify({
         name,
         domains: [],
-        memory: 128,
-        timeout: 50,
         env: [],
         code,
+        shouldTransformCode: false,
       }),
     });
 
