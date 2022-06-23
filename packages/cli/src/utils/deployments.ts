@@ -2,18 +2,34 @@ import fs from 'node:fs';
 import { transform } from 'esbuild';
 import path from 'node:path';
 
+const CONFIG_DIRECTORY = path.join(process.cwd(), '.lagon');
+
 export type DeploymentConfig = {
   functionId: string;
 };
 
-export function getDeploymentConfig(directory: string): DeploymentConfig | undefined {
-  const configPath = path.join(directory, '.lagon');
-
-  if (!fs.existsSync(configPath)) {
+export function getDeploymentConfig(file: string): DeploymentConfig | undefined {
+  if (!fs.existsSync(CONFIG_DIRECTORY)) {
     return undefined;
   }
 
-  return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  const configFile = path.join(CONFIG_DIRECTORY, path.basename(file) + '.json');
+
+  if (!fs.existsSync(configFile)) {
+    return undefined;
+  }
+
+  return JSON.parse(fs.readFileSync(configFile, 'utf8'));
+}
+
+export function writeDeploymentConfig(file: string, deploymentConfig: DeploymentConfig) {
+  if (!fs.existsSync(CONFIG_DIRECTORY)) {
+    fs.mkdirSync(CONFIG_DIRECTORY);
+  }
+
+  const configFile = path.join(CONFIG_DIRECTORY, path.basename(file) + '.json');
+
+  fs.writeFileSync(configFile, JSON.stringify(deploymentConfig));
 }
 
 export async function bundleFunction(file: string): Promise<string> {

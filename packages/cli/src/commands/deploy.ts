@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { bundleFunction, getDeploymentConfig } from '../utils/deployments';
+import { bundleFunction, getDeploymentConfig, writeDeploymentConfig } from '../utils/deployments';
 import { logDebug, logError, logInfo, logSuccess } from '../utils/logger';
 import inquirer from 'inquirer';
 import fetch from 'node-fetch';
@@ -38,17 +38,11 @@ export async function deploy({ file, prod }: { file: string; prod: boolean }) {
       return;
     }
 
-    const { name, description } = await inquirer.prompt([
+    const { name } = await inquirer.prompt([
       {
         type: 'input',
         name: 'name',
         message: 'What is the name of the function?',
-      },
-      {
-        type: 'input',
-        name: 'description',
-        message: 'What is the description of the function?',
-        default: '',
       },
     ]);
 
@@ -69,9 +63,25 @@ export async function deploy({ file, prod }: { file: string; prod: boolean }) {
       }),
     });
 
-    const func = await response.json();
-    console.log(func);
+    const func = (await response.json()) as { id: string };
 
     logSuccess(`Function ${name} created.`);
+
+    writeDeploymentConfig(fileToDeploy, { functionId: func.id });
+    return;
   }
+
+  const code = await bundleFunction(fileToDeploy);
+  await fetch(`${API_URL}/organizations/cl3ssm9ai2428qemlfww9on2t/functions/${config.functionId}/deploy`, {
+    method: 'POST',
+    headers: {
+      'x-lagon-token': authToken,
+    },
+    body: JSON.stringify({
+      code,
+      shouldTransformCode: false,
+    }),
+  });
+
+  logSuccess(`Function deployed.`);
 }
