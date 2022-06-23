@@ -62,6 +62,7 @@ model Organization {
 
   name String
   description String?
+  verificationCode String?
 
   owner User @relation(fields: [ownerId], references: [id])
   ownerId String

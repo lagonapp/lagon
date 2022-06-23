@@ -7,6 +7,14 @@ const KEY = 'token';
 
 export let isLoggedIn = false;
 
+export function deleteAuthFile() {
+  fs.rmSync(AUTH_FILE);
+}
+
+export function setAuthFile(token: string) {
+  fs.writeFileSync(AUTH_FILE, `${KEY}=${token}`);
+}
+
 export function checkLoggedIn() {
   if (!fs.existsSync(AUTH_FILE)) {
     return;
@@ -16,10 +24,14 @@ export function checkLoggedIn() {
   const [key, token] = content.split('=');
 
   if (!key || key !== KEY || !token) {
-    fs.rmSync(AUTH_FILE);
+    deleteAuthFile();
 
     throw new Error('Auth file is invalid. Please log in again.');
   }
 
   isLoggedIn = true;
 }
+
+// export function warnIfNotLoggedIn() {
+//   logWarn('You are not logged in. Run `lagon login` to log in.');
+// }

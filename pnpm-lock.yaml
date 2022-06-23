@@ -36,13 +36,20 @@ importers:
 
   packages/cli:
     specifiers:
+      '@types/inquirer': ^8.2.1
       chalk: ^5.0.1
       commander: ^9.3.0
       inquirer: ^9.0.0
+      node-fetch: ^3.2.6
+      open: ^8.4.0
     dependencies:
       chalk: 5.0.1
       commander: 9.3.0
       inquirer: 9.0.0
+      node-fetch: 3.2.6
+      open: 8.4.0
+    devDependencies:
+      '@types/inquirer': 8.2.1
 
   packages/runtime:
     specifiers:
@@ -5155,6 +5162,13 @@ packages:
     resolution: {integrity: sha512-oh/6byDPnL1zeNXFrDXFLyZjkr1MsBG667IM792caf1L2UPOOMf65NFzjUH/ltyfwjAGfs1rsX1eftK0jC/KIg==}
     dev: true
 
+  /@types/inquirer/8.2.1:
+    resolution: {integrity: sha512-wKW3SKIUMmltbykg4I5JzCVzUhkuD9trD6efAmYgN2MrSntY0SMRQzEnD3mkyJ/rv9NLbTC7g3hKKE86YwEDLw==}
+    dependencies:
+      '@types/through': 0.0.30
+      rxjs: 7.5.5
+    dev: true
+
   /@types/is-function/1.0.1:
     resolution: {integrity: sha512-A79HEEiwXTFtfY+Bcbo58M2GRYzCr9itHWzbzHVFNEYCcoU/MMGwYYf721gBrnhpj1s6RGVVha/IgNFnR0Iw/Q==}
     dev: true
@@ -5287,6 +5301,12 @@ packages:
 
   /@types/tapable/1.0.8:
     resolution: {integrity: sha512-ipixuVrh2OdNmauvtT51o3d8z12p6LtFW9in7U79der/kwejjdNchQC5UMn5u/KxNoM7VHHOs/l8KS8uHxhODQ==}
+    dev: true
+
+  /@types/through/0.0.30:
+    resolution: {integrity: sha512-FvnCJljyxhPM3gkRgWmxmDZyAQSiBQQWLI0A0VFL0K7W1oRUrPJSqNO0NvTnLkBcotdlp3lKvaT0JrnyRDkzOg==}
+    dependencies:
+      '@types/node': 17.0.35
     dev: true
 
   /@types/uglify-js/3.13.2:
@@ -7728,7 +7748,6 @@ packages:
   /data-uri-to-buffer/4.0.0:
     resolution: {integrity: sha512-Vr3mLBA8qWmcuschSLAOogKgQ/Jwxulv3RNE4FXnYWRGujzrRWQI4m12fQqRkwX06C0KanhLr4hK+GydchZsaA==}
     engines: {node: '>= 12'}
-    dev: true
 
   /date-fns/2.28.0:
     resolution: {integrity: sha512-8d35hViGYx/QH0icHYCeLmsLmMUheMmTyV9Fcm6gvNwdw31yXXH+O85sOBJ+OLnLQMKZowvpKb6FgMIQjcpvQw==}
@@ -7847,7 +7866,6 @@ packages:
   /define-lazy-prop/2.0.0:
     resolution: {integrity: sha512-Ds09qNh8yw3khSjiJjiUInaGX9xlqZDY7JVryGxdxV7NPeuqQfplOpQ66yJFZut3jLa5zOwkXw1g9EI2uKh4Og==}
     engines: {node: '>=8'}
-    dev: true
 
   /define-properties/1.1.4:
     resolution: {integrity: sha512-uckOqKcfaVvtBdsVkdPv3XjveQJsNQqmhXgRi8uhvWWuPYZCNlzT8qAyblUgNoXdHdjMTzAqeGjAoli8f+bzPA==}
@@ -9148,7 +9166,6 @@ packages:
     dependencies:
       node-domexception: 1.0.0
       web-streams-polyfill: 3.2.1
-    dev: true
 
   /fetch-retry/5.0.2:
     resolution: {integrity: sha512-57Hmu+1kc6pKFUGVIobT7qw3NeAzY/uNN26bSevERLVvf6VGFR/ooDCOFBHMNDgAxBiU2YJq1D0vFzc6U1DcPw==}
@@ -9465,7 +9482,6 @@ packages:
     engines: {node: '>=12.20.0'}
     dependencies:
       fetch-blob: 3.1.5
-    dev: true
 
   /forwarded/0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
@@ -10530,7 +10546,6 @@ packages:
     resolution: {integrity: sha512-F+i2BKsFrH66iaUFc0woD8sLy8getkwTwtOBjvs56Cx4CgJDeKQeqfz8wAYiSb8JOprWhHH5p77PbmYCvvUuXQ==}
     engines: {node: '>=8'}
     hasBin: true
-    dev: true
 
   /is-dom/1.1.0:
     resolution: {integrity: sha512-u82f6mvhYxRPKpw8V1N0W8ce1xXwOrQtgGcxl6UCL5zBmZu3is/18K0rR7uFCnMDuAsS/3W54mGL4vsaFUQlEQ==}
@@ -10770,7 +10785,6 @@ packages:
     engines: {node: '>=8'}
     dependencies:
       is-docker: 2.2.1
-    dev: true
 
   /is-yarn-global/0.3.0:
     resolution: {integrity: sha512-VjSeb/lHmkoyd8ryPVIKvOCn4D1koMqY+vqyjjUfc3xyKtP4dYOxM44sZrnqQSzSds3xyOrUTLTC9LVCVgLngw==}
@@ -11981,7 +11995,6 @@ packages:
   /node-domexception/1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
-    dev: true
 
   /node-fetch/2.6.7:
     resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==}
@@ -12001,7 +12014,6 @@ packages:
       data-uri-to-buffer: 4.0.0
       fetch-blob: 3.1.5
       formdata-polyfill: 4.0.10
-    dev: true
 
   /node-int64/0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
@@ -12315,7 +12327,6 @@ packages:
       define-lazy-prop: 2.0.0
       is-docker: 2.2.1
       is-wsl: 2.2.0
-    dev: true
 
   /openid-client/5.1.6:
     resolution: {integrity: sha512-HTFaXWdUHvLFw4GaEMgC0jXYBgpjgzQQNHW1pZsSqJorSgrXzxJ+4u/LWCGaClDEse5HLjXRV+zU5Bn3OefiZw==}
@@ -15844,7 +15855,6 @@ packages:
   /web-streams-polyfill/3.2.1:
     resolution: {integrity: sha512-e0MO3wdXWKrLbL0DgGnUV7WHVuw9OUvL4hjgnPkIeEvESk74gAITi5G606JtZPp39cd8HA9VQzCIvA49LpPN5Q==}
     engines: {node: '>= 8'}
-    dev: true
 
   /webidl-conversions/3.0.1:
     resolution: {integrity: sha1-JFNCdeKnvGvnvIZhHMFq4KVlSHE=}
