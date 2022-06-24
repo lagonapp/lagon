@@ -36,6 +36,12 @@ export function writeDeploymentConfig(file: string, deploymentConfig: Deployment
   fs.writeFileSync(configFile, JSON.stringify(deploymentConfig));
 }
 
+export function removeDeploymentFile(file: string) {
+  const configFile = path.join(CONFIG_DIRECTORY, path.basename(file) + '.json');
+
+  fs.rmSync(configFile);
+}
+
 export async function bundleFunction(file: string): Promise<string> {
   const code = fs.readFileSync(file, 'utf-8');
 
@@ -84,4 +90,13 @@ export async function createFunction(name: string, organizationId: string, file:
   }).then(response => response.json())) as { id: string };
 
   return func;
+}
+
+export async function deleteFunction(functionId: string, organizationId: string) {
+  await fetch(`${API_URL}/organizations/${organizationId}/functions/${functionId}`, {
+    method: 'DELETE',
+    headers: {
+      'x-lagon-token': authToken,
+    },
+  });
 }

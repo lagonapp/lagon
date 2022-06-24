@@ -7,7 +7,7 @@ import fetch from 'node-fetch';
 import { API_URL, SUPPORTED_EXTENSIONS } from '../utils/constants';
 import { authToken } from '../auth';
 
-export async function deploy({ file, prod }: { file: string; prod: boolean }) {
+export async function deploy(file: string) {
   const fileToDeploy = path.join(process.cwd(), file);
 
   if (!fs.existsSync(fileToDeploy) || fs.statSync(fileToDeploy).isDirectory()) {
