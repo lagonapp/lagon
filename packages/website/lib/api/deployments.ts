@@ -31,6 +31,7 @@ export async function createDeployment(
   },
   code: string,
   shouldTransformCode: boolean,
+  triggerer,
 ): Promise<{
   id: string;
   createdAt: Date;
@@ -42,6 +43,7 @@ export async function createDeployment(
     data: {
       isCurrent: true,
       functionId: func.id,
+      triggerer,
     },
     select: {
       id: true,

@@ -44,7 +44,7 @@ const post = async (request: NextApiRequest, response: NextApiResponse<CreateDep
 
   await removeCurrentDeployment(func.id);
 
-  const deployment = await createDeployment(func, code, shouldTransformCode);
+  const deployment = await createDeployment(func, code, shouldTransformCode, request.user.email);
 
   response.json(deployment);
 };

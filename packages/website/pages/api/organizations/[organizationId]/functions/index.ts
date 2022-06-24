@@ -17,6 +17,8 @@ export type GetFunctionsResponse = {
   deployments: {
     id: string;
     isCurrent: boolean;
+    triggerer: string;
+    commit?: string;
     createdAt: Date;
     updatedAt: Date;
   }[];
@@ -60,11 +62,16 @@ const get = async (request: NextApiRequest, response: NextApiResponse<GetFunctio
       deployments: {
         select: {
           id: true,
+          triggerer: true,
+          commit: true,
           isCurrent: true,
           createdAt: true,
           updatedAt: true,
         },
       },
+    },
+    orderBy: {
+      updatedAt: 'asc',
     },
   });
 
@@ -106,7 +113,7 @@ const post = async (request: NextApiRequest, response: NextApiResponse<CreateFun
     },
   });
 
-  const deployment = await createDeployment(func, code, shouldTransformCode);
+  const deployment = await createDeployment(func, code, shouldTransformCode, request.user.email);
 
   response.json({ ...func, deployment });
 };

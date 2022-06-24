@@ -68,45 +68,59 @@ const FunctionDeployments = ({ func }: FunctionDeploymentsProps) => {
 
         return (
           <Card key={deployment.id}>
-            <Text>{deployment.isCurrent ? 'CURRENT' : ''}</Text>
-            <Link href={getFullCurrentDomain({ name: deployment.id })} target="_blank">
-              {getCurrentDomain({ name: deployment.id })}
-            </Link>
-            <Text>
-              {date.toLocaleString('en-US', {
-                minute: 'numeric',
-                hour: 'numeric',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </Text>
-            {!deployment.isCurrent ? (
-              <>
-                <Dialog
-                  title="Delete Deployment"
-                  description="Are you sure you want to delete this Deployment?"
-                  disclosure={<Button>Delete</Button>}
-                >
-                  <Dialog.Buttons>
-                    <Dialog.Cancel />
-                    <Dialog.Action variant="danger" onClick={() => deleteDeployment(deployment)}>
-                      Delete
-                    </Dialog.Action>
-                  </Dialog.Buttons>
-                </Dialog>
-                <Dialog
-                  title="Rollback Deployment"
-                  description="Are you sure you want to rollback to this Deployment?"
-                  disclosure={<Button>Rollback</Button>}
-                >
-                  <Dialog.Buttons>
-                    <Dialog.Cancel />
-                    <Dialog.Action onClick={() => rollbackDeployment(deployment)}>Rollback</Dialog.Action>
-                  </Dialog.Buttons>
-                </Dialog>
-              </>
-            ) : null}
+            <div className="relative flex justify-between items-center">
+              {deployment.isCurrent ? (
+                <span className="absolute -top-5 -left-5 text-xs bg-blue-500 text-white px-1 rounded">
+                  Current deployment
+                </span>
+              ) : null}
+              <div className="w-1/3">
+                <Link href={getFullCurrentDomain({ name: deployment.id })} target="_blank">
+                  {getCurrentDomain({ name: deployment.id })}
+                </Link>
+                <Text size="sm">
+                  {date.toLocaleString('en-US', {
+                    minute: 'numeric',
+                    hour: 'numeric',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </Text>
+              </div>
+              <div>
+                <Text>{deployment.commit || 'No commit linked'}</Text>
+                <Text>By: {deployment.triggerer}</Text>
+              </div>
+              <div className="flex gap-2 justify-end w-1/3">
+                {!deployment.isCurrent ? (
+                  <>
+                    <Dialog
+                      title="Rollback Deployment"
+                      description="Are you sure you want to rollback to this Deployment?"
+                      disclosure={<Button>Rollback</Button>}
+                    >
+                      <Dialog.Buttons>
+                        <Dialog.Cancel />
+                        <Dialog.Action onClick={() => rollbackDeployment(deployment)}>Rollback</Dialog.Action>
+                      </Dialog.Buttons>
+                    </Dialog>
+                    <Dialog
+                      title="Delete Deployment"
+                      description="Are you sure you want to delete this Deployment?"
+                      disclosure={<Button variant="danger">Delete</Button>}
+                    >
+                      <Dialog.Buttons>
+                        <Dialog.Cancel />
+                        <Dialog.Action variant="danger" onClick={() => deleteDeployment(deployment)}>
+                          Delete
+                        </Dialog.Action>
+                      </Dialog.Buttons>
+                    </Dialog>
+                  </>
+                ) : null}
+              </div>
+            </div>
           </Card>
         );
       })}
