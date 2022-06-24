@@ -1,12 +1,12 @@
 import { ReactNode } from 'react';
-import { Form as FinalFormForm, FormProps as FinalFormFormProps } from 'react-final-form';
+import { Form as FinalFormForm, FormProps as FinalFormFormProps, FormRenderProps } from 'react-final-form';
 
 type FormProps = {
   initialValues?: FinalFormFormProps['initialValues'];
   onSubmit: FinalFormFormProps['onSubmit'];
   onSubmitSuccess: FinalFormFormProps['onSubmit'];
   onSubmitError: FinalFormFormProps['onSubmit'];
-  children: ReactNode;
+  children: ReactNode | ((handleSubmit: FormRenderProps['handleSubmit']) => ReactNode);
 };
 
 const Form = ({ initialValues, onSubmit, onSubmitSuccess, onSubmitError, children }: FormProps) => {
@@ -22,7 +22,9 @@ const Form = ({ initialValues, onSubmit, onSubmitSuccess, onSubmitError, childre
         }
       }}
     >
-      {({ handleSubmit }) => <form onSubmit={handleSubmit}>{children}</form>}
+      {({ handleSubmit }) => (
+        <form onSubmit={handleSubmit}>{typeof children === 'function' ? children(handleSubmit) : children}</form>
+      )}
     </FinalFormForm>
   );
 };

@@ -9,6 +9,7 @@ import EmptyState from 'lib/components/EmptyState';
 import Link from 'lib/components/Link';
 import Text from 'lib/components/Text';
 import { getCurrentDomain, getFullCurrentDomain } from 'lib/utils';
+import Dialog from 'lib/components/Dialog';
 
 type FunctionDeploymentsProps = {
   func: GetFunctionResponse;
@@ -82,8 +83,28 @@ const FunctionDeployments = ({ func }: FunctionDeploymentsProps) => {
             </Text>
             {!deployment.isCurrent ? (
               <>
-                <Button onClick={() => deleteDeployment(deployment)}>Delete</Button>
-                <Button onClick={() => rollbackDeployment(deployment)}>Rollback</Button>
+                <Dialog
+                  title="Delete Deployment"
+                  description="Are you sure you want to delete this Deployment?"
+                  disclosure={<Button>Delete</Button>}
+                >
+                  <Dialog.Buttons>
+                    <Dialog.Cancel />
+                    <Dialog.Action variant="danger" onClick={() => deleteDeployment(deployment)}>
+                      Delete
+                    </Dialog.Action>
+                  </Dialog.Buttons>
+                </Dialog>
+                <Dialog
+                  title="Rollback Deployment"
+                  description="Are you sure you want to rollback to this Deployment?"
+                  disclosure={<Button>Rollback</Button>}
+                >
+                  <Dialog.Buttons>
+                    <Dialog.Cancel />
+                    <Dialog.Action onClick={() => rollbackDeployment(deployment)}>Rollback</Dialog.Action>
+                  </Dialog.Buttons>
+                </Dialog>
               </>
             ) : null}
           </Card>

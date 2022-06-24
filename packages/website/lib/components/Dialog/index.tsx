@@ -3,23 +3,24 @@ import { ComponentProps, ReactElement, ReactNode } from 'react';
 import Button from '../Button';
 import Text from '../Text';
 
-const Cancel = () => {
+const Cancel = ({ ...props }: Omit<ComponentProps<typeof Button>, 'children'>) => {
   return (
-    <AlertDialog.Cancel>
-      <Button>Cancel</Button>
+    <AlertDialog.Cancel asChild>
+      <Button {...props}>Cancel</Button>
     </AlertDialog.Cancel>
   );
 };
 
 type ActionProps = {
-  variant?: ComponentProps<typeof Button>['variant'];
   children: string;
-};
+} & ComponentProps<typeof Button>;
 
-const Action = ({ variant = 'primary', children }: ActionProps) => {
+const Action = ({ children, variant = 'primary', ...props }: ActionProps) => {
   return (
-    <AlertDialog.Action>
-      <Button variant={variant}>{children}</Button>
+    <AlertDialog.Action asChild>
+      <Button variant={variant} {...props}>
+        {children}
+      </Button>
     </AlertDialog.Action>
   );
 };
@@ -29,7 +30,7 @@ type ButtonsProps = {
 };
 
 const Buttons = ({ children }: ButtonsProps) => {
-  return <div className="flex justify-end items-center mt-4">{children}</div>;
+  return <div className="flex justify-end items-center mt-6 gap-2">{children}</div>;
 };
 
 type DialogProps = {
@@ -44,10 +45,10 @@ const Dialog = ({ title, description, disclosure, children }: DialogProps) => {
     <AlertDialog.Root>
       <AlertDialog.Trigger>{disclosure}</AlertDialog.Trigger>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="bg-gray-900/20 fixed inset-0" />
-        <AlertDialog.Content className="bg-white w-96 p-4 fixed top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] rounded-md shadow-md">
-          <div className="mb-4">
-            <AlertDialog.Title className="mb-1">
+        <AlertDialog.Overlay className="bg-gray-900/40 fixed inset-0" />
+        <AlertDialog.Content className="bg-white w-[28rem] p-4 fixed top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] rounded-md shadow-xl">
+          <div className="mb-6">
+            <AlertDialog.Title className="mb-2">
               <Text size="xl">{title}</Text>
             </AlertDialog.Title>
             {description ? (

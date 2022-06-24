@@ -8,12 +8,15 @@ import Form from 'lib/components/Form';
 import Input from 'lib/components/Input';
 import Layout from 'lib/Layout';
 import { requiredValidator } from 'lib/form/validators';
+import Dialog from 'lib/components/Dialog';
+import { useRouter } from 'next/router';
 
 const Settings = () => {
   const { data: session } = useSession();
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isUpdatingDescription, setIsUpdatingDescription] = useState(false);
   const { mutate } = useSWRConfig();
+  const router = useRouter();
 
   return (
     <Layout title="Settings">
@@ -117,9 +120,31 @@ const Settings = () => {
           title="Delete"
           description="Delete completely this Organization, it's Functions, Deployments and Logs. This action is irreversible."
         >
-          <div>
-            <Button variant="danger">Delete</Button>
-          </div>
+          <Dialog title="Delete Organization" disclosure={<Button variant="danger">Delete</Button>}>
+            <Form
+              // TODO: delete organization
+              onSubmit={async () => null}
+              onSubmitSuccess={() => {
+                toast.success('Organization deleted successfully.');
+                router.push('/');
+              }}
+              onSubmitError={() => {
+                toast.error('An error occured.');
+              }}
+            >
+              {handleSubmit => (
+                <>
+                  <Input name="confirm" placeholder={session.organization.name} />
+                  <Dialog.Buttons>
+                    <Dialog.Cancel />
+                    <Dialog.Action variant="danger" onClick={handleSubmit}>
+                      Delete Organization
+                    </Dialog.Action>
+                  </Dialog.Buttons>
+                </>
+              )}
+            </Form>
+          </Dialog>
         </Card>
       </div>
     </Layout>

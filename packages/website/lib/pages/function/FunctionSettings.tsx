@@ -1,6 +1,6 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 import { useSWRConfig } from 'swr';
 import { GetFunctionResponse } from 'pages/api/organizations/[organizationId]/functions/[functionId]';
@@ -12,6 +12,7 @@ import Text from 'lib/components/Text';
 import { getCurrentDomain } from 'lib/utils';
 import TagsInput from 'lib/components/TagsInput';
 import { cronValidator, requiredValidator } from 'lib/form/validators';
+import Dialog from 'lib/components/Dialog';
 
 type FunctionSettingsProps = {
   func: GetFunctionResponse;
@@ -26,19 +27,6 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const { mutate } = useSWRConfig();
   const router = useRouter();
-
-  const deleteFunction = useCallback(async () => {
-    setIsDeleting(true);
-
-    await fetch(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
-      method: 'DELETE',
-    });
-
-    toast.success('Function deleted successfully.');
-    setIsDeleting(false);
-
-    router.push(`/`);
-  }, [router, func, session.organization.id]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -204,11 +192,51 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
         title="Delete"
         description="Delete completely this Function, it's Deployments and Logs. This action is irreversible."
       >
-        <div>
-          <Button variant="danger" disabled={isDeleting} onClick={deleteFunction}>
-            Delete
-          </Button>
-        </div>
+        <Dialog
+          title="Delete Function"
+          description={`Write this Function's name to confirm deletion: ${func.name}`}
+          disclosure={
+            <Button variant="danger" disabled={isDeleting}>
+              Delete
+            </Button>
+          }
+        >
+          <Form
+            onSubmit={async () => {
+              setIsDeleting(true);
+
+              await fetch(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
+                method: 'DELETE',
+              });
+            }}
+            onSubmitSuccess={() => {
+              toast.success('Organization deleted successfully.');
+              setIsDeleting(false);
+
+              router.push('/');
+            }}
+            onSubmitError={() => {
+              toast.error('An error occured.');
+              setIsDeleting(false);
+            }}
+          >
+            {handleSubmit => (
+              <>
+                <Input
+                  name="confirm"
+                  placeholder={func.name}
+                  validator={value => (value !== func.name ? 'Confirm with the name of this Funtion' : undefined)}
+                />
+                <Dialog.Buttons>
+                  <Dialog.Cancel disabled={isDeleting} />
+                  <Dialog.Action variant="danger" onClick={handleSubmit} disabled={isDeleting}>
+                    Delete Function
+                  </Dialog.Action>
+                </Dialog.Buttons>
+              </>
+            )}
+          </Form>
+        </Dialog>
       </Card>
     </div>
   );
