@@ -1,6 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import os from 'node:os';
+import { logError } from '../utils/logger';
 
 const AUTH_FILE = path.join(os.homedir(), '.lagon', 'auth');
 const KEY = 'token';
@@ -35,6 +36,12 @@ export function checkLoggedIn() {
   isLoggedIn = true;
 }
 
-// export function warnIfNotLoggedIn() {
-//   logWarn('You are not logged in. Run `lagon login` to log in.');
-// }
+export function loggedInGuard<T>(callback: T): T {
+  if (!isLoggedIn) {
+    return (() => {
+      logError('You are not logged in. Run `lagon login` to log in.');
+    }) as unknown as T;
+  }
+
+  return callback;
+}
