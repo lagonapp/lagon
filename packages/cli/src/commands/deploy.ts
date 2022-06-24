@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { bundleFunction, getDeploymentConfig, writeDeploymentConfig } from '../utils/deployments';
-import { logDebug, logError, logInfo, logSuccess } from '../utils/logger';
+import { createDeployment, createFunction, getDeploymentConfig, writeDeploymentConfig } from '../utils/deployments';
+import { logDebug, logError, logSuccess } from '../utils/logger';
 import inquirer from 'inquirer';
 import fetch from 'node-fetch';
 import { API_URL, SUPPORTED_EXTENSIONS } from '../utils/constants';
@@ -27,16 +27,11 @@ export async function deploy({ file, prod }: { file: string; prod: boolean }) {
   if (!config) {
     logDebug('No deployment config found...');
 
-    const { confirm } = await inquirer.prompt({
+    const { link } = await inquirer.prompt({
       type: 'confirm',
-      name: 'confirm',
-      message: `Set up and deploy ${file}?`,
+      name: 'link',
+      message: 'Link to an existing function?',
     });
-
-    if (!confirm) {
-      logInfo('Deployment cancelled.');
-      return;
-    }
 
     const organizations = (await fetch(`${API_URL}/organizations`, {
       headers: {
@@ -44,7 +39,7 @@ export async function deploy({ file, prod }: { file: string; prod: boolean }) {
       },
     }).then(response => response.json())) as { name: string; id: string }[];
 
-    const { name, organization } = await inquirer.prompt([
+    const { organization } = await inquirer.prompt([
       {
         type: 'list',
         name: 'organization',
@@ -54,47 +49,48 @@ export async function deploy({ file, prod }: { file: string; prod: boolean }) {
           value: id,
         })),
       },
-      {
-        type: 'input',
-        name: 'name',
-        message: 'What is the name of the function?',
-      },
     ]);
 
-    logDebug(`Creating function ${name}...`);
+    if (link) {
+      const functions = (await fetch(`${API_URL}/organizations/${organization}/functions`, {
+        headers: {
+          'x-lagon-token': authToken,
+        },
+      }).then(response => response.json())) as { name: string; id: string }[];
 
-    const code = await bundleFunction(fileToDeploy);
-    const func = (await fetch(`${API_URL}/organizations/${organization.id}/functions`, {
-      method: 'POST',
-      headers: {
-        'x-lagon-token': authToken,
-      },
-      body: JSON.stringify({
-        name,
-        domains: [],
-        env: [],
-        code,
-        shouldTransformCode: false,
-      }),
-    }).then(response => response.json())) as { id: string };
+      const { func } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'func',
+          message: 'Select the function to deploy',
+          choices: functions.map(({ name, id }) => ({
+            name,
+            value: id,
+          })),
+        },
+      ]);
 
-    logSuccess(`Function ${name} created.`);
+      createDeployment(func, organization, fileToDeploy);
+      writeDeploymentConfig(fileToDeploy, { functionId: func, organizationId: organization });
+      logSuccess(`Function deployed.`);
+    } else {
+      const { name } = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'name',
+          message: 'What is the name of the function?',
+        },
+      ]);
 
-    writeDeploymentConfig(fileToDeploy, { functionId: func.id, organizationId: organization.id });
+      logDebug(`Creating function ${name}...`);
+      const func = await createFunction(name, organization, fileToDeploy);
+      writeDeploymentConfig(fileToDeploy, { functionId: func.id, organizationId: organization });
+      logSuccess(`Function ${name} created.`);
+    }
+
     return;
   }
 
-  const code = await bundleFunction(fileToDeploy);
-  await fetch(`${API_URL}/organizations/${config.organizationId}/functions/${config.functionId}/deploy`, {
-    method: 'POST',
-    headers: {
-      'x-lagon-token': authToken,
-    },
-    body: JSON.stringify({
-      code,
-      shouldTransformCode: false,
-    }),
-  });
-
+  createDeployment(config.functionId, config.organizationId, fileToDeploy);
   logSuccess(`Function deployed.`);
 }
