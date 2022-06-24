@@ -1,4 +1,4 @@
-import { deleteAuthFile, isLoggedIn, setAuthFile } from '../auth';
+import { isLoggedIn, setAuthFile } from '../auth';
 import open from 'open';
 import inquirer from 'inquirer';
 import { API_URL, SITE_URL } from '../utils/constants';
@@ -7,14 +7,15 @@ import fetch from 'node-fetch';
 
 export async function login() {
   if (isLoggedIn) {
-    const answers = await inquirer.prompt({
+    const { confirm } = await inquirer.prompt({
       type: 'confirm',
-      name: 'logout',
-      message: 'You are already logged in. Do you want to log out?',
+      name: 'confirm',
+      message: 'You are already logged in. Are you sure you want to log in again?',
     });
 
-    if (answers.logout) {
-      deleteAuthFile();
+    if (!confirm) {
+      logError(`Aborted login.`);
+      return;
     }
   }
 
@@ -22,13 +23,11 @@ export async function login() {
 
   await open(`${SITE_URL}/cli`);
 
-  const answers = await inquirer.prompt({
+  const { code } = await inquirer.prompt({
     type: 'input',
     name: 'code',
-    message: 'Please paste the verification code from the browser below:',
+    message: 'Please paste the verification code from the browser:',
   });
-
-  const { code } = answers;
 
   const response = await fetch(`${API_URL}/cli/authenticate`, {
     method: 'POST',
@@ -37,13 +36,10 @@ export async function login() {
     }),
   });
 
-  const json = (await response.json()) as
-    | {
-        token: string;
-      }
-    | {
-        error: string;
-      };
+  const json = (await response.json()) as {
+    token: string;
+    error?: string;
+  };
 
   if (json.error) {
     logError(json.error);

@@ -15,7 +15,7 @@ export async function undeploy(file: string) {
   const config = getDeploymentConfig(fileToDeploy);
 
   if (!config) {
-    logError(`No deployment found for ${file}`);
+    logError(`No deployment found for ${file}.`);
     return;
   }
 
@@ -26,7 +26,7 @@ export async function undeploy(file: string) {
   });
 
   if (!confirm) {
-    logError(`Aborted removal of ${file}`);
+    logError(`Aborted removal of ${file}.`);
     return;
   }
 
