@@ -1,5 +1,6 @@
 import { program } from 'commander';
 import { version } from '../package.json';
+import { loggedInGuard } from './auth';
 import { deploy } from './commands/deploy';
 import { login } from './commands/login';
 import { logout } from './commands/logout';
@@ -13,13 +14,13 @@ export function runCli() {
     .command('deploy')
     .description('Deploy the given file')
     .argument('<file>', 'The file to deploy')
-    .action(deploy);
+    .action(loggedInGuard(deploy));
   program
     .command('remove')
     .alias('rm')
     .description('Undeploy the given file')
     .argument('<file>', 'The file unto deploy')
-    .action(undeploy);
+    .action(loggedInGuard(undeploy));
 
   program.parse();
 }
