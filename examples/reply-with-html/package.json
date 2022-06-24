@@ -1,0 +1,8 @@
+{
+  "name": "@lagon/example-reply-with-html",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@lagon/types": "workspace:^0.0.1"
+  }
+}

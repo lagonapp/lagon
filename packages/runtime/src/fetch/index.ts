@@ -1,3 +1,4 @@
+import https from 'node:https';
 import http from 'node:http';
 import { Headers } from '../runtime/fetch';
 import { RequestInit } from '../runtime/Request';
@@ -22,7 +23,7 @@ export async function fetch(resource: string, init?: RequestInit): Promise<Fetch
       }
     }
 
-    const request = http.request(
+    const request = (resource.startsWith('https') ? https : http).request(
       resource,
       {
         method: init?.method || 'GET',
