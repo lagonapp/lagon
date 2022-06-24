@@ -19,6 +19,8 @@ export type GetFunctionResponse = {
   deployments: {
     id: string;
     isCurrent: boolean;
+    triggerer: string;
+    commit?: string;
     createdAt: Date;
     updatedAt: Date;
   }[];
@@ -50,9 +52,14 @@ const get = async (request: NextApiRequest, response: NextApiResponse<GetFunctio
       deployments: {
         select: {
           id: true,
+          triggerer: true,
+          commit: true,
           isCurrent: true,
           createdAt: true,
           updatedAt: true,
+        },
+        orderBy: {
+          createdAt: 'asc',
         },
       },
     },
@@ -94,6 +101,8 @@ const patch = async (request: NextApiRequest, response: NextApiResponse<UpdateFu
       deployments: {
         select: {
           id: true,
+          triggerer: true,
+          commit: true,
           isCurrent: true,
           createdAt: true,
           updatedAt: true,
@@ -126,6 +135,8 @@ const del = async (request: NextApiRequest, response: NextApiResponse<DeleteFunc
       deployments: {
         select: {
           id: true,
+          triggerer: true,
+          commit: true,
           isCurrent: true,
           createdAt: true,
           updatedAt: true,

@@ -98,6 +98,9 @@ model Deployment {
 
   function   Function @relation(fields: [functionId], references: [id], onDelete: Cascade)
   functionId String
+
+  triggerer  String @default("Lagon")
+  commit     String?
 }
 
 model Token {
