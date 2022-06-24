@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { checkLoggedIn } from './auth';
 import { runCli } from './cli';
 import { logError } from './utils/logger';
