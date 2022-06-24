@@ -15,10 +15,12 @@ type ActionProps = {
   children: string;
 } & ComponentProps<typeof Button>;
 
-const Action = ({ children, ...props }: ActionProps) => {
+const Action = ({ children, variant = 'primary', ...props }: ActionProps) => {
   return (
     <AlertDialog.Action asChild>
-      <Button {...props}>{children}</Button>
+      <Button variant={variant} {...props}>
+        {children}
+      </Button>
     </AlertDialog.Action>
   );
 };

@@ -95,7 +95,16 @@ const FunctionDeployments = ({ func }: FunctionDeploymentsProps) => {
                     </Dialog.Action>
                   </Dialog.Buttons>
                 </Dialog>
-                <Button onClick={() => rollbackDeployment(deployment)}>Rollback</Button>
+                <Dialog
+                  title="Rollback Deployment"
+                  description="Are you sure you want to rollback to this Deployment?"
+                  disclosure={<Button>Rollback</Button>}
+                >
+                  <Dialog.Buttons>
+                    <Dialog.Cancel />
+                    <Dialog.Action onClick={() => rollbackDeployment(deployment)}>Rollback</Dialog.Action>
+                  </Dialog.Buttons>
+                </Dialog>
               </>
             ) : null}
           </Card>
