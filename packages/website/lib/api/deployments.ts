@@ -30,6 +30,7 @@ export async function createDeployment(
     env: string[];
   },
   code: string,
+  shouldTransformCode: boolean,
 ): Promise<{
   id: string;
   createdAt: Date;
@@ -51,7 +52,7 @@ export async function createDeployment(
     },
   });
 
-  const finalCode = await transformCode(code);
+  const finalCode = shouldTransformCode ? await transformCode(code) : code;
 
   await s3.send(
     new PutObjectCommand({

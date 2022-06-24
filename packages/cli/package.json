@@ -1,6 +1,29 @@
 {
   "name": "@lagon/cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CLI for Lagon",
-  "type": "module"
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "bin": {
+    "lagon": "dist/index.js"
+  },
+  "scripts": {
+    "watch": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\" --watch",
+    "build": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\""
+  },
+  "dependencies": {
+    "chalk": "^5.0.1",
+    "commander": "^9.3.0",
+    "esbuild": "^0.14.41",
+    "inquirer": "^9.0.0",
+    "node-fetch": "^3.2.6",
+    "open": "^8.4.0",
+    "update-notifier": "^6.0.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^8.2.1",
+    "@types/update-notifier": "^5.1.0"
+  }
 }

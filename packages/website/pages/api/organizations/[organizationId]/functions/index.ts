@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from 'lib/prisma';
 import apiHandler from 'lib/api';
 import { createDeployment } from 'lib/api/deployments';
+import { DEFAULT_MEMORY, DEFAULT_TIMEOUT } from '../../../../../lib/constants';
 
 export type GetFunctionsResponse = {
   id: string;
@@ -73,14 +74,13 @@ const get = async (request: NextApiRequest, response: NextApiResponse<GetFunctio
 const post = async (request: NextApiRequest, response: NextApiResponse<CreateFunctionResponse>) => {
   const organizationId = request.query.organizationId as string;
 
-  const { name, domains, memory, timeout, env, cron, code } = JSON.parse(request.body) as {
+  const { name, domains, env, cron, code, shouldTransformCode } = JSON.parse(request.body) as {
     name: string;
     domains: string[];
-    memory: number;
-    timeout: number;
     env: string[];
     cron?: string;
     code: string;
+    shouldTransformCode: boolean;
   };
 
   const func = await prisma.function.create({
@@ -88,8 +88,8 @@ const post = async (request: NextApiRequest, response: NextApiResponse<CreateFun
       organizationId,
       name,
       domains,
-      memory,
-      timeout,
+      memory: DEFAULT_MEMORY,
+      timeout: DEFAULT_TIMEOUT,
       env,
       cron,
     },
@@ -106,7 +106,7 @@ const post = async (request: NextApiRequest, response: NextApiResponse<CreateFun
     },
   });
 
-  const deployment = await createDeployment(func, code);
+  const deployment = await createDeployment(func, code, shouldTransformCode);
 
   response.json({ ...func, deployment });
 };

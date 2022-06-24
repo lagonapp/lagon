@@ -29,8 +29,6 @@ const Home = () => {
               body: JSON.stringify({
                 name,
                 domains: [],
-                memory: 128,
-                timeout: 50,
                 env: [],
                 code: `export function handler(request) {
   return new Response('Hello world', {
@@ -39,6 +37,7 @@ const Home = () => {
     }
   });
 }`,
+                shouldTransformCode: true,
               }),
             });
 

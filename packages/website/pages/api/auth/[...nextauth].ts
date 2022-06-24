@@ -28,6 +28,7 @@ export default apiHandler(
           },
           select: {
             currentOrganizationId: true,
+            id: true,
           },
         });
 
@@ -50,6 +51,10 @@ export default apiHandler(
 
         return {
           ...session,
+          user: {
+            ...session.user,
+            id: user.id,
+          },
           organization,
         };
       },

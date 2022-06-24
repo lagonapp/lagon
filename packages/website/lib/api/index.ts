@@ -1,4 +1,5 @@
 import { withSentry } from '@sentry/nextjs';
+import prisma from 'lib/prisma';
 import { NextApiHandler } from 'next';
 import { getSession } from 'next-auth/react';
 
@@ -15,14 +16,34 @@ export default function apiHandler(
 
   return async (request, response) => {
     if (auth) {
-      const session = await getSession({ req: request });
+      const tokenValue = request.headers['x-lagon-token'] as string;
 
-      if (!session) {
-        response.status(401).end();
-        return;
+      if (tokenValue) {
+        const token = await prisma.token.findFirst({
+          where: {
+            value: tokenValue,
+          },
+          select: {
+            user: true,
+          },
+        });
+
+        if (!token) {
+          response.status(401).end();
+          return;
+        }
+
+        request.user = token.user;
+      } else {
+        const session = await getSession({ req: request });
+
+        if (!session) {
+          response.status(401).end();
+          return;
+        }
+
+        request.user = session.user;
       }
-
-      request.session = session;
     } else if (tokenAuth) {
       if (request.headers['x-lagon-token'] !== process.env.LAGON_TOKEN) {
         return response.status(401).end();

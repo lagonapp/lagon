@@ -23,8 +23,9 @@ export type RemoveDeploymentResponse = CreateDeploymentResponse;
 const post = async (request: NextApiRequest, response: NextApiResponse<CreateDeploymentResponse>) => {
   const functionId = request.query.functionId as string;
 
-  const { code } = JSON.parse(request.body) as {
+  const { code, shouldTransformCode } = JSON.parse(request.body) as {
     code: string;
+    shouldTransformCode: boolean;
   };
 
   const func = await prisma.function.findFirst({
@@ -43,7 +44,7 @@ const post = async (request: NextApiRequest, response: NextApiResponse<CreateDep
 
   await removeCurrentDeployment(func.id);
 
-  const deployment = await createDeployment(func, code);
+  const deployment = await createDeployment(func, code, shouldTransformCode);
 
   response.json(deployment);
 };

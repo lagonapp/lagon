@@ -59,6 +59,7 @@ const PlaygroundPage = () => {
               method: 'POST',
               body: JSON.stringify({
                 code,
+                shouldTransformCode: true,
               }),
             });
           }}
