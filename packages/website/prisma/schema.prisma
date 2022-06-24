@@ -69,7 +69,6 @@ model Organization {
   ownerId String
 
   functions Function[]
-  tokens    Token[]
 }
 
 model Function {
@@ -107,9 +106,6 @@ model Token {
   updatedAt DateTime @updatedAt
 
   value String
-
-  organization   Organization @relation(fields: [organizationId], references: [id])
-  organizationId String
 
   user   User   @relation(fields: [userId], references: [id])
   userId String

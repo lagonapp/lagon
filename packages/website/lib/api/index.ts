@@ -16,19 +16,24 @@ export default function apiHandler(
 
   return async (request, response) => {
     if (auth) {
-      const token = request.headers['x-lagon-token'] as string;
+      const tokenValue = request.headers['x-lagon-token'] as string;
 
-      if (token) {
-        if (
-          (await prisma.token.count({
-            where: {
-              value: token,
-            },
-          })) <= 0
-        ) {
+      if (tokenValue) {
+        const token = await prisma.token.findFirst({
+          where: {
+            value: tokenValue,
+          },
+          select: {
+            user: true,
+          },
+        });
+
+        if (!token) {
           response.status(401).end();
           return;
         }
+
+        request.user = token.user;
       } else {
         const session = await getSession({ req: request });
 
@@ -37,7 +42,7 @@ export default function apiHandler(
           return;
         }
 
-        request.session = session;
+        request.user = session.user;
       }
     } else if (tokenAuth) {
       if (request.headers['x-lagon-token'] !== process.env.LAGON_TOKEN) {

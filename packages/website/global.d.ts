@@ -8,11 +8,16 @@ declare module 'next-auth' {
       name: string;
       description?: string;
     };
+    user: {
+      id: string;
+    };
   }
 }
 
 declare module 'next' {
   interface NextApiRequest {
-    session: NextAuth.Session;
+    user: {
+      id?: string;
+    };
   }
 }

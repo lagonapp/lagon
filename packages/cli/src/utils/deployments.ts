@@ -6,6 +6,7 @@ const CONFIG_DIRECTORY = path.join(process.cwd(), '.lagon');
 
 export type DeploymentConfig = {
   functionId: string;
+  organizationId: string;
 };
 
 export function getDeploymentConfig(file: string): DeploymentConfig | undefined {

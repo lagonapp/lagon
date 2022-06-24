@@ -11,7 +11,6 @@ const post = async (request: NextApiRequest, response: NextApiResponse) => {
     },
     select: {
       id: true,
-      currentOrganizationId: true,
     },
   });
 
@@ -32,7 +31,6 @@ const post = async (request: NextApiRequest, response: NextApiResponse) => {
   let token = await prisma.token.findFirst({
     where: {
       userId: user.id,
-      organizationId: user.currentOrganizationId,
     },
     select: {
       value: true,
@@ -44,7 +42,6 @@ const post = async (request: NextApiRequest, response: NextApiResponse) => {
       data: {
         value: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
         userId: user.id,
-        organizationId: user.currentOrganizationId,
       },
       select: {
         value: true,

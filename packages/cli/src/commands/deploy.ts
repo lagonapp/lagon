@@ -38,7 +38,22 @@ export async function deploy({ file, prod }: { file: string; prod: boolean }) {
       return;
     }
 
-    const { name } = await inquirer.prompt([
+    const organizations = (await fetch(`${API_URL}/organizations`, {
+      headers: {
+        'x-lagon-token': authToken,
+      },
+    }).then(response => response.json())) as { name: string; id: string }[];
+
+    const { name, organization } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'organization',
+        message: 'Select the organization to deploy to',
+        choices: organizations.map(({ name, id }) => ({
+          name,
+          value: id,
+        })),
+      },
       {
         type: 'input',
         name: 'name',
@@ -49,7 +64,7 @@ export async function deploy({ file, prod }: { file: string; prod: boolean }) {
     logDebug(`Creating function ${name}...`);
 
     const code = await bundleFunction(fileToDeploy);
-    const response = await fetch(`${API_URL}/organizations/cl3ssm9ai2428qemlfww9on2t/functions`, {
+    const func = (await fetch(`${API_URL}/organizations/${organization.id}/functions`, {
       method: 'POST',
       headers: {
         'x-lagon-token': authToken,
@@ -61,18 +76,16 @@ export async function deploy({ file, prod }: { file: string; prod: boolean }) {
         code,
         shouldTransformCode: false,
       }),
-    });
-
-    const func = (await response.json()) as { id: string };
+    }).then(response => response.json())) as { id: string };
 
     logSuccess(`Function ${name} created.`);
 
-    writeDeploymentConfig(fileToDeploy, { functionId: func.id });
+    writeDeploymentConfig(fileToDeploy, { functionId: func.id, organizationId: organization.id });
     return;
   }
 
   const code = await bundleFunction(fileToDeploy);
-  await fetch(`${API_URL}/organizations/cl3ssm9ai2428qemlfww9on2t/functions/${config.functionId}/deploy`, {
+  await fetch(`${API_URL}/organizations/${config.organizationId}/functions/${config.functionId}/deploy`, {
     method: 'POST',
     headers: {
       'x-lagon-token': authToken,
