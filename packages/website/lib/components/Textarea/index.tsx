@@ -25,7 +25,7 @@ const Textarea = ({ name, placeholder, disabled }: TextareaProps) => {
           placeholder={placeholder}
           disabled={disabled}
           aria-disabled={disabled}
-          className={`${styles} px-3 py-1 rounded-md text-base text-gray-800 border border-gray-300`}
+          className={`${styles} px-3 py-1 rounded-md text-sm text-gray-800 border border-gray-300`}
         />
       )}
     </Field>

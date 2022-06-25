@@ -10,11 +10,13 @@ import Layout from 'lib/Layout';
 import { requiredValidator } from 'lib/form/validators';
 import Dialog from 'lib/components/Dialog';
 import { useRouter } from 'next/router';
+import { reloadSession } from 'lib/utils';
 
 const Settings = () => {
   const { data: session } = useSession();
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isUpdatingDescription, setIsUpdatingDescription] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { mutate } = useSWRConfig();
   const router = useRouter();
 
@@ -23,7 +25,7 @@ const Settings = () => {
       <div className="flex flex-col gap-8">
         <Form
           initialValues={{
-            name: session.organization.name,
+            name: session.organization?.name,
           }}
           onSubmit={async ({ name }) => {
             setIsUpdatingName(true);
@@ -64,7 +66,7 @@ const Settings = () => {
         </Form>
         <Form
           initialValues={{
-            description: session.organization.description,
+            description: session.organization?.description,
           }}
           onSubmit={async ({ description }) => {
             setIsUpdatingDescription(true);
@@ -120,24 +122,47 @@ const Settings = () => {
           title="Delete"
           description="Delete completely this Organization, it's Functions, Deployments and Logs. This action is irreversible."
         >
-          <Dialog title="Delete Organization" disclosure={<Button variant="danger">Delete</Button>}>
+          <Dialog
+            title="Delete Organization"
+            description={`Write this Organization's name to confirm deletion: ${session.organization.name}`}
+            disclosure={
+              <Button variant="danger" disabled={isDeleting}>
+                Delete
+              </Button>
+            }
+          >
             <Form
-              // TODO: delete organization
-              onSubmit={async () => null}
+              onSubmit={async () => {
+                setIsDeleting(true);
+
+                await fetch(`/api/organizations/${session.organization.id}`, {
+                  method: 'DELETE',
+                });
+              }}
               onSubmitSuccess={() => {
+                setIsDeleting(false);
                 toast.success('Organization deleted successfully.');
+
+                reloadSession();
                 router.push('/');
               }}
               onSubmitError={() => {
+                setIsDeleting(false);
                 toast.error('An error occured.');
               }}
             >
               {handleSubmit => (
                 <>
-                  <Input name="confirm" placeholder={session.organization.name} />
+                  <Input
+                    name="confirm"
+                    placeholder={session.organization.name}
+                    validator={value =>
+                      value !== session.organization.name ? 'Confirm with the name of this Funtion' : undefined
+                    }
+                  />
                   <Dialog.Buttons>
-                    <Dialog.Cancel />
-                    <Dialog.Action variant="danger" onClick={handleSubmit}>
+                    <Dialog.Cancel disabled={isDeleting} />
+                    <Dialog.Action variant="danger" onClick={handleSubmit} disabled={isDeleting}>
                       Delete Organization
                     </Dialog.Action>
                   </Dialog.Buttons>

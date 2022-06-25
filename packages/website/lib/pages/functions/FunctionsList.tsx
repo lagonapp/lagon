@@ -5,6 +5,7 @@ import Dot from 'lib/components/Dot';
 import FunctionLinks from 'lib/components/FunctionLinks';
 import Text from 'lib/components/Text';
 import useFunctions from 'lib/hooks/useFunctions';
+import EmptyState from 'lib/components/EmptyState';
 
 const FunctionsList = () => {
   const { data: functions } = useFunctions();
@@ -19,6 +20,12 @@ const FunctionsList = () => {
 
   return (
     <div className="flex gap-2 flex-col">
+      {functions.length === 0 ? (
+        <EmptyState
+          title="No Functions found"
+          description="Start by creating a new Function by clicking the button in the right corner."
+        />
+      ) : null}
       {functions.map(func => (
         <Card key={func.id} clickable onClick={() => navigateToFunction(func.id)}>
           <div className="flex justify-between items-start">
