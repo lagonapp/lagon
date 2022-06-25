@@ -1,15 +1,16 @@
+import { Headers } from './fetch';
 import { parseMultipart } from './parseMultipart';
 
 export interface ResponseInit {
   status?: number;
   statusText?: string;
-  headers?: Record<string, string | string[] | undefined>;
+  headers?: Headers | Record<string, string>;
   url?: string;
 }
 
 export class Response {
   body: string;
-  headers: Record<string, string | string[] | undefined>;
+  headers: Headers;
   ok: boolean;
   status: number;
   statusText: string;
@@ -17,7 +18,16 @@ export class Response {
 
   constructor(body: string, options?: ResponseInit) {
     this.body = body;
-    this.headers = options?.headers || {};
+
+    if (options?.headers) {
+      if (options.headers instanceof Headers) {
+        this.headers = options.headers;
+      } else {
+        this.headers = new Headers(options.headers);
+      }
+    } else {
+      this.headers = new Headers();
+    }
 
     if (options?.status) {
       this.ok = options.status >= 200 && options.status < 300;

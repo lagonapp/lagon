@@ -1,9 +1,11 @@
-export const parseMultipart = (headers: Record<string, string | string[] | undefined>, body?: string) => {
+import { Headers } from './fetch';
+
+export const parseMultipart = (headers: Headers, body?: string) => {
   if (!body) {
     return {};
   }
 
-  const contentTypeHeader = headers['content-type'];
+  const contentTypeHeader = headers.get('content-type');
   let boundary: string | undefined;
 
   const getBoundary = (header: string | undefined) => header?.split(';')?.[1]?.split('=')?.[1];
