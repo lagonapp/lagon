@@ -24,3 +24,14 @@ export function reloadSession() {
   const event = new Event('visibilitychange');
   document.dispatchEvent(event);
 }
+
+export const fetchApi: typeof fetch = async (...args) => {
+  const response = await fetch(...args);
+
+  if (response.status === 500) {
+    const json = await response.json();
+    throw new Error(json.error || 'Unknown error.');
+  }
+
+  return response;
+};

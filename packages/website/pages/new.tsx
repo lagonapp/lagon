@@ -5,7 +5,7 @@ import Text from 'lib/components/Text';
 import Textarea from 'lib/components/Textarea';
 import { requiredValidator } from 'lib/form/validators';
 import Layout from 'lib/Layout';
-import { reloadSession } from 'lib/utils';
+import { fetchApi, reloadSession } from 'lib/utils';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
@@ -20,7 +20,7 @@ const New = () => {
         onSubmit={async ({ name, description }) => {
           setIsCreating(true);
 
-          await fetch(`/api/organizations`, {
+          await fetchApi(`/api/organizations`, {
             method: 'POST',
             body: JSON.stringify({ name, description }),
           });
@@ -34,7 +34,6 @@ const New = () => {
         }}
         onSubmitError={() => {
           setIsCreating(false);
-          toast.error('An error occured.');
         }}
       >
         <div className="flex flex-col gap-8 w-96 mx-auto mt-12">

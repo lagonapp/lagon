@@ -1,7 +1,32 @@
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 import { withSentry } from '@sentry/nextjs';
 import prisma from 'lib/prisma';
-import { NextApiHandler } from 'next';
+import { NextApiHandler, NextApiResponse } from 'next';
 import { getSession } from 'next-auth/react';
+
+export function handlePrismaError(error: any, response: NextApiResponse) {
+  if (error instanceof PrismaClientKnownRequestError) {
+    let errorMessage = 'An error occured.';
+
+    switch (error.code) {
+      case 'P2002':
+        errorMessage = `'${error.meta.target[0]}' already exists and should be unique.`;
+        break;
+      default:
+        break;
+    }
+
+    response.status(500).json({
+      error: errorMessage,
+    });
+
+    return;
+  }
+
+  response.status(500).json({
+    error: 'An error occurred.',
+  });
+}
 
 type ApiHandlerOptions = {
   auth?: boolean;

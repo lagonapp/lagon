@@ -10,7 +10,8 @@ import Layout from 'lib/Layout';
 import { requiredValidator } from 'lib/form/validators';
 import Dialog from 'lib/components/Dialog';
 import { useRouter } from 'next/router';
-import { reloadSession } from 'lib/utils';
+import { fetchApi, reloadSession } from 'lib/utils';
+import Textarea from 'lib/components/Textarea';
 
 const Settings = () => {
   const { data: session } = useSession();
@@ -30,7 +31,7 @@ const Settings = () => {
           onSubmit={async ({ name }) => {
             setIsUpdatingName(true);
 
-            await fetch(`/api/organizations/${session.organization.id}`, {
+            await fetchApi(`/api/organizations/${session.organization.id}`, {
               method: 'PATCH',
               body: JSON.stringify({
                 ...session.organization,
@@ -38,15 +39,13 @@ const Settings = () => {
               }),
             });
 
-            // TODO: mutate session.organization?
-            await mutate(`/api/organizations/${session.organization.id}`);
+            reloadSession();
           }}
           onSubmitSuccess={() => {
             toast.success('Organization name updated successfully.');
             setIsUpdatingName(false);
           }}
           onSubmitError={() => {
-            toast.error('An error occured.');
             setIsUpdatingName(false);
           }}
         >
@@ -71,7 +70,7 @@ const Settings = () => {
           onSubmit={async ({ description }) => {
             setIsUpdatingDescription(true);
 
-            await fetch(`/api/organizations/${session.organization.id}`, {
+            await fetchApi(`/api/organizations/${session.organization.id}`, {
               method: 'PATCH',
               body: JSON.stringify({
                 ...session.organization,
@@ -79,21 +78,19 @@ const Settings = () => {
               }),
             });
 
-            // TODO: mutate session.organization?
-            await mutate(`/api/organizations/${session.organization.id}`);
+            reloadSession();
           }}
           onSubmitSuccess={() => {
             toast.success('Organization description updated successfully.');
             setIsUpdatingDescription(false);
           }}
           onSubmitError={() => {
-            toast.error('An error occured.');
             setIsUpdatingDescription(false);
           }}
         >
           <Card title="Description" description="Change the description of this Organization.">
             <div className="flex gap-2 items-center">
-              <Input name="description" placeholder="Organization description" disabled={isUpdatingDescription} />
+              <Textarea name="description" placeholder="Organization description" disabled={isUpdatingDescription} />
               <Button variant="primary" disabled={isUpdatingDescription} submit>
                 Update
               </Button>
@@ -104,9 +101,6 @@ const Settings = () => {
           onSubmit={async ({ email }) => null}
           onSubmitSuccess={() => {
             toast.success('Ownership of this Organization transferred successfully.');
-          }}
-          onSubmitError={() => {
-            toast.error('An error occured.');
           }}
         >
           <Card title="Tranfer" description="Transfer the ownership of this Organization to another user?">
@@ -135,7 +129,7 @@ const Settings = () => {
               onSubmit={async () => {
                 setIsDeleting(true);
 
-                await fetch(`/api/organizations/${session.organization.id}`, {
+                await fetchApi(`/api/organizations/${session.organization.id}`, {
                   method: 'DELETE',
                 });
               }}
@@ -148,7 +142,6 @@ const Settings = () => {
               }}
               onSubmitError={() => {
                 setIsDeleting(false);
-                toast.error('An error occured.');
               }}
             >
               {handleSubmit => (

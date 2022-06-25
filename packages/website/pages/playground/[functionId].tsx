@@ -10,7 +10,7 @@ import Input from 'lib/components/Input';
 import Playground from 'lib/components/Playground';
 import useFunction from 'lib/hooks/useFunction';
 import Layout from 'lib/Layout';
-import { getFullCurrentDomain } from 'lib/utils';
+import { fetchApi, getFullCurrentDomain } from 'lib/utils';
 import { requiredValidator } from 'lib/form/validators';
 
 const PlaygroundPage = () => {
@@ -40,7 +40,7 @@ const PlaygroundPage = () => {
             setIsDeploying(true);
 
             if (name !== func.name) {
-              await fetch(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
+              await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
                   ...func,
@@ -55,7 +55,7 @@ const PlaygroundPage = () => {
               code = monaco.editor.getModels()[1].getValue();
             }
 
-            await fetch(`/api/organizations/${session.organization.id}/functions/${func.id}/deploy`, {
+            await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}/deploy`, {
               method: 'POST',
               body: JSON.stringify({
                 code,

@@ -9,7 +9,7 @@ import Card from 'lib/components/Card';
 import Form from 'lib/components/Form';
 import Input from 'lib/components/Input';
 import Text from 'lib/components/Text';
-import { getCurrentDomain } from 'lib/utils';
+import { fetchApi, getCurrentDomain } from 'lib/utils';
 import TagsInput from 'lib/components/TagsInput';
 import { cronValidator, requiredValidator } from 'lib/form/validators';
 import Dialog from 'lib/components/Dialog';
@@ -37,7 +37,7 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
         onSubmit={async ({ name }) => {
           setIsUpdatingName(true);
 
-          await fetch(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
+          await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
             method: 'PATCH',
             body: JSON.stringify({
               ...func,
@@ -52,7 +52,6 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
           setIsUpdatingName(false);
         }}
         onSubmitError={() => {
-          toast.error('An error occured.');
           setIsUpdatingName(false);
         }}
       >
@@ -75,7 +74,7 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
         onSubmit={async ({ domains }) => {
           setIsUpdatingDomains(true);
 
-          await fetch(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
+          await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
             method: 'PATCH',
             body: JSON.stringify({
               ...func,
@@ -90,7 +89,6 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
           setIsUpdatingDomains(false);
         }}
         onSubmitError={() => {
-          toast.error('An error occured.');
           setIsUpdatingDomains(false);
         }}
       >
@@ -122,7 +120,7 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
         onSubmit={async ({ cron }) => {
           setIsUpdatingCron(true);
 
-          await fetch(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
+          await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
             method: 'PATCH',
             body: JSON.stringify({
               ...func,
@@ -137,7 +135,6 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
           setIsUpdatingCron(false);
         }}
         onSubmitError={() => {
-          toast.error('An error occured.');
           setIsUpdatingCron(false);
         }}
       >
@@ -157,7 +154,7 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
         onSubmit={async ({ env }) => {
           setIsUpdatingEnvVariables(true);
 
-          await fetch(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
+          await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
             method: 'PATCH',
             body: JSON.stringify({
               ...func,
@@ -172,7 +169,6 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
           setIsUpdatingEnvVariables(false);
         }}
         onSubmitError={() => {
-          toast.error('An error occured.');
           setIsUpdatingEnvVariables(false);
         }}
       >
@@ -205,7 +201,7 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
             onSubmit={async () => {
               setIsDeleting(true);
 
-              await fetch(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
+              await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
                 method: 'DELETE',
               });
             }}
@@ -216,7 +212,6 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
               router.push('/');
             }}
             onSubmitError={() => {
-              toast.error('An error occured.');
               setIsDeleting(false);
             }}
           >
