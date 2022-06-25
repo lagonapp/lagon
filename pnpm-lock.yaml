@@ -42,6 +42,16 @@ importers:
     dependencies:
       '@lagon/types': link:../../packages/types
 
+  examples/preact:
+    specifiers:
+      '@lagon/types': workspace:^0.0.1
+      preact: ^10.8.2
+      preact-render-to-string: ^5.2.0
+    dependencies:
+      '@lagon/types': link:../../packages/types
+      preact: 10.8.2
+      preact-render-to-string: 5.2.0_preact@10.8.2
+
   examples/reply-with-html:
     specifiers:
       '@lagon/types': workspace:^0.0.1
@@ -13348,6 +13358,19 @@ packages:
     dependencies:
       preact: 10.8.2
       pretty-format: 3.8.0
+    dev: false
+
+  /preact-render-to-string/5.2.0_preact@10.8.2:
+    resolution: {integrity: sha512-+RGwSW78Cl+NsZRUbFW1MGB++didsfqRk+IyRVTaqy+3OjtpKK/6HgBtfszUX0YXMfo41k2iaQSseAHGKEwrbg==}
+    peerDependencies:
+      preact: '>=10'
+    dependencies:
+      preact: 10.8.2
+      pretty-format: 3.8.0
+    dev: false
+
+  /preact/10.7.2:
+    resolution: {integrity: sha512-GLjn0I3r6ka+NvxJUppsVFqb4V0qDTEHT/QxHlidPuClGaxF/4AI2Qti4a0cv3XMh5n1+D3hLScW10LRIm5msQ==}
     dev: false
 
   /preact/10.8.2:
