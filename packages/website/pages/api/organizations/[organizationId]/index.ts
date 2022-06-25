@@ -102,6 +102,8 @@ const del = async (request: NextApiRequest, response: NextApiResponse) => {
       currentOrganizationId: leftOrganization?.id,
     },
   });
+
+  response.json({ ok: true });
 };
 
 const handler = async (request: NextApiRequest, response: NextApiResponse) => {

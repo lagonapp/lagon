@@ -124,6 +124,7 @@ const Settings = () => {
         >
           <Dialog
             title="Delete Organization"
+            description={`Write this Organization's name to confirm deletion: ${session.organization.name}`}
             disclosure={
               <Button variant="danger" disabled={isDeleting}>
                 Delete

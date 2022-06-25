@@ -32,17 +32,22 @@ const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
 
 const OrganizationsList = () => {
   const { data: organizations } = useOrganizations();
+  const router = useRouter();
 
-  const switchOrganization = useCallback(async (organization: typeof organizations[number]) => {
-    await fetch('/api/organizations', {
-      method: 'PATCH',
-      body: JSON.stringify({
-        organizationId: organization.id,
-      }),
-    });
+  const switchOrganization = useCallback(
+    async (organization: typeof organizations[number]) => {
+      await fetch('/api/organizations', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          organizationId: organization.id,
+        }),
+      });
 
-    reloadSession();
-  }, []);
+      reloadSession();
+      router.push('/');
+    },
+    [router],
+  );
 
   return (
     <>
@@ -100,7 +105,9 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
                       <OrganizationsList />
                     </Suspense>
                     <Divider />
-                    <Menu.Item icon={<PlusIcon className="w-4 h-4" />}>New organization</Menu.Item>
+                    <Menu.Item icon={<PlusIcon className="w-4 h-4" />} href="/new">
+                      New organization
+                    </Menu.Item>
                     <Menu.Item icon={<CogIcon className="w-4 h-4" />} href="/settings">
                       Settings
                     </Menu.Item>
