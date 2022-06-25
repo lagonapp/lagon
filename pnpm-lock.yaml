@@ -199,12 +199,15 @@ importers:
       '@types/node': ^17.0.35
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
+      autoprefixer: ^10.4.7
       eslint: ^8.16.0
       eslint-config-next: 12.1.6
       next: 12.1.6
+      postcss: ^8.4.14
       react: 18.1.0
       react-dom: 18.1.0
       react-use-system-theme: ^1.1.1
+      tailwindcss: ^3.0.24
       typescript: ^4.6.4
     dependencies:
       next: 12.1.6_ef5jwxihqo6n7gxfmzogljlgcm
@@ -215,8 +218,11 @@ importers:
       '@types/node': 17.0.35
       '@types/react': 18.0.9
       '@types/react-dom': 18.0.5
+      autoprefixer: 10.4.7_postcss@8.4.14
       eslint: 8.16.0
       eslint-config-next: 12.1.6_zvyojjozjfatsvh7rlqywb6lme
+      postcss: 8.4.14
+      tailwindcss: 3.0.24
       typescript: 4.6.4
 
 packages:
@@ -8783,7 +8789,7 @@ packages:
       eslint-import-resolver-webpack:
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 5.26.0_eslint@8.16.0
+      '@typescript-eslint/parser': 5.26.0_utdtartgf6fqqgkivzeynh76la
       debug: 3.2.7
       eslint-import-resolver-node: 0.3.6
       eslint-import-resolver-typescript: 2.7.1_btspkuwbqkl4adpiufzbathtpi
@@ -8802,7 +8808,7 @@ packages:
       '@typescript-eslint/parser':
         optional: true
     dependencies:
-      '@typescript-eslint/parser': 5.26.0_eslint@8.16.0
+      '@typescript-eslint/parser': 5.26.0_utdtartgf6fqqgkivzeynh76la
       array-includes: 3.1.5
       array.prototype.flat: 1.3.0
       debug: 2.6.9
@@ -12349,7 +12355,7 @@ packages:
     dev: true
 
   /normalize-range/0.1.2:
-    resolution: {integrity: sha1-LRDAa9/TEuqXd2laTShDlFa3WUI=}
+    resolution: {integrity: sha512-bdok/XvKII3nUpklnV6P2hxtMNrCboOjAcyBuQnWEhO665FwrSNRxU+AqpsyvO6LgGYPspN+lu5CLtw4jPRKNA==}
     engines: {node: '>=0.10.0'}
     dev: true
 
