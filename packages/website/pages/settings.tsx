@@ -1,23 +1,27 @@
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useSWRConfig } from 'swr';
 import Button from 'lib/components/Button';
 import Card from 'lib/components/Card';
 import Form from 'lib/components/Form';
 import Input from 'lib/components/Input';
 import Layout from 'lib/Layout';
-import { requiredValidator } from 'lib/form/validators';
+import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
 import Dialog from 'lib/components/Dialog';
 import { useRouter } from 'next/router';
-import { reloadSession } from 'lib/utils';
+import { fetchApi, reloadSession } from 'lib/utils';
+import Textarea from 'lib/components/Textarea';
+import {
+  ORGANIZATION_DESCRIPTION_MAX_LENGTH,
+  ORGANIZATION_NAME_MAX_LENGTH,
+  ORGANIZATION_NAME_MIN_LENGTH,
+} from 'lib/constants';
 
 const Settings = () => {
   const { data: session } = useSession();
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isUpdatingDescription, setIsUpdatingDescription] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { mutate } = useSWRConfig();
   const router = useRouter();
 
   return (
@@ -30,7 +34,7 @@ const Settings = () => {
           onSubmit={async ({ name }) => {
             setIsUpdatingName(true);
 
-            await fetch(`/api/organizations/${session.organization.id}`, {
+            await fetchApi(`/api/organizations/${session.organization.id}`, {
               method: 'PATCH',
               body: JSON.stringify({
                 ...session.organization,
@@ -38,15 +42,13 @@ const Settings = () => {
               }),
             });
 
-            // TODO: mutate session.organization?
-            await mutate(`/api/organizations/${session.organization.id}`);
+            reloadSession();
           }}
           onSubmitSuccess={() => {
             toast.success('Organization name updated successfully.');
             setIsUpdatingName(false);
           }}
           onSubmitError={() => {
-            toast.error('An error occured.');
             setIsUpdatingName(false);
           }}
         >
@@ -56,7 +58,11 @@ const Settings = () => {
                 name="name"
                 placeholder="Organization name"
                 disabled={isUpdatingName}
-                validator={requiredValidator}
+                validator={composeValidators(
+                  requiredValidator,
+                  minLengthValidator(ORGANIZATION_NAME_MIN_LENGTH),
+                  maxLengthValidator(ORGANIZATION_NAME_MAX_LENGTH),
+                )}
               />
               <Button variant="primary" disabled={isUpdatingName} submit>
                 Update
@@ -71,7 +77,7 @@ const Settings = () => {
           onSubmit={async ({ description }) => {
             setIsUpdatingDescription(true);
 
-            await fetch(`/api/organizations/${session.organization.id}`, {
+            await fetchApi(`/api/organizations/${session.organization.id}`, {
               method: 'PATCH',
               body: JSON.stringify({
                 ...session.organization,
@@ -79,21 +85,27 @@ const Settings = () => {
               }),
             });
 
-            // TODO: mutate session.organization?
-            await mutate(`/api/organizations/${session.organization.id}`);
+            reloadSession();
           }}
           onSubmitSuccess={() => {
             toast.success('Organization description updated successfully.');
             setIsUpdatingDescription(false);
           }}
           onSubmitError={() => {
-            toast.error('An error occured.');
             setIsUpdatingDescription(false);
           }}
         >
           <Card title="Description" description="Change the description of this Organization.">
             <div className="flex gap-2 items-center">
-              <Input name="description" placeholder="Organization description" disabled={isUpdatingDescription} />
+              <Textarea
+                name="description"
+                placeholder="Organization description"
+                disabled={isUpdatingDescription}
+                validator={composeValidators(
+                  requiredValidator,
+                  maxLengthValidator(ORGANIZATION_DESCRIPTION_MAX_LENGTH),
+                )}
+              />
               <Button variant="primary" disabled={isUpdatingDescription} submit>
                 Update
               </Button>
@@ -104,9 +116,6 @@ const Settings = () => {
           onSubmit={async ({ email }) => null}
           onSubmitSuccess={() => {
             toast.success('Ownership of this Organization transferred successfully.');
-          }}
-          onSubmitError={() => {
-            toast.error('An error occured.');
           }}
         >
           <Card title="Tranfer" description="Transfer the ownership of this Organization to another user?">
@@ -135,7 +144,7 @@ const Settings = () => {
               onSubmit={async () => {
                 setIsDeleting(true);
 
-                await fetch(`/api/organizations/${session.organization.id}`, {
+                await fetchApi(`/api/organizations/${session.organization.id}`, {
                   method: 'DELETE',
                 });
               }}
@@ -148,7 +157,6 @@ const Settings = () => {
               }}
               onSubmitError={() => {
                 setIsDeleting(false);
-                toast.error('An error occured.');
               }}
             >
               {handleSubmit => (

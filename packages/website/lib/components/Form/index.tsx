@@ -1,11 +1,12 @@
 import { ReactNode } from 'react';
 import { Form as FinalFormForm, FormProps as FinalFormFormProps, FormRenderProps } from 'react-final-form';
+import toast from 'react-hot-toast';
 
 type FormProps = {
   initialValues?: FinalFormFormProps['initialValues'];
   onSubmit: FinalFormFormProps['onSubmit'];
   onSubmitSuccess: FinalFormFormProps['onSubmit'];
-  onSubmitError: FinalFormFormProps['onSubmit'];
+  onSubmitError?: FinalFormFormProps['onSubmit'];
   children: ReactNode | ((handleSubmit: FormRenderProps['handleSubmit']) => ReactNode);
 };
 
@@ -17,8 +18,9 @@ const Form = ({ initialValues, onSubmit, onSubmitSuccess, onSubmitError, childre
         try {
           await onSubmit(values, form, callback);
           await onSubmitSuccess(values, form, callback);
-        } catch {
-          await onSubmitError(values, form, callback);
+        } catch (error) {
+          toast.error(error.message || 'An error occured.');
+          await onSubmitError?.(values, form, callback);
         }
       }}
     >
