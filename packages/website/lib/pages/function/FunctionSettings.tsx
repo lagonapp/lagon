@@ -11,8 +11,16 @@ import Input from 'lib/components/Input';
 import Text from 'lib/components/Text';
 import { fetchApi, getCurrentDomain } from 'lib/utils';
 import TagsInput from 'lib/components/TagsInput';
-import { cronValidator, requiredValidator } from 'lib/form/validators';
+import {
+  composeValidators,
+  cronValidator,
+  functionNameValidator,
+  maxLengthValidator,
+  minLengthValidator,
+  requiredValidator,
+} from 'lib/form/validators';
 import Dialog from 'lib/components/Dialog';
+import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
 
 type FunctionSettingsProps = {
   func: GetFunctionResponse;
@@ -60,7 +68,17 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
           description="Change the name of this Function. Note that changing the name also changes the default domain."
         >
           <div className="flex gap-2 items-center">
-            <Input name="name" placeholder="Function name" disabled={isUpdatingName} validator={requiredValidator} />
+            <Input
+              name="name"
+              placeholder="Function name"
+              disabled={isUpdatingName}
+              validator={composeValidators(
+                requiredValidator,
+                minLengthValidator(FUNCTION_NAME_MIN_LENGTH),
+                maxLengthValidator(FUNCTION_NAME_MAX_LENGTH),
+                functionNameValidator,
+              )}
+            />
             <Button variant="primary" disabled={isUpdatingName} submit>
               Update
             </Button>

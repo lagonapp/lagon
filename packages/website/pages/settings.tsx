@@ -1,24 +1,27 @@
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useSWRConfig } from 'swr';
 import Button from 'lib/components/Button';
 import Card from 'lib/components/Card';
 import Form from 'lib/components/Form';
 import Input from 'lib/components/Input';
 import Layout from 'lib/Layout';
-import { requiredValidator } from 'lib/form/validators';
+import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
 import Dialog from 'lib/components/Dialog';
 import { useRouter } from 'next/router';
 import { fetchApi, reloadSession } from 'lib/utils';
 import Textarea from 'lib/components/Textarea';
+import {
+  ORGANIZATION_DESCRIPTION_MAX_LENGTH,
+  ORGANIZATION_NAME_MAX_LENGTH,
+  ORGANIZATION_NAME_MIN_LENGTH,
+} from 'lib/constants';
 
 const Settings = () => {
   const { data: session } = useSession();
   const [isUpdatingName, setIsUpdatingName] = useState(false);
   const [isUpdatingDescription, setIsUpdatingDescription] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { mutate } = useSWRConfig();
   const router = useRouter();
 
   return (
@@ -55,7 +58,11 @@ const Settings = () => {
                 name="name"
                 placeholder="Organization name"
                 disabled={isUpdatingName}
-                validator={requiredValidator}
+                validator={composeValidators(
+                  requiredValidator,
+                  minLengthValidator(ORGANIZATION_NAME_MIN_LENGTH),
+                  maxLengthValidator(ORGANIZATION_NAME_MAX_LENGTH),
+                )}
               />
               <Button variant="primary" disabled={isUpdatingName} submit>
                 Update
@@ -90,7 +97,15 @@ const Settings = () => {
         >
           <Card title="Description" description="Change the description of this Organization.">
             <div className="flex gap-2 items-center">
-              <Textarea name="description" placeholder="Organization description" disabled={isUpdatingDescription} />
+              <Textarea
+                name="description"
+                placeholder="Organization description"
+                disabled={isUpdatingDescription}
+                validator={composeValidators(
+                  requiredValidator,
+                  maxLengthValidator(ORGANIZATION_DESCRIPTION_MAX_LENGTH),
+                )}
+              />
               <Button variant="primary" disabled={isUpdatingDescription} submit>
                 Update
               </Button>
