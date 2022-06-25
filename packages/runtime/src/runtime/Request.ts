@@ -1,20 +1,31 @@
+import { Headers } from './fetch';
 import { parseMultipart } from './parseMultipart';
 
 export interface RequestInit {
   method?: string;
-  headers?: Record<string, string | string[] | undefined>;
+  headers?: Headers | Record<string, string>;
   body?: string;
 }
 
 export class Request {
   method: string;
-  headers: Record<string, string | string[] | undefined>;
+  headers: Headers;
   body?: string;
   url: string;
 
   constructor(input: string, options?: RequestInit) {
     this.method = options?.method || 'GET';
-    this.headers = options?.headers || {};
+
+    if (options?.headers) {
+      if (options.headers instanceof Headers) {
+        this.headers = options.headers;
+      } else {
+        this.headers = new Headers(options.headers);
+      }
+    } else {
+      this.headers = new Headers();
+    }
+
     this.body = options?.body;
     this.url = input;
   }

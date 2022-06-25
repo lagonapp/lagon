@@ -3,6 +3,7 @@ import { getIsolate } from '../isolate';
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { HandlerRequest } from '..';
 import { createServer } from 'node:http';
+import { Headers } from '../runtime/fetch';
 
 const getDeployment = (): Deployment => ({
   functionId: 'functionId',
@@ -55,6 +56,112 @@ beforeAll(() => {
 
 afterAll(() => {
   server.close();
+});
+
+describe('Headers', () => {
+  describe('instanciate', () => {
+    it('should instanciate without init', () => {
+      expect(new Headers().toString()).toBeDefined();
+    });
+
+    it('should instanciate with init as object', () => {
+      expect(new Headers({ 'Content-Type': 'image/jpeg', 'X-My-Custom-Header': 'Zeke are cool' })).toBeDefined();
+    });
+
+    it('should instanciate with init as array', () => {
+      expect(
+        new Headers([
+          ['Set-Cookie', 'greeting=hello'],
+          ['Set-Cookie', 'name=world'],
+        ]),
+      ).toBeDefined();
+    });
+  });
+
+  it('should append', () => {
+    const headers = new Headers();
+    headers.append('a', 'b');
+    headers.append('c', 'd');
+    expect(headers.get('a')).toEqual('b');
+    expect(headers.get('c')).toEqual('d');
+  });
+
+  it('should delete', () => {
+    const headers = new Headers({
+      a: 'b',
+      c: 'd',
+    });
+    headers.delete('a');
+    expect(headers.get('a')).toBeUndefined();
+  });
+
+  it('should return entries', () => {
+    const headers = new Headers({
+      a: 'b',
+      c: 'd',
+    });
+    expect(Array.from(headers.entries())).toEqual([
+      ['a', 'b'],
+      ['c', 'd'],
+    ]);
+  });
+
+  it('should get', () => {
+    const headers = new Headers({
+      a: 'b',
+      c: 'd',
+    });
+    expect(headers.get('a')).toEqual('b');
+    expect(headers.get('c')).toEqual('d');
+    expect(headers.get('e')).toBeUndefined();
+  });
+
+  it('should has', () => {
+    const headers = new Headers({
+      a: 'b',
+      c: 'd',
+    });
+    expect(headers.has('a')).toBeTruthy();
+    expect(headers.has('c')).toBeTruthy();
+    expect(headers.has('e')).toBeFalsy();
+  });
+
+  it('should return keys', () => {
+    const headers = new Headers({
+      a: 'b',
+      c: 'd',
+    });
+    expect(Array.from(headers.keys())).toEqual(['a', 'c']);
+  });
+
+  describe('set', () => {
+    it('should set without init', () => {
+      const headers = new Headers();
+      headers.set('a', 'b');
+      headers.set('c', 'd');
+      expect(headers.get('a')).toEqual('b');
+      expect(headers.get('c')).toEqual('d');
+    });
+
+    it('should set with init', () => {
+      const headers = new Headers({
+        a: 'b',
+        c: 'd',
+      });
+      headers.set('a', 'e');
+      headers.set('c', 'f');
+      expect(headers.get('a')).toEqual('e');
+      expect(headers.get('c')).toEqual('f');
+    });
+  });
+
+  it('should return values', () => {
+    const headers = new Headers({
+      a: 'b',
+      c: 'd',
+    });
+    expect(Array.from(headers.values())).toEqual(['b', 'd']);
+  });
 });
 
 describe('fetch', () => {
