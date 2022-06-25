@@ -10,7 +10,9 @@ import { CreateFunctionResponse } from 'pages/api/organizations/[organizationId]
 
 const Home = () => {
   const router = useRouter();
-  const { data: session } = useSession();
+  const {
+    data: { organization },
+  } = useSession();
   const [isCreating, setIsCreating] = useState(false);
   const name = useRandomName();
 
@@ -24,7 +26,7 @@ const Home = () => {
           onClick={async () => {
             setIsCreating(true);
 
-            const response = await fetch(`/api/organizations/${session.organization.id}/functions`, {
+            const response = await fetch(`/api/organizations/${organization.id}/functions`, {
               method: 'POST',
               body: JSON.stringify({
                 name,

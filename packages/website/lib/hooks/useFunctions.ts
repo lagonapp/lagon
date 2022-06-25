@@ -7,7 +7,7 @@ const useFunctions = () => {
     data: { organization },
   } = useSession();
 
-  return useSWR<GetFunctionsResponse>(`/api/organizations/${organization.id}/functions`);
+  return useSWR<GetFunctionsResponse>(`/api/organizations/${organization?.id}/functions`);
 };
 
 export default useFunctions;
