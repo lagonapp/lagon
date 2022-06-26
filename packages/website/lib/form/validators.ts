@@ -4,6 +4,27 @@ export const requiredValidator: FieldValidator<string | number> = value => {
   return value ? undefined : 'Field is required';
 };
 
+export const minLengthValidator =
+  (minLength: number): FieldValidator<string> =>
+  value => {
+    return !value || value.length >= minLength ? undefined : 'Field must be at least ' + minLength + ' characters long';
+  };
+
+export const maxLengthValidator =
+  (maxLength: number): FieldValidator<string> =>
+  value => {
+    return !value || value.length <= maxLength ? undefined : 'Field must be at most ' + maxLength + ' characters long';
+  };
+
+export const functionNameValidator: FieldValidator<string | number> = value => {
+  if (typeof value === 'string') {
+    return /^[a-zA-Z0-9-]*$/.test(value)
+      ? undefined
+      : 'Field must only contains alphanumerics characters, numbers and dashes';
+  }
+
+  return 'Field must be a string';
+};
 export const cronValidator: FieldValidator<string | number> = value => {
   if (typeof value === 'string') {
     return /((((\d+,)+\d+|(\d+(\/|-)\d+)|\d+|\*) ?){5,7})/.test(value) ? undefined : 'Field must be a Cron expression';

@@ -5,14 +5,28 @@
 
 /* eslint-disable */
 
+declare class Headers {
+    private headers;
+    constructor(init?: Record<string, string> | string[][]);
+    private addValue;
+    append(name: string, value: string): void;
+    delete(name: string): void;
+    entries(): IterableIterator<[string, string]>;
+    get(name: string): string | undefined;
+    has(name: string): boolean;
+    keys(): IterableIterator<string>;
+    set(name: string, value: string): void;
+    values(): IterableIterator<string>;
+}
+
 interface RequestInit {
     method?: string;
-    headers?: Record<string, string | string[] | undefined>;
+    headers?: Headers | Record<string, string>;
     body?: string;
 }
 declare class Request {
     method: string;
-    headers: Record<string, string | string[] | undefined>;
+    headers: Headers;
     body?: string;
     url: string;
     constructor(input: string, options?: RequestInit);
@@ -22,15 +36,29 @@ declare class Request {
 }
 
 
+declare class Headers {
+    private headers;
+    constructor(init?: Record<string, string> | string[][]);
+    private addValue;
+    append(name: string, value: string): void;
+    delete(name: string): void;
+    entries(): IterableIterator<[string, string]>;
+    get(name: string): string | undefined;
+    has(name: string): boolean;
+    keys(): IterableIterator<string>;
+    set(name: string, value: string): void;
+    values(): IterableIterator<string>;
+}
+
 interface ResponseInit {
     status?: number;
     statusText?: string;
-    headers?: Record<string, string | string[] | undefined>;
+    headers?: Headers | Record<string, string>;
     url?: string;
 }
 declare class Response {
     body: string;
-    headers: Record<string, string | string[] | undefined>;
+    headers: Headers;
     ok: boolean;
     status: number;
     statusText: string;
@@ -91,12 +119,55 @@ declare class TextDecoder {
 }
 
 
+interface RequestInit {
+    method?: string;
+    headers?: Headers | Record<string, string>;
+    body?: string;
+}
 
+declare class Response {
+    body: string;
+    headers: Headers;
+    ok: boolean;
+    status: number;
+    statusText: string;
+    url: string;
+    constructor(body: string, options?: ResponseInit);
+    text(): Promise<string>;
+    json<T>(): Promise<T>;
+    formData(): Promise<Record<string, string>>;
+}
 
-
+declare class Headers {
+    private headers;
+    constructor(init?: Record<string, string> | string[][]);
+    private addValue;
+    append(name: string, value: string): void;
+    delete(name: string): void;
+    entries(): IterableIterator<[string, string]>;
+    get(name: string): string | undefined;
+    has(name: string): boolean;
+    keys(): IterableIterator<string>;
+    set(name: string, value: string): void;
+    values(): IterableIterator<string>;
+}
 declare function fetch(resource: string, init: RequestInit): Promise<Response>;
 
 
-declare const parseMultipart: (headers: Record<string, string | string[] | undefined>, body?: string | undefined) => Record<string, string>;
+declare class Headers {
+    private headers;
+    constructor(init?: Record<string, string> | string[][]);
+    private addValue;
+    append(name: string, value: string): void;
+    delete(name: string): void;
+    entries(): IterableIterator<[string, string]>;
+    get(name: string): string | undefined;
+    has(name: string): boolean;
+    keys(): IterableIterator<string>;
+    set(name: string, value: string): void;
+    values(): IterableIterator<string>;
+}
+
+declare const parseMultipart: (headers: Headers, body?: string | undefined) => Record<string, string>;
 
 

@@ -57,27 +57,29 @@ async function mockFetch(context: ivm.Context) {
 }
 
 export const snapshot = ivm.Isolate.createSnapshot([
-  readRuntimeFile('Response'),
-  readRuntimeFile('Request'),
+  readRuntimeFile('Response', code => code.replace(/global.*;/gm, '')),
+  readRuntimeFile('Request', code => code.replace(/global.*;/gm, '')),
   readRuntimeFile('parseMultipart'),
   readRuntimeFile('URL'),
   readRuntimeFile('encoding'),
   readRuntimeFile('base64'),
 ]);
 
-function readRuntimeFile(filename: string) {
+function readRuntimeFile(filename: string, transform?: (code: string) => string) {
+  const code = fs
+    .readFileSync(
+      /* c8 ignore start */
+      process.env.NODE_ENV === 'test'
+        ? new URL(`../../dist/runtime/${filename}.js`, import.meta.url)
+        : new URL(`runtime/${filename}.js`, import.meta.url),
+      /* c8 ignore end */
+    )
+    .toString('utf-8')
+    .replace(/export((.|\n)*);/gm, '');
+
   return {
     filename: `file:///${filename.toLowerCase()}.js`,
-    code: fs
-      .readFileSync(
-        /* c8 ignore start */
-        process.env.NODE_ENV === 'test'
-          ? new URL(`../../dist/runtime/${filename}.js`, import.meta.url)
-          : new URL(`runtime/${filename}.js`, import.meta.url),
-        /* c8 ignore end */
-      )
-      .toString('utf-8')
-      .replace(/export((.|\n)*);/gm, ''),
+    code: transform?.(code) || code,
   };
 }
 

@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import prisma from 'lib/prisma';
 import { ClickHouse } from 'clickhouse';
-import apiHandler from 'lib/api';
+import apiHandler, { handlePrismaError } from 'lib/api';
 import { removeDeployment } from 'lib/api/deployments';
 
 const clickhouse = new ClickHouse({});
@@ -78,42 +78,46 @@ const patch = async (request: NextApiRequest, response: NextApiResponse<UpdateFu
     env: string[];
   };
 
-  const func = await prisma.function.update({
-    where: {
-      id: functionId,
-    },
-    data: {
-      name,
-      domains,
-      cron,
-      env,
-    },
-    select: {
-      id: true,
-      createdAt: true,
-      updatedAt: true,
-      name: true,
-      domains: true,
-      memory: true,
-      timeout: true,
-      cron: true,
-      env: true,
-      deployments: {
-        select: {
-          id: true,
-          triggerer: true,
-          commit: true,
-          isCurrent: true,
-          createdAt: true,
-          updatedAt: true,
+  try {
+    const func = await prisma.function.update({
+      where: {
+        id: functionId,
+      },
+      data: {
+        name,
+        domains,
+        cron,
+        env,
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        name: true,
+        domains: true,
+        memory: true,
+        timeout: true,
+        cron: true,
+        env: true,
+        deployments: {
+          select: {
+            id: true,
+            triggerer: true,
+            commit: true,
+            isCurrent: true,
+            createdAt: true,
+            updatedAt: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  // TODO: redeploy when needed
+    // TODO: redeploy when needed
 
-  response.json(func);
+    response.json(func);
+  } catch (error) {
+    handlePrismaError(error, response);
+  }
 };
 
 const del = async (request: NextApiRequest, response: NextApiResponse<DeleteFunctionResponse>) => {

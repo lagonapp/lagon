@@ -10,8 +10,15 @@ import Input from 'lib/components/Input';
 import Playground from 'lib/components/Playground';
 import useFunction from 'lib/hooks/useFunction';
 import Layout from 'lib/Layout';
-import { getFullCurrentDomain } from 'lib/utils';
-import { requiredValidator } from 'lib/form/validators';
+import { fetchApi, getFullCurrentDomain } from 'lib/utils';
+import {
+  composeValidators,
+  functionNameValidator,
+  maxLengthValidator,
+  minLengthValidator,
+  requiredValidator,
+} from 'lib/form/validators';
+import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
 
 const PlaygroundPage = () => {
   const { data: session } = useSession();
@@ -40,7 +47,7 @@ const PlaygroundPage = () => {
             setIsDeploying(true);
 
             if (name !== func.name) {
-              await fetch(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
+              await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
                 method: 'PATCH',
                 body: JSON.stringify({
                   ...func,
@@ -55,7 +62,7 @@ const PlaygroundPage = () => {
               code = monaco.editor.getModels()[1].getValue();
             }
 
-            await fetch(`/api/organizations/${session.organization.id}/functions/${func.id}/deploy`, {
+            await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}/deploy`, {
               method: 'POST',
               body: JSON.stringify({
                 code,
@@ -77,7 +84,17 @@ const PlaygroundPage = () => {
           }}
         >
           <div className="w-[50vw] flex justify-between px-2 items-center h-full">
-            <Input name="name" placeholder="Function name" disabled={isDeploying} validator={requiredValidator} />
+            <Input
+              name="name"
+              placeholder="Function name"
+              disabled={isDeploying}
+              validator={composeValidators(
+                requiredValidator,
+                minLengthValidator(FUNCTION_NAME_MIN_LENGTH),
+                maxLengthValidator(FUNCTION_NAME_MAX_LENGTH),
+                functionNameValidator,
+              )}
+            />
             <div className="flex items-center gap-2">
               <Button href={`/functions/${func.id}`}>Settings</Button>
               <Button variant="primary" submit disabled={isDeploying}>

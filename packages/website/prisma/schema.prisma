@@ -76,7 +76,7 @@ model Function {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name    String
+  name    String     @unique
   domains String[]
   memory  Int
   timeout Int

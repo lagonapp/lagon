@@ -4,7 +4,7 @@ import { $, cd, fs, glob } from 'zx';
 
 cd('../runtime');
 
-await $`pnpm build`;
+await $`pnpm build:runtime`;
 const declarationFiles = await glob('dist/runtime/*.d.ts');
 
 let finalDeclarationFile = `/**

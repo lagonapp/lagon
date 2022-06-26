@@ -1,4 +1,5 @@
 import http from 'node:http';
+import { Headers } from '../runtime/fetch';
 import { RequestInit } from '../runtime/Request';
 import { ResponseInit } from '../runtime/Response';
 
@@ -9,11 +10,23 @@ export type FetchResult = {
 
 export async function fetch(resource: string, init?: RequestInit): Promise<FetchResult> {
   return new Promise((resolve, reject) => {
+    let headers: Record<string, string> = {};
+
+    if (init?.headers) {
+      if (init.headers instanceof Headers) {
+        for (const [key, value] of init.headers.entries()) {
+          headers[key] = value;
+        }
+      } else {
+        headers = init.headers;
+      }
+    }
+
     const request = http.request(
       resource,
       {
         method: init?.method || 'GET',
-        headers: init?.headers || {},
+        headers,
       },
       response => {
         let body = '';
@@ -23,12 +36,20 @@ export async function fetch(resource: string, init?: RequestInit): Promise<Fetch
         });
 
         response.on('end', () => {
+          const headers: Record<string, string> = {};
+
+          Object.entries(response.headers).forEach(([key, value]) => {
+            if (value && !Array.isArray(value)) {
+              headers[key] = value;
+            }
+          });
+
           resolve({
             body,
             options: {
               status: response.statusCode,
               statusText: response.statusMessage,
-              headers: response.headers,
+              headers,
               url: response.url,
             },
           });
