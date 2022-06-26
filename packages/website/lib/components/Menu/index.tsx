@@ -52,7 +52,7 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
             }}
             className={`${active ? 'bg-stone-100' : ''} ${
               disabled ? 'cursor-not-allowed opacity-50' : ''
-            } text-sm text-stone-800 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
+            } select-none text-sm text-stone-800 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
           >
             {icon}
             {children}
@@ -70,7 +70,7 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
           onClick={onClick}
           className={`${active ? 'bg-stone-100' : ''} ${
             disabled ? 'cursor-not-allowed opacity-50' : ''
-          } text-sm text-stone-800 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
+          } select-none text-sm text-stone-800 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
         >
           {icon}
           {children}

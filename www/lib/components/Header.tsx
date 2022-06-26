@@ -10,7 +10,11 @@ type HeaderLinkProps = {
 
 const HeaderLink = ({ href, target, soon, children }: HeaderLinkProps) => {
   return (
-    <a href={href} target={target} className="text-sm text-gray-300 hover:text-white flex gap-1 items-center">
+    <a
+      href={href}
+      target={target}
+      className="text-sm text-gray-300 hover:text-white flex gap-1 items-center select-none"
+    >
       {children}
       {soon ? <span className="text-xs text-gray-400">soon</span> : null}
     </a>

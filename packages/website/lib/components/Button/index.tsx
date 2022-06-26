@@ -54,7 +54,10 @@ const Button = ({
   if (href) {
     return (
       <Link href={href}>
-        <a aria-disabled={disabled} className={`${styles} flex gap-2 items-center whitespace-nowrap shadow-sm`}>
+        <a
+          aria-disabled={disabled}
+          className={`${styles} select-none flex gap-2 items-center whitespace-nowrap shadow-sm`}
+        >
           {leftIcon}
           {children}
           {rightIcon}
@@ -69,7 +72,7 @@ const Button = ({
       type={submit ? 'submit' : 'button'}
       disabled={disabled}
       aria-disabled={disabled}
-      className={`transition ${styles} flex gap-2 items-center whitespace-nowrap shadow-sm`}
+      className={`${styles} transition select-none flex gap-2 items-center whitespace-nowrap shadow-sm`}
     >
       {leftIcon}
       {children}

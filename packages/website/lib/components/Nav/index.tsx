@@ -22,7 +22,10 @@ type NavLinkProps = {
 
 const NavLink = ({ value, children }: NavLinkProps) => {
   return (
-    <Tabs.Trigger value={value} className="px-4 py-2 text-base transition text-stone-500 hover:text-stone-800">
+    <Tabs.Trigger
+      value={value}
+      className="select-none px-4 py-2 text-base transition text-stone-500 hover:text-stone-800"
+    >
       {children}
     </Tabs.Trigger>
   );

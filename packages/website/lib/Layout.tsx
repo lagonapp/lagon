@@ -25,7 +25,7 @@ const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
 
   return (
     <Link href={href}>
-      <a className={`${styles} transition text-md hover:text-stone-800`}>{children}</a>
+      <a className={`${styles} select-none transition text-md hover:text-stone-800`}>{children}</a>
     </Link>
   );
 };
