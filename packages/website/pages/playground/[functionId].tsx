@@ -12,6 +12,7 @@ import Layout from 'lib/Layout';
 import { fetchApi, getFullCurrentDomain } from 'lib/utils';
 import Text from 'lib/components/Text';
 import { PlayIcon, RefreshIcon } from '@heroicons/react/outline';
+import useFunctionCode from 'lib/hooks/useFunctionCode';
 
 const PlaygroundPage = () => {
   const { data: session } = useSession();
@@ -19,6 +20,7 @@ const PlaygroundPage = () => {
     query: { functionId },
   } = useRouter();
   const { data: func } = useFunction(functionId as string);
+  const { data: functionCode } = useFunctionCode(functionId as string);
   const iframeRef = useRef<HTMLIFrameElement>();
   const monaco = useMonaco();
   const [isDeploying, setIsDeploying] = useState(false);
@@ -78,13 +80,7 @@ const PlaygroundPage = () => {
         </div>
       </div>
       <div className="w-screen flex" style={{ height: 'calc(100vh - 4rem - 3rem)' }}>
-        <Playground
-          defaultValue={`export async function handler(request: Request): Promise<Response> {
-  return new Response('Hello World!');
-}`}
-          width="50vw"
-          height="100%"
-        />
+        <Playground defaultValue={functionCode.code} width="50vw" height="100%" />
         <div className="w-[50vw] border-l border-l-stone-200">
           <iframe ref={iframeRef} className="w-full h-full" src={getFullCurrentDomain(func)} />
         </div>
