@@ -65,10 +65,10 @@ export default async function master() {
   await redis.connect();
 
   const s3 = new S3Client({
-    region: 'eu-west-3',
+    region: process.env.AWS_S3_REGION,
     credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
     },
   });
 
@@ -76,7 +76,7 @@ export default async function master() {
     if (!hasDeploymentCodeLocally(deployment)) {
       const content = await s3.send(
         new GetObjectCommand({
-          Bucket: 'lagonapp',
+          Bucket: process.env.AWS_S3_BUCKET,
           Key: `${deployment.deploymentId}.js`,
         }),
       );
@@ -95,7 +95,7 @@ export default async function master() {
 
     const content = await s3.send(
       new GetObjectCommand({
-        Bucket: 'lagonapp',
+        Bucket: process.env.AWS_S3_BUCKET,
         Key: `${deployment.deploymentId}.js`,
       }),
     );
