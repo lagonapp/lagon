@@ -59,7 +59,7 @@ const get = async (request: NextApiRequest, response: NextApiResponse<GetFunctio
           updatedAt: true,
         },
         orderBy: {
-          createdAt: 'asc',
+          createdAt: 'desc',
         },
       },
     },

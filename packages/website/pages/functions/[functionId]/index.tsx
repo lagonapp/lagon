@@ -17,7 +17,7 @@ const Function = () => {
   const { data: func } = useFunction(functionId as string);
 
   return (
-    <Layout title={`Function ${func.name}`} titleStatus="success" rightItem={<FunctionLinks func={func} />}>
+    <Layout title={func.name} titleStatus="success" rightItem={<FunctionLinks func={func} />}>
       <Nav defaultValue="overview">
         <Nav.List rightItem={<Button href={`/playground/${func.id}`}>Playground</Button>}>
           <Nav.Link value="overview">Overview</Nav.Link>

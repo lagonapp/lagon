@@ -25,8 +25,8 @@ const Card = ({ clickable, title, description, rightItem, fullWidth, onClick, ch
       <div
         onClick={onClick}
         className={`${
-          clickable ? 'cursor-pointer hover:bg-gray-50' : ''
-        } p-4 rounded-md border border-gray-200 flex flex-col gap-6`}
+          clickable ? 'cursor-pointer hover:shadow-gray-300' : ''
+        } p-4 rounded-md bg-white shadow-md shadow-gray-200 transition flex flex-col gap-6`}
       >
         {description ? <Text>{description}</Text> : null}
         {children}

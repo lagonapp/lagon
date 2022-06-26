@@ -25,7 +25,7 @@ const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
 
   return (
     <Link href={href}>
-      <a className={`${styles} text-md hover:text-gray-800`}>{children}</a>
+      <a className={`${styles} transition text-md hover:text-gray-800`}>{children}</a>
     </Link>
   );
 };
@@ -87,7 +87,13 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
         <>
           <div className="py-4 h-16 w-full border-b border-b-gray-200">
             <div className="flex justify-between mx-auto px-4 md:max-w-4xl">
-              <div className="flex gap-4 items-center">
+              <div className="flex gap-6 items-center">
+                <Link href="/">
+                  <a>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/icon-black.png" alt="Lagon logo" className="h-6 w-6" />
+                  </a>
+                </Link>
                 <HeaderLink href="/" selected={asPath === '/' || asPath.startsWith('/functions')}>
                   Functions
                 </HeaderLink>
@@ -120,12 +126,12 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
               ) : null}
             </div>
           </div>
-          <div className="mb-32">
+          <div className="pb-32 pt-10 bg-gray-50 min-h-full">
             {headerOnly ? (
               children
             ) : (
               <div className="mx-auto px-4 md:max-w-4xl">
-                <div className="flex justify-between items-center mt-10 mb-4">
+                <div className="flex justify-between items-center mb-4">
                   <Text size="2xl">
                     {titleStatus ? <Dot status={titleStatus} /> : null}
                     {title}

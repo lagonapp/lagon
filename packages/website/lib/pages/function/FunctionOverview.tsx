@@ -162,11 +162,6 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
               &nbsp;KB
             </Description>
           </div>
-          <Divider />
-          <div className="flex items-start justify-between">
-            <Text>These stats are the average value for each request made in this timeframe.</Text>
-            <Button>Upgrade to increase Limits</Button>
-          </div>
         </Card>
       </div>
       <Card title="Requests">

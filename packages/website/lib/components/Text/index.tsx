@@ -31,7 +31,7 @@ const Text = ({ size = 'md', strong, error, children }: TextProps) => {
     },
     {
       size: {
-        sm: 'text-xs text-gray-400',
+        sm: 'text-xs text-gray-500',
         md: 'text-sm text-gray-800',
         lg: 'text-lg text-gray-900',
         xl: 'text-xl text-gray-900 font-semibold',

@@ -66,7 +66,7 @@ const Button = ({
       type={submit ? 'submit' : 'button'}
       disabled={disabled}
       aria-disabled={disabled}
-      className={`${styles} flex gap-2 items-center whitespace-nowrap shadow-sm`}
+      className={`transition ${styles} flex gap-2 items-center whitespace-nowrap shadow-sm`}
     >
       {children}
       {rightIcon}

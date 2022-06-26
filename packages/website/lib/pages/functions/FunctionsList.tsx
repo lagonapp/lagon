@@ -19,7 +19,7 @@ const FunctionsList = () => {
   );
 
   return (
-    <div className="flex gap-2 flex-col">
+    <div className="flex gap-4 flex-col">
       {functions.length === 0 ? (
         <EmptyState
           title="No Functions found"
