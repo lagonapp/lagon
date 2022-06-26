@@ -11,7 +11,7 @@ type LinkProps = {
 const Link = ({ href, target, children }: LinkProps) => {
   return (
     <NextLink href={href} target={target}>
-      <a target="_blank" className="text-blue-500 hover:text-blue-600 text-sm flex items-center gap-1">
+      <a target="_blank" className="select-none text-blue-500 hover:text-blue-600 text-sm flex items-center gap-1">
         {children}
         {target === '_blank' ? <ExternalLinkIcon className="w-4 h-4" /> : null}
       </a>
