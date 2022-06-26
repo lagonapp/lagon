@@ -59,7 +59,7 @@ export async function createDeployment(
 
   await s3.send(
     new PutObjectCommand({
-      Bucket: 'lagonapp',
+      Bucket: process.env.AWS_S3_BUCKET,
       Key: `${deployment.id}.js`,
       Body: finalCode,
     }),
@@ -114,7 +114,7 @@ export async function removeDeployment(
 
   await s3.send(
     new DeleteObjectCommand({
-      Bucket: 'lagonapp',
+      Bucket: process.env.AWS_S3_BUCKET,
       Key: `${deployment.id}.js`,
     }),
   );
