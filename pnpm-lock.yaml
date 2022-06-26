@@ -200,6 +200,7 @@ importers:
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
       autoprefixer: ^10.4.7
+      cobe: ^0.5.0
       eslint: ^8.16.0
       eslint-config-next: 12.1.6
       next: 12.1.6
@@ -210,6 +211,7 @@ importers:
       tailwindcss: ^3.0.24
       typescript: ^4.6.4
     dependencies:
+      cobe: 0.5.0
       next: 12.1.6_ef5jwxihqo6n7gxfmzogljlgcm
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
@@ -7402,6 +7404,12 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
+  /cobe/0.5.0:
+    resolution: {integrity: sha512-iutLGC4FU0WyruiF0Rlq/iKsDtuM3GtsTd/bNi4gjT0eSOT9Mrpp/dGV46HYPaAYmebMsUFFdhQ5hqZZEChnPQ==}
+    dependencies:
+      phenomenon: 1.6.0
+    dev: false
+
   /code-point-at/1.1.0:
     resolution: {integrity: sha512-RpAVKQA5T63xEj6/giIbUEtZwJ4UFIc3ZtvEkiaUERylqe8xb5IvqcgOurZLahv93CLKfxcw5YI+DZcUBRyLXA==}
     engines: {node: '>=0.10.0'}
@@ -12989,6 +12997,10 @@ packages:
 
   /performance-now/2.1.0:
     resolution: {integrity: sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==}
+    dev: false
+
+  /phenomenon/1.6.0:
+    resolution: {integrity: sha512-7h9/fjPD3qNlgggzm88cY58l9sudZ6Ey+UmZsizfhtawO6E3srZQXywaNm2lBwT72TbpHYRPy7ytIHeBUD/G0A==}
     dev: false
 
   /picocolors/0.2.1:
