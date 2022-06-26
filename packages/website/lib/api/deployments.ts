@@ -1,9 +1,10 @@
-import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import redis from 'lib/redis';
 import s3 from 'lib/s3';
 import { transform } from 'esbuild';
 import prisma from 'lib/prisma';
 import { envStringToObject } from 'lib/api/env';
+import { Readable } from 'node:stream';
 
 export async function transformCode(code: string) {
   const { code: finalCode } = await transform(code, {
@@ -217,4 +218,24 @@ export async function setCurrentDeployment(
   );
 
   return deployment;
+}
+
+async function streamToString(stream: Readable): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    const chunks: Uint8Array[] = [];
+    stream.on('data', chunk => chunks.push(chunk));
+    stream.on('error', reject);
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
+  });
+}
+
+export async function getDeploymentCode(deploymentId: string) {
+  const content = await s3.send(
+    new GetObjectCommand({
+      Bucket: 'lagonapp',
+      Key: `${deploymentId}.js`,
+    }),
+  );
+
+  return streamToString(content.Body);
 }

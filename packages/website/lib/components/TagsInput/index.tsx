@@ -37,17 +37,17 @@ const TagsInput = ({ name, placeholder, disabled }: TagsInputProps) => {
       {({ input }) => (
         <div
           onClick={onClick}
-          className={`${styles} px-1.5 py-0.5 flex items-center rounded-md border border-gray-300 focus-within:outline-1 focus-within:outline-blue-500 focus-within:outline-offset-2`}
+          className={`${styles} px-1.5 py-0.5 flex items-center rounded-md border border-stone-300 focus-within:outline-1 focus-within:outline-blue-500 focus-within:outline-offset-2`}
         >
           {tags.map(tag => (
-            <span key={tag} className="text-xs px-1 py-0.5 rounded bg-gray-200 mr-1 inline-flex items-center gap-1">
+            <span key={tag} className="text-xs px-1 py-0.5 rounded bg-stone-200 mr-1 inline-flex items-center gap-1">
               {tag}
               <button
                 type="button"
                 onClick={() => {
                   setTags(tags.filter(currentTag => currentTag !== tag));
                 }}
-                className="text-gray-600 hover:text-gray-800"
+                className="text-stone-600 hover:text-stone-800"
               >
                 <XIcon className="w-3 h-3" />
               </button>
@@ -73,7 +73,7 @@ const TagsInput = ({ name, placeholder, disabled }: TagsInputProps) => {
             placeholder={placeholder}
             disabled={disabled}
             aria-disabled={disabled}
-            className="text-sm text-gray-800 py-0.5 focus-visible:outline-none"
+            className="text-sm text-stone-800 py-0.5 focus-visible:outline-none"
           />
         </div>
       )}

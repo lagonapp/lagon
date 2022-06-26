@@ -6,6 +6,7 @@ type ButtonProps = {
   variant?: 'primary' | 'secondary' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
+  leftIcon?: ReactElement;
   rightIcon?: ReactElement;
   center?: boolean;
   submit?: boolean;
@@ -18,6 +19,7 @@ const Button = ({
   variant = 'secondary',
   size = 'md',
   disabled,
+  leftIcon,
   rightIcon,
   center,
   submit,
@@ -36,7 +38,7 @@ const Button = ({
       variant: {
         primary: 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white border border-blue-700 shadow-blue-100',
         secondary:
-          'bg-gray-50 hover:bg-gray-100 active:bg-gray-200 text-gray-800 border border-gray-300 shadow-gray-100',
+          'bg-stone-50 hover:bg-stone-100 active:bg-stone-200 text-stone-800 border border-stone-300 shadow-stone-100',
         danger: 'bg-red-500 hover:bg-red-600 active:bg-red-700 text-white border border-red-700 shadow-red-100',
       },
       size: {
@@ -53,6 +55,7 @@ const Button = ({
     return (
       <Link href={href}>
         <a aria-disabled={disabled} className={`${styles} flex gap-2 items-center whitespace-nowrap shadow-sm`}>
+          {leftIcon}
           {children}
           {rightIcon}
         </a>
@@ -66,8 +69,9 @@ const Button = ({
       type={submit ? 'submit' : 'button'}
       disabled={disabled}
       aria-disabled={disabled}
-      className={`${styles} flex gap-2 items-center whitespace-nowrap shadow-sm`}
+      className={`transition ${styles} flex gap-2 items-center whitespace-nowrap shadow-sm`}
     >
+      {leftIcon}
       {children}
       {rightIcon}
     </button>

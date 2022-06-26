@@ -20,12 +20,15 @@ const Home = () => {
         )}
       </Head>
       <Header />
-      <div className="flex flex-col gap-8 items-center text-center mt-[26vh] max-w-2xl mx-auto px-6">
-        <h1 className="text-white text-5xl font-bold leading-[46px] animate-fade" style={{ fontFamily: 'Poppins' }}>
+      <div className="flex flex-col gap-8 items-center text-center mt-[8vh] md:mt-[26vh] max-w-2xl mx-auto px-6">
+        <h1
+          className="text-white text-5xl font-bold leading-[46px] animate-fade z-10"
+          style={{ fontFamily: 'Poppins' }}
+        >
           Deploy Serverless Functions at the&nbsp;
           <span className="bg-clip-text text-transparent bg-gradient-to-br from-blue-500 to-purple-500">Edge</span>
         </h1>
-        <h2 className="text-gray-300 text-sm max-w-sm leading-relaxed animate-fade">
+        <h2 className="text-gray-300 text-sm max-w-sm leading-relaxed animate-fade z-10">
           Lagon is an open source platform that allows you to run TypeScript and JavaScript close to your users.
         </h2>
         <a

@@ -124,8 +124,6 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
                     {item}
                   </Menu.Item>
                 ))}
-                <Divider />
-                <Menu.Item>Current month</Menu.Item>
               </Menu.Items>
             </Menu>
           }
@@ -134,16 +132,16 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
             <Description title="Requests" total="100,000">
               {stats.reduce((acc, current) => acc + current.requests, 0)}
             </Description>
-            <Description title="Avg. CPU time" total={`${func.timeout}ms`}>
+            <Description title="CPU time" total={`${func.timeout}ms`}>
               {stats.length > 0 ? formatNs(stats.reduce((acc, current) => acc + current.cpu, 0) / stats.length) : 0}ms
             </Description>
-            <Description title="Avg. Memory" total={`${func.memory} MB`}>
+            <Description title="Memory" total={`${func.memory} MB`}>
               {stats.length > 0
                 ? formatBytes(stats.reduce((acc, current) => acc + current.memory, 0) / stats.length)
                 : 0}
               &nbsp;MB
             </Description>
-            <Description title="Avg. Received bytes">
+            <Description title="Received bytes">
               {stats.length > 0
                 ? formatKb(
                     stats.reduce((acc, current) => acc + current.receivedBytes, 0) /
@@ -152,7 +150,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
                 : 0}
               &nbsp;KB
             </Description>
-            <Description title="Avg. Send bytes">
+            <Description title="Send bytes">
               {stats.length > 0
                 ? formatKb(
                     stats.reduce((acc, current) => acc + current.sendBytes, 0) /
@@ -163,9 +161,27 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
             </Description>
           </div>
           <Divider />
-          <div className="flex items-start justify-between">
-            <Text>These stats are the average value for each request made in this timeframe.</Text>
-            <Button>Upgrade to increase Limits</Button>
+          <div className="flex gap-8">
+            <Text size="sm">
+              Last update:&nbsp;
+              {new Date(func.createdAt).toLocaleString('en-US', {
+                minute: 'numeric',
+                hour: 'numeric',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </Text>
+            <Text size="sm">
+              Created:&nbsp;
+              {new Date(func.createdAt).toLocaleString('en-US', {
+                minute: 'numeric',
+                hour: 'numeric',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </Text>
           </div>
         </Card>
       </div>

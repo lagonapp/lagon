@@ -1,5 +1,6 @@
 import { MouseEventHandler, ReactElement, ReactNode } from 'react';
 import Text from 'lib/components/Text';
+import useTailwind from 'lib/hooks/useTailwind';
 
 type CardProps = {
   clickable?: boolean;
@@ -8,10 +9,21 @@ type CardProps = {
   rightItem?: ReactElement;
   fullWidth?: boolean;
   onClick?: MouseEventHandler;
+  danger?: boolean;
   children: ReactNode;
 };
 
-const Card = ({ clickable, title, description, rightItem, fullWidth, onClick, children }: CardProps) => {
+const Card = ({ clickable, title, description, rightItem, fullWidth, onClick, danger, children }: CardProps) => {
+  const styles = useTailwind(
+    {
+      clickable,
+      danger,
+    },
+    {
+      clickable: 'cursor-pointer hover:shadow-stone-300',
+      danger: 'border border-red-500',
+    },
+  );
   return (
     <div className={`${fullWidth ? 'w-full' : ''} flex flex-col gap-2`}>
       {title ? (
@@ -24,9 +36,7 @@ const Card = ({ clickable, title, description, rightItem, fullWidth, onClick, ch
       ) : null}
       <div
         onClick={onClick}
-        className={`${
-          clickable ? 'cursor-pointer hover:bg-gray-50' : ''
-        } p-4 rounded-md border border-gray-200 flex flex-col gap-6`}
+        className={`${styles} p-4 rounded-md bg-white shadow-md shadow-stone-200 transition flex flex-col gap-4`}
       >
         {description ? <Text>{description}</Text> : null}
         {children}

@@ -19,7 +19,7 @@ const FunctionsList = () => {
   );
 
   return (
-    <div className="flex gap-2 flex-col">
+    <div className="flex gap-4 flex-col">
       {functions.length === 0 ? (
         <EmptyState
           title="No Functions found"
@@ -35,13 +35,13 @@ const FunctionsList = () => {
             </Text>
             <FunctionLinks func={func} />
           </div>
-          <Text>
-            Last deployed:{' '}
+          <Text size="sm">
+            Last update:&nbsp;
             {new Date(func.updatedAt).toLocaleString('en-US', {
-              minute: '2-digit',
-              hour: '2-digit',
+              minute: 'numeric',
+              hour: 'numeric',
               day: 'numeric',
-              month: 'numeric',
+              month: 'long',
               year: 'numeric',
             })}
           </Text>

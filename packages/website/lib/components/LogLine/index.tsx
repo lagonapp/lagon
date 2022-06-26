@@ -24,9 +24,9 @@ const LogLine = ({ date, level = 'info', message }: LogLineProps) => {
         };
       default:
         return {
-          containerStyle: 'even:bg-gray-50 hover:bg-gray-100',
-          dateStyle: 'text-gray-600',
-          messageStyle: 'text-gray-800',
+          containerStyle: 'even:bg-stone-50 hover:bg-stone-100',
+          dateStyle: 'text-stone-600',
+          messageStyle: 'text-stone-800',
         };
     }
   }, [level]);
@@ -35,10 +35,10 @@ const LogLine = ({ date, level = 'info', message }: LogLineProps) => {
     <div className={`flex justify-between w-full px-2 py-1 rounded-md group ${containerStyle}`}>
       <div className="flex items-start gap-4">
         <p className={`text-sm whitespace-pre w-36 ${dateStyle}`}>{date.toLocaleString('en-US')}</p>
-        <pre className={`text-sm text-gray-800 whitespace-pre-wrap ${messageStyle}`}>{message}</pre>
+        <pre className={`text-sm text-stone-800 whitespace-pre-wrap ${messageStyle}`}>{message}</pre>
       </div>
       <span
-        className="hidden cursor-pointer group-hover:inline text-xs text-gray-400 hover:text-gray-800"
+        className="hidden cursor-pointer group-hover:inline text-xs text-stone-400 hover:text-stone-800"
         onClick={() => navigator.clipboard.writeText(message)}
       >
         Copy

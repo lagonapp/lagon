@@ -21,7 +21,7 @@ const MenuButton = ({ children, ...props }) => {
 const MenuItems = ({ children, ...props }) => {
   return (
     <HeadlessMenu.Items
-      className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-md focus:outline-none p-2"
+      className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg shadow-stone-200 focus:outline-none p-2 z-10"
       {...props}
     >
       {children}
@@ -50,9 +50,9 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
               event.preventDefault();
               router.push(href);
             }}
-            className={`${active ? 'bg-gray-100' : ''} ${
+            className={`${active ? 'bg-stone-100' : ''} ${
               disabled ? 'cursor-not-allowed opacity-50' : ''
-            } text-sm text-gray-800 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
+            } text-sm text-stone-800 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
           >
             {icon}
             {children}
@@ -68,9 +68,9 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
         <button
           type="button"
           onClick={onClick}
-          className={`${active ? 'bg-gray-100' : ''} ${
+          className={`${active ? 'bg-stone-100' : ''} ${
             disabled ? 'cursor-not-allowed opacity-50' : ''
-          } text-sm text-gray-800 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
+          } text-sm text-stone-800 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
         >
           {icon}
           {children}

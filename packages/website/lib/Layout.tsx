@@ -21,11 +21,11 @@ type HeaderLinkProps = {
 };
 
 const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
-  const styles = useMemo(() => (selected ? 'text-gray-800' : 'text-gray-500'), [selected]);
+  const styles = useMemo(() => (selected ? 'text-stone-800' : 'text-stone-500'), [selected]);
 
   return (
     <Link href={href}>
-      <a className={`${styles} text-md hover:text-gray-800`}>{children}</a>
+      <a className={`${styles} transition text-md hover:text-stone-800`}>{children}</a>
     </Link>
   );
 };
@@ -85,9 +85,15 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
       </Head>
       {session.organization || asPath === '/new' ? (
         <>
-          <div className="py-4 h-16 w-full border-b border-b-gray-200">
+          <div className="py-4 h-16 w-full border-b border-b-stone-200">
             <div className="flex justify-between mx-auto px-4 md:max-w-4xl">
-              <div className="flex gap-4 items-center">
+              <div className="flex gap-6 items-center">
+                <Link href="/">
+                  <a>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/icon-black.png" alt="Lagon logo" className="h-6 w-6" />
+                  </a>
+                </Link>
                 <HeaderLink href="/" selected={asPath === '/' || asPath.startsWith('/functions')}>
                   Functions
                 </HeaderLink>
@@ -120,12 +126,12 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
               ) : null}
             </div>
           </div>
-          <div className="mb-32">
+          <div className="bg-stone-50 min-h-screen">
             {headerOnly ? (
               children
             ) : (
               <div className="mx-auto px-4 md:max-w-4xl">
-                <div className="flex justify-between items-center mt-10 mb-4">
+                <div className="flex justify-between items-center pt-10 mb-4">
                   <Text size="2xl">
                     {titleStatus ? <Dot status={titleStatus} /> : null}
                     {title}
