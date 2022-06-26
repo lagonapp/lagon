@@ -21,11 +21,11 @@ type HeaderLinkProps = {
 };
 
 const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
-  const styles = useMemo(() => (selected ? 'text-gray-800' : 'text-gray-500'), [selected]);
+  const styles = useMemo(() => (selected ? 'text-stone-800' : 'text-stone-500'), [selected]);
 
   return (
     <Link href={href}>
-      <a className={`${styles} transition text-md hover:text-gray-800`}>{children}</a>
+      <a className={`${styles} transition text-md hover:text-stone-800`}>{children}</a>
     </Link>
   );
 };
@@ -85,7 +85,7 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
       </Head>
       {session.organization || asPath === '/new' ? (
         <>
-          <div className="py-4 h-16 w-full border-b border-b-gray-200">
+          <div className="py-4 h-16 w-full border-b border-b-stone-200">
             <div className="flex justify-between mx-auto px-4 md:max-w-4xl">
               <div className="flex gap-6 items-center">
                 <Link href="/">
@@ -126,7 +126,7 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
               ) : null}
             </div>
           </div>
-          <div className="pb-32 pt-10 bg-gray-50 min-h-full">
+          <div className="pb-32 pt-10 bg-stone-50 min-h-screen">
             {headerOnly ? (
               children
             ) : (

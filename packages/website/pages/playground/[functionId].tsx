@@ -38,7 +38,7 @@ const PlaygroundPage = () => {
 
   return (
     <Layout title="Playground" headerOnly>
-      <div className="w-screen h-12 flex border-b border-b-gray-200">
+      <div className="w-screen h-12 flex border-b border-b-stone-200">
         <Form
           initialValues={{
             name: func.name,
@@ -103,7 +103,7 @@ const PlaygroundPage = () => {
             </div>
           </div>
         </Form>
-        <div className="w-[50vw] border-l border-l-gray-200 px-2 flex items-center gap-2">
+        <div className="w-[50vw] border-l border-l-stone-200 px-2 flex items-center gap-2">
           <Button onClick={reloadIframe}>Reload</Button>
           <FunctionLinks func={func} />
         </div>
@@ -116,7 +116,7 @@ const PlaygroundPage = () => {
           width="50vw"
           height="100%"
         />
-        <div className="w-[50vw] border-l border-l-gray-200">
+        <div className="w-[50vw] border-l border-l-stone-200">
           <iframe ref={iframeRef} className="w-full h-full" src={getFullCurrentDomain(func)} />
         </div>
       </div>

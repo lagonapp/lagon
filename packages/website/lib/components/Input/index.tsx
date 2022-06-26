@@ -31,7 +31,7 @@ const Input = ({ name, type = 'text', placeholder, disabled, validator }: InputP
             placeholder={placeholder}
             disabled={disabled}
             aria-disabled={disabled}
-            className={`${styles} px-3 py-1 rounded-md text-sm text-gray-800 border border-gray-300`}
+            className={`${styles} px-3 py-1 rounded-md text-sm text-stone-800 border border-stone-300`}
           />
           {meta.touched && meta.error ? <Text error>{meta.error}</Text> : null}
         </div>
