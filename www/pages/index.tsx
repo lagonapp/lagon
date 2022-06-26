@@ -2,6 +2,9 @@ import Head from 'next/head';
 import useSystemTheme from 'react-use-system-theme';
 import Header from '../lib/components/Header';
 import Globe from '../lib/components/Globe';
+import Splitbee from '@splitbee/web';
+
+Splitbee.init();
 
 const Home = () => {
   const theme = useSystemTheme();
@@ -30,6 +33,7 @@ const Home = () => {
           target="_blank"
           className="text-base text-purple-100 px-8 py-2 rounded-full bg-gradient-to-br from-purple-500/70 to-purple-500/0 border border-purple-500 z-10 transition duration-300 hover:shadow-purple-500/40 hover:shadow-xl hover:border-purple-400 animate-fade-slow"
           rel="noreferrer"
+          onClick={() => Splitbee.track('email')}
         >
           Get email updates
         </a>

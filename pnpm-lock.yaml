@@ -196,6 +196,7 @@ importers:
 
   www:
     specifiers:
+      '@splitbee/web': ^0.3.0
       '@types/node': ^17.0.35
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
@@ -211,6 +212,7 @@ importers:
       tailwindcss: ^3.0.24
       typescript: ^4.6.4
     dependencies:
+      '@splitbee/web': 0.3.0
       cobe: 0.5.0
       next: 12.1.6_ef5jwxihqo6n7gxfmzogljlgcm
       react: 18.1.0
@@ -3546,6 +3548,10 @@ packages:
   /@sindresorhus/is/4.6.0:
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
+    dev: false
+
+  /@splitbee/web/0.3.0:
+    resolution: {integrity: sha512-jNPDKg0GQGa4jCaBc6JQsv0NHmBA80WCwZE49nFyhcbo32WF0GyqXeice7ZApy7OUHI16bAUAzm4MOQw3gvxfQ==}
     dev: false
 
   /@storybook/addon-actions/6.5.9_ef5jwxihqo6n7gxfmzogljlgcm:
