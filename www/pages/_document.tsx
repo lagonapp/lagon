@@ -10,6 +10,18 @@ class MyDocument extends Document {
             name="description"
             content="Deploy Serverless Functions at the Edge. Lagon is an open source platform that allows you to run TypeScript and JavaScript close to your users."
           />
+          <meta property="og:url" content="https://lagon.app" />
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content="Lagon" />
+          <meta
+            name="twitter:card"
+            content="Lagon is an open source platform that allows you to run TypeScript and JavaScript close to your users."
+          />
+          <meta
+            property="og:description"
+            content="Lagon is an open source platform that allows you to run TypeScript and JavaScript close to your users."
+          />
+          <meta property="og:image" content="https://i.imgur.com/lqVcA5Y.png" />
         </Head>
         <body>
           <Main />
