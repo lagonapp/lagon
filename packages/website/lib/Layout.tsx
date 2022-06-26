@@ -126,12 +126,12 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
               ) : null}
             </div>
           </div>
-          <div className="pb-32 pt-10 bg-stone-50 min-h-screen">
+          <div className="bg-stone-50 min-h-screen">
             {headerOnly ? (
               children
             ) : (
               <div className="mx-auto px-4 md:max-w-4xl">
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center pt-10 mb-4">
                   <Text size="2xl">
                     {titleStatus ? <Dot status={titleStatus} /> : null}
                     {title}

@@ -6,19 +6,12 @@ import toast from 'react-hot-toast';
 import Button from 'lib/components/Button';
 import Form from 'lib/components/Form';
 import FunctionLinks from 'lib/components/FunctionLinks';
-import Input from 'lib/components/Input';
 import Playground from 'lib/components/Playground';
 import useFunction from 'lib/hooks/useFunction';
 import Layout from 'lib/Layout';
 import { fetchApi, getFullCurrentDomain } from 'lib/utils';
-import {
-  composeValidators,
-  functionNameValidator,
-  maxLengthValidator,
-  minLengthValidator,
-  requiredValidator,
-} from 'lib/form/validators';
-import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
+import Text from 'lib/components/Text';
+import { PlayIcon, RefreshIcon } from '@heroicons/react/outline';
 
 const PlaygroundPage = () => {
   const { data: session } = useSession();
@@ -37,25 +30,11 @@ const PlaygroundPage = () => {
   }, [iframeRef]);
 
   return (
-    <Layout title="Playground" headerOnly>
+    <Layout title={`${func.name} playground`} headerOnly>
       <div className="w-screen h-12 flex border-b border-b-stone-200">
         <Form
-          initialValues={{
-            name: func.name,
-          }}
-          onSubmit={async ({ name }) => {
+          onSubmit={async () => {
             setIsDeploying(true);
-
-            if (name !== func.name) {
-              await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
-                method: 'PATCH',
-                body: JSON.stringify({
-                  ...func,
-                  name,
-                }),
-              });
-            }
-
             let code = monaco.editor.getModels()[0].getValue();
 
             if (code.startsWith('declare interface RequestInit {')) {
@@ -72,11 +51,9 @@ const PlaygroundPage = () => {
           }}
           onSubmitSuccess={() => {
             toast.success('Function deployed successfully.');
-            reloadIframe();
+            setIsDeploying(false);
 
-            setTimeout(() => {
-              setIsDeploying(false);
-            }, 100);
+            setTimeout(reloadIframe, 100);
           }}
           onSubmitError={() => {
             toast.error('Failed to deploy function.');
@@ -84,27 +61,19 @@ const PlaygroundPage = () => {
           }}
         >
           <div className="w-[50vw] flex justify-between px-2 items-center h-full">
-            <Input
-              name="name"
-              placeholder="Function name"
-              disabled={isDeploying}
-              validator={composeValidators(
-                requiredValidator,
-                minLengthValidator(FUNCTION_NAME_MIN_LENGTH),
-                maxLengthValidator(FUNCTION_NAME_MAX_LENGTH),
-                functionNameValidator,
-              )}
-            />
+            <Text>{func.name} playground</Text>
             <div className="flex items-center gap-2">
-              <Button href={`/functions/${func.id}`}>Settings</Button>
-              <Button variant="primary" submit disabled={isDeploying}>
+              <Button href={`/functions/${func.id}`}>Back to function</Button>
+              <Button variant="primary" leftIcon={<PlayIcon className="w-4 h-4" />} submit disabled={isDeploying}>
                 Deploy
               </Button>
             </div>
           </div>
         </Form>
-        <div className="w-[50vw] border-l border-l-stone-200 px-2 flex items-center gap-2">
-          <Button onClick={reloadIframe}>Reload</Button>
+        <div className="w-[50vw] border-l border-l-stone-200 px-2 flex items-center gap-4">
+          <Button onClick={reloadIframe} leftIcon={<RefreshIcon className="w-4 h-4" />}>
+            Reload
+          </Button>
           <FunctionLinks func={func} />
         </div>
       </div>
