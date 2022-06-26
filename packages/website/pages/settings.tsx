@@ -118,7 +118,7 @@ const Settings = () => {
             toast.success('Ownership of this Organization transferred successfully.');
           }}
         >
-          <Card title="Tranfer" description="Transfer the ownership of this Organization to another user?">
+          <Card title="Tranfer" description="Transfer the ownership of this Organization to another user?" danger>
             <div className="flex gap-2 items-center">
               <Input name="email" placeholder="New Owner email" />
               <Button variant="danger" submit>
@@ -130,6 +130,7 @@ const Settings = () => {
         <Card
           title="Delete"
           description="Delete completely this Organization, it's Functions, Deployments and Logs. This action is irreversible."
+          danger
         >
           <Dialog
             title="Delete Organization"

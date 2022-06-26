@@ -35,13 +35,13 @@ const FunctionsList = () => {
             </Text>
             <FunctionLinks func={func} />
           </div>
-          <Text>
-            Last deployed:{' '}
+          <Text size="sm">
+            Last update:&nbsp;
             {new Date(func.updatedAt).toLocaleString('en-US', {
-              minute: '2-digit',
-              hour: '2-digit',
+              minute: 'numeric',
+              hour: 'numeric',
               day: 'numeric',
-              month: 'numeric',
+              month: 'long',
               year: 'numeric',
             })}
           </Text>

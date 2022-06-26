@@ -205,6 +205,7 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
       <Card
         title="Delete"
         description="Delete completely this Function, it's Deployments and Logs. This action is irreversible."
+        danger
       >
         <Dialog
           title="Delete Function"
