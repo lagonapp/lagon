@@ -28,6 +28,11 @@ Disabled.args = {
   disabled: true,
 };
 
+export const LeftIcon = Template.bind({});
+LeftIcon.args = {
+  leftIcon: <ChevronDownIcon className="w-4 h-4" />,
+};
+
 export const RightIcon = Template.bind({});
 RightIcon.args = {
   rightIcon: <ChevronDownIcon className="w-4 h-4" />,

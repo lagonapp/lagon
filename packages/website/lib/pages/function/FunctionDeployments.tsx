@@ -10,6 +10,7 @@ import Link from 'lib/components/Link';
 import Text from 'lib/components/Text';
 import { getCurrentDomain, getFullCurrentDomain } from 'lib/utils';
 import Dialog from 'lib/components/Dialog';
+import { RefreshIcon } from '@heroicons/react/outline';
 
 type FunctionDeploymentsProps = {
   func: GetFunctionResponse;
@@ -98,7 +99,7 @@ const FunctionDeployments = ({ func }: FunctionDeploymentsProps) => {
                     <Dialog
                       title="Rollback Deployment"
                       description="Are you sure you want to rollback to this Deployment?"
-                      disclosure={<Button>Rollback</Button>}
+                      disclosure={<Button leftIcon={<RefreshIcon className="w-4 h-4" />}>Rollback</Button>}
                     >
                       <Dialog.Buttons>
                         <Dialog.Cancel />

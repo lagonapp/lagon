@@ -6,6 +6,7 @@ type ButtonProps = {
   variant?: 'primary' | 'secondary' | 'danger';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
+  leftIcon?: ReactElement;
   rightIcon?: ReactElement;
   center?: boolean;
   submit?: boolean;
@@ -18,6 +19,7 @@ const Button = ({
   variant = 'secondary',
   size = 'md',
   disabled,
+  leftIcon,
   rightIcon,
   center,
   submit,
@@ -53,6 +55,7 @@ const Button = ({
     return (
       <Link href={href}>
         <a aria-disabled={disabled} className={`${styles} flex gap-2 items-center whitespace-nowrap shadow-sm`}>
+          {leftIcon}
           {children}
           {rightIcon}
         </a>
@@ -68,6 +71,7 @@ const Button = ({
       aria-disabled={disabled}
       className={`transition ${styles} flex gap-2 items-center whitespace-nowrap shadow-sm`}
     >
+      {leftIcon}
       {children}
       {rightIcon}
     </button>

@@ -21,7 +21,7 @@ const MenuButton = ({ children, ...props }) => {
 const MenuItems = ({ children, ...props }) => {
   return (
     <HeadlessMenu.Items
-      className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-md focus:outline-none p-2 z-10"
+      className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg shadow-stone-200 focus:outline-none p-2 z-10"
       {...props}
     >
       {children}

@@ -8,6 +8,7 @@ import FunctionDeployments from 'lib/pages/function/FunctionDeployments';
 import FunctionLogs from 'lib/pages/function/FunctionLogs';
 import FunctionLinks from 'lib/components/FunctionLinks';
 import Button from 'lib/components/Button';
+import { PlayIcon } from '@heroicons/react/outline';
 
 const Function = () => {
   const {
@@ -19,7 +20,13 @@ const Function = () => {
   return (
     <Layout title={func.name} titleStatus="success" rightItem={<FunctionLinks func={func} />}>
       <Nav defaultValue="overview">
-        <Nav.List rightItem={<Button href={`/playground/${func.id}`}>Playground</Button>}>
+        <Nav.List
+          rightItem={
+            <Button href={`/playground/${func.id}`} leftIcon={<PlayIcon className="w-4 h-4" />}>
+              Playground
+            </Button>
+          }
+        >
           <Nav.Link value="overview">Overview</Nav.Link>
           <Nav.Link value="deployments">Deployments</Nav.Link>
           <Nav.Link value="logs">Logs</Nav.Link>
