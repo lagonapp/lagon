@@ -23,9 +23,9 @@ fastify.addContentTypeParser('multipart/form-data', (request, payload, done) => 
   });
 });
 
-const html404 = fs.readFileSync(path.join(path.resolve(), 'public', '404.html'), 'utf8');
-const html500 = fs.readFileSync(path.join(path.resolve(), 'public', '500.html'), 'utf8');
-const css = fs.readFileSync(path.join(path.resolve(), 'public', 'main.css'), 'utf8');
+const html404 = fs.readFileSync(path.join(new URL('.', import.meta.url).pathname, '../public/404.html'), 'utf8');
+const html500 = fs.readFileSync(path.join(new URL('.', import.meta.url).pathname, '../public/500.html'), 'utf8');
+const css = fs.readFileSync(path.join(new URL('.', import.meta.url).pathname, '../public/main.css'), 'utf8');
 
 const logs = new Map<string, DeploymentLog[]>();
 

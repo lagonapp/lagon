@@ -4,6 +4,8 @@ import { Deployment } from '../deployments';
 import { addLog, OnDeploymentLog } from '../deployments/log';
 import { fetch, FetchResult } from '../fetch';
 import { RequestInit } from '../runtime/Request';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 
 function getEnvironmentVariables(deployment: Deployment): string {
   let environmentVariables = '';
@@ -70,7 +72,7 @@ function readRuntimeFile(filename: string, transform?: (code: string) => string)
     .readFileSync(
       /* c8 ignore start */
       process.env.NODE_ENV === 'test'
-        ? new URL(`../../dist/runtime/${filename}.js`, import.meta.url)
+        ? path.join(process.cwd(), 'packages/runtime/dist/runtime', `${filename}.js`)
         : new URL(`runtime/${filename}.js`, import.meta.url),
       /* c8 ignore end */
     )
