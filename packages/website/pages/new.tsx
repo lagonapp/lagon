@@ -10,35 +10,29 @@ import {
 } from 'lib/constants';
 import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
 import Layout from 'lib/Layout';
-import { fetchApi, reloadSession } from 'lib/utils';
+import { trpc } from 'lib/trpc';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 const New = () => {
   const router = useRouter();
-  const [isCreating, setIsCreating] = useState(false);
+  const createOrganization = trpc.useMutation(['organizations.create']);
+  const queryContext = trpc.useContext();
 
   return (
     <Layout title="Create Organization">
       <Form
         onSubmit={async ({ name, description }) => {
-          setIsCreating(true);
-
-          await fetchApi(`/api/organizations`, {
-            method: 'POST',
-            body: JSON.stringify({ name, description }),
+          await createOrganization.mutateAsync({
+            name,
+            description,
           });
         }}
         onSubmitSuccess={() => {
-          setIsCreating(false);
           toast.success('Organization created.');
 
-          reloadSession();
+          queryContext.refetchQueries();
           router.push('/');
-        }}
-        onSubmitError={() => {
-          setIsCreating(false);
         }}
       >
         <div className="flex flex-col gap-8 w-96 mx-auto mt-12">
@@ -47,7 +41,7 @@ const New = () => {
             <Input
               name="name"
               placeholder="awesome-project"
-              disabled={isCreating}
+              disabled={createOrganization.isLoading}
               validator={composeValidators(
                 requiredValidator,
                 minLengthValidator(ORGANIZATION_NAME_MIN_LENGTH),
@@ -60,11 +54,11 @@ const New = () => {
             <Textarea
               name="description"
               placeholder="Description of my new awesome project."
-              disabled={isCreating}
+              disabled={createOrganization.isLoading}
               validator={maxLengthValidator(ORGANIZATION_DESCRIPTION_MAX_LENGTH)}
             />
           </div>
-          <Button variant="primary" center submit disabled={isCreating}>
+          <Button variant="primary" center submit disabled={createOrganization.isLoading}>
             Create Organization
           </Button>
         </div>

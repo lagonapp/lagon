@@ -5,6 +5,7 @@ import { transform } from 'esbuild';
 import prisma from 'lib/prisma';
 import { envStringToObject } from 'lib/api/env';
 import { Readable } from 'node:stream';
+import * as trpc from '@trpc/server';
 
 export async function transformCode(code: string) {
   const { code: finalCode } = await transform(code, {
@@ -32,7 +33,7 @@ export async function createDeployment(
   },
   code: string,
   shouldTransformCode: boolean,
-  triggerer,
+  triggerer: string,
 ): Promise<{
   id: string;
   createdAt: Date;
@@ -149,6 +150,12 @@ export async function removeCurrentDeployment(functionId: string): Promise<{
     },
   });
 
+  if (!currentDeployment) {
+    throw new trpc.TRPCError({
+      code: 'NOT_FOUND',
+    });
+  }
+
   return prisma.deployment.update({
     data: {
       isCurrent: false,
@@ -184,6 +191,12 @@ export async function setCurrentDeployment(
       env: true,
     },
   });
+
+  if (!func) {
+    throw new trpc.TRPCError({
+      code: 'NOT_FOUND',
+    });
+  }
 
   const previousDeployment = await removeCurrentDeployment(func.id);
 
@@ -237,5 +250,9 @@ export async function getDeploymentCode(deploymentId: string) {
     }),
   );
 
-  return streamToString(content.Body);
+  if (content.Body instanceof Readable) {
+    return streamToString(content.Body);
+  }
+
+  return '';
 }

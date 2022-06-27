@@ -15,7 +15,12 @@ const Function = () => {
     query: { functionId },
   } = useRouter();
 
-  const { data: func } = useFunction(functionId as string);
+  const { data: func, refetch } = useFunction(functionId as string);
+
+  if (!func) {
+    // TODO: toast, change page?
+    return null;
+  }
 
   return (
     <Layout title={func.name} titleStatus="success" rightItem={<FunctionLinks func={func} />}>
@@ -36,13 +41,13 @@ const Function = () => {
           <FunctionOverview func={func} />
         </Nav.Content>
         <Nav.Content value="deployments">
-          <FunctionDeployments func={func} />
+          <FunctionDeployments func={func} refetch={refetch} />
         </Nav.Content>
         <Nav.Content value="logs">
           <FunctionLogs func={func} />
         </Nav.Content>
         <Nav.Content value="settings">
-          <FunctionSettings func={func} />
+          <FunctionSettings func={func} refetch={refetch} />
         </Nav.Content>
       </Nav>
     </Layout>

@@ -12,8 +12,8 @@ type TagsInputProps = {
 const TagsInput = ({ name, placeholder, disabled }: TagsInputProps) => {
   const { values } = useFormState();
   const { change } = useForm();
-  const [tags, setTags] = useState(values[name] || []);
-  const inputRef = useRef<HTMLInputElement>();
+  const [tags, setTags] = useState<string[]>(values[name] || []);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const onClick = useCallback(() => {
     inputRef.current?.focus();

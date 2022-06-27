@@ -1,13 +1,7 @@
-import { useSession } from 'next-auth/react';
-import useSWR from 'swr';
-import { GetFunctionsResponse } from 'pages/api/organizations/[organizationId]/functions';
+import { trpc } from 'lib/trpc';
 
 const useFunctions = () => {
-  const {
-    data: { organization },
-  } = useSession();
-
-  return useSWR<GetFunctionsResponse>(`/api/organizations/${organization?.id}/functions`);
+  return trpc.useQuery(['functions.list']);
 };
 
 export default useFunctions;

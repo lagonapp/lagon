@@ -1,8 +1,5 @@
-import { useSession } from 'next-auth/react';
 import { useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { useSWRConfig } from 'swr';
-import { GetFunctionResponse } from 'pages/api/organizations/[organizationId]/functions/[functionId]';
 import Button from 'lib/components/Button';
 import Card from 'lib/components/Card';
 import EmptyState from 'lib/components/EmptyState';
@@ -11,43 +8,43 @@ import Text from 'lib/components/Text';
 import { getCurrentDomain, getFullCurrentDomain } from 'lib/utils';
 import Dialog from 'lib/components/Dialog';
 import { RefreshIcon } from '@heroicons/react/outline';
+import { trpc } from 'lib/trpc';
+import useFunction from 'lib/hooks/useFunction';
+import { QueryObserverBaseResult } from 'react-query';
 
 type FunctionDeploymentsProps = {
-  func: GetFunctionResponse;
+  func: NonNullable<ReturnType<typeof useFunction>['data']>;
+  refetch: QueryObserverBaseResult['refetch'];
 };
 
-const FunctionDeployments = ({ func }: FunctionDeploymentsProps) => {
-  const { data: session } = useSession();
-  const { mutate } = useSWRConfig();
+const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
+  const deleteDeployment = trpc.useMutation(['deployments.delete']);
+  const currentDeployment = trpc.useMutation(['deployments.current']);
 
-  const deleteDeployment = useCallback(
+  const removeDeplomyent = useCallback(
     async (deployment: { id: string }) => {
-      await fetch(
-        `/api/organizations/${session.organization.id}/functions/${func.id}/deploy?deploymentId=${deployment.id}`,
-        {
-          method: 'DELETE',
-        },
-      );
+      await deleteDeployment.mutateAsync({
+        functionId: func.id,
+        deploymentId: deployment.id,
+      });
 
-      await mutate(`/api/organizations/${session.organization.id}/functions/${func.id}`);
+      await refetch();
       toast.success('Deployment deleted successfully.');
     },
-    [session.organization.id, func.id, mutate],
+    [func.id, deleteDeployment, refetch],
   );
 
   const rollbackDeployment = useCallback(
     async (deployment: { id: string }) => {
-      await fetch(
-        `/api/organizations/${session.organization.id}/functions/${func.id}/deploy?deploymentId=${deployment.id}`,
-        {
-          method: 'PATCH',
-        },
-      );
+      await currentDeployment.mutateAsync({
+        functionId: func.id,
+        deploymentId: deployment.id,
+      });
 
-      await mutate(`/api/organizations/${session.organization.id}/functions/${func.id}`);
+      await refetch();
       toast.success('Deployment rollbacked successfully.');
     },
-    [session.organization.id, func.id, mutate],
+    [func.id, currentDeployment, refetch],
   );
 
   return (
@@ -113,7 +110,7 @@ const FunctionDeployments = ({ func }: FunctionDeploymentsProps) => {
                     >
                       <Dialog.Buttons>
                         <Dialog.Cancel />
-                        <Dialog.Action variant="danger" onClick={() => deleteDeployment(deployment)}>
+                        <Dialog.Action variant="danger" onClick={() => removeDeplomyent(deployment)}>
                           Delete
                         </Dialog.Action>
                       </Dialog.Buttons>

@@ -1,19 +1,15 @@
 import { useRouter } from 'next/router';
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
 import Button from 'lib/components/Button';
 import Skeleton from 'lib/components/Skeleton';
 import Layout from 'lib/Layout';
 import FunctionsList from 'lib/pages/functions/FunctionsList';
-import { useSession } from 'next-auth/react';
 import useRandomName from '@scaleway/use-random-name';
-import { CreateFunctionResponse } from 'pages/api/organizations/[organizationId]/functions';
+import { trpc } from 'lib/trpc';
 
 const Home = () => {
   const router = useRouter();
-  const {
-    data: { organization },
-  } = useSession();
-  const [isCreating, setIsCreating] = useState(false);
+  const createFunction = trpc.useMutation(['functions.create']);
   const name = useRandomName();
 
   return (
@@ -22,30 +18,23 @@ const Home = () => {
       rightItem={
         <Button
           variant="primary"
-          disabled={isCreating}
+          disabled={createFunction.isLoading}
           onClick={async () => {
-            setIsCreating(true);
-
-            const response = await fetch(`/api/organizations/${organization.id}/functions`, {
-              method: 'POST',
-              body: JSON.stringify({
-                name,
-                domains: [],
-                env: [],
-                code: `export function handler(request) {
-  return new Response('Hello world', {
-    headers: {
-      'content-type': 'text/html; charset=utf-8'
-    }
-  });
+            const func = await createFunction.mutateAsync({
+              name,
+              domains: [],
+              env: [],
+              cron: null,
+              code: `export function handler(request) {
+return new Response('Hello world', {
+headers: {
+  'content-type': 'text/html; charset=utf-8'
+}
+});
 }`,
-                shouldTransformCode: true,
-              }),
+              shouldTransformCode: true,
             });
 
-            const func = (await response.json()) as CreateFunctionResponse;
-
-            setIsCreating(false);
             router.push(`/playground/${func.id}`);
           }}
         >

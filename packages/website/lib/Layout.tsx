@@ -12,7 +12,7 @@ import Dot from 'lib/components/Dot';
 import useSystemTheme from 'react-use-system-theme';
 import useOrganizations from './hooks/useOrganizations';
 import EmptyState from './components/EmptyState';
-import { reloadSession } from './utils';
+import { trpc } from './trpc';
 
 type HeaderLinkProps = {
   href: string;
@@ -33,25 +33,24 @@ const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
 const OrganizationsList = () => {
   const { data: organizations } = useOrganizations();
   const router = useRouter();
+  const currentOrganization = trpc.useMutation(['organizations.current']);
+  const queryContext = trpc.useContext();
 
   const switchOrganization = useCallback(
     async (organization: typeof organizations[number]) => {
-      await fetch('/api/organizations', {
-        method: 'PATCH',
-        body: JSON.stringify({
-          organizationId: organization.id,
-        }),
+      await currentOrganization.mutateAsync({
+        organizationId: organization.id,
       });
 
-      reloadSession();
+      queryContext.refetchQueries();
       router.push('/');
     },
-    [router],
+    [router, currentOrganization, queryContext],
   );
 
   return (
     <>
-      {organizations.map(organization => (
+      {organizations?.map(organization => (
         <Menu.Item key={organization.id} onClick={() => switchOrganization(organization)}>
           {organization.name}
         </Menu.Item>
@@ -83,7 +82,7 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
           <link rel="icon" href="/favicon-black.ico" />
         )}
       </Head>
-      {session.organization || asPath === '/new' ? (
+      {session?.organization || asPath === '/new' ? (
         <>
           <div className="py-4 h-16 w-full border-b border-b-stone-200">
             <div className="flex justify-between mx-auto px-4 md:max-w-4xl">
@@ -101,7 +100,7 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
                   Settings
                 </HeaderLink>
               </div>
-              {session.organization ? (
+              {session?.organization ? (
                 <Menu>
                   <Menu.Button>
                     <Button rightIcon={<ChevronDownIcon className="w-4 h-4" />}>{session.organization.name}</Button>

@@ -10,14 +10,6 @@ declare module 'next-auth' {
     };
     user: {
       id: string;
-    };
-  }
-}
-
-declare module 'next' {
-  interface NextApiRequest {
-    user: {
-      id?: string;
       email: string;
     };
   }
