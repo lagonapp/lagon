@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ComponentProps, ReactElement, ReactNode, Suspense, useCallback, useMemo } from 'react';
 import Button from 'lib/components/Button';
-import { ChevronDownIcon, CogIcon, LogoutIcon, PlusIcon } from '@heroicons/react/outline';
+import { ChevronDownIcon, CogIcon, LogoutIcon, PlusIcon, UserIcon } from '@heroicons/react/outline';
 import Menu from 'lib/components/Menu';
 import Divider from 'lib/components/Divider';
 import Text from 'lib/components/Text';
@@ -117,6 +117,9 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
                       Settings
                     </Menu.Item>
                     <Divider />
+                    <Menu.Item icon={<UserIcon className="w-4 h-4" />} href="/profile">
+                      Profile
+                    </Menu.Item>
                     <Menu.Item icon={<LogoutIcon className="w-4 h-4" />} onClick={() => signOut()}>
                       Sign out
                     </Menu.Item>
