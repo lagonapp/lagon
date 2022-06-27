@@ -5,16 +5,60 @@ import { functionsRouter } from 'lib/trpc/functionsRouter';
 import { organizationsRouter } from 'lib/trpc/organizationsRouter';
 import { tokensRouter } from 'lib/trpc/tokensRouter';
 import { deploymentsRouter } from 'lib/trpc/deploymentsRouter';
+import prisma from 'lib/prisma';
 import { Session } from 'next-auth';
 
 const createContext = async ({ req, res }: trpcNext.CreateNextContextOptions) => {
-  const session = (await getSession({ req })) as unknown as Session;
+  const tokenValue = req.headers['x-lagon-token'] as string;
 
-  return {
-    req,
-    res,
-    session,
-  };
+  if (tokenValue) {
+    const token = await prisma.token.findFirst({
+      where: {
+        value: tokenValue,
+      },
+      select: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            currentOrganizationId: true,
+          },
+        },
+      },
+    });
+
+    if (!token) {
+      res.status(401).end();
+      return;
+    }
+
+    return {
+      req,
+      res,
+      session: {
+        user: {
+          id: token.user.id,
+          email: token.user.email,
+        },
+        organization: {
+          id: token.user.currentOrganizationId,
+        },
+      } as Session,
+    };
+  } else {
+    const session = await getSession({ req });
+
+    if (!session) {
+      res.status(401).end();
+      return;
+    }
+
+    return {
+      req,
+      res,
+      session,
+    };
+  }
 };
 
 export const createRouter = () => trpc.router<trpc.inferAsyncReturnType<typeof createContext>>();
