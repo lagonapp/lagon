@@ -26,7 +26,7 @@ export const createRouter = () => trpc.router<trpc.inferAsyncReturnType<typeof c
 const router = createRouter()
   .merge('functions.', functionsRouter())
   .merge('organizations.', organizationsRouter())
-  .merge('tokens', tokensRouter())
+  .merge('tokens.', tokensRouter())
   .merge('deployments.', deploymentsRouter());
 
 export type AppRouter = typeof router;

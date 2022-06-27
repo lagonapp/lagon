@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { GetFunctionResponse } from 'pages/api/organizations/[organizationId]/functions/[functionId]';
 import Button from 'lib/components/Button';
 import Card from 'lib/components/Card';
 import EmptyState from 'lib/components/EmptyState';
@@ -10,9 +9,10 @@ import { getCurrentDomain, getFullCurrentDomain } from 'lib/utils';
 import Dialog from 'lib/components/Dialog';
 import { RefreshIcon } from '@heroicons/react/outline';
 import { trpc } from 'lib/trpc';
+import useFunction from 'lib/hooks/useFunction';
 
 type FunctionDeploymentsProps = {
-  func: GetFunctionResponse;
+  func: NonNullable<ReturnType<typeof useFunction>['data']>;
   refetch: () => Promise<void>;
 };
 

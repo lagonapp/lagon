@@ -50,7 +50,7 @@ const OrganizationsList = () => {
 
   return (
     <>
-      {organizations.map(organization => (
+      {organizations?.map(organization => (
         <Menu.Item key={organization.id} onClick={() => switchOrganization(organization)}>
           {organization.name}
         </Menu.Item>

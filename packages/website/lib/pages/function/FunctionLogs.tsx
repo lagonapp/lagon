@@ -1,7 +1,6 @@
 import { ChevronDownIcon } from '@heroicons/react/outline';
 import { useRouter } from 'next/router';
 import { Suspense, useEffect, useState } from 'react';
-import { GetFunctionResponse } from 'pages/api/organizations/[organizationId]/functions/[functionId]';
 import Button from 'lib/components/Button';
 import Card from 'lib/components/Card';
 import Divider from 'lib/components/Divider';
@@ -11,9 +10,10 @@ import Menu from 'lib/components/Menu';
 import Skeleton from 'lib/components/Skeleton';
 import useFunctionLogs from 'lib/hooks/useFunctionLogs';
 import { LogLevel, LOG_LEVELS, Timeframe, TIMEFRAMES } from 'lib/types';
+import useFunction from 'lib/hooks/useFunction';
 
 type ContentProps = {
-  func: GetFunctionResponse;
+  func: NonNullable<ReturnType<typeof useFunction>['data']>;
   logLevel: LogLevel;
   timeframe: Timeframe;
 };
@@ -21,7 +21,7 @@ type ContentProps = {
 const Content = ({ func, logLevel, timeframe }: ContentProps) => {
   const { data: logs } = useFunctionLogs({ functionId: func.id, logLevel, timeframe });
 
-  if (logs.length === 0) {
+  if (logs?.length === 0) {
     return (
       <EmptyState
         title="No logs found"
@@ -32,7 +32,7 @@ const Content = ({ func, logLevel, timeframe }: ContentProps) => {
 
   return (
     <div className="flex flex-col">
-      {logs.map(({ date, level, message }, index) => {
+      {logs?.map(({ date, level, message }, index) => {
         const finalDate = new Date(date);
         finalDate.setHours(finalDate.getHours() - finalDate.getTimezoneOffset() / 60);
 
@@ -43,7 +43,7 @@ const Content = ({ func, logLevel, timeframe }: ContentProps) => {
 };
 
 type FunctionLogsProps = {
-  func: GetFunctionResponse;
+  func: NonNullable<ReturnType<typeof useFunction>['data']>;
 };
 
 const FunctionLogs = ({ func }: FunctionLogsProps) => {

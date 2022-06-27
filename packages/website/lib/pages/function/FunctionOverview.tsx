@@ -1,7 +1,6 @@
 import { ChevronDownIcon } from '@heroicons/react/outline';
 import { useRouter } from 'next/router';
 import { useEffect, useMemo, useState } from 'react';
-import { GetFunctionResponse } from 'pages/api/organizations/[organizationId]/functions/[functionId]';
 import Button from 'lib/components/Button';
 import Card from 'lib/components/Card';
 import Chart from 'lib/components/Chart';
@@ -11,6 +10,7 @@ import Menu from 'lib/components/Menu';
 import Text from 'lib/components/Text';
 import useFunctionStats from 'lib/hooks/useFunctionStats';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
+import useFunction from 'lib/hooks/useFunction';
 
 function formatBytes(bytes: number): number {
   return parseFloat((bytes / 1000000).toFixed(2));
@@ -25,7 +25,7 @@ function formatNs(ns: number): number {
 }
 
 type FunctionOverviewProps = {
-  func: GetFunctionResponse;
+  func: NonNullable<ReturnType<typeof useFunction>['data']>;
 };
 
 const FunctionOverview = ({ func }: FunctionOverviewProps) => {

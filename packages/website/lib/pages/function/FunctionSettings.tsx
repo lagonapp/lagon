@@ -18,10 +18,10 @@ import {
 import Dialog from 'lib/components/Dialog';
 import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
 import { trpc } from 'lib/trpc';
-import { GetFunctionResponse } from 'pages/api/organizations/[organizationId]/functions/[functionId]';
+import useFunction from 'lib/hooks/useFunction';
 
 type FunctionSettingsProps = {
-  func: GetFunctionResponse;
+  func: NonNullable<ReturnType<typeof useFunction>['data']>;
   refetch: () => Promise<void>;
 };
 

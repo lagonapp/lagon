@@ -20,13 +20,13 @@ const FunctionsList = () => {
 
   return (
     <div className="flex gap-4 flex-col">
-      {functions.length === 0 ? (
+      {functions?.length === 0 ? (
         <EmptyState
           title="No Functions found"
           description="Start by creating a new Function by clicking the button in the right corner."
         />
       ) : null}
-      {functions.map(func => (
+      {functions?.map(func => (
         <Card key={func.id} clickable onClick={() => navigateToFunction(func.id)}>
           <div className="flex justify-between items-start">
             <Text size="lg">
