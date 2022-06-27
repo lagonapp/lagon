@@ -23,9 +23,9 @@ fastify.addContentTypeParser('multipart/form-data', (request, payload, done) => 
   });
 });
 
-const html404 = fs.readFileSync(path.join(path.resolve(), 'public', '404.html'), 'utf8');
-const html500 = fs.readFileSync(path.join(path.resolve(), 'public', '500.html'), 'utf8');
-const css = fs.readFileSync(path.join(path.resolve(), 'public', 'main.css'), 'utf8');
+const html404 = fs.readFileSync(path.join(new URL('.', import.meta.url).pathname, '../public/404.html'), 'utf8');
+const html500 = fs.readFileSync(path.join(new URL('.', import.meta.url).pathname, '../public/500.html'), 'utf8');
+const css = fs.readFileSync(path.join(new URL('.', import.meta.url).pathname, '../public/main.css'), 'utf8');
 
 const logs = new Map<string, DeploymentLog[]>();
 
@@ -36,6 +36,20 @@ const onDeploymentLog: OnDeploymentLog = ({ deploymentId, log }) => {
 
   logs.get(deploymentId)?.push(log);
 };
+
+function getStackTrace(error: Error) {
+  const stack = error.stack?.split('\n');
+
+  if (stack) {
+    return stack
+      .filter(line => {
+        return !(line.includes('file://') || line.includes('at masterHandler') || line.includes('.ts:'));
+      })
+      .join('\n');
+  }
+
+  return error.message;
+}
 
 export default function startServer(port: number, host: string) {
   fastify.all('/*', async (request, reply) => {
@@ -72,16 +86,16 @@ export default function startServer(port: number, host: string) {
       logs: [],
     };
 
-    const runIsolate = await getIsolate({
-      deployment,
-      getDeploymentCode,
-      onDeploymentLog,
-    });
-
     let isolateCache: Isolate;
     let errored = false;
 
     try {
+      const runIsolate = await getIsolate({
+        deployment,
+        getDeploymentCode,
+        onDeploymentLog,
+      });
+
       const handlerRequest: HandlerRequest = {
         input: request.url,
         options: {
@@ -108,14 +122,14 @@ export default function startServer(port: number, host: string) {
     } catch (error) {
       errored = true;
 
-      const errorMessage = `An error occured while running the function: ${(error as Error).message}`;
-
       reply.status(500).header('Content-Type', 'text/html').send(html500);
       console.timeEnd('Request');
 
-      console.log(errorMessage);
+      console.log(`An error occured while running the function: ${(error as Error).message}`);
 
-      addLog({ deploymentId: deployment.deploymentId, logLevel: 'error', onDeploymentLog })(errorMessage);
+      addLog({ deploymentId: deployment.deploymentId, logLevel: 'error', onDeploymentLog })(
+        getStackTrace(error as Error),
+      );
     }
 
     if (!errored) {
