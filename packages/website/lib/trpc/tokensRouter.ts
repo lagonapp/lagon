@@ -1,6 +1,7 @@
 import prisma from 'lib/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
+import * as trpc from '@trpc/server';
 
 export const tokensRouter = () =>
   createRouter()
@@ -15,6 +16,12 @@ export const tokensRouter = () =>
             verificationCode: true,
           },
         });
+
+        if (!user) {
+          return new trpc.TRPCError({
+            code: 'NOT_FOUND',
+          });
+        }
 
         let verificationCode: string | null = user.verificationCode;
 

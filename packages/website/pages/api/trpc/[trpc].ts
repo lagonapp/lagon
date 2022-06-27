@@ -1,18 +1,14 @@
 import * as trpc from '@trpc/server';
 import * as trpcNext from '@trpc/server/adapters/next';
 import { getSession } from 'next-auth/react';
-import { NodeHTTPCreateContextFnOptions } from '@trpc/server/adapters/node-http';
-import { IncomingMessage, OutgoingMessage } from 'node:http';
 import { functionsRouter } from 'lib/trpc/functionsRouter';
 import { organizationsRouter } from 'lib/trpc/organizationsRouter';
 import { tokensRouter } from 'lib/trpc/tokensRouter';
 import { deploymentsRouter } from 'lib/trpc/deploymentsRouter';
+import { Session } from 'next-auth';
 
-const createContext = async ({
-  req,
-  res,
-}: trpcNext.CreateNextContextOptions | NodeHTTPCreateContextFnOptions<IncomingMessage, OutgoingMessage>) => {
-  const session = await getSession({ req });
+const createContext = async ({ req, res }: trpcNext.CreateNextContextOptions) => {
+  const session = (await getSession({ req })) as unknown as Session;
 
   return {
     req,

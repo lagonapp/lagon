@@ -5,6 +5,7 @@ import { LOG_LEVELS, TIMEFRAMES } from 'lib/types';
 import { ClickHouse } from 'clickhouse';
 import { createDeployment, getDeploymentCode, removeDeployment } from 'lib/api/deployments';
 import { DEFAULT_MEMORY, DEFAULT_TIMEOUT, FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
+import * as trpc from '@trpc/server';
 
 const clickhouse = new ClickHouse({});
 
@@ -12,7 +13,7 @@ export const functionsRouter = () =>
   createRouter()
     .query('list', {
       resolve: async ({ ctx }) => {
-        const functions = await prisma.function.findMany({
+        return prisma.function.findMany({
           where: {
             organizationId: ctx.session.organization.id,
           },
@@ -41,8 +42,6 @@ export const functionsRouter = () =>
             updatedAt: 'desc',
           },
         });
-
-        return functions;
       },
     })
     .query('get', {
@@ -50,7 +49,7 @@ export const functionsRouter = () =>
         functionId: z.string(),
       }),
       resolve: async ({ ctx, input }) => {
-        const func = await prisma.function.findFirst({
+        return prisma.function.findFirst({
           where: {
             organizationId: ctx.session.organization.id,
             id: input.functionId,
@@ -80,8 +79,6 @@ export const functionsRouter = () =>
             },
           },
         });
-
-        return func;
       },
     })
     .query('logs', {
@@ -129,6 +126,12 @@ export const functionsRouter = () =>
           },
         });
 
+        if (!deployment) {
+          throw new trpc.TRPCError({
+            code: 'NOT_FOUND',
+          });
+        }
+
         const code = await getDeploymentCode(deployment.id);
 
         return { code };
@@ -147,7 +150,7 @@ export const functionsRouter = () =>
             )
             .toPromise();
 
-          const stats = result.map(record => {
+          return result.map(record => {
             return {
               date: record['toStartOfHour(date)'],
               requests: record['sum(requests)'],
@@ -157,8 +160,6 @@ export const functionsRouter = () =>
               sendBytes: record['sum(sendBytes)'],
             };
           });
-
-          return stats;
         } else {
           const result = await clickhouse
             .query(
@@ -170,7 +171,7 @@ export const functionsRouter = () =>
             )
             .toPromise();
 
-          const stats = result.map(record => {
+          return result.map(record => {
             return {
               date: record['toStartOfDay(date)'],
               requests: record['sum(requests)'],
@@ -180,8 +181,6 @@ export const functionsRouter = () =>
               sendBytes: record['sum(sendBytes)'],
             };
           });
-
-          return stats;
         }
       },
     })
@@ -232,7 +231,7 @@ export const functionsRouter = () =>
         env: z.string().array(),
       }),
       resolve: async ({ input }) => {
-        const func = await prisma.function.update({
+        return prisma.function.update({
           where: {
             id: input.functionId,
           },
@@ -264,8 +263,6 @@ export const functionsRouter = () =>
             },
           },
         });
-
-        return func;
       },
     })
     .mutation('delete', {

@@ -1,5 +1,6 @@
 import { createDeployment, removeCurrentDeployment, removeDeployment, setCurrentDeployment } from 'lib/api/deployments';
 import prisma from 'lib/prisma';
+import * as trpc from '@trpc/server';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 
@@ -26,11 +27,15 @@ export const deploymentsRouter = () =>
           },
         });
 
+        if (!func) {
+          throw new trpc.TRPCError({
+            code: 'NOT_FOUND',
+          });
+        }
+
         await removeCurrentDeployment(func.id);
 
-        const deployment = await createDeployment(func, input.code, input.shouldTransformCode, ctx.session.user.email);
-
-        return deployment;
+        return createDeployment(func, input.code, input.shouldTransformCode, ctx.session.user.email);
       },
     })
     .mutation('current', {
@@ -64,8 +69,12 @@ export const deploymentsRouter = () =>
           },
         });
 
-        const deployment = await removeDeployment(func, input.deploymentId);
+        if (!func) {
+          throw new trpc.TRPCError({
+            code: 'NOT_FOUND',
+          });
+        }
 
-        return deployment;
+        return removeDeployment(func, input.deploymentId);
       },
     });

@@ -15,7 +15,7 @@ export const organizationsRouter = () =>
   createRouter()
     .query('list', {
       resolve: async ({ ctx }) => {
-        const organizations = await prisma.organization.findMany({
+        return prisma.organization.findMany({
           where: {
             ownerId: ctx.session.user.id,
           },
@@ -28,8 +28,6 @@ export const organizationsRouter = () =>
             ownerId: true,
           },
         });
-
-        return organizations;
       },
     })
     .mutation('create', {
@@ -73,7 +71,7 @@ export const organizationsRouter = () =>
         description: z.string().max(ORGANIZATION_DESCRIPTION_MAX_LENGTH).nullable(),
       }),
       resolve: async ({ input }) => {
-        const organization = await prisma.organization.update({
+        return prisma.organization.update({
           where: {
             id: input.organizationId,
           },
@@ -89,8 +87,6 @@ export const organizationsRouter = () =>
             description: true,
           },
         });
-
-        return organization;
       },
     })
     .mutation('delete', {
@@ -173,7 +169,7 @@ export const organizationsRouter = () =>
           },
         });
 
-        const organization = await prisma.organization.findFirst({
+        return prisma.organization.findFirst({
           where: {
             id: input.organizationId,
           },
@@ -186,7 +182,5 @@ export const organizationsRouter = () =>
             ownerId: true,
           },
         });
-
-        return organization;
       },
     });
