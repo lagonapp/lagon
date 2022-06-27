@@ -5,6 +5,7 @@ import Divider from 'lib/components/Divider';
 import Form from 'lib/components/Form';
 import Input from 'lib/components/Input';
 import Text from 'lib/components/Text';
+import { requiredValidator } from 'lib/form/validators';
 import useTokens from 'lib/hooks/useTokens';
 import Layout from 'lib/Layout';
 import { trpc } from 'lib/trpc';
@@ -16,6 +17,7 @@ const Profile = () => {
   const { data: session } = useSession();
   const { data: tokens, refetch } = useTokens();
   const deleteToken = trpc.useMutation(['tokens.delete']);
+  const updateAccount = trpc.useMutation(['accounts.update']);
 
   const removeToken = useCallback(
     async (token: typeof tokens[number]) => {
@@ -32,6 +34,39 @@ const Profile = () => {
   return (
     <Layout title="Profile">
       <div className="flex flex-col gap-8">
+        <Card title="Information" description="Edit your account information like your name and email.">
+          <Form
+            initialValues={{
+              name: session?.user.name,
+              email: session?.user.email,
+            }}
+            onSubmit={async ({ name, email }) => {
+              await updateAccount.mutateAsync({
+                name,
+                email,
+              });
+
+              await refetch();
+            }}
+            onSubmitSuccess={() => {
+              toast.success('Information updated successfully.');
+            }}
+          >
+            <div className="flex justify-between items-start gap-12 mb-6">
+              <div className="flex flex-1 flex-col gap-1">
+                <Text size="lg">Name</Text>
+                <Input name="name" placeholder="John Doe" validator={requiredValidator} />
+              </div>
+              <div className="flex flex-1 flex-col gap-1">
+                <Text size="lg">Email</Text>
+                <Input name="email" type="email" placeholder="john@doe.com" validator={requiredValidator} />
+              </div>
+            </div>
+            <Button variant="primary" submit>
+              Update
+            </Button>
+          </Form>
+        </Card>
         <Card title="Tokens" description="Below are your personal tokens, used for the CLI.">
           <div>
             {tokens?.map(token => (

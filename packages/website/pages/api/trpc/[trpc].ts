@@ -8,6 +8,7 @@ import { deploymentsRouter } from 'lib/trpc/deploymentsRouter';
 import prisma from 'lib/prisma';
 import { Session } from 'next-auth';
 import * as Sentry from '@sentry/nextjs';
+import { accountsRouter } from 'lib/trpc/accountsRouter';
 
 const createContext = async ({ req, res }: trpcNext.CreateNextContextOptions) => {
   const tokenValue = req.headers['x-lagon-token'] as string;
@@ -70,7 +71,8 @@ const router = createRouter()
   .merge('functions.', functionsRouter())
   .merge('organizations.', organizationsRouter())
   .merge('tokens.', tokensRouter())
-  .merge('deployments.', deploymentsRouter());
+  .merge('deployments.', deploymentsRouter())
+  .merge('accounts.', accountsRouter());
 
 export type AppRouter = typeof router;
 
