@@ -12,7 +12,6 @@ import Dot from 'lib/components/Dot';
 import useSystemTheme from 'react-use-system-theme';
 import useOrganizations from './hooks/useOrganizations';
 import EmptyState from './components/EmptyState';
-import { reloadSession } from './utils';
 import { trpc } from './trpc';
 
 type HeaderLinkProps = {
@@ -35,6 +34,7 @@ const OrganizationsList = () => {
   const { data: organizations } = useOrganizations();
   const router = useRouter();
   const currentOrganization = trpc.useMutation(['organizations.current']);
+  const queryContext = trpc.useContext();
 
   const switchOrganization = useCallback(
     async (organization: typeof organizations[number]) => {
@@ -42,10 +42,10 @@ const OrganizationsList = () => {
         organizationId: organization.id,
       });
 
-      reloadSession();
+      queryContext.refetchQueries();
       router.push('/');
     },
-    [router, currentOrganization],
+    [router, currentOrganization, queryContext],
   );
 
   return (

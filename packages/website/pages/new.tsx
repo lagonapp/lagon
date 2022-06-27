@@ -11,13 +11,13 @@ import {
 import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
 import Layout from 'lib/Layout';
 import { trpc } from 'lib/trpc';
-import { reloadSession } from 'lib/utils';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 
 const New = () => {
   const router = useRouter();
   const createOrganization = trpc.useMutation(['organizations.create']);
+  const queryContext = trpc.useContext();
 
   return (
     <Layout title="Create Organization">
@@ -31,7 +31,7 @@ const New = () => {
         onSubmitSuccess={() => {
           toast.success('Organization created.');
 
-          reloadSession();
+          queryContext.refetchQueries();
           router.push('/');
         }}
       >

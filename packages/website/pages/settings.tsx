@@ -8,7 +8,6 @@ import Layout from 'lib/Layout';
 import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
 import Dialog from 'lib/components/Dialog';
 import { useRouter } from 'next/router';
-import { reloadSession } from 'lib/utils';
 import Textarea from 'lib/components/Textarea';
 import {
   ORGANIZATION_DESCRIPTION_MAX_LENGTH,
@@ -22,6 +21,7 @@ const Settings = () => {
   const updateOrganization = trpc.useMutation(['organizations.update']);
   const deleteOrganization = trpc.useMutation(['organizations.delete']);
   const router = useRouter();
+  const queryContext = trpc.useContext();
 
   return (
     <Layout title="Settings">
@@ -37,7 +37,7 @@ const Settings = () => {
               name,
             });
 
-            reloadSession();
+            queryContext.refetchQueries();
           }}
           onSubmitSuccess={() => {
             toast.success('Organization name updated successfully.');
@@ -72,7 +72,7 @@ const Settings = () => {
               description,
             });
 
-            reloadSession();
+            queryContext.refetchQueries();
           }}
           onSubmitSuccess={() => {
             toast.success('Organization description updated successfully.');
@@ -129,7 +129,7 @@ const Settings = () => {
               onSubmitSuccess={() => {
                 toast.success('Organization deleted successfully.');
 
-                reloadSession();
+                queryContext.refetchQueries();
                 router.push('/');
               }}
             >
