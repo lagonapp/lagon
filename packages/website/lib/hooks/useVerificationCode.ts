@@ -1,15 +1,7 @@
-import { useSession } from 'next-auth/react';
-import { GetVerificationCodeResponse } from 'pages/api/cli/verification-code';
-import useSWR from 'swr';
+import { trpc } from 'lib/trpc';
 
 const useVerificationCode = () => {
-  const {
-    data: { user },
-  } = useSession();
-
-  return useSWR<GetVerificationCodeResponse>(`/api/cli/verification-code?userId=${user.id}`, {
-    refreshInterval: 1000,
-  });
+  return trpc.useQuery(['tokens.verification-code']);
 };
 
 export default useVerificationCode;

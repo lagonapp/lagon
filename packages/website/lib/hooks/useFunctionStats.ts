@@ -1,18 +1,9 @@
-import { useSession } from 'next-auth/react';
-import useSWR from 'swr';
-import { GetFunctionStatsResponse } from 'pages/api/organizations/[organizationId]/functions/[functionId]/stats';
+import { trpc } from 'lib/trpc';
 
 const useFunctionStats = ({ functionId, timeframe }: { functionId: string; timeframe: string }) => {
-  const {
-    data: {
-      organization: { id },
-    },
-  } = useSession();
-
-  return useSWR<GetFunctionStatsResponse>(
-    `/api/organizations/${id}/functions/${functionId}/stats?timeframe=${timeframe}`,
-    { suspense: false },
-  );
+  return trpc.useQuery(['functions.stats', { functionId, timeframe }], {
+    suspense: false,
+  });
 };
 
 export default useFunctionStats;

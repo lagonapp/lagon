@@ -1,7 +1,5 @@
-import { useSession } from 'next-auth/react';
-import useSWR from 'swr';
-import { GetLogsResponse } from 'pages/api/organizations/[organizationId]/functions/[functionId]/logs';
 import { LogLevel, Timeframe } from 'lib/types';
+import { trpc } from 'lib/trpc';
 
 const useFunctionLogs = ({
   functionId,
@@ -12,18 +10,9 @@ const useFunctionLogs = ({
   logLevel: LogLevel;
   timeframe: Timeframe;
 }) => {
-  const {
-    data: {
-      organization: { id },
-    },
-  } = useSession();
-
-  return useSWR<GetLogsResponse>(
-    `/api/organizations/${id}/functions/${functionId}/logs?logLevel=${logLevel}&timeframe=${timeframe}`,
-    {
-      refreshInterval: 1000, // 1000ms = 1s
-    },
-  );
+  return trpc.useQuery(['functions.logs', { functionId, logLevel, timeframe }], {
+    refetchInterval: 1000,
+  });
 };
 
 export default useFunctionLogs;

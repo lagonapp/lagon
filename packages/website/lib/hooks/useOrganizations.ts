@@ -1,8 +1,7 @@
-import useSWR from 'swr';
-import { GetOrganizationsResponse } from 'pages/api/organizations';
+import { trpc } from 'lib/trpc';
 
 const useOrganizations = () => {
-  return useSWR<GetOrganizationsResponse>('/api/organizations');
+  return trpc.useQuery(['organizations.list']);
 };
 
 export default useOrganizations;

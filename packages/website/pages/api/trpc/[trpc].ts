@@ -4,7 +4,7 @@ import { getSession } from 'next-auth/react';
 import { NodeHTTPCreateContextFnOptions } from '@trpc/server/adapters/node-http';
 import { IncomingMessage, OutgoingMessage } from 'node:http';
 import { functionsRouter } from 'lib/trpc/functionsRouter';
-// import { functionsRouter } from 'lib/trpc/functionsRouter';
+import { organizationsRouter } from 'lib/trpc/organizationsRouter';
 
 const createContext = async ({
   req,
@@ -21,7 +21,7 @@ const createContext = async ({
 
 export const createRouter = () => trpc.router<trpc.inferAsyncReturnType<typeof createContext>>();
 
-const router = createRouter().merge('functions.', functionsRouter());
+const router = createRouter().merge('functions.', functionsRouter()).merge('organizations.', organizationsRouter());
 
 export type AppRouter = typeof router;
 
