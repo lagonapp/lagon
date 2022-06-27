@@ -20,7 +20,7 @@ const PlaygroundPage = () => {
   } = useRouter();
   const { data: func } = useFunction(functionId as string);
   const { data: functionCode } = useFunctionCode(functionId as string);
-  const iframeRef = useRef<HTMLIFrameElement>();
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const monaco = useMonaco();
   const deployFunction = trpc.useMutation(['deployments.create']);
 
@@ -31,10 +31,14 @@ const PlaygroundPage = () => {
   }, [iframeRef]);
 
   return (
-    <Layout title={`${func.name} playground`} headerOnly>
+    <Layout title={`${func?.name} playground`} headerOnly>
       <div className="w-screen h-12 flex border-b border-b-stone-200">
         <Form
           onSubmit={async () => {
+            if (!monaco) {
+              return;
+            }
+
             let code = monaco.editor.getModels()[0].getValue();
 
             if (code.startsWith('declare interface RequestInit {')) {
@@ -42,6 +46,7 @@ const PlaygroundPage = () => {
             }
 
             await deployFunction.mutateAsync({
+              functionId: func?.id || '',
               code,
               shouldTransformCode: true,
             });
@@ -56,9 +61,9 @@ const PlaygroundPage = () => {
           }}
         >
           <div className="w-[50vw] flex justify-between px-2 items-center h-full">
-            <Text>{func.name} playground</Text>
+            <Text>{func?.name} playground</Text>
             <div className="flex items-center gap-2">
-              <Button href={`/functions/${func.id}`}>Back to function</Button>
+              <Button href={`/functions/${func?.id}`}>Back to function</Button>
               <Button
                 variant="primary"
                 leftIcon={<PlayIcon className="w-4 h-4" />}
@@ -74,13 +79,13 @@ const PlaygroundPage = () => {
           <Button onClick={reloadIframe} leftIcon={<RefreshIcon className="w-4 h-4" />}>
             Reload
           </Button>
-          <FunctionLinks func={func} />
+          {func ? <FunctionLinks func={func} /> : null}
         </div>
       </div>
       <div className="w-screen flex" style={{ height: 'calc(100vh - 4rem - 3rem)' }}>
-        <Playground defaultValue={functionCode.code} width="50vw" height="100%" />
+        <Playground defaultValue={functionCode?.code || ''} width="50vw" height="100%" />
         <div className="w-[50vw] border-l border-l-stone-200">
-          <iframe ref={iframeRef} className="w-full h-full" src={getFullCurrentDomain(func)} />
+          {func ? <iframe ref={iframeRef} className="w-full h-full" src={getFullCurrentDomain(func)} /> : null}
         </div>
       </div>
     </Layout>

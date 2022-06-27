@@ -10,10 +10,11 @@ import Dialog from 'lib/components/Dialog';
 import { RefreshIcon } from '@heroicons/react/outline';
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
+import { QueryObserverBaseResult } from 'react-query';
 
 type FunctionDeploymentsProps = {
   func: NonNullable<ReturnType<typeof useFunction>['data']>;
-  refetch: () => Promise<void>;
+  refetch: QueryObserverBaseResult['refetch'];
 };
 
 const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {

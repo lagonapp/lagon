@@ -17,6 +17,11 @@ const Function = () => {
 
   const { data: func, refetch } = useFunction(functionId as string);
 
+  if (!func) {
+    // TODO: toast, change page?
+    return null;
+  }
+
   return (
     <Layout title={func.name} titleStatus="success" rightItem={<FunctionLinks func={func} />}>
       <Nav defaultValue="overview">

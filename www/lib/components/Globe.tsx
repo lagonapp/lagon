@@ -4,9 +4,13 @@ import { useEffect, useRef } from 'react';
 // const random = (min, max) => Math.random() * (max - min) + min;
 
 const Globe = () => {
-  const canvasRef = useRef<HTMLCanvasElement>();
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
+    if (!canvasRef.current) {
+      return;
+    }
+
     let phi = 0;
     let renders = 0;
     let width = 0;

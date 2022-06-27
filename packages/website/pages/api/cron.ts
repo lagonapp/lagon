@@ -33,7 +33,7 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
 
   const promises = functions.map(async func => {
     try {
-      const interval = parseExpression(func.cron);
+      const interval = parseExpression(func.cron || '');
       const next = interval.prev();
 
       // console.log(

@@ -28,7 +28,7 @@ const Settings = () => {
       <div className="flex flex-col gap-8">
         <Form
           initialValues={{
-            name: session.organization?.name,
+            name: session?.organization.name,
           }}
           onSubmit={async ({ name }) => {
             await updateOrganization.mutateAsync({
@@ -63,12 +63,12 @@ const Settings = () => {
         </Form>
         <Form
           initialValues={{
-            description: session.organization?.description,
+            description: session?.organization?.description,
           }}
           onSubmit={async ({ description }) => {
             await updateOrganization.mutateAsync({
-              organizationId: session.organization.id,
-              ...session.organization,
+              organizationId: session?.organization.id,
+              ...session?.organization,
               description,
             });
 
@@ -125,7 +125,11 @@ const Settings = () => {
             }
           >
             <Form
-              onSubmit={() => deleteOrganization.mutateAsync()}
+              onSubmit={() =>
+                deleteOrganization.mutateAsync({
+                  organizationId: session?.organization.id || '',
+                })
+              }
               onSubmitSuccess={() => {
                 toast.success('Organization deleted successfully.');
 
@@ -137,9 +141,9 @@ const Settings = () => {
                 <>
                   <Input
                     name="confirm"
-                    placeholder={session.organization.name}
+                    placeholder={session?.organization.name}
                     validator={value =>
-                      value !== session.organization.name ? 'Confirm with the name of this Funtion' : undefined
+                      value !== session?.organization.name ? 'Confirm with the name of this Funtion' : undefined
                     }
                   />
                   <Dialog.Buttons>

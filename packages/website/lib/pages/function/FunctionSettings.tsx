@@ -19,10 +19,11 @@ import Dialog from 'lib/components/Dialog';
 import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
+import { QueryObserverBaseResult } from 'react-query';
 
 type FunctionSettingsProps = {
   func: NonNullable<ReturnType<typeof useFunction>['data']>;
-  refetch: () => Promise<void>;
+  refetch: QueryObserverBaseResult['refetch'];
 };
 
 const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {

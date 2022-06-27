@@ -82,7 +82,7 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
           <link rel="icon" href="/favicon-black.ico" />
         )}
       </Head>
-      {session.organization || asPath === '/new' ? (
+      {session?.organization || asPath === '/new' ? (
         <>
           <div className="py-4 h-16 w-full border-b border-b-stone-200">
             <div className="flex justify-between mx-auto px-4 md:max-w-4xl">
@@ -100,7 +100,7 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
                   Settings
                 </HeaderLink>
               </div>
-              {session.organization ? (
+              {session?.organization ? (
                 <Menu>
                   <Menu.Button>
                     <Button rightIcon={<ChevronDownIcon className="w-4 h-4" />}>{session.organization.name}</Button>

@@ -5,15 +5,19 @@ export const requiredValidator: FieldValidator<string | number> = value => {
 };
 
 export const minLengthValidator =
-  (minLength: number): FieldValidator<string> =>
+  (minLength: number): FieldValidator<string | number> =>
   value => {
-    return !value || value.length >= minLength ? undefined : 'Field must be at least ' + minLength + ' characters long';
+    return typeof value === 'string' && (!value || value.length >= minLength)
+      ? undefined
+      : 'Field must be at least ' + minLength + ' characters long';
   };
 
 export const maxLengthValidator =
-  (maxLength: number): FieldValidator<string> =>
+  (maxLength: number): FieldValidator<string | number> =>
   value => {
-    return !value || value.length <= maxLength ? undefined : 'Field must be at most ' + maxLength + ' characters long';
+    return typeof value === 'string' && (!value || value.length <= maxLength)
+      ? undefined
+      : 'Field must be at most ' + maxLength + ' characters long';
   };
 
 export const functionNameValidator: FieldValidator<string | number> = value => {

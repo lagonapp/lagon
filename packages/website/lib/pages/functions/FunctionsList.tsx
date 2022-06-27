@@ -12,7 +12,7 @@ const FunctionsList = () => {
   const { push } = useRouter();
 
   const navigateToFunction = useCallback(
-    functionId => {
+    (functionId: string) => {
       push(`/functions/${functionId}`);
     },
     [push],
