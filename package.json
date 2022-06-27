@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "eslint --cache .",
     "test": "vitest run --coverage --threads false",
+    "test:update": "pnpm test -- -u",
     "test:watch": "vitest",
     "prepare": "husky install"
   },

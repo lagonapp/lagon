@@ -43,7 +43,7 @@ function getStackTrace(error: Error) {
   if (stack) {
     return stack
       .filter(line => {
-        return !(line.includes('file://') || line.includes('at masterHandler'));
+        return !(line.includes('file://') || line.includes('at masterHandler') || line.includes('.ts:'));
       })
       .join('\n');
   }

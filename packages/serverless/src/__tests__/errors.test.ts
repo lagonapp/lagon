@@ -43,7 +43,7 @@ export function handler(request) {
         "cpuTime": 0n,
         "logs": [
           {
-            "content": "\\"Error: Can't import module, you must bundle all your code in a single file.\\\\n    at async Object.<anonymous> (/Users/tom/dev/lagon/packages/serverless/src/server.ts:75:26)\\"",
+            "content": "\\"Error: Can't import module, you must bundle all your code in a single file.\\"",
             "level": "error",
           },
         ],
@@ -73,7 +73,7 @@ export function handler(request) {
         "cpuTime": 0n,
         "logs": [
           {
-            "content": "\\"Error: Function did not export a handler function.\\\\n    at async Object.<anonymous> (/Users/tom/dev/lagon/packages/serverless/src/server.ts:75:26)\\"",
+            "content": "\\"Error: Function did not export a handler function.\\"",
             "level": "error",
           },
         ],
