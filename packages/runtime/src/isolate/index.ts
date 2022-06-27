@@ -31,7 +31,7 @@ async function getHandler({
   context: ivm.Context;
   code: string;
 }): Promise<{ handler: ivm.Reference | undefined; masterHandler: ivm.Reference }> {
-  const module = await isolate.compileModule(code);
+  const module = await isolate.compileModule(code, { filename: 'function-isolate.js' });
 
   await module.instantiate(context, () => {
     throw new Error(`Can't import module, you must bundle all your code in a single file.`);
