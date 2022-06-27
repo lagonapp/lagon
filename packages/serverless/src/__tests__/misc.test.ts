@@ -1,5 +1,5 @@
 import { Deployment } from '@lagon/runtime';
-import { deployments, getBytesFromReply, getBytesFromRequest, getDeploymentFromRequest } from '../deployments/config';
+import { deployments, getBytesFromReply, getBytesFromRequest, getDeploymentFromRequest } from 'src/deployments/config';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 describe('Misc', () => {

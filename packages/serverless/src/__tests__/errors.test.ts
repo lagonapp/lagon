@@ -1,9 +1,9 @@
 import { Deployment, fetch } from '@lagon/runtime';
-import startServer from '../server';
+import startServer from 'src/server';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import * as deploymentsConfig from '../deployments/config';
-import * as deploymentsResult from '../deployments/result';
-import * as deployments from '../deployments';
+import * as deploymentsConfig from 'src/deployments/config';
+import * as deploymentsResult from 'src/deployments/result';
+import * as deployments from 'src/deployments';
 
 const getDeployment = (): Deployment => ({
   functionId: 'functionId',
