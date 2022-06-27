@@ -5,6 +5,8 @@ import { NodeHTTPCreateContextFnOptions } from '@trpc/server/adapters/node-http'
 import { IncomingMessage, OutgoingMessage } from 'node:http';
 import { functionsRouter } from 'lib/trpc/functionsRouter';
 import { organizationsRouter } from 'lib/trpc/organizationsRouter';
+import { tokensRouter } from 'lib/trpc/tokensRouter';
+import { deploymentsRouter } from 'lib/trpc/deploymentsRouter';
 
 const createContext = async ({
   req,
@@ -21,7 +23,11 @@ const createContext = async ({
 
 export const createRouter = () => trpc.router<trpc.inferAsyncReturnType<typeof createContext>>();
 
-const router = createRouter().merge('functions.', functionsRouter()).merge('organizations.', organizationsRouter());
+const router = createRouter()
+  .merge('functions.', functionsRouter())
+  .merge('organizations.', organizationsRouter())
+  .merge('tokens', tokensRouter())
+  .merge('deployments.', deploymentsRouter());
 
 export type AppRouter = typeof router;
 

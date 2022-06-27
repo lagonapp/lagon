@@ -13,6 +13,7 @@ import useSystemTheme from 'react-use-system-theme';
 import useOrganizations from './hooks/useOrganizations';
 import EmptyState from './components/EmptyState';
 import { reloadSession } from './utils';
+import { trpc } from './trpc';
 
 type HeaderLinkProps = {
   href: string;
@@ -33,20 +34,18 @@ const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
 const OrganizationsList = () => {
   const { data: organizations } = useOrganizations();
   const router = useRouter();
+  const currentOrganization = trpc.useMutation(['organizations.current']);
 
   const switchOrganization = useCallback(
     async (organization: typeof organizations[number]) => {
-      await fetch('/api/organizations', {
-        method: 'PATCH',
-        body: JSON.stringify({
-          organizationId: organization.id,
-        }),
+      await currentOrganization.mutateAsync({
+        organizationId: organization.id,
       });
 
       reloadSession();
       router.push('/');
     },
-    [router],
+    [router, currentOrganization],
   );
 
   return (

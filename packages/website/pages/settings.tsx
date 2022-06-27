@@ -1,5 +1,4 @@
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
 import toast from 'react-hot-toast';
 import Button from 'lib/components/Button';
 import Card from 'lib/components/Card';
@@ -9,19 +8,19 @@ import Layout from 'lib/Layout';
 import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
 import Dialog from 'lib/components/Dialog';
 import { useRouter } from 'next/router';
-import { fetchApi, reloadSession } from 'lib/utils';
+import { reloadSession } from 'lib/utils';
 import Textarea from 'lib/components/Textarea';
 import {
   ORGANIZATION_DESCRIPTION_MAX_LENGTH,
   ORGANIZATION_NAME_MAX_LENGTH,
   ORGANIZATION_NAME_MIN_LENGTH,
 } from 'lib/constants';
+import { trpc } from 'lib/trpc';
 
 const Settings = () => {
   const { data: session } = useSession();
-  const [isUpdatingName, setIsUpdatingName] = useState(false);
-  const [isUpdatingDescription, setIsUpdatingDescription] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const updateOrganization = trpc.useMutation(['organizations.update']);
+  const deleteOrganization = trpc.useMutation(['organizations.delete']);
   const router = useRouter();
 
   return (
@@ -32,24 +31,16 @@ const Settings = () => {
             name: session.organization?.name,
           }}
           onSubmit={async ({ name }) => {
-            setIsUpdatingName(true);
-
-            await fetchApi(`/api/organizations/${session.organization.id}`, {
-              method: 'PATCH',
-              body: JSON.stringify({
-                ...session.organization,
-                name,
-              }),
+            await updateOrganization.mutateAsync({
+              organizationId: session.organization.id,
+              ...session.organization,
+              name,
             });
 
             reloadSession();
           }}
           onSubmitSuccess={() => {
             toast.success('Organization name updated successfully.');
-            setIsUpdatingName(false);
-          }}
-          onSubmitError={() => {
-            setIsUpdatingName(false);
           }}
         >
           <Card title="Name" description="Change the name of this Organization.">
@@ -57,14 +48,14 @@ const Settings = () => {
               <Input
                 name="name"
                 placeholder="Organization name"
-                disabled={isUpdatingName}
+                disabled={updateOrganization.isLoading}
                 validator={composeValidators(
                   requiredValidator,
                   minLengthValidator(ORGANIZATION_NAME_MIN_LENGTH),
                   maxLengthValidator(ORGANIZATION_NAME_MAX_LENGTH),
                 )}
               />
-              <Button variant="primary" disabled={isUpdatingName} submit>
+              <Button variant="primary" disabled={updateOrganization.isLoading} submit>
                 Update
               </Button>
             </div>
@@ -75,24 +66,16 @@ const Settings = () => {
             description: session.organization?.description,
           }}
           onSubmit={async ({ description }) => {
-            setIsUpdatingDescription(true);
-
-            await fetchApi(`/api/organizations/${session.organization.id}`, {
-              method: 'PATCH',
-              body: JSON.stringify({
-                ...session.organization,
-                description,
-              }),
+            await updateOrganization.mutateAsync({
+              organizationId: session.organization.id,
+              ...session.organization,
+              description,
             });
 
             reloadSession();
           }}
           onSubmitSuccess={() => {
             toast.success('Organization description updated successfully.');
-            setIsUpdatingDescription(false);
-          }}
-          onSubmitError={() => {
-            setIsUpdatingDescription(false);
           }}
         >
           <Card title="Description" description="Change the description of this Organization.">
@@ -100,13 +83,13 @@ const Settings = () => {
               <Textarea
                 name="description"
                 placeholder="Organization description"
-                disabled={isUpdatingDescription}
+                disabled={updateOrganization.isLoading}
                 validator={composeValidators(
                   requiredValidator,
                   maxLengthValidator(ORGANIZATION_DESCRIPTION_MAX_LENGTH),
                 )}
               />
-              <Button variant="primary" disabled={isUpdatingDescription} submit>
+              <Button variant="primary" disabled={updateOrganization.isLoading} submit>
                 Update
               </Button>
             </div>
@@ -136,28 +119,18 @@ const Settings = () => {
             title="Delete Organization"
             description={`Write this Organization's name to confirm deletion: ${session.organization.name}`}
             disclosure={
-              <Button variant="danger" disabled={isDeleting}>
+              <Button variant="danger" disabled={deleteOrganization.isLoading}>
                 Delete
               </Button>
             }
           >
             <Form
-              onSubmit={async () => {
-                setIsDeleting(true);
-
-                await fetchApi(`/api/organizations/${session.organization.id}`, {
-                  method: 'DELETE',
-                });
-              }}
+              onSubmit={() => deleteOrganization.mutateAsync()}
               onSubmitSuccess={() => {
-                setIsDeleting(false);
                 toast.success('Organization deleted successfully.');
 
                 reloadSession();
                 router.push('/');
-              }}
-              onSubmitError={() => {
-                setIsDeleting(false);
               }}
             >
               {handleSubmit => (
@@ -170,8 +143,8 @@ const Settings = () => {
                     }
                   />
                   <Dialog.Buttons>
-                    <Dialog.Cancel disabled={isDeleting} />
-                    <Dialog.Action variant="danger" onClick={handleSubmit} disabled={isDeleting}>
+                    <Dialog.Cancel disabled={deleteOrganization.isLoading} />
+                    <Dialog.Action variant="danger" onClick={handleSubmit} disabled={deleteOrganization.isLoading}>
                       Delete Organization
                     </Dialog.Action>
                   </Dialog.Buttons>

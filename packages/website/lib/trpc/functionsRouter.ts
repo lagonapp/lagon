@@ -3,8 +3,8 @@ import prisma from 'lib/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { LOG_LEVELS, TIMEFRAMES } from 'lib/types';
 import { ClickHouse } from 'clickhouse';
-import { getDeploymentCode, removeDeployment } from 'lib/api/deployments';
-import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
+import { createDeployment, getDeploymentCode, removeDeployment } from 'lib/api/deployments';
+import { DEFAULT_MEMORY, DEFAULT_TIMEOUT, FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
 
 const clickhouse = new ClickHouse({});
 
@@ -183,6 +183,44 @@ export const functionsRouter = () =>
 
           return stats;
         }
+      },
+    })
+    .mutation('create', {
+      input: z.object({
+        name: z.string(),
+        domains: z.string().array(),
+        env: z.string().array(),
+        cron: z.string().nullable(),
+        code: z.string(),
+        shouldTransformCode: z.boolean(),
+      }),
+      resolve: async ({ ctx, input }) => {
+        const func = await prisma.function.create({
+          data: {
+            organizationId: ctx.session.organization.id,
+            name: input.name,
+            domains: input.domains,
+            memory: DEFAULT_MEMORY,
+            timeout: DEFAULT_TIMEOUT,
+            env: input.env,
+            cron: input.cron,
+          },
+          select: {
+            id: true,
+            createdAt: true,
+            updatedAt: true,
+            name: true,
+            domains: true,
+            memory: true,
+            timeout: true,
+            env: true,
+            cron: true,
+          },
+        });
+
+        const deployment = await createDeployment(func, input.code, input.shouldTransformCode, ctx.session.user.email);
+
+        return { ...func, deployment };
       },
     })
     .mutation('update', {

@@ -1,7 +1,6 @@
 import { useMonaco } from '@monaco-editor/react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
 import Button from 'lib/components/Button';
 import Form from 'lib/components/Form';
@@ -9,13 +8,13 @@ import FunctionLinks from 'lib/components/FunctionLinks';
 import Playground from 'lib/components/Playground';
 import useFunction from 'lib/hooks/useFunction';
 import Layout from 'lib/Layout';
-import { fetchApi, getFullCurrentDomain } from 'lib/utils';
+import { getFullCurrentDomain } from 'lib/utils';
 import Text from 'lib/components/Text';
 import { PlayIcon, RefreshIcon } from '@heroicons/react/outline';
 import useFunctionCode from 'lib/hooks/useFunctionCode';
+import { trpc } from 'lib/trpc';
 
 const PlaygroundPage = () => {
-  const { data: session } = useSession();
   const {
     query: { functionId },
   } = useRouter();
@@ -23,7 +22,7 @@ const PlaygroundPage = () => {
   const { data: functionCode } = useFunctionCode(functionId as string);
   const iframeRef = useRef<HTMLIFrameElement>();
   const monaco = useMonaco();
-  const [isDeploying, setIsDeploying] = useState(false);
+  const deployFunction = trpc.useMutation(['deployments.create']);
 
   const reloadIframe = useCallback(() => {
     if (iframeRef.current) {
@@ -36,37 +35,36 @@ const PlaygroundPage = () => {
       <div className="w-screen h-12 flex border-b border-b-stone-200">
         <Form
           onSubmit={async () => {
-            setIsDeploying(true);
             let code = monaco.editor.getModels()[0].getValue();
 
             if (code.startsWith('declare interface RequestInit {')) {
               code = monaco.editor.getModels()[1].getValue();
             }
 
-            await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}/deploy`, {
-              method: 'POST',
-              body: JSON.stringify({
-                code,
-                shouldTransformCode: true,
-              }),
+            await deployFunction.mutateAsync({
+              code,
+              shouldTransformCode: true,
             });
           }}
           onSubmitSuccess={() => {
             toast.success('Function deployed successfully.');
-            setIsDeploying(false);
 
             setTimeout(reloadIframe, 100);
           }}
           onSubmitError={() => {
             toast.error('Failed to deploy function.');
-            setIsDeploying(false);
           }}
         >
           <div className="w-[50vw] flex justify-between px-2 items-center h-full">
             <Text>{func.name} playground</Text>
             <div className="flex items-center gap-2">
               <Button href={`/functions/${func.id}`}>Back to function</Button>
-              <Button variant="primary" leftIcon={<PlayIcon className="w-4 h-4" />} submit disabled={isDeploying}>
+              <Button
+                variant="primary"
+                leftIcon={<PlayIcon className="w-4 h-4" />}
+                submit
+                disabled={deployFunction.isLoading}
+              >
                 Deploy
               </Button>
             </div>

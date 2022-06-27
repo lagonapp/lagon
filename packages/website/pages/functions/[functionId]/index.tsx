@@ -36,7 +36,7 @@ const Function = () => {
           <FunctionOverview func={func} />
         </Nav.Content>
         <Nav.Content value="deployments">
-          <FunctionDeployments func={func} />
+          <FunctionDeployments func={func} refetch={refetch} />
         </Nav.Content>
         <Nav.Content value="logs">
           <FunctionLogs func={func} />
