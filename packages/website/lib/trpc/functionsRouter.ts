@@ -3,7 +3,8 @@ import prisma from 'lib/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { LOG_LEVELS, TIMEFRAMES } from 'lib/types';
 import { ClickHouse } from 'clickhouse';
-import { getDeploymentCode } from 'lib/api/deployments';
+import { getDeploymentCode, removeDeployment } from 'lib/api/deployments';
+import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
 
 const clickhouse = new ClickHouse({});
 
@@ -182,5 +183,91 @@ export const functionsRouter = () =>
 
           return stats;
         }
+      },
+    })
+    .mutation('update', {
+      input: z.object({
+        functionId: z.string(),
+        name: z.string().min(FUNCTION_NAME_MIN_LENGTH).max(FUNCTION_NAME_MAX_LENGTH),
+        domains: z.string().array(),
+        cron: z.string().nullable(),
+        env: z.string().array(),
+      }),
+      resolve: async ({ input }) => {
+        const func = await prisma.function.update({
+          where: {
+            id: input.functionId,
+          },
+          data: {
+            name: input.name,
+            domains: input.domains,
+            cron: input.cron,
+            env: input.env,
+          },
+          select: {
+            id: true,
+            createdAt: true,
+            updatedAt: true,
+            name: true,
+            domains: true,
+            memory: true,
+            timeout: true,
+            cron: true,
+            env: true,
+            deployments: {
+              select: {
+                id: true,
+                triggerer: true,
+                commit: true,
+                isCurrent: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        });
+
+        return func;
+      },
+    })
+    .mutation('delete', {
+      input: z.object({
+        functionId: z.string(),
+      }),
+      resolve: async ({ input }) => {
+        const func = await prisma.function.delete({
+          where: {
+            id: input.functionId,
+          },
+          select: {
+            id: true,
+            createdAt: true,
+            updatedAt: true,
+            name: true,
+            domains: true,
+            memory: true,
+            timeout: true,
+            env: true,
+            deployments: {
+              select: {
+                id: true,
+                triggerer: true,
+                commit: true,
+                isCurrent: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        });
+
+        for (const deployment of func.deployments) {
+          await removeDeployment(func, deployment.id);
+        }
+
+        await clickhouse.query(`alter table functions_result delete where functionId='${func.id}'`).toPromise();
+        await clickhouse.query(`alter table logs delete where functionId='${func.id}'`).toPromise();
+
+        return func;
       },
     });

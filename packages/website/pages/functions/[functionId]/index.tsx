@@ -15,7 +15,7 @@ const Function = () => {
     query: { functionId },
   } = useRouter();
 
-  const { data: func } = useFunction(functionId as string);
+  const { data: func, refetch } = useFunction(functionId as string);
 
   return (
     <Layout title={func.name} titleStatus="success" rightItem={<FunctionLinks func={func} />}>
@@ -42,7 +42,7 @@ const Function = () => {
           <FunctionLogs func={func} />
         </Nav.Content>
         <Nav.Content value="settings">
-          <FunctionSettings func={func} />
+          <FunctionSettings func={func} refetch={refetch} />
         </Nav.Content>
       </Nav>
     </Layout>

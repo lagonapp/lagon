@@ -1,15 +1,11 @@
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
 import toast from 'react-hot-toast';
-import { useSWRConfig } from 'swr';
-import { GetFunctionResponse } from 'pages/api/organizations/[organizationId]/functions/[functionId]';
 import Button from 'lib/components/Button';
 import Card from 'lib/components/Card';
 import Form from 'lib/components/Form';
 import Input from 'lib/components/Input';
 import Text from 'lib/components/Text';
-import { fetchApi, getCurrentDomain } from 'lib/utils';
+import { getCurrentDomain } from 'lib/utils';
 import TagsInput from 'lib/components/TagsInput';
 import {
   composeValidators,
@@ -21,20 +17,18 @@ import {
 } from 'lib/form/validators';
 import Dialog from 'lib/components/Dialog';
 import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
+import { trpc } from 'lib/trpc';
+import { GetFunctionResponse } from 'pages/api/organizations/[organizationId]/functions/[functionId]';
 
 type FunctionSettingsProps = {
   func: GetFunctionResponse;
+  refetch: () => Promise<void>;
 };
 
-const FunctionSettings = ({ func }: FunctionSettingsProps) => {
-  const { data: session } = useSession();
-  const [isUpdatingName, setIsUpdatingName] = useState(false);
-  const [isUpdatingDomains, setIsUpdatingDomains] = useState(false);
-  const [isUpdatingCron, setIsUpdatingCron] = useState(false);
-  const [isUpdatingEnvVariables, setIsUpdatingEnvVariables] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const { mutate } = useSWRConfig();
+const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
   const router = useRouter();
+  const updateFunction = trpc.useMutation(['functions.update']);
+  const deleteFunction = trpc.useMutation(['functions.delete']);
 
   return (
     <div className="flex flex-col gap-8">
@@ -43,24 +37,16 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
           name: func.name,
         }}
         onSubmit={async ({ name }) => {
-          setIsUpdatingName(true);
-
-          await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              ...func,
-              name,
-            }),
+          await updateFunction.mutateAsync({
+            functionId: func.id,
+            ...func,
+            name,
           });
 
-          await mutate(`/api/organizations/${session.organization.id}/functions/${func.id}`);
+          await refetch();
         }}
         onSubmitSuccess={() => {
           toast.success('Function name updated successfully.');
-          setIsUpdatingName(false);
-        }}
-        onSubmitError={() => {
-          setIsUpdatingName(false);
         }}
       >
         <Card
@@ -71,7 +57,7 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
             <Input
               name="name"
               placeholder="Function name"
-              disabled={isUpdatingName}
+              disabled={updateFunction.isLoading}
               validator={composeValidators(
                 requiredValidator,
                 minLengthValidator(FUNCTION_NAME_MIN_LENGTH),
@@ -79,7 +65,7 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
                 functionNameValidator,
               )}
             />
-            <Button variant="primary" disabled={isUpdatingName} submit>
+            <Button variant="primary" disabled={updateFunction.isLoading} submit>
               Update
             </Button>
           </div>
@@ -90,24 +76,16 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
           domains: func.domains,
         }}
         onSubmit={async ({ domains }) => {
-          setIsUpdatingDomains(true);
-
-          await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              ...func,
-              domains,
-            }),
+          await updateFunction.mutateAsync({
+            functionId: func.id,
+            ...func,
+            domains,
           });
 
-          await mutate(`/api/organizations/${session.organization.id}/functions/${func.id}`);
+          await refetch();
         }}
         onSubmitSuccess={() => {
           toast.success('Function domains updated successfully.');
-          setIsUpdatingDomains(false);
-        }}
-        onSubmitError={() => {
-          setIsUpdatingDomains(false);
         }}
       >
         <Card
@@ -122,8 +100,8 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
             <div className="flex flex-1 flex-col gap-1">
               <Text size="lg">Custom domains</Text>
               <div className="flex gap-2 items-center">
-                <TagsInput name="domains" placeholder="Custom domains" disabled={isUpdatingDomains} />
-                <Button variant="primary" disabled={isUpdatingDomains} submit>
+                <TagsInput name="domains" placeholder="Custom domains" disabled={updateFunction.isLoading} />
+                <Button variant="primary" disabled={updateFunction.isLoading} submit>
                   Update
                 </Button>
               </div>
@@ -136,30 +114,22 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
           cron: func.cron,
         }}
         onSubmit={async ({ cron }) => {
-          setIsUpdatingCron(true);
-
-          await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              ...func,
-              cron,
-            }),
+          await updateFunction.mutateAsync({
+            functionId: func.id,
+            ...func,
+            cron,
           });
 
-          await mutate(`/api/organizations/${session.organization.id}/functions/${func.id}`);
+          await refetch();
         }}
         onSubmitSuccess={() => {
           toast.success('Function Cron updated successfully.');
-          setIsUpdatingCron(false);
-        }}
-        onSubmitError={() => {
-          setIsUpdatingCron(false);
         }}
       >
         <Card title="Cron" description="Run this Function automatically at a scheduled rate using a Cron expression.">
           <div className="flex gap-2 items-center">
-            <Input name="cron" placeholder="Cron" disabled={isUpdatingCron} validator={cronValidator} />
-            <Button variant="primary" disabled={isUpdatingCron} submit>
+            <Input name="cron" placeholder="Cron" disabled={updateFunction.isLoading} validator={cronValidator} />
+            <Button variant="primary" disabled={updateFunction.isLoading} submit>
               Update
             </Button>
           </div>
@@ -170,24 +140,16 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
           env: func.env,
         }}
         onSubmit={async ({ env }) => {
-          setIsUpdatingEnvVariables(true);
-
-          await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
-            method: 'PATCH',
-            body: JSON.stringify({
-              ...func,
-              env,
-            }),
+          await updateFunction.mutateAsync({
+            functionId: func.id,
+            ...func,
+            env,
           });
 
-          await mutate(`/api/organizations/${session.organization.id}/functions/${func.id}`);
+          await refetch();
         }}
         onSubmitSuccess={() => {
           toast.success('Function environment variables updated successfully.');
-          setIsUpdatingEnvVariables(false);
-        }}
-        onSubmitError={() => {
-          setIsUpdatingEnvVariables(false);
         }}
       >
         <Card
@@ -195,8 +157,8 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
           description="Environment variables are injected into your Function at runtime."
         >
           <div className="flex gap-2 items-center">
-            <Input name="env" placeholder="Environment variables" disabled={isUpdatingEnvVariables} />
-            <Button variant="primary" disabled={isUpdatingEnvVariables} submit>
+            <Input name="env" placeholder="Environment variables" disabled={updateFunction.isLoading} />
+            <Button variant="primary" disabled={updateFunction.isLoading} submit>
               Update
             </Button>
           </div>
@@ -211,27 +173,21 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
           title="Delete Function"
           description={`Write this Function's name to confirm deletion: ${func.name}`}
           disclosure={
-            <Button variant="danger" disabled={isDeleting}>
+            <Button variant="danger" disabled={deleteFunction.isLoading}>
               Delete
             </Button>
           }
         >
           <Form
             onSubmit={async () => {
-              setIsDeleting(true);
-
-              await fetchApi(`/api/organizations/${session.organization.id}/functions/${func.id}`, {
-                method: 'DELETE',
+              await deleteFunction.mutateAsync({
+                functionId: func.id,
               });
             }}
             onSubmitSuccess={() => {
               toast.success('Organization deleted successfully.');
-              setIsDeleting(false);
 
               router.push('/');
-            }}
-            onSubmitError={() => {
-              setIsDeleting(false);
             }}
           >
             {handleSubmit => (
@@ -242,8 +198,8 @@ const FunctionSettings = ({ func }: FunctionSettingsProps) => {
                   validator={value => (value !== func.name ? 'Confirm with the name of this Funtion' : undefined)}
                 />
                 <Dialog.Buttons>
-                  <Dialog.Cancel disabled={isDeleting} />
-                  <Dialog.Action variant="danger" onClick={handleSubmit} disabled={isDeleting}>
+                  <Dialog.Cancel disabled={deleteFunction.isLoading} />
+                  <Dialog.Action variant="danger" onClick={handleSubmit} disabled={deleteFunction.isLoading}>
                     Delete Function
                   </Dialog.Action>
                 </Dialog.Buttons>
