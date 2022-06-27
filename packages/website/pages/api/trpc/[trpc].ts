@@ -7,6 +7,7 @@ import { tokensRouter } from 'lib/trpc/tokensRouter';
 import { deploymentsRouter } from 'lib/trpc/deploymentsRouter';
 import prisma from 'lib/prisma';
 import { Session } from 'next-auth';
+import * as Sentry from '@sentry/nextjs';
 
 const createContext = async ({ req, res }: trpcNext.CreateNextContextOptions) => {
   const tokenValue = req.headers['x-lagon-token'] as string;
@@ -74,4 +75,5 @@ export type AppRouter = typeof router;
 export default trpcNext.createNextApiHandler({
   router,
   createContext,
+  onError: ({ error }) => Sentry.captureException(error),
 });
