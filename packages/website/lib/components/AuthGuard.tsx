@@ -1,11 +1,11 @@
 import { signIn, useSession } from 'next-auth/react';
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 import Button from './Button';
 import Card from './Card';
 import Text from './Text';
 
 type AuthGuardProps = {
-  children: ReactElement;
+  children: ReactNode;
 };
 
 const AuthGuard = ({ children }: AuthGuardProps) => {
