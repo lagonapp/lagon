@@ -5,6 +5,23 @@ import * as trpc from '@trpc/server';
 
 export const tokensRouter = () =>
   createRouter()
+    .query('list', {
+      resolve: async ({ ctx }) => {
+        return prisma.token.findMany({
+          where: {
+            userId: ctx.session.user.id,
+          },
+          select: {
+            id: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        });
+      },
+    })
     .query('verification-code', {
       resolve: async ({ ctx }) => {
         const user = await prisma.user.findFirst({
@@ -91,5 +108,17 @@ export const tokensRouter = () =>
         }
 
         return { token: token.value };
+      },
+    })
+    .mutation('delete', {
+      input: z.object({
+        tokenId: z.string(),
+      }),
+      resolve: async ({ input }) => {
+        return prisma.token.delete({
+          where: {
+            id: input.tokenId,
+          },
+        });
       },
     });

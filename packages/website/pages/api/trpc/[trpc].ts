@@ -29,8 +29,9 @@ const createContext = async ({ req, res }: trpcNext.CreateNextContextOptions) =>
     });
 
     if (!token) {
-      res.status(401).end();
-      return;
+      throw new trpc.TRPCError({
+        code: 'UNAUTHORIZED',
+      });
     }
 
     return {
@@ -50,8 +51,9 @@ const createContext = async ({ req, res }: trpcNext.CreateNextContextOptions) =>
     const session = await getSession({ req });
 
     if (!session) {
-      res.status(401).end();
-      return;
+      throw new trpc.TRPCError({
+        code: 'UNAUTHORIZED',
+      });
     }
 
     return {
