@@ -37,7 +37,7 @@ const OrganizationsList = () => {
   const queryContext = trpc.useContext();
 
   const switchOrganization = useCallback(
-    async (organization: typeof organizations[number]) => {
+    async (organization: NonNullable<typeof organizations>[number]) => {
       await currentOrganization.mutateAsync({
         organizationId: organization.id,
       });

@@ -20,7 +20,7 @@ const Profile = () => {
   const updateAccount = trpc.useMutation(['accounts.update']);
 
   const removeToken = useCallback(
-    async (token: typeof tokens[number]) => {
+    async (token: NonNullable<typeof tokens>[number]) => {
       await deleteToken.mutateAsync({
         tokenId: token.id,
       });
@@ -70,9 +70,9 @@ const Profile = () => {
         <Card title="Tokens" description="Below are your personal tokens, used for the CLI.">
           <div>
             {tokens?.map(token => (
-              <>
+              <div key={token.id}>
                 <Divider />
-                <div key={token.id} className="flex items-center justify-between px-4">
+                <div className="flex items-center justify-between px-4">
                   <Text strong>********</Text>
                   <Text size="sm">
                     Created:&nbsp;
@@ -105,40 +105,42 @@ const Profile = () => {
                     </Dialog.Buttons>
                   </Dialog>
                 </div>
-              </>
+              </div>
             ))}
           </div>
         </Card>
         <Card title="Delete" description="Delete permanentently this account. This action is irreversible." danger>
-          <Dialog
-            title="Delete Account"
-            description={`Write your account email to confirm deletion: ${session?.user.email}`}
-            disclosure={<Button variant="danger">Delete</Button>}
-          >
-            <Form
-              onSubmit={() => {
-                // TODO
-                toast.error('Account deletion is not implemented yet.');
-              }}
-              onSubmitSuccess={async () => null}
+          <div>
+            <Dialog
+              title="Delete Account"
+              description={`Write your account email to confirm deletion: ${session?.user.email}`}
+              disclosure={<Button variant="danger">Delete</Button>}
             >
-              {handleSubmit => (
-                <>
-                  <Input
-                    name="confirm"
-                    placeholder={session?.user.email}
-                    validator={value => (value !== session?.user.email ? 'Confirm with the your email' : undefined)}
-                  />
-                  <Dialog.Buttons>
-                    <Dialog.Cancel />
-                    <Dialog.Action variant="danger" onClick={handleSubmit}>
-                      Delete Account
-                    </Dialog.Action>
-                  </Dialog.Buttons>
-                </>
-              )}
-            </Form>
-          </Dialog>
+              <Form
+                onSubmit={() => {
+                  // TODO
+                  toast.error('Account deletion is not implemented yet.');
+                }}
+                onSubmitSuccess={async () => null}
+              >
+                {handleSubmit => (
+                  <>
+                    <Input
+                      name="confirm"
+                      placeholder={session?.user.email}
+                      validator={value => (value !== session?.user.email ? 'Confirm with the your email' : undefined)}
+                    />
+                    <Dialog.Buttons>
+                      <Dialog.Cancel />
+                      <Dialog.Action variant="danger" onClick={handleSubmit}>
+                        Delete Account
+                      </Dialog.Action>
+                    </Dialog.Buttons>
+                  </>
+                )}
+              </Form>
+            </Dialog>
+          </div>
         </Card>
       </div>
     </Layout>

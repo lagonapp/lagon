@@ -170,44 +170,46 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         description="Delete completely this Function, it's Deployments and Logs. This action is irreversible."
         danger
       >
-        <Dialog
-          title="Delete Function"
-          description={`Write this Function's name to confirm deletion: ${func.name}`}
-          disclosure={
-            <Button variant="danger" disabled={deleteFunction.isLoading}>
-              Delete
-            </Button>
-          }
-        >
-          <Form
-            onSubmit={async () => {
-              await deleteFunction.mutateAsync({
-                functionId: func.id,
-              });
-            }}
-            onSubmitSuccess={() => {
-              toast.success('Organization deleted successfully.');
-
-              router.push('/');
-            }}
+        <div>
+          <Dialog
+            title="Delete Function"
+            description={`Write this Function's name to confirm deletion: ${func.name}`}
+            disclosure={
+              <Button variant="danger" disabled={deleteFunction.isLoading}>
+                Delete
+              </Button>
+            }
           >
-            {handleSubmit => (
-              <>
-                <Input
-                  name="confirm"
-                  placeholder={func.name}
-                  validator={value => (value !== func.name ? 'Confirm with the name of this Funtion' : undefined)}
-                />
-                <Dialog.Buttons>
-                  <Dialog.Cancel disabled={deleteFunction.isLoading} />
-                  <Dialog.Action variant="danger" onClick={handleSubmit} disabled={deleteFunction.isLoading}>
-                    Delete Function
-                  </Dialog.Action>
-                </Dialog.Buttons>
-              </>
-            )}
-          </Form>
-        </Dialog>
+            <Form
+              onSubmit={async () => {
+                await deleteFunction.mutateAsync({
+                  functionId: func.id,
+                });
+              }}
+              onSubmitSuccess={() => {
+                toast.success('Organization deleted successfully.');
+
+                router.push('/');
+              }}
+            >
+              {handleSubmit => (
+                <>
+                  <Input
+                    name="confirm"
+                    placeholder={func.name}
+                    validator={value => (value !== func.name ? 'Confirm with the name of this Funtion' : undefined)}
+                  />
+                  <Dialog.Buttons>
+                    <Dialog.Cancel disabled={deleteFunction.isLoading} />
+                    <Dialog.Action variant="danger" onClick={handleSubmit} disabled={deleteFunction.isLoading}>
+                      Delete Function
+                    </Dialog.Action>
+                  </Dialog.Buttons>
+                </>
+              )}
+            </Form>
+          </Dialog>
+        </div>
       </Card>
     </div>
   );

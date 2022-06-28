@@ -1,4 +1,4 @@
-import NextAuth from 'next-auth';
+import NextAuth, { Session } from 'next-auth';
 import GithubProvider from 'next-auth/providers/github';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from 'lib/prisma';
@@ -22,19 +22,18 @@ export default apiHandler(
     },
     callbacks: {
       session: async ({ session, user }) => {
-        const { currentOrganizationId } = await prisma.user.findFirst({
+        const userFromDB = await prisma.user.findFirst({
           where: {
             id: user.id,
           },
           select: {
             currentOrganizationId: true,
-            id: true,
           },
         });
 
         const organization = await prisma.organization.findFirst({
           where: {
-            id: currentOrganizationId,
+            id: userFromDB?.currentOrganizationId || '',
           },
           select: {
             id: true,
@@ -44,9 +43,9 @@ export default apiHandler(
         });
 
         Sentry.setUser({
-          username: user.name,
+          username: user.name || 'None',
           id: user.id,
-          email: user.email,
+          email: user.email || 'None',
         });
 
         return {
@@ -56,7 +55,7 @@ export default apiHandler(
             id: user.id,
           },
           organization,
-        };
+        } as Session;
       },
     },
     events: {
@@ -65,7 +64,9 @@ export default apiHandler(
 
         const { id } = await prisma.organization.create({
           data: {
-            name: user.name || user.email,
+            // Email address is always returned for GitHub provider
+            // https://next-auth.js.org/providers/github#example
+            name: user.name || (user.email as string),
             description: `${name}'s default organization.`,
             ownerId: user.id,
           },
