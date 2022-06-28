@@ -1,10 +1,4 @@
-import {
-  DeleteObjectCommand,
-  DeleteObjectsCommand,
-  GetObjectCommand,
-  ListObjectsV2Command,
-  PutObjectCommand,
-} from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import redis from 'lib/redis';
 import s3 from 'lib/s3';
 import { transform } from 'esbuild';
@@ -146,7 +140,7 @@ export async function removeDeployment(
     new DeleteObjectsCommand({
       Bucket: process.env.AWS_S3_BUCKET,
       Delete: {
-        Objects: deployment.assets.map(asset => `${deployment.id}/${asset}`),
+        Objects: deployment.assets.map(asset => ({ Key: `${deployment.id}/${asset}` })),
       },
     }),
   );

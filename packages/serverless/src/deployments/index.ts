@@ -35,8 +35,6 @@ export function getAssetContent(deployment: Deployment, name: string): string {
 export function writeAssetContent(name: string, content: string): void {
   const file = path.join(DEPLOYMENTS_FOLDER, name);
 
-  console.log('write asset', file);
-
   fs.writeFileSync(file, content, 'utf8');
 }
 
