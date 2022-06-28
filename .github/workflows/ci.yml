@@ -1,5 +1,8 @@
 name: CI
 on:
+  push:
+    branches:
+      - main
   pull_request:
 jobs:
   lint:
@@ -44,3 +47,20 @@ jobs:
         pnpm build:runtime
     - name: Run Vitest
       run: pnpm test
+  typecheck:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: pnpm/action-setup@v2.2.2
+      with:
+        version: 7
+    - name: Use Node.js 18
+      uses: actions/setup-node@v2
+      with:
+        node-version: 18
+        cache: 'pnpm'
+    - name: Install dependencies
+      run: pnpm install
+    - name: Run TSC
+      # TODO: remove the | true when all type errors are resolved
+      run: pnpm tsc --noEmit | true
