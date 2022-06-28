@@ -1,5 +1,6 @@
-import { ComponentProps, ReactElement, ReactNode } from 'react';
+import { ComponentProps, ReactElement, ReactNode, useEffect, useState } from 'react';
 import * as Tabs from '@radix-ui/react-tabs';
+import { useRouter } from 'next/router';
 
 type NavListProps = {
   rightItem?: ReactElement;
@@ -47,8 +48,26 @@ type NavProps = {
 };
 
 const Nav = ({ defaultValue, orientation = 'horizontal', children }: NavProps) => {
+  const router = useRouter();
+  const [tab, setTab] = useState((router.query.tab as string) || defaultValue);
+
+  useEffect(() => {
+    // Set a timeout of 100ms to allow the tab to render before updating the query
+    const timeout = setTimeout(() => {
+      router.replace({
+        query: {
+          ...router.query,
+          tab,
+        },
+      });
+    }, 100);
+
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
+
   return (
-    <Tabs.Root defaultValue={defaultValue} orientation={orientation}>
+    <Tabs.Root value={tab} orientation={orientation} onValueChange={tab => setTab(tab)}>
       {children}
     </Tabs.Root>
   );
