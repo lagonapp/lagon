@@ -37,6 +37,15 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
     const result = {
       labels: [],
       values: [],
+    } as {
+      labels: string[];
+      values: {
+        requests: number;
+        memory: number;
+        cpu: number;
+        receivedBytes: number;
+        sendBytes: number;
+      }[];
     };
 
     if (timeframe === 'Last 24 hours') {

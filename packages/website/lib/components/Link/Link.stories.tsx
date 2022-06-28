@@ -6,7 +6,7 @@ export default {
 } as ComponentMeta<typeof Link>;
 
 const Template: ComponentStory<typeof Link> = args => (
-  <Link href="google.com" {...args}>
+  <Link {...args} href="google.com">
     A link
   </Link>
 );

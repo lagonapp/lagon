@@ -7,10 +7,10 @@ export default {
 } as ComponentMeta<typeof Textarea>;
 
 const Template: ComponentStory<typeof Textarea> = args => (
-  <Form onSubmit={() => null}>
+  <Form onSubmit={() => undefined}>
     {({ handleSubmit }) => (
       <form onSubmit={handleSubmit}>
-        <Textarea name="input" {...args} />
+        <Textarea {...args} name="input" />
       </form>
     )}
   </Form>

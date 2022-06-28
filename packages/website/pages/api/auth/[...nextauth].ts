@@ -86,5 +86,5 @@ export default apiHandler(
       },
     },
   }),
-  { auth: false },
+  { tokenAuth: false },
 );

@@ -42,7 +42,7 @@ const Chart = ({ labels, datasets }: ChartProps) => {
             const { ctx, chartArea } = chart;
 
             if (!chartArea) {
-              return null;
+              return undefined;
             }
 
             const gradient = ctx.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);

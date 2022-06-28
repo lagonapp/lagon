@@ -2,7 +2,11 @@ import { Menu as HeadlessMenu } from '@headlessui/react';
 import { useRouter } from 'next/router';
 import { MouseEventHandler, ReactElement, ReactNode } from 'react';
 
-const Menu = ({ children, ...props }) => {
+type MenuProps = {
+  children: ReactNode;
+};
+
+const Menu = ({ children, ...props }: MenuProps) => {
   return (
     <HeadlessMenu as="div" className="relative" {...props}>
       {children}
@@ -10,7 +14,11 @@ const Menu = ({ children, ...props }) => {
   );
 };
 
-const MenuButton = ({ children, ...props }) => {
+type MenuButtonProps = {
+  children: ReactNode;
+};
+
+const MenuButton = ({ children, ...props }: MenuButtonProps) => {
   return (
     <HeadlessMenu.Button as="div" {...props}>
       {children}
@@ -18,7 +26,11 @@ const MenuButton = ({ children, ...props }) => {
   );
 };
 
-const MenuItems = ({ children, ...props }) => {
+type MenuItemsProps = {
+  children: ReactNode;
+};
+
+const MenuItems = ({ children, ...props }: MenuItemsProps) => {
   return (
     <HeadlessMenu.Items
       className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg shadow-stone-200 focus:outline-none p-2 z-10"

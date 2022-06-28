@@ -7,10 +7,10 @@ export default {
 } as ComponentMeta<typeof TagsInput>;
 
 const Template: ComponentStory<typeof TagsInput> = args => (
-  <Form onSubmit={() => null}>
+  <Form onSubmit={() => undefined}>
     {({ handleSubmit }) => (
       <form onSubmit={handleSubmit}>
-        <TagsInput name="input" {...args} />
+        <TagsInput {...args} name="input" />
       </form>
     )}
   </Form>

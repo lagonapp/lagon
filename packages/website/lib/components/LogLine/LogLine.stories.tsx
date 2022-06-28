@@ -6,19 +6,19 @@ export default {
 } as ComponentMeta<typeof LogLine>;
 
 const Template: ComponentStory<typeof LogLine> = args => (
-  <LogLine date="Today" message="This is a log content" {...args} />
+  <LogLine {...args} date={new Date()} message="This is a log content" />
 );
 
 export const Default = Template.bind({});
 
 export const Multiple: ComponentStory<typeof LogLine> = () => (
   <div className="flex flex-col">
-    <LogLine date="Today" message="This is a log content" />
-    <LogLine date="Today" message="This is a log content" />
-    <LogLine date="Today" message="This is a log content" />
-    <LogLine date="Today" message="This is a log content" />
-    <LogLine date="Today" message="This is a log content" />
-    <LogLine date="Today" message="This is a log content" />
+    <LogLine date={new Date()} message="This is a log content" />
+    <LogLine date={new Date()} message="This is a log content" />
+    <LogLine date={new Date()} message="This is a log content" />
+    <LogLine date={new Date()} message="This is a log content" />
+    <LogLine date={new Date()} message="This is a log content" />
+    <LogLine date={new Date()} message="This is a log content" />
   </div>
 );
 
