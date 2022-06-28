@@ -41,7 +41,6 @@
     "react-final-form": "^6.5.9",
     "react-hot-toast": "^2.2.0",
     "react-query": "^3.39.1",
-    "react-use-system-theme": "^1.1.1",
     "redis": "^4.1.0",
     "zod": "^3.17.3"
   },

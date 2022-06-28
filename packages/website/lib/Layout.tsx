@@ -9,10 +9,10 @@ import Divider from 'lib/components/Divider';
 import Text from 'lib/components/Text';
 import Head from 'next/head';
 import Dot from 'lib/components/Dot';
-import useSystemTheme from 'react-use-system-theme';
 import useOrganizations from './hooks/useOrganizations';
 import EmptyState from './components/EmptyState';
 import { trpc } from './trpc';
+import useSystemTheme from './hooks/useSystemTheme';
 
 type HeaderLinkProps = {
   href: string;
