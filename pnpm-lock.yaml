@@ -52,6 +52,20 @@ importers:
       preact: 10.8.2
       preact-render-to-string: 5.2.0_preact@10.8.2
 
+  examples/react-ssr:
+    specifiers:
+      '@lagon/types': workspace:^0.0.1
+      '@types/react': ^18.0.9
+      '@types/react-dom': ^18.0.5
+      react: 18.1.0
+      react-dom: 18.1.0
+    dependencies:
+      '@lagon/types': link:../../packages/types
+      '@types/react': 18.0.14
+      '@types/react-dom': 18.0.5
+      react: 18.1.0
+      react-dom: 18.1.0_react@18.1.0
+
   examples/reply-with-html:
     specifiers:
       '@lagon/types': workspace:^0.0.1
@@ -5323,7 +5337,6 @@ packages:
     resolution: {integrity: sha512-OWPWTUrY/NIrjsAPkAk1wW9LZeIjSvkXRhclsFO8CZcZGCOg2G0YZy4ft+rOyYxy8B7ui5iZzi9OkDebZ7/QSA==}
     dependencies:
       '@types/react': 18.0.14
-    dev: true
 
   /@types/react-syntax-highlighter/11.0.5:
     resolution: {integrity: sha512-VIOi9i2Oj5XsmWWoB72p3KlZoEbdRAcechJa8Ztebw7bDl2YmR+odxIqhtJGp1q2EozHs02US+gzxJ9nuf56qg==}
