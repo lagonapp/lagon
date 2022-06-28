@@ -56,5 +56,5 @@ jobs:
     - name: Install dependencies
       run: pnpm install
     - name: Run TSC
-      # TODO: remove the | true when all type errors are resolved
-      run: pnpm tsc --noEmit | true
+      # TODO: remove the || true when all type errors are resolved
+      run: pnpm tsc --noEmit || true
