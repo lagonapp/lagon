@@ -14,6 +14,7 @@ const getDeployment = (): Deployment => ({
   timeout: 50,
   env: {},
   isCurrent: false,
+  assets: [],
 });
 
 beforeAll(async () => {

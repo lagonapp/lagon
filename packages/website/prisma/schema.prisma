@@ -95,6 +95,7 @@ model Deployment {
   updatedAt DateTime @updatedAt
 
   isCurrent Boolean
+  assets    String[]
 
   function   Function @relation(fields: [functionId], references: [id], onDelete: Cascade)
   functionId String

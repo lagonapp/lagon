@@ -18,6 +18,7 @@ describe('Misc', () => {
         timeout: 50,
         env: {},
         isCurrent: false,
+        assets: [],
       };
 
       deployments.set('localhost', deployment);

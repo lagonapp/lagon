@@ -48,6 +48,7 @@ const PlaygroundPage = () => {
             await deployFunction.mutateAsync({
               functionId: func?.id || '',
               code,
+              assets: [],
               shouldTransformCode: true,
             });
           }}

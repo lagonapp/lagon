@@ -41,7 +41,10 @@ export function removeDeploymentFile(file: string) {
   fs.rmSync(configFile);
 }
 
-export async function bundleFunction(file: string): Promise<string> {
+export async function bundleFunction(
+  file: string,
+  preact: boolean,
+): Promise<{ code: string; assets: { name: string; content: string }[] }> {
   const { outputFiles } = await build({
     entryPoints: [file],
     bundle: true,
@@ -54,6 +57,7 @@ export async function bundleFunction(file: string): Promise<string> {
     },
     format: 'esm',
     target: 'es2020',
+    platform: 'neutral',
     // TODO: minify identifiers
     // Can't minify identifiers yet because `masterHandler` in runtime
     // needs to call a `handler` function.
@@ -61,26 +65,64 @@ export async function bundleFunction(file: string): Promise<string> {
     minifySyntax: true,
   });
 
-  return outputFiles[0].text;
+  if (preact) {
+    const { outputFiles: clientOutputFiles } = await build({
+      entryPoints: [path.join(path.parse(file).dir, 'App.tsx')],
+      bundle: true,
+      write: false,
+      loader: {
+        '.ts': 'ts',
+        '.tsx': 'tsx',
+        '.js': 'js',
+        '.jsx': 'jsx',
+      },
+      format: 'esm',
+      target: 'es2020',
+      platform: 'browser',
+      // TODO: minify identifiers
+      // Can't minify identifiers yet because `masterHandler` in runtime
+      // needs to call a `handler` function.
+      minifyWhitespace: true,
+      minifySyntax: true,
+    });
+
+    return {
+      code: outputFiles[0].text,
+      assets: [
+        {
+          name: 'app.js',
+          content: clientOutputFiles[0].text,
+        },
+      ],
+    };
+  }
+
+  return {
+    code: outputFiles[0].text,
+    assets: [],
+  };
 }
 
-export async function createDeployment(functionId: string, file: string) {
-  const code = await bundleFunction(file);
+export async function createDeployment(functionId: string, file: string, preact: boolean) {
+  const { code, assets } = await bundleFunction(file, preact);
+
   await trpc(authToken).mutation('deployments.create', {
     functionId,
     code,
+    assets,
     shouldTransformCode: false,
   });
 }
 
-export async function createFunction(name: string, file: string) {
-  const code = await bundleFunction(file);
+export async function createFunction(name: string, file: string, preact: boolean) {
+  const { code, assets } = await bundleFunction(file, preact);
   const func = await trpc(authToken).mutation('functions.create', {
     name,
     domains: [],
     env: [],
     cron: null,
     code,
+    assets,
     shouldTransformCode: false,
   });
 

@@ -7,7 +7,7 @@ import { SUPPORTED_EXTENSIONS } from '../utils/constants';
 import { authToken } from '../auth';
 import { trpc } from '../trpc';
 
-export async function deploy(file: string) {
+export async function deploy(file: string, { preact }: { preact: boolean }) {
   const fileToDeploy = path.join(process.cwd(), file);
 
   if (!fs.existsSync(fileToDeploy) || fs.statSync(fileToDeploy).isDirectory()) {
@@ -27,12 +27,6 @@ export async function deploy(file: string) {
   if (!config) {
     logDebug('No deployment config found...');
 
-    const { link } = await inquirer.prompt({
-      type: 'confirm',
-      name: 'link',
-      message: 'Link to an existing function?',
-    });
-
     const organizations = await trpc(authToken).query('organizations.list');
 
     const { organization } = await inquirer.prompt([
@@ -46,6 +40,12 @@ export async function deploy(file: string) {
         })),
       },
     ]);
+
+    const { link } = await inquirer.prompt({
+      type: 'confirm',
+      name: 'link',
+      message: 'Link to an existing function?',
+    });
 
     if (link) {
       const functions = await trpc(authToken).query('functions.list');
@@ -62,7 +62,7 @@ export async function deploy(file: string) {
         },
       ]);
 
-      createDeployment(func, fileToDeploy);
+      createDeployment(func, fileToDeploy, preact);
       writeDeploymentConfig(fileToDeploy, { functionId: func, organizationId: organization });
       logSuccess(`Function deployed.`);
     } else {
@@ -75,7 +75,7 @@ export async function deploy(file: string) {
       ]);
 
       logDebug(`Creating function ${name}...`);
-      const func = await createFunction(name, fileToDeploy);
+      const func = await createFunction(name, fileToDeploy, preact);
       writeDeploymentConfig(fileToDeploy, { functionId: func.id, organizationId: organization });
       logSuccess(`Function ${name} created.`);
     }
@@ -83,6 +83,6 @@ export async function deploy(file: string) {
     return;
   }
 
-  createDeployment(config.functionId, fileToDeploy);
+  createDeployment(config.functionId, fileToDeploy, preact);
   logSuccess(`Function deployed.`);
 }

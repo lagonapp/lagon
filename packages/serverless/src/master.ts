@@ -1,10 +1,15 @@
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { Deployment, fetch } from '@lagon/runtime';
 import cluster from 'cluster';
 import { cpus } from 'node:os';
 import { Readable } from 'node:stream';
 import { createClient } from 'redis';
-import { deleteDeploymentCode, hasDeploymentCodeLocally, writeDeploymentCode } from 'src/deployments';
+import {
+  deleteDeploymentCode,
+  hasDeploymentCodeLocally,
+  writeAssetContent,
+  writeDeploymentCode,
+} from 'src/deployments';
 
 const IS_DEV = process.env.NODE_ENV !== 'production';
 const CPUS = cpus().length / 2;
@@ -83,6 +88,25 @@ export default async function master() {
 
       const code = await streamToString(content.Body);
       writeDeploymentCode(deployment, code);
+
+      const assets = await s3.send(
+        new ListObjectsV2Command({
+          Bucket: process.env.AWS_S3_BUCKET,
+          Prefix: `${deployment.deploymentId}/`,
+        }),
+      );
+
+      for (const asset of assets.Contents || []) {
+        const content = await s3.send(
+          new GetObjectCommand({
+            Bucket: process.env.AWS_S3_BUCKET,
+            Key: asset.Key,
+          }),
+        );
+
+        const assetContent = await streamToString(content.Body);
+        writeAssetContent(asset.Key as string, assetContent);
+      }
     }
   }
 
@@ -102,6 +126,25 @@ export default async function master() {
 
     const code = await streamToString(content.Body);
     writeDeploymentCode(deployment, code);
+
+    const assets = await s3.send(
+      new ListObjectsV2Command({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Prefix: `${deployment.deploymentId}/`,
+      }),
+    );
+
+    for (const asset of assets.Contents || []) {
+      const content = await s3.send(
+        new GetObjectCommand({
+          Bucket: process.env.AWS_S3_BUCKET,
+          Key: asset.Key,
+        }),
+      );
+
+      const assetContent = await streamToString(content.Body);
+      writeAssetContent(asset.Key as string, assetContent);
+    }
 
     for (const i in cluster.workers) {
       cluster.workers[i]?.send({ msg: 'deploy', data: deployment });

@@ -33,6 +33,7 @@ export const functionsRouter = () =>
                 triggerer: true,
                 commit: true,
                 isCurrent: true,
+                assets: true,
                 createdAt: true,
                 updatedAt: true,
               },
@@ -70,6 +71,7 @@ export const functionsRouter = () =>
                 triggerer: true,
                 commit: true,
                 isCurrent: true,
+                assets: true,
                 createdAt: true,
                 updatedAt: true,
               },
@@ -195,6 +197,12 @@ export const functionsRouter = () =>
         env: z.string().array(),
         cron: z.string().nullable(),
         code: z.string(),
+        assets: z
+          .object({
+            name: z.string(),
+            content: z.string(),
+          })
+          .array(),
         shouldTransformCode: z.boolean(),
       }),
       resolve: async ({ ctx, input }) => {
@@ -221,7 +229,13 @@ export const functionsRouter = () =>
           },
         });
 
-        const deployment = await createDeployment(func, input.code, input.shouldTransformCode, ctx.session.user.email);
+        const deployment = await createDeployment(
+          func,
+          input.code,
+          input.assets,
+          input.shouldTransformCode,
+          ctx.session.user.email,
+        );
 
         return { ...func, deployment };
       },
@@ -261,6 +275,7 @@ export const functionsRouter = () =>
                 triggerer: true,
                 commit: true,
                 isCurrent: true,
+                assets: true,
                 createdAt: true,
                 updatedAt: true,
               },
@@ -293,6 +308,7 @@ export const functionsRouter = () =>
                 triggerer: true,
                 commit: true,
                 isCurrent: true,
+                assets: true,
                 createdAt: true,
                 updatedAt: true,
               },

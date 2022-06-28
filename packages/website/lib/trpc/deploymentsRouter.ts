@@ -10,6 +10,12 @@ export const deploymentsRouter = () =>
       input: z.object({
         functionId: z.string(),
         code: z.string(),
+        assets: z
+          .object({
+            name: z.string(),
+            content: z.string(),
+          })
+          .array(),
         shouldTransformCode: z.boolean(),
       }),
       resolve: async ({ ctx, input }) => {
@@ -35,7 +41,7 @@ export const deploymentsRouter = () =>
 
         await removeCurrentDeployment(func.id);
 
-        return createDeployment(func, input.code, input.shouldTransformCode, ctx.session.user.email);
+        return createDeployment(func, input.code, input.assets, input.shouldTransformCode, ctx.session.user.email);
       },
     })
     .mutation('current', {

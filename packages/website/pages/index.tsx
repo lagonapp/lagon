@@ -32,6 +32,7 @@ headers: {
 }
 });
 }`,
+              assets: [],
               shouldTransformCode: true,
             });
 
