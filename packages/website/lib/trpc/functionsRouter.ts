@@ -203,7 +203,6 @@ export const functionsRouter = () =>
             content: z.string(),
           })
           .array(),
-        shouldTransformCode: z.boolean(),
       }),
       resolve: async ({ ctx, input }) => {
         const func = await prisma.function.create({
@@ -229,13 +228,7 @@ export const functionsRouter = () =>
           },
         });
 
-        const deployment = await createDeployment(
-          func,
-          input.code,
-          input.assets,
-          input.shouldTransformCode,
-          ctx.session.user.email,
-        );
+        const deployment = await createDeployment(func, input.code, input.assets, ctx.session.user.email);
 
         return { ...func, deployment };
       },

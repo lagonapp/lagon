@@ -1,26 +1,10 @@
 import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import redis from 'lib/redis';
 import s3 from 'lib/s3';
-import { transform } from 'esbuild';
 import prisma from 'lib/prisma';
 import { envStringToObject } from 'lib/api/env';
 import { Readable } from 'node:stream';
 import * as trpc from '@trpc/server';
-
-export async function transformCode(code: string) {
-  const { code: finalCode } = await transform(code, {
-    loader: 'ts',
-    format: 'esm',
-    target: 'es2020',
-    // TODO: minify identifiers
-    // Can't minify identifiers yet because `masterHandler` in runtime
-    // needs to call a `handler` function.
-    minifyWhitespace: true,
-    minifySyntax: true,
-  });
-
-  return finalCode;
-}
 
 export async function createDeployment(
   func: {
@@ -33,7 +17,6 @@ export async function createDeployment(
   },
   code: string,
   assets: { name: string; content: string }[],
-  shouldTransformCode: boolean,
   triggerer: string,
 ): Promise<{
   id: string;
@@ -59,13 +42,11 @@ export async function createDeployment(
     },
   });
 
-  const finalCode = shouldTransformCode ? await transformCode(code) : code;
-
   await s3.send(
     new PutObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET,
       Key: `${deployment.id}.js`,
-      Body: finalCode,
+      Body: code,
     }),
   );
 

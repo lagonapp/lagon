@@ -16,7 +16,6 @@ export const deploymentsRouter = () =>
             content: z.string(),
           })
           .array(),
-        shouldTransformCode: z.boolean(),
       }),
       resolve: async ({ ctx, input }) => {
         const func = await prisma.function.findFirst({
@@ -41,7 +40,7 @@ export const deploymentsRouter = () =>
 
         await removeCurrentDeployment(func.id);
 
-        return createDeployment(func, input.code, input.assets, input.shouldTransformCode, ctx.session.user.email);
+        return createDeployment(func, input.code, input.assets, ctx.session.user.email);
       },
     })
     .mutation('current', {

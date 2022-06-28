@@ -49,7 +49,6 @@ const PlaygroundPage = () => {
               functionId: func?.id || '',
               code,
               assets: [],
-              shouldTransformCode: true,
             });
           }}
           onSubmitSuccess={() => {

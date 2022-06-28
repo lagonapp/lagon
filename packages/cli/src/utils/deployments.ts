@@ -110,7 +110,6 @@ export async function createDeployment(functionId: string, file: string, preact:
     functionId,
     code,
     assets,
-    shouldTransformCode: false,
   });
 }
 
@@ -123,7 +122,6 @@ export async function createFunction(name: string, file: string, preact: boolean
     cron: null,
     code,
     assets,
-    shouldTransformCode: false,
   });
 
   return func;

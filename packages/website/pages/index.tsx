@@ -26,14 +26,13 @@ const Home = () => {
               env: [],
               cron: null,
               code: `export function handler(request) {
-return new Response('Hello world', {
-headers: {
-  'content-type': 'text/html; charset=utf-8'
-}
-});
+  return new Response('Hello World!', {
+    headers: {
+      'content-type': 'text/html'
+    }
+  });
 }`,
               assets: [],
-              shouldTransformCode: true,
             });
 
             router.push(`/playground/${func.id}`);
