@@ -44,7 +44,7 @@ export function deleteDeploymentCode(deployment: Deployment) {
   try {
     fs.rmSync(file);
     // Folder for assets
-    fs.rmdirSync(path.join(DEPLOYMENTS_FOLDER, deployment.deploymentId));
+    fs.rmSync(path.join(DEPLOYMENTS_FOLDER, deployment.deploymentId), { recursive: true, force: true });
   } catch (e) {
     console.error(e);
   }
