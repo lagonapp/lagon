@@ -53,4 +53,4 @@ const handler = async (request: NextApiRequest, response: NextApiResponse<GetDep
   );
 };
 
-export default apiHandler(handler, { tokenAuth: true });
+export default apiHandler(handler);

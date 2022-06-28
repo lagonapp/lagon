@@ -88,4 +88,4 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
   response.json({});
 };
 
-export default apiHandler(handler, { tokenAuth: true });
+export default apiHandler(handler);
