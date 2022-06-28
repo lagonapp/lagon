@@ -1,21 +1,21 @@
 name: CI
 on:
+  push:
+    branches:
+      - main
   pull_request:
 jobs:
   lint:
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        node-version: [16, 18]
     steps:
     - uses: actions/checkout@v2
     - uses: pnpm/action-setup@v2.2.2
       with:
         version: 7
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 16
       uses: actions/setup-node@v2
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 16
         cache: 'pnpm'
     - name: Install dependencies
       run: pnpm install
@@ -23,18 +23,16 @@ jobs:
       run: pnpm lint
   test:
     runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        node-version: [16, 18]
     steps:
     - uses: actions/checkout@v2
     - uses: pnpm/action-setup@v2.2.2
       with:
         version: 7
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js 16
       uses: actions/setup-node@v2
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: 16
+        cache: 'pnpm'
     - name: Install dependencies
       run: pnpm install
     - name: Build @lagon/runtime
@@ -44,3 +42,20 @@ jobs:
         pnpm build:runtime
     - name: Run Vitest
       run: pnpm test
+  typecheck:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v2
+    - uses: pnpm/action-setup@v2.2.2
+      with:
+        version: 7
+    - name: Use Node.js 16
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
+        cache: 'pnpm'
+    - name: Install dependencies
+      run: pnpm install
+    - name: Run TSC
+      # TODO: remove the || true when all type errors are resolved
+      run: pnpm tsc --noEmit || true
