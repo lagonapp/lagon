@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import { transform } from 'esbuild';
+import { build } from 'esbuild';
 import path from 'node:path';
 import { authToken } from '../auth';
 import { trpc } from '../trpc';
@@ -42,10 +42,16 @@ export function removeDeploymentFile(file: string) {
 }
 
 export async function bundleFunction(file: string): Promise<string> {
-  const code = fs.readFileSync(file, 'utf-8');
-
-  const { code: finalCode } = await transform(code, {
-    loader: 'tsx',
+  const { outputFiles } = await build({
+    entryPoints: [file],
+    bundle: true,
+    write: false,
+    loader: {
+      '.ts': 'ts',
+      '.tsx': 'tsx',
+      '.js': 'js',
+      '.jsx': 'jsx',
+    },
     format: 'esm',
     target: 'es2020',
     // TODO: minify identifiers
@@ -55,7 +61,7 @@ export async function bundleFunction(file: string): Promise<string> {
     minifySyntax: true,
   });
 
-  return finalCode;
+  return outputFiles[0].text;
 }
 
 export async function createDeployment(functionId: string, file: string) {

@@ -1,6 +1,7 @@
 node_modules/
 dist/
 coverage/
+.lagon/
 
 .eslintcache
 .DS_Store
