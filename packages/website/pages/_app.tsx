@@ -9,8 +9,8 @@ import { AppRouter } from './api/trpc/[trpc]';
 const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps) => {
   return (
     <SessionProvider session={session}>
+      <Toaster position="top-right" />
       <AuthGuard>
-        <Toaster position="top-right" />
         <Component {...pageProps} />
       </AuthGuard>
     </SessionProvider>

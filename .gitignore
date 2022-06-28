@@ -5,3 +5,4 @@ coverage/
 .eslintcache
 .DS_Store
 .env
+tsconfig.tsbuildinfo

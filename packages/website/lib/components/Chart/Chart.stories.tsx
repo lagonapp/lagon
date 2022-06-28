@@ -5,7 +5,7 @@ export default {
   component: Chart,
 } as ComponentMeta<typeof Chart>;
 
-export const Default: ComponentStory<typeof Chart> = args => (
+export const Default: ComponentStory<typeof Chart> = () => (
   <Chart
     labels={['First label', 'Second label', 'Third label']}
     datasets={[
@@ -15,11 +15,10 @@ export const Default: ComponentStory<typeof Chart> = args => (
         data: [10, 30, 20],
       },
     ]}
-    {...args}
   />
 );
 
-export const MultipleDatasets: ComponentStory<typeof Chart> = args => (
+export const MultipleDatasets: ComponentStory<typeof Chart> = () => (
   <Chart
     labels={['First label', 'Second label', 'Third label']}
     datasets={[
@@ -34,6 +33,5 @@ export const MultipleDatasets: ComponentStory<typeof Chart> = args => (
         data: [20, 10, 30],
       },
     ]}
-    {...args}
   />
 );

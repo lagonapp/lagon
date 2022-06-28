@@ -32,9 +32,9 @@ const Settings = () => {
           }}
           onSubmit={async ({ name }) => {
             await updateOrganization.mutateAsync({
-              organizationId: session.organization.id,
-              ...session.organization,
+              organizationId: session?.organization.id || '',
               name,
+              description: session?.organization.description || null,
             });
 
             queryContext.refetchQueries();
@@ -67,8 +67,8 @@ const Settings = () => {
           }}
           onSubmit={async ({ description }) => {
             await updateOrganization.mutateAsync({
-              organizationId: session?.organization.id,
-              ...session?.organization,
+              organizationId: session?.organization.id || '',
+              name: session?.organization.name || '',
               description,
             });
 
@@ -115,47 +115,49 @@ const Settings = () => {
           description="Delete completely this Organization, it's Functions, Deployments and Logs. This action is irreversible."
           danger
         >
-          <Dialog
-            title="Delete Organization"
-            description={`Write this Organization's name to confirm deletion: ${session.organization.name}`}
-            disclosure={
-              <Button variant="danger" disabled={deleteOrganization.isLoading}>
-                Delete
-              </Button>
-            }
-          >
-            <Form
-              onSubmit={() =>
-                deleteOrganization.mutateAsync({
-                  organizationId: session?.organization.id || '',
-                })
+          <div>
+            <Dialog
+              title="Delete Organization"
+              description={`Write this Organization's name to confirm deletion: ${session?.organization.name}`}
+              disclosure={
+                <Button variant="danger" disabled={deleteOrganization.isLoading}>
+                  Delete
+                </Button>
               }
-              onSubmitSuccess={() => {
-                toast.success('Organization deleted successfully.');
-
-                queryContext.refetchQueries();
-                router.push('/');
-              }}
             >
-              {handleSubmit => (
-                <>
-                  <Input
-                    name="confirm"
-                    placeholder={session?.organization.name}
-                    validator={value =>
-                      value !== session?.organization.name ? 'Confirm with the name of this Funtion' : undefined
-                    }
-                  />
-                  <Dialog.Buttons>
-                    <Dialog.Cancel disabled={deleteOrganization.isLoading} />
-                    <Dialog.Action variant="danger" onClick={handleSubmit} disabled={deleteOrganization.isLoading}>
-                      Delete Organization
-                    </Dialog.Action>
-                  </Dialog.Buttons>
-                </>
-              )}
-            </Form>
-          </Dialog>
+              <Form
+                onSubmit={() =>
+                  deleteOrganization.mutateAsync({
+                    organizationId: session?.organization.id || '',
+                  })
+                }
+                onSubmitSuccess={() => {
+                  toast.success('Organization deleted successfully.');
+
+                  queryContext.refetchQueries();
+                  router.push('/');
+                }}
+              >
+                {handleSubmit => (
+                  <>
+                    <Input
+                      name="confirm"
+                      placeholder={session?.organization.name}
+                      validator={value =>
+                        value !== session?.organization.name ? 'Confirm with the name of this Funtion' : undefined
+                      }
+                    />
+                    <Dialog.Buttons>
+                      <Dialog.Cancel disabled={deleteOrganization.isLoading} />
+                      <Dialog.Action variant="danger" onClick={handleSubmit} disabled={deleteOrganization.isLoading}>
+                        Delete Organization
+                      </Dialog.Action>
+                    </Dialog.Buttons>
+                  </>
+                )}
+              </Form>
+            </Dialog>
+          </div>
         </Card>
       </div>
     </Layout>

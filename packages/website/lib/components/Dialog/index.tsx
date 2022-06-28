@@ -43,10 +43,10 @@ type DialogProps = {
 const Dialog = ({ title, description, disclosure, children }: DialogProps) => {
   return (
     <AlertDialog.Root>
-      <AlertDialog.Trigger>{disclosure}</AlertDialog.Trigger>
+      <AlertDialog.Trigger asChild>{disclosure}</AlertDialog.Trigger>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="bg-stone-900/40 fixed inset-0" />
-        <AlertDialog.Content className="bg-white w-[28rem] p-4 fixed top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] rounded-md shadow-xl">
+        <AlertDialog.Overlay className="bg-stone-900/40 fixed inset-0 animate-fade" />
+        <AlertDialog.Content className="bg-white w-[28rem] p-4 fixed top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] rounded-md shadow-xl animate-fade-translate">
           <div className="mb-6">
             <AlertDialog.Title className="mb-2">
               <Text size="xl">{title}</Text>

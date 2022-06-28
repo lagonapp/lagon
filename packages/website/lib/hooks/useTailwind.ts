@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 
-const useTailwind = <T extends Record<string, string | number | boolean>>(
+const useTailwind = <T extends Record<string, string | number | boolean | undefined>>(
   props: T,
   // @ts-expect-error to fix
   object: { [key in keyof T]: T[key] extends boolean ? string : { [prop in T[key]]: string } },
