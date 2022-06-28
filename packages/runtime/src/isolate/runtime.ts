@@ -1,11 +1,9 @@
 import fs from 'node:fs';
-import fsp from 'node:fs/promises';
 import ivm from 'isolated-vm';
 import { Deployment } from '../deployments';
 import { addLog, OnDeploymentLog } from '../deployments/log';
 import { fetch, FetchResult } from '../fetch';
 import { RequestInit } from '../runtime/Request';
-import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 function getEnvironmentVariables(deployment: Deployment): string {
@@ -59,21 +57,6 @@ async function mockFetch(context: ivm.Context) {
   );
 }
 
-async function mockFs({ deployment: { deploymentId }, context }: { deployment: Deployment; context: ivm.Context }) {
-  const { code, filename } = readRuntimeFile('fs');
-  await context.evalClosure(
-    code,
-    [
-      async (path: string): Promise<string> => {
-        return (
-          await fsp.readFile(new URL(`../../serverless/dist/deployments/${deploymentId}/${path}`, import.meta.url))
-        ).toString('utf-8');
-      },
-    ],
-    { result: { promise: true, reference: true }, arguments: { reference: true }, filename },
-  );
-}
-
 export const snapshot = ivm.Isolate.createSnapshot([
   readRuntimeFile('Response', code => code.replace(/global.*;/gm, '')),
   readRuntimeFile('Request', code => code.replace(/global.*;/gm, '')),
@@ -118,6 +101,5 @@ export async function initRuntime({
     context.eval(environmentVariables),
     mockConsole({ deployment, context, onDeploymentLog }),
     mockFetch(context),
-    mockFs({ deployment, context }),
   ]);
 }
