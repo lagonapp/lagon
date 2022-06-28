@@ -3,9 +3,9 @@ import path from 'node:path';
 import { createDeployment, createFunction, getDeploymentConfig, writeDeploymentConfig } from '../utils/deployments';
 import { logDebug, logError, logSuccess } from '../utils/logger';
 import inquirer from 'inquirer';
-import fetch from 'node-fetch';
-import { API_URL, SUPPORTED_EXTENSIONS } from '../utils/constants';
+import { SUPPORTED_EXTENSIONS } from '../utils/constants';
 import { authToken } from '../auth';
+import { trpc } from '../trpc';
 
 export async function deploy(file: string) {
   const fileToDeploy = path.join(process.cwd(), file);
@@ -33,11 +33,7 @@ export async function deploy(file: string) {
       message: 'Link to an existing function?',
     });
 
-    const organizations = (await fetch(`${API_URL}/organizations`, {
-      headers: {
-        'x-lagon-token': authToken,
-      },
-    }).then(response => response.json())) as { name: string; id: string }[];
+    const organizations = await trpc(authToken).query('organizations.list');
 
     const { organization } = await inquirer.prompt([
       {
@@ -52,11 +48,7 @@ export async function deploy(file: string) {
     ]);
 
     if (link) {
-      const functions = (await fetch(`${API_URL}/organizations/${organization}/functions`, {
-        headers: {
-          'x-lagon-token': authToken,
-        },
-      }).then(response => response.json())) as { name: string; id: string }[];
+      const functions = await trpc(authToken).query('functions.list');
 
       const { func } = await inquirer.prompt([
         {
@@ -70,7 +62,7 @@ export async function deploy(file: string) {
         },
       ]);
 
-      createDeployment(func, organization, fileToDeploy);
+      createDeployment(func, fileToDeploy);
       writeDeploymentConfig(fileToDeploy, { functionId: func, organizationId: organization });
       logSuccess(`Function deployed.`);
     } else {
@@ -83,7 +75,7 @@ export async function deploy(file: string) {
       ]);
 
       logDebug(`Creating function ${name}...`);
-      const func = await createFunction(name, organization, fileToDeploy);
+      const func = await createFunction(name, fileToDeploy);
       writeDeploymentConfig(fileToDeploy, { functionId: func.id, organizationId: organization });
       logSuccess(`Function ${name} created.`);
     }
@@ -91,6 +83,6 @@ export async function deploy(file: string) {
     return;
   }
 
-  createDeployment(config.functionId, config.organizationId, fileToDeploy);
+  createDeployment(config.functionId, fileToDeploy);
   logSuccess(`Function deployed.`);
 }

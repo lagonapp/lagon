@@ -2,8 +2,7 @@ import fs from 'node:fs';
 import { transform } from 'esbuild';
 import path from 'node:path';
 import { authToken } from '../auth';
-import { API_URL } from './constants';
-import fetch from 'node-fetch';
+import { trpc } from '../trpc';
 
 const CONFIG_DIRECTORY = path.join(process.cwd(), '.lagon');
 
@@ -59,44 +58,31 @@ export async function bundleFunction(file: string): Promise<string> {
   return finalCode;
 }
 
-export async function createDeployment(functionId: string, organizationId: string, file: string) {
+export async function createDeployment(functionId: string, file: string) {
   const code = await bundleFunction(file);
-  await fetch(`${API_URL}/organizations/${organizationId}/functions/${functionId}/deploy`, {
-    method: 'POST',
-    headers: {
-      'x-lagon-token': authToken,
-    },
-    body: JSON.stringify({
-      code,
-      shouldTransformCode: false,
-    }),
+  await trpc(authToken).mutation('deployments.create', {
+    functionId,
+    code,
+    shouldTransformCode: false,
   });
 }
 
-export async function createFunction(name: string, organizationId: string, file: string) {
+export async function createFunction(name: string, file: string) {
   const code = await bundleFunction(file);
-  const func = (await fetch(`${API_URL}/organizations/${organizationId}/functions`, {
-    method: 'POST',
-    headers: {
-      'x-lagon-token': authToken,
-    },
-    body: JSON.stringify({
-      name,
-      domains: [],
-      env: [],
-      code,
-      shouldTransformCode: false,
-    }),
-  }).then(response => response.json())) as { id: string };
+  const func = await trpc(authToken).mutation('functions.create', {
+    name,
+    domains: [],
+    env: [],
+    cron: null,
+    code,
+    shouldTransformCode: false,
+  });
 
   return func;
 }
 
-export async function deleteFunction(functionId: string, organizationId: string) {
-  await fetch(`${API_URL}/organizations/${organizationId}/functions/${functionId}`, {
-    method: 'DELETE',
-    headers: {
-      'x-lagon-token': authToken,
-    },
+export async function deleteFunction(functionId: string) {
+  await trpc(authToken).mutation('functions.delete', {
+    functionId,
   });
 }

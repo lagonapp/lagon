@@ -9,9 +9,27 @@ import prisma from 'lib/prisma';
 import { Session } from 'next-auth';
 import * as Sentry from '@sentry/nextjs';
 import { accountsRouter } from 'lib/trpc/accountsRouter';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-const createContext = async ({ req, res }: trpcNext.CreateNextContextOptions) => {
+const createContext = async ({
+  req,
+  res,
+}: trpcNext.CreateNextContextOptions): Promise<{
+  req: NextApiRequest;
+  res: NextApiResponse<any>;
+  session: Session;
+}> => {
   const tokenValue = req.headers['x-lagon-token'] as string;
+
+  // tokens.authenticaton needs to skip authentication
+  if (req.query.trpc === 'tokens.authenticate') {
+    return {
+      req,
+      res,
+      // @ts-expect-error no session for this route is used
+      session: null,
+    };
+  }
 
   if (tokenValue) {
     const token = await prisma.token.findFirst({

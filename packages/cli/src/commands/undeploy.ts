@@ -30,7 +30,7 @@ export async function undeploy(file: string) {
     return;
   }
 
-  deleteFunction(config.functionId, config.organizationId);
+  deleteFunction(config.functionId);
   removeDeploymentFile(fileToDeploy);
   logSuccess(`Function deleted.`);
 }

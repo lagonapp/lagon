@@ -1,6 +1,6 @@
 {
   "name": "@lagon/cli",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "CLI for Lagon",
   "type": "module",
   "files": [
@@ -14,6 +14,7 @@
     "build": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\""
   },
   "dependencies": {
+    "@trpc/client": "^9.25.3",
     "chalk": "^5.0.1",
     "commander": "^9.3.0",
     "esbuild": "^0.14.41",

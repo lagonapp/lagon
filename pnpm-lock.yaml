@@ -38,6 +38,7 @@ importers:
 
   packages/cli:
     specifiers:
+      '@trpc/client': ^9.25.3
       '@types/inquirer': ^8.2.1
       '@types/update-notifier': ^5.1.0
       chalk: ^5.0.1
@@ -48,6 +49,7 @@ importers:
       open: ^8.4.0
       update-notifier: ^6.0.1
     dependencies:
+      '@trpc/client': 9.25.3
       chalk: 5.0.1
       commander: 9.3.0
       esbuild: 0.14.47
@@ -5041,6 +5043,14 @@ packages:
       '@babel/runtime': 7.18.3
       '@testing-library/dom': 8.14.0
     dev: true
+
+  /@trpc/client/9.25.3:
+    resolution: {integrity: sha512-4R+IK3cCDjoOTwHDyu+uN0bF3mYQI34i6aDNU3D/dJJxcA8PX5f8yb++nnR4RT6oTnu3yiR3PFC4KslvBtyi9w==}
+    peerDependencies:
+      '@trpc/server': 9.25.3
+    dependencies:
+      '@babel/runtime': 7.18.3
+    dev: false
 
   /@trpc/client/9.25.3_@trpc+server@9.25.3:
     resolution: {integrity: sha512-4R+IK3cCDjoOTwHDyu+uN0bF3mYQI34i6aDNU3D/dJJxcA8PX5f8yb++nnR4RT6oTnu3yiR3PFC4KslvBtyi9w==}

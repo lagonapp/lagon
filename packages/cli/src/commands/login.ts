@@ -1,9 +1,9 @@
-import { isLoggedIn, setAuthFile } from '../auth';
+import { authToken, isLoggedIn, setAuthFile } from '../auth';
 import open from 'open';
 import inquirer from 'inquirer';
-import { API_URL, SITE_URL } from '../utils/constants';
+import { SITE_URL } from '../utils/constants';
 import { logDebug, logError, logSuccess } from '../utils/logger';
-import fetch from 'node-fetch';
+import { trpc } from '../trpc';
 
 export async function login() {
   if (isLoggedIn) {
@@ -29,24 +29,14 @@ export async function login() {
     message: 'Please paste the verification code from the browser:',
   });
 
-  const response = await fetch(`${API_URL}/cli/authenticate`, {
-    method: 'POST',
-    body: JSON.stringify({
-      code,
-    }),
-  });
+  const auth = await trpc(authToken).mutation('tokens.authenticate', { code });
 
-  const json = (await response.json()) as {
-    token: string;
-    error?: string;
-  };
-
-  if (json.error) {
-    logError(json.error);
+  if (auth.error) {
+    logError(auth.error);
     return;
   }
 
-  const { token } = json;
+  const { token } = auth;
 
   setAuthFile(token);
   logSuccess('Logged in successfully. You can now clone the browser tab.');
