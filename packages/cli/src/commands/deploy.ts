@@ -62,7 +62,7 @@ export async function deploy(file: string, { preact }: { preact: boolean }) {
         },
       ]);
 
-      createDeployment(func, fileToDeploy, preact);
+      await createDeployment(func, fileToDeploy, preact);
       writeDeploymentConfig(fileToDeploy, { functionId: func, organizationId: organization });
       logSuccess(`Function deployed.`);
     } else {
@@ -83,6 +83,6 @@ export async function deploy(file: string, { preact }: { preact: boolean }) {
     return;
   }
 
-  createDeployment(config.functionId, fileToDeploy, preact);
+  await createDeployment(config.functionId, fileToDeploy, preact);
   logSuccess(`Function deployed.`);
 }

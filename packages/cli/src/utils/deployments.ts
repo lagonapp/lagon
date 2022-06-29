@@ -3,6 +3,7 @@ import { build } from 'esbuild';
 import path from 'node:path';
 import { authToken } from '../auth';
 import { trpc } from '../trpc';
+import { logDebug, logInfo } from './logger';
 
 const CONFIG_DIRECTORY = path.join(process.cwd(), '.lagon');
 
@@ -45,6 +46,10 @@ export async function bundleFunction(
   file: string,
   preact: boolean,
 ): Promise<{ code: string; assets: { name: string; content: string }[] }> {
+  const assets: { name: string; content: string }[] = [];
+
+  logDebug('Bundling function handler...');
+
   const { outputFiles } = await build({
     entryPoints: [file],
     bundle: true,
@@ -66,6 +71,8 @@ export async function bundleFunction(
   });
 
   if (preact) {
+    logDebug('Bundling preact client code...');
+
     const { outputFiles: clientOutputFiles } = await build({
       entryPoints: [path.join(path.parse(file).dir, 'App.tsx')],
       bundle: true,
@@ -86,20 +93,38 @@ export async function bundleFunction(
       minifySyntax: true,
     });
 
-    return {
-      code: outputFiles[0].text,
-      assets: [
-        {
-          name: 'app.js',
-          content: clientOutputFiles[0].text,
-        },
-      ],
-    };
+    assets.push({
+      name: 'app.js',
+      content: clientOutputFiles[0].text,
+    });
+  }
+
+  const publicDir = path.join(path.parse(file).dir, 'public');
+
+  if (fs.existsSync(publicDir) && fs.statSync(publicDir).isDirectory()) {
+    logInfo('Found `public` directory, uploading assets...');
+
+    const files = fs.readdirSync(publicDir);
+
+    for (const file of files) {
+      const filePath = path.join(publicDir, file);
+
+      if (fs.statSync(filePath).isFile()) {
+        const content = fs.readFileSync(filePath, 'utf8');
+
+        assets.push({
+          name: file,
+          content,
+        });
+      }
+    }
+  } else {
+    logDebug('No public directory found, skipping...');
   }
 
   return {
     code: outputFiles[0].text,
-    assets: [],
+    assets,
   };
 }
 
