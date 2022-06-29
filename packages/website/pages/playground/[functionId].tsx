@@ -12,7 +12,6 @@ import { getFullCurrentDomain } from 'lib/utils';
 import Text from 'lib/components/Text';
 import { PlayIcon, RefreshIcon } from '@heroicons/react/outline';
 import useFunctionCode from 'lib/hooks/useFunctionCode';
-import { trpc } from 'lib/trpc';
 
 const PlaygroundPage = () => {
   const {
@@ -22,8 +21,6 @@ const PlaygroundPage = () => {
   const { data: functionCode } = useFunctionCode(functionId as string);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const monaco = useMonaco();
-  // TODO: update
-  const deployFunction = trpc.useMutation(['deployments.create']);
 
   const reloadIframe = useCallback(() => {
     if (iframeRef.current) {
@@ -46,10 +43,14 @@ const PlaygroundPage = () => {
               code = monaco.editor.getModels()[1].getValue();
             }
 
-            await deployFunction.mutateAsync({
-              functionId: func?.id || '',
-              code,
-              assets: [],
+            const body = new FormData();
+
+            body.set('functionId', func!.id);
+            body.set('code', new File([code], 'index.js'));
+
+            await fetch('/api/deployment', {
+              method: 'POST',
+              body,
             });
           }}
           onSubmitSuccess={() => {
@@ -69,7 +70,8 @@ const PlaygroundPage = () => {
                 variant="primary"
                 leftIcon={<PlayIcon className="w-4 h-4" />}
                 submit
-                disabled={deployFunction.isLoading}
+                // TODO
+                // disabled={deployFunction.isLoading}
               >
                 Deploy
               </Button>

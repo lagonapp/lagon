@@ -9,7 +9,6 @@ import { trpc } from 'lib/trpc';
 
 const Home = () => {
   const router = useRouter();
-  // TODO: update
   const createFunction = trpc.useMutation(['functions.create']);
   const name = useRandomName();
 
@@ -26,14 +25,26 @@ const Home = () => {
               domains: [],
               env: [],
               cron: null,
-              code: `export function handler(request) {
-  return new Response('Hello World!', {
-    headers: {
-      'content-type': 'text/html'
-    }
-  });
+            });
+
+            const body = new FormData();
+
+            body.set('functionId', func.id);
+            body.set(
+              'code',
+              new File(
+                [
+                  `export function handler(request) {
+  return new Response("Hello World!")
 }`,
-              assets: [],
+                ],
+                'index.js',
+              ),
+            );
+
+            await fetch('/api/deployment', {
+              method: 'POST',
+              body,
             });
 
             router.push(`/playground/${func.id}`);
