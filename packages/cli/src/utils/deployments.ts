@@ -3,13 +3,14 @@ import { build } from 'esbuild';
 import path from 'node:path';
 import { authToken } from '../auth';
 import { trpc } from '../trpc';
-import { logDebug, logInfo } from './logger';
+import { logDebug } from './logger';
 
 const CONFIG_DIRECTORY = path.join(process.cwd(), '.lagon');
 
 export type DeploymentConfig = {
   functionId: string;
   organizationId: string;
+  publicDir: string;
 };
 
 export function getDeploymentConfig(file: string): DeploymentConfig | undefined {
@@ -45,6 +46,7 @@ export function removeDeploymentFile(file: string) {
 export async function bundleFunction(
   file: string,
   preact: boolean,
+  assetsDir: string,
 ): Promise<{ code: string; assets: { name: string; content: string }[] }> {
   const assets: { name: string; content: string }[] = [];
 
@@ -99,15 +101,13 @@ export async function bundleFunction(
     });
   }
 
-  const publicDir = path.join(path.parse(file).dir, 'public');
+  if (fs.existsSync(assetsDir) && fs.statSync(assetsDir).isDirectory()) {
+    logDebug('Found `public` directory, uploading assets...');
 
-  if (fs.existsSync(publicDir) && fs.statSync(publicDir).isDirectory()) {
-    logInfo('Found `public` directory, uploading assets...');
-
-    const files = fs.readdirSync(publicDir);
+    const files = fs.readdirSync(assetsDir);
 
     for (const file of files) {
-      const filePath = path.join(publicDir, file);
+      const filePath = path.join(assetsDir, file);
 
       if (fs.statSync(filePath).isFile()) {
         const content = fs.readFileSync(filePath, 'utf8');
@@ -128,8 +128,8 @@ export async function bundleFunction(
   };
 }
 
-export async function createDeployment(functionId: string, file: string, preact: boolean) {
-  const { code, assets } = await bundleFunction(file, preact);
+export async function createDeployment(functionId: string, file: string, preact: boolean, assetsDir: string) {
+  const { code, assets } = await bundleFunction(file, preact, assetsDir);
 
   await trpc(authToken).mutation('deployments.create', {
     functionId,
@@ -138,8 +138,8 @@ export async function createDeployment(functionId: string, file: string, preact:
   });
 }
 
-export async function createFunction(name: string, file: string, preact: boolean) {
-  const { code, assets } = await bundleFunction(file, preact);
+export async function createFunction(name: string, file: string, preact: boolean, assetsDir: string) {
+  const { code, assets } = await bundleFunction(file, preact, assetsDir);
   const func = await trpc(authToken).mutation('functions.create', {
     name,
     domains: [],
