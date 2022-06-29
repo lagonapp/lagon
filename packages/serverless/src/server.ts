@@ -63,17 +63,14 @@ export default function startServer(port: number, host: string) {
       return;
     }
 
-    if (request.url === '/main.css') {
-      reply.header('Content-Type', 'text/css').send(css);
-
-      console.timeEnd(id);
-      return;
-    }
-
     const deployment = getDeploymentFromRequest(request);
 
     if (!deployment) {
-      reply.status(404).header('Content-Type', 'text/html').send(html404);
+      if (request.url === '/main.css') {
+        reply.header('Content-Type', 'text/css').send(css);
+      } else {
+        reply.status(404).header('Content-Type', 'text/html').send(html404);
+      }
 
       console.timeEnd(id);
       return;
