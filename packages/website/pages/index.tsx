@@ -9,6 +9,7 @@ import { trpc } from 'lib/trpc';
 
 const Home = () => {
   const router = useRouter();
+  // TODO: update
   const createFunction = trpc.useMutation(['functions.create']);
   const name = useRandomName();
 

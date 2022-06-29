@@ -196,16 +196,9 @@ export const functionsRouter = () =>
         domains: z.string().array(),
         env: z.string().array(),
         cron: z.string().nullable(),
-        code: z.string(),
-        assets: z
-          .object({
-            name: z.string(),
-            content: z.string(),
-          })
-          .array(),
       }),
       resolve: async ({ ctx, input }) => {
-        const func = await prisma.function.create({
+        return prisma.function.create({
           data: {
             organizationId: ctx.session.organization.id,
             name: input.name,
@@ -227,10 +220,6 @@ export const functionsRouter = () =>
             cron: true,
           },
         });
-
-        const deployment = await createDeployment(func, input.code, input.assets, ctx.session.user.email);
-
-        return { ...func, deployment };
       },
     })
     .mutation('update', {

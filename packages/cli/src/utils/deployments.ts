@@ -4,6 +4,8 @@ import path from 'node:path';
 import { authToken } from '../auth';
 import { trpc } from '../trpc';
 import { logDebug } from './logger';
+import { API_URL } from './constants';
+import fetch, { FormData, File } from 'node-fetch';
 
 const CONFIG_DIRECTORY = path.join(process.cwd(), '.lagon');
 
@@ -130,11 +132,19 @@ export async function bundleFunction(
 
 export async function createDeployment(functionId: string, file: string, preact: boolean, assetsDir: string) {
   const { code, assets } = await bundleFunction(file, preact, assetsDir);
+  const body = new FormData();
 
-  await trpc(authToken).mutation('deployments.create', {
-    functionId,
-    code,
-    assets,
+  body.set('functionId', functionId);
+  body.set('code', new File([code], 'index.js'));
+
+  for (const asset of assets) {
+    body.append('assets', new File([asset.content], asset.name));
+  }
+
+  await fetch(`${API_URL}/deployment`, {
+    method: 'POST',
+    headers: { 'x-lagon-token': authToken },
+    body,
   });
 }
 
@@ -145,8 +155,21 @@ export async function createFunction(name: string, file: string, preact: boolean
     domains: [],
     env: [],
     cron: null,
-    code,
-    assets,
+  });
+
+  const body = new FormData();
+
+  body.set('functionId', func.id);
+  body.set('code', new File([code], 'index.js'));
+
+  for (const asset of assets) {
+    body.append('assets', new File([asset.content], asset.name));
+  }
+
+  await fetch(`${API_URL}/deployment`, {
+    method: 'POST',
+    headers: { 'x-lagon-token': authToken },
+    body,
   });
 
   return func;
