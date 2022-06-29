@@ -51,6 +51,21 @@ function getStackTrace(error: Error) {
   return error.message;
 }
 
+const extensionToContentType = {
+  '.js': 'application/javascript',
+  '.css': 'text/css',
+  '.html': 'text/html',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml',
+  '.woff': 'application/font-woff',
+  '.woff2': 'application/font-woff2',
+  '.ttf': 'application/font-ttf',
+  '.otf': 'application/font-otf',
+};
+
 export default function startServer(port: number, host: string) {
   fastify.all('/*', async (request, reply) => {
     const id = `Request ${Math.random()}`;
@@ -79,7 +94,12 @@ export default function startServer(port: number, host: string) {
     const asset = deployment.assets.find(asset => request.url === `/${asset}`);
 
     if (asset) {
-      reply.status(200).header('Content-Type', 'text/javascript').send(getAssetContent(deployment, asset));
+      const extension = path.extname(asset) as keyof typeof extensionToContentType;
+
+      reply
+        .status(200)
+        .header('Content-Type', extensionToContentType[extension] || 'text/html')
+        .send(getAssetContent(deployment, asset));
 
       console.timeEnd(id);
       return;
