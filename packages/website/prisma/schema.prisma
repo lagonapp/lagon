@@ -97,7 +97,7 @@ model Deployment {
   isCurrent Boolean
   assets    String[]
 
-  function   Function @relation(fields: [functionId], references: [id], onDelete: Cascade)
+  function   Function @relation(fields: [functionId], references: [id])
   functionId String
 
   triggerer  String @default("Lagon")

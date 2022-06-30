@@ -117,14 +117,18 @@ export async function removeDeployment(
     }),
   );
 
-  await s3.send(
-    new DeleteObjectsCommand({
-      Bucket: process.env.AWS_S3_BUCKET,
-      Delete: {
-        Objects: deployment.assets.map(asset => ({ Key: `${deployment.id}/${asset}` })),
-      },
-    }),
-  );
+  if (deployment.assets.length > 0) {
+    await s3.send(
+      new DeleteObjectsCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Delete: {
+          Objects: deployment.assets.map(asset => ({
+            Key: `${deployment.id}/${asset}`,
+          })),
+        },
+      }),
+    );
+  }
 
   await redis.publish(
     'undeploy',

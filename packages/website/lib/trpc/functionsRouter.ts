@@ -271,7 +271,7 @@ export const functionsRouter = () =>
         functionId: z.string(),
       }),
       resolve: async ({ input }) => {
-        const func = await prisma.function.delete({
+        const func = await prisma.function.findFirst({
           where: {
             id: input.functionId,
           },
@@ -298,12 +298,24 @@ export const functionsRouter = () =>
           },
         });
 
+        if (!func) {
+          throw new trpc.TRPCError({
+            code: 'NOT_FOUND',
+          });
+        }
+
         for (const deployment of func.deployments) {
           await removeDeployment(func, deployment.id);
         }
 
         await clickhouse.query(`alter table functions_result delete where functionId='${func.id}'`).toPromise();
         await clickhouse.query(`alter table logs delete where functionId='${func.id}'`).toPromise();
+
+        await prisma.function.delete({
+          where: {
+            id: func.id,
+          },
+        });
 
         return func;
       },
