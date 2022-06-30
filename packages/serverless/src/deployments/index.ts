@@ -4,6 +4,22 @@ import { Deployment } from '@lagon/runtime';
 
 const DEPLOYMENTS_FOLDER = path.join(path.resolve(), 'dist', 'deployments');
 
+export function deleteOldDeployments(deployments: Deployment[]) {
+  const localDeploymentsFiles = fs.readdirSync(DEPLOYMENTS_FOLDER);
+
+  localDeploymentsFiles.forEach(localDeploymentFile => {
+    if (!localDeploymentFile.endsWith('.js')) {
+      return;
+    }
+
+    const localDeploymentId = localDeploymentFile.replace('.js', '');
+
+    if (!deployments.some(deployment => deployment.deploymentId === localDeploymentId)) {
+      deleteDeploymentCode({ deploymentId: localDeploymentId } as Deployment);
+    }
+  });
+}
+
 export function hasDeploymentCodeLocally(deployment: Deployment): boolean {
   const file = path.join(DEPLOYMENTS_FOLDER, `${deployment.deploymentId}.js`);
 

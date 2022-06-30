@@ -6,6 +6,7 @@ import { Readable } from 'node:stream';
 import { createClient } from 'redis';
 import {
   deleteDeploymentCode,
+  deleteOldDeployments,
   hasDeploymentCodeLocally,
   writeAssetContent,
   writeDeploymentCode,
@@ -76,6 +77,8 @@ export default async function master() {
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
     },
   });
+
+  deleteOldDeployments(deployments);
 
   for (const deployment of deployments) {
     if (!hasDeploymentCodeLocally(deployment)) {
