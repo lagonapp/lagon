@@ -1,6 +1,6 @@
 import apiHandler from 'lib/api';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { File, IncomingForm } from 'formidable';
+import { IncomingForm } from 'formidable';
 import prisma from 'lib/prisma';
 import { createDeployment, removeCurrentDeployment } from 'lib/api/deployments';
 import fs from 'node:fs';
@@ -54,10 +54,29 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
 
   const form = new IncomingForm();
 
-  form.parse(request, async (err, fields, files) => {
-    const { functionId } = fields;
-    const { code, assets } = files;
+  let functionId: string;
+  let code: string;
+  const assets: { name: string; content: string }[] = [];
 
+  form.on('field', (name, value) => {
+    if (name === 'functionId') {
+      functionId = value;
+    }
+  });
+
+  form.on('file', (formName, file) => {
+    console.log(formName, file);
+    if (formName === 'code') {
+      code = fs.readFileSync(file.filepath, 'utf-8');
+    } else if (formName === 'assets') {
+      assets.push({
+        name: file.originalFilename!,
+        content: fs.readFileSync(file.filepath, 'utf-8'),
+      });
+    }
+  });
+
+  form.on('end', async () => {
     const func = await prisma.function.findFirst({
       where: {
         id: functionId as string,
@@ -83,19 +102,12 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
       // this is the first deployment
     }
 
-    const deployment = await createDeployment(
-      func,
-      fs.readFileSync((code as File).filepath, 'utf-8'),
-      assets
-        ? Array.isArray(assets)
-          ? assets.map(asset => ({ name: asset.originalFilename!, content: fs.readFileSync(asset.filepath, 'utf-8') }))
-          : [{ name: assets.originalFilename!, content: fs.readFileSync(assets.filepath, 'utf-8') }]
-        : [],
-      email,
-    );
+    const deployment = await createDeployment(func, code, assets, email);
 
     return response.json(deployment);
   });
+
+  form.parse(request);
 };
 
 export default apiHandler(handler, { tokenAuth: false });
