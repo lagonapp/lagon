@@ -25,7 +25,6 @@ fastify.addContentTypeParser('multipart/form-data', (request, payload, done) => 
 
 const html404 = fs.readFileSync(path.join(new URL('.', import.meta.url).pathname, '../public/404.html'), 'utf8');
 const html500 = fs.readFileSync(path.join(new URL('.', import.meta.url).pathname, '../public/500.html'), 'utf8');
-const css = fs.readFileSync(path.join(new URL('.', import.meta.url).pathname, '../public/main.css'), 'utf8');
 
 const logs = new Map<string, DeploymentLog[]>();
 
@@ -81,11 +80,7 @@ export default function startServer(port: number, host: string) {
     const deployment = getDeploymentFromRequest(request);
 
     if (!deployment) {
-      if (request.url === '/main.css') {
-        reply.header('Content-Type', 'text/css').send(css);
-      } else {
-        reply.status(404).header('Content-Type', 'text/html').send(html404);
-      }
+      reply.status(404).header('Content-Type', 'text/html').send(html404);
 
       console.timeEnd(id);
       return;
