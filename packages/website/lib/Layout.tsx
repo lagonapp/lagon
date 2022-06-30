@@ -36,6 +36,7 @@ const OrganizationsList = () => {
   const router = useRouter();
   const currentOrganization = trpc.useMutation(['organizations.current']);
   const queryContext = trpc.useContext();
+  const { data: session } = useSession();
 
   const switchOrganization = useCallback(
     async (organization: NonNullable<typeof organizations>[number]) => {
@@ -50,13 +51,22 @@ const OrganizationsList = () => {
     [router, currentOrganization, queryContext],
   );
 
+  // If we only have one organization, hide completly
+  // the list since it will be empty
+  if (organizations?.length === 1) {
+    return null;
+  }
+
   return (
     <>
-      {organizations?.map(organization => (
-        <Menu.Item key={organization.id} onClick={() => switchOrganization(organization)}>
-          {organization.name}
-        </Menu.Item>
-      ))}
+      {organizations
+        ?.filter(organization => organization.id !== session?.organization.id)
+        .map(organization => (
+          <Menu.Item key={organization.id} onClick={() => switchOrganization(organization)}>
+            {organization.name}
+          </Menu.Item>
+        ))}
+      <Divider />
     </>
   );
 };
@@ -111,7 +121,6 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
                     <Suspense fallback={null}>
                       <OrganizationsList />
                     </Suspense>
-                    <Divider />
                     <Menu.Item icon={<PlusIcon className="w-4 h-4" />} href="/new">
                       New organization
                     </Menu.Item>
