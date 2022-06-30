@@ -15,6 +15,7 @@ import {
   ORGANIZATION_NAME_MIN_LENGTH,
 } from 'lib/constants';
 import { trpc } from 'lib/trpc';
+import { reloadSession } from 'lib/utils';
 
 const Settings = () => {
   const { data: session } = useSession();
@@ -38,6 +39,7 @@ const Settings = () => {
             });
 
             queryContext.refetchQueries();
+            reloadSession();
           }}
           onSubmitSuccess={() => {
             toast.success('Organization name updated successfully.');
@@ -73,6 +75,7 @@ const Settings = () => {
             });
 
             queryContext.refetchQueries();
+            reloadSession();
           }}
           onSubmitSuccess={() => {
             toast.success('Organization description updated successfully.');
@@ -135,6 +138,7 @@ const Settings = () => {
                   toast.success('Organization deleted successfully.');
 
                   queryContext.refetchQueries();
+                  reloadSession();
                   router.push('/');
                 }}
               >

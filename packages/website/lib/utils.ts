@@ -19,3 +19,8 @@ export function getCurrentDomain({ name }: { name: string }): string {
 export function getFullDomain(domain: string): string {
   return `${process.env.NEXT_PUBLIC_LAGON_ROOT_SCHEM}://${domain}`;
 }
+
+export function reloadSession() {
+  const event = new Event('visibilitychange');
+  document.dispatchEvent(event);
+}

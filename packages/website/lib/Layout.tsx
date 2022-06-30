@@ -13,6 +13,7 @@ import useOrganizations from './hooks/useOrganizations';
 import EmptyState from './components/EmptyState';
 import { trpc } from './trpc';
 import useSystemTheme from './hooks/useSystemTheme';
+import { reloadSession } from './utils';
 
 type HeaderLinkProps = {
   href: string;
@@ -43,6 +44,7 @@ const OrganizationsList = () => {
       });
 
       queryContext.refetchQueries();
+      reloadSession();
       router.push('/');
     },
     [router, currentOrganization, queryContext],
