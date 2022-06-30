@@ -4,14 +4,13 @@ import { Deployment } from '../deployments';
 import { addLog, OnDeploymentLog } from '../deployments/log';
 import { fetch, FetchResult } from '../fetch';
 import { RequestInit } from '../runtime/Request';
-import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 function getEnvironmentVariables(deployment: Deployment): string {
-  let environmentVariables = '';
+  let environmentVariables = 'global.process = { env: { NODE_ENV: "production" } }\n';
 
   for (const [key, value] of Object.entries(deployment.env)) {
-    environmentVariables += `global.${key.toUpperCase()} = "${value}"\n`;
+    environmentVariables += `global.process.env.${key.toUpperCase()} = "${value}"\n`;
   }
 
   return environmentVariables;

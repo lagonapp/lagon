@@ -20,6 +20,7 @@ export type Deployment = {
   timeout: number;
   env: Record<string, string>;
   isCurrent: boolean;
+  assets: string[];
 };
 
 export function clearCache(deployment: Deployment) {

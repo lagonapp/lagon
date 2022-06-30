@@ -7,8 +7,7 @@
     "watch": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm --watch",
     "build": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm",
     "dev": "nodemon dist/index.js",
-    "start": "node dist/index.js",
-    "tailwind": "npx tailwindcss -o public/main.css -c tailwind.config.cjs"
+    "start": "node dist/index.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.100.0",

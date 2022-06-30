@@ -13,6 +13,7 @@ export type GetDeploymentsResponse = {
   timeout: number;
   env: Record<string, string>;
   isCurrent: boolean;
+  assets: string[];
 }[];
 
 const handler = async (request: NextApiRequest, response: NextApiResponse<GetDeploymentsResponse>) => {
@@ -20,6 +21,7 @@ const handler = async (request: NextApiRequest, response: NextApiResponse<GetDep
     select: {
       id: true,
       isCurrent: true,
+      assets: true,
       function: {
         select: {
           id: true,
@@ -38,6 +40,7 @@ const handler = async (request: NextApiRequest, response: NextApiResponse<GetDep
       ({
         id: deploymentId,
         isCurrent,
+        assets,
         function: { id: functionId, name: functionName, domains, memory, timeout, env },
       }) => ({
         functionId,
@@ -48,6 +51,7 @@ const handler = async (request: NextApiRequest, response: NextApiResponse<GetDep
         timeout,
         env: envStringToObject(env),
         isCurrent,
+        assets,
       }),
     ),
   );

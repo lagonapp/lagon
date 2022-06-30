@@ -12,6 +12,7 @@ const getDeployment = (): Deployment => ({
   timeout: 50,
   env: {},
   isCurrent: false,
+  assets: [],
 });
 
 const request: HandlerRequest = {
@@ -31,7 +32,7 @@ describe('Isolate', () => {
         env: { TEST_VAR: 'test' },
       },
       getDeploymentCode: async () => `export function handler(request) {
-  return new Response(TEST_VAR);
+  return new Response(process.env.TEST_VAR);
 }`,
     });
 
@@ -50,7 +51,7 @@ describe('Isolate', () => {
         env: { JOHN: 'John', JANE: 'Jane' },
       },
       getDeploymentCode: async () => `export function handler(request) {
-  return new Response(JOHN + ' likes ' + JANE);
+  return new Response(process.env.JOHN + ' likes ' + process.env.JANE);
 }`,
     });
 
@@ -69,7 +70,7 @@ describe('Isolate', () => {
         env: { hello: 'world' },
       },
       getDeploymentCode: async () => `export function handler(request) {
-  return new Response(HELLO);
+  return new Response(process.env.HELLO);
 }`,
     });
 

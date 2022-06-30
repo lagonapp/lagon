@@ -25,14 +25,26 @@ const Home = () => {
               domains: [],
               env: [],
               cron: null,
-              code: `export function handler(request) {
-return new Response('Hello world', {
-headers: {
-  'content-type': 'text/html; charset=utf-8'
-}
-});
+            });
+
+            const body = new FormData();
+
+            body.set('functionId', func.id);
+            body.set(
+              'code',
+              new File(
+                [
+                  `export function handler(request) {
+  return new Response("Hello World!")
 }`,
-              shouldTransformCode: true,
+                ],
+                'index.js',
+              ),
+            );
+
+            await fetch('/api/deployment', {
+              method: 'POST',
+              body,
             });
 
             router.push(`/playground/${func.id}`);

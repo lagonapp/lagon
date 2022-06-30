@@ -125,6 +125,12 @@ interface RequestInit {
     body?: string;
 }
 
+interface ResponseInit {
+    status?: number;
+    statusText?: string;
+    headers?: Headers | Record<string, string>;
+    url?: string;
+}
 declare class Response {
     body: string;
     headers: Headers;
@@ -154,6 +160,11 @@ declare class Headers {
 declare function fetch(resource: string, init: RequestInit): Promise<Response>;
 
 
+declare const fs: {
+    readFile: (path: string) => Promise<string>;
+};
+
+
 declare class Headers {
     private headers;
     constructor(init?: Record<string, string> | string[][]);
@@ -168,6 +179,6 @@ declare class Headers {
     values(): IterableIterator<string>;
 }
 
-declare const parseMultipart: (headers: Headers, body?: string | undefined) => Record<string, string>;
+declare const parseMultipart: (headers: Headers, body?: string) => Record<string, string>;
 
 

@@ -14,6 +14,8 @@ export function runCli() {
     .command('deploy')
     .description('Deploy the given file')
     .argument('<file>', 'The file to deploy')
+    .option('--preact', 'Bundle the function as a preact site')
+    .option('-p, --public-dir <dir>', 'The directory to serve the public assets from', 'public')
     .action(loggedInGuard(deploy));
   program
     .command('remove')

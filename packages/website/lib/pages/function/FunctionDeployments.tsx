@@ -96,7 +96,11 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                     <Dialog
                       title="Rollback Deployment"
                       description="Are you sure you want to rollback to this Deployment?"
-                      disclosure={<Button leftIcon={<RefreshIcon className="w-4 h-4" />}>Rollback</Button>}
+                      disclosure={
+                        <Button leftIcon={<RefreshIcon className="w-4 h-4" />} disabled={deleteDeployment.isLoading}>
+                          Rollback
+                        </Button>
+                      }
                     >
                       <Dialog.Buttons>
                         <Dialog.Cancel />
@@ -106,11 +110,19 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                     <Dialog
                       title="Delete Deployment"
                       description="Are you sure you want to delete this Deployment?"
-                      disclosure={<Button variant="danger">Delete</Button>}
+                      disclosure={
+                        <Button variant="danger" disabled={deleteDeployment.isLoading}>
+                          Delete
+                        </Button>
+                      }
                     >
                       <Dialog.Buttons>
-                        <Dialog.Cancel />
-                        <Dialog.Action variant="danger" onClick={() => removeDeplomyent(deployment)}>
+                        <Dialog.Cancel disabled={deleteDeployment.isLoading} />
+                        <Dialog.Action
+                          variant="danger"
+                          onClick={() => removeDeplomyent(deployment)}
+                          disabled={deleteDeployment.isLoading}
+                        >
                           Delete
                         </Dialog.Action>
                       </Dialog.Buttons>

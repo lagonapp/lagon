@@ -33,6 +33,7 @@ export const functionsRouter = () =>
                 triggerer: true,
                 commit: true,
                 isCurrent: true,
+                assets: true,
                 createdAt: true,
                 updatedAt: true,
               },
@@ -70,6 +71,7 @@ export const functionsRouter = () =>
                 triggerer: true,
                 commit: true,
                 isCurrent: true,
+                assets: true,
                 createdAt: true,
                 updatedAt: true,
               },
@@ -194,11 +196,9 @@ export const functionsRouter = () =>
         domains: z.string().array(),
         env: z.string().array(),
         cron: z.string().nullable(),
-        code: z.string(),
-        shouldTransformCode: z.boolean(),
       }),
       resolve: async ({ ctx, input }) => {
-        const func = await prisma.function.create({
+        return prisma.function.create({
           data: {
             organizationId: ctx.session.organization.id,
             name: input.name,
@@ -220,10 +220,6 @@ export const functionsRouter = () =>
             cron: true,
           },
         });
-
-        const deployment = await createDeployment(func, input.code, input.shouldTransformCode, ctx.session.user.email);
-
-        return { ...func, deployment };
       },
     })
     .mutation('update', {
@@ -261,6 +257,7 @@ export const functionsRouter = () =>
                 triggerer: true,
                 commit: true,
                 isCurrent: true,
+                assets: true,
                 createdAt: true,
                 updatedAt: true,
               },
@@ -274,7 +271,7 @@ export const functionsRouter = () =>
         functionId: z.string(),
       }),
       resolve: async ({ input }) => {
-        const func = await prisma.function.delete({
+        const func = await prisma.function.findFirst({
           where: {
             id: input.functionId,
           },
@@ -293,6 +290,7 @@ export const functionsRouter = () =>
                 triggerer: true,
                 commit: true,
                 isCurrent: true,
+                assets: true,
                 createdAt: true,
                 updatedAt: true,
               },
@@ -300,12 +298,24 @@ export const functionsRouter = () =>
           },
         });
 
+        if (!func) {
+          throw new trpc.TRPCError({
+            code: 'NOT_FOUND',
+          });
+        }
+
         for (const deployment of func.deployments) {
           await removeDeployment(func, deployment.id);
         }
 
         await clickhouse.query(`alter table functions_result delete where functionId='${func.id}'`).toPromise();
         await clickhouse.query(`alter table logs delete where functionId='${func.id}'`).toPromise();
+
+        await prisma.function.delete({
+          where: {
+            id: func.id,
+          },
+        });
 
         return func;
       },

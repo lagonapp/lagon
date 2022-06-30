@@ -11,6 +11,7 @@ import {
 import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
 import Layout from 'lib/Layout';
 import { trpc } from 'lib/trpc';
+import { reloadSession } from 'lib/utils';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 
@@ -32,6 +33,7 @@ const New = () => {
           toast.success('Organization created.');
 
           queryContext.refetchQueries();
+          reloadSession();
           router.push('/');
         }}
       >

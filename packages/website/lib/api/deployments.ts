@@ -1,26 +1,10 @@
-import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import redis from 'lib/redis';
 import s3 from 'lib/s3';
-import { transform } from 'esbuild';
 import prisma from 'lib/prisma';
 import { envStringToObject } from 'lib/api/env';
 import { Readable } from 'node:stream';
 import * as trpc from '@trpc/server';
-
-export async function transformCode(code: string) {
-  const { code: finalCode } = await transform(code, {
-    loader: 'ts',
-    format: 'esm',
-    target: 'es2020',
-    // TODO: minify identifiers
-    // Can't minify identifiers yet because `masterHandler` in runtime
-    // needs to call a `handler` function.
-    minifyWhitespace: true,
-    minifySyntax: true,
-  });
-
-  return finalCode;
-}
 
 export async function createDeployment(
   func: {
@@ -32,7 +16,7 @@ export async function createDeployment(
     env: string[];
   },
   code: string,
-  shouldTransformCode: boolean,
+  assets: { name: string; content: string }[],
   triggerer: string,
 ): Promise<{
   id: string;
@@ -44,6 +28,7 @@ export async function createDeployment(
   const deployment = await prisma.deployment.create({
     data: {
       isCurrent: true,
+      assets: assets.map(({ name }) => name),
       functionId: func.id,
       triggerer,
     },
@@ -52,19 +37,28 @@ export async function createDeployment(
       createdAt: true,
       updatedAt: true,
       isCurrent: true,
+      assets: true,
       functionId: true,
     },
   });
-
-  const finalCode = shouldTransformCode ? await transformCode(code) : code;
 
   await s3.send(
     new PutObjectCommand({
       Bucket: process.env.AWS_S3_BUCKET,
       Key: `${deployment.id}.js`,
-      Body: finalCode,
+      Body: code,
     }),
   );
+
+  for (const asset of assets) {
+    await s3.send(
+      new PutObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Key: `${deployment.id}/${asset.name}`,
+        Body: asset.content,
+      }),
+    );
+  }
 
   await redis.publish(
     'deploy',
@@ -77,6 +71,7 @@ export async function createDeployment(
       timeout: func.timeout,
       env: envStringToObject(func.env),
       isCurrent: deployment.isCurrent,
+      assets: deployment.assets,
     }),
   );
 
@@ -98,6 +93,7 @@ export async function removeDeployment(
   createdAt: Date;
   updatedAt: Date;
   isCurrent: boolean;
+  assets: string[];
   functionId: string;
 }> {
   const deployment = await prisma.deployment.delete({
@@ -110,6 +106,7 @@ export async function removeDeployment(
       updatedAt: true,
       functionId: true,
       isCurrent: true,
+      assets: true,
     },
   });
 
@@ -119,6 +116,19 @@ export async function removeDeployment(
       Key: `${deployment.id}.js`,
     }),
   );
+
+  if (deployment.assets.length > 0) {
+    await s3.send(
+      new DeleteObjectsCommand({
+        Bucket: process.env.AWS_S3_BUCKET,
+        Delete: {
+          Objects: deployment.assets.map(asset => ({
+            Key: `${deployment.id}/${asset}`,
+          })),
+        },
+      }),
+    );
+  }
 
   await redis.publish(
     'undeploy',
@@ -131,6 +141,7 @@ export async function removeDeployment(
       timeout: func.timeout,
       env: envStringToObject(func.env),
       isCurrent: deployment.isCurrent,
+      assets: deployment.assets,
     }),
   );
 
@@ -177,6 +188,7 @@ export async function setCurrentDeployment(
   createdAt: Date;
   updatedAt: Date;
   isCurrent: boolean;
+  assets: string[];
 }> {
   const func = await prisma.function.findFirst({
     where: {
@@ -212,6 +224,7 @@ export async function setCurrentDeployment(
       createdAt: true,
       updatedAt: true,
       isCurrent: true,
+      assets: true,
     },
   });
 
@@ -227,6 +240,7 @@ export async function setCurrentDeployment(
       timeout: func.timeout,
       env: envStringToObject(func.env),
       isCurrent: true,
+      assets: deployment.assets,
     }),
   );
 
