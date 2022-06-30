@@ -66,11 +66,12 @@ export async function bundleFunction(
     },
     format: 'esm',
     target: 'es2020',
-    platform: 'node',
+    platform: 'browser',
     // TODO: minify identifiers
     // Can't minify identifiers yet because `masterHandler` in runtime
     // needs to call a `handler` function.
-    minifyWhitespace: true,
+    // TODO: not working with react, find why
+    // minifyWhitespace: true,
     minifySyntax: true,
   });
 
