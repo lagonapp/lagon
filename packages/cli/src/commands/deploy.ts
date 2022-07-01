@@ -12,7 +12,7 @@ export async function deploy(file: string, { preact, publicDir }: { preact: bool
   const assetsDir = path.join(path.parse(fileToDeploy).dir, publicDir);
 
   if (!fs.existsSync(fileToDeploy) || fs.statSync(fileToDeploy).isDirectory()) {
-    logError(`File '$'{fileToDeploy}' does not exist.`);
+    logError(`File '${fileToDeploy}' does not exist.`);
     return;
   }
 

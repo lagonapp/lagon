@@ -2,6 +2,7 @@ import { program } from 'commander';
 import { version } from '../package.json';
 import { loggedInGuard } from './auth';
 import { deploy } from './commands/deploy';
+import { dev } from './commands/dev';
 import { login } from './commands/login';
 import { logout } from './commands/logout';
 import { undeploy } from './commands/undeploy';
@@ -23,6 +24,7 @@ export function runCli() {
     .description('Undeploy the given file')
     .argument('<file>', 'The file unto deploy')
     .action(loggedInGuard(undeploy));
+  program.command('dev').description('Launch a local dev server').argument('<file>', 'The file to serve').action(dev);
 
   program.parse();
 }

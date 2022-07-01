@@ -14,10 +14,12 @@
     "build": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\""
   },
   "dependencies": {
+    "@lagon/runtime": "workspace:^0.0.1",
     "@trpc/client": "^9.25.3",
     "chalk": "^5.0.1",
     "commander": "^9.3.0",
     "esbuild": "^0.14.41",
+    "fastify": "^3.29.0",
     "inquirer": "^9.0.0",
     "node-fetch": "^3.2.6",
     "open": "^8.4.0",
