@@ -24,7 +24,13 @@ export function runCli() {
     .description('Undeploy the given file')
     .argument('<file>', 'The file unto deploy')
     .action(loggedInGuard(undeploy));
-  program.command('dev').description('Launch a local dev server').argument('<file>', 'The file to serve').action(dev);
+  program
+    .command('dev')
+    .description('Launch a local dev server')
+    .argument('<file>', 'The file to serve')
+    .option('--preact', 'Bundle the function as a preact site')
+    .option('-p, --public-dir <dir>', 'The directory to serve the public assets from', 'public')
+    .action(dev);
 
   program.parse();
 }

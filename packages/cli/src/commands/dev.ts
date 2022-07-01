@@ -1,10 +1,10 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { logError, logInfo } from '../utils/logger';
+import { logError } from '../utils/logger';
 import { SUPPORTED_EXTENSIONS } from '../utils/constants';
-import { createServer } from 'node:http';
-import { clearCache, getIsolate, HandlerRequest } from '@lagon/runtime';
+import { clearCache, Deployment, getIsolate, HandlerRequest } from '@lagon/runtime';
 import Fastify from 'fastify';
+import { bundleFunction } from '../utils/deployments';
 
 const fastify = Fastify({
   logger: false,
@@ -25,8 +25,9 @@ const extensionToContentType = {
   '.otf': 'application/font-otf',
 };
 
-export async function dev(file: string) {
+export async function dev(file: string, { preact, publicDir }: { preact: boolean; publicDir: string }) {
   const fileToDeploy = path.join(process.cwd(), file);
+  const assetsDir = path.join(path.parse(fileToDeploy).dir, publicDir);
 
   if (!fs.existsSync(fileToDeploy) || fs.statSync(fileToDeploy).isDirectory()) {
     logError(`File '${fileToDeploy}' does not exist.`);
@@ -40,7 +41,10 @@ export async function dev(file: string) {
     return;
   }
 
-  const getDeployment = () => ({
+  // TODO: update on file change
+  const { code, assets } = await bundleFunction(fileToDeploy, preact, assetsDir);
+
+  const deployment: Deployment = {
     deploymentId: 'deploymentId',
     functionId: 'functionId',
     functionName: 'functionName',
@@ -50,8 +54,8 @@ export async function dev(file: string) {
     // TODO: env
     env: {},
     domains: [],
-    assets: [],
-  });
+    assets: assets.map(({ name }) => name),
+  };
 
   fastify.all('/*', async (request, reply) => {
     if (request.url === '/favicon.ico') {
@@ -59,26 +63,22 @@ export async function dev(file: string) {
       return;
     }
 
-    const deployment = getDeployment();
     const asset = deployment.assets.find(asset => request.url === `/${asset}`);
 
     if (asset) {
       const extension = path.extname(asset) as keyof typeof extensionToContentType;
 
-      // TODO
-      // reply
-      //   .status(200)
-      //   .header('Content-Type', extensionToContentType[extension] || 'text/html')
-      //   .send(getAssetContent(deployment, asset));
+      reply
+        .status(200)
+        .header('Content-Type', extensionToContentType[extension] || 'text/html')
+        .send(fs.readFileSync(path.join(assetsDir, asset)));
       return;
     }
 
     try {
       const runIsolate = await getIsolate({
         deployment,
-        getDeploymentCode: async () => `export function handler() {
-          return new Response("hello from isolate!")
-        }`,
+        getDeploymentCode: async () => code,
         onDeploymentLog: ({ log }) => {
           console.log(log.level, log.content);
         },
@@ -112,7 +112,7 @@ export async function dev(file: string) {
     } catch (error) {
       reply.status(500).header('Content-Type', 'text/html').send();
 
-      console.log(`An error occured while running the function: ${(error as Error).message}`);
+      logError(`An error occured while running the function: ${(error as Error).message}`);
     }
 
     clearCache(deployment);
