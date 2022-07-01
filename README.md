@@ -29,13 +29,13 @@
 
 Lagon is a free Open Source Runtime and SaaS that make it easy to deploy TypeScript and JavaScript Serverless Functions at the Edge, using V8 Isolates. You will be able to self-host it.
 
+> **Warning**: Lagon is still in heavy development. Do not use for production usages.
+
 Current status:
 - **Dev**
 - *Alpha*
 - *Beta*
 - *General Availability*
-
-> **Warning**: Lagon is still in heavy development. Do not use for production usages.
 
 ## Packages
 
