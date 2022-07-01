@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { logError } from '../utils/logger';
+import { logDebug, logError, logSuccess } from '../utils/logger';
 import { SUPPORTED_EXTENSIONS } from '../utils/constants';
 import { clearCache, Deployment, getIsolate, HandlerRequest } from '@lagon/runtime';
 import Fastify from 'fastify';
@@ -41,8 +41,17 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
     return;
   }
 
-  // TODO: update on file change
-  const { code, assets } = await bundleFunction(fileToDeploy, preact, assetsDir);
+  let { code, assets } = await bundleFunction(fileToDeploy, preact, assetsDir);
+
+  const watcher = fs.watch(fileToDeploy, async eventType => {
+    if (eventType === 'change') {
+      logDebug('Function file updated, recompiling...');
+
+      const { code: newCode, assets: newAssets } = await bundleFunction(fileToDeploy, preact, assetsDir);
+      code = newCode;
+      assets = newAssets;
+    }
+  });
 
   const deployment: Deployment = {
     deploymentId: 'deploymentId',
@@ -56,6 +65,13 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
     domains: [],
     assets: assets.map(({ name }) => name),
   };
+
+  process.on('SIGINT', () => {
+    watcher.close();
+    clearCache(deployment);
+
+    process.exit();
+  });
 
   fastify.all('/*', async (request, reply) => {
     if (request.url === '/favicon.ico') {
@@ -124,6 +140,6 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
       process.exit(1);
     }
 
-    console.log(`Lagon is listening on ${address}`);
+    logSuccess(`Dev server running on ${address}`);
   });
 }
