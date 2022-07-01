@@ -71,7 +71,7 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
       reply
         .status(200)
         .header('Content-Type', extensionToContentType[extension] || 'text/html')
-        .send(fs.readFileSync(path.join(assetsDir, asset)));
+        .send(assets.find(({ name }) => name === asset)?.content);
       return;
     }
 
