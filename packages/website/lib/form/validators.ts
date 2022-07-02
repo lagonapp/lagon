@@ -29,12 +29,21 @@ export const functionNameValidator: FieldValidator<string | number> = value => {
 
   return 'Field must be a string';
 };
+
+export const domainNameValidator: FieldValidator<string | number> = value => {
+  if (typeof value === 'string') {
+    return /^[a-z0-9-]+(\.[a-z0-9-]{1,63})+$/.test(value) ? undefined : 'Field must be a domain or subdomain';
+  }
+
+  return 'Field must be a string';
+};
+
 export const cronValidator: FieldValidator<string | number> = value => {
   if (typeof value === 'string') {
     return /((((\d+,)+\d+|(\d+(\/|-)\d+)|\d+|\*) ?){5,7})/.test(value) ? undefined : 'Field must be a Cron expression';
   }
 
-  return 'Field must be a string';
+  return typeof value === 'undefined' ? undefined : 'Field must be a string';
 };
 
 export const composeValidators =

@@ -10,6 +10,7 @@ import TagsInput from 'lib/components/TagsInput';
 import {
   composeValidators,
   cronValidator,
+  domainNameValidator,
   functionNameValidator,
   maxLengthValidator,
   minLengthValidator,
@@ -98,14 +99,21 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
               <Text size="lg">Default domain</Text>
               <Text>{getCurrentDomain(func)}</Text>
             </div>
-            <div className="flex flex-1 flex-col gap-1">
-              <Text size="lg">Custom domains</Text>
-              <div className="flex gap-2 items-center">
-                <TagsInput name="domains" placeholder="Custom domains" disabled={updateFunction.isLoading} />
-                <Button variant="primary" disabled={updateFunction.isLoading} submit>
-                  Update
-                </Button>
+            <div className="flex flex-1 flex-col items-start gap-4">
+              <div className="flex flex-col gap-1">
+                <Text size="lg">Custom domains</Text>
+                <div className="flex gap-2 items-center">
+                  <TagsInput
+                    name="domains"
+                    placeholder="mydomain.com"
+                    disabled={updateFunction.isLoading}
+                    validator={domainNameValidator}
+                  />
+                </div>
               </div>
+              <Button variant="primary" disabled={updateFunction.isLoading} submit>
+                Update
+              </Button>
             </div>
           </div>
         </Card>
@@ -118,7 +126,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           await updateFunction.mutateAsync({
             functionId: func.id,
             ...func,
-            cron,
+            cron: cron || null,
           });
 
           await refetch();
@@ -153,17 +161,60 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           toast.success('Function environment variables updated successfully.');
         }}
       >
-        <Card
-          title="Environment variables"
-          description="Environment variables are injected into your Function at runtime."
-        >
-          <div className="flex gap-2 items-center">
-            <Input name="env" placeholder="Environment variables" disabled={updateFunction.isLoading} />
-            <Button variant="primary" disabled={updateFunction.isLoading} submit>
-              Update
-            </Button>
-          </div>
-        </Card>
+        {({ values, form }) => (
+          <Card
+            title="Environment variables"
+            description="Environment variables are injected into your Function at runtime."
+          >
+            <div className="flex flex-col gap-4 items-start">
+              <div className="flex gap-2 items-center">
+                <Input name="envKey" placeholder="Key" disabled={updateFunction.isLoading} />
+                <Input name="envValue" placeholder="Value" type="password" disabled={updateFunction.isLoading} />
+                <Button
+                  disabled={updateFunction.isLoading}
+                  onClick={() => {
+                    const { envKey, envValue } = values;
+
+                    if (envKey && envValue) {
+                      form.change('env', [...values.env, `${envKey}=${envValue}`]);
+                      form.change(`${envKey}-key`, envKey);
+                      form.change(`${envKey}-value`, envValue);
+
+                      form.change('envKey', '');
+                      form.change('envValue', '');
+                    }
+                  }}
+                >
+                  Add
+                </Button>
+              </div>
+              {values.env.map((env: string) => {
+                const [key] = env.split('=');
+
+                return (
+                  <div key={env} className="flex gap-2 items-center">
+                    <Input name={`${key}-key`} placeholder={key} disabled />
+                    <Input name={`${key}-value`} placeholder="*******" disabled />
+                    <Button
+                      disabled={updateFunction.isLoading}
+                      onClick={() => {
+                        form.change(
+                          'env',
+                          values.env.filter((currentEnv: string) => env !== currentEnv),
+                        );
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                );
+              })}
+              <Button variant="primary" disabled={updateFunction.isLoading} submit>
+                Update
+              </Button>
+            </div>
+          </Card>
+        )}
       </Form>
       <Card
         title="Delete"
@@ -192,7 +243,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                 router.push('/');
               }}
             >
-              {handleSubmit => (
+              {({ handleSubmit }) => (
                 <>
                   <Input
                     name="confirm"

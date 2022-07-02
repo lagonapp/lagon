@@ -1,3 +1,4 @@
+import { FormApi } from 'final-form';
 import { ReactNode } from 'react';
 import { Form as FinalFormForm, FormProps as FinalFormFormProps, FormRenderProps } from 'react-final-form';
 import toast from 'react-hot-toast';
@@ -7,7 +8,17 @@ type FormProps = {
   onSubmit: FinalFormFormProps['onSubmit'];
   onSubmitSuccess: FinalFormFormProps['onSubmit'];
   onSubmitError?: FinalFormFormProps['onSubmit'];
-  children: ReactNode | ((handleSubmit: FormRenderProps['handleSubmit']) => ReactNode);
+  children:
+    | ReactNode
+    | (({
+        handleSubmit,
+        form,
+        values,
+      }: {
+        handleSubmit: FormRenderProps['handleSubmit'];
+        form: FormApi;
+        values: Record<string, any>;
+      }) => ReactNode);
 };
 
 const Form = ({ initialValues, onSubmit, onSubmitSuccess, onSubmitError, children }: FormProps) => {
@@ -24,8 +35,10 @@ const Form = ({ initialValues, onSubmit, onSubmitSuccess, onSubmitError, childre
         }
       }}
     >
-      {({ handleSubmit }) => (
-        <form onSubmit={handleSubmit}>{typeof children === 'function' ? children(handleSubmit) : children}</form>
+      {({ handleSubmit, form, values }) => (
+        <form onSubmit={handleSubmit}>
+          {typeof children === 'function' ? children({ handleSubmit, form, values }) : children}
+        </form>
       )}
     </FinalFormForm>
   );
