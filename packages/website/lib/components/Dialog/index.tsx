@@ -48,11 +48,13 @@ const Dialog = ({ title, description, disclosure, children }: DialogProps) => {
         <AlertDialog.Overlay className="bg-stone-900/40 fixed inset-0 animate-fade" />
         <AlertDialog.Content className="bg-white w-[28rem] p-4 fixed top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] rounded-md shadow-xl animate-fade-translate">
           <div className="mb-6">
-            <AlertDialog.Title className="mb-2">
-              <Text size="xl">{title}</Text>
+            <AlertDialog.Title asChild>
+              <Text size="xl" className="mb-2">
+                {title}
+              </Text>
             </AlertDialog.Title>
             {description ? (
-              <AlertDialog.Description>
+              <AlertDialog.Description asChild>
                 <Text>{description}</Text>
               </AlertDialog.Description>
             ) : null}
