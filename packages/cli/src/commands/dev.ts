@@ -43,8 +43,9 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
 
   let { code, assets } = await bundleFunction(fileToDeploy, preact, assetsDir);
 
-  const watcher = fs.watch(fileToDeploy, async eventType => {
+  const watcher = fs.watch(path.parse(fileToDeploy).dir, async eventType => {
     if (eventType === 'change') {
+      console.clear();
       logDebug('Function file updated, recompiling...');
 
       const { code: newCode, assets: newAssets } = await bundleFunction(fileToDeploy, preact, assetsDir);
