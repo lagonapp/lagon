@@ -26,6 +26,12 @@ const extensionToContentType = {
   '.otf': 'application/font-otf',
 };
 
+const dateFormatter = Intl.DateTimeFormat('en-US', {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+});
+
 export async function dev(file: string, { preact, publicDir }: { preact: boolean; publicDir: string }) {
   const fileToDeploy = getFileToDeploy(file);
 
@@ -81,12 +87,6 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
       return;
     }
 
-    const dateFormatter = Intl.DateTimeFormat('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
-
     console.log(chalk.gray(dateFormatter.format(new Date())) + ' ' + chalk.blue(request.method) + ' ' + request.url);
 
     const asset = deployment.assets.find(asset => request.url === `/${asset}`);
@@ -107,7 +107,18 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
         deployment,
         getDeploymentCode: async () => code,
         onDeploymentLog: ({ log }) => {
-          console.log(log.level, log.content);
+          const color =
+            log.level === 'debug'
+              ? chalk.black
+              : log.level === 'error'
+              ? chalk.red
+              : log.level === 'info'
+              ? chalk.blue
+              : log.level === 'log'
+              ? chalk.gray
+              : chalk.yellow;
+
+          console.log(`            ${color(log.level)} ${log.content}`);
         },
       });
 
