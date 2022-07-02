@@ -5,7 +5,7 @@ import { clearCache, Deployment, getIsolate, HandlerRequest } from '@lagon/runti
 import Fastify from 'fastify';
 import { bundleFunction } from '../utils/deployments';
 import chalk from 'chalk';
-import { getAssetsDir, getFileToDeploy } from '../utils';
+import { getAssetsDir, getEnvironmentVariables, getFileToDeploy } from '../utils';
 
 const fastify = Fastify({
   logger: false,
@@ -38,6 +38,7 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
   if (!assetsDir) {
     return;
   }
+
   let { code, assets } = await bundleFunction(fileToDeploy, preact, assetsDir);
 
   const watcher = fs.watch(path.parse(fileToDeploy).dir, async eventType => {
@@ -62,8 +63,7 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
     isCurrent: true,
     memory: 128,
     timeout: 50,
-    // TODO: env
-    env: {},
+    env: getEnvironmentVariables(fileToDeploy),
     domains: [],
     assets: assets.map(({ name }) => name),
   };

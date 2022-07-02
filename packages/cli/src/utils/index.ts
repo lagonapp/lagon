@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { logError } from './logger';
+import { logError, logInfo } from './logger';
 import { SUPPORTED_EXTENSIONS } from './constants';
 
 export function getFileToDeploy(file: string): string | undefined {
@@ -30,4 +30,25 @@ export function getAssetsDir(fileToDeploy: string, publicDir: string): string | 
   }
 
   return assetsDir;
+}
+
+export function getEnvironmentVariables(fileToDeploy: string): Record<string, string> {
+  const envFile = path.join(path.parse(fileToDeploy).dir, '.env');
+
+  if (!fs.existsSync(envFile)) {
+    logInfo('Not .env file found, skipping...');
+    return {};
+  }
+
+  const content = fs.readFileSync(envFile, 'utf-8');
+
+  return content.split('\n').reduce((acc, line) => {
+    const [key, value] = line.split('=');
+
+    if (key && value) {
+      acc[key] = value;
+    }
+
+    return acc;
+  }, {} as Record<string, string>);
 }
