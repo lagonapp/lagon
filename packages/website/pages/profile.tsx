@@ -123,7 +123,7 @@ const Profile = () => {
                 }}
                 onSubmitSuccess={async () => null}
               >
-                {handleSubmit => (
+                {({ handleSubmit }) => (
                   <>
                     <Input
                       name="confirm"

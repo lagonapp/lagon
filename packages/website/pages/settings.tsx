@@ -142,7 +142,7 @@ const Settings = () => {
                   router.push('/');
                 }}
               >
-                {handleSubmit => (
+                {({ handleSubmit }) => (
                   <>
                     <Input
                       name="confirm"
