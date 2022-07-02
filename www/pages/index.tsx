@@ -1,8 +1,8 @@
 import Head from 'next/head';
-import useSystemTheme from 'react-use-system-theme';
 import Header from '../lib/components/Header';
 import Globe from '../lib/components/Globe';
 import Splitbee from '@splitbee/web';
+import useSystemTheme from '../lib/hooks/useSystemTheme';
 
 Splitbee.init();
 
