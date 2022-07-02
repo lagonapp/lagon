@@ -1,25 +1,26 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { createDeployment, createFunction, getDeploymentConfig, writeDeploymentConfig } from '../utils/deployments';
-import { logDebug, logError, logSuccess } from '../utils/logger';
+import { logInfo, logError, logSuccess, logSpace } from '../utils/logger';
 import inquirer from 'inquirer';
 import { SUPPORTED_EXTENSIONS } from '../utils/constants';
 import { authToken } from '../auth';
 import { trpc } from '../trpc';
+import chalk from 'chalk';
 
 export async function deploy(file: string, { preact, publicDir }: { preact: boolean; publicDir: string }) {
   const fileToDeploy = path.join(process.cwd(), file);
   const assetsDir = path.join(path.parse(fileToDeploy).dir, publicDir);
 
   if (!fs.existsSync(fileToDeploy) || fs.statSync(fileToDeploy).isDirectory()) {
-    logError(`File '${fileToDeploy}' does not exist.`);
+    logError(`File '${fileToDeploy}' does not exists/is not a file.`);
     return;
   }
 
   const extension = path.extname(fileToDeploy);
 
   if (!SUPPORTED_EXTENSIONS.includes(extension)) {
-    logError(`Extension '${extension}' is not supported: ${SUPPORTED_EXTENSIONS.join(', ')}`);
+    logError(`Extension '${extension}' is not supported (${SUPPORTED_EXTENSIONS.join(', ')})`);
     return;
   }
 
@@ -31,7 +32,8 @@ export async function deploy(file: string, { preact, publicDir }: { preact: bool
   const config = getDeploymentConfig(fileToDeploy);
 
   if (!config) {
-    logDebug('No deployment config found...');
+    logInfo('No deployment config found...');
+    logSpace();
 
     const organizations = await trpc(authToken).query('organizations.list');
 
@@ -68,22 +70,34 @@ export async function deploy(file: string, { preact, publicDir }: { preact: bool
         },
       ]);
 
-      await createDeployment(func, fileToDeploy, preact, assetsDir);
+      const deployment = await createDeployment(func, fileToDeploy, preact, assetsDir);
       writeDeploymentConfig(fileToDeploy, { functionId: func, organizationId: organization, publicDir });
+
+      logSpace();
       logSuccess(`Function deployed.`);
+      logSpace();
+      console.log(
+        ` ➤ ${chalk.gray('https://') + chalk.blueBright(deployment.functionName) + chalk.gray('.lagon.app')}`,
+      );
+      logSpace();
     } else {
       const { name } = await inquirer.prompt([
         {
           type: 'input',
           name: 'name',
-          message: 'What is the name of the function?',
+          message: 'What is the name of this function?',
         },
       ]);
 
-      logDebug(`Creating function ${name}...`);
+      logSpace();
       const func = await createFunction(name, fileToDeploy, preact, assetsDir);
       writeDeploymentConfig(fileToDeploy, { functionId: func.id, organizationId: organization, publicDir });
+
+      logSpace();
       logSuccess(`Function ${name} created.`);
+      logSpace();
+      console.log(` ➤ ${chalk.gray('https://') + chalk.blueBright(name) + chalk.gray('.lagon.app')}`);
+      logSpace();
     }
 
     return;
@@ -97,6 +111,10 @@ export async function deploy(file: string, { preact, publicDir }: { preact: bool
     finalAssetsDir = path.join(path.parse(fileToDeploy).dir, config.publicDir);
   }
 
-  await createDeployment(config.functionId, fileToDeploy, preact, finalAssetsDir);
+  const deployment = await createDeployment(config.functionId, fileToDeploy, preact, finalAssetsDir);
+  logSpace();
   logSuccess(`Function deployed.`);
+  logSpace();
+  console.log(` ➤ ${chalk.gray('https://') + chalk.blueBright(deployment.functionName) + chalk.gray('.lagon.app')}`);
+  logSpace();
 }

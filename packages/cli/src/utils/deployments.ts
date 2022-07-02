@@ -3,7 +3,7 @@ import { build } from 'esbuild';
 import path from 'node:path';
 import { authToken } from '../auth';
 import { trpc } from '../trpc';
-import { logDebug } from './logger';
+import { logInfo } from './logger';
 import { API_URL } from './constants';
 import fetch, { FormData, File } from 'node-fetch';
 
@@ -52,7 +52,7 @@ export async function bundleFunction(
 ): Promise<{ code: string; assets: { name: string; content: string }[] }> {
   const assets: { name: string; content: string }[] = [];
 
-  logDebug('Bundling function handler...');
+  logInfo('Bundling function handler...');
 
   const { outputFiles } = await build({
     entryPoints: [file],
@@ -76,7 +76,7 @@ export async function bundleFunction(
   });
 
   if (preact) {
-    logDebug('Bundling preact client code...');
+    logInfo(`Bundling 'preact' code...`);
 
     const { outputFiles: clientOutputFiles } = await build({
       entryPoints: [path.join(path.parse(file).dir, 'App.tsx')],
@@ -105,7 +105,7 @@ export async function bundleFunction(
   }
 
   if (fs.existsSync(assetsDir) && fs.statSync(assetsDir).isDirectory()) {
-    logDebug('Found `public` directory, uploading assets...');
+    logInfo(`Found 'public' directory, bundling assets...`);
 
     const files = fs.readdirSync(assetsDir);
 
@@ -122,7 +122,7 @@ export async function bundleFunction(
       }
     }
   } else {
-    logDebug('No public directory found, skipping...');
+    logInfo('No public directory found, skipping...');
   }
 
   return {
@@ -131,7 +131,12 @@ export async function bundleFunction(
   };
 }
 
-export async function createDeployment(functionId: string, file: string, preact: boolean, assetsDir: string) {
+export async function createDeployment(
+  functionId: string,
+  file: string,
+  preact: boolean,
+  assetsDir: string,
+): Promise<{ functionName: string }> {
   const { code, assets } = await bundleFunction(file, preact, assetsDir);
   const body = new FormData();
 
@@ -142,11 +147,14 @@ export async function createDeployment(functionId: string, file: string, preact:
     body.append('assets', new File([asset.content], asset.name));
   }
 
-  await fetch(`${API_URL}/deployment`, {
+  logInfo('Uploading files...');
+  const response = await fetch(`${API_URL}/deployment`, {
     method: 'POST',
     headers: { 'x-lagon-token': authToken },
     body,
   });
+
+  return response.json();
 }
 
 export async function createFunction(name: string, file: string, preact: boolean, assetsDir: string) {
@@ -167,6 +175,7 @@ export async function createFunction(name: string, file: string, preact: boolean
     body.append('assets', new File([asset.content], asset.name));
   }
 
+  logInfo('Uploading files...');
   await fetch(`${API_URL}/deployment`, {
     method: 'POST',
     headers: { 'x-lagon-token': authToken },

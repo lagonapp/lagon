@@ -39,7 +39,7 @@ export function checkLoggedIn() {
 export function loggedInGuard<T>(callback: T): T {
   if (!isLoggedIn) {
     return (() => {
-      logError('You are not logged in. Run `lagon login` to log in.');
+      logError(`You are not logged in. Run 'lagon login' first.`);
     }) as unknown as T;
   }
 

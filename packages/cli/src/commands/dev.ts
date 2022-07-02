@@ -1,10 +1,11 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { logDebug, logError, logSuccess } from '../utils/logger';
+import { logInfo, logError, logSuccess, logSpace } from '../utils/logger';
 import { SUPPORTED_EXTENSIONS } from '../utils/constants';
 import { clearCache, Deployment, getIsolate, HandlerRequest } from '@lagon/runtime';
 import Fastify from 'fastify';
 import { bundleFunction } from '../utils/deployments';
+import chalk from 'chalk';
 
 const fastify = Fastify({
   logger: false,
@@ -30,14 +31,14 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
   const assetsDir = path.join(path.parse(fileToDeploy).dir, publicDir);
 
   if (!fs.existsSync(fileToDeploy) || fs.statSync(fileToDeploy).isDirectory()) {
-    logError(`File '${fileToDeploy}' does not exist.`);
+    logError(`File '${fileToDeploy}' does not exists/is not a file.`);
     return;
   }
 
   const extension = path.extname(fileToDeploy);
 
   if (!SUPPORTED_EXTENSIONS.includes(extension)) {
-    logError(`Extension '${extension}' is not supported: ${SUPPORTED_EXTENSIONS.join(', ')}`);
+    logError(`Extension '${extension}' is not supported (${SUPPORTED_EXTENSIONS.join(', ')})`);
     return;
   }
 
@@ -46,11 +47,15 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
   const watcher = fs.watch(path.parse(fileToDeploy).dir, async eventType => {
     if (eventType === 'change') {
       console.clear();
-      logDebug('Function file updated, recompiling...');
+      logInfo('Detected change, recompiling...');
 
       const { code: newCode, assets: newAssets } = await bundleFunction(fileToDeploy, preact, assetsDir);
       code = newCode;
       assets = newAssets;
+
+      logSpace();
+      logSuccess('Done!');
+      logSpace();
     }
   });
 
@@ -80,10 +85,19 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
       return;
     }
 
+    const dateFormatter = Intl.DateTimeFormat('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+
+    console.log(chalk.gray(dateFormatter.format(new Date())) + ' ' + chalk.blue(request.method) + ' ' + request.url);
+
     const asset = deployment.assets.find(asset => request.url === `/${asset}`);
 
     if (asset) {
       const extension = path.extname(asset) as keyof typeof extensionToContentType;
+      console.log(chalk.black(`            Found asset: ${asset}`));
 
       reply
         .status(200)
@@ -141,6 +155,9 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
       process.exit(1);
     }
 
-    logSuccess(`Dev server running on ${address}`);
+    console.clear();
+    logSpace();
+    logSuccess(`Dev server running at: ${address}`);
+    logSpace();
   });
 }
