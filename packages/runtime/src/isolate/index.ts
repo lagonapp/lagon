@@ -57,7 +57,10 @@ export async function getIsolate({
   let deploymentCache = deploymentsCache.get(deployment.deploymentId);
 
   if (!deploymentCache) {
-    console.log('Cache not found, creating:', deployment.deploymentId);
+    if (process.env.LAGON_DEBUG) {
+      console.log('Cache not found, creating:', deployment.deploymentId);
+    }
+
     let code = await getDeploymentCode(deployment);
 
     // TODO: disable `eval` within the isolate?
