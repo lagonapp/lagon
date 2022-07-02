@@ -104,7 +104,10 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
 
     const deployment = await createDeployment(func, code, assets, email);
 
-    return response.json(deployment);
+    return response.json({
+      ...deployment,
+      functionName: func.name,
+    });
   });
 
   form.parse(request);

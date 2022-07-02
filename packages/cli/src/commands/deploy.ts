@@ -1,37 +1,29 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import { createDeployment, createFunction, getDeploymentConfig, writeDeploymentConfig } from '../utils/deployments';
-import { logDebug, logError, logSuccess } from '../utils/logger';
+import { logInfo, logSpace, logDeploymentSuccessful } from '../utils/logger';
 import inquirer from 'inquirer';
-import { SUPPORTED_EXTENSIONS } from '../utils/constants';
 import { authToken } from '../auth';
 import { trpc } from '../trpc';
+import { getAssetsDir, getFileToDeploy } from '../utils';
 
 export async function deploy(file: string, { preact, publicDir }: { preact: boolean; publicDir: string }) {
-  const fileToDeploy = path.join(process.cwd(), file);
-  const assetsDir = path.join(path.parse(fileToDeploy).dir, publicDir);
+  const fileToDeploy = getFileToDeploy(file);
 
-  if (!fs.existsSync(fileToDeploy) || fs.statSync(fileToDeploy).isDirectory()) {
-    logError(`File '${fileToDeploy}' does not exist.`);
+  if (!fileToDeploy) {
     return;
   }
 
-  const extension = path.extname(fileToDeploy);
+  const assetsDir = getAssetsDir(fileToDeploy, publicDir);
 
-  if (!SUPPORTED_EXTENSIONS.includes(extension)) {
-    logError(`Extension '${extension}' is not supported: ${SUPPORTED_EXTENSIONS.join(', ')}`);
-    return;
-  }
-
-  if ((!fs.existsSync(assetsDir) || !fs.statSync(assetsDir).isDirectory()) && publicDir !== 'public') {
-    logError(`Public directory '${publicDir}' does not exist.`);
+  if (!assetsDir) {
     return;
   }
 
   const config = getDeploymentConfig(fileToDeploy);
 
   if (!config) {
-    logDebug('No deployment config found...');
+    logInfo('No deployment config found...');
+    logSpace();
 
     const organizations = await trpc(authToken).query('organizations.list');
 
@@ -68,22 +60,25 @@ export async function deploy(file: string, { preact, publicDir }: { preact: bool
         },
       ]);
 
-      await createDeployment(func, fileToDeploy, preact, assetsDir);
+      logSpace();
+
+      const deployment = await createDeployment(func, fileToDeploy, preact, assetsDir);
       writeDeploymentConfig(fileToDeploy, { functionId: func, organizationId: organization, publicDir });
-      logSuccess(`Function deployed.`);
+      logDeploymentSuccessful(false, deployment.functionName);
     } else {
       const { name } = await inquirer.prompt([
         {
           type: 'input',
           name: 'name',
-          message: 'What is the name of the function?',
+          message: 'What is the name of this function?',
         },
       ]);
 
-      logDebug(`Creating function ${name}...`);
+      logSpace();
+
       const func = await createFunction(name, fileToDeploy, preact, assetsDir);
       writeDeploymentConfig(fileToDeploy, { functionId: func.id, organizationId: organization, publicDir });
-      logSuccess(`Function ${name} created.`);
+      logDeploymentSuccessful(true, name);
     }
 
     return;
@@ -97,6 +92,6 @@ export async function deploy(file: string, { preact, publicDir }: { preact: bool
     finalAssetsDir = path.join(path.parse(fileToDeploy).dir, config.publicDir);
   }
 
-  await createDeployment(config.functionId, fileToDeploy, preact, finalAssetsDir);
-  logSuccess(`Function deployed.`);
+  const deployment = await createDeployment(config.functionId, fileToDeploy, preact, finalAssetsDir);
+  logDeploymentSuccessful(false, deployment.functionName);
 }

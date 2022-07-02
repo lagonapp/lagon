@@ -2,7 +2,7 @@ import { authToken, isLoggedIn, setAuthFile } from '../auth';
 import open from 'open';
 import inquirer from 'inquirer';
 import { SITE_URL } from '../utils/constants';
-import { logDebug, logError, logSuccess } from '../utils/logger';
+import { logInfo, logError, logSuccess, logSpace } from '../utils/logger';
 import { trpc } from '../trpc';
 
 export async function login() {
@@ -14,19 +14,23 @@ export async function login() {
     });
 
     if (!confirm) {
-      logError(`Aborted login.`);
+      logError('Login aborted.');
       return;
     }
   }
 
-  logDebug('Opening browser to login...');
+  logSpace();
+  logInfo('Opening browser...');
 
   await open(`${SITE_URL}/cli`);
+
+  logInfo('Please copy and paste the verification code from the browser.');
+  logSpace();
 
   const { code } = await inquirer.prompt({
     type: 'input',
     name: 'code',
-    message: 'Please paste the verification code from the browser:',
+    message: 'Verification code:',
   });
 
   const auth = await trpc(authToken).mutation('tokens.authenticate', { code });
@@ -39,5 +43,6 @@ export async function login() {
   const { token } = auth;
 
   setAuthFile(token);
-  logSuccess('Logged in successfully. You can now clone the browser tab.');
+  logSpace();
+  logSuccess('You can now close the browser tab.');
 }

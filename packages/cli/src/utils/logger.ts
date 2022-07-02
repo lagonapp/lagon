@@ -1,21 +1,25 @@
 import chalk from 'chalk';
 
 export function logError(message: string) {
-  console.log(`${chalk.bgRed(' ERROR ')} ${message}`);
-}
-
-export function logWarn(message: string) {
-  console.log(`${chalk.bgYellow(' WARN ')} ${message}`);
+  console.log(`${chalk.red('error  ')} ${message}`);
 }
 
 export function logSuccess(message: string) {
-  console.log(`${chalk.bgGreen(' SUCCESS ')} ${message}`);
-}
-
-export function logDebug(message: string) {
-  console.log(chalk.gray(message));
+  console.log(`${chalk.green('success')} ${message}`);
 }
 
 export function logInfo(message: string) {
-  console.log(message);
+  console.log(`${chalk.blueBright('info   ')} ${chalk.gray(message)}`);
+}
+
+export function logSpace() {
+  console.log(' ');
+}
+
+export function logDeploymentSuccessful(createdFunction: boolean, functionName: string) {
+  logSpace();
+  logSuccess(createdFunction ? `Function ${functionName} created.` : 'Function deployed.');
+  logSpace();
+  console.log(` ➤ ${chalk.gray('https://') + chalk.blueBright(functionName) + chalk.gray('.lagon.app')}`);
+  logSpace();
 }
