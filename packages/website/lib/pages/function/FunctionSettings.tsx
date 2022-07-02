@@ -10,6 +10,7 @@ import TagsInput from 'lib/components/TagsInput';
 import {
   composeValidators,
   cronValidator,
+  domainNameValidator,
   functionNameValidator,
   maxLengthValidator,
   minLengthValidator,
@@ -98,14 +99,21 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
               <Text size="lg">Default domain</Text>
               <Text>{getCurrentDomain(func)}</Text>
             </div>
-            <div className="flex flex-1 flex-col gap-1">
-              <Text size="lg">Custom domains</Text>
-              <div className="flex gap-2 items-center">
-                <TagsInput name="domains" placeholder="Custom domains" disabled={updateFunction.isLoading} />
-                <Button variant="primary" disabled={updateFunction.isLoading} submit>
-                  Update
-                </Button>
+            <div className="flex flex-1 flex-col items-start gap-4">
+              <div className="flex flex-col gap-1">
+                <Text size="lg">Custom domains</Text>
+                <div className="flex gap-2 items-center">
+                  <TagsInput
+                    name="domains"
+                    placeholder="mydomain.com"
+                    disabled={updateFunction.isLoading}
+                    validator={domainNameValidator}
+                  />
+                </div>
               </div>
+              <Button variant="primary" disabled={updateFunction.isLoading} submit>
+                Update
+              </Button>
             </div>
           </div>
         </Card>
