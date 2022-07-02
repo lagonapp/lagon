@@ -17,8 +17,10 @@ const Globe = () => {
     let height = 0;
 
     const onResize = () => {
-      width = canvasRef.current.offsetWidth;
-      height = canvasRef.current.offsetHeight;
+      if (canvasRef.current) {
+        width = canvasRef.current.offsetWidth;
+        height = canvasRef.current.offsetHeight;
+      }
     };
 
     window.addEventListener('resize', onResize);
@@ -66,7 +68,11 @@ const Globe = () => {
       },
     });
 
-    setTimeout(() => (canvasRef.current.style.opacity = '1'));
+    setTimeout(() => {
+      if (canvasRef.current) {
+        canvasRef.current.style.opacity = '1';
+      }
+    });
 
     return () => {
       globe.destroy();
