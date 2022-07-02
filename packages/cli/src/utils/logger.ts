@@ -15,3 +15,11 @@ export function logInfo(message: string) {
 export function logSpace() {
   console.log(' ');
 }
+
+export function logDeploymentSuccessful(createdFunction: boolean, functionName: string) {
+  logSpace();
+  logSuccess(createdFunction ? `Function ${functionName} created.` : 'Function deployed.');
+  logSpace();
+  console.log(` ➤ ${chalk.gray('https://') + chalk.blueBright(functionName) + chalk.gray('.lagon.app')}`);
+  logSpace();
+}

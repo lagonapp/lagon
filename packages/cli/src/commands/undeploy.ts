@@ -1,14 +1,12 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import { deleteFunction, getDeploymentConfig, removeDeploymentFile } from '../utils/deployments';
 import { logError, logSpace, logSuccess } from '../utils/logger';
 import inquirer from 'inquirer';
+import { getFileToDeploy } from '../utils';
 
 export async function undeploy(file: string) {
-  const fileToDeploy = path.join(process.cwd(), file);
+  const fileToDeploy = getFileToDeploy(file);
 
-  if (!fs.existsSync(fileToDeploy) || fs.statSync(fileToDeploy).isDirectory()) {
-    logError(`File ${fileToDeploy} does not exists/is not a file.`);
+  if (!fileToDeploy) {
     return;
   }
 

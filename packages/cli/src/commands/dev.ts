@@ -1,11 +1,11 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { logInfo, logError, logSuccess, logSpace } from '../utils/logger';
-import { SUPPORTED_EXTENSIONS } from '../utils/constants';
 import { clearCache, Deployment, getIsolate, HandlerRequest } from '@lagon/runtime';
 import Fastify from 'fastify';
 import { bundleFunction } from '../utils/deployments';
 import chalk from 'chalk';
+import { getAssetsDir, getFileToDeploy } from '../utils';
 
 const fastify = Fastify({
   logger: false,
@@ -27,21 +27,17 @@ const extensionToContentType = {
 };
 
 export async function dev(file: string, { preact, publicDir }: { preact: boolean; publicDir: string }) {
-  const fileToDeploy = path.join(process.cwd(), file);
-  const assetsDir = path.join(path.parse(fileToDeploy).dir, publicDir);
+  const fileToDeploy = getFileToDeploy(file);
 
-  if (!fs.existsSync(fileToDeploy) || fs.statSync(fileToDeploy).isDirectory()) {
-    logError(`File '${fileToDeploy}' does not exists/is not a file.`);
+  if (!fileToDeploy) {
     return;
   }
 
-  const extension = path.extname(fileToDeploy);
+  const assetsDir = getAssetsDir(fileToDeploy, publicDir);
 
-  if (!SUPPORTED_EXTENSIONS.includes(extension)) {
-    logError(`Extension '${extension}' is not supported (${SUPPORTED_EXTENSIONS.join(', ')})`);
+  if (!assetsDir) {
     return;
   }
-
   let { code, assets } = await bundleFunction(fileToDeploy, preact, assetsDir);
 
   const watcher = fs.watch(path.parse(fileToDeploy).dir, async eventType => {
