@@ -33,9 +33,9 @@ Lagon is a free Open Source Runtime and SaaS that make it easy to deploy TypeScr
 
 Current status:
 - **Dev**
-- *Alpha*
-- *Beta*
-- *General Availability*
+- ~Alpha~
+- ~Beta~
+- ~General Availability~
 
 ## Packages
 
