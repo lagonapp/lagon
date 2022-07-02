@@ -5,7 +5,7 @@ import { clearCache, Deployment, getIsolate, HandlerRequest } from '@lagon/runti
 import Fastify from 'fastify';
 import { bundleFunction } from '../utils/deployments';
 import chalk from 'chalk';
-import { getAssetsDir, getFileToDeploy } from '../utils';
+import { getAssetsDir, getEnvironmentVariables, getFileToDeploy } from '../utils';
 
 const fastify = Fastify({
   logger: false,
@@ -26,6 +26,12 @@ const extensionToContentType = {
   '.otf': 'application/font-otf',
 };
 
+const dateFormatter = Intl.DateTimeFormat('en-US', {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+});
+
 export async function dev(file: string, { preact, publicDir }: { preact: boolean; publicDir: string }) {
   const fileToDeploy = getFileToDeploy(file);
 
@@ -38,6 +44,7 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
   if (!assetsDir) {
     return;
   }
+
   let { code, assets } = await bundleFunction(fileToDeploy, preact, assetsDir);
 
   const watcher = fs.watch(path.parse(fileToDeploy).dir, async eventType => {
@@ -62,8 +69,7 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
     isCurrent: true,
     memory: 128,
     timeout: 50,
-    // TODO: env
-    env: {},
+    env: getEnvironmentVariables(fileToDeploy),
     domains: [],
     assets: assets.map(({ name }) => name),
   };
@@ -80,12 +86,6 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
       reply.code(204);
       return;
     }
-
-    const dateFormatter = Intl.DateTimeFormat('en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    });
 
     console.log(chalk.gray(dateFormatter.format(new Date())) + ' ' + chalk.blue(request.method) + ' ' + request.url);
 
@@ -107,7 +107,18 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
         deployment,
         getDeploymentCode: async () => code,
         onDeploymentLog: ({ log }) => {
-          console.log(log.level, log.content);
+          const color =
+            log.level === 'debug'
+              ? chalk.black
+              : log.level === 'error'
+              ? chalk.red
+              : log.level === 'info'
+              ? chalk.blue
+              : log.level === 'log'
+              ? chalk.gray
+              : chalk.yellow;
+
+          console.log(`            ${color(log.level)} ${log.content}`);
         },
       });
 
