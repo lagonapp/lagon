@@ -12,6 +12,10 @@
       lagon.app
     </a>
     <br />
+    <a align="center" href="https://tally.so/r/n9q1Rp">
+      ✉️ Get email updates
+    </a>
+    <br />
     <br />
     Open Source • TypeScript • Web APIs
     <br />
