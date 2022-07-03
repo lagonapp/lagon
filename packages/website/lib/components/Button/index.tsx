@@ -41,10 +41,12 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
       },
       {
         variant: {
-          primary: 'bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white border border-blue-700 shadow-blue-100',
+          primary:
+            'bg-blue-500 hover:bg-blue-600 active:bg-blue-700 text-white border border-blue-700 shadow-blue-100 dark:shadow-blue-900',
           secondary:
-            'bg-stone-50 hover:bg-stone-100 active:bg-stone-200 text-stone-800 border border-stone-300 shadow-stone-100',
-          danger: 'bg-red-500 hover:bg-red-600 active:bg-red-700 text-white border border-red-700 shadow-red-100',
+            'bg-stone-50 hover:bg-stone-100 active:bg-stone-200 text-stone-800 border border-stone-300 shadow-stone-100 dark:bg-stone-900 dark:hover:bg-stone-800 dark:active:bg-stone-700 dark:text-stone-200 dark:border-stone-600 dark:shadow-stone-900',
+          danger:
+            'bg-red-500 hover:bg-red-600 active:bg-red-700 text-white border border-red-700 shadow-red-100 dark:shadow-red-900',
         },
         size: {
           sm: 'px-2 py-1 rounded text-xs',

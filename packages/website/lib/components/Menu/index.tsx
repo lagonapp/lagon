@@ -33,7 +33,7 @@ type MenuItemsProps = {
 const MenuItems = ({ children, ...props }: MenuItemsProps) => {
   return (
     <HeadlessMenu.Items
-      className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg shadow-stone-200 focus:outline-none p-2 z-10"
+      className="absolute right-0 mt-2 w-56 origin-top-right rounded-md bg-white dark:bg-black shadow-lg shadow-stone-200 dark:shadow-stone-700 focus:outline-none p-2 z-10"
       {...props}
     >
       {children}
@@ -62,9 +62,9 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
               event.preventDefault();
               router.push(href);
             }}
-            className={`${active ? 'bg-stone-100' : ''} ${
+            className={`${active ? 'bg-stone-100 dark:bg-stone-800' : ''} ${
               disabled ? 'cursor-not-allowed opacity-50' : ''
-            } select-none text-sm text-stone-800 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
+            } select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
           >
             {icon}
             {children}
@@ -80,9 +80,9 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
         <button
           type="button"
           onClick={onClick}
-          className={`${active ? 'bg-stone-100' : ''} ${
+          className={`${active ? 'bg-stone-100 dark:bg-stone-800' : ''} ${
             disabled ? 'cursor-not-allowed opacity-50' : ''
-          } select-none text-sm text-stone-800 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
+          } select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
         >
           {icon}
           {children}

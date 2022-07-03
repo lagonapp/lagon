@@ -22,11 +22,16 @@ type HeaderLinkProps = {
 };
 
 const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
-  const styles = useMemo(() => (selected ? 'text-stone-800' : 'text-stone-500'), [selected]);
+  const styles = useMemo(
+    () => (selected ? 'text-stone-800 dark:text-stone-200' : 'text-stone-500 dark:text-stone-400'),
+    [selected],
+  );
 
   return (
     <Link href={href}>
-      <a className={`${styles} select-none transition text-md hover:text-stone-800`}>{children}</a>
+      <a className={`${styles} select-none transition text-md hover:text-stone-800 dark:hover:text-stone-200`}>
+        {children}
+      </a>
     </Link>
   );
 };
@@ -96,13 +101,17 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
       </Head>
       {session?.organization || asPath === '/new' ? (
         <>
-          <div className="py-4 h-16 w-full border-b border-b-stone-200">
+          <div className="py-4 h-16 w-full bg-white dark:bg-stone-900 border-b border-b-stone-200 dark:border-b-stone-700">
             <div className="flex justify-between mx-auto px-4 md:max-w-4xl">
               <div className="flex gap-6 items-center">
                 <Link href="/">
                   <a>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/icon-black.png" alt="Lagon logo" className="h-6 w-6" />
+                    <img
+                      src={`/icon-${theme === 'dark' ? 'white' : 'black'}.png`}
+                      alt="Lagon logo"
+                      className="h-6 w-6"
+                    />
                   </a>
                 </Link>
                 <HeaderLink href="/" selected={asPath === '/' || asPath.startsWith('/functions')}>
@@ -139,7 +148,7 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
               ) : null}
             </div>
           </div>
-          <div className="bg-stone-50 min-h-screen">
+          <div className="bg-stone-50 dark:bg-stone-800 min-h-screen">
             {headerOnly ? (
               children
             ) : (

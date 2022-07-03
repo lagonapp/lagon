@@ -42,17 +42,20 @@ const TagsInput = ({ name, placeholder, disabled, validator }: TagsInputProps) =
         <div className="flex flex-col gap-2">
           <div
             onClick={onClick}
-            className={`${styles} px-1.5 py-0.5 flex items-center rounded-md border border-stone-300 focus-within:outline-1 focus-within:outline-blue-500 focus-within:outline-offset-2`}
+            className={`${styles} bg-white dark:bg-stone-900 px-1.5 py-0.5 flex items-center rounded-md border border-stone-300 dark:border-stone-600 focus-within:outline-1 focus-within:outline-blue-500 focus-within:outline-offset-2`}
           >
             {tags.map(tag => (
-              <span key={tag} className="text-xs px-1 py-0.5 rounded bg-stone-200 mr-1 inline-flex items-center gap-1">
+              <span
+                key={tag}
+                className="text-xs px-1 py-0.5 rounded text-stone-800 dark:text-stone-200 bg-stone-200 dark:bg-stone-700 mr-1 inline-flex items-center gap-1"
+              >
                 {tag}
                 <button
                   type="button"
                   onClick={() => {
                     setTags(tags.filter(currentTag => currentTag !== tag));
                   }}
-                  className="text-stone-600 hover:text-stone-800"
+                  className="text-stone-600 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
                 >
                   <XIcon className="w-3 h-3" />
                 </button>
@@ -96,7 +99,7 @@ const TagsInput = ({ name, placeholder, disabled, validator }: TagsInputProps) =
               placeholder={placeholder}
               disabled={disabled}
               aria-disabled={disabled}
-              className="text-sm text-stone-800 py-0.5 focus-visible:outline-none"
+              className="bg-white dark:bg-stone-900 text-sm text-stone-800 dark:text-stone-200 py-0.5 focus-visible:outline-none"
             />
           </div>
           {meta.touched && error ? <Text error>{error}</Text> : null}
