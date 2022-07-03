@@ -44,7 +44,7 @@ export async function createDeployment(
 
   await s3.send(
     new PutObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET,
+      Bucket: process.env.S3_BUCKET,
       Key: `${deployment.id}.js`,
       Body: code,
     }),
@@ -53,7 +53,7 @@ export async function createDeployment(
   for (const asset of assets) {
     await s3.send(
       new PutObjectCommand({
-        Bucket: process.env.AWS_S3_BUCKET,
+        Bucket: process.env.S3_BUCKET,
         Key: `${deployment.id}/${asset.name}`,
         Body: asset.content,
       }),
@@ -112,7 +112,7 @@ export async function removeDeployment(
 
   await s3.send(
     new DeleteObjectCommand({
-      Bucket: process.env.AWS_S3_BUCKET,
+      Bucket: process.env.S3_BUCKET,
       Key: `${deployment.id}.js`,
     }),
   );
@@ -120,7 +120,7 @@ export async function removeDeployment(
   if (deployment.assets.length > 0) {
     await s3.send(
       new DeleteObjectsCommand({
-        Bucket: process.env.AWS_S3_BUCKET,
+        Bucket: process.env.S3_BUCKET,
         Delete: {
           Objects: deployment.assets.map(asset => ({
             Key: `${deployment.id}/${asset}`,
