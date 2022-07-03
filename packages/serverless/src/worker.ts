@@ -76,6 +76,9 @@ export default function worker() {
   const port = Number(process.env.LAGON_PORT || 4000);
   const host = process.env.LAGON_HOST || '127.0.0.1';
 
+  // Send a message to receive `deployments` message back
+  process.send?.('ok');
+
   process.on('message', message => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
