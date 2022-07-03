@@ -3,7 +3,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ComponentProps, ReactElement, ReactNode, Suspense, useCallback, useMemo } from 'react';
 import Button from 'lib/components/Button';
-import { ChevronDownIcon, CogIcon, LogoutIcon, PlusIcon, UserIcon } from '@heroicons/react/outline';
+import {
+  ChevronDownIcon,
+  CogIcon,
+  DesktopComputerIcon,
+  LogoutIcon,
+  MoonIcon,
+  PlusIcon,
+  SunIcon,
+  UserIcon,
+} from '@heroicons/react/outline';
 import Menu from 'lib/components/Menu';
 import Divider from 'lib/components/Divider';
 import Text from 'lib/components/Text';
@@ -87,7 +96,7 @@ type LayoutProps = {
 const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutProps) => {
   const { data: session } = useSession();
   const { asPath } = useRouter();
-  const { theme, updateTheme } = useTheme();
+  const { theme, savedTheme, updateTheme } = useTheme();
 
   return (
     <>
@@ -136,6 +145,34 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
                     <Menu.Item icon={<CogIcon className="w-4 h-4" />} href="/settings">
                       Settings
                     </Menu.Item>
+                    <Menu>
+                      <Menu.Button>
+                        <Menu.Item icon={<SunIcon className="w-4 h-4" />}>Theme</Menu.Item>
+                      </Menu.Button>
+                      <Menu.Items>
+                        <Menu.Item
+                          icon={<SunIcon className="w-4 h-4" />}
+                          disabled={savedTheme === 'Light'}
+                          onClick={() => updateTheme('Light')}
+                        >
+                          Light
+                        </Menu.Item>
+                        <Menu.Item
+                          icon={<MoonIcon className="w-4 h-4" />}
+                          disabled={savedTheme === 'Dark'}
+                          onClick={() => updateTheme('Dark')}
+                        >
+                          Dark
+                        </Menu.Item>
+                        <Menu.Item
+                          icon={<DesktopComputerIcon className="w-4 h-4" />}
+                          disabled={savedTheme === 'System'}
+                          onClick={() => updateTheme('System')}
+                        >
+                          System
+                        </Menu.Item>
+                      </Menu.Items>
+                    </Menu>
                     <Divider />
                     <Menu.Item icon={<UserIcon className="w-4 h-4" />} href="/profile">
                       Profile

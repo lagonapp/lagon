@@ -39,6 +39,7 @@ const useTheme = () => {
 
   return {
     theme,
+    savedTheme,
     updateTheme,
   };
 };
