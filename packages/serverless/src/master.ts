@@ -15,8 +15,6 @@ import {
 const IS_DEV = process.env.NODE_ENV !== 'production';
 const CPUS = cpus().length / 2;
 
-let onlineWorkers = 0;
-
 async function streamToString(stream: Readable): Promise<string> {
   return await new Promise((resolve, reject) => {
     const chunks: Uint8Array[] = [];
@@ -43,26 +41,22 @@ export default async function master() {
   }
 
   for (let i = 0; i < desiredWorkers; i++) {
-    cluster.fork().on('online', () => onlineWorkers++);
+    const worker = cluster.fork();
+
+    worker.on('message', () => {
+      worker.send({ msg: 'deployments', data: deployments });
+    });
   }
 
   cluster.on('exit', worker => {
-    onlineWorkers--;
-
-    console.log(`worker ${worker.process.pid} died`);
+    console.log(`Worker ${worker.process.pid} died`);
 
     const newWorker = cluster.fork();
 
-    newWorker.on('online', () => {
-      onlineWorkers++;
+    newWorker.on('message', () => {
       newWorker.send({ msg: 'deployments', data: deployments });
     });
   });
-
-  while (onlineWorkers < desiredWorkers) {
-    console.log('Waiting for workers to come online...');
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
 
   const redis = createClient({
     url: process.env.REDIS_URL,
@@ -111,10 +105,6 @@ export default async function master() {
         writeAssetContent(asset.Key as string, assetContent);
       }
     }
-  }
-
-  for (const i in cluster.workers) {
-    cluster.workers[i]?.send({ msg: 'deployments', data: deployments });
   }
 
   await redis.subscribe('deploy', async message => {
