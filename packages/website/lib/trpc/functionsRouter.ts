@@ -3,11 +3,13 @@ import prisma from 'lib/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { LogLevel, LOG_LEVELS, TIMEFRAMES } from 'lib/types';
 import { ClickHouse } from 'clickhouse';
-import { createDeployment, getDeploymentCode, removeDeployment } from 'lib/api/deployments';
+import { getDeploymentCode, removeDeployment } from 'lib/api/deployments';
 import { DEFAULT_MEMORY, DEFAULT_TIMEOUT, FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
 import * as trpc from '@trpc/server';
 
-const clickhouse = new ClickHouse({});
+const clickhouse = new ClickHouse({
+  url: process.env.CLICKHOUSE_URL,
+});
 
 export const functionsRouter = () =>
   createRouter()

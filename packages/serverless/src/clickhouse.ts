@@ -2,7 +2,10 @@ import { workerData } from 'node:worker_threads';
 import { ClickHouse } from 'clickhouse';
 import { DeploymentResult } from '@lagon/runtime';
 
-const clickhouse = new ClickHouse({});
+const clickhouse = new ClickHouse({
+  url: process.env.CLICKHOUSE_URL,
+});
+
 const deploymentsResult: Map<[string, string], DeploymentResult[]> = workerData;
 
 let functionsResultQuery =

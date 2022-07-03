@@ -9,7 +9,9 @@ import prisma from 'lib/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 
-const clickhouse = new ClickHouse({});
+const clickhouse = new ClickHouse({
+  url: process.env.CLICKHOUSE_URL,
+});
 
 export const organizationsRouter = () =>
   createRouter()
