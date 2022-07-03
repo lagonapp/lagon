@@ -1,6 +1,6 @@
 import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { Deployment, fetch } from '@lagon/runtime';
-import cluster from 'cluster';
+import cluster from 'node:cluster';
 import { cpus } from 'node:os';
 import { Readable } from 'node:stream';
 import { createClient } from 'redis';
