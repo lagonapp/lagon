@@ -12,8 +12,8 @@ import Dot from 'lib/components/Dot';
 import useOrganizations from './hooks/useOrganizations';
 import EmptyState from './components/EmptyState';
 import { trpc } from './trpc';
-import useSystemTheme from './hooks/useSystemTheme';
 import { reloadSession } from './utils';
+import useTheme from './hooks/useTheme';
 
 type HeaderLinkProps = {
   href: string;
@@ -87,13 +87,13 @@ type LayoutProps = {
 const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutProps) => {
   const { data: session } = useSession();
   const { asPath } = useRouter();
-  const theme = useSystemTheme();
+  const { theme, updateTheme } = useTheme();
 
   return (
     <>
       <Head>
         <title>{title} - Lagon</title>
-        {theme === 'dark' ? (
+        {theme === 'Dark' ? (
           <link rel="icon" href="/favicon-white.ico" />
         ) : (
           <link rel="icon" href="/favicon-black.ico" />
@@ -108,7 +108,7 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
                   <a>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={`/icon-${theme === 'dark' ? 'white' : 'black'}.png`}
+                      src={`/icon-${theme === 'Dark' ? 'white' : 'black'}.png`}
                       alt="Lagon logo"
                       className="h-6 w-6"
                     />
