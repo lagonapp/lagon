@@ -4,7 +4,7 @@ Thanks for wanting to contribute to this project! You'll find below some guides 
 
 ## Found a bug?
 
-Please open an [issue](https://github.com/lagonapp/serverless/issues/new) and fill in the "Bug report" template.
+Please open an [issue](https://github.com/lagonapp/lagon/issues/new) and fill in the "Bug report" template.
 
 ## Coding guidelines
 
