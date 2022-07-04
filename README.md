@@ -43,11 +43,12 @@ Current status:
 
 ## Packages
 
+- **[cli](./packages/cli)** CLI to deploy functions
+- **[prisma](./packages/prisma)** Prisma Client schema and migrations
 - **[runtime](./packages/runtime)** Runtime used to run functions inside V8 Isolates
 - **[serverless](./packages/serverless)** Entrypoint for all functions, using the runtime and exporting metrics
-- **[website](./packages/website)** Dashboard and API
-- **[cli](./packages/cli)** CLI to deploy functions
 - **[types](./packages/types)** Types of the runtime used when creating functions
+- **[website](./packages/website)** Dashboard and API
 - **[www](./www)** Public website
 
 ## Planned features

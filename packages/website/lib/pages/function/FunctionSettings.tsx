@@ -152,7 +152,14 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           await updateFunction.mutateAsync({
             functionId: func.id,
             ...func,
-            env,
+            env: (env as string[]).map(currentEnv => {
+              const [key, value] = currentEnv.split('=');
+
+              return {
+                key,
+                value,
+              };
+            }),
           });
 
           await refetch();
@@ -188,11 +195,9 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                   Add
                 </Button>
               </div>
-              {values.env.map((env: string) => {
-                const [key] = env.split('=');
-
+              {values.env.map(({ key }: { key: string }) => {
                 return (
-                  <div key={env} className="flex gap-2 items-center">
+                  <div key={key} className="flex gap-2 items-center">
                     <Input name={`${key}-key`} placeholder={key} disabled />
                     <Input name={`${key}-value`} placeholder="*******" disabled />
                     <Button
@@ -200,7 +205,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                       onClick={() => {
                         form.change(
                           'env',
-                          values.env.filter((currentEnv: string) => env !== currentEnv),
+                          values.env.filter(({ key: currentKey }: { key: string }) => key !== currentKey),
                         );
                       }}
                     >

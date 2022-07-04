@@ -31,7 +31,16 @@ type FunctionOverviewProps = {
 const FunctionOverview = ({ func }: FunctionOverviewProps) => {
   const router = useRouter();
   const [timeframe, setTimeframe] = useState<Timeframe>(() => (router.query.timeframe as Timeframe) || 'Last 24 hours');
-  const { data: stats = [] } = useFunctionStats({ functionId: func.id, timeframe });
+  const { data: stats = [] } = useFunctionStats({ functionId: func.id, timeframe }) as {
+    data: {
+      createdAt: Date;
+      memory: number;
+      requests: number;
+      cpuTime: number;
+      receivedBytes: number;
+      sendBytes: number;
+    }[];
+  };
 
   const { labels, values } = useMemo(() => {
     const result = {
@@ -52,7 +61,6 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
       for (let i = 24 - 1; i >= 0; i--) {
         const date = new Date();
         date.setHours(date.getHours() - i);
-        date.setHours(date.getHours() + date.getTimezoneOffset() / 60);
 
         result.labels.push(
           date.toLocaleString('en-US', {
@@ -60,17 +68,18 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           }),
         );
 
-        const stat = stats.find(
+        const stat = stats.filter(
           stat =>
-            new Date(stat.date).getHours() === date.getHours() && new Date(stat.date).getDate() === date.getDate(),
+            new Date(stat.createdAt).getHours() === date.getHours() &&
+            new Date(stat.createdAt).getDate() === date.getDate(),
         );
 
         result.values.push({
-          requests: stat?.requests || 0,
-          memory: stat?.memory || 0,
-          cpu: stat?.cpu || 0,
-          receivedBytes: stat?.receivedBytes || 0,
-          sendBytes: stat?.sendBytes || 0,
+          requests: stat.reduce((acc, current) => acc + current.requests, 0),
+          memory: stat.reduce((acc, current) => acc + current.memory, 0) / stat.length || 0,
+          cpu: stat.reduce((acc, current) => acc + current.cpuTime, 0) / stat.length || 0,
+          receivedBytes: stat.reduce((acc, current) => acc + current.receivedBytes, 0) / stat.length || 0,
+          sendBytes: stat.reduce((acc, current) => acc + current.sendBytes, 0) / stat.length || 0,
         });
       }
     } else {
@@ -79,7 +88,6 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
       for (let i = daysInTimeframe - 1; i >= 0; i--) {
         const date = new Date();
         date.setDate(date.getDate() - i);
-        date.setHours(date.getHours() + date.getTimezoneOffset() / 60);
 
         result.labels.push(
           date.toLocaleString('en-US', {
@@ -88,17 +96,18 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           }),
         );
 
-        const stat = stats.find(
+        const stat = stats.filter(
           stat =>
-            new Date(stat.date).getDate() === date.getDate() && new Date(stat.date).getMonth() === date.getMonth(),
+            new Date(stat.createdAt).getDate() === date.getDate() &&
+            new Date(stat.createdAt).getMonth() === date.getMonth(),
         );
 
         result.values.push({
-          requests: stat?.requests || 0,
-          memory: stat?.memory || 0,
-          cpu: stat?.cpu || 0,
-          receivedBytes: stat?.receivedBytes || 0,
-          sendBytes: stat?.sendBytes || 0,
+          requests: stat.reduce((acc, current) => acc + current.requests, 0),
+          memory: stat.reduce((acc, current) => acc + current.memory, 0) / stat.length || 0,
+          cpu: stat.reduce((acc, current) => acc + current.cpuTime, 0) / stat.length || 0,
+          receivedBytes: stat.reduce((acc, current) => acc + current.receivedBytes, 0) / stat.length || 0,
+          sendBytes: stat.reduce((acc, current) => acc + current.sendBytes, 0) / stat.length || 0,
         });
       }
     }
@@ -142,7 +151,8 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
               {stats.reduce((acc, current) => acc + current.requests, 0)}
             </Description>
             <Description title="CPU time" total={`${func.timeout}ms`}>
-              {stats.length > 0 ? formatNs(stats.reduce((acc, current) => acc + current.cpu, 0) / stats.length) : 0}ms
+              {stats.length > 0 ? formatNs(stats.reduce((acc, current) => acc + current.cpuTime, 0) / stats.length) : 0}
+              ms
             </Description>
             <Description title="Memory" total={`${func.memory} MB`}>
               {stats.length > 0

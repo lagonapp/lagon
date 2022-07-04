@@ -9,31 +9,16 @@ services:
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis:/data
-  postgres:
-    image: postgres
-    container_name: postgres
+  mysql:
+    image: mariadb
+    container_name: mysql
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - MYSQL_ROOT_PASSWORD=mysql
     ports:
-      - 5432:5432
+      - 3306:3306
     volumes:
-      - postgres:/var/lib/postgresql/data
-  clickhouse:
-    image: yandex/clickhouse-server
-    container_name: clickhouse
-    restart: always
-    ulimits:
-      nofile:
-        soft: 262144
-        hard: 262144
-    ports:
-      - 9000:9000
-      - 8123:8123
-    volumes:
-      - clickhouse:/var/lib/clickhouse
+      - mysql:/var/lib/mysql
 volumes:
   redis:
-  postgres:
-  clickhouse:
+  mysql:

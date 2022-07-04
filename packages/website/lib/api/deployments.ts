@@ -1,7 +1,7 @@
 import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import redis from 'lib/redis';
 import s3 from 'lib/s3';
-import prisma from 'lib/prisma';
+import prisma from '@lagon/prisma';
 import { envStringToObject } from 'lib/api/env';
 import { Readable } from 'node:stream';
 import * as trpc from '@trpc/server';
@@ -13,7 +13,7 @@ export async function createDeployment(
     domains: string[];
     memory: number;
     timeout: number;
-    env: string[];
+    env: { key: string; value: string }[];
   },
   code: string,
   assets: { name: string; content: string }[],
@@ -28,7 +28,13 @@ export async function createDeployment(
   const deployment = await prisma.deployment.create({
     data: {
       isCurrent: true,
-      assets: assets.map(({ name }) => name),
+      assets: {
+        createMany: {
+          data: assets.map(({ name }) => ({
+            name: name,
+          })),
+        },
+      },
       functionId: func.id,
       triggerer,
     },
@@ -85,7 +91,7 @@ export async function removeDeployment(
     domains: string[];
     memory: number;
     timeout: number;
-    env: string[];
+    env: { key: string; value: string }[];
   },
   deploymentId: string,
 ): Promise<{
@@ -106,7 +112,11 @@ export async function removeDeployment(
       updatedAt: true,
       functionId: true,
       isCurrent: true,
-      assets: true,
+      assets: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
 
@@ -145,7 +155,10 @@ export async function removeDeployment(
     }),
   );
 
-  return deployment;
+  return {
+    ...deployment,
+    assets: deployment.assets.map(asset => asset.name),
+  };
 }
 
 export async function removeCurrentDeployment(functionId: string): Promise<{
@@ -200,7 +213,12 @@ export async function setCurrentDeployment(
       domains: true,
       memory: true,
       timeout: true,
-      env: true,
+      env: {
+        select: {
+          key: true,
+          value: true,
+        },
+      },
     },
   });
 
@@ -224,7 +242,11 @@ export async function setCurrentDeployment(
       createdAt: true,
       updatedAt: true,
       isCurrent: true,
-      assets: true,
+      assets: {
+        select: {
+          name: true,
+        },
+      },
     },
   });
 
@@ -244,7 +266,10 @@ export async function setCurrentDeployment(
     }),
   );
 
-  return deployment;
+  return {
+    ...deployment,
+    assets: deployment.assets.map(asset => asset.name),
+  };
 }
 
 async function streamToString(stream: Readable): Promise<string> {

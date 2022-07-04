@@ -1,5 +1,5 @@
 import { removeDeployment, setCurrentDeployment } from 'lib/api/deployments';
-import prisma from 'lib/prisma';
+import prisma from '@lagon/prisma';
 import * as trpc from '@trpc/server';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
@@ -30,10 +30,19 @@ export const deploymentsRouter = () =>
           select: {
             id: true,
             name: true,
-            domains: true,
+            domains: {
+              select: {
+                domain: true,
+              },
+            },
             memory: true,
             timeout: true,
-            env: true,
+            env: {
+              select: {
+                key: true,
+                value: true,
+              },
+            },
           },
         });
 
@@ -43,6 +52,12 @@ export const deploymentsRouter = () =>
           });
         }
 
-        return removeDeployment(func, input.deploymentId);
+        return removeDeployment(
+          {
+            ...func,
+            domains: func.domains.map(({ domain }) => domain),
+          },
+          input.deploymentId,
+        );
       },
     });

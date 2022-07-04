@@ -8,8 +8,8 @@ const lastRequests = new Map<string, Date>();
 
 let lastBatch: number;
 
-function sendResultsToClickhouse() {
-  new Worker('./dist/clickhouse.js', {
+function sendResultsToDb() {
+  new Worker('./dist/exporter.js', {
     workerData: deploymentsResult,
   });
 
@@ -54,12 +54,12 @@ export function addDeploymentResult({
 
   if (!lastBatch) {
     lastBatch = Date.now();
-    sendResultsToClickhouse();
+    sendResultsToDb();
   }
 
   if (Date.now() - lastBatch > 1000) {
     lastBatch = Date.now();
-    sendResultsToClickhouse();
+    sendResultsToDb();
   }
 }
 
