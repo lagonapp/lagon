@@ -6,7 +6,9 @@
   },
   "plugins": ["@typescript-eslint"],
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:prettier/recommended"],
-  "rules": {},
+  "rules": {
+    "@typescript-eslint/no-var-requires": "off"
+  },
   "env": {
     "browser": true,
     "es2021": true
