@@ -1,15 +1,10 @@
 import { z } from 'zod';
 import prisma from '@lagon/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
-import { LogLevel, LOG_LEVELS, TIMEFRAMES } from 'lib/types';
-import { ClickHouse } from 'clickhouse';
+import { LOG_LEVELS, TIMEFRAMES } from 'lib/types';
 import { getDeploymentCode, removeDeployment } from 'lib/api/deployments';
 import { DEFAULT_MEMORY, DEFAULT_TIMEOUT, FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
 import * as trpc from '@trpc/server';
-
-const clickhouse = new ClickHouse({
-  url: process.env.CLICKHOUSE_URL,
-});
 
 export const functionsRouter = () =>
   createRouter()
@@ -126,31 +121,26 @@ export const functionsRouter = () =>
         timeframe: z.enum(TIMEFRAMES),
       }),
       resolve: async ({ input }) => {
-        if (input.timeframe === 'Last 24 hours') {
-          return (await clickhouse
-            .query(
-              `select * from logs where functionId='${input.functionId}' ${
-                input.logLevel === 'all' ? '' : `and level='${input.logLevel}'`
-              } and date >= subtractHours(now(), 24) order by date desc;`,
-            )
-            .toPromise()) as {
-            date: string;
-            level: LogLevel;
-            message: string;
-          }[];
-        } else {
-          return (await clickhouse
-            .query(
-              `select * from logs where functionId='${input.functionId}' ${
-                input.logLevel === 'all' ? '' : `and level='${input.logLevel}'`
-              } and date >= subtractDays(now(), ${input.timeframe === 'Last 30 days' ? 30 : 7}) order by date desc;`,
-            )
-            .toPromise()) as {
-            date: string;
-            level: LogLevel;
-            message: string;
-          }[];
-        }
+        return prisma.log.findMany({
+          where: {
+            functionId: input.functionId,
+            createdAt: {
+              gte: new Date(
+                new Date().getTime() -
+                  (input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 30 days' ? 30 : 7) *
+                    24 *
+                    60 *
+                    60 *
+                    1000,
+              ),
+            },
+          },
+          select: {
+            createdAt: true,
+            level: true,
+            message: true,
+          },
+        });
       },
     })
     .query('code', {
@@ -185,45 +175,29 @@ export const functionsRouter = () =>
         timeframe: z.enum(TIMEFRAMES),
       }),
       resolve: async ({ input }) => {
-        if (input.timeframe === 'Last 24 hours') {
-          const result = (await clickhouse
-            .query(
-              `select toStartOfHour(date), sum(requests), avg(memory), avg(cpuTime), sum(receivedBytes), sum(sendBytes) from functions_result where functionId='${input.functionId}' and date >= subtractHours(now(), 24) group by toStartOfHour(date)`,
-            )
-            .toPromise()) as Record<string, number>[];
-
-          return result.map(record => {
-            return {
-              date: record['toStartOfHour(date)'],
-              requests: record['sum(requests)'],
-              memory: record['avg(memory)'],
-              cpu: record['avg(cpuTime)'],
-              receivedBytes: record['sum(receivedBytes)'],
-              sendBytes: record['sum(sendBytes)'],
-            };
-          });
-        } else {
-          const result = (await clickhouse
-            .query(
-              `select toStartOfDay(date), sum(requests), avg(memory), avg(cpuTime), sum(receivedBytes), sum(sendBytes) from functions_result where functionId='${
-                input.functionId
-              }' and date >= subtractDays(now(), ${
-                input.timeframe === 'Last 30 days' ? 30 : 7
-              }) group by toStartOfDay(date)`,
-            )
-            .toPromise()) as Record<string, number>[];
-
-          return result.map(record => {
-            return {
-              date: record['toStartOfDay(date)'],
-              requests: record['sum(requests)'],
-              memory: record['avg(memory)'],
-              cpu: record['avg(cpuTime)'],
-              receivedBytes: record['sum(receivedBytes)'],
-              sendBytes: record['sum(sendBytes)'],
-            };
-          });
-        }
+        return prisma.stat.findMany({
+          where: {
+            functionId: input.functionId,
+            createdAt: {
+              gte: new Date(
+                new Date().getTime() -
+                  (input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 30 days' ? 30 : 7) *
+                    24 *
+                    60 *
+                    60 *
+                    1000,
+              ),
+            },
+          },
+          select: {
+            createdAt: true,
+            requests: true,
+            memory: true,
+            cpuTime: true,
+            receivedBytes: true,
+            sendBytes: true,
+          },
+        });
       },
     })
     .mutation('create', {
@@ -413,8 +387,17 @@ export const functionsRouter = () =>
           );
         }
 
-        await clickhouse.query(`alter table functions_result delete where functionId='${func.id}'`).toPromise();
-        await clickhouse.query(`alter table logs delete where functionId='${func.id}'`).toPromise();
+        await prisma.stat.deleteMany({
+          where: {
+            functionId: func.id,
+          },
+        });
+
+        await prisma.log.deleteMany({
+          where: {
+            functionId: func.id,
+          },
+        });
 
         await prisma.function.delete({
           where: {

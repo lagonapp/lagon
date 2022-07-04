@@ -19,20 +19,6 @@ services:
       - 3306:3306
     volumes:
       - mysql:/var/lib/mysql
-  clickhouse:
-    image: yandex/clickhouse-server
-    container_name: clickhouse
-    restart: always
-    ulimits:
-      nofile:
-        soft: 262144
-        hard: 262144
-    ports:
-      - 9000:9000
-      - 8123:8123
-    volumes:
-      - clickhouse:/var/lib/clickhouse
 volumes:
   redis:
   mysql:
-  clickhouse:

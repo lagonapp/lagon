@@ -1,4 +1,3 @@
-import { ClickHouse } from 'clickhouse';
 import { removeDeployment } from 'lib/api/deployments';
 import {
   ORGANIZATION_DESCRIPTION_MAX_LENGTH,
@@ -8,10 +7,6 @@ import {
 import prisma from '@lagon/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
-
-const clickhouse = new ClickHouse({
-  url: process.env.CLICKHOUSE_URL,
-});
 
 export const organizationsRouter = () =>
   createRouter()
@@ -141,8 +136,17 @@ export const organizationsRouter = () =>
             );
           }
 
-          await clickhouse.query(`alter table functions_result delete where functionId='${func.id}'`).toPromise();
-          await clickhouse.query(`alter table logs delete where functionId='${func.id}'`).toPromise();
+          await prisma.stat.deleteMany({
+            where: {
+              functionId: func.id,
+            },
+          });
+
+          await prisma.log.deleteMany({
+            where: {
+              functionId: func.id,
+            },
+          });
         }
 
         await prisma.organization.delete({

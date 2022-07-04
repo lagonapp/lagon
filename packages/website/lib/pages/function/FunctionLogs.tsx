@@ -32,11 +32,18 @@ const Content = ({ func, logLevel, timeframe }: ContentProps) => {
 
   return (
     <div className="flex flex-col">
-      {logs?.map(({ date, level, message }, index) => {
-        const finalDate = new Date(date);
+      {logs?.map(({ createdAt, level, message }, index) => {
+        const finalDate = new Date(createdAt);
         finalDate.setHours(finalDate.getHours() - finalDate.getTimezoneOffset() / 60);
 
-        return <LogLine key={`${date}-${index}`} date={finalDate} level={level} message={message} />;
+        return (
+          <LogLine
+            key={`${createdAt}-${index}`}
+            date={finalDate}
+            level={level.toLowerCase() as LogLevel}
+            message={message}
+          />
+        );
       })}
     </div>
   );

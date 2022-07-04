@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook",
-    "clickhouse": "node scripts/clickhouse.mjs"
+    "build-storybook": "build-storybook"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.100.0",
@@ -27,7 +26,6 @@
     "@trpc/react": "^9.25.3",
     "@trpc/server": "^9.25.3",
     "chart.js": "^3.8.0",
-    "clickhouse": "^2.5.0",
     "cron-parser": "^4.4.0",
     "final-form": "^4.20.7",
     "formidable": "^2.0.1",

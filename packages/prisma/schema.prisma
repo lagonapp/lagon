@@ -89,6 +89,8 @@ model Function {
   organizationId String
 
   deployments Deployment[]
+  stats Stat[]
+  logs Log[]
 }
 
 model Domain {
@@ -127,6 +129,9 @@ model Deployment {
 
   triggerer String  @default("Lagon")
   commit    String?
+
+  stats Stat[]
+  logs Log[]
 }
 
 model Asset {
@@ -150,4 +155,45 @@ model Token {
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
+}
+
+model Stat {
+  id     String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  function Function @relation(fields: [functionId], references: [id])
+  functionId String
+
+  deployment Deployment @relation(fields: [deploymentId], references: [id])
+  deploymentId String
+
+  cpuTime Int
+  memory Int
+  sendBytes Int
+  receivedBytes Int
+  requests Int
+}
+
+enum LogLevel {
+  LOG
+  ERROR
+  INFO
+  WARN
+  DEBUG
+}
+
+model Log {
+  id     String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  function Function @relation(fields: [functionId], references: [id])
+  functionId String
+
+  deployment Deployment @relation(fields: [deploymentId], references: [id])
+  deploymentId String
+
+  level LogLevel
+  message String
 }
