@@ -6,11 +6,11 @@ const useTheme = () => {
   const systemTheme = useSystemTheme();
   const [theme, setTheme] = useState<Theme>(() => systemTheme);
   const [savedTheme, setSavedTheme] = useState<ThemeOption>(() => {
-    let localStorageTheme = localStorage.getItem('theme') as Theme | null;
+    let localStorageTheme = localStorage.getItem('theme') as ThemeOption | null;
 
     if (!localStorageTheme) {
-      localStorageTheme = 'Dark';
-      localStorage.setItem('theme', savedTheme);
+      localStorageTheme = 'System';
+      localStorage.setItem('theme', localStorageTheme);
     }
 
     return localStorageTheme;
