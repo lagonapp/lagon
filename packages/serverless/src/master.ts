@@ -1,5 +1,5 @@
 import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
-import { Deployment, fetch } from '@lagon/runtime';
+import prisma from '@lagon/prisma';
 import cluster from 'node:cluster';
 import { cpus } from 'node:os';
 import { Readable } from 'node:stream';
@@ -24,21 +24,67 @@ async function streamToString(stream: Readable): Promise<string> {
   });
 }
 
+function envStringToObject(env: { key: string; value: string }[]): Record<string, string> {
+  return env.reduce((acc, { key, value }) => {
+    return {
+      ...acc,
+      [key]: value,
+    };
+  }, {});
+}
+
 export default async function master() {
   const desiredWorkers = IS_DEV ? 1 : CPUS;
-  let deployments: Deployment[] = [];
 
-  try {
-    const response = await fetch(`${process.env.LAGON_API_URL}/deployments`, {
-      headers: {
-        'x-lagon-token': process.env.LAGON_TOKEN,
+  const deployments = (
+    await prisma.deployment.findMany({
+      select: {
+        id: true,
+        isCurrent: true,
+        assets: {
+          select: {
+            name: true,
+          },
+        },
+        function: {
+          select: {
+            id: true,
+            name: true,
+            domains: {
+              select: {
+                domain: true,
+              },
+            },
+            memory: true,
+            timeout: true,
+            env: {
+              select: {
+                key: true,
+                value: true,
+              },
+            },
+          },
+        },
       },
-    });
-
-    deployments = JSON.parse(response.body);
-  } catch (e) {
-    console.log('Could not fetch deployments from API');
-  }
+    })
+  ).map(
+    ({
+      id: deploymentId,
+      isCurrent,
+      assets,
+      function: { id: functionId, name: functionName, domains, memory, timeout, env },
+    }) => ({
+      functionId,
+      functionName,
+      deploymentId,
+      domains: domains.map(({ domain }) => domain),
+      memory,
+      timeout,
+      env: envStringToObject(env),
+      isCurrent,
+      assets: assets.map(({ name }) => name),
+    }),
+  );
 
   for (let i = 0; i < desiredWorkers; i++) {
     const worker = cluster.fork();

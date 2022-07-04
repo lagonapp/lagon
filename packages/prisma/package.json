@@ -2,8 +2,11 @@
   "name": "@lagon/prisma",
   "version": "1.0.0",
   "private": true,
-  "main": "index.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
+    "build": "tsc index.ts --outDir dist --declaration --target es6 --moduleResolution node",
     "postinstall": "prisma generate"
   },
   "dependencies": {

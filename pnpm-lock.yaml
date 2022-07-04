@@ -152,6 +152,7 @@ importers:
   packages/serverless:
     specifiers:
       '@aws-sdk/client-s3': ^3.100.0
+      '@lagon/prisma': workspace:1.0.0
       '@lagon/runtime': workspace:0.0.2
       '@sentry/node': ^7.1.1
       '@sentry/tracing': ^7.1.1
@@ -163,6 +164,7 @@ importers:
       redis: ^4.1.0
     dependencies:
       '@aws-sdk/client-s3': 3.121.0
+      '@lagon/prisma': link:../prisma
       '@lagon/runtime': link:../runtime
       '@sentry/node': 7.4.1
       '@sentry/tracing': 7.4.1
