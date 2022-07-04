@@ -20,7 +20,7 @@ const Card = ({ clickable, title, description, rightItem, fullWidth, onClick, da
       danger,
     },
     {
-      clickable: 'cursor-pointer hover:shadow-stone-300',
+      clickable: 'cursor-pointer hover:shadow-stone-300 dark:hover:shadow-stone-700',
       danger: 'border border-red-500',
     },
   );
@@ -36,7 +36,7 @@ const Card = ({ clickable, title, description, rightItem, fullWidth, onClick, da
       ) : null}
       <div
         onClick={onClick}
-        className={`${styles} p-4 rounded-md bg-white shadow-md shadow-stone-200 transition flex flex-col gap-4`}
+        className={`${styles} p-4 rounded-md bg-white dark:bg-stone-900 shadow-md shadow-stone-200 dark:shadow-stone-800 transition flex flex-col gap-4`}
       >
         {description ? <Text>{description}</Text> : null}
         {children}

@@ -46,7 +46,7 @@ const Dialog = ({ title, description, disclosure, children }: DialogProps) => {
       <AlertDialog.Trigger asChild>{disclosure}</AlertDialog.Trigger>
       <AlertDialog.Portal>
         <AlertDialog.Overlay className="bg-stone-900/40 fixed inset-0 animate-fade" />
-        <AlertDialog.Content className="bg-white w-[28rem] p-4 fixed top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] rounded-md shadow-xl animate-fade-translate">
+        <AlertDialog.Content className="bg-white dark:bg-black w-[28rem] p-4 fixed top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] rounded-md shadow-xl animate-fade-translate">
           <div className="mb-6">
             <AlertDialog.Title asChild>
               <Text size="xl" className="mb-2">

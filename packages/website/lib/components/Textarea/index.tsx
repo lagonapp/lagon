@@ -29,7 +29,7 @@ const Textarea = ({ name, placeholder, disabled, validator }: TextareaProps) => 
             placeholder={placeholder}
             disabled={disabled}
             aria-disabled={disabled}
-            className={`${styles} px-3 py-1 rounded-md text-sm text-stone-800 border border-stone-300`}
+            className={`${styles} bg-white dark:bg-stone-900 px-3 py-1 rounded-md text-sm text-stone-800 dark:text-stone-200 border border-stone-300 dark:border-stone-600`}
           />
           {meta.touched && meta.error ? <Text error>{meta.error}</Text> : null}
         </>

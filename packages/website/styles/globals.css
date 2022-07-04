@@ -4,7 +4,7 @@
 
 /* Radix UI Tabs */
 button[data-state="active"] {
-  @apply border-b-2 border-b-blue-500 !text-gray-800
+  @apply border-b-2 border-b-blue-500 !text-stone-800 dark:!text-stone-200
 }
 
 * {

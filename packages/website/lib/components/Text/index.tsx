@@ -34,14 +34,14 @@ const Text = forwardRef<HTMLParagraphElement, TextProps>(
       },
       {
         size: {
-          sm: 'text-xs text-stone-500',
-          md: 'text-sm text-stone-800',
-          lg: 'text-lg text-stone-900',
-          xl: 'text-xl text-stone-900 font-semibold',
-          '2xl': 'text-2xl text-stone-900 font-semibold',
+          sm: 'text-xs text-stone-500 dark:text-stone-500',
+          md: 'text-sm text-stone-800 dark:text-stone-400',
+          lg: 'text-lg text-stone-900 dark:text-stone-50',
+          xl: 'text-xl text-stone-900 dark:text-stone-50 font-semibold',
+          '2xl': 'text-2xl text-stone-900 dark:text-stone-50 font-semibold',
         },
         strong: 'font-semibold',
-        error: 'text-red-500',
+        error: 'text-red-500 dark:text-red-500',
       },
     );
 

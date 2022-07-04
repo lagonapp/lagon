@@ -30,7 +30,7 @@ const PlaygroundPage = () => {
 
   return (
     <Layout title={`${func?.name} playground`} headerOnly>
-      <div className="w-screen h-12 flex border-b border-b-stone-200">
+      <div className="w-screen h-12 flex border-b border-b-stone-200 dark:border-b-stone-700">
         <Form
           onSubmit={async () => {
             if (!monaco) {
@@ -78,7 +78,7 @@ const PlaygroundPage = () => {
             </div>
           </div>
         </Form>
-        <div className="w-[50vw] border-l border-l-stone-200 px-2 flex items-center gap-4">
+        <div className="w-[50vw] border-l border-l-stone-200 dark:border-l-stone-700 px-2 flex items-center gap-4">
           <Button onClick={reloadIframe} leftIcon={<RefreshIcon className="w-4 h-4" />}>
             Reload
           </Button>
@@ -87,7 +87,7 @@ const PlaygroundPage = () => {
       </div>
       <div className="w-screen flex" style={{ height: 'calc(100vh - 4rem - 3rem)' }}>
         <Playground defaultValue={functionCode?.code || ''} width="50vw" height="100%" />
-        <div className="w-[50vw] border-l border-l-stone-200">
+        <div className="w-[50vw] border-l border-l-stone-200 dark:border-b-stone-700">
           {func ? <iframe ref={iframeRef} className="w-full h-full" src={getFullCurrentDomain(func)} /> : null}
         </div>
       </div>
