@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import apiHandler from 'lib/api';
-import prisma from 'lib/prisma';
+import prisma from '@lagon/prisma';
 import { envStringToObject } from 'lib/api/env';
 
 // Should match Deployment in @lagon/runtime

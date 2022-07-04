@@ -1,4 +1,4 @@
-import prisma from 'lib/prisma';
+import prisma from '@lagon/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 import * as trpc from '@trpc/server';

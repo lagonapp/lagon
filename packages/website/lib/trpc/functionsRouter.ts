@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import prisma from 'lib/prisma';
+import prisma from '@lagon/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { LogLevel, LOG_LEVELS, TIMEFRAMES } from 'lib/types';
 import { ClickHouse } from 'clickhouse';

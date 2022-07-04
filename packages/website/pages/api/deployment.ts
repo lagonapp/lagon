@@ -1,7 +1,7 @@
 import apiHandler from 'lib/api';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { IncomingForm } from 'formidable';
-import prisma from 'lib/prisma';
+import prisma from '@lagon/prisma';
 import { createDeployment, removeCurrentDeployment } from 'lib/api/deployments';
 import fs from 'node:fs';
 import { getSession } from 'next-auth/react';

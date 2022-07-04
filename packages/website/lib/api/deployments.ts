@@ -1,7 +1,7 @@
 import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import redis from 'lib/redis';
 import s3 from 'lib/s3';
-import prisma from 'lib/prisma';
+import prisma from '@lagon/prisma';
 import { envStringToObject } from 'lib/api/env';
 import { Readable } from 'node:stream';
 import * as trpc from '@trpc/server';

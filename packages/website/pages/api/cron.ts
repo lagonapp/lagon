@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import prisma from 'lib/prisma';
+import prisma from '@lagon/prisma';
 import { parseExpression } from 'cron-parser';
 import apiHandler from 'lib/api';
 
