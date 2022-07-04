@@ -15,7 +15,7 @@ export const functionsRouter = () =>
   createRouter()
     .query('list', {
       resolve: async ({ ctx }) => {
-        return prisma.function.findMany({
+        const functions = await prisma.function.findMany({
           where: {
             organizationId: ctx.session.organization.id,
           },
@@ -24,10 +24,19 @@ export const functionsRouter = () =>
             createdAt: true,
             updatedAt: true,
             name: true,
-            domains: true,
+            domains: {
+              select: {
+                domain: true,
+              },
+            },
             memory: true,
             timeout: true,
-            env: true,
+            env: {
+              select: {
+                key: true,
+                value: true,
+              },
+            },
             cron: true,
             deployments: {
               select: {
@@ -45,6 +54,11 @@ export const functionsRouter = () =>
             updatedAt: 'desc',
           },
         });
+
+        return functions.map(func => ({
+          ...func,
+          domains: func.domains.map(({ domain }) => domain),
+        }));
       },
     })
     .query('get', {
@@ -52,7 +66,7 @@ export const functionsRouter = () =>
         functionId: z.string(),
       }),
       resolve: async ({ ctx, input }) => {
-        return prisma.function.findFirst({
+        const func = await prisma.function.findFirst({
           where: {
             organizationId: ctx.session.organization.id,
             id: input.functionId,
@@ -62,10 +76,19 @@ export const functionsRouter = () =>
             createdAt: true,
             updatedAt: true,
             name: true,
-            domains: true,
+            domains: {
+              select: {
+                domain: true,
+              },
+            },
             memory: true,
             timeout: true,
-            env: true,
+            env: {
+              select: {
+                key: true,
+                value: true,
+              },
+            },
             cron: true,
             deployments: {
               select: {
@@ -83,6 +106,17 @@ export const functionsRouter = () =>
             },
           },
         });
+
+        if (!func) {
+          throw new trpc.TRPCError({
+            code: 'NOT_FOUND',
+          });
+        }
+
+        return {
+          ...func,
+          domains: func.domains.map(({ domain }) => domain),
+        };
       },
     })
     .query('logs', {
@@ -196,7 +230,12 @@ export const functionsRouter = () =>
       input: z.object({
         name: z.string(),
         domains: z.string().array(),
-        env: z.string().array(),
+        env: z
+          .object({
+            key: z.string(),
+            value: z.string(),
+          })
+          .array(),
         cron: z.string().nullable(),
       }),
       resolve: async ({ ctx, input }) => {
@@ -204,10 +243,23 @@ export const functionsRouter = () =>
           data: {
             organizationId: ctx.session.organization.id,
             name: input.name,
-            domains: input.domains,
+            domains: {
+              createMany: {
+                data: input.domains.map(domain => ({
+                  domain,
+                })),
+              },
+            },
             memory: DEFAULT_MEMORY,
             timeout: DEFAULT_TIMEOUT,
-            env: input.env,
+            env: {
+              createMany: {
+                data: input.env.map(({ key, value }) => ({
+                  key,
+                  value,
+                })),
+              },
+            },
             cron: input.cron,
           },
           select: {
@@ -215,10 +267,19 @@ export const functionsRouter = () =>
             createdAt: true,
             updatedAt: true,
             name: true,
-            domains: true,
+            domains: {
+              select: {
+                domain: true,
+              },
+            },
             memory: true,
             timeout: true,
-            env: true,
+            env: {
+              select: {
+                key: true,
+                value: true,
+              },
+            },
             cron: true,
           },
         });
@@ -230,7 +291,12 @@ export const functionsRouter = () =>
         name: z.string().min(FUNCTION_NAME_MIN_LENGTH).max(FUNCTION_NAME_MAX_LENGTH),
         domains: z.string().array(),
         cron: z.string().nullable(),
-        env: z.string().array(),
+        env: z
+          .object({
+            key: z.string(),
+            value: z.string(),
+          })
+          .array(),
       }),
       resolve: async ({ input }) => {
         return prisma.function.update({
@@ -239,20 +305,42 @@ export const functionsRouter = () =>
           },
           data: {
             name: input.name,
-            domains: input.domains,
+            domains: {
+              createMany: {
+                data: input.domains.map(domain => ({
+                  domain,
+                })),
+              },
+            },
             cron: input.cron,
-            env: input.env,
+            env: {
+              createMany: {
+                data: input.env.map(({ key, value }) => ({
+                  key,
+                  value,
+                })),
+              },
+            },
           },
           select: {
             id: true,
             createdAt: true,
             updatedAt: true,
             name: true,
-            domains: true,
+            domains: {
+              select: {
+                domain: true,
+              },
+            },
             memory: true,
             timeout: true,
             cron: true,
-            env: true,
+            env: {
+              select: {
+                key: true,
+                value: true,
+              },
+            },
             deployments: {
               select: {
                 id: true,
@@ -282,10 +370,19 @@ export const functionsRouter = () =>
             createdAt: true,
             updatedAt: true,
             name: true,
-            domains: true,
+            domains: {
+              select: {
+                domain: true,
+              },
+            },
             memory: true,
             timeout: true,
-            env: true,
+            env: {
+              select: {
+                key: true,
+                value: true,
+              },
+            },
             deployments: {
               select: {
                 id: true,
@@ -307,7 +404,13 @@ export const functionsRouter = () =>
         }
 
         for (const deployment of func.deployments) {
-          await removeDeployment(func, deployment.id);
+          await removeDeployment(
+            {
+              ...func,
+              domains: func.domains.map(({ domain }) => domain),
+            },
+            deployment.id,
+          );
         }
 
         await clickhouse.query(`alter table functions_result delete where functionId='${func.id}'`).toPromise();

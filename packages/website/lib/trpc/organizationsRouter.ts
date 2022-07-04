@@ -103,10 +103,19 @@ export const organizationsRouter = () =>
           select: {
             id: true,
             name: true,
-            domains: true,
+            domains: {
+              select: {
+                domain: true,
+              },
+            },
             memory: true,
             timeout: true,
-            env: true,
+            env: {
+              select: {
+                key: true,
+                value: true,
+              },
+            },
             deployments: {
               select: {
                 id: true,
@@ -123,7 +132,13 @@ export const organizationsRouter = () =>
 
         for (const func of functions) {
           for (const deployment of func.deployments) {
-            await removeDeployment(func, deployment.id);
+            await removeDeployment(
+              {
+                ...func,
+                domains: func.domains.map(({ domain }) => domain),
+              },
+              deployment.id,
+            );
           }
 
           await clickhouse.query(`alter table functions_result delete where functionId='${func.id}'`).toPromise();

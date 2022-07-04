@@ -1,10 +1,12 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
+  referentialIntegrity = "prisma"
 }
 
 model Account {
@@ -76,17 +78,40 @@ model Function {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name    String     @unique
-  domains String[]
+  name    String        @unique
+  domains Domain[]
   memory  Int
   timeout Int
   cron    String?
-  env     String[]
+  env     EnvVariable[]
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String
 
   deployments Deployment[]
+}
+
+model Domain {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  domain String @unique
+
+  function   Function @relation(fields: [functionId], references: [id])
+  functionId String
+}
+
+model EnvVariable {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  key   String
+  value String
+
+  function   Function @relation(fields: [functionId], references: [id])
+  functionId String
 }
 
 model Deployment {
@@ -95,13 +120,25 @@ model Deployment {
   updatedAt DateTime @updatedAt
 
   isCurrent Boolean
-  assets    String[]
+  assets    Asset[]
 
   function   Function @relation(fields: [functionId], references: [id])
   functionId String
 
-  triggerer  String @default("Lagon")
-  commit     String?
+  triggerer String  @default("Lagon")
+  commit    String?
+}
+
+model Asset {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name String
+  // TODO: sha
+
+  deployment   Deployment @relation(fields: [deploymentId], references: [id])
+  deploymentId String
 }
 
 model Token {

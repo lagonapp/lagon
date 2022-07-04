@@ -21,15 +21,28 @@ const handler = async (request: NextApiRequest, response: NextApiResponse<GetDep
     select: {
       id: true,
       isCurrent: true,
-      assets: true,
+      assets: {
+        select: {
+          name: true,
+        },
+      },
       function: {
         select: {
           id: true,
           name: true,
-          domains: true,
+          domains: {
+            select: {
+              domain: true,
+            },
+          },
           memory: true,
           timeout: true,
-          env: true,
+          env: {
+            select: {
+              key: true,
+              value: true,
+            },
+          },
         },
       },
     },
@@ -46,12 +59,12 @@ const handler = async (request: NextApiRequest, response: NextApiResponse<GetDep
         functionId,
         functionName,
         deploymentId,
-        domains,
+        domains: domains.map(({ domain }) => domain),
         memory,
         timeout,
         env: envStringToObject(env),
         isCurrent,
-        assets,
+        assets: assets.map(({ name }) => name),
       }),
     ),
   );

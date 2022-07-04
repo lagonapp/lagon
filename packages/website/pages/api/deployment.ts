@@ -84,10 +84,19 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
       select: {
         id: true,
         name: true,
-        domains: true,
+        domains: {
+          select: {
+            domain: true,
+          },
+        },
         memory: true,
         timeout: true,
-        env: true,
+        env: {
+          select: {
+            key: true,
+            value: true,
+          },
+        },
       },
     });
 
@@ -102,7 +111,15 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
       // this is the first deployment
     }
 
-    const deployment = await createDeployment(func, code, assets, email);
+    const deployment = await createDeployment(
+      {
+        ...func,
+        domains: func.domains.map(({ domain }) => domain),
+      },
+      code,
+      assets,
+      email,
+    );
 
     return response.json({
       ...deployment,
