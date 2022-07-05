@@ -2,6 +2,7 @@ node_modules/
 dist/
 coverage/
 .lagon/
+.turbo/
 
 .eslintcache
 .DS_Store

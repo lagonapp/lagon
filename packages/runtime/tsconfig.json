@@ -11,6 +11,6 @@
     "strict": true,
     "skipLibCheck": true,
     "incremental": true,
-    "baseUrl": "."
+    "tsBuildInfoFile": "tsconfig.tsbuildinfo"
   }
 }

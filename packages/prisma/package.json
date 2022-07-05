@@ -7,6 +7,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc index.ts --outDir dist --declaration --target es6 --moduleResolution node",
+    "lint": "eslint --cache --ignore-pattern dist .",
+    "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate"
   },
   "dependencies": {

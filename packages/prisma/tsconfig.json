@@ -10,7 +10,6 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "incremental": true,
-    "baseUrl": "."
+    "incremental": true
   }
 }
