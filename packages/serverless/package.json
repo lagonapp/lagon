@@ -9,7 +9,9 @@
     "dev": "nodemon dist/index.js",
     "start": "node dist/index.js",
     "lint": "eslint --cache --ignore-pattern dist .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "docker:build": "docker build -t lagon/serverless -f ./Dockerfile ../../",
+    "docker:start": "docker run --rm -p 4000:4000 lagon/serverless"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.100.0",

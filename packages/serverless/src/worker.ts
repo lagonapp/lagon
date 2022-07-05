@@ -4,7 +4,6 @@ import startServer from 'src/server';
 import { shouldClearCache } from './deployments/result';
 
 function deploy(deployment: Deployment) {
-  // TODO: undeploy previous deployment with same functionId
   const { domains, deploymentId } = deployment;
 
   console.log(
@@ -74,7 +73,7 @@ function changeCurrentDeployment(deployment: Deployment & { previousDeploymentId
 
 export default function worker() {
   const port = Number(process.env.LAGON_PORT || 4000);
-  const host = process.env.LAGON_HOST || '127.0.0.1';
+  const host = process.env.LAGON_HOST || '0.0.0.0';
 
   // Send a message to receive `deployments` message back
   process.send?.('ok');
