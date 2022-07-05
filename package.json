@@ -4,7 +4,7 @@
   "description": "Deploy Serverless Functions at the Edge",
   "private": true,
   "scripts": {
-    "test": "vitest run --coverage --threads false",
+    "test": "vitest run",
     "test:update": "pnpm test -- -u",
     "test:watch": "vitest",
     "build": "turbo run build --continue",
