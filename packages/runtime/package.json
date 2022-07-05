@@ -11,7 +11,9 @@
   "scripts": {
     "watch": "tsup src/index.ts --format=esm --dts --watch",
     "build": "tsup src/index.ts --format=esm --dts",
-    "build:runtime": "for file in src/runtime/*; do tsup $file --format=esm --dts --out-dir dist/runtime; done"
+    "build:runtime": "for file in src/runtime/*; do tsup $file --format=esm --dts --out-dir dist/runtime; done",
+    "lint": "eslint --cache --ignore-pattern dist .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "isolated-vm": "^4.4.1"

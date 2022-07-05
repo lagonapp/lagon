@@ -7,7 +7,9 @@
     "watch": "esbuild src/index.ts src/exporter.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm --watch",
     "build": "esbuild src/index.ts src/exporter.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm",
     "dev": "nodemon dist/index.js",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "lint": "eslint --cache --ignore-pattern dist .",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.100.0",

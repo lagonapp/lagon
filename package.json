@@ -4,11 +4,12 @@
   "description": "Deploy Serverless Functions at the Edge",
   "private": true,
   "scripts": {
-    "lint": "eslint --cache .",
     "test": "vitest run --coverage --threads false",
     "test:update": "pnpm test -- -u",
     "test:watch": "vitest",
-    "build": "turbo run build",
+    "build": "turbo run build --continue",
+    "lint": "eslint --cache --ignore-pattern dist .",
+    "typecheck": "turbo run typecheck --continue",
     "prepare": "husky install"
   },
   "lint-staged": {
