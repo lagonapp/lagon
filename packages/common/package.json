@@ -6,7 +6,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc src/index.ts --outDir dist --declaration --target es6 --moduleResolution node",
+    "watch": "tsup src/index.ts --format=esm --dts --watch",
+    "build": "tsup src/index.ts --format=esm --dts",
     "lint": "eslint --cache --ignore-pattern dist .",
     "typecheck": "tsc --noEmit"
   }
