@@ -6,25 +6,11 @@ import Fastify from 'fastify';
 import { bundleFunction } from '../utils/deployments';
 import chalk from 'chalk';
 import { getAssetsDir, getEnvironmentVariables, getFileToDeploy } from '../utils';
+import { extensionToContentType } from '@lagon/common';
 
 const fastify = Fastify({
   logger: false,
 });
-
-const extensionToContentType = {
-  '.js': 'application/javascript',
-  '.css': 'text/css',
-  '.html': 'text/html',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.woff': 'application/font-woff',
-  '.woff2': 'application/font-woff2',
-  '.ttf': 'application/font-ttf',
-  '.otf': 'application/font-otf',
-};
 
 const dateFormatter = Intl.DateTimeFormat('en-US', {
   hour: '2-digit',
