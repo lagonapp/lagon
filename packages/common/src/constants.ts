@@ -1,0 +1,2 @@
+export const FUNCTION_DEFAULT_MEMORY = 128; // 128MB
+export const FUNCTION_DEFAULT_TIMEOUT = 50; // 50ms

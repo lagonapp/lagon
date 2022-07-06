@@ -6,7 +6,7 @@ import Fastify from 'fastify';
 import { bundleFunction } from '../utils/deployments';
 import chalk from 'chalk';
 import { getAssetsDir, getEnvironmentVariables, getFileToDeploy } from '../utils';
-import { extensionToContentType } from '@lagon/common';
+import { extensionToContentType, FUNCTION_DEFAULT_MEMORY, FUNCTION_DEFAULT_TIMEOUT } from '@lagon/common';
 
 const fastify = Fastify({
   logger: false,
@@ -53,8 +53,8 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
     functionId: 'functionId',
     functionName: 'functionName',
     isCurrent: true,
-    memory: 128,
-    timeout: 50,
+    memory: FUNCTION_DEFAULT_MEMORY,
+    timeout: FUNCTION_DEFAULT_TIMEOUT,
     env: getEnvironmentVariables(fileToDeploy),
     domains: [],
     assets: assets.map(({ name }) => name),
