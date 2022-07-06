@@ -11,6 +11,7 @@ import {
   writeAssetContent,
   writeDeploymentCode,
 } from 'src/deployments';
+import { envStringToObject } from '@lagon/common';
 
 const IS_DEV = process.env.NODE_ENV !== 'production';
 const CPUS = cpus().length / 2;
@@ -22,15 +23,6 @@ async function streamToString(stream: Readable): Promise<string> {
     stream.on('error', reject);
     stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
   });
-}
-
-function envStringToObject(env: { key: string; value: string }[]): Record<string, string> {
-  return env.reduce((acc, { key, value }) => {
-    return {
-      ...acc,
-      [key]: value,
-    };
-  }, {});
 }
 
 export default async function master() {

@@ -6,6 +6,7 @@ import { getAssetContent, getDeploymentCode } from 'src/deployments';
 import path from 'node:path';
 import fs from 'node:fs';
 import type { Isolate } from 'isolated-vm';
+import { extensionToContentType } from '@lagon/common';
 
 const fastify = Fastify({
   logger: false,
@@ -49,21 +50,6 @@ function getStackTrace(error: Error) {
 
   return error.message;
 }
-
-const extensionToContentType = {
-  '.js': 'application/javascript',
-  '.css': 'text/css',
-  '.html': 'text/html',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
-  '.jpeg': 'image/jpeg',
-  '.gif': 'image/gif',
-  '.svg': 'image/svg+xml',
-  '.woff': 'application/font-woff',
-  '.woff2': 'application/font-woff2',
-  '.ttf': 'application/font-ttf',
-  '.otf': 'application/font-otf',
-};
 
 export default function startServer(port: number, host: string) {
   fastify.all('/*', async (request, reply) => {

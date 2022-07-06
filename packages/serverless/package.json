@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.100.0",
+    "@lagon/common": "workspace:1.0.0",
     "@lagon/prisma": "workspace:1.0.0",
     "@lagon/runtime": "workspace:0.0.2",
     "@sentry/node": "^7.1.1",
