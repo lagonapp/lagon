@@ -10,7 +10,7 @@
     "start": "node dist/index.js",
     "lint": "eslint --cache --ignore-pattern dist .",
     "typecheck": "tsc --noEmit",
-    "docker:build": "docker build -t lagon/serverless -f ./Dockerfile ../../",
+    "docker:build": "docker build -t lagon/serverless -f ./Dockerfile ../../ --platform=linux/amd64",
     "docker:start": "docker run --rm -p 4000:4000 lagon/serverless"
   },
   "dependencies": {
