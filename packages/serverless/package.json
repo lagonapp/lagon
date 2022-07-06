@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "watch": "esbuild src/index.ts src/exporter.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm --watch",
-    "build": "esbuild src/index.ts src/exporter.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm",
+    "watch": "esbuild src/index.ts src/exporter.ts --bundle --external:./node_modules/* --external:../../node_modules/* --platform=node --outdir=dist --format=esm --watch",
+    "build": "esbuild src/index.ts src/exporter.ts --bundle --external:./node_modules/* --external:../../node_modules/* --platform=node --outdir=dist --format=esm",
     "dev": "nodemon dist/index.js",
     "start": "node dist/index.js",
     "lint": "eslint --cache --ignore-pattern dist .",
