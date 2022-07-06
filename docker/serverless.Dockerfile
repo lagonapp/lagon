@@ -6,7 +6,7 @@ RUN apt install -y python3 make g++ openssl
 RUN npm install -g pnpm
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/runtime/package.json ./packages/runtime/package.json
 COPY packages/serverless/package.json ./packages/serverless/package.json
 COPY packages/prisma/package.json ./packages/prisma/package.json
