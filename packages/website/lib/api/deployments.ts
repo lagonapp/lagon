@@ -2,7 +2,7 @@ import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectC
 import redis from 'lib/redis';
 import s3 from 'lib/s3';
 import prisma from '@lagon/prisma';
-import { envStringToObject } from 'lib/api/env';
+import { envStringToObject } from '@lagon/common';
 import { Readable } from 'node:stream';
 import * as trpc from '@trpc/server';
 

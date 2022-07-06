@@ -5,7 +5,7 @@
 
 // eslint-disable-next-line
 const { withSentryConfig } = require('@sentry/nextjs');
-const withTM = require('next-transpile-modules')(['@lagon/prisma']);
+const withTM = require('next-transpile-modules')(['@lagon/prisma', '@lagon/common']);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

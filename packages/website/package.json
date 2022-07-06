@@ -15,6 +15,7 @@
     "@aws-sdk/client-s3": "^3.100.0",
     "@headlessui/react": "^1.6.4",
     "@heroicons/react": "^1.0.6",
+    "@lagon/common": "workspace:1.0.0",
     "@lagon/prisma": "workspace:1.0.0",
     "@monaco-editor/react": "^4.4.5",
     "@next-auth/prisma-adapter": "^1.0.3",
