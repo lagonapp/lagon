@@ -19,7 +19,7 @@ const CLI = () => {
           <button
             type="button"
             onClick={copyCode}
-            className="text-2xl font-semibold border border-gray-300 px-4 py-2 rounded-lg transition bg-gray-100 hover:bg-gray-200 active:bg-gray-300"
+            className="text-stone-800 dark:text-stone-200 text-2xl font-semibold border border-stone-300 dark:border-stone-600 px-4 py-2 rounded-lg transition bg-stone-100 hover:bg-stone-200 active:bg-stone-300 dark:bg-stone-800 dark:hover:bg-stone-700 dark:active:bg-stone-600"
           >
             {data?.code}
           </button>
