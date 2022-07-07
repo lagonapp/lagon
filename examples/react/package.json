@@ -1,5 +1,5 @@
 {
-  "name": "@lagon/example-react-ssr-hydration",
+  "name": "@lagon/example-react",
   "version": "1.0.0",
   "private": true,
   "dependencies": {

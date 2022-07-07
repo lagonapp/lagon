@@ -1,8 +1,3 @@
-import render from 'preact-render-to-string';
-import App from './App';
-import { h } from 'preact';
-/** @jsx h */
-
 const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,9 +7,7 @@ const html = `<!DOCTYPE html>
   <link rel="stylesheet" href="/main.css">
 </head>
 <body>
-  <div id="root">
-    ${render(<App />)}
-  </div>
+  <div id="root" />
   <script type="module" src="/app.js"></script>
 </body>
 </html>`;
