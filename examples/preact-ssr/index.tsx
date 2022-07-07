@@ -12,9 +12,7 @@ const html = `<!DOCTYPE html>
   <link rel="stylesheet" href="/main.css">
 </head>
 <body>
-  <div id="root">
-    ${render(<App />)}
-  </div>
+  <div id="root">${render(<App />)}</div>
   <script type="module" src="/app.js"></script>
 </body>
 </html>`;

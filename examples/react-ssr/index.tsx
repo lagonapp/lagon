@@ -11,9 +11,7 @@ const html = `<!DOCTYPE html>
   <link rel="stylesheet" href="/main.css">
 </head>
 <body>
-  <div id="root">
-    ${renderToString(<App />)}
-  </div>
+  <div id="root">${renderToString(<App />)}</div>
   <script type="module" src="/app.js"></script>
 </body>
 </html>`;
