@@ -9,7 +9,12 @@ import { AppRouter } from './api/trpc/[trpc]';
 const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps) => {
   return (
     <SessionProvider session={session}>
-      <Toaster position="top-right" />
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          className: 'bg-white text-stone-800 dark:bg-black dark:text-stone-200',
+        }}
+      />
       <AuthGuard>
         <Component {...pageProps} />
       </AuthGuard>
