@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { createRoot } from 'react-dom/client';
+import { hydrateRoot } from 'react-dom/client';
 
 const App = () => {
   const [count, setCount] = useState(0);
@@ -16,8 +16,7 @@ const App = () => {
 };
 
 if (typeof window !== 'undefined') {
-  const root = createRoot(document.getElementById('root')!);
-  root.render(<App />);
+  hydrateRoot(document.getElementById('root')!, <App />);
 }
 
 export default App;
