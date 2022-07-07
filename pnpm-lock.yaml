@@ -44,6 +44,16 @@ importers:
     dependencies:
       '@lagon/types': link:../../packages/types
 
+  examples/preact:
+    specifiers:
+      '@lagon/types': workspace:^0.0.1
+      preact: ^10.8.2
+      preact-render-to-string: ^5.2.0
+    dependencies:
+      '@lagon/types': link:../../packages/types
+      preact: 10.8.2
+      preact-render-to-string: 5.2.0_preact@10.8.2
+
   examples/preact-ssr:
     specifiers:
       '@lagon/types': workspace:^0.0.1
@@ -54,17 +64,7 @@ importers:
       preact: 10.8.2
       preact-render-to-string: 5.2.0_preact@10.8.2
 
-  examples/preact-ssr-hydration:
-    specifiers:
-      '@lagon/types': workspace:^0.0.1
-      preact: ^10.8.2
-      preact-render-to-string: ^5.2.0
-    dependencies:
-      '@lagon/types': link:../../packages/types
-      preact: 10.8.2
-      preact-render-to-string: 5.2.0_preact@10.8.2
-
-  examples/react-ssr:
+  examples/react:
     specifiers:
       '@lagon/types': workspace:^0.0.1
       '@types/react': ^18.0.9
@@ -78,7 +78,7 @@ importers:
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
 
-  examples/react-ssr-hydration:
+  examples/react-ssr:
     specifiers:
       '@lagon/types': workspace:^0.0.1
       '@types/react': ^18.0.9
@@ -134,6 +134,9 @@ importers:
     devDependencies:
       '@types/inquirer': 8.2.1
       '@types/update-notifier': 5.1.0
+
+  packages/common:
+    specifiers: {}
 
   packages/prisma:
     specifiers:
@@ -8586,7 +8589,7 @@ packages:
       eslint-plugin-jsx-a11y: 6.6.0_eslint@8.19.0
       eslint-plugin-react: 7.30.1_eslint@8.19.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.19.0
-      next: 12.1.6_yz5u6557yqtbarbugy7nmayfrq
+      next: 12.1.6_ef5jwxihqo6n7gxfmzogljlgcm
       typescript: 4.7.4
     transitivePeerDependencies:
       - eslint-import-resolver-webpack
@@ -11974,7 +11977,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
-    dev: false
 
   /next/12.1.6_yz5u6557yqtbarbugy7nmayfrq:
     resolution: {integrity: sha512-cebwKxL3/DhNKfg9tPZDQmbRKjueqykHHbgaoG4VBRH3AHQJ2HO0dbKFiS1hPhe1/qgc2d/hFeadsbPicmLD+A==}
@@ -12016,6 +12018,7 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
+    dev: false
 
   /nice-try/1.0.5:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
@@ -14853,6 +14856,7 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       react: 18.1.0
+    dev: false
 
   /styled-jsx/5.0.2_react@18.1.0:
     resolution: {integrity: sha512-LqPQrbBh3egD57NBcHET4qcgshPks+yblyhPlH2GY8oaDgKs8SK4C3dBh3oSJjgzJ3G5t1SYEZGHkP+QEpX9EQ==}
@@ -14868,7 +14872,6 @@ packages:
         optional: true
     dependencies:
       react: 18.1.0
-    dev: false
 
   /sucrase/3.23.0:
     resolution: {integrity: sha512-xgC1xboStzGhCnRywlBf/DLmkC+SkdAKqrNCDsxGrzM0phR5oUxoFKiQNrsc2D8wDdAm03iLbSZqjHDddo3IzQ==}

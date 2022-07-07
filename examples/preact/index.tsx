@@ -1,7 +1,3 @@
-import App from './App';
-import { renderToString } from 'react-dom/server';
-import React from 'react';
-
 const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,14 +7,12 @@ const html = `<!DOCTYPE html>
   <link rel="stylesheet" href="/main.css">
 </head>
 <body>
-  <div id="root">
-    ${renderToString(<App />)}
-  </div>
+  <div id="root" />
   <script type="module" src="/app.js"></script>
 </body>
 </html>`;
 
-export function handler(request: Request): Response {
+export async function handler(request: Request): Promise<Response> {
   return new Response(html, {
     headers: {
       'content-type': 'text/html',
