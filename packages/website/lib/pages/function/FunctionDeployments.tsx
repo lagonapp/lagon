@@ -66,13 +66,13 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
 
         return (
           <Card key={deployment.id}>
-            <div className="relative flex justify-between items-center">
+            <div className="relative flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0 md:items-center">
               {deployment.isCurrent ? (
                 <span className="absolute -top-5 -left-5 text-xs bg-blue-500 text-white px-1 rounded">
                   Current deployment
                 </span>
               ) : null}
-              <div className="w-1/3">
+              <div className="md:w-1/3">
                 <Link href={getFullCurrentDomain({ name: deployment.id })} target="_blank">
                   {getCurrentDomain({ name: deployment.id })}
                 </Link>
@@ -90,7 +90,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                 <Text>{deployment.commit || 'No commit linked'}</Text>
                 <Text>By: {deployment.triggerer}</Text>
               </div>
-              <div className="flex gap-2 justify-end w-1/3">
+              <div className="flex gap-2 md:justify-end md:w-1/3">
                 {!deployment.isCurrent ? (
                   <>
                     <Dialog

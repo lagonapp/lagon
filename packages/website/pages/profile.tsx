@@ -52,7 +52,7 @@ const Profile = () => {
               toast.success('Information updated successfully.');
             }}
           >
-            <div className="flex justify-between items-start gap-12 mb-6">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-6 md:gap-12 mb-6">
               <div className="flex flex-1 flex-col gap-1">
                 <Text size="lg">Name</Text>
                 <Input name="name" placeholder="John Doe" validator={requiredValidator} />
@@ -72,7 +72,7 @@ const Profile = () => {
             {tokens?.map(token => (
               <div key={token.id}>
                 <Divider />
-                <div className="flex items-center justify-between px-4">
+                <div className="flex items-center justify-between px-4 gap-4">
                   <Text strong>********</Text>
                   <Text size="sm">
                     Created:&nbsp;

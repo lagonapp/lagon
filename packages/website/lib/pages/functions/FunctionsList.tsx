@@ -28,7 +28,7 @@ const FunctionsList = () => {
       ) : null}
       {functions?.map(func => (
         <Card key={func.id} clickable onClick={() => navigateToFunction(func.id)}>
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-start whitespace-nowrap gap-4">
             <Text size="lg">
               <Dot status="success" />
               {func.name}

@@ -146,7 +146,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
             </Menu>
           }
         >
-          <div className="flex justify-between">
+          <div className="flex justify-between flex-wrap gap-4">
             <Description title="Requests" total="100,000">
               {stats.reduce((acc, current) => acc + current.requests, 0)}
             </Description>

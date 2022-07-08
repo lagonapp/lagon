@@ -73,7 +73,7 @@ const FunctionLogs = ({ func }: FunctionLogsProps) => {
     <Card
       title="Live Logs and Errors"
       rightItem={
-        <div className="flex gap-2">
+        <div className="flex flex-col md:flex-row items-end md:items-center gap-2">
           <Menu>
             <Menu.Button>
               <Button rightIcon={<ChevronDownIcon className="w-4 h-4" />}>Log Level: {logLevel}</Button>
