@@ -10,7 +10,7 @@ type NavListProps = {
 const NavList = ({ rightItem, children }: NavListProps) => {
   return (
     <Tabs.List className="flex items-center justify-between border-b border-b-stone-200 dark:border-b-stone-700 mb-8">
-      <div className="flex -mb-[2px] gap-2">{children}</div>
+      <div className="flex -mb-[2px] gap-2 overflow-x-scroll md:overflow-x-auto overflow-y-hidden">{children}</div>
       {rightItem}
     </Tabs.List>
   );

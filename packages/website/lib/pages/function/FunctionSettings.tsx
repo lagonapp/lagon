@@ -55,7 +55,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           title="Name"
           description="Change the name of this Function. Note that changing the name also changes the default domain."
         >
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
             <Input
               name="name"
               placeholder="Function name"
@@ -94,7 +94,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           title="Domains"
           description="The default domain is based on this Function's name. You can also add custom domains."
         >
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col md:flex-row gap-6 md:gap-0 justify-between items-start">
             <div className="flex flex-1 flex-col gap-1">
               <Text size="lg">Default domain</Text>
               <Text>{getCurrentDomain(func)}</Text>
@@ -136,7 +136,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         }}
       >
         <Card title="Cron" description="Run this Function automatically at a scheduled rate using a Cron expression.">
-          <div className="flex gap-2 items-center">
+          <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
             <Input name="cron" placeholder="Cron" disabled={updateFunction.isLoading} validator={cronValidator} />
             <Button variant="primary" disabled={updateFunction.isLoading} submit>
               Update
@@ -174,7 +174,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
             description="Environment variables are injected into your Function at runtime."
           >
             <div className="flex flex-col gap-4 items-start">
-              <div className="flex gap-2 items-center">
+              <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
                 <Input name="envKey" placeholder="Key" disabled={updateFunction.isLoading} />
                 <Input name="envValue" placeholder="Value" type="password" disabled={updateFunction.isLoading} />
                 <Button
@@ -197,7 +197,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
               </div>
               {values.env.map(({ key }: { key: string }) => {
                 return (
-                  <div key={key} className="flex gap-2 items-center">
+                  <div key={key} className="flex flex-col md:flex-row gap-2 items-start md:items-center">
                     <Input name={`${key}-key`} placeholder={key} disabled />
                     <Input name={`${key}-value`} placeholder="*******" disabled />
                     <Button

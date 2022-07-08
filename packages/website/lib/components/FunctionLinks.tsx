@@ -10,7 +10,7 @@ type FunctionLinksProps = {
 
 const FunctionLinks = ({ func }: FunctionLinksProps) => {
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-4 overflow-x-scroll">
       <Link href={getFullCurrentDomain(func)} target="_blank">
         {getCurrentDomain(func)}
       </Link>

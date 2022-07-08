@@ -46,7 +46,7 @@ const Settings = () => {
           }}
         >
           <Card title="Name" description="Change the name of this Organization.">
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
               <Input
                 name="name"
                 placeholder="Organization name"
@@ -82,7 +82,7 @@ const Settings = () => {
           }}
         >
           <Card title="Description" description="Change the description of this Organization.">
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
               <Textarea
                 name="description"
                 placeholder="Organization description"
@@ -105,7 +105,7 @@ const Settings = () => {
           }}
         >
           <Card title="Tranfer" description="Transfer the ownership of this Organization to another user?" danger>
-            <div className="flex gap-2 items-center">
+            <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
               <Input name="email" placeholder="New Owner email" />
               <Button variant="danger" submit>
                 Transfer ownership
