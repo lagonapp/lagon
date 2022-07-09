@@ -16,24 +16,30 @@ export default apiHandler(
     ],
     secret: process.env.NEXTAUTH_SECRET,
     session: {
-      strategy: 'database',
+      strategy: 'jwt',
       maxAge: 30 * 24 * 60 * 60, // 30 days
-      updateAge: 24 * 60 * 60, // 24 hours
     },
     callbacks: {
-      session: async ({ session, user }) => {
+      session: async ({ session, token }) => {
         const userFromDB = await prisma.user.findFirst({
           where: {
-            id: user.id,
+            email: token.email,
           },
           select: {
+            id: true,
+            name: true,
+            email: true,
             currentOrganizationId: true,
           },
         });
 
+        if (!userFromDB) {
+          throw new Error('User not found');
+        }
+
         const organization = await prisma.organization.findFirst({
           where: {
-            id: userFromDB?.currentOrganizationId || '',
+            id: userFromDB.currentOrganizationId!,
           },
           select: {
             id: true,
@@ -43,16 +49,17 @@ export default apiHandler(
         });
 
         Sentry.setUser({
-          username: user.name || 'None',
-          id: user.id,
-          email: user.email || 'None',
+          id: userFromDB.id,
+          username: userFromDB.name!,
+          email: userFromDB.email!,
         });
 
         return {
           ...session,
           user: {
-            ...session.user,
-            id: user.id,
+            id: userFromDB.id,
+            name: userFromDB.name,
+            email: userFromDB.email,
           },
           organization,
         } as Session;

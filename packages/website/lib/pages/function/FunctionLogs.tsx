@@ -13,13 +13,13 @@ import { LogLevel, LOG_LEVELS, Timeframe, TIMEFRAMES } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
 
 type ContentProps = {
-  func: NonNullable<ReturnType<typeof useFunction>['data']>;
+  func: ReturnType<typeof useFunction>['data'];
   logLevel: LogLevel;
   timeframe: Timeframe;
 };
 
 const Content = ({ func, logLevel, timeframe }: ContentProps) => {
-  const { data: logs } = useFunctionLogs({ functionId: func.id, logLevel, timeframe });
+  const { data: logs } = useFunctionLogs({ functionId: func?.id, logLevel, timeframe });
 
   if (logs?.length === 0) {
     return (
@@ -50,7 +50,7 @@ const Content = ({ func, logLevel, timeframe }: ContentProps) => {
 };
 
 type FunctionLogsProps = {
-  func: NonNullable<ReturnType<typeof useFunction>['data']>;
+  func: ReturnType<typeof useFunction>['data'];
 };
 
 const FunctionLogs = ({ func }: FunctionLogsProps) => {

@@ -1,14 +1,15 @@
 import { useRouter } from 'next/router';
 import Nav from 'lib/components/Nav';
 import useFunction from 'lib/hooks/useFunction';
-import Layout from 'lib/Layout';
 import FunctionOverview from 'lib/pages/function/FunctionOverview';
 import FunctionSettings from 'lib/pages/function/FunctionSettings';
 import FunctionDeployments from 'lib/pages/function/FunctionDeployments';
 import FunctionLogs from 'lib/pages/function/FunctionLogs';
-import FunctionLinks from 'lib/components/FunctionLinks';
 import Button from 'lib/components/Button';
 import { PlayIcon } from '@heroicons/react/outline';
+import Head from 'next/head';
+import LayoutTitle from 'lib/components/LayoutTitle';
+import FunctionLinks from 'lib/components/FunctionLinks';
 
 const Function = () => {
   const {
@@ -17,17 +18,15 @@ const Function = () => {
 
   const { data: func, refetch } = useFunction(functionId as string);
 
-  if (!func) {
-    // TODO: toast, change page?
-    return null;
-  }
-
   return (
-    <Layout title={func.name} titleStatus="success" rightItem={<FunctionLinks func={func} />}>
+    <LayoutTitle title={func?.name || 'Loading...'} titleStatus="success" rightItem={<FunctionLinks func={func} />}>
+      <Head>
+        <title>{func?.name || 'Loading...'}</title>
+      </Head>
       <Nav defaultValue="overview">
         <Nav.List
           rightItem={
-            <Button href={`/playground/${func.id}`} leftIcon={<PlayIcon className="w-4 h-4" />}>
+            <Button href={`/playground/${func?.id}`} leftIcon={<PlayIcon className="w-4 h-4" />}>
               Playground
             </Button>
           }
@@ -50,8 +49,10 @@ const Function = () => {
           <FunctionSettings func={func} refetch={refetch} />
         </Nav.Content>
       </Nav>
-    </Layout>
+    </LayoutTitle>
   );
 };
+
+Function.title = 'Loading...';
 
 export default Function;

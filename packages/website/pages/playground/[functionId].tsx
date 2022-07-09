@@ -7,7 +7,6 @@ import Form from 'lib/components/Form';
 import FunctionLinks from 'lib/components/FunctionLinks';
 import Playground from 'lib/components/Playground';
 import useFunction from 'lib/hooks/useFunction';
-import Layout from 'lib/Layout';
 import { getFullCurrentDomain } from 'lib/utils';
 import Text from 'lib/components/Text';
 import { PlayIcon, RefreshIcon } from '@heroicons/react/outline';
@@ -29,7 +28,7 @@ const PlaygroundPage = () => {
   }, [iframeRef]);
 
   return (
-    <Layout title={`${func?.name} playground`} headerOnly>
+    <>
       <div className="w-screen h-12 flex border-b border-b-stone-200 dark:border-b-stone-700">
         <Form
           onSubmit={async () => {
@@ -91,8 +90,10 @@ const PlaygroundPage = () => {
           {func ? <iframe ref={iframeRef} className="w-full h-full" src={getFullCurrentDomain(func)} /> : null}
         </div>
       </div>
-    </Layout>
+    </>
   );
 };
+
+PlaygroundPage.title = 'Playground';
 
 export default PlaygroundPage;

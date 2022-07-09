@@ -1,19 +1,19 @@
-import { useRouter } from 'next/router';
 import { Suspense } from 'react';
-import Button from 'lib/components/Button';
 import Skeleton from 'lib/components/Skeleton';
-import Layout from 'lib/Layout';
 import FunctionsList from 'lib/pages/functions/FunctionsList';
-import useRandomName from '@scaleway/use-random-name';
+import LayoutTitle from 'lib/components/LayoutTitle';
+import Button from 'lib/components/Button';
 import { trpc } from 'lib/trpc';
+import useRandomName from '@scaleway/use-random-name';
+import { useRouter } from 'next/router';
 
 const Home = () => {
-  const router = useRouter();
   const createFunction = trpc.useMutation(['functions.create']);
   const name = useRandomName();
+  const router = useRouter();
 
   return (
-    <Layout
+    <LayoutTitle
       title="Functions"
       rightItem={
         <Button
@@ -35,7 +35,7 @@ const Home = () => {
               new File(
                 [
                   `export function handler(request) {
-  return new Response("Hello World!")
+return new Response("Hello World!")
 }`,
                 ],
                 'index.js',
@@ -57,8 +57,10 @@ const Home = () => {
       <Suspense fallback={<Skeleton variant="card" />}>
         <FunctionsList />
       </Suspense>
-    </Layout>
+    </LayoutTitle>
   );
 };
+
+Home.title = 'Functions';
 
 export default Home;

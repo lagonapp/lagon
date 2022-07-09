@@ -1,7 +1,7 @@
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ComponentProps, ReactElement, ReactNode, Suspense, useCallback, useMemo } from 'react';
+import { ReactNode, Suspense, useCallback, useMemo } from 'react';
 import Button from 'lib/components/Button';
 import {
   ChevronDownIcon,
@@ -15,9 +15,7 @@ import {
 } from '@heroicons/react/outline';
 import Menu from 'lib/components/Menu';
 import Divider from 'lib/components/Divider';
-import Text from 'lib/components/Text';
 import Head from 'next/head';
-import Dot from 'lib/components/Dot';
 import useOrganizations from './hooks/useOrganizations';
 import EmptyState from './components/EmptyState';
 import { trpc } from './trpc';
@@ -87,13 +85,10 @@ const OrganizationsList = () => {
 
 type LayoutProps = {
   title: string;
-  titleStatus?: ComponentProps<typeof Dot>['status'];
-  rightItem?: ReactElement;
-  headerOnly?: boolean;
   children: ReactNode;
 };
 
-const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutProps) => {
+const Layout = ({ title, children }: LayoutProps) => {
   const { data: session } = useSession();
   const { asPath } = useRouter();
   const { theme, savedTheme, updateTheme } = useTheme();
@@ -185,22 +180,7 @@ const Layout = ({ title, titleStatus, rightItem, headerOnly, children }: LayoutP
               ) : null}
             </div>
           </div>
-          <div className="bg-stone-50 dark:bg-stone-800 min-h-screen">
-            {headerOnly ? (
-              children
-            ) : (
-              <div className="mx-auto px-4 md:max-w-4xl">
-                <div className="flex justify-between items-center pt-10 mb-4">
-                  <Text size="2xl">
-                    {titleStatus ? <Dot status={titleStatus} /> : null}
-                    {title}
-                  </Text>
-                  {rightItem}
-                </div>
-                {children}
-              </div>
-            )}
-          </div>
+          <div className="bg-stone-50 dark:bg-stone-800 min-h-screen">{children}</div>
         </>
       ) : (
         <div className="w-screen h-screen flex justify-center items-center">

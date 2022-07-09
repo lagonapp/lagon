@@ -23,7 +23,7 @@ import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from 'react-query';
 
 type FunctionSettingsProps = {
-  func: NonNullable<ReturnType<typeof useFunction>['data']>;
+  func: ReturnType<typeof useFunction>['data'];
   refetch: QueryObserverBaseResult['refetch'];
 };
 
@@ -36,9 +36,13 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
     <div className="flex flex-col gap-8">
       <Form
         initialValues={{
-          name: func.name,
+          name: func?.name,
         }}
         onSubmit={async ({ name }) => {
+          if (!func) {
+            return;
+          }
+
           await updateFunction.mutateAsync({
             functionId: func.id,
             ...func,
@@ -75,9 +79,13 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
       </Form>
       <Form
         initialValues={{
-          domains: func.domains,
+          domains: func?.domains,
         }}
         onSubmit={async ({ domains }) => {
+          if (!func) {
+            return;
+          }
+
           await updateFunction.mutateAsync({
             functionId: func.id,
             ...func,
@@ -97,7 +105,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           <div className="flex flex-col md:flex-row gap-6 md:gap-0 justify-between items-start">
             <div className="flex flex-1 flex-col gap-1">
               <Text size="lg">Default domain</Text>
-              <Text>{getCurrentDomain(func)}</Text>
+              {func ? <Text>{getCurrentDomain(func)}</Text> : null}
             </div>
             <div className="flex flex-1 flex-col items-start gap-4">
               <div className="flex flex-col gap-1">
@@ -120,9 +128,13 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
       </Form>
       <Form
         initialValues={{
-          cron: func.cron,
+          cron: func?.cron,
         }}
         onSubmit={async ({ cron }) => {
+          if (!func) {
+            return;
+          }
+
           await updateFunction.mutateAsync({
             functionId: func.id,
             ...func,
@@ -146,9 +158,13 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
       </Form>
       <Form
         initialValues={{
-          env: func.env,
+          env: func?.env || [],
         }}
         onSubmit={async ({ env }) => {
+          if (!func) {
+            return;
+          }
+
           await updateFunction.mutateAsync({
             functionId: func.id,
             ...func,
@@ -229,7 +245,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         <div>
           <Dialog
             title="Delete Function"
-            description={`Write this Function's name to confirm deletion: ${func.name}`}
+            description={`Write this Function's name to confirm deletion: ${func?.name}`}
             disclosure={
               <Button variant="danger" disabled={deleteFunction.isLoading}>
                 Delete
@@ -238,6 +254,10 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           >
             <Form
               onSubmit={async () => {
+                if (!func) {
+                  return;
+                }
+
                 await deleteFunction.mutateAsync({
                   functionId: func.id,
                 });
@@ -252,8 +272,8 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                 <>
                   <Input
                     name="confirm"
-                    placeholder={func.name}
-                    validator={value => (value !== func.name ? 'Confirm with the name of this Funtion' : undefined)}
+                    placeholder={func?.name}
+                    validator={value => (value !== func?.name ? 'Confirm with the name of this Funtion' : undefined)}
                   />
                   <Dialog.Buttons>
                     <Dialog.Cancel disabled={deleteFunction.isLoading} />

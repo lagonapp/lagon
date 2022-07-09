@@ -13,7 +13,7 @@ import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from 'react-query';
 
 type FunctionDeploymentsProps = {
-  func: NonNullable<ReturnType<typeof useFunction>['data']>;
+  func: ReturnType<typeof useFunction>['data'];
   refetch: QueryObserverBaseResult['refetch'];
 };
 
@@ -24,43 +24,43 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
   const removeDeplomyent = useCallback(
     async (deployment: { id: string }) => {
       await deleteDeployment.mutateAsync({
-        functionId: func.id,
+        functionId: func?.id || '',
         deploymentId: deployment.id,
       });
 
       await refetch();
       toast.success('Deployment deleted successfully.');
     },
-    [func.id, deleteDeployment, refetch],
+    [func?.id, deleteDeployment, refetch],
   );
 
   const rollbackDeployment = useCallback(
     async (deployment: { id: string }) => {
       await currentDeployment.mutateAsync({
-        functionId: func.id,
+        functionId: func?.id || '',
         deploymentId: deployment.id,
       });
 
       await refetch();
       toast.success('Deployment rollbacked successfully.');
     },
-    [func.id, currentDeployment, refetch],
+    [func?.id, currentDeployment, refetch],
   );
 
   return (
     <div className="flex gap-4 flex-col">
-      {func.deployments.length === 0 ? (
+      {!func || func.deployments.length === 0 ? (
         <EmptyState
           title="No deployments found"
           description="Create your first deployment from the Playground or with the CLI."
           action={
-            <Button variant="primary" href={`/playground/${func.id}`}>
+            <Button variant="primary" href={`/playground/${func?.id}`}>
               Go to Playground
             </Button>
           }
         />
       ) : null}
-      {func.deployments.map(deployment => {
+      {func?.deployments.map(deployment => {
         const date = new Date(deployment.createdAt);
         date.setHours(date.getHours() - date.getTimezoneOffset() / 60);
 

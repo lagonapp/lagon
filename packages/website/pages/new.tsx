@@ -21,52 +21,52 @@ const New = () => {
   const queryContext = trpc.useContext();
 
   return (
-    <Layout title="Create Organization">
-      <Form
-        onSubmit={async ({ name, description }) => {
-          await createOrganization.mutateAsync({
-            name,
-            description,
-          });
-        }}
-        onSubmitSuccess={() => {
-          toast.success('Organization created.');
+    <Form
+      onSubmit={async ({ name, description }) => {
+        await createOrganization.mutateAsync({
+          name,
+          description,
+        });
+      }}
+      onSubmitSuccess={() => {
+        toast.success('Organization created.');
 
-          queryContext.refetchQueries();
-          reloadSession();
-          router.push('/');
-        }}
-      >
-        <div className="flex flex-col gap-8 w-96 mx-auto mt-12">
-          <div className="flex flex-col gap-2">
-            <Text>Name</Text>
-            <Input
-              name="name"
-              placeholder="awesome-project"
-              disabled={createOrganization.isLoading}
-              validator={composeValidators(
-                requiredValidator,
-                minLengthValidator(ORGANIZATION_NAME_MIN_LENGTH),
-                maxLengthValidator(ORGANIZATION_NAME_MAX_LENGTH),
-              )}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Text>Description</Text>
-            <Textarea
-              name="description"
-              placeholder="Description of my new awesome project."
-              disabled={createOrganization.isLoading}
-              validator={maxLengthValidator(ORGANIZATION_DESCRIPTION_MAX_LENGTH)}
-            />
-          </div>
-          <Button variant="primary" center submit disabled={createOrganization.isLoading}>
-            Create Organization
-          </Button>
+        queryContext.refetchQueries();
+        reloadSession();
+        router.push('/');
+      }}
+    >
+      <div className="flex flex-col gap-8 w-96 mx-auto mt-12">
+        <div className="flex flex-col gap-2">
+          <Text>Name</Text>
+          <Input
+            name="name"
+            placeholder="awesome-project"
+            disabled={createOrganization.isLoading}
+            validator={composeValidators(
+              requiredValidator,
+              minLengthValidator(ORGANIZATION_NAME_MIN_LENGTH),
+              maxLengthValidator(ORGANIZATION_NAME_MAX_LENGTH),
+            )}
+          />
         </div>
-      </Form>
-    </Layout>
+        <div className="flex flex-col gap-2">
+          <Text>Description</Text>
+          <Textarea
+            name="description"
+            placeholder="Description of my new awesome project."
+            disabled={createOrganization.isLoading}
+            validator={maxLengthValidator(ORGANIZATION_DESCRIPTION_MAX_LENGTH)}
+          />
+        </div>
+        <Button variant="primary" center submit disabled={createOrganization.isLoading}>
+          Create Organization
+        </Button>
+      </div>
+    </Form>
   );
 };
+
+New.title = 'Create Organization';
 
 export default New;

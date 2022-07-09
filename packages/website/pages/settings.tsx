@@ -4,7 +4,6 @@ import Button from 'lib/components/Button';
 import Card from 'lib/components/Card';
 import Form from 'lib/components/Form';
 import Input from 'lib/components/Input';
-import Layout from 'lib/Layout';
 import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
 import Dialog from 'lib/components/Dialog';
 import { useRouter } from 'next/router';
@@ -16,6 +15,7 @@ import {
 } from 'lib/constants';
 import { trpc } from 'lib/trpc';
 import { reloadSession } from 'lib/utils';
+import LayoutTitle from 'lib/components/LayoutTitle';
 
 const Settings = () => {
   const { data: session } = useSession();
@@ -25,7 +25,7 @@ const Settings = () => {
   const queryContext = trpc.useContext();
 
   return (
-    <Layout title="Settings">
+    <LayoutTitle title="Settings">
       <div className="flex flex-col gap-8">
         <Form
           initialValues={{
@@ -164,8 +164,10 @@ const Settings = () => {
           </div>
         </Card>
       </div>
-    </Layout>
+    </LayoutTitle>
   );
 };
+
+Settings.title = 'Settings';
 
 export default Settings;
