@@ -57,7 +57,7 @@ export async function getIsolate({
   let deploymentCache = deploymentsCache.get(deployment.deploymentId);
 
   if (!deploymentCache) {
-    if (process.env.LAGON_DEBUG) {
+    if (process.env.NODE_ENV !== 'production') {
       console.log('Cache not found, creating:', deployment.deploymentId);
     }
 

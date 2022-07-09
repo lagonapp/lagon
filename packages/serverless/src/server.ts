@@ -7,6 +7,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import type { Isolate } from 'isolated-vm';
 import { extensionToContentType } from '@lagon/common';
+import { IS_DEV } from './master';
 
 const fastify = Fastify({
   logger: false,
@@ -54,12 +55,17 @@ function getStackTrace(error: Error) {
 export default function startServer(port: number, host: string) {
   fastify.all('/*', async (request, reply) => {
     const id = `Request ${Math.random()}`;
-    console.time(id);
+
+    if (IS_DEV) {
+      console.time(id);
+    }
 
     if (request.url === '/favicon.ico') {
       reply.code(204);
 
-      console.timeEnd(id);
+      if (IS_DEV) {
+        console.timeEnd(id);
+      }
       return;
     }
 
@@ -68,7 +74,9 @@ export default function startServer(port: number, host: string) {
     if (!deployment) {
       reply.status(404).header('Content-Type', 'text/html').send(html404);
 
-      console.timeEnd(id);
+      if (IS_DEV) {
+        console.timeEnd(id);
+      }
       return;
     }
 
@@ -82,7 +90,9 @@ export default function startServer(port: number, host: string) {
         .header('Content-Type', extensionToContentType[extension] || 'text/html')
         .send(getAssetContent(deployment, asset));
 
-      console.timeEnd(id);
+      if (IS_DEV) {
+        console.timeEnd(id);
+      }
       return;
     }
 
@@ -130,14 +140,18 @@ export default function startServer(port: number, host: string) {
         .status(response.status || 200)
         .headers(headers)
         .send(response.body);
-      console.timeEnd(id);
+      if (IS_DEV) {
+        console.timeEnd(id);
+      }
 
       deploymentResult.sentBytes = getBytesFromReply(reply);
     } catch (error) {
       errored = true;
 
       reply.status(500).header('Content-Type', 'text/html').send(html500);
-      console.timeEnd(id);
+      if (IS_DEV) {
+        console.timeEnd(id);
+      }
 
       console.log(`An error occured while running the function: ${(error as Error).message}`);
 
