@@ -3,6 +3,7 @@ dist/
 coverage/
 .lagon/
 .turbo/
+ssl/
 
 .eslintcache
 .DS_Store
