@@ -159,7 +159,10 @@ export default function startServer(port: number, host: string) {
       );
     }
 
-    deploymentResult.cpuTime = getCpuTime({ isolate: isolateCache!, deployment });
+    if (!errored) {
+      deploymentResult.cpuTime = getCpuTime({ isolate: isolateCache!, deployment });
+    }
+
     deploymentResult.logs = logs.get(deployment.deploymentId) || [];
 
     logs.delete(deployment.deploymentId);
