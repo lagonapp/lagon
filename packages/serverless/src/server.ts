@@ -7,7 +7,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import type { Isolate } from 'isolated-vm';
 import { extensionToContentType } from '@lagon/common';
-import { IS_DEV } from './master';
+import { IS_DEV } from './constants';
 
 const fastify = Fastify({
   logger: false,

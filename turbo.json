@@ -18,6 +18,14 @@
         "dist/**",
         ".next/**"
       ]
+    },
+    "build:runtime": {
+      "dependsOn": [
+        "^build:runtime"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
     }
   }
 }

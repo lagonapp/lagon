@@ -10,12 +10,14 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/runtime/package.json ./packages/runtime/package.json
 COPY packages/serverless/package.json ./packages/serverless/package.json
 COPY packages/prisma/package.json ./packages/prisma/package.json
+COPY packages/common/package.json ./packages/common/package.json
 
 RUN pnpm install --frozen-lockfile
 
 COPY packages/runtime/ ./packages/runtime/
 COPY packages/serverless/ ./packages/serverless/
 COPY packages/prisma/ ./packages/prisma/
+COPY packages/common/ ./packages/common/
 
 WORKDIR /app/packages/runtime
 RUN pnpm build
