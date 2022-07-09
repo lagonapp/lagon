@@ -25,13 +25,13 @@ function formatNs(ns: number): number {
 }
 
 type FunctionOverviewProps = {
-  func: NonNullable<ReturnType<typeof useFunction>['data']>;
+  func: ReturnType<typeof useFunction>['data'];
 };
 
 const FunctionOverview = ({ func }: FunctionOverviewProps) => {
   const router = useRouter();
   const [timeframe, setTimeframe] = useState<Timeframe>(() => (router.query.timeframe as Timeframe) || 'Last 24 hours');
-  const { data: stats = [] } = useFunctionStats({ functionId: func.id, timeframe }) as {
+  const { data: stats = [] } = useFunctionStats({ functionId: func?.id, timeframe }) as {
     data: {
       createdAt: Date;
       memory: number;
@@ -150,11 +150,11 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
             <Description title="Requests" total="100,000">
               {stats.reduce((acc, current) => acc + current.requests, 0)}
             </Description>
-            <Description title="CPU time" total={`${func.timeout}ms`}>
+            <Description title="CPU time" total={`${func?.timeout || 0}ms`}>
               {stats.length > 0 ? formatNs(stats.reduce((acc, current) => acc + current.cpuTime, 0) / stats.length) : 0}
               ms
             </Description>
-            <Description title="Memory" total={`${func.memory} MB`}>
+            <Description title="Memory" total={`${func?.memory || 0} MB`}>
               {stats.length > 0
                 ? formatBytes(stats.reduce((acc, current) => acc + current.memory, 0) / stats.length)
                 : 0}
@@ -183,7 +183,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           <div className="flex gap-8">
             <Text size="sm">
               Last update:&nbsp;
-              {new Date(func.createdAt).toLocaleString('en-US', {
+              {new Date(func?.updatedAt || Date.now()).toLocaleString('en-US', {
                 minute: 'numeric',
                 hour: 'numeric',
                 day: 'numeric',
@@ -193,7 +193,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
             </Text>
             <Text size="sm">
               Created:&nbsp;
-              {new Date(func.createdAt).toLocaleString('en-US', {
+              {new Date(func?.createdAt || Date.now()).toLocaleString('en-US', {
                 minute: 'numeric',
                 hour: 'numeric',
                 day: 'numeric',

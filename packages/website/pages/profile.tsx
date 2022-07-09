@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 
 const Profile = () => {
   const { data: session } = useSession();
-  const { data: tokens, refetch } = useTokens();
+  const { data: tokens = [], refetch } = useTokens();
   const deleteToken = trpc.useMutation(['tokens.delete']);
   const updateAccount = trpc.useMutation(['accounts.update']);
 

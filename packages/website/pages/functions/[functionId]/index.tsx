@@ -17,17 +17,12 @@ const Function = () => {
 
   const { data: func, refetch } = useFunction(functionId as string);
 
-  if (!func) {
-    // TODO: toast, change page?
-    return null;
-  }
-
   return (
-    <Layout title={func.name} titleStatus="success" rightItem={<FunctionLinks func={func} />}>
+    <Layout title={func?.name || 'Loading'} titleStatus="success" rightItem={<FunctionLinks func={func} />}>
       <Nav defaultValue="overview">
         <Nav.List
           rightItem={
-            <Button href={`/playground/${func.id}`} leftIcon={<PlayIcon className="w-4 h-4" />}>
+            <Button href={`/playground/${func?.id}`} leftIcon={<PlayIcon className="w-4 h-4" />}>
               Playground
             </Button>
           }

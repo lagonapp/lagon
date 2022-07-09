@@ -6,12 +6,13 @@ const useFunctionLogs = ({
   logLevel,
   timeframe,
 }: {
-  functionId: string;
+  functionId?: string;
   logLevel: LogLevel;
   timeframe: Timeframe;
 }) => {
-  return trpc.useQuery(['functions.logs', { functionId, logLevel, timeframe }], {
+  return trpc.useQuery(['functions.logs', { functionId: functionId || '', logLevel, timeframe }], {
     refetchInterval: 1000,
+    enabled: !!functionId,
   });
 };
 
