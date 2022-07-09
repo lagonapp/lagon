@@ -201,5 +201,5 @@ export default async function master() {
     for (const i in cluster.workers) {
       cluster.workers[i]?.send({ msg: 'clean' });
     }
-  }, 1000 * 60);
+  }, 1000 * 10);
 }

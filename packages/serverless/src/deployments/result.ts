@@ -4,7 +4,7 @@ import { Worker } from 'node:worker_threads';
 
 const CACHE_MS = 1000 * 10 * 60; // 10min
 
-const previousResources = new Map<string, { cpuTime: bigint; memory: number }>();
+const previousCpuTimes = new Map<string, bigint>();
 const deploymentsResult = new Map<[string, string], DeploymentResult[]>();
 const lastRequests = new Map<string, Date>();
 
@@ -18,29 +18,15 @@ function sendResultsToDb() {
   deploymentsResult.clear();
 }
 
-export function calculateIsolateResources({
-  isolate,
-  deployment,
-  deploymentResult,
-}: {
-  isolate: Isolate;
-  deployment: Deployment;
-  deploymentResult: DeploymentResult;
-}) {
+export function getCpuTime({ isolate, deployment }: { isolate: Isolate; deployment: Deployment }) {
   const cpuTime = isolate.cpuTime || BigInt(0);
-  const memory = isolate.getHeapStatisticsSync()?.used_heap_size || 0;
 
-  const previousResource = previousResources.get(deployment.deploymentId);
+  const previousCpuTime = previousCpuTimes.get(deployment.deploymentId);
+  const finalCpuTime = previousCpuTime ? cpuTime - previousCpuTime : cpuTime;
 
-  const finalCpuTime = previousResource ? cpuTime - previousResource.cpuTime : cpuTime;
-  const finalMemory = previousResource ? memory - previousResource.memory : memory;
+  previousCpuTimes.set(deployment.deploymentId, finalCpuTime);
 
-  console.log(finalCpuTime, finalMemory /*, isolate.getHeapStatisticsSync()*/);
-
-  deploymentResult.cpuTime = finalCpuTime;
-  deploymentResult.memory = finalMemory;
-
-  previousResources.set(deployment.deploymentId, { cpuTime: finalCpuTime, memory: finalMemory });
+  return finalCpuTime;
 }
 
 export function addDeploymentResult({
@@ -69,7 +55,7 @@ export function addDeploymentResult({
 
 export function clearStatsCache(deployment: Deployment) {
   lastRequests.delete(deployment.deploymentId);
-  previousResources.delete(deployment.deploymentId);
+  previousCpuTimes.delete(deployment.deploymentId);
 }
 
 export function shouldClearCache(deployment: Deployment, now: Date) {

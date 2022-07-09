@@ -1,5 +1,5 @@
 import { getBytesFromReply, getBytesFromRequest, getDeploymentFromRequest } from 'src/deployments/config';
-import { addDeploymentResult, calculateIsolateResources } from 'src/deployments/result';
+import { addDeploymentResult, getCpuTime } from 'src/deployments/result';
 import Fastify from 'fastify';
 import { DeploymentResult, HandlerRequest, addLog, OnDeploymentLog, DeploymentLog, getIsolate } from '@lagon/runtime';
 import { getAssetContent, getDeploymentCode } from 'src/deployments';
@@ -98,7 +98,6 @@ export default function startServer(port: number, host: string) {
 
     const deploymentResult: DeploymentResult = {
       cpuTime: BigInt(0),
-      memory: 0,
       receivedBytes: getBytesFromRequest(request),
       sentBytes: 0,
       logs: [],
@@ -160,11 +159,9 @@ export default function startServer(port: number, host: string) {
       );
     }
 
-    if (!errored) {
-      calculateIsolateResources({ isolate: isolateCache!, deployment, deploymentResult });
-    }
-
+    deploymentResult.cpuTime = getCpuTime({ isolate: isolateCache!, deployment });
     deploymentResult.logs = logs.get(deployment.deploymentId) || [];
+
     logs.delete(deployment.deploymentId);
 
     addDeploymentResult({ deployment, deploymentResult });

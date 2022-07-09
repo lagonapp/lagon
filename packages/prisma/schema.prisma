@@ -169,7 +169,6 @@ model Stat {
   deploymentId String
 
   cpuTime Int
-  memory Int
   sendBytes Int
   receivedBytes Int
   requests Int
