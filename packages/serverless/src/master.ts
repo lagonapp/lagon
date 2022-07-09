@@ -13,7 +13,7 @@ import {
 } from 'src/deployments';
 import { envStringToObject } from '@lagon/common';
 
-const IS_DEV = process.env.NODE_ENV !== 'production';
+export const IS_DEV = process.env.NODE_ENV !== 'production';
 const CPUS = cpus().length / 2;
 
 async function streamToString(stream: Readable): Promise<string> {
