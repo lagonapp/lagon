@@ -1,7 +1,6 @@
 import { GetObjectCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import prisma from '@lagon/prisma';
 import cluster from 'node:cluster';
-import { cpus } from 'node:os';
 import { Readable } from 'node:stream';
 import { createClient } from 'redis';
 import {
@@ -12,9 +11,7 @@ import {
   writeDeploymentCode,
 } from 'src/deployments';
 import { envStringToObject } from '@lagon/common';
-
-export const IS_DEV = process.env.NODE_ENV !== 'production';
-const CPUS = cpus().length / 2;
+import { CPUS, IS_DEV } from './constants';
 
 async function streamToString(stream: Readable): Promise<string> {
   return await new Promise((resolve, reject) => {

@@ -36,7 +36,7 @@ jobs:
     - name: Install dependencies
       run: pnpm install
     - name: Build needed packages
-      run: pnpm turbo run build build:runtime --filter="./packages/*" --filter="!website"
+      run: pnpm turbo run build build:runtime --filter="@lagon/common" --filter="@lagon/runtime"
     - name: Run Vitest
       run: pnpm test
   typecheck:
