@@ -35,15 +35,8 @@ jobs:
         cache: 'pnpm'
     - name: Install dependencies
       run: pnpm install
-    - name: Build @lagon/runtime
-      run: |
-        cd packages/runtime
-        pnpm build
-        pnpm build:runtime
-    - name: Build @lagon/common
-      run: |
-        cd packages/common
-        pnpm build
+    - name: Build needed packages
+      run: pnpm turbo run build --filter="./packages/*" --filter="!website"
     - name: Run Vitest
       run: pnpm test
   typecheck:
