@@ -1,7 +1,8 @@
 import { clearCache, Deployment } from '@lagon/runtime';
 import { deployments } from 'src/deployments/config';
 import startServer from 'src/server';
-import { shouldClearCache } from './deployments/result';
+import { IS_DEV } from './constants';
+import { clearStatsCache, shouldClearCache } from './deployments/result';
 
 function deploy(deployment: Deployment) {
   const { domains, deploymentId } = deployment;
@@ -25,6 +26,7 @@ function deploy(deployment: Deployment) {
   deployments.set(`${deploymentId}.${process.env.LAGON_ROOT_DOMAIN}`, deployment);
 
   clearCache(deployment);
+  clearStatsCache(deployment);
 }
 
 function undeploy(deployment: Deployment) {
@@ -49,6 +51,7 @@ function undeploy(deployment: Deployment) {
   deployments.delete(`${deploymentId}.${process.env.LAGON_ROOT_DOMAIN}`);
 
   clearCache(deployment);
+  clearStatsCache(deployment);
 }
 
 function changeCurrentDeployment(deployment: Deployment & { previousDeploymentId: string }) {
@@ -105,7 +108,12 @@ export default function worker() {
 
         for (const deployment of deployments.values()) {
           if (shouldClearCache(deployment, now)) {
+            if (IS_DEV) {
+              console.log('Clear cache', deployment.deploymentId);
+            }
+
             clearCache(deployment);
+            clearStatsCache(deployment);
           }
         }
         break;
