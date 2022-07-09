@@ -193,7 +193,6 @@ export const functionsRouter = () =>
           select: {
             createdAt: true,
             requests: true,
-            memory: true,
             cpuTime: true,
             receivedBytes: true,
             sendBytes: true,

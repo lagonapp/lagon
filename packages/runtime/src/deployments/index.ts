@@ -6,7 +6,6 @@ export const deploymentsCache = new Map<string, DeploymentCache>();
 export type DeploymentResult = {
   logs: DeploymentLog[];
   cpuTime: bigint;
-  memory: number;
   receivedBytes: number;
   sentBytes: number;
 };

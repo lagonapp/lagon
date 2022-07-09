@@ -12,10 +12,6 @@ import useFunctionStats from 'lib/hooks/useFunctionStats';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
 
-function formatBytes(bytes: number): number {
-  return parseFloat((bytes / 1000000).toFixed(2));
-}
-
 function formatKb(bytes: number): number {
   return parseFloat((bytes / 1000).toFixed(2));
 }
@@ -34,7 +30,6 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
   const { data: stats = [] } = useFunctionStats({ functionId: func?.id, timeframe }) as {
     data: {
       createdAt: Date;
-      memory: number;
       requests: number;
       cpuTime: number;
       receivedBytes: number;
@@ -50,7 +45,6 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
       labels: string[];
       values: {
         requests: number;
-        memory: number;
         cpu: number;
         receivedBytes: number;
         sendBytes: number;
@@ -76,7 +70,6 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
 
         result.values.push({
           requests: stat.reduce((acc, current) => acc + current.requests, 0),
-          memory: stat.reduce((acc, current) => acc + current.memory, 0) / stat.length || 0,
           cpu: stat.reduce((acc, current) => acc + current.cpuTime, 0) / stat.length || 0,
           receivedBytes: stat.reduce((acc, current) => acc + current.receivedBytes, 0) / stat.length || 0,
           sendBytes: stat.reduce((acc, current) => acc + current.sendBytes, 0) / stat.length || 0,
@@ -104,7 +97,6 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
 
         result.values.push({
           requests: stat.reduce((acc, current) => acc + current.requests, 0),
-          memory: stat.reduce((acc, current) => acc + current.memory, 0) / stat.length || 0,
           cpu: stat.reduce((acc, current) => acc + current.cpuTime, 0) / stat.length || 0,
           receivedBytes: stat.reduce((acc, current) => acc + current.receivedBytes, 0) / stat.length || 0,
           sendBytes: stat.reduce((acc, current) => acc + current.sendBytes, 0) / stat.length || 0,
@@ -150,17 +142,11 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
             <Description title="Requests" total="100,000">
               {stats.reduce((acc, current) => acc + current.requests, 0)}
             </Description>
-            <Description title="CPU time" total={`${func?.timeout || 0}ms`}>
+            <Description title="Avg. CPU time" total={`${func?.timeout || 0}ms`}>
               {stats.length > 0 ? formatNs(stats.reduce((acc, current) => acc + current.cpuTime, 0) / stats.length) : 0}
               ms
             </Description>
-            <Description title="Memory" total={`${func?.memory || 0} MB`}>
-              {stats.length > 0
-                ? formatBytes(stats.reduce((acc, current) => acc + current.memory, 0) / stats.length)
-                : 0}
-              &nbsp;MB
-            </Description>
-            <Description title="Received bytes">
+            <Description title="Avg. Received bytes">
               {stats.length > 0
                 ? formatKb(
                     stats.reduce((acc, current) => acc + current.receivedBytes, 0) /
@@ -169,7 +155,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
                 : 0}
               &nbsp;KB
             </Description>
-            <Description title="Send bytes">
+            <Description title="Avg. Send bytes">
               {stats.length > 0
                 ? formatKb(
                     stats.reduce((acc, current) => acc + current.sendBytes, 0) /
@@ -218,7 +204,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           />
         </div>
       </Card>
-      <Card title="Resources">
+      <Card title="CPU Time">
         <div className="h-72">
           <Chart
             labels={labels}
@@ -227,11 +213,6 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
                 label: 'CPU',
                 color: '#F59E0B',
                 data: values.map(({ cpu }) => formatNs(cpu)),
-              },
-              {
-                label: 'Memory',
-                color: '#EF4444',
-                data: values.map(({ memory }) => formatBytes(memory)),
               },
             ]}
           />

@@ -48,7 +48,6 @@ export function handler(request) {
             "level": "error",
           },
         ],
-        "memory": 0,
         "receivedBytes": 34,
         "sentBytes": 0,
       }
@@ -78,7 +77,6 @@ export function handler(request) {
             "level": "error",
           },
         ],
-        "memory": 0,
         "receivedBytes": 34,
         "sentBytes": 0,
       }
@@ -107,7 +105,6 @@ export function handler(request) {
             "level": "error",
           },
         ],
-        "memory": 0,
         "receivedBytes": 34,
         "sentBytes": 0,
       }
@@ -137,7 +134,6 @@ export function handler(request) {
             "level": "error",
           },
         ],
-        "memory": 0,
         "receivedBytes": 34,
         "sentBytes": 0,
       }
@@ -167,7 +163,6 @@ export function handler(request) {
             "level": "error",
           },
         ],
-        "memory": 0,
         "receivedBytes": 34,
         "sentBytes": 0,
       }
@@ -198,7 +193,6 @@ export function handler(request) {
             "level": "error",
           },
         ],
-        "memory": 0,
         "receivedBytes": 34,
         "sentBytes": 0,
       }
@@ -237,7 +231,6 @@ export function handler(request) {
             "level": "error",
           },
         ],
-        "memory": 0,
         "receivedBytes": 34,
         "sentBytes": 0,
       }

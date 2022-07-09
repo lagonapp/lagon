@@ -2,7 +2,9 @@ import { DeploymentResult, Deployment } from '@lagon/runtime';
 import { Isolate } from 'isolated-vm';
 import { Worker } from 'node:worker_threads';
 
-const previousResources = new Map<string, { cpuTime: bigint; memory: number }>();
+const CACHE_MS = 1000 * 10 * 60; // 10min
+
+const previousCpuTimes = new Map<string, bigint>();
 const deploymentsResult = new Map<[string, string], DeploymentResult[]>();
 const lastRequests = new Map<string, Date>();
 
@@ -16,27 +18,15 @@ function sendResultsToDb() {
   deploymentsResult.clear();
 }
 
-export function calculateIsolateResources({
-  isolate,
-  deployment,
-  deploymentResult,
-}: {
-  isolate: Isolate;
-  deployment: Deployment;
-  deploymentResult: DeploymentResult;
-}) {
+export function getCpuTime({ isolate, deployment }: { isolate: Isolate; deployment: Deployment }) {
   const cpuTime = isolate.cpuTime || BigInt(0);
-  const memory = isolate.getHeapStatisticsSync()?.used_heap_size || 0;
 
-  const previousResource = previousResources.get(deployment.deploymentId);
+  const previousCpuTime = previousCpuTimes.get(deployment.deploymentId);
+  const finalCpuTime = previousCpuTime ? cpuTime - previousCpuTime : cpuTime;
 
-  const finalCpuTime = previousResource ? cpuTime - previousResource.cpuTime : cpuTime;
-  const finalMemory = previousResource ? memory - previousResource.memory : memory;
+  previousCpuTimes.set(deployment.deploymentId, finalCpuTime);
 
-  deploymentResult.cpuTime = finalCpuTime;
-  deploymentResult.memory = finalMemory;
-
-  previousResources.set(deployment.deploymentId, { cpuTime, memory });
+  return finalCpuTime;
 }
 
 export function addDeploymentResult({
@@ -63,6 +53,11 @@ export function addDeploymentResult({
   }
 }
 
+export function clearStatsCache(deployment: Deployment) {
+  lastRequests.delete(deployment.deploymentId);
+  previousCpuTimes.delete(deployment.deploymentId);
+}
+
 export function shouldClearCache(deployment: Deployment, now: Date) {
   const lastRequest = lastRequests.get(deployment.deploymentId);
 
@@ -70,11 +65,5 @@ export function shouldClearCache(deployment: Deployment, now: Date) {
     return false;
   }
 
-  const timeElapsed = lastRequest.getTime() + 1000 * 60 * 10 <= now.getTime();
-
-  if (timeElapsed) {
-    lastRequests.delete(deployment.deploymentId);
-  }
-
-  return timeElapsed;
+  return lastRequest.getTime() + CACHE_MS <= now.getTime();
 }

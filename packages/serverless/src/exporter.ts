@@ -9,7 +9,6 @@ async function send() {
     functionId: string;
     deploymentId: string;
     cpuTime: number;
-    memory: number;
     sendBytes: number;
     receivedBytes: number;
     requests: number;
@@ -29,10 +28,6 @@ async function send() {
       cpuTime:
         functionResults.reduce((acc, current) => {
           return acc + Number(current.cpuTime);
-        }, 0) / functionResults.length,
-      memory:
-        functionResults.reduce((acc, current) => {
-          return acc + current.memory;
         }, 0) / functionResults.length,
       sendBytes:
         functionResults.reduce((acc, current) => {
