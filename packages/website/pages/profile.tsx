@@ -4,10 +4,10 @@ import Dialog from 'lib/components/Dialog';
 import Divider from 'lib/components/Divider';
 import Form from 'lib/components/Form';
 import Input from 'lib/components/Input';
+import LayoutTitle from 'lib/components/LayoutTitle';
 import Text from 'lib/components/Text';
 import { requiredValidator } from 'lib/form/validators';
 import useTokens from 'lib/hooks/useTokens';
-import Layout from 'lib/Layout';
 import { trpc } from 'lib/trpc';
 import { useSession } from 'next-auth/react';
 import { useCallback } from 'react';
@@ -32,7 +32,7 @@ const Profile = () => {
   );
 
   return (
-    <Layout title="Profile">
+    <LayoutTitle title="Profile">
       <div className="flex flex-col gap-8">
         <Card title="Information" description="Edit your account information like your name and email.">
           <Form
@@ -143,8 +143,10 @@ const Profile = () => {
           </div>
         </Card>
       </div>
-    </Layout>
+    </LayoutTitle>
   );
 };
+
+Profile.title = 'Profile';
 
 export default Profile;

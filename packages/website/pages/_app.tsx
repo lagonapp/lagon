@@ -5,8 +5,15 @@ import 'styles/globals.css';
 import { Toaster } from 'react-hot-toast';
 import { withTRPC } from '@trpc/next';
 import { AppRouter } from './api/trpc/[trpc]';
+import Layout from 'lib/Layout';
 
-const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps) => {
+type LayoutAppProps = AppProps & {
+  Component: AppProps['Component'] & {
+    title: string;
+  };
+};
+
+const App = ({ Component, pageProps: { session, ...pageProps } }: LayoutAppProps) => {
   return (
     <SessionProvider session={session}>
       <Toaster
@@ -16,14 +23,16 @@ const App = ({ Component, pageProps: { session, ...pageProps } }: AppProps) => {
         }}
       />
       <AuthGuard>
-        <Component {...pageProps} />
+        <Layout title={Component.title}>
+          <Component {...pageProps} />
+        </Layout>
       </AuthGuard>
     </SessionProvider>
   );
 };
 
 export default withTRPC<AppRouter>({
-  config: ({ ctx }) => {
+  config: () => {
     return {
       url: '/api/trpc',
       queryClientConfig: {

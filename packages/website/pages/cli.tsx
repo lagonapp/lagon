@@ -1,7 +1,7 @@
-import Layout from 'lib/Layout';
 import Text from 'lib/components/Text';
 import useVerificationCode from 'lib/hooks/useVerificationCode';
 import toast from 'react-hot-toast';
+import LayoutTitle from 'lib/components/LayoutTitle';
 
 const CLI = () => {
   const { data } = useVerificationCode();
@@ -12,7 +12,7 @@ const CLI = () => {
   };
 
   return (
-    <Layout title="Log in to the CLI">
+    <LayoutTitle title="Log in to the CLI">
       <div className="flex items-center justify-center flex-col gap-6 mt-16 max-w-xs text-center mx-auto">
         <Text>This is your verification code to login in the CLI. Copy it and paste it in your terminal.</Text>
         <div>
@@ -26,8 +26,10 @@ const CLI = () => {
           <Text size="sm">Click to copy</Text>
         </div>
       </div>
-    </Layout>
+    </LayoutTitle>
   );
 };
+
+CLI.title = 'Log in to the CLI';
 
 export default CLI;
