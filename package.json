@@ -19,10 +19,10 @@
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix"
   },
-  "packageManager": "pnpm@7.0.0",
+  "packageManager": "pnpm@7.3.0",
   "engines": {
     "node": ">=16.0.0",
-    "pnpm": ">=7.0.0"
+    "pnpm": ">=7.3.0"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.26.0",
