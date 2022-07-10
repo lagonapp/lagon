@@ -10,9 +10,9 @@
     "build": "turbo run build --continue",
     "lint": "eslint --cache --ignore-pattern dist .",
     "typecheck": "turbo run typecheck --continue",
-    "docker:build:serverless": "docker build -t lagon/serverless -f docker/serverless.Dockerfile --platform=linux/amd64 .",
+    "docker:build:serverless": "docker build -t lagon/serverless -f docker/serverless.Dockerfile .",
     "docker:start:serverless": "docker run --rm -p 4000:4000 lagon/serverless",
-    "docker:build:nginx": "docker build -t lagon/nginx -f docker/nginx.Dockerfile --platform=linux/amd64 ./docker/nginx",
+    "docker:build:nginx": "docker build -t lagon/nginx -f docker/nginx.Dockerfile ./docker/nginx",
     "docker:start:nginx": "docker run --rm -p 80:80 lagon/nginx",
     "prepare": "husky install"
   },
