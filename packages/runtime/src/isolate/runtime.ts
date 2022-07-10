@@ -71,6 +71,7 @@ export const snapshot = ivm.Isolate.createSnapshot([
   readRuntimeFile('URL'),
   readRuntimeFile('encoding'),
   readRuntimeFile('base64'),
+  readRuntimeFile('streams'),
 ]);
 
 function readRuntimeFile(filename: string, transform?: (code: string) => string) {
@@ -83,7 +84,7 @@ function readRuntimeFile(filename: string, transform?: (code: string) => string)
       /* c8 ignore end */
     )
     .toString('utf-8')
-    .replace(/export((.|\n)*);/gm, '');
+    .replace(/^export((.|\n)*);/gm, '');
 
   return {
     filename: `file:///${filename.toLowerCase()}.js`,

@@ -67,7 +67,18 @@ export async function getIsolate({
   async function masterHandler(request) {
     const handlerRequest = new Request(request.input, request.options);
 
-    return handler(handlerRequest)
+    const response = await handler(handlerRequest)
+
+    if (response.body instanceof ReadableStream) {
+      console.log('Streaming response');
+      const writableStream = new WritableStream()
+
+      response.body.pipeTo(writableStream)
+
+      return new Response("streaming")
+    }
+
+    return response
   }
 
   export {
