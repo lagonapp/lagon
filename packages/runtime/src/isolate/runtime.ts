@@ -94,6 +94,7 @@ export async function initRuntime({
   onDeploymentLog?: OnDeploymentLog;
 }) {
   await context.global.set('global', context.global.derefInto());
+  await context.global.set('eval', undefined);
 
   const environmentVariables = getEnvironmentVariables(deployment);
 

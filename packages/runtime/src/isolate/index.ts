@@ -63,9 +63,6 @@ export async function getIsolate({
 
     let code = await getDeploymentCode(deployment);
 
-    // TODO: disable `eval` within the isolate?
-    code = code.replace(/eval.*\)/g, '');
-
     code += `
   async function masterHandler(request) {
     const handlerRequest = new Request(request.input, request.options);
