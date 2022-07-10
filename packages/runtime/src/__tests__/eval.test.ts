@@ -24,7 +24,7 @@ const request: HandlerRequest = {
 };
 
 describe('eval', () => {
-  it('should prevent eval used from global', async () => {
+  it('should prevent eval usage from global', async () => {
     const deployment = getDeployment();
     const runIsolate = await getIsolate({
       deployment,
@@ -39,7 +39,7 @@ describe('eval', () => {
     clearCache(deployment);
   });
 
-  it('should prevent eval used without eval keyword', async () => {
+  it('should prevent eval usage without eval keyword', async () => {
     const deployment = getDeployment();
     const runIsolate = await getIsolate({
       deployment,
@@ -51,6 +51,41 @@ describe('eval', () => {
     });
 
     await expect(runIsolate(request)).rejects.toThrow('global[evalName] is not a function');
+
+    clearCache(deployment);
+  });
+});
+
+describe('Function', () => {
+  it('should prevent Function usage from global', async () => {
+    const deployment = getDeployment();
+    const runIsolate = await getIsolate({
+      deployment,
+      getDeploymentCode: async () => `export function handler(request) {
+  const fn = new Function('console.log("escape")');
+  fn();
+  return new Response('Hello World!');
+}`,
+    });
+
+    await expect(runIsolate(request)).rejects.toThrow('Function is not a function');
+
+    clearCache(deployment);
+  });
+
+  it('should prevent Function usage without Function keyword', async () => {
+    const deployment = getDeployment();
+    const runIsolate = await getIsolate({
+      deployment,
+      getDeploymentCode: async () => `export function handler(request) {
+  const fnName = ['F', 'u', 'n', 'c', 't', 'i', 'o', 'n'].join('');
+  const fn = new global[fnName]('console.log("escape")');
+  fn();
+  return new Response('Hello World!');
+}`,
+    });
+
+    await expect(runIsolate(request)).rejects.toThrow('Function is not a function');
 
     clearCache(deployment);
   });

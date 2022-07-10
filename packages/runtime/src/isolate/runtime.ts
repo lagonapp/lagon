@@ -6,17 +6,24 @@ import { fetch, FetchResult } from '../fetch';
 import { RequestInit } from '../runtime/Request';
 import path from 'node:path';
 
-function getEnvironmentVariables(deployment: Deployment): string {
+async function mockEnvironmentVariables({ deployment, context }: { deployment: Deployment; context: ivm.Context }) {
   let environmentVariables = 'global.process = { env: { NODE_ENV: "production" } }\n';
 
   for (const [key, value] of Object.entries(deployment.env)) {
     environmentVariables += `global.process.env.${key.toUpperCase()} = "${value}"\n`;
   }
 
-  return environmentVariables;
+  context.eval(environmentVariables);
 }
 
-async function mockConsole({
+function mockFunction(context: ivm.Context) {
+  context.eval(`const initialFunction = global.Function
+global.Function = function() {
+  throw new Error('Function is not a function')
+}`);
+}
+
+function mockConsole({
   deployment: { deploymentId },
   context,
   onDeploymentLog,
@@ -34,7 +41,7 @@ async function mockConsole({
   };
 
   for (const [key, value] of Object.entries(consoleMock)) {
-    await context.evalClosure(
+    context.evalClosureSync(
       `global.console.${key} = function(...args) {
           $0.applyIgnored(undefined, args, { arguments: { copy: true } });
       }`,
@@ -96,10 +103,9 @@ export async function initRuntime({
   await context.global.set('global', context.global.derefInto());
   await context.global.set('eval', undefined);
 
-  const environmentVariables = getEnvironmentVariables(deployment);
-
   await Promise.all([
-    context.eval(environmentVariables),
+    mockEnvironmentVariables({ deployment, context }),
+    mockFunction(context),
     mockConsole({ deployment, context, onDeploymentLog }),
     mockFetch(context),
   ]);
