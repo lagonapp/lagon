@@ -5,6 +5,7 @@ import { addLog, OnDeploymentLog } from '../deployments/log';
 import { fetch, FetchResult } from '../fetch';
 import { RequestInit } from '../runtime/Request';
 import path from 'node:path';
+import { OnReceiveStream } from '..';
 
 async function mockEnvironmentVariables({ deployment, context }: { deployment: Deployment; context: ivm.Context }) {
   let environmentVariables = 'global.process = { env: { NODE_ENV: "production" } }\n';
@@ -64,6 +65,45 @@ async function mockFetch(context: ivm.Context) {
   );
 }
 
+async function mockStreamResponse({
+  deployment,
+  onReceiveStream,
+  context,
+}: {
+  deployment: Deployment;
+  onReceiveStream: OnReceiveStream;
+  context: ivm.Context;
+}) {
+  await context.evalClosure(
+    `global.streamResponse = (readableStream) => {
+  const reader = readableStream.getReader();
+
+  const read = new ReadableStream({
+    start: (controller) => {
+      const push = () => {
+        reader.read().then( ({ done, value }) => {
+          if (done) {
+            controller.close();
+            $0.applyIgnored(undefined, [done], { arguments: { copy: true } })
+            return;
+          }
+
+          controller.enqueue(value);
+          $0.applyIgnored(undefined, [done, value], { arguments: { copy: true } })
+          push();
+        })
+      }
+
+      push();
+    }
+  })
+}
+`,
+    [(done: boolean, chunk?: Uint8Array) => onReceiveStream(deployment, done, chunk)],
+    { result: { promise: true, reference: true }, arguments: { reference: true }, filename: 'masterHandler' },
+  );
+}
+
 export const snapshot = ivm.Isolate.createSnapshot([
   readRuntimeFile('Response', code => code.replace(/global.*;/gm, '')),
   readRuntimeFile('Request', code => code.replace(/global.*;/gm, '')),
@@ -95,10 +135,12 @@ function readRuntimeFile(filename: string, transform?: (code: string) => string)
 export async function initRuntime({
   deployment,
   context,
+  onReceiveStream,
   onDeploymentLog,
 }: {
   deployment: Deployment;
   context: ivm.Context;
+  onReceiveStream: OnReceiveStream;
   onDeploymentLog?: OnDeploymentLog;
 }) {
   await context.global.set('global', context.global.derefInto());
@@ -109,5 +151,6 @@ export async function initRuntime({
     mockFunction(context),
     mockConsole({ deployment, context, onDeploymentLog }),
     mockFetch(context),
+    mockStreamResponse({ deployment, onReceiveStream, context }),
   ]);
 }
