@@ -8,6 +8,7 @@ export { getIsolate } from './isolate';
 
 export type DeploymentCache = { handler: Reference<unknown>; isolate: Isolate; context: Context };
 export type GetDeploymentCodeFn = (deployment: Deployment) => Promise<string>;
+export type OnReceiveStream = (deployment: Deployment, done: boolean, chunk?: Uint8Array) => void;
 export type HandlerRequest = {
   input: string;
   options: {

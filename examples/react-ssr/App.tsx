@@ -11,6 +11,9 @@ const App = () => {
       <button type="button" onClick={() => setCount(count + 1)}>
         Increment
       </button>
+      {new Array(1000).fill(0).map((_, i) => (
+        <div key={i}>Hello World!</div>
+      ))}
     </div>
   );
 };

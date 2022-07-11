@@ -1,13 +1,22 @@
 import { getBytesFromReply, getBytesFromRequest, getDeploymentFromRequest } from 'src/deployments/utils';
 import { addDeploymentResult, getCpuTime } from 'src/deployments/result';
 import Fastify from 'fastify';
-import { DeploymentResult, HandlerRequest, addLog, OnDeploymentLog, DeploymentLog, getIsolate } from '@lagon/runtime';
+import {
+  DeploymentResult,
+  HandlerRequest,
+  addLog,
+  OnDeploymentLog,
+  DeploymentLog,
+  getIsolate,
+  OnReceiveStream,
+} from '@lagon/runtime';
 import { getAssetContent, getDeploymentCode } from 'src/deployments';
 import path from 'node:path';
 import fs from 'node:fs';
 import type { Isolate } from 'isolated-vm';
 import { extensionToContentType } from '@lagon/common';
 import { IS_DEV } from './constants';
+import { Readable } from 'node:stream';
 
 const fastify = Fastify({
   logger: false,
@@ -27,6 +36,25 @@ fastify.addContentTypeParser('multipart/form-data', (request, payload, done) => 
 
 const html404 = fs.readFileSync(path.join(new URL('.', import.meta.url).pathname, '../public/404.html'), 'utf8');
 const html500 = fs.readFileSync(path.join(new URL('.', import.meta.url).pathname, '../public/500.html'), 'utf8');
+
+const streams = new Map<string, Readable>();
+
+const onReceiveStream: OnReceiveStream = (deployment, done, chunk) => {
+  let stream = streams.get(deployment.deploymentId);
+
+  if (!stream) {
+    stream = new Readable();
+    streams.set(deployment.deploymentId, stream);
+  }
+
+  if (done) {
+    stream.push(null);
+    console.log('end');
+  } else {
+    console.log('chunk');
+    stream.push(chunk);
+  }
+};
 
 const logs = new Map<string, DeploymentLog[]>();
 
@@ -102,6 +130,7 @@ export default function startServer(port: number, host: string) {
       const runIsolate = await getIsolate({
         deployment,
         getDeploymentCode,
+        onReceiveStream,
         onDeploymentLog,
       });
 
@@ -128,10 +157,19 @@ export default function startServer(port: number, host: string) {
         headers[key] = values[0];
       }
 
+      const payload = streams.get(deployment.deploymentId) || response.body;
+
+      if (payload?.['on']) {
+        payload.on('end', () => {
+          streams.delete(deployment.deploymentId);
+        });
+      }
+
       reply
         .status(response.status || 200)
         .headers(headers)
-        .send(response.body);
+        .send(payload);
+
       if (IS_DEV) console.timeEnd(id);
 
       deploymentResult.sentBytes = getBytesFromReply(reply);
