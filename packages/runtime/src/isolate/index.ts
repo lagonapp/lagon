@@ -3,7 +3,7 @@ import { Deployment, deploymentsCache } from '../deployments';
 import ivm from 'isolated-vm';
 import { initRuntime, snapshot } from '../isolate/runtime';
 import { Response } from '../runtime/Response';
-import { OnReceiveStream } from '../../dist';
+import { OnReceiveStream } from '../';
 
 async function createIsolate({
   deployment,
