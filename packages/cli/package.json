@@ -16,7 +16,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@lagon/common": "workspace:1.0.0",
     "@lagon/runtime": "workspace:0.0.3",
     "@trpc/client": "^9.25.3",
     "chalk": "^5.0.1",
