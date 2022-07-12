@@ -120,7 +120,6 @@ importers:
       open: ^8.4.0
       update-notifier: ^6.0.1
     dependencies:
-      '@lagon/common': link:../common
       '@lagon/runtime': link:../runtime
       '@trpc/client': 9.25.3
       chalk: 5.0.1
@@ -132,6 +131,7 @@ importers:
       open: 8.4.0
       update-notifier: 6.0.2
     devDependencies:
+      '@lagon/common': link:../common
       '@types/inquirer': 8.2.1
       '@types/update-notifier': 5.1.0
 
@@ -171,7 +171,6 @@ importers:
       redis: ^4.1.0
     dependencies:
       '@aws-sdk/client-s3': 3.121.0
-      '@lagon/common': link:../common
       '@lagon/prisma': link:../prisma
       '@lagon/runtime': link:../runtime
       '@sentry/node': 7.5.0
@@ -181,6 +180,7 @@ importers:
       isolated-vm: 4.4.1
       redis: 4.2.0
     devDependencies:
+      '@lagon/common': link:../common
       '@types/node': 17.0.35
 
   packages/types:
