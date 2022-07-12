@@ -1,6 +1,6 @@
 {
   "name": "@lagon/cli",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "CLI for Lagon",
   "type": "module",
   "files": [
@@ -10,13 +10,12 @@
     "lagon": "dist/index.js"
   },
   "scripts": {
-    "watch": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\" --watch",
-    "build": "esbuild src/index.ts --bundle --external:./node_modules/* --platform=node --outdir=dist --format=esm --banner:js=\"import { createRequire } from 'module';const require = createRequire(import.meta.url);\" --define:process.env.NODE_ENV=\\\"production\\\"",
+    "watch": "tsup src/index.ts --format=esm --watch",
+    "build": "tsup src/index.ts --format=esm --define.process.env.NODE_ENV \\\"production\\\"",
     "lint": "eslint --cache --ignore-pattern dist .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@lagon/common": "workspace:1.0.0",
     "@lagon/runtime": "0.0.3",
     "@trpc/client": "^9.25.3",
     "chalk": "^5.0.1",
@@ -30,6 +29,7 @@
   },
   "devDependencies": {
     "@types/inquirer": "^8.2.1",
-    "@types/update-notifier": "^5.1.0"
+    "@types/update-notifier": "^5.1.0",
+    "@lagon/common": "workspace:1.0.0"
   }
 }
