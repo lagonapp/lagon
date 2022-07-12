@@ -136,7 +136,10 @@ importers:
       '@types/update-notifier': 5.1.0
 
   packages/common:
-    specifiers: {}
+    specifiers:
+      mrmime: ^1.0.1
+    devDependencies:
+      mrmime: 1.0.1
 
   packages/prisma:
     specifiers:
@@ -11825,6 +11828,11 @@ packages:
       mkdirp: 0.5.6
       rimraf: 2.7.1
       run-queue: 1.0.3
+    dev: true
+
+  /mrmime/1.0.1:
+    resolution: {integrity: sha512-hzzEagAgDyoU1Q6yg5uI+AorQgdvMCur3FcKf7NhMKWsaYg+RnbTyHRa/9IlLF9rf455MOCtcqqrQQ83pPP7Uw==}
+    engines: {node: '>=10'}
     dev: true
 
   /ms/2.0.0:
