@@ -8,8 +8,8 @@
     Deploy Serverless Functions at the Edge
     <br />
     <br />
-    <a align="center" href="https://lagon.app">
-      lagon.app
+    <a align="center" href="https://discord.lagon.app">
+      💻 Join the Discord
     </a>
     <br />
     <a align="center" href="https://tally.so/r/n9q1Rp">
