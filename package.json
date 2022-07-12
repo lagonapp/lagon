@@ -14,6 +14,7 @@
     "docker:start:serverless": "docker run --rm -p 4000:4000 lagon/serverless",
     "docker:build:nginx": "docker build -t lagon/nginx -f docker/nginx.Dockerfile ./docker/nginx",
     "docker:start:nginx": "docker run --rm -p 80:80 lagon/nginx",
+    "release": "pnpm build && pnpm changeset publish",
     "prepare": "husky install"
   },
   "lint-staged": {
