@@ -11,7 +11,7 @@
     "lint": "eslint --cache --ignore-pattern dist .",
     "typecheck": "tsc --noEmit"
   },
-  "devDependencies": {
+  "dependencies": {
     "mrmime": "^1.0.1"
   }
 }
