@@ -78,12 +78,12 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
     const asset = deployment.assets.find(asset => request.url === `/${asset}`);
 
     if (asset) {
-      const extension = path.extname(asset) as keyof typeof extensionToContentType;
+      const extension = path.extname(asset);
       console.log(chalk.black(`            Found asset: ${asset}`));
 
       reply
         .status(200)
-        .header('Content-Type', extensionToContentType[extension] || 'text/html')
+        .header('Content-Type', extensionToContentType(extension) || 'text/plain')
         .send(assets.find(({ name }) => name === asset)?.content);
       return;
     }
