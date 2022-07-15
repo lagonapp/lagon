@@ -83,11 +83,11 @@ export default function startServer(port: number, host: string) {
     const asset = deployment.assets.find(asset => request.url === `/${asset}`);
 
     if (asset) {
-      const extension = path.extname(asset) as keyof typeof extensionToContentType;
+      const extension = path.extname(asset);
 
       reply
         .status(200)
-        .header('Content-Type', extensionToContentType[extension] || 'text/html')
+        .header('Content-Type', extensionToContentType(extension) || 'text/plain')
         .send(getAssetContent(deployment, asset));
 
       if (IS_DEV) {

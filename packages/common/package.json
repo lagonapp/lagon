@@ -10,5 +10,8 @@
     "build": "tsup src/index.ts --format=esm --dts",
     "lint": "eslint --cache --ignore-pattern dist .",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "mrmime": "^1.0.1"
   }
 }
