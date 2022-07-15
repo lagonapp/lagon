@@ -15,6 +15,7 @@ async fn hello_world(
     let result = runtime
         .run(
             "export function handler() {
+                log('test')
                 return 'Hello World';
             }",
             None,

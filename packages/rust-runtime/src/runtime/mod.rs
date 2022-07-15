@@ -88,7 +88,27 @@ impl Runtime {
             let isolate_handle = isolate.thread_safe_handle();
 
             let mut handle_scope = v8::HandleScope::new(&mut isolate);
-            let context = v8::Context::new(&mut handle_scope);
+
+            fn log_callback(
+                scope: &mut v8::HandleScope,
+                args: v8::FunctionCallbackArguments,
+                mut _retval: v8::ReturnValue,
+            ) {
+                let message = args
+                    .get(0)
+                    .to_string(scope)
+                    .unwrap()
+                    .to_rust_string_lossy(scope);
+
+                println!("Logged: {}", message);
+            }
+
+            let global = v8::ObjectTemplate::new(&mut handle_scope);
+            let function_name = v8::String::new(&mut handle_scope, "log").unwrap();
+            let function_callback = v8::FunctionTemplate::new(&mut handle_scope, log_callback);
+            global.set(function_name.into(), function_callback.into());
+
+            let context = v8::Context::new_from_template(&mut handle_scope, global);
             let scope = &mut v8::ContextScope::new(&mut handle_scope, context);
 
             let code = v8::String::new(scope, code).unwrap();
