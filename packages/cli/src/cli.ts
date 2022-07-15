@@ -28,6 +28,8 @@ export function runCli() {
     .command('dev')
     .description('Launch a local dev server')
     .argument('<file>', 'The file to serve')
+    .option('--port <port>', 'Specify dev server port number', '1234')
+    .option('--host <host>', 'Specify dev server host name', 'localhost')
     .option('--preact', 'Bundle the function as a preact site')
     .option('-p, --public-dir <dir>', 'The directory to serve the public assets from', 'public')
     .action(dev);
