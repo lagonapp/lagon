@@ -2,7 +2,7 @@ import { z } from 'zod';
 import prisma from '@lagon/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { LOG_LEVELS, TIMEFRAMES } from 'lib/types';
-import { getDeploymentCode, removeDeployment } from 'lib/api/deployments';
+import { createDeployment, getDeploymentCode, removeDeployment, updateDomains } from 'lib/api/deployments';
 import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
 import { FUNCTION_DEFAULT_MEMORY, FUNCTION_DEFAULT_TIMEOUT } from '@lagon/common';
 import * as trpc from '@trpc/server';
@@ -273,19 +273,44 @@ export const functionsRouter = () =>
           .array(),
       }),
       resolve: async ({ input }) => {
-        return prisma.function.update({
+        const currentFunction = await prisma.function.findFirst({
+          where: {
+            id: input.functionId,
+          },
+          select: {
+            domains: {
+              select: {
+                domain: true,
+              },
+            },
+          },
+        });
+
+        if (!currentFunction) {
+          throw new trpc.TRPCError({
+            code: 'NOT_FOUND',
+          });
+        }
+
+        await prisma.domain.deleteMany({
+          where: {
+            functionId: input.functionId,
+          },
+        });
+
+        await prisma.domain.createMany({
+          data: input.domains.map(domain => ({
+            functionId: input.functionId,
+            domain,
+          })),
+        });
+
+        const func = await prisma.function.update({
           where: {
             id: input.functionId,
           },
           data: {
             name: input.name,
-            domains: {
-              createMany: {
-                data: input.domains.map(domain => ({
-                  domain,
-                })),
-              },
-            },
             cron: input.cron,
             env: {
               createMany: {
@@ -328,6 +353,27 @@ export const functionsRouter = () =>
             },
           },
         });
+
+        const currentDomains = currentFunction.domains.map(({ domain }) => domain);
+        const newDomains = func.domains.map(({ domain }) => domain);
+
+        if (currentDomains !== newDomains) {
+          const deployment = func.deployments.find(deployment => deployment.isCurrent)!;
+
+          await updateDomains(
+            {
+              ...func,
+              domains: newDomains,
+            },
+            {
+              ...deployment,
+              assets: deployment.assets.map(asset => asset.name),
+            },
+            currentDomains,
+          );
+        }
+
+        return func;
       },
     })
     .mutation('delete', {

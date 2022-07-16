@@ -272,6 +272,35 @@ export async function setCurrentDeployment(
   };
 }
 
+export async function updateDomains(
+  func: {
+    id: string;
+    name: string;
+    domains: string[];
+    memory: number;
+    timeout: number;
+    env: { key: string; value: string }[];
+  },
+  deployment: { id: string; isCurrent: boolean; assets: string[] },
+  oldDomains: string[],
+) {
+  await redis.publish(
+    'domains',
+    JSON.stringify({
+      functionId: func.id,
+      functionName: func.name,
+      deploymentId: deployment.id,
+      domains: func.domains,
+      memory: func.memory,
+      timeout: func.timeout,
+      env: envStringToObject(func.env),
+      isCurrent: deployment.isCurrent,
+      assets: deployment.assets,
+      oldDomains,
+    }),
+  );
+}
+
 async function streamToString(stream: Readable): Promise<string> {
   return await new Promise((resolve, reject) => {
     const chunks: Uint8Array[] = [];

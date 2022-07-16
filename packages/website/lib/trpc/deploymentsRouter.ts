@@ -12,9 +12,7 @@ export const deploymentsRouter = () =>
         deploymentId: z.string(),
       }),
       resolve: async ({ input }) => {
-        const deployment = await setCurrentDeployment(input.functionId, input.deploymentId);
-
-        return deployment;
+        return setCurrentDeployment(input.functionId, input.deploymentId);
       },
     })
     .mutation('delete', {
