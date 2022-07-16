@@ -197,6 +197,14 @@ export default async function master() {
     }
   });
 
+  await redis.subscribe('domains', message => {
+    const deployment = JSON.parse(message);
+
+    for (const i in cluster.workers) {
+      cluster.workers[i]?.send({ msg: 'domains', data: deployment });
+    }
+  });
+
   setInterval(() => {
     for (const i in cluster.workers) {
       cluster.workers[i]?.send({ msg: 'clean' });
