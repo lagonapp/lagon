@@ -94,6 +94,20 @@ importers:
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
 
+  examples/react-streaming:
+    specifiers:
+      '@lagon/types': workspace:^0.0.1
+      '@types/react': ^18.0.9
+      '@types/react-dom': ^18.0.5
+      react: 18.1.0
+      react-dom: 18.1.0
+    dependencies:
+      '@lagon/types': link:../../packages/types
+      '@types/react': 18.0.14
+      '@types/react-dom': 18.0.6
+      react: 18.1.0
+      react-dom: 18.1.0_react@18.1.0
+
   examples/reply-with-html:
     specifiers:
       '@lagon/types': workspace:^0.0.1
