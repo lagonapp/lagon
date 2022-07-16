@@ -102,6 +102,19 @@ export async function removeDeployment(
   assets: string[];
   functionId: string;
 }> {
+  await Promise.all([
+    prisma.asset.deleteMany({
+      where: {
+        deploymentId,
+      },
+    }),
+    prisma.log.deleteMany({
+      where: {
+        deploymentId,
+      },
+    }),
+  ]);
+
   const deployment = await prisma.deployment.delete({
     where: {
       id: deploymentId,

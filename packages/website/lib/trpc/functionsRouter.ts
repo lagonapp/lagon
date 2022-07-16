@@ -141,6 +141,9 @@ export const functionsRouter = () =>
             level: true,
             message: true,
           },
+          orderBy: {
+            createdAt: 'desc',
+          },
         });
       },
     })
