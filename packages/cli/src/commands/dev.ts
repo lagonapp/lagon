@@ -128,6 +128,7 @@ export async function dev(
 
       const headers: Record<string, string> = {};
 
+      // @ts-expect-error we access `headers` which is the private map inside `Headers`
       for (const [key, values] of response.headers.headers.entries()) {
         headers[key] = values[0];
       }

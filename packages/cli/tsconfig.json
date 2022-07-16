@@ -11,6 +11,11 @@
     "strict": true,
     "skipLibCheck": true,
     "incremental": true,
-    "tsBuildInfoFile": "tsconfig.tsbuildinfo"
-  }
+    "tsBuildInfoFile": "tsconfig.tsbuildinfo",
+    "baseUrl": "../website"
+  },
+  "include": [
+    "./**/*.ts",
+    "../website/global.d.ts"
+  ]
 }

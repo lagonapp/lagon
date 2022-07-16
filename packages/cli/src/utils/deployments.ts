@@ -154,7 +154,7 @@ export async function createDeployment(
     body,
   });
 
-  return response.json();
+  return (await response.json()) as { functionName: string };
 }
 
 export async function createFunction(name: string, file: string, preact: boolean, assetsDir: string) {
