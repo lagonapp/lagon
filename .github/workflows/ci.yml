@@ -54,8 +54,7 @@ jobs:
     - name: Install dependencies
       run: pnpm install
     - name: Run TSC
-      # TODO: remove the || true when all type errors are resolved
-      run: pnpm typecheck || true
+      run: pnpm typecheck
   build:
     runs-on: ubuntu-20.04
     env:
