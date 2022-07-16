@@ -1,4 +1,4 @@
-import { getBytesFromReply, getBytesFromRequest, getDeploymentFromRequest } from 'src/deployments/config';
+import { getBytesFromReply, getBytesFromRequest, getDeploymentFromRequest } from 'src/deployments/utils';
 import { addDeploymentResult, getCpuTime } from 'src/deployments/result';
 import Fastify from 'fastify';
 import { DeploymentResult, HandlerRequest, addLog, OnDeploymentLog, DeploymentLog, getIsolate } from '@lagon/runtime';
@@ -56,16 +56,12 @@ export default function startServer(port: number, host: string) {
   fastify.all('/*', async (request, reply) => {
     const id = `Request ${Math.random()}`;
 
-    if (IS_DEV) {
-      console.time(id);
-    }
+    if (IS_DEV) console.time(id);
 
     if (request.url === '/favicon.ico') {
       reply.code(204);
 
-      if (IS_DEV) {
-        console.timeEnd(id);
-      }
+      if (IS_DEV) console.timeEnd(id);
       return;
     }
 
@@ -74,9 +70,7 @@ export default function startServer(port: number, host: string) {
     if (!deployment) {
       reply.status(404).header('Content-Type', 'text/html').send(html404);
 
-      if (IS_DEV) {
-        console.timeEnd(id);
-      }
+      if (IS_DEV) console.timeEnd(id);
       return;
     }
 
@@ -90,9 +84,7 @@ export default function startServer(port: number, host: string) {
         .header('Content-Type', extensionToContentType(extension) || 'text/plain')
         .send(getAssetContent(deployment, asset));
 
-      if (IS_DEV) {
-        console.timeEnd(id);
-      }
+      if (IS_DEV) console.timeEnd(id);
       return;
     }
 
@@ -103,7 +95,7 @@ export default function startServer(port: number, host: string) {
       logs: [],
     };
 
-    let isolateCache: Isolate;
+    let isolateCache: Isolate | undefined = undefined;
     let errored = false;
 
     try {
@@ -131,6 +123,7 @@ export default function startServer(port: number, host: string) {
 
       const headers: Record<string, string> = {};
 
+      // @ts-expect-error we access `headers` which is the private map inside `Headers`
       for (const [key, values] of response.headers.headers.entries()) {
         headers[key] = values[0];
       }
@@ -139,18 +132,14 @@ export default function startServer(port: number, host: string) {
         .status(response.status || 200)
         .headers(headers)
         .send(response.body);
-      if (IS_DEV) {
-        console.timeEnd(id);
-      }
+      if (IS_DEV) console.timeEnd(id);
 
       deploymentResult.sentBytes = getBytesFromReply(reply);
     } catch (error) {
       errored = true;
 
       reply.status(500).header('Content-Type', 'text/html').send(html500);
-      if (IS_DEV) {
-        console.timeEnd(id);
-      }
+      if (IS_DEV) console.timeEnd(id);
 
       console.log(`An error occured while running the function: ${(error as Error).message}`);
 
@@ -159,8 +148,8 @@ export default function startServer(port: number, host: string) {
       );
     }
 
-    if (!errored) {
-      deploymentResult.cpuTime = getCpuTime({ isolate: isolateCache!, deployment });
+    if (!errored && isolateCache !== undefined) {
+      deploymentResult.cpuTime = getCpuTime({ isolate: isolateCache, deployment });
     }
 
     deploymentResult.logs = logs.get(deployment.deploymentId) || [];
