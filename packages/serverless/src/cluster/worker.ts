@@ -1,8 +1,8 @@
 import { clearCache, Deployment } from '@lagon/runtime';
-import { deployments } from 'src/deployments/config';
+import { deployments } from 'src/deployments/utils';
 import startServer from 'src/server';
-import { IS_DEV } from './constants';
-import { clearStatsCache, shouldClearCache } from './deployments/result';
+import { IS_DEV } from '../constants';
+import { clearStatsCache, shouldClearCache } from '../deployments/result';
 
 function deploy(deployment: Deployment) {
   const { domains, deploymentId } = deployment;
