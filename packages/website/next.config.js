@@ -10,6 +10,10 @@ const withTM = require('next-transpile-modules')(['@lagon/prisma', '@lagon/commo
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  i18n: {
+    locales: ['en', 'fr'],
+    defaultLocale: 'en',
+  }
 };
 
 const sentryWebpackPluginOptions = {

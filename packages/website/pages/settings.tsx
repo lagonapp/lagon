@@ -16,6 +16,7 @@ import {
 import { trpc } from 'lib/trpc';
 import { reloadSession } from 'lib/utils';
 import LayoutTitle from 'lib/components/LayoutTitle';
+import { useI18n } from 'locales';
 
 const Settings = () => {
   const { data: session } = useSession();
@@ -23,6 +24,7 @@ const Settings = () => {
   const deleteOrganization = trpc.useMutation(['organizations.delete']);
   const router = useRouter();
   const queryContext = trpc.useContext();
+  const t = useI18n();
 
   return (
     <LayoutTitle title="Settings">
@@ -45,11 +47,11 @@ const Settings = () => {
             toast.success('Organization name updated successfully.');
           }}
         >
-          <Card title="Name" description="Change the name of this Organization.">
+          <Card title={t('settings.name.title')} description={t('settings.name.description')}>
             <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
               <Input
                 name="name"
-                placeholder="Organization name"
+                placeholder={t('settings.name.placeholder')}
                 disabled={updateOrganization.isLoading}
                 validator={composeValidators(
                   requiredValidator,
@@ -58,7 +60,7 @@ const Settings = () => {
                 )}
               />
               <Button variant="primary" disabled={updateOrganization.isLoading} submit>
-                Update
+                {t('settings.name.submit')}
               </Button>
             </div>
           </Card>
@@ -81,11 +83,11 @@ const Settings = () => {
             toast.success('Organization description updated successfully.');
           }}
         >
-          <Card title="Description" description="Change the description of this Organization.">
+          <Card title={t('settings.description.title')} description={t('settings.description.title')}>
             <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
               <Textarea
                 name="description"
-                placeholder="Organization description"
+                placeholder={t('settings.description.placeholder')}
                 disabled={updateOrganization.isLoading}
                 validator={composeValidators(
                   requiredValidator,
@@ -93,7 +95,7 @@ const Settings = () => {
                 )}
               />
               <Button variant="primary" disabled={updateOrganization.isLoading} submit>
-                Update
+                {t('settings.description.submit')}
               </Button>
             </div>
           </Card>
@@ -104,27 +106,25 @@ const Settings = () => {
             toast.success('Ownership of this Organization transferred successfully.');
           }}
         >
-          <Card title="Tranfer" description="Transfer the ownership of this Organization to another user?" danger>
+          <Card title={t('settings.transfer.title')} description={t('settings.transfer.description')} danger>
             <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
-              <Input name="email" placeholder="New Owner email" />
+              <Input name="email" placeholder={t('settings.transfer.placeholder')} />
               <Button variant="danger" submit>
-                Transfer ownership
+                {t('settings.transfer.submit')}
               </Button>
             </div>
           </Card>
         </Form>
-        <Card
-          title="Delete"
-          description="Delete completely this Organization, it's Functions, Deployments and Logs. This action is irreversible."
-          danger
-        >
+        <Card title={t('settings.delete.title')} description={t('settings.delete.description')} danger>
           <div>
             <Dialog
-              title="Delete Organization"
-              description={`Write this Organization's name to confirm deletion: ${session?.organization.name}`}
+              title={t('settings.delete.modal.title')}
+              description={t('settings.delete.modal.description', {
+                organizationName: session?.organization.name as string,
+              })}
               disclosure={
                 <Button variant="danger" disabled={deleteOrganization.isLoading}>
-                  Delete
+                  {t('settings.delete.modal.submit')}
                 </Button>
               }
             >
@@ -148,13 +148,13 @@ const Settings = () => {
                       name="confirm"
                       placeholder={session?.organization.name}
                       validator={value =>
-                        value !== session?.organization.name ? 'Confirm with the name of this Funtion' : undefined
+                        value !== session?.organization.name ? t('settings.delete.modal.error') : undefined
                       }
                     />
                     <Dialog.Buttons>
                       <Dialog.Cancel disabled={deleteOrganization.isLoading} />
                       <Dialog.Action variant="danger" onClick={handleSubmit} disabled={deleteOrganization.isLoading}>
-                        Delete Organization
+                        {t('settings.delete.modal.submit')}
                       </Dialog.Action>
                     </Dialog.Buttons>
                   </>

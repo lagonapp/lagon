@@ -235,6 +235,7 @@ importers:
       monaco-editor: ^0.33.0
       next: 12.1.6
       next-auth: ^4.3.4
+      next-international: link:../../../next-international/packages/next-international
       next-transpile-modules: ^9.0.0
       postcss: ^8.4.14
       react: 18.1.0
@@ -271,6 +272,7 @@ importers:
       monaco-editor: 0.33.0
       next: 12.1.6_yz5u6557yqtbarbugy7nmayfrq
       next-auth: 4.8.0_ef5jwxihqo6n7gxfmzogljlgcm
+      next-international: 0.0.2_next@12.1.6+react@18.1.0
       next-transpile-modules: 9.0.0
       react: 18.1.0
       react-chartjs-2: 4.2.0_3loy6czceob3hzurpbyqxprqge
@@ -8896,7 +8898,7 @@ packages:
       eslint-plugin-jsx-a11y: 6.6.0_eslint@8.19.0
       eslint-plugin-react: 7.30.1_eslint@8.19.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.19.0
-      next: 12.1.6_ef5jwxihqo6n7gxfmzogljlgcm
+      next: 12.1.6_yz5u6557yqtbarbugy7nmayfrq
       typescript: 4.7.4
     transitivePeerDependencies:
       - eslint-import-resolver-webpack
@@ -12256,6 +12258,7 @@ packages:
   /mrmime/1.0.1:
     resolution: {integrity: sha512-hzzEagAgDyoU1Q6yg5uI+AorQgdvMCur3FcKf7NhMKWsaYg+RnbTyHRa/9IlLF9rf455MOCtcqqrQQ83pPP7Uw==}
     engines: {node: '>=10'}
+    dev: false
 
   /ms/2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
@@ -12360,6 +12363,16 @@ packages:
       uuid: 8.3.2
     dev: false
 
+  /next-international/0.0.2_next@12.1.6+react@18.1.0:
+    resolution: {integrity: sha512-FnRm7egLyZ+eTKkXqSCbe6lULLc1MYo8MYwWnNbjMm6nOMJAF5DVtpJbXGOvmfDXIwkTJhUeYl00B6SrzT24TQ==}
+    peerDependencies:
+      next: ^12.0.0 | ^11.0.0
+      react: ^18.0.0 | ^17.0.0
+    dependencies:
+      next: 12.1.6_yz5u6557yqtbarbugy7nmayfrq
+      react: 18.1.0
+    dev: false
+
   /next-transpile-modules/9.0.0:
     resolution: {integrity: sha512-VCNFOazIAnXn1hvgYYSTYMnoWgKgwlYh4lm1pKbSfiB3kj5ZYLcKVhfh3jkPOg1cnd9DP+pte9yCUocdPEUBTQ==}
     dependencies:
@@ -12407,6 +12420,7 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
+    dev: false
 
   /next/12.1.6_yz5u6557yqtbarbugy7nmayfrq:
     resolution: {integrity: sha512-cebwKxL3/DhNKfg9tPZDQmbRKjueqykHHbgaoG4VBRH3AHQJ2HO0dbKFiS1hPhe1/qgc2d/hFeadsbPicmLD+A==}
@@ -12448,7 +12462,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
-    dev: false
 
   /nice-try/1.0.5:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
@@ -15362,7 +15375,6 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       react: 18.1.0
-    dev: false
 
   /styled-jsx/5.0.2_react@18.1.0:
     resolution: {integrity: sha512-LqPQrbBh3egD57NBcHET4qcgshPks+yblyhPlH2GY8oaDgKs8SK4C3dBh3oSJjgzJ3G5t1SYEZGHkP+QEpX9EQ==}
@@ -15378,6 +15390,7 @@ packages:
         optional: true
     dependencies:
       react: 18.1.0
+    dev: false
 
   /sucrase/3.23.0:
     resolution: {integrity: sha512-xgC1xboStzGhCnRywlBf/DLmkC+SkdAKqrNCDsxGrzM0phR5oUxoFKiQNrsc2D8wDdAm03iLbSZqjHDddo3IzQ==}
