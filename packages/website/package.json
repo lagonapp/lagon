@@ -34,7 +34,7 @@
     "monaco-editor": "^0.33.0",
     "next": "12.1.6",
     "next-auth": "^4.3.4",
-    "next-international": "^0.0.5",
+    "next-international": "^0.0.6",
     "next-transpile-modules": "^9.0.0",
     "react": "18.1.0",
     "react-chartjs-2": "^4.2.0",
