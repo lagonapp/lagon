@@ -235,7 +235,7 @@ importers:
       monaco-editor: ^0.33.0
       next: 12.1.6
       next-auth: ^4.3.4
-      next-international: link:../../../next-international/packages/next-international
+      next-international: ^0.0.5
       next-transpile-modules: ^9.0.0
       postcss: ^8.4.14
       react: 18.1.0
@@ -272,7 +272,7 @@ importers:
       monaco-editor: 0.33.0
       next: 12.1.6_yz5u6557yqtbarbugy7nmayfrq
       next-auth: 4.8.0_ef5jwxihqo6n7gxfmzogljlgcm
-      next-international: 0.0.2_next@12.1.6+react@18.1.0
+      next-international: 0.0.5_next@12.1.6+react@18.1.0
       next-transpile-modules: 9.0.0
       react: 18.1.0
       react-chartjs-2: 4.2.0_3loy6czceob3hzurpbyqxprqge
@@ -12363,8 +12363,8 @@ packages:
       uuid: 8.3.2
     dev: false
 
-  /next-international/0.0.2_next@12.1.6+react@18.1.0:
-    resolution: {integrity: sha512-FnRm7egLyZ+eTKkXqSCbe6lULLc1MYo8MYwWnNbjMm6nOMJAF5DVtpJbXGOvmfDXIwkTJhUeYl00B6SrzT24TQ==}
+  /next-international/0.0.5_next@12.1.6+react@18.1.0:
+    resolution: {integrity: sha512-5oF109pE1p+fgQ4DbmmUNrEMJUB0HWaBlRiNs1sgjeDNRonguVvq6Sn//BxGB4rwQSEDc12guvwe30n1PfahGA==}
     peerDependencies:
       next: ^12.0.0 | ^11.0.0
       react: ^18.0.0 | ^17.0.0

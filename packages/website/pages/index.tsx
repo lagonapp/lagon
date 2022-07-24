@@ -13,7 +13,7 @@ const Home = () => {
   const createFunction = trpc.useMutation(['functions.create']);
   const name = useRandomName();
   const router = useRouter();
-  const t = useI18n();
+  const { t } = useI18n();
 
   return (
     <LayoutTitle
