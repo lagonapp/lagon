@@ -9,6 +9,7 @@ import Text from 'lib/components/Text';
 import { requiredValidator } from 'lib/form/validators';
 import useTokens from 'lib/hooks/useTokens';
 import { trpc } from 'lib/trpc';
+import { useI18n } from 'locales';
 import { useSession } from 'next-auth/react';
 import { useCallback } from 'react';
 import toast from 'react-hot-toast';
@@ -18,6 +19,8 @@ const Profile = () => {
   const { data: tokens = [], refetch } = useTokens();
   const deleteToken = trpc.useMutation(['tokens.delete']);
   const updateAccount = trpc.useMutation(['accounts.update']);
+  const { scopedT } = useI18n();
+  const t = scopedT('profile');
 
   const removeToken = useCallback(
     async (token: NonNullable<typeof tokens>[number]) => {
@@ -34,7 +37,7 @@ const Profile = () => {
   return (
     <LayoutTitle title="Profile">
       <div className="flex flex-col gap-8">
-        <Card title="Information" description="Edit your account information like your name and email.">
+        <Card title={t('information.title')} description={t('information.description')}>
           <Form
             initialValues={{
               name: session?.user.name,
@@ -54,20 +57,25 @@ const Profile = () => {
           >
             <div className="flex flex-col md:flex-row justify-between items-start gap-6 md:gap-12 mb-6">
               <div className="flex flex-1 flex-col gap-1">
-                <Text size="lg">Name</Text>
-                <Input name="name" placeholder="John Doe" validator={requiredValidator} />
+                <Text size="lg">{t('information.name.title')}</Text>
+                <Input name="name" placeholder={t('information.name.placeholder')} validator={requiredValidator} />
               </div>
               <div className="flex flex-1 flex-col gap-1">
-                <Text size="lg">Email</Text>
-                <Input name="email" type="email" placeholder="john@doe.com" validator={requiredValidator} />
+                <Text size="lg">{t('information.email.title')}</Text>
+                <Input
+                  name="email"
+                  type="email"
+                  placeholder={t('information.email.placeholder')}
+                  validator={requiredValidator}
+                />
               </div>
             </div>
             <Button variant="primary" submit>
-              Update
+              {t('information.submit')}
             </Button>
           </Form>
         </Card>
-        <Card title="Tokens" description="Below are your personal tokens, used for the CLI.">
+        <Card title={t('tokens.title')} description={t('tokens.description')}>
           <div>
             {tokens?.map(token => (
               <div key={token.id}>
@@ -75,7 +83,7 @@ const Profile = () => {
                 <div className="flex items-center justify-between px-4 gap-4">
                   <Text strong>********</Text>
                   <Text size="sm">
-                    Created:&nbsp;
+                    {t('tokens.created')}&nbsp;
                     {new Date(token.createdAt).toLocaleString('en-US', {
                       minute: 'numeric',
                       hour: 'numeric',
@@ -85,11 +93,11 @@ const Profile = () => {
                     })}
                   </Text>
                   <Dialog
-                    title="Delete token"
-                    description="Are you sure you want to delete this token? You will lose access to the CLI if it is still used."
+                    title={t('tokens.delete.modal.title')}
+                    description={t('tokens.delete.modal.description')}
                     disclosure={
                       <Button variant="danger" disabled={deleteToken.isLoading}>
-                        Delete
+                        {t('tokens.delete.submit')}
                       </Button>
                     }
                   >
@@ -100,7 +108,7 @@ const Profile = () => {
                         onClick={() => removeToken(token)}
                         disabled={deleteToken.isLoading}
                       >
-                        Delete Token
+                        {t('tokens.delete.modal.submit')}
                       </Dialog.Action>
                     </Dialog.Buttons>
                   </Dialog>
@@ -112,9 +120,11 @@ const Profile = () => {
         <Card title="Delete" description="Delete permanentently this account. This action is irreversible." danger>
           <div>
             <Dialog
-              title="Delete Account"
-              description={`Write your account email to confirm deletion: ${session?.user.email}`}
-              disclosure={<Button variant="danger">Delete</Button>}
+              title={t('delete.modal.title')}
+              description={t('delete.modal.description', {
+                email: session!.user.email,
+              })}
+              disclosure={<Button variant="danger">{t('delete.submit')}</Button>}
             >
               <Form
                 onSubmit={() => {
@@ -128,12 +138,12 @@ const Profile = () => {
                     <Input
                       name="confirm"
                       placeholder={session?.user.email}
-                      validator={value => (value !== session?.user.email ? 'Confirm with the your email' : undefined)}
+                      validator={value => (value !== session?.user.email ? t('delete.modal.confirm') : undefined)}
                     />
                     <Dialog.Buttons>
                       <Dialog.Cancel />
                       <Dialog.Action variant="danger" onClick={handleSubmit}>
-                        Delete Account
+                        {t('delete.modal.submit')}
                       </Dialog.Action>
                     </Dialog.Buttons>
                   </>
