@@ -31,7 +31,7 @@
 
 ## About
 
-Lagon is a free Open Source Runtime and SaaS that make it easy to deploy TypeScript and JavaScript Serverless Functions at the Edge, using V8 Isolates. You will be able to self-host it.
+Lagon is a free Open Source Runtime and SaaS that make it easy to deploy TypeScript and JavaScript Serverless Functions at the Edge, using V8 Isolates.  The goal of Lagon is to be an alternative to CloudFlare Workers® and Deno Deploy that you can self-host.
 
 > **Warning**: Lagon is still in heavy development. Do not use for production usages.
 
@@ -68,7 +68,7 @@ Lagon is a fairly recent project. It is still in heavy development, so expect br
 
 ## How it works
 
-Lagon uses V8 Isolates, which are sandboxed environments used to run plain JavaScript. That means each Function memory is isolated from each other and from the host.
+Lagon uses V8 Isolates, providing sandboxed JavaScript environments. That means each Function memory space is isolated from each other and from the host.
 
 They start very quickly (faster than starting a Node.js process), and we can run multiple Isolates inside a single Node.js process.
 
