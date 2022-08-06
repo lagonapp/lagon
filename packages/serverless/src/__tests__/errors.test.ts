@@ -1,7 +1,7 @@
 import { Deployment, fetch } from '@lagon/runtime';
 import startServer from 'src/server';
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import * as deploymentsConfig from 'src/deployments/config';
+import * as deploymentsConfig from 'src/deployments/utils';
 import * as deploymentsResult from 'src/deployments/result';
 import * as deployments from 'src/deployments';
 

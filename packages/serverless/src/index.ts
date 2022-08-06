@@ -1,7 +1,7 @@
 import cluster from 'node:cluster';
 import dotenv from 'dotenv';
-import worker from 'src/worker';
-import master from 'src/master';
+import worker from 'src/cluster/worker';
+import master from 'src/cluster/master';
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing';
 

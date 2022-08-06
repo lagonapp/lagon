@@ -1,8 +1,8 @@
 import { clearCache, Deployment } from '@lagon/runtime';
-import { deployments } from 'src/deployments/config';
+import { deployments } from 'src/deployments/utils';
 import startServer from 'src/server';
-import { IS_DEV } from './constants';
-import { clearStatsCache, shouldClearCache } from './deployments/result';
+import { IS_DEV } from '../constants';
+import { clearStatsCache, shouldClearCache } from '../deployments/result';
 
 function deploy(deployment: Deployment) {
   const { domains, deploymentId } = deployment;
@@ -74,6 +74,25 @@ function changeCurrentDeployment(deployment: Deployment & { previousDeploymentId
   deploy(deployment);
 }
 
+function changeDomains(deployment: Deployment & { oldDomains: string[] }) {
+  console.log(
+    'Domains',
+    deployment.deploymentId,
+    'from',
+    deployment.oldDomains.join(', '),
+    'to',
+    deployment.domains.join(', '),
+  );
+
+  for (const domain of deployment.oldDomains) {
+    deployments.delete(domain);
+  }
+
+  for (const domain of deployment.domains) {
+    deployments.set(domain, deployment);
+  }
+}
+
 export default function worker() {
   const port = Number(process.env.LAGON_PORT || 4000);
   const host = process.env.LAGON_HOST || '0.0.0.0';
@@ -101,6 +120,10 @@ export default function worker() {
       }
       case 'current': {
         changeCurrentDeployment(data);
+        break;
+      }
+      case 'domains': {
+        changeDomains(data);
         break;
       }
       case 'clean': {

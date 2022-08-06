@@ -18,7 +18,10 @@ const dateFormatter = Intl.DateTimeFormat('en-US', {
   second: '2-digit',
 });
 
-export async function dev(file: string, { preact, publicDir }: { preact: boolean; publicDir: string }) {
+export async function dev(
+  file: string,
+  { preact, publicDir, port, host }: { preact: boolean; publicDir: string; port: string; host: string },
+) {
   const fileToDeploy = getFileToDeploy(file);
 
   if (!fileToDeploy) {
@@ -125,6 +128,7 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
 
       const headers: Record<string, string> = {};
 
+      // @ts-expect-error we access `headers` which is the private map inside `Headers`
       for (const [key, values] of response.headers.headers.entries()) {
         headers[key] = values[0];
       }
@@ -142,15 +146,29 @@ export async function dev(file: string, { preact, publicDir }: { preact: boolean
     clearCache(deployment);
   });
 
-  fastify.listen(1234, 'localhost', (err, address) => {
-    if (err) {
-      console.error(err);
-      process.exit(1);
+  // get an available port to listen.
+  let retryCount = 0;
+  async function start(nextPort: number) {
+    try {
+      const address = await fastify.listen(nextPort, host);
+      console.clear();
+      logSpace();
+      logSuccess(`Dev server running at: ${address}`);
+      logSpace();
+    } catch (err: any) {
+      if (err) {
+        if (err.code === 'EADDRINUSE' && retryCount < 10) {
+          retryCount++;
+          logError(`Port ${err.port} is in use, trying ${err.port + 1} instead.`);
+          await start(err.port + 1);
+        } else {
+          console.error(err);
+          process.exit(1);
+        }
+      }
     }
+  }
 
-    console.clear();
-    logSpace();
-    logSuccess(`Dev server running at: ${address}`);
-    logSpace();
-  });
+  const parsedPort = parseInt(port);
+  start(isNaN(parsedPort) ? 1234 : parsedPort);
 }

@@ -7,7 +7,9 @@
       "outputs": []
     },
     "typecheck": {
-      "dependsOn": [],
+      "dependsOn": [
+        "^build"
+      ],
       "outputs": []
     },
     "build": {

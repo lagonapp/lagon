@@ -11,7 +11,7 @@ import {
   writeDeploymentCode,
 } from 'src/deployments';
 import { envStringToObject } from '@lagon/common';
-import { CPUS, IS_DEV } from './constants';
+import { IS_DEV } from '../constants';
 
 async function streamToString(stream: Readable): Promise<string> {
   return await new Promise((resolve, reject) => {
@@ -23,7 +23,7 @@ async function streamToString(stream: Readable): Promise<string> {
 }
 
 export default async function master() {
-  const desiredWorkers = IS_DEV ? 1 : CPUS;
+  const desiredWorkers = IS_DEV ? 1 : process.env.LAGON_WORKERS || 1;
 
   const deployments = (
     await prisma.deployment.findMany({
@@ -194,6 +194,14 @@ export default async function master() {
 
     for (const i in cluster.workers) {
       cluster.workers[i]?.send({ msg: 'current', data: deployment });
+    }
+  });
+
+  await redis.subscribe('domains', message => {
+    const deployment = JSON.parse(message);
+
+    for (const i in cluster.workers) {
+      cluster.workers[i]?.send({ msg: 'domains', data: deployment });
     }
   });
 

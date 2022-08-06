@@ -42,7 +42,7 @@ export async function login() {
 
   const { token } = auth;
 
-  setAuthFile(token);
+  setAuthFile(token as string);
   logSpace();
   logSuccess('You can now close the browser tab.');
 }
