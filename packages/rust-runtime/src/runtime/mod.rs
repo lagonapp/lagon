@@ -2,6 +2,10 @@ use futures::task::noop_waker;
 use std::{
     borrow::Borrow,
     ops::Deref,
+    sync::{
+        atomic::{AtomicUsize, Ordering},
+        Arc,
+    },
     task::{Context, Poll},
     time::Instant,
 };
@@ -11,6 +15,9 @@ use tokio::{
     time::{timeout, Duration},
 };
 use v8::{script_compiler, CreateParams, ScriptOrigin, V8};
+
+mod allocator;
+use allocator::create_allocator;
 
 use crate::extract::extract_v8_string;
 use crate::result::RunResult;
@@ -29,7 +36,7 @@ impl RuntimeOptions {
     pub fn new() -> RuntimeOptions {
         RuntimeOptions {
             timeout: 50,
-            memory_limit: 10 << 20, // TODO
+            memory_limit: 128, // TODO
             allow_eval: false,
             // snapshot_blob: None,
         }
@@ -77,16 +84,20 @@ impl Runtime {
         let memory_limit = self.options.memory_limit;
 
         let run_isolate = spawn_blocking(move || {
-            let params = CreateParams::default().heap_limits(0, memory_limit);
+            let memory_mb = memory_limit * 1024 * 1024;
+            let count = Arc::new(AtomicUsize::new(memory_limit));
+            let array_buffer_allocator = create_allocator(count.clone());
+
+            let params = CreateParams::default()
+                .heap_limits(0, memory_mb)
+                .array_buffer_allocator(array_buffer_allocator);
 
             // if let Some(snapshot_blob) = self.options.snapshot_blob {
             //     params = params.snapshot_blob(snapshot_blob.as_mut());
             // }
 
             let mut isolate = v8::Isolate::new(params);
-
             let isolate_handle = isolate.thread_safe_handle();
-
             let mut handle_scope = v8::HandleScope::new(&mut isolate);
 
             fn log_callback(
@@ -148,6 +159,8 @@ impl Runtime {
             let try_catch = &mut v8::TryCatch::new(scope);
             let global: v8::Local<v8::Value> = context.global(try_catch).into();
 
+            let loop_count = count.clone();
+
             spawn_blocking(move || {
                 let waker = noop_waker();
                 let mut cx = Context::from_waker(&waker);
@@ -162,7 +175,12 @@ impl Runtime {
 
                             break;
                         }
-                        _ => (),
+                        _ => {
+                            if loop_count.load(Ordering::SeqCst) >= memory_mb {
+                                isolate_handle.terminate_execution();
+                                break;
+                            }
+                        }
                     };
                 }
             });
@@ -180,8 +198,14 @@ impl Runtime {
 
                     match extract_v8_string(exception, try_catch) {
                         Some(error) => RunResult::Error(error),
-                        // This result will never be reached, but it's here to make the compiler happy.
-                        None => RunResult::Timeout(),
+                        // Can be caused by memory limit being reached, or maybe by something else?
+                        None => {
+                            if count.load(Ordering::SeqCst) >= memory_mb {
+                                RunResult::MemoryLimit()
+                            } else {
+                                RunResult::Error("Unknown error".to_string())
+                            }
+                        }
                     }
                 }
             }
