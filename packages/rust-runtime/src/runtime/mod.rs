@@ -209,12 +209,15 @@ impl Runtime {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lazy_static::lazy_static;
+
+    lazy_static! {
+        static ref RUNTIME: Runtime = Runtime::new(None);
+    }
 
     #[tokio::test]
-    async fn test() {
-        let runtime = Runtime::new(None);
-
-        let result = runtime
+    async fn disable_code_generation_from_strings_with_eval() {
+        let result = RUNTIME
             .run(
                 "export function handler() {
                 eval('test');
@@ -228,8 +231,11 @@ mod tests {
                 "EvalError: Code generation from strings disallowed for this context".to_string()
             )
         );
+    }
 
-        let result = runtime
+    #[tokio::test]
+    async fn disable_code_generation_from_strings_with_new_function() {
+        let result = RUNTIME
             .run(
                 "export function handler() {
                 new Function('test')
@@ -243,24 +249,11 @@ mod tests {
                 "EvalError: Code generation from strings disallowed for this context".to_string()
             )
         );
+    }
 
-        // let result = runtime.run(
-        //     "export function handler() {
-        //         const storage = [];
-        //         const twoMegabytes = 1024 * 1024 * 2;
-        //         while (true) {
-        //             const array = new Uint8Array(twoMegabytes);
-        //             for (let ii = 0; ii < twoMegabytes; ii += 4096) {
-        //                 array[ii] = 1; // we have to put something in the array to flush to real memory
-        //             }
-        //             storage.push(array);
-        //         }
-        //     }",
-        //     None,
-        // );
-        // assert_eq!(result, RunResult::MemoryLimit());
-
-        let result = runtime
+    #[tokio::test]
+    async fn cpu_timeout() {
+        let result = RUNTIME
             .run(
                 "export function handler() {
                 while (true) {}
@@ -269,7 +262,24 @@ mod tests {
             )
             .await;
         assert_eq!(result, RunResult::Timeout());
+    }
 
-        runtime.dispose();
+    #[tokio::test]
+    async fn memory_limit() {
+        let result = RUNTIME.run(
+            "export function handler() {
+                const storage = [];
+                const twoMegabytes = 1024 * 1024 * 2;
+                while (true) {
+                    const array = new Uint8Array(twoMegabytes);
+                    for (let ii = 0; ii < twoMegabytes; ii += 4096) {
+                        array[ii] = 1; // we have to put something in the array to flush to real memory
+                    }
+                    storage.push(array);
+                }
+            }",
+            None,
+        ).await;
+        assert_eq!(result, RunResult::MemoryLimit());
     }
 }
