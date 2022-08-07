@@ -1,23 +1,23 @@
-import React, { Suspense } from 'react';
-import { hydrateRoot } from 'react-dom/client';
-
-const Stripe = () => {
-  return <pre>Hello</pre>;
-};
+import React, { lazy, Suspense } from 'react';
+const Hello = lazy(() => import('./Hello'));
 
 const App = () => {
   return (
-    <div>
-      <h1>Hello World!</h1>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Stripe />
-      </Suspense>
-    </div>
+    <html lang="en">
+      <head>
+        <meta charSet="UTF-8" />
+        <link rel="stylesheet" href="/main.css" />
+      </head>
+      <body>
+        <div>
+          <h1>Hello World!</h1>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Hello />
+          </Suspense>
+        </div>
+      </body>
+    </html>
   );
 };
-
-if (typeof window !== 'undefined') {
-  hydrateRoot(document.getElementById('root')!, <App />);
-}
 
 export default App;
