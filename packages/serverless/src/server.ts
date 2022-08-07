@@ -124,10 +124,7 @@ export default function startServer(port: number, host: string) {
 
     try {
       const runIsolate = await getIsolate({
-        deployment: {
-          ...deployment,
-          timeout: 10000,
-        },
+        deployment,
         getDeploymentCode,
         onReceiveStream,
         onDeploymentLog,

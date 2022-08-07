@@ -17,12 +17,13 @@ async function mockEnvironmentVariables({ deployment, context }: { deployment: D
   context.eval(environmentVariables);
 }
 
-function mockFunction(context: ivm.Context) {
-  context.eval(`const initialFunction = global.Function
-global.Function = function() {
-  throw new Error('Function is not a function')
-}`);
-}
+// TODO: React has a `printWarning` that uses `Function.prototype.apply.call`
+// function mockFunction(context: ivm.Context) {
+//   context.eval(`const initialFunction = global.Function
+// global.Function = function() {
+//   throw new Error('Function is not a function')
+// }`);
+// }
 
 function mockConsole({
   deployment: { deploymentId },
@@ -148,7 +149,7 @@ export async function initRuntime({
 
   await Promise.all([
     mockEnvironmentVariables({ deployment, context }),
-    mockFunction(context),
+    // mockFunction(context),
     mockConsole({ deployment, context, onDeploymentLog }),
     mockFetch(context),
     mockStreamResponse({ deployment, onReceiveStream, context }),
