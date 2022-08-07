@@ -121,7 +121,7 @@ export function handler(request) {
     const runIsolate = await getIsolate({
       deployment: {
         ...deployment,
-        timeout: 1000, // Increase timeout to make sure GH Actions doesn't fail due to timeout
+        timeout: 10000, // Increase timeout to make sure GH Actions doesn't fail due to timeout
       },
       getDeploymentCode: async () => `export async function handler(request) {
   const storage = [];
