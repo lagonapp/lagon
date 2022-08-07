@@ -32,6 +32,7 @@ describe('eval', () => {
   eval('console.log("escape")')
   return new Response('Hello World!');
 }`,
+      onReceiveStream: () => null,
     });
 
     await expect(runIsolate(request)).rejects.toThrow('eval is not a function');
@@ -48,6 +49,7 @@ describe('eval', () => {
   global[evalName]('console.log("escape")')
   return new Response('Hello World!');
 }`,
+      onReceiveStream: () => null,
     });
 
     await expect(runIsolate(request)).rejects.toThrow('global[evalName] is not a function');
@@ -66,6 +68,7 @@ describe('Function', () => {
   fn();
   return new Response('Hello World!');
 }`,
+      onReceiveStream: () => null,
     });
 
     await expect(runIsolate(request)).rejects.toThrow('Function is not a function');
@@ -83,6 +86,7 @@ describe('Function', () => {
   fn();
   return new Response('Hello World!');
 }`,
+      onReceiveStream: () => null,
     });
 
     await expect(runIsolate(request)).rejects.toThrow('Function is not a function');

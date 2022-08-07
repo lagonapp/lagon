@@ -34,6 +34,7 @@ describe('Isolate', () => {
       getDeploymentCode: async () => `export function handler(request) {
   return new Response(process.env.TEST_VAR);
 }`,
+      onReceiveStream: () => null,
     });
 
     const { response } = await runIsolate(request);
@@ -53,6 +54,7 @@ describe('Isolate', () => {
       getDeploymentCode: async () => `export function handler(request) {
   return new Response(process.env.JOHN + ' likes ' + process.env.JANE);
 }`,
+      onReceiveStream: () => null,
     });
 
     const { response } = await runIsolate(request);
@@ -72,6 +74,7 @@ describe('Isolate', () => {
       getDeploymentCode: async () => `export function handler(request) {
   return new Response(process.env.HELLO);
 }`,
+      onReceiveStream: () => null,
     });
 
     const { response } = await runIsolate(request);

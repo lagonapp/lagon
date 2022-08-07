@@ -148,7 +148,7 @@ export async function initRuntime({
 
   await Promise.all([
     mockEnvironmentVariables({ deployment, context }),
-    // mockFunction(context),
+    mockFunction(context),
     mockConsole({ deployment, context, onDeploymentLog }),
     mockFetch(context),
     mockStreamResponse({ deployment, onReceiveStream, context }),

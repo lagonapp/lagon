@@ -31,6 +31,7 @@ describe('Isolate', () => {
       getDeploymentCode: async () => `export function handler(request) {
   return new Response('Hello World');
 }`,
+      onReceiveStream: () => null,
     });
 
     const { response } = await runIsolate(request);
@@ -49,6 +50,7 @@ describe('Isolate', () => {
 export function handler(request) {
   return new Response('Hello World');
 }`,
+        onReceiveStream: () => null,
       }),
     ).rejects.toThrow("Can't import module, you must bundle all your code in a single file.");
 
@@ -63,6 +65,7 @@ export function handler(request) {
         getDeploymentCode: async () => `function handler(request) {
   return new Response('Hello World');
 }`,
+        onReceiveStream: () => null,
       }),
     ).rejects.toThrow('Function did not export a handler function.');
 
@@ -75,6 +78,7 @@ export function handler(request) {
       getIsolate({
         deployment,
         getDeploymentCode: async () => `export const handler = "test"`,
+        onReceiveStream: () => null,
       }),
     ).rejects.toThrow('Function did not export a handler function.');
 
@@ -88,6 +92,7 @@ export function handler(request) {
       getDeploymentCode: async () => `export function handler(request) {
   return new Response('Hello World');
 }`,
+      onReceiveStream: () => null,
     });
 
     expect(deploymentsCache.get(deployment.deploymentId)).toBeDefined();
@@ -103,6 +108,7 @@ export function handler(request) {
   while (true) {}
   return new Response('Hello World');
 }`,
+      onReceiveStream: () => null,
     });
 
     await expect(runIsolate(request)).rejects.toThrow('Script execution timed out.');
@@ -126,6 +132,7 @@ export function handler(request) {
   }
   return new Response('Hello World');
 }`,
+      onReceiveStream: () => null,
     });
 
     await expect(runIsolate(request)).rejects.toThrow('Array buffer allocation failed');

@@ -32,6 +32,7 @@ describe('base64', () => {
   const result = atob("Hello World")
   return new Response(result);
 }`,
+      onReceiveStream: () => null,
     });
 
     const { response } = await runIsolate(request);
@@ -50,6 +51,7 @@ describe('base64', () => {
   const result = btoa(encoded)
   return new Response(result);
 }`,
+      onReceiveStream: () => null,
     });
 
     const { response } = await runIsolate(request);
