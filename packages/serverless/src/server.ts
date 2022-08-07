@@ -44,16 +44,12 @@ const onReceiveStream: OnReceiveStream = (deployment, done, chunk) => {
 
   if (!stream) {
     stream = new Readable();
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    stream._read = () => {};
     streams.set(deployment.deploymentId, stream);
   }
 
-  if (done) {
-    stream.push(null);
-    console.log('end');
-  } else {
-    console.log('chunk');
-    stream.push(chunk);
-  }
+  stream.push(done ? null : chunk);
 };
 
 const logs = new Map<string, DeploymentLog[]>();

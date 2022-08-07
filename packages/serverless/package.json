@@ -23,7 +23,7 @@
     "redis": "^4.1.0"
   },
   "devDependencies": {
-    "@types/node": "^17.0.35",
-    "@lagon/common": "workspace:1.0.0"
+    "@lagon/common": "workspace:1.0.0",
+    "@types/node": "^17.0.35"
   }
 }
