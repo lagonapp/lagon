@@ -3,18 +3,21 @@ import { Deployment, deploymentsCache } from '../deployments';
 import ivm from 'isolated-vm';
 import { initRuntime, snapshot } from '../isolate/runtime';
 import { Response } from '../runtime/Response';
+import { OnReceiveStream } from '../';
 
 async function createIsolate({
   deployment,
+  onReceiveStream,
   onDeploymentLog,
 }: {
   deployment: Deployment;
+  onReceiveStream: OnReceiveStream;
   onDeploymentLog?: OnDeploymentLog;
 }): Promise<{ isolate: ivm.Isolate; context: ivm.Context }> {
   const isolate = new ivm.Isolate({ memoryLimit: deployment.memory, snapshot });
   const context = await isolate.createContext();
 
-  initRuntime({ deployment, context, onDeploymentLog });
+  initRuntime({ deployment, context, onReceiveStream, onDeploymentLog });
 
   return {
     isolate,
@@ -48,10 +51,12 @@ async function getHandler({
 export async function getIsolate({
   deployment,
   getDeploymentCode,
+  onReceiveStream,
   onDeploymentLog,
 }: {
   deployment: Deployment;
   getDeploymentCode: GetDeploymentCodeFn;
+  onReceiveStream: OnReceiveStream;
   onDeploymentLog?: OnDeploymentLog;
 }) {
   let deploymentCache = deploymentsCache.get(deployment.deploymentId);
@@ -67,14 +72,23 @@ export async function getIsolate({
   async function masterHandler(request) {
     const handlerRequest = new Request(request.input, request.options);
 
-    return handler(handlerRequest)
+    const response = await handler(handlerRequest);
+
+    if (response.body instanceof ReadableStream) {
+      streamResponse(response.body);
+      response.body = null;
+
+      return response;
+    }
+
+    return response;
   }
 
   export {
     masterHandler,
   }`;
 
-    const { isolate, context } = await createIsolate({ deployment, onDeploymentLog });
+    const { isolate, context } = await createIsolate({ deployment, onReceiveStream, onDeploymentLog });
     const { handler, masterHandler } = await getHandler({ isolate, context, code });
 
     if (!handler || handler.typeof !== 'function') {

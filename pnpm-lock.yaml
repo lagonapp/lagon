@@ -94,6 +94,20 @@ importers:
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
 
+  examples/react-streaming:
+    specifiers:
+      '@lagon/types': workspace:^0.0.1
+      '@types/react': ^18.0.9
+      '@types/react-dom': ^18.0.5
+      react: 18.1.0
+      react-dom: 18.1.0
+    dependencies:
+      '@lagon/types': link:../../packages/types
+      '@types/react': 18.0.14
+      '@types/react-dom': 18.0.6
+      react: 18.1.0
+      react-dom: 18.1.0_react@18.1.0
+
   examples/reply-with-html:
     specifiers:
       '@lagon/types': workspace:^0.0.1
@@ -109,7 +123,7 @@ importers:
   packages/cli:
     specifiers:
       '@lagon/common': workspace:1.0.0
-      '@lagon/runtime': 0.0.3
+      '@lagon/runtime': 0.0.4
       '@trpc/client': ^9.25.3
       '@types/inquirer': ^8.2.1
       '@types/update-notifier': ^5.1.0
@@ -156,8 +170,10 @@ importers:
     specifiers:
       '@types/node': ^17.0.35
       isolated-vm: ^4.4.1
+      web-streams-polyfill: ^3.2.1
     dependencies:
       isolated-vm: 4.4.1
+      web-streams-polyfill: 3.2.1
     devDependencies:
       '@types/node': 17.0.35
 
@@ -166,7 +182,7 @@ importers:
       '@aws-sdk/client-s3': ^3.100.0
       '@lagon/common': workspace:1.0.0
       '@lagon/prisma': workspace:1.0.0
-      '@lagon/runtime': workspace:0.0.3
+      '@lagon/runtime': workspace:0.0.4
       '@sentry/node': ^7.1.1
       '@sentry/tracing': ^7.1.1
       '@types/node': ^17.0.35
@@ -8898,7 +8914,7 @@ packages:
       eslint-plugin-jsx-a11y: 6.6.0_eslint@8.19.0
       eslint-plugin-react: 7.30.1_eslint@8.19.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.19.0
-      next: 12.1.6_yz5u6557yqtbarbugy7nmayfrq
+      next: 12.1.6_ef5jwxihqo6n7gxfmzogljlgcm
       typescript: 4.7.4
     transitivePeerDependencies:
       - eslint-import-resolver-webpack
@@ -12425,7 +12441,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
-    dev: false
 
   /next/12.1.6_yz5u6557yqtbarbugy7nmayfrq:
     resolution: {integrity: sha512-cebwKxL3/DhNKfg9tPZDQmbRKjueqykHHbgaoG4VBRH3AHQJ2HO0dbKFiS1hPhe1/qgc2d/hFeadsbPicmLD+A==}
@@ -12467,6 +12482,7 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
+    dev: false
 
   /nice-try/1.0.5:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
@@ -15380,6 +15396,7 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       react: 18.1.0
+    dev: false
 
   /styled-jsx/5.0.2_react@18.1.0:
     resolution: {integrity: sha512-LqPQrbBh3egD57NBcHET4qcgshPks+yblyhPlH2GY8oaDgKs8SK4C3dBh3oSJjgzJ3G5t1SYEZGHkP+QEpX9EQ==}
@@ -15395,7 +15412,6 @@ packages:
         optional: true
     dependencies:
       react: 18.1.0
-    dev: false
 
   /sucrase/3.23.0:
     resolution: {integrity: sha512-xgC1xboStzGhCnRywlBf/DLmkC+SkdAKqrNCDsxGrzM0phR5oUxoFKiQNrsc2D8wDdAm03iLbSZqjHDddo3IzQ==}

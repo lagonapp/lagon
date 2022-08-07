@@ -5,6 +5,7 @@ import { addLog, OnDeploymentLog } from '../deployments/log';
 import { fetch, FetchResult } from '../fetch';
 import { RequestInit } from '../runtime/Request';
 import path from 'node:path';
+import { OnReceiveStream } from '..';
 
 async function mockEnvironmentVariables({ deployment, context }: { deployment: Deployment; context: ivm.Context }) {
   let environmentVariables = 'global.process = { env: { NODE_ENV: "production" } }\n';
@@ -16,12 +17,13 @@ async function mockEnvironmentVariables({ deployment, context }: { deployment: D
   context.eval(environmentVariables);
 }
 
-function mockFunction(context: ivm.Context) {
-  context.eval(`const initialFunction = global.Function
-global.Function = function() {
-  throw new Error('Function is not a function')
-}`);
-}
+// TODO: React has a `printWarning` that uses `Function.prototype.apply.call`
+// function mockFunction(context: ivm.Context) {
+//   context.eval(`const initialFunction = global.Function
+// global.Function = function() {
+//   throw new Error('Function is not a function')
+// }`);
+// }
 
 function mockConsole({
   deployment: { deploymentId },
@@ -64,6 +66,45 @@ async function mockFetch(context: ivm.Context) {
   );
 }
 
+async function mockStreamResponse({
+  deployment,
+  onReceiveStream,
+  context,
+}: {
+  deployment: Deployment;
+  onReceiveStream: OnReceiveStream;
+  context: ivm.Context;
+}) {
+  await context.evalClosure(
+    `global.streamResponse = (readableStream) => {
+  const reader = readableStream.getReader();
+
+  const read = new ReadableStream({
+    start: (controller) => {
+      const push = () => {
+        reader.read().then( ({ done, value }) => {
+          if (done) {
+            controller.close();
+            $0.applyIgnored(undefined, [done], { arguments: { copy: true } })
+            return;
+          }
+
+          controller.enqueue(value);
+          $0.applyIgnored(undefined, [done, value], { arguments: { copy: true } })
+          push();
+        })
+      }
+
+      push();
+    }
+  })
+}
+`,
+    [(done: boolean, chunk?: Uint8Array) => onReceiveStream(deployment, done, chunk)],
+    { result: { promise: true, reference: true }, arguments: { reference: true }, filename: 'masterHandler' },
+  );
+}
+
 export const snapshot = ivm.Isolate.createSnapshot([
   readRuntimeFile('Response', code => code.replace(/global.*;/gm, '')),
   readRuntimeFile('Request', code => code.replace(/global.*;/gm, '')),
@@ -71,6 +112,7 @@ export const snapshot = ivm.Isolate.createSnapshot([
   readRuntimeFile('URL'),
   readRuntimeFile('encoding'),
   readRuntimeFile('base64'),
+  readRuntimeFile('streams'),
 ]);
 
 function readRuntimeFile(filename: string, transform?: (code: string) => string) {
@@ -83,7 +125,7 @@ function readRuntimeFile(filename: string, transform?: (code: string) => string)
       /* c8 ignore end */
     )
     .toString('utf-8')
-    .replace(/export((.|\n)*);/gm, '');
+    .replace(/^export((.|\n)*);/gm, '');
 
   return {
     filename: `file:///${filename.toLowerCase()}.js`,
@@ -94,10 +136,12 @@ function readRuntimeFile(filename: string, transform?: (code: string) => string)
 export async function initRuntime({
   deployment,
   context,
+  onReceiveStream,
   onDeploymentLog,
 }: {
   deployment: Deployment;
   context: ivm.Context;
+  onReceiveStream: OnReceiveStream;
   onDeploymentLog?: OnDeploymentLog;
 }) {
   await context.global.set('global', context.global.derefInto());
@@ -105,8 +149,9 @@ export async function initRuntime({
 
   await Promise.all([
     mockEnvironmentVariables({ deployment, context }),
-    mockFunction(context),
+    // mockFunction(context),
     mockConsole({ deployment, context, onDeploymentLog }),
     mockFetch(context),
+    mockStreamResponse({ deployment, onReceiveStream, context }),
   ]);
 }

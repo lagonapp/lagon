@@ -1,12 +1,13 @@
 import path from 'node:path';
 import fs from 'node:fs';
 import { logInfo, logError, logSuccess, logSpace } from '../utils/logger';
-import { clearCache, Deployment, getIsolate, HandlerRequest } from '@lagon/runtime';
+import { clearCache, Deployment, getIsolate, HandlerRequest, OnReceiveStream } from '@lagon/runtime';
 import Fastify from 'fastify';
 import { bundleFunction } from '../utils/deployments';
 import chalk from 'chalk';
 import { getAssetsDir, getEnvironmentVariables, getFileToDeploy } from '../utils';
 import { extensionToContentType, FUNCTION_DEFAULT_MEMORY, FUNCTION_DEFAULT_TIMEOUT } from '@lagon/common';
+import { Readable } from 'node:stream';
 
 const fastify = Fastify({
   logger: false,
@@ -17,6 +18,21 @@ const dateFormatter = Intl.DateTimeFormat('en-US', {
   minute: '2-digit',
   second: '2-digit',
 });
+
+const streams = new Map<string, Readable>();
+
+const onReceiveStream: OnReceiveStream = (deployment, done, chunk) => {
+  let stream = streams.get(deployment.deploymentId);
+
+  if (!stream) {
+    stream = new Readable();
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    stream._read = () => {};
+    streams.set(deployment.deploymentId, stream);
+  }
+
+  stream.push(done ? null : chunk);
+};
 
 export async function dev(
   file: string,
@@ -95,6 +111,7 @@ export async function dev(
       const runIsolate = await getIsolate({
         deployment,
         getDeploymentCode: async () => code,
+        onReceiveStream,
         onDeploymentLog: ({ log }) => {
           const color =
             log.level === 'debug'
@@ -133,17 +150,28 @@ export async function dev(
         headers[key] = values[0];
       }
 
+      const payload = streams.get(deployment.deploymentId) || response.body;
+
+      if (typeof payload !== 'string') {
+        payload.on('end', () => {
+          clearCache(deployment);
+          streams.delete(deployment.deploymentId);
+        });
+      }
+
       reply
         .status(response.status || 200)
         .headers(headers)
-        .send(response.body);
+        .send(payload);
     } catch (error) {
       reply.status(500).header('Content-Type', 'text/html').send();
 
       logError(`An error occured while running the function: ${(error as Error).message}`);
     }
 
-    clearCache(deployment);
+    if (!streams.has(deployment.deploymentId)) {
+      clearCache(deployment);
+    }
   });
 
   // get an available port to listen.

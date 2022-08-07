@@ -174,6 +174,7 @@ describe('fetch', () => {
   const response = await fetch('http://localhost:8000');
   return new Response(await response.text());
 }`,
+      onReceiveStream: () => null,
     });
 
     const { response } = await runIsolate(request);
@@ -191,6 +192,7 @@ describe('fetch', () => {
   const response = await fetch('http://localhost:8000/json');
   return new Response(await response.json());
 }`,
+      onReceiveStream: () => null,
     });
 
     const { response } = await runIsolate(request);
@@ -211,6 +213,7 @@ describe('fetch', () => {
   });
   return new Response(await response.json());
 }`,
+      onReceiveStream: () => null,
     });
 
     const { response } = await runIsolate(request);
