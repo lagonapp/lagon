@@ -162,7 +162,7 @@ export default function startServer(port: number, host: string) {
 
       const payload = streams.get(deployment.deploymentId) || response.body;
 
-      if (payload?.['on']) {
+      if (typeof payload !== 'string') {
         payload.on('end', () => {
           streams.delete(deployment.deploymentId);
         });
