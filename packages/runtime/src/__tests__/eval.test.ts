@@ -59,7 +59,7 @@ describe('eval', () => {
 });
 
 describe('Function', () => {
-  it('should prevent Function usage from global', async () => {
+  it.skip('should prevent Function usage from global', async () => {
     const deployment = getDeployment();
     const runIsolate = await getIsolate({
       deployment,
@@ -76,7 +76,7 @@ describe('Function', () => {
     clearCache(deployment);
   });
 
-  it('should prevent Function usage without Function keyword', async () => {
+  it.skip('should prevent Function usage without Function keyword', async () => {
     const deployment = getDeployment();
     const runIsolate = await getIsolate({
       deployment,

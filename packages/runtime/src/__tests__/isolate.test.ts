@@ -119,7 +119,10 @@ export function handler(request) {
   it('should throw when memory is full', async () => {
     const deployment = getDeployment();
     const runIsolate = await getIsolate({
-      deployment,
+      deployment: {
+        ...deployment,
+        timeout: 1000, // Increase timeout to make sure GH Actions doesn't fail due to timeout
+      },
       getDeploymentCode: async () => `export async function handler(request) {
   const storage = [];
   const twoMegabytes = 1024 * 1024 * 20;
