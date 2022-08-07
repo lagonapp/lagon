@@ -1,5 +1,6 @@
-import { defineLocale } from 'locales';
+// import { defineLocale } from 'locales';
 
-export default defineLocale({
+// TODO: wrap with `defineLocale`
+export default {
   'home.createfunction': 'Créer une Function',
-});
+} as const;
