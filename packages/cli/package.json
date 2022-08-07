@@ -1,6 +1,6 @@
 {
   "name": "@lagon/cli",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "CLI for Lagon",
   "type": "module",
   "files": [
@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@lagon/runtime": "workspace:0.0.3",
+    "@lagon/runtime": "0.0.4",
     "@trpc/client": "^9.25.3",
     "chalk": "^5.0.1",
     "commander": "^9.3.0",
@@ -28,8 +28,8 @@
     "update-notifier": "^6.0.1"
   },
   "devDependencies": {
+    "@lagon/common": "workspace:1.0.0",
     "@types/inquirer": "^8.2.1",
-    "@types/update-notifier": "^5.1.0",
-    "@lagon/common": "workspace:1.0.0"
+    "@types/update-notifier": "^5.1.0"
   }
 }

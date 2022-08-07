@@ -1,6 +1,6 @@
 {
   "name": "@lagon/runtime",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "JavaScript Serverless Runtime for Lagon",
   "type": "module",
   "main": "dist/index.js",
@@ -11,7 +11,7 @@
   "scripts": {
     "watch": "tsup src/index.ts --format=esm --dts --watch",
     "build": "tsup src/index.ts --format=esm --dts",
-    "build:runtime": "for file in src/runtime/*; do pnpm esbuild $file --outdir=dist/runtime --bundle --format=esm && pnpm tsc $file --declaration --emitDeclarationOnly --outDir dist/runtime; done",
+    "build:runtime": "for file in src/runtime/*; do pnpm esbuild $file --outdir=dist/runtime --bundle --format=esm && pnpm tsc $file --target es2015 --moduleResolution node --declaration --emitDeclarationOnly --outDir dist/runtime; done",
     "lint": "eslint --cache --ignore-pattern dist .",
     "typecheck": "tsc --noEmit"
   },
