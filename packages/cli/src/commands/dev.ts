@@ -152,7 +152,7 @@ export async function dev(
 
       const payload = streams.get(deployment.deploymentId) || response.body;
 
-      if (typeof payload !== 'string') {
+      if (payload instanceof Readable) {
         payload.on('end', () => {
           clearCache(deployment);
           streams.delete(deployment.deploymentId);
