@@ -4,6 +4,7 @@ importers:
 
   .:
     specifiers:
+      '@changesets/changelog-github': ^0.4.6
       '@changesets/cli': ^2.23.1
       '@typescript-eslint/eslint-plugin': ^5.26.0
       '@typescript-eslint/parser': ^5.26.0
@@ -22,6 +23,7 @@ importers:
       vite-tsconfig-paths: ^3.5.0
       vitest: ^0.15.1
     devDependencies:
+      '@changesets/changelog-github': 0.4.6
       '@changesets/cli': 2.23.1
       '@typescript-eslint/eslint-plugin': 5.30.5_6zdoc3rn4mpiddqwhppni2mnnm
       '@typescript-eslint/parser': 5.30.5_4x5o4skxv6sl53vpwefgt23khm
@@ -2699,6 +2701,16 @@ packages:
       '@changesets/types': 5.0.0
     dev: true
 
+  /@changesets/changelog-github/0.4.6:
+    resolution: {integrity: sha512-ahR/+o3OPodzfG9kucEMU/tEtBgwy6QoJiWi1sDBPme8n3WjT6pBlbhqNYpWAJKilomwfjBGY0MTUTs6r9d1RQ==}
+    dependencies:
+      '@changesets/get-github-info': 0.5.1
+      '@changesets/types': 5.1.0
+      dotenv: 8.6.0
+    transitivePeerDependencies:
+      - encoding
+    dev: true
+
   /@changesets/cli/2.23.1:
     resolution: {integrity: sha512-yXQ29Iw/26yq1oJpOCa7BJDeUvuurZmREmCX9p9m5RxlKNDnROJBylQDCVfqQdZbeV2jfvd3XRKvci80SvGssg==}
     hasBin: true
@@ -2764,6 +2776,15 @@ packages:
       chalk: 2.4.2
       fs-extra: 7.0.1
       semver: 5.7.1
+    dev: true
+
+  /@changesets/get-github-info/0.5.1:
+    resolution: {integrity: sha512-w2yl3AuG+hFuEEmT6j1zDlg7GQLM/J2UxTmk0uJBMdRqHni4zXGe/vUlPfLom5KfX3cRfHc0hzGvloDPjWFNZw==}
+    dependencies:
+      dataloader: 1.4.0
+      node-fetch: 2.6.7
+    transitivePeerDependencies:
+      - encoding
     dev: true
 
   /@changesets/get-release-plan/3.0.10:
@@ -2835,6 +2856,10 @@ packages:
 
   /@changesets/types/5.0.0:
     resolution: {integrity: sha512-IT1kBLSbAgTS4WtpU6P5ko054hq12vk4tgeIFRVE7Vnm4a/wgbNvBalgiKP0MjEXbCkZbItiGQHkCGxYWR55sA==}
+    dev: true
+
+  /@changesets/types/5.1.0:
+    resolution: {integrity: sha512-uUByGATZCdaPkaO9JkBsgGDjEvHyY2Sb0e/J23+cwxBi5h0fxpLF/HObggO/Fw8T2nxK6zDfJbPsdQt5RwYFJA==}
     dev: true
 
   /@changesets/write/0.1.8:
@@ -8127,6 +8152,10 @@ packages:
   /data-uri-to-buffer/4.0.0:
     resolution: {integrity: sha512-Vr3mLBA8qWmcuschSLAOogKgQ/Jwxulv3RNE4FXnYWRGujzrRWQI4m12fQqRkwX06C0KanhLr4hK+GydchZsaA==}
     engines: {node: '>= 12'}
+
+  /dataloader/1.4.0:
+    resolution: {integrity: sha512-68s5jYdlvasItOJnCuI2Q9s4q98g0pCyL3HrcKJu8KNugUl8ahgmZYg38ysLTgQjjXX3H8CJLkAvWrclWfcalw==}
+    dev: true
 
   /date-fns/2.28.0:
     resolution: {integrity: sha512-8d35hViGYx/QH0icHYCeLmsLmMUheMmTyV9Fcm6gvNwdw31yXXH+O85sOBJ+OLnLQMKZowvpKb6FgMIQjcpvQw==}

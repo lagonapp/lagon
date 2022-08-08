@@ -26,6 +26,7 @@
     "pnpm": ">=7.3.0"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.4.6",
     "@changesets/cli": "^2.23.1",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
