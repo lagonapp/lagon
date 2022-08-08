@@ -1,8 +1,8 @@
 {
   "name": "@lagon/example-fetch-api",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "@lagon/types": "workspace:^0.0.1"
+    "@lagon/types": "workspace:0.0.1"
   }
 }

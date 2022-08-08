@@ -1,6 +1,6 @@
 {
   "name": "@lagon/website",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -15,8 +15,8 @@
     "@aws-sdk/client-s3": "^3.100.0",
     "@headlessui/react": "^1.6.4",
     "@heroicons/react": "^1.0.6",
-    "@lagon/common": "workspace:1.0.0",
-    "@lagon/prisma": "workspace:1.0.0",
+    "@lagon/common": "workspace:0.0.1",
+    "@lagon/prisma": "workspace:0.0.1",
     "@monaco-editor/react": "^4.4.5",
     "@next-auth/prisma-adapter": "^1.0.3",
     "@radix-ui/react-alert-dialog": "^0.1.7",

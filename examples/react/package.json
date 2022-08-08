@@ -1,9 +1,9 @@
 {
   "name": "@lagon/example-react",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "@lagon/types": "workspace:^0.0.1",
+    "@lagon/types": "workspace:0.0.1",
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.5",
     "react": "18.1.0",
