@@ -1,11 +1,11 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { logInfo, logError, logSuccess, logSpace } from '../utils/logger';
+import { logInfo, logError, logSuccess, logSpace, logWarn } from '../utils/logger';
 import { clearCache, Deployment, getIsolate, HandlerRequest, OnReceiveStream } from '@lagon/runtime';
 import Fastify from 'fastify';
 import { bundleFunction } from '../utils/deployments';
 import chalk from 'chalk';
-import { getAssetsDir, getEnvironmentVariables, getFileToDeploy } from '../utils';
+import { getAssetsDir, getClientFile, getEnvironmentVariables, getFileToDeploy } from '../utils';
 import { extensionToContentType, FUNCTION_DEFAULT_MEMORY, FUNCTION_DEFAULT_TIMEOUT } from '@lagon/common';
 import { Readable } from 'node:stream';
 
@@ -37,7 +37,13 @@ const onReceiveStream: OnReceiveStream = (deployment, done, chunk) => {
 
 export async function dev(
   file: string,
-  { preact, publicDir, port, host }: { preact: boolean; publicDir: string; port: string; host: string },
+  {
+    preact,
+    client,
+    publicDir,
+    port,
+    host,
+  }: { preact: boolean; client: string; publicDir: string; port: string; host: string },
 ) {
   const fileToDeploy = getFileToDeploy(file);
 
@@ -51,14 +57,32 @@ export async function dev(
     return;
   }
 
-  let { code, assets } = await bundleFunction(fileToDeploy, preact, assetsDir);
+  let clientFile: string | undefined;
+
+  if (client || preact) {
+    if (preact) {
+      logWarn("'--preact' is deprecated, use '--client <file>' instead.");
+    }
+
+    clientFile = getClientFile(fileToDeploy, preact ? 'App.tsx' : client);
+
+    if (!clientFile) {
+      return;
+    }
+  }
+
+  let { code, assets } = await bundleFunction({ file: fileToDeploy, clientFile, assetsDir });
 
   const watcher = fs.watch(path.parse(fileToDeploy).dir, async eventType => {
     if (eventType === 'change') {
       console.clear();
       logInfo('Detected change, recompiling...');
 
-      const { code: newCode, assets: newAssets } = await bundleFunction(fileToDeploy, preact, assetsDir);
+      const { code: newCode, assets: newAssets } = await bundleFunction({
+        file: fileToDeploy,
+        clientFile,
+        assetsDir,
+      });
       code = newCode;
       assets = newAssets;
 

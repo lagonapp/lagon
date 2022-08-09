@@ -1,12 +1,15 @@
 import path from 'node:path';
 import { createDeployment, createFunction, getDeploymentConfig, writeDeploymentConfig } from '../utils/deployments';
-import { logInfo, logSpace, logDeploymentSuccessful } from '../utils/logger';
+import { logInfo, logSpace, logDeploymentSuccessful, logWarn } from '../utils/logger';
 import inquirer from 'inquirer';
 import { authToken } from '../auth';
 import { trpc } from '../trpc';
-import { getAssetsDir, getFileToDeploy } from '../utils';
+import { getAssetsDir, getClientFile, getFileToDeploy } from '../utils';
 
-export async function deploy(file: string, { preact, publicDir }: { preact: boolean; publicDir: string }) {
+export async function deploy(
+  file: string,
+  { preact, client, publicDir }: { preact: boolean; client: string; publicDir: string },
+) {
   const fileToDeploy = getFileToDeploy(file);
 
   if (!fileToDeploy) {
@@ -17,6 +20,20 @@ export async function deploy(file: string, { preact, publicDir }: { preact: bool
 
   if (!assetsDir) {
     return;
+  }
+
+  let clientFile: string | undefined;
+
+  if (client || preact) {
+    if (preact) {
+      logWarn("'--preact' is deprecated, use '--client <file>' instead.");
+    }
+
+    clientFile = getClientFile(fileToDeploy, preact ? 'App.tsx' : client);
+
+    if (!clientFile) {
+      return;
+    }
   }
 
   const config = getDeploymentConfig(fileToDeploy);
@@ -62,7 +79,12 @@ export async function deploy(file: string, { preact, publicDir }: { preact: bool
 
       logSpace();
 
-      const deployment = await createDeployment(func, fileToDeploy, preact, assetsDir);
+      const deployment = await createDeployment({
+        functionId: func.id,
+        file: fileToDeploy,
+        clientFile,
+        assetsDir,
+      });
       writeDeploymentConfig(fileToDeploy, { functionId: func, organizationId: organization, publicDir });
       logDeploymentSuccessful(false, deployment.functionName);
     } else {
@@ -76,7 +98,7 @@ export async function deploy(file: string, { preact, publicDir }: { preact: bool
 
       logSpace();
 
-      const func = await createFunction(name, fileToDeploy, preact, assetsDir);
+      const func = await createFunction({ name, file: fileToDeploy, clientFile, assetsDir });
       writeDeploymentConfig(fileToDeploy, { functionId: func.id, organizationId: organization, publicDir });
       logDeploymentSuccessful(true, name);
     }
@@ -92,6 +114,11 @@ export async function deploy(file: string, { preact, publicDir }: { preact: bool
     finalAssetsDir = path.join(path.parse(fileToDeploy).dir, config.publicDir);
   }
 
-  const deployment = await createDeployment(config.functionId, fileToDeploy, preact, finalAssetsDir);
+  const deployment = await createDeployment({
+    functionId: config.functionId,
+    file: fileToDeploy,
+    clientFile,
+    assetsDir: finalAssetsDir,
+  });
   logDeploymentSuccessful(false, deployment.functionName);
 }

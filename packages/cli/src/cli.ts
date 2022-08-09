@@ -15,7 +15,8 @@ export function runCli() {
     .command('deploy')
     .description('Deploy the given file')
     .argument('<file>', 'The file to deploy')
-    .option('--preact', 'Bundle the function as a preact site')
+    .option('--preact', 'Bundle the function as a preact site (deprecated, use --client)')
+    .option('-c, --client <file>', 'Bundle this file as a client-side script')
     .option('-p, --public-dir <dir>', 'The directory to serve the public assets from', 'public')
     .action(loggedInGuard(deploy));
   program
@@ -30,7 +31,8 @@ export function runCli() {
     .argument('<file>', 'The file to serve')
     .option('--port <port>', 'Specify dev server port number', '1234')
     .option('--host <host>', 'Specify dev server host name', 'localhost')
-    .option('--preact', 'Bundle the function as a preact site')
+    .option('--preact', 'Bundle the function as a preact site (deprecated, use --client)')
+    .option('-c, --client <file>', 'Bundle this file as a client-side script')
     .option('-p, --public-dir <dir>', 'The directory to serve the public assets from', 'public')
     .action(dev);
 

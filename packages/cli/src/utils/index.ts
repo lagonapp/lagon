@@ -32,6 +32,24 @@ export function getAssetsDir(fileToDeploy: string, publicDir: string): string | 
   return assetsDir;
 }
 
+export function getClientFile(fileToDeploy: string, client: string): string | undefined {
+  const clientFile = path.join(path.parse(fileToDeploy).dir, client);
+
+  if (!fs.existsSync(clientFile) || fs.statSync(clientFile).isDirectory()) {
+    logError(`Client file '${client}' does not exist.`);
+    return;
+  }
+
+  const extension = path.extname(clientFile);
+
+  if (!SUPPORTED_EXTENSIONS.includes(extension)) {
+    logError(`Extension '${extension}' is not supported (${SUPPORTED_EXTENSIONS.join(', ')})`);
+    return;
+  }
+
+  return clientFile;
+}
+
 export function getEnvironmentVariables(fileToDeploy: string): Record<string, string> {
   const envFile = path.join(path.parse(fileToDeploy).dir, '.env');
 
