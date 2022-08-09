@@ -18,6 +18,7 @@ const dateFormatter = Intl.DateTimeFormat('en-US', {
   minute: '2-digit',
   second: '2-digit',
 });
+const getDate = () => dateFormatter.format(new Date());
 
 const streams = new Map<string, Readable>();
 
@@ -92,9 +93,7 @@ export async function dev(
       return;
     }
 
-    console.log(
-      `${chalk.gray(dateFormatter.format(new Date()))} ${chalk.blue.bold(request.method)} ${chalk.black(request.url)}`,
-    );
+    console.log(`${chalk.gray(getDate())} ${chalk.blue.bold(request.method)} ${chalk.black(request.url)}`);
 
     const asset = deployment.assets.find(asset => request.url === `/${asset}`);
 
@@ -127,9 +126,7 @@ export async function dev(
               : chalk.yellow;
 
           logSpace();
-          console.log(
-            `${chalk.gray(dateFormatter.format(new Date()))} ${color.bold(log.level)} ${chalk.black(log.content)}`,
-          );
+          console.log(`${chalk.gray(getDate())} ${color.bold(log.level)} ${chalk.black(log.content)}`);
           logSpace();
         },
       });
