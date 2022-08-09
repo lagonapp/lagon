@@ -45,11 +45,15 @@ export function removeDeploymentFile(file: string) {
   fs.rmSync(configFile);
 }
 
-export async function bundleFunction(
-  file: string,
-  preact: boolean,
-  assetsDir: string,
-): Promise<{ code: string; assets: { name: string; content: string }[] }> {
+export async function bundleFunction({
+  file,
+  clientFile,
+  assetsDir,
+}: {
+  file: string;
+  clientFile?: string;
+  assetsDir: string;
+}): Promise<{ code: string; assets: { name: string; content: string }[] }> {
   const assets: { name: string; content: string }[] = [];
 
   logInfo('Bundling function handler...');
@@ -75,11 +79,11 @@ export async function bundleFunction(
     minifySyntax: true,
   });
 
-  if (preact) {
-    logInfo(`Bundling 'preact' code...`);
+  if (clientFile) {
+    logInfo(`Bundling client file...`);
 
     const { outputFiles: clientOutputFiles } = await build({
-      entryPoints: [path.join(path.parse(file).dir, 'App.tsx')],
+      entryPoints: [clientFile],
       bundle: true,
       write: false,
       loader: {
@@ -99,7 +103,7 @@ export async function bundleFunction(
     });
 
     assets.push({
-      name: 'app.js',
+      name: `${path.basename(clientFile).toLowerCase()}.js`,
       content: clientOutputFiles[0].text,
     });
   }
@@ -131,13 +135,18 @@ export async function bundleFunction(
   };
 }
 
-export async function createDeployment(
-  functionId: string,
-  file: string,
-  preact: boolean,
-  assetsDir: string,
-): Promise<{ functionName: string }> {
-  const { code, assets } = await bundleFunction(file, preact, assetsDir);
+export async function createDeployment({
+  functionId,
+  file,
+  clientFile,
+  assetsDir,
+}: {
+  functionId: string;
+  file: string;
+  clientFile?: string;
+  assetsDir: string;
+}): Promise<{ functionName: string }> {
+  const { code, assets } = await bundleFunction({ file, clientFile, assetsDir });
   const body = new FormData();
 
   body.set('functionId', functionId);
@@ -157,8 +166,18 @@ export async function createDeployment(
   return (await response.json()) as { functionName: string };
 }
 
-export async function createFunction(name: string, file: string, preact: boolean, assetsDir: string) {
-  const { code, assets } = await bundleFunction(file, preact, assetsDir);
+export async function createFunction({
+  name,
+  file,
+  clientFile,
+  assetsDir,
+}: {
+  name: string;
+  file: string;
+  clientFile?: string;
+  assetsDir: string;
+}) {
+  const { code, assets } = await bundleFunction({ file, clientFile, assetsDir });
   const func = await trpc(authToken).mutation('functions.create', {
     name,
     domains: [],

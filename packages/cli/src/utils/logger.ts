@@ -4,6 +4,10 @@ export function logError(message: string) {
   console.log(`${chalk.red.bold('error  ')} ${message}`);
 }
 
+export function logWarn(message: string) {
+  console.log(`${chalk.yellow.bold('warn   ')} ${message}`);
+}
+
 export function logSuccess(message: string) {
   console.log(`${chalk.green.bold('success')} ${message}`);
 }
