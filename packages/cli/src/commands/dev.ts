@@ -92,13 +92,15 @@ export async function dev(
       return;
     }
 
-    console.log(chalk.gray(dateFormatter.format(new Date())) + ' ' + chalk.blue(request.method) + ' ' + request.url);
+    console.log(
+      `${chalk.gray(dateFormatter.format(new Date()))} ${chalk.blue.bold(request.method)} ${chalk.black(request.url)}`,
+    );
 
     const asset = deployment.assets.find(asset => request.url === `/${asset}`);
 
     if (asset) {
       const extension = path.extname(asset);
-      console.log(chalk.black(`            Found asset: ${asset}`));
+      console.log(chalk.black(`            ${chalk.gray('Found asset:')} ${chalk.gray.bold(asset)}`));
 
       reply
         .status(200)
@@ -124,7 +126,11 @@ export async function dev(
               ? chalk.gray
               : chalk.yellow;
 
-          console.log(`            ${color(log.level)} ${log.content}`);
+          logSpace();
+          console.log(
+            `${chalk.gray(dateFormatter.format(new Date()))} ${color.bold(log.level)} ${chalk.black(log.content)}`,
+          );
+          logSpace();
         },
       });
 

@@ -105,7 +105,7 @@ export async function bundleFunction(
   }
 
   if (fs.existsSync(assetsDir) && fs.statSync(assetsDir).isDirectory()) {
-    logInfo(`Found 'public' directory, bundling assets...`);
+    logInfo(`Found public directory (${path.basename(assetsDir)}), bundling assets...`);
 
     const files = fs.readdirSync(assetsDir);
 
