@@ -147,7 +147,7 @@ importers:
   packages/cli:
     specifiers:
       '@lagon/common': workspace:0.0.1
-      '@lagon/runtime': 0.0.4
+      '@lagon/runtime': workspace:0.0.4
       '@trpc/client': ^9.25.3
       '@types/inquirer': ^8.2.1
       '@types/update-notifier': ^5.1.0

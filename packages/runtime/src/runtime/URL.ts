@@ -146,7 +146,7 @@ export class URL {
       }
 
       this.password = password;
-      this.pathname = pathname;
+      this.pathname = pathname === '' ? '/' : pathname;
       this.port = port;
       this.protocol = protocol;
       this.search = search;

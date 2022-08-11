@@ -156,7 +156,7 @@ export async function dev(
       });
 
       const handlerRequest: HandlerRequest = {
-        input: request.url,
+        input: request.protocol + '://' + request.hostname + request.url,
         options: {
           method: request.method,
           headers: request.headers,
@@ -174,6 +174,12 @@ export async function dev(
 
       // @ts-expect-error we access `headers` which is the private map inside `Headers`
       for (const [key, values] of response.headers.headers.entries()) {
+        if (values[0] instanceof Map) {
+          for (const [key, value] of values[0]) {
+            headers[key] = value;
+          }
+        }
+
         headers[key] = values[0];
       }
 
