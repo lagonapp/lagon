@@ -202,7 +202,10 @@ export function handler(request) {
 
   it('should throw an error when memory is full', async () => {
     const deployment = getDeployment();
-    vi.spyOn(deploymentsConfig, 'getDeploymentFromRequest').mockReturnValue(deployment);
+    vi.spyOn(deploymentsConfig, 'getDeploymentFromRequest').mockReturnValue({
+      ...deployment,
+      timeout: 10000, // Increase timeout to make sure GH Actions doesn't fail due to timeout
+    });
     vi.spyOn(deployments, 'getDeploymentCode').mockResolvedValue(`export async function handler(request) {
   const storage = [];
   const twoMegabytes = 1024 * 1024 * 20;
