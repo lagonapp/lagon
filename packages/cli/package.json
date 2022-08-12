@@ -1,6 +1,6 @@
 {
   "name": "@lagon/cli",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "CLI for Lagon",
   "type": "module",
   "files": [
@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@lagon/runtime": "workspace:0.0.4",
+    "@lagon/runtime": "workspace:0.0.5",
     "@trpc/client": "^9.25.3",
     "chalk": "^5.0.1",
     "commander": "^9.3.0",

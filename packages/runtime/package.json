@@ -1,6 +1,6 @@
 {
   "name": "@lagon/runtime",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "JavaScript Serverless Runtime for Lagon",
   "type": "module",
   "main": "dist/index.js",
