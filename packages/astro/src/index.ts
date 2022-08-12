@@ -82,7 +82,9 @@ export default function createIntegration(args?: Options): AstroIntegration {
           const chunkPath = npath.dirname(chunkFileNames);
           const chunksDirUrl = new URL(chunkPath + '/', _buildConfig.server);
           await fs.promises.rm(chunksDirUrl, { recursive: true, force: true });
-        } catch {}
+        } catch {
+          // No chunks to remove.
+        }
       },
     },
   };
