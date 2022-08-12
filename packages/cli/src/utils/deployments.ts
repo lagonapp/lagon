@@ -111,20 +111,29 @@ export async function bundleFunction({
   if (fs.existsSync(assetsDir) && fs.statSync(assetsDir).isDirectory()) {
     logInfo(`Found public directory (${path.basename(assetsDir)}), bundling assets...`);
 
-    const files = fs.readdirSync(assetsDir);
+    const getAssets = (directory: string, root?: string): { name: string; content: string }[] => {
+      const assets = [];
+      const files = fs.readdirSync(directory);
 
-    for (const file of files) {
-      const filePath = path.join(assetsDir, file);
+      for (const file of files) {
+        const filePath = path.join(directory, file);
 
-      if (fs.statSync(filePath).isFile()) {
-        const content = fs.readFileSync(filePath, 'utf8');
+        if (fs.statSync(filePath).isFile()) {
+          const content = fs.readFileSync(filePath, 'utf8');
 
-        assets.push({
-          name: file,
-          content,
-        });
+          assets.push({
+            name: root ? root + '/' + file : file,
+            content,
+          });
+        } else {
+          assets.push(...getAssets(filePath, root ? root + '/' + file : file));
+        }
       }
-    }
+
+      return assets;
+    };
+
+    assets.push(...getAssets(assetsDir));
   } else {
     logInfo('No public directory found, skipping...');
   }

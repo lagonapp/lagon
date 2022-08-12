@@ -1,0 +1,20 @@
+{
+  "name": "@lagon/example-astro",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "devDependencies": {
+    "@lagon/types": "workspace:0.0.1",
+    "astro": "1.0.0-rc.7"
+  },
+  "dependencies": {
+    "@astrojs/deno": "^0.2.0",
+    "@lagon/astro": "workspace:0.0.1"
+  }
+}

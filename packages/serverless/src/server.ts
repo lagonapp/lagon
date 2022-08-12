@@ -131,7 +131,7 @@ export default function startServer(port: number, host: string) {
       });
 
       const handlerRequest: HandlerRequest = {
-        input: request.url,
+        input: request.protocol + '://' + request.hostname + request.url,
         options: {
           method: request.method,
           headers: request.headers,
@@ -150,6 +150,12 @@ export default function startServer(port: number, host: string) {
 
       // @ts-expect-error we access `headers` which is the private map inside `Headers`
       for (const [key, values] of response.headers.headers.entries()) {
+        if (values[0] instanceof Map) {
+          for (const [key, value] of values[0]) {
+            headers[key] = value;
+          }
+        }
+
         headers[key] = values[0];
       }
 
