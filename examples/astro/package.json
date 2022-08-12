@@ -1,6 +1,6 @@
 {
   "name": "@lagon/example-astro",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "scripts": {
     "dev": "astro dev",
@@ -15,6 +15,6 @@
   },
   "dependencies": {
     "@astrojs/deno": "^0.2.0",
-    "@lagon/astro": "workspace:0.0.1"
+    "@lagon/astro": "workspace:0.0.2"
   }
 }
