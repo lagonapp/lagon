@@ -45,7 +45,7 @@ export function writeDeploymentCode(deployment: Deployment, code: string): void 
 export function getAssetContent(deployment: Deployment, name: string): fs.ReadStream {
   const file = path.join(DEPLOYMENTS_FOLDER, deployment.deploymentId, name);
 
-  return fs.createReadStream(file, { encoding: 'utf8' });
+  return fs.createReadStream(file);
 }
 
 export function writeAssetContent(name: string, content: string): void {

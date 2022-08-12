@@ -112,11 +112,6 @@ export async function dev(
   });
 
   fastify.all('/*', async (request, reply) => {
-    if (request.url === '/favicon.ico') {
-      reply.code(204);
-      return;
-    }
-
     console.log(`${chalk.gray(getDate())} ${chalk.blue.bold(request.method)} ${chalk.black(request.url)}`);
 
     const asset = deployment.assets.find(asset => request.url === `/${asset}`);
@@ -128,7 +123,12 @@ export async function dev(
       reply
         .status(200)
         .header('Content-Type', extensionToContentType(extension) || 'text/plain')
-        .send(assets.find(({ name }) => name === asset)?.content);
+        .send(fs.createReadStream(path.join(assetsDir, asset)));
+      return;
+    }
+
+    if (request.url === '/favicon.ico') {
+      reply.code(204);
       return;
     }
 
