@@ -82,13 +82,6 @@ export default function startServer(port: number, host: string) {
 
     if (IS_DEV) console.time(id);
 
-    if (request.url === '/favicon.ico') {
-      reply.code(204);
-
-      if (IS_DEV) console.timeEnd(id);
-      return;
-    }
-
     const deployment = getDeploymentFromRequest(request);
 
     if (!deployment) {
@@ -107,6 +100,13 @@ export default function startServer(port: number, host: string) {
         .status(200)
         .header('Content-Type', extensionToContentType(extension) || 'text/plain')
         .send(getAssetContent(deployment, asset));
+
+      if (IS_DEV) console.timeEnd(id);
+      return;
+    }
+
+    if (request.url === '/favicon.ico') {
+      reply.code(204);
 
       if (IS_DEV) console.timeEnd(id);
       return;
