@@ -160,7 +160,7 @@ export async function dev(
         options: {
           method: request.method,
           headers: request.headers,
-          body: request.body as string,
+          body: typeof request.body === 'object' ? JSON.stringify(request.body) : String(request.body),
         },
       };
 
