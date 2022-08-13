@@ -70,7 +70,8 @@ export async function bundleFunction({
     },
     format: 'esm',
     target: 'es2020',
-    platform: 'browser',
+    platform: 'node',
+    external: ['critters'],
     // TODO: minify identifiers
     // Can't minify identifiers yet because `masterHandler` in runtime
     // needs to call a `handler` function.
