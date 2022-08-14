@@ -51,6 +51,7 @@ export function getAssetContent(deployment: Deployment, name: string): fs.ReadSt
 export function writeAssetContent(name: string, content: string): void {
   const file = path.join(DEPLOYMENTS_FOLDER, name);
 
+  fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, content, 'utf8');
 }
 
