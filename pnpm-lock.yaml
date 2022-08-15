@@ -152,7 +152,7 @@ importers:
 
   packages/cli:
     specifiers:
-      '@lagon/common': workspace:0.0.1
+      '@lagon/common': workspace:0.0.2
       '@lagon/runtime': workspace:0.0.5
       '@trpc/client': ^9.25.3
       '@types/inquirer': ^8.2.1
@@ -210,7 +210,7 @@ importers:
   packages/serverless:
     specifiers:
       '@aws-sdk/client-s3': ^3.100.0
-      '@lagon/common': workspace:0.0.1
+      '@lagon/common': workspace:0.0.2
       '@lagon/prisma': workspace:0.0.1
       '@lagon/runtime': workspace:0.0.5
       '@sentry/node': ^7.1.1
@@ -246,7 +246,7 @@ importers:
       '@babel/core': ^7.18.2
       '@headlessui/react': ^1.6.4
       '@heroicons/react': ^1.0.6
-      '@lagon/common': workspace:0.0.1
+      '@lagon/common': workspace:0.0.2
       '@lagon/prisma': workspace:0.0.1
       '@monaco-editor/react': ^4.4.5
       '@next-auth/prisma-adapter': ^1.0.3
