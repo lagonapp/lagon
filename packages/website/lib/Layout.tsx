@@ -11,6 +11,7 @@ import {
   MoonIcon,
   PlusIcon,
   SunIcon,
+  TranslateIcon,
   UserIcon,
 } from '@heroicons/react/outline';
 import Menu from 'lib/components/Menu';
@@ -21,6 +22,7 @@ import EmptyState from './components/EmptyState';
 import { trpc } from './trpc';
 import { reloadSession } from './utils';
 import useTheme from './hooks/useTheme';
+import { useChangeLocale } from 'locales';
 
 type HeaderLinkProps = {
   href: string;
@@ -90,8 +92,9 @@ type LayoutProps = {
 
 const Layout = ({ title, children }: LayoutProps) => {
   const { data: session } = useSession();
-  const { asPath } = useRouter();
+  const { asPath, locale } = useRouter();
   const { theme, savedTheme, updateTheme } = useTheme();
+  const changeLocale = useChangeLocale();
 
   return (
     <>
@@ -172,6 +175,19 @@ const Layout = ({ title, children }: LayoutProps) => {
                     <Menu.Item icon={<UserIcon className="w-4 h-4" />} href="/profile">
                       Profile
                     </Menu.Item>
+                    <Menu>
+                      <Menu.Button>
+                        <Menu.Item icon={<TranslateIcon className="w-4 h-4" />}>Language: {locale}</Menu.Item>
+                      </Menu.Button>
+                      <Menu.Items>
+                        <Menu.Item icon={<i>🇺🇸</i>} disabled={locale === 'en'} onClick={() => changeLocale('en')}>
+                          English
+                        </Menu.Item>
+                        <Menu.Item icon={<i>🇫🇷</i>} disabled={locale === 'fr'} onClick={() => changeLocale('fr')}>
+                          French
+                        </Menu.Item>
+                      </Menu.Items>
+                    </Menu>
                     <Menu.Item icon={<LogoutIcon className="w-4 h-4" />} onClick={() => signOut()}>
                       Sign out
                     </Menu.Item>
