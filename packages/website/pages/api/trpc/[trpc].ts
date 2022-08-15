@@ -1,6 +1,7 @@
 import * as trpc from '@trpc/server';
 import * as trpcNext from '@trpc/server/adapters/next';
 import { getSession } from 'next-auth/react';
+import { unstable_getServerSession } from 'next-auth/next';
 import { functionsRouter } from 'lib/trpc/functionsRouter';
 import { organizationsRouter } from 'lib/trpc/organizationsRouter';
 import { tokensRouter } from 'lib/trpc/tokensRouter';
@@ -10,6 +11,7 @@ import { Session } from 'next-auth';
 import * as Sentry from '@sentry/nextjs';
 import { accountsRouter } from 'lib/trpc/accountsRouter';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { authOptions } from '../auth/[...nextauth]';
 
 const createContext = async ({
   req,
@@ -67,7 +69,7 @@ const createContext = async ({
       } as Session,
     };
   } else {
-    const session = await getSession({ req });
+    const session = await unstable_getServerSession(req, res, authOptions);
 
     if (!session) {
       throw new trpc.TRPCError({
