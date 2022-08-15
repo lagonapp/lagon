@@ -7,6 +7,7 @@ import { withTRPC } from '@trpc/next';
 import { AppRouter } from './api/trpc/[trpc]';
 import Layout from 'lib/Layout';
 import { I18nProvider } from 'locales';
+import en from 'locales/en';
 
 type LayoutAppProps = AppProps & {
   Component: AppProps['Component'] & {
@@ -24,7 +25,7 @@ const App = ({ Component, pageProps: { session, ...pageProps } }: LayoutAppProps
         }}
       />
       <AuthGuard>
-        <I18nProvider locale={pageProps.locale}>
+        <I18nProvider locale={pageProps.locale} fallbackLocale={en}>
           <Layout title={Component.title}>
             <Component {...pageProps} />
           </Layout>
