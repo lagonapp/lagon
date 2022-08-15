@@ -10,8 +10,6 @@ import { PlayIcon } from '@heroicons/react/outline';
 import Head from 'next/head';
 import LayoutTitle from 'lib/components/LayoutTitle';
 import FunctionLinks from 'lib/components/FunctionLinks';
-import { GetStaticProps } from 'next';
-import { getLocaleStaticProps } from 'locales';
 
 const Function = () => {
   const {
@@ -56,7 +54,5 @@ const Function = () => {
 };
 
 Function.title = 'Loading...';
-
-export const getStaticProps: GetStaticProps = getLocaleStaticProps();
 
 export default Function;
