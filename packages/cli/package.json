@@ -1,6 +1,6 @@
 {
   "name": "@lagon/cli",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "CLI for Lagon",
   "type": "module",
   "files": [
@@ -28,7 +28,7 @@
     "update-notifier": "^6.0.1"
   },
   "devDependencies": {
-    "@lagon/common": "workspace:0.0.1",
+    "@lagon/common": "workspace:0.0.2",
     "@types/inquirer": "^8.2.1",
     "@types/update-notifier": "^5.1.0"
   }

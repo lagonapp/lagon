@@ -1,5 +1,13 @@
 # @lagon/cli
 
+## 0.0.10
+
+### Patch Changes
+
+- [#117](https://github.com/lagonapp/lagon/pull/117) [`e349928`](https://github.com/lagonapp/lagon/commit/e3499287b9b560edac1db74a121093184afd162e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Correctly handle POST with JSON body
+
+* [#111](https://github.com/lagonapp/lagon/pull/111) [`9f2feef`](https://github.com/lagonapp/lagon/commit/9f2feef1d13a286e957f01521589e3e4ae1b8119) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Handle favicons correctly
+
 ## 0.0.9
 
 ### Patch Changes
