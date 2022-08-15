@@ -21,14 +21,14 @@ const request = async (code: string, init?: Parameters<typeof fetch>[1]): Return
   vi.spyOn(deploymentsConfig, 'getDeploymentFromRequest').mockReturnValue(deployment);
   vi.spyOn(deployments, 'getDeploymentCode').mockResolvedValue(code);
 
-  const response = await fetch('http://localhost:12345/', init);
+  const response = await fetch('http://localhost:12346/', init);
   delete response.options.headers.date;
 
   return response;
 };
 
 beforeAll(async () => {
-  startServer(12345, 'localhost');
+  startServer(12346, 'localhost');
 
   // Wait for the server to start
   await new Promise(resolve => setTimeout(resolve, 500));
