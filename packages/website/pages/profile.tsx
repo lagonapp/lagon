@@ -9,7 +9,8 @@ import Text from 'lib/components/Text';
 import { requiredValidator } from 'lib/form/validators';
 import useTokens from 'lib/hooks/useTokens';
 import { trpc } from 'lib/trpc';
-import { useI18n } from 'locales';
+import { getLocaleStaticProps, useI18n } from 'locales';
+import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
 import { useCallback } from 'react';
 import toast from 'react-hot-toast';
@@ -158,5 +159,7 @@ const Profile = () => {
 };
 
 Profile.title = 'Profile';
+
+export const getStaticProps: GetStaticProps = getLocaleStaticProps();
 
 export default Profile;

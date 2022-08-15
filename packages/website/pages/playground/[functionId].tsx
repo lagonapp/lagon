@@ -11,6 +11,8 @@ import { getFullCurrentDomain } from 'lib/utils';
 import Text from 'lib/components/Text';
 import { PlayIcon, RefreshIcon } from '@heroicons/react/outline';
 import useFunctionCode from 'lib/hooks/useFunctionCode';
+import { GetStaticProps } from 'next';
+import { getLocaleStaticProps } from 'locales';
 
 const PlaygroundPage = () => {
   const {
@@ -95,5 +97,7 @@ const PlaygroundPage = () => {
 };
 
 PlaygroundPage.title = 'Playground';
+
+export const getStaticProps: GetStaticProps = getLocaleStaticProps();
 
 export default PlaygroundPage;
