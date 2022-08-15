@@ -22,7 +22,7 @@ import EmptyState from './components/EmptyState';
 import { trpc } from './trpc';
 import { reloadSession } from './utils';
 import useTheme from './hooks/useTheme';
-import { useChangeLocale } from 'locales';
+import { useChangeLocale, useI18n } from 'locales';
 
 type HeaderLinkProps = {
   href: string;
@@ -95,6 +95,8 @@ const Layout = ({ title, children }: LayoutProps) => {
   const { asPath, locale } = useRouter();
   const { theme, savedTheme, updateTheme } = useTheme();
   const changeLocale = useChangeLocale();
+  const { scopedT } = useI18n();
+  const t = scopedT('layout');
 
   return (
     <>
@@ -122,10 +124,10 @@ const Layout = ({ title, children }: LayoutProps) => {
                   </a>
                 </Link>
                 <HeaderLink href="/" selected={asPath === '/' || asPath.startsWith('/functions')}>
-                  Functions
+                  {t('header.functions')}
                 </HeaderLink>
                 <HeaderLink href="/settings" selected={asPath.startsWith('/settings')}>
-                  Settings
+                  {t('header.settings')}
                 </HeaderLink>
               </div>
               {session?.organization ? (
@@ -138,14 +140,14 @@ const Layout = ({ title, children }: LayoutProps) => {
                       <OrganizationsList />
                     </Suspense>
                     <Menu.Item icon={<PlusIcon className="w-4 h-4" />} href="/new">
-                      New organization
+                      {t('header.menu.newOrganization')}
                     </Menu.Item>
                     <Menu.Item icon={<CogIcon className="w-4 h-4" />} href="/settings">
-                      Settings
+                      {t('header.menu.settings')}
                     </Menu.Item>
                     <Menu>
                       <Menu.Button>
-                        <Menu.Item icon={<SunIcon className="w-4 h-4" />}>Theme</Menu.Item>
+                        <Menu.Item icon={<SunIcon className="w-4 h-4" />}>{t('header.menu.theme')}</Menu.Item>
                       </Menu.Button>
                       <Menu.Items>
                         <Menu.Item
@@ -153,43 +155,47 @@ const Layout = ({ title, children }: LayoutProps) => {
                           disabled={savedTheme === 'Light'}
                           onClick={() => updateTheme('Light')}
                         >
-                          Light
+                          {t('header.menu.theme.light')}
                         </Menu.Item>
                         <Menu.Item
                           icon={<MoonIcon className="w-4 h-4" />}
                           disabled={savedTheme === 'Dark'}
                           onClick={() => updateTheme('Dark')}
                         >
-                          Dark
+                          {t('header.menu.theme.dark')}
                         </Menu.Item>
                         <Menu.Item
                           icon={<DesktopComputerIcon className="w-4 h-4" />}
                           disabled={savedTheme === 'System'}
                           onClick={() => updateTheme('System')}
                         >
-                          System
+                          {t('header.menu.theme.system')}
                         </Menu.Item>
                       </Menu.Items>
                     </Menu>
                     <Divider />
                     <Menu.Item icon={<UserIcon className="w-4 h-4" />} href="/profile">
-                      Profile
+                      {t('header.menu.profile')}
                     </Menu.Item>
                     <Menu>
                       <Menu.Button>
-                        <Menu.Item icon={<TranslateIcon className="w-4 h-4" />}>Language: {locale}</Menu.Item>
+                        <Menu.Item icon={<TranslateIcon className="w-4 h-4" />}>
+                          {t('header.menu.language', {
+                            locale: locale as string,
+                          })}
+                        </Menu.Item>
                       </Menu.Button>
                       <Menu.Items>
                         <Menu.Item icon={<i>🇺🇸</i>} disabled={locale === 'en'} onClick={() => changeLocale('en')}>
-                          English
+                          {t('header.menu.language.en')}
                         </Menu.Item>
                         <Menu.Item icon={<i>🇫🇷</i>} disabled={locale === 'fr'} onClick={() => changeLocale('fr')}>
-                          French
+                          {t('header.menu.language.fr')}
                         </Menu.Item>
                       </Menu.Items>
                     </Menu>
                     <Menu.Item icon={<LogoutIcon className="w-4 h-4" />} onClick={() => signOut()}>
-                      Sign out
+                      {t('header.menu.signOut')}
                     </Menu.Item>
                   </Menu.Items>
                 </Menu>
@@ -201,11 +207,11 @@ const Layout = ({ title, children }: LayoutProps) => {
       ) : (
         <div className="w-screen h-screen flex justify-center items-center">
           <EmptyState
-            title="No Organization found"
-            description="Please create an Organization to get started."
+            title={t('empty.title')}
+            description={t('empty.description')}
             action={
               <Button variant="primary" href="/new">
-                Create Organization
+                {t('empty.action')}
               </Button>
             }
           />
