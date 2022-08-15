@@ -12,6 +12,8 @@ import { composeValidators, maxLengthValidator, minLengthValidator, requiredVali
 import Layout from 'lib/Layout';
 import { trpc } from 'lib/trpc';
 import { reloadSession } from 'lib/utils';
+import { getLocaleStaticProps } from 'locales';
+import { GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 
@@ -68,5 +70,7 @@ const New = () => {
 };
 
 New.title = 'Create Organization';
+
+export const getStaticProps: GetStaticProps = getLocaleStaticProps();
 
 export default New;

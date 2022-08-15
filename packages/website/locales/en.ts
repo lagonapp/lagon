@@ -1,4 +1,21 @@
 export default {
+  'layout.header.functions': 'Functions',
+  'layout.header.settings': 'Settings',
+  'layout.header.menu.newOrganization': 'New Organization',
+  'layout.header.menu.settings': 'Settings',
+  'layout.header.menu.theme': 'Theme',
+  'layout.header.menu.theme.light': 'Light',
+  'layout.header.menu.theme.dark': 'Dark',
+  'layout.header.menu.theme.system': 'System',
+  'layout.header.menu.profile': 'Profile',
+  'layout.header.menu.language': 'Language: {locale}',
+  'layout.header.menu.language.en': 'English',
+  'layout.header.menu.language.fr': 'French',
+  'layout.header.menu.signOut': 'Sign out',
+  'layout.empty.title': 'No Organization found',
+  'layout.empty.description': 'Please create an Organization to get started.',
+  'layout.empty.action': 'Create Organization',
+
   'home.createfunction': 'Create a Function',
 
   'settings.name.title': 'Name',
