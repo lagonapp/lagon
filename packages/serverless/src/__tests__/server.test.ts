@@ -22,7 +22,9 @@ const request = async (code: string, init?: Parameters<typeof fetch>[1]): Return
   vi.spyOn(deployments, 'getDeploymentCode').mockResolvedValue(code);
 
   const response = await fetch('http://localhost:12346/', init);
-  delete response.options.headers.date;
+  if (response.options.headers && 'date' in response.options.headers) {
+    delete response.options.headers.date;
+  }
 
   return response;
 };
