@@ -1,0 +1,82 @@
+// Vitest Snapshot v1
+
+exports[`Server > should handle json request 1`] = `
+{
+  "body": "{\\"hello\\":\\"world\\"}",
+  "options": {
+    "headers": {
+      "connection": "close",
+      "content-length": "17",
+      "content-type": "application/json; charset=utf-8",
+    },
+    "status": 200,
+    "statusText": "OK",
+    "url": "",
+  },
+}
+`;
+
+exports[`Server > should reply custom headers 1`] = `
+{
+  "body": "Hello World",
+  "options": {
+    "headers": {
+      "connection": "close",
+      "content-length": "11",
+      "content-type": "text/plain; charset=utf-8",
+      "x-custom-header": "custom-value",
+    },
+    "status": 200,
+    "statusText": "OK",
+    "url": "",
+  },
+}
+`;
+
+exports[`Server > should reply custom status 1`] = `
+{
+  "body": "Not Found",
+  "options": {
+    "headers": {
+      "connection": "close",
+      "content-length": "9",
+      "content-type": "text/plain; charset=utf-8",
+    },
+    "status": 404,
+    "statusText": "Not Found",
+    "url": "",
+  },
+}
+`;
+
+exports[`Server > should reply json 1`] = `
+{
+  "body": "{\\"hello\\":\\"world\\"}",
+  "options": {
+    "headers": {
+      "connection": "close",
+      "content-length": "17",
+      "content-type": "application/json; charset=utf-8",
+    },
+    "status": 200,
+    "statusText": "OK",
+    "url": "",
+  },
+}
+`;
+
+exports[`Server > should reply text 1`] = `
+{
+  "body": "Hello World",
+  "options": {
+    "headers": {
+      "connection": "close",
+      "content-length": "11",
+      "content-type": "text/plain; charset=utf-8",
+    },
+    "status": 200,
+    "statusText": "OK",
+    "url": "",
+  },
+}
+`;

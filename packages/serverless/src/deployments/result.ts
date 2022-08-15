@@ -1,6 +1,7 @@
 import { DeploymentResult, Deployment } from '@lagon/runtime';
 import { Isolate } from 'isolated-vm';
 import { Worker } from 'node:worker_threads';
+import path from 'node:path';
 
 const CACHE_MS = 1000 * 10 * 60; // 10min
 
@@ -11,7 +12,7 @@ const lastRequests = new Map<string, Date>();
 let lastBatch: number;
 
 function sendResultsToDb() {
-  new Worker('./dist/exporter.js', {
+  new Worker(path.join(new URL('.', import.meta.url).pathname, '../../dist/exporter.js'), {
     workerData: deploymentsResult,
   });
 
