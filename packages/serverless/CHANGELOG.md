@@ -1,5 +1,15 @@
 # @lagon/serverless
 
+## 0.0.3
+
+### Patch Changes
+
+- [#119](https://github.com/lagonapp/lagon/pull/119) [`721c3df`](https://github.com/lagonapp/lagon/commit/721c3df51080b9f77363c56766a6d0b2406e1e8b) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support nested folders for assets
+
+* [#117](https://github.com/lagonapp/lagon/pull/117) [`e349928`](https://github.com/lagonapp/lagon/commit/e3499287b9b560edac1db74a121093184afd162e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Correctly handle POST with JSON body
+
+- [#111](https://github.com/lagonapp/lagon/pull/111) [`9f2feef`](https://github.com/lagonapp/lagon/commit/9f2feef1d13a286e957f01521589e3e4ae1b8119) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Handle favicons correctly
+
 ## 0.0.2
 
 ### Patch Changes
