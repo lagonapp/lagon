@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { Deployment } from '@lagon/runtime';
 
-const DEPLOYMENTS_FOLDER = path.join(path.resolve(), 'dist', 'deployments');
+export const DEPLOYMENTS_FOLDER = path.join(path.resolve(), 'dist', 'deployments');
 
 export function deleteOldDeployments(deployments: Deployment[]) {
   const localDeploymentsFiles = fs.readdirSync(DEPLOYMENTS_FOLDER);

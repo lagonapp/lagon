@@ -12,9 +12,16 @@ const lastRequests = new Map<string, Date>();
 let lastBatch: number;
 
 function sendResultsToDb() {
-  new Worker(path.join(new URL('.', import.meta.url).pathname, '../../dist/exporter.js'), {
-    workerData: deploymentsResult,
-  });
+  new Worker(
+    /* c8 ignore start */
+    process.env.NODE_ENV === 'test'
+      ? path.join(process.cwd(), 'packages/serverless/dist/exporter.js')
+      : new URL('exporter.js', import.meta.url),
+    /* c8 ignore end */
+    {
+      workerData: deploymentsResult,
+    },
+  );
 
   deploymentsResult.clear();
 }
