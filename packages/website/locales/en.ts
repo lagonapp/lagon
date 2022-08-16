@@ -66,4 +66,9 @@ export default {
   'profile.delete.modal.description': 'Write your account email to confirm deletion: {email}',
   'profile.delete.modal.confirm': 'Confirm with your email',
   'profile.delete.modal.submit': 'Delete Account',
+
+  'cli.title': 'Log in to the CLI',
+  'cli.description': 'This is your verification code to login in the CLI. Copy it and paste it in your terminal.',
+  'cli.copy': 'Click to copy',
+  'cli.copy.success': 'Copied to clipboard!',
 } as const;
