@@ -29,7 +29,7 @@ const Settings = () => {
   const t = scopedT('settings');
 
   return (
-    <LayoutTitle title="Settings">
+    <LayoutTitle title={t('title')}>
       <div className="flex flex-col gap-8">
         <Form
           initialValues={{
@@ -46,7 +46,7 @@ const Settings = () => {
             reloadSession();
           }}
           onSubmitSuccess={() => {
-            toast.success('Organization name updated successfully.');
+            toast.success(t('name.success'));
           }}
         >
           <Card title={t('name.title')} description={t('name.description')}>
@@ -82,7 +82,7 @@ const Settings = () => {
             reloadSession();
           }}
           onSubmitSuccess={() => {
-            toast.success('Organization description updated successfully.');
+            toast.success(t('description.success'));
           }}
         >
           <Card title={t('description.title')} description={t('description.title')}>
@@ -105,7 +105,7 @@ const Settings = () => {
         <Form
           onSubmit={async ({ email }) => null}
           onSubmitSuccess={() => {
-            toast.success('Ownership of this Organization transferred successfully.');
+            toast.success(t('transfer.success'));
           }}
         >
           <Card title={t('transfer.title')} description={t('transfer.description')} danger>
@@ -137,7 +137,7 @@ const Settings = () => {
                   })
                 }
                 onSubmitSuccess={() => {
-                  toast.success('Organization deleted successfully.');
+                  toast.success(t('delete.success'));
 
                   queryContext.refetchQueries();
                   reloadSession();

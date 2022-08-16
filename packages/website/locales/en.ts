@@ -18,20 +18,25 @@ export default {
 
   'home.createfunction': 'Create a Function',
 
+  'settings.title': 'Settings',
+
   'settings.name.title': 'Name',
   'settings.name.description': 'Change the name of this Organization.',
   'settings.name.placeholder': 'Organization name',
   'settings.name.submit': 'Update',
+  'settings.name.success': 'Organization name updated successfully.',
 
   'settings.description.title': 'Description',
   'settings.description.description': 'Change the description of this Organization.',
   'settings.description.placeholder': 'Organization description',
   'settings.description.submit': 'Update',
+  'settings.description.success': 'Organization description updated successfully.',
 
   'settings.transfer.title': 'Transfer',
   'settings.transfer.description': 'Transfer the ownership of this Organization to another user?',
   'settings.transfer.placeholder': 'New Owner email',
   'settings.transfer.submit': 'Transfer ownership',
+  'settings.transfer.success': 'Ownership of this Organization transferred successfully.',
 
   'settings.delete.title': 'Delete',
   'settings.delete.description':
@@ -41,6 +46,9 @@ export default {
   'settings.delete.modal.description': "Write this Organization's name to confirm deletion: {organizationName}",
   'settings.delete.modal.error': 'Confirm with the name of this Funtion',
   'settings.delete.modal.submit': 'Delete Organization',
+  'settings.delete.success': 'Organization deleted successfully.',
+
+  'profile.title': 'Profile',
 
   'profile.information.title': 'Information',
   'profile.information.description': 'Edit your account information like your name and email.',
@@ -49,6 +57,7 @@ export default {
   'profile.information.email.title': 'Email',
   'profile.information.email.placeholder': 'john@doe.com',
   'profile.information.submit': 'Update',
+  'profile.information.success': 'Information updated successfully.',
 
   'profile.tokens.title': 'Tokens',
   'profile.tokens.description': 'Below are your personal tokens, used for the CLI.',
@@ -58,6 +67,7 @@ export default {
   'profile.tokens.delete.modal.description':
     'Are you sure you want to delete this token? You will lose access to the CLI if it is still used.',
   'profile.tokens.delete.modal.submit': 'Delete Token',
+  'profile.tokens.delete.success': 'Token has been deleted.',
 
   'profile.delete.title': 'Delete',
   'profile.delete.description': 'Delete permanentently this account. This action is irreversible.',
