@@ -23,7 +23,6 @@ export default {
   'home.list.lastUpdate': 'Last update:',
 
   'settings.title': 'Settings',
-
   'settings.name.title': 'Name',
   'settings.name.description': 'Change the name of this Organization.',
   'settings.name.placeholder': 'Organization name',
@@ -53,7 +52,6 @@ export default {
   'settings.delete.success': 'Organization deleted successfully.',
 
   'profile.title': 'Profile',
-
   'profile.information.title': 'Information',
   'profile.information.description': 'Edit your account information like your name and email.',
   'profile.information.name.title': 'Name',
@@ -142,4 +140,41 @@ export default {
   'functions.logs.logLevel': 'Log level:',
   'functions.logs.empty.title': 'No logs found',
   'functions.logs.empty.description': "Try to add some 'console.log', or select a bigger period of time.",
+
+  'functions.settings.name.title': 'Name',
+  'functions.settings.name.description':
+    'Change the name of this Function. Note that changing the name also changes the default domain.',
+  'functions.settings.name.placeholder': 'my-awesome-function',
+  'functions.settings.name.submit': 'Update',
+  'functions.settings.name.success': 'Function name updated successfully.',
+  'functions.settings.domains.title': 'Domains',
+  'functions.settings.domains.description':
+    "The default domain is based on this Function's name. You can also add custom domains.",
+  'functions.settings.domains.default': 'Default domain',
+  'functions.settings.domains.custom': 'Custom domains',
+  'functions.settings.domains.custom.placeholder': 'mydomain.com',
+  'functions.settings.domains.update': 'Update',
+  'functions.settings.domains.success': 'Function domains updated successfully.',
+  'functions.settings.cron.title': 'Cron',
+  'functions.settings.cron.description': 'Run this Function automatically at a scheduled rate using a Cron expression.',
+  'functions.settings.cron.placeholder': '* */12 * * *',
+  'functions.settings.cron.submit': 'Update',
+  'functions.settings.cron.success': 'Function Cron updated successfully.',
+  'functions.settings.env.title': 'Environment variables',
+  'functions.settings.env.description': 'Environment variables are injected into your Function at runtime.',
+  'functions.settings.env.placeholder.key': 'KEY',
+  'functions.settings.env.placeholder.value': 'secret-value',
+  'functions.settings.env.add': 'Add',
+  'functions.settings.env.remove': 'Remove',
+  'functions.settings.env.submit': 'Submit',
+  'functions.settings.env.success': 'Function environment variables updated successfully.',
+  'functions.settings.delete.title': 'Delete',
+  'functions.settings.delete.description':
+    'Delete completely this Function, its Deployments and Logs. This action is irreversible.',
+  'functions.settings.delete.submit': 'Delete',
+  'functions.settings.delete.modal.title': 'Delete Function',
+  'functions.settings.delete.modal.description': "Write this Function's name to confirm deletion: {functionName}",
+  'functions.settings.delete.modal.confirm': 'Confirm with the name of this Function',
+  'functions.settings.delete.modal.submit': 'Delete Function',
+  'functions.settings.delete.success': 'Function deleted successfully.',
 } as const;

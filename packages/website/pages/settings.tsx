@@ -126,7 +126,7 @@ const Settings = () => {
               })}
               disclosure={
                 <Button variant="danger" disabled={deleteOrganization.isLoading}>
-                  {t('delete.modal.submit')}
+                  {t('delete.submit')}
                 </Button>
               }
             >

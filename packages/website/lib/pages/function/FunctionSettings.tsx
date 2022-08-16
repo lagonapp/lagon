@@ -21,6 +21,7 @@ import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constant
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from 'react-query';
+import { useI18n } from 'locales';
 
 type FunctionSettingsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -29,6 +30,8 @@ type FunctionSettingsProps = {
 
 const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
   const router = useRouter();
+  const { scopedT } = useI18n();
+  const t = scopedT('functions.settings');
   const updateFunction = trpc.useMutation(['functions.update']);
   const deleteFunction = trpc.useMutation(['functions.delete']);
 
@@ -52,17 +55,14 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           await refetch();
         }}
         onSubmitSuccess={() => {
-          toast.success('Function name updated successfully.');
+          toast.success(t('name.success'));
         }}
       >
-        <Card
-          title="Name"
-          description="Change the name of this Function. Note that changing the name also changes the default domain."
-        >
+        <Card title={t('name.title')} description={t('name.description')}>
           <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
             <Input
               name="name"
-              placeholder="Function name"
+              placeholder={t('name.placeholder')}
               disabled={updateFunction.isLoading}
               validator={composeValidators(
                 requiredValidator,
@@ -72,7 +72,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
               )}
             />
             <Button variant="primary" disabled={updateFunction.isLoading} submit>
-              Update
+              {t('name.submit')}
             </Button>
           </div>
         </Card>
@@ -95,32 +95,29 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           await refetch();
         }}
         onSubmitSuccess={() => {
-          toast.success('Function domains updated successfully.');
+          toast.success(t('domains.success'));
         }}
       >
-        <Card
-          title="Domains"
-          description="The default domain is based on this Function's name. You can also add custom domains."
-        >
+        <Card title={t('domains.title')} description={t('domains.description')}>
           <div className="flex flex-col md:flex-row gap-6 md:gap-0 justify-between items-start">
             <div className="flex flex-1 flex-col gap-1">
-              <Text size="lg">Default domain</Text>
+              <Text size="lg">{t('domains.default')}</Text>
               {func ? <Text>{getCurrentDomain(func)}</Text> : null}
             </div>
             <div className="flex flex-1 flex-col items-start gap-4">
               <div className="flex flex-col gap-1">
-                <Text size="lg">Custom domains</Text>
+                <Text size="lg">{t('domains.custom')}</Text>
                 <div className="flex gap-2 items-center">
                   <TagsInput
                     name="domains"
-                    placeholder="mydomain.com"
+                    placeholder={t('domains.custom.placeholder')}
                     disabled={updateFunction.isLoading}
                     validator={domainNameValidator}
                   />
                 </div>
               </div>
               <Button variant="primary" disabled={updateFunction.isLoading} submit>
-                Update
+                {t('domains.update')}
               </Button>
             </div>
           </div>
@@ -144,14 +141,19 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           await refetch();
         }}
         onSubmitSuccess={() => {
-          toast.success('Function Cron updated successfully.');
+          toast.success(t('cron.submit'));
         }}
       >
-        <Card title="Cron" description="Run this Function automatically at a scheduled rate using a Cron expression.">
+        <Card title={t('cron.title')} description={t('cron.description')}>
           <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
-            <Input name="cron" placeholder="Cron" disabled={updateFunction.isLoading} validator={cronValidator} />
+            <Input
+              name="cron"
+              placeholder={t('cron.placeholder')}
+              disabled={updateFunction.isLoading}
+              validator={cronValidator}
+            />
             <Button variant="primary" disabled={updateFunction.isLoading} submit>
-              Update
+              {t('cron.submit')}
             </Button>
           </div>
         </Card>
@@ -185,14 +187,16 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         }}
       >
         {({ values, form }) => (
-          <Card
-            title="Environment variables"
-            description="Environment variables are injected into your Function at runtime."
-          >
+          <Card title={t('env.title')} description={t('env.description')}>
             <div className="flex flex-col gap-4 items-start">
               <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
-                <Input name="envKey" placeholder="Key" disabled={updateFunction.isLoading} />
-                <Input name="envValue" placeholder="Value" type="password" disabled={updateFunction.isLoading} />
+                <Input name="envKey" placeholder={t('env.placeholder.key')} disabled={updateFunction.isLoading} />
+                <Input
+                  name="envValue"
+                  placeholder={t('env.placeholder.value')}
+                  type="password"
+                  disabled={updateFunction.isLoading}
+                />
                 <Button
                   disabled={updateFunction.isLoading}
                   onClick={() => {
@@ -208,7 +212,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                     }
                   }}
                 >
-                  Add
+                  {t('env.add')}
                 </Button>
               </div>
               {values.env.map(({ key }: { key: string }) => {
@@ -225,30 +229,28 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                         );
                       }}
                     >
-                      Remove
+                      {t('env.remove')}
                     </Button>
                   </div>
                 );
               })}
               <Button variant="primary" disabled={updateFunction.isLoading} submit>
-                Update
+                {t('env.submit')}
               </Button>
             </div>
           </Card>
         )}
       </Form>
-      <Card
-        title="Delete"
-        description="Delete completely this Function, it's Deployments and Logs. This action is irreversible."
-        danger
-      >
+      <Card title={t('delete.title')} description={t('delete.description')} danger>
         <div>
           <Dialog
-            title="Delete Function"
-            description={`Write this Function's name to confirm deletion: ${func?.name}`}
+            title={t('delete.modal.title')}
+            description={t('delete.modal.description', {
+              functionName: func?.name as string,
+            })}
             disclosure={
               <Button variant="danger" disabled={deleteFunction.isLoading}>
-                Delete
+                {t('delete.submit')}
               </Button>
             }
           >
@@ -263,7 +265,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                 });
               }}
               onSubmitSuccess={() => {
-                toast.success('Organization deleted successfully.');
+                toast.success(t('delete.success'));
 
                 router.push('/');
               }}
@@ -273,12 +275,12 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                   <Input
                     name="confirm"
                     placeholder={func?.name}
-                    validator={value => (value !== func?.name ? 'Confirm with the name of this Funtion' : undefined)}
+                    validator={value => (value !== func?.name ? t('delete.modal.confirm') : undefined)}
                   />
                   <Dialog.Buttons>
                     <Dialog.Cancel disabled={deleteFunction.isLoading} />
                     <Dialog.Action variant="danger" onClick={handleSubmit} disabled={deleteFunction.isLoading}>
-                      Delete Function
+                      {t('delete.modal.submit')}
                     </Dialog.Action>
                   </Dialog.Buttons>
                 </>

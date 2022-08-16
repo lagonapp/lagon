@@ -171,7 +171,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           <Divider />
           <div className="flex gap-8">
             <Text size="sm">
-              {t('usage.lastUpdate')}:&nbsp;
+              {t('usage.lastUpdate')}&nbsp;
               {new Date(func?.updatedAt || Date.now()).toLocaleString('en-US', {
                 minute: 'numeric',
                 hour: 'numeric',
