@@ -30,13 +30,13 @@ const Profile = () => {
       });
 
       await refetch();
-      toast.success('Token has been deleted.');
+      toast.success(t('tokens.delete.success'));
     },
-    [deleteToken, refetch],
+    [deleteToken, refetch, t],
   );
 
   return (
-    <LayoutTitle title="Profile">
+    <LayoutTitle title={t('title')}>
       <div className="flex flex-col gap-8">
         <Card title={t('information.title')} description={t('information.description')}>
           <Form
@@ -53,7 +53,7 @@ const Profile = () => {
               await refetch();
             }}
             onSubmitSuccess={() => {
-              toast.success('Information updated successfully.');
+              toast.success(t('information.success'));
             }}
           >
             <div className="flex flex-col md:flex-row justify-between items-start gap-6 md:gap-12 mb-6">
@@ -118,7 +118,7 @@ const Profile = () => {
             ))}
           </div>
         </Card>
-        <Card title="Delete" description="Delete permanentently this account. This action is irreversible." danger>
+        <Card title={t('delete.title')} description={t('delete.description')} danger>
           <div>
             <Dialog
               title={t('delete.modal.title')}

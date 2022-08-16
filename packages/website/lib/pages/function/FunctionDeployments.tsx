@@ -11,6 +11,7 @@ import { RefreshIcon } from '@heroicons/react/outline';
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from 'react-query';
+import { useI18n } from 'locales';
 
 type FunctionDeploymentsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -18,6 +19,8 @@ type FunctionDeploymentsProps = {
 };
 
 const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
+  const { scopedT } = useI18n();
+  const t = scopedT('functions.deployments');
   const deleteDeployment = trpc.useMutation(['deployments.delete']);
   const currentDeployment = trpc.useMutation(['deployments.current']);
 
@@ -29,9 +32,9 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
       });
 
       await refetch();
-      toast.success('Deployment deleted successfully.');
+      toast.success(t('delete.success'));
     },
-    [func?.id, deleteDeployment, refetch],
+    [func?.id, deleteDeployment, refetch, t],
   );
 
   const rollbackDeployment = useCallback(
@@ -42,20 +45,20 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
       });
 
       await refetch();
-      toast.success('Deployment rollbacked successfully.');
+      toast.success(t('rollback.success'));
     },
-    [func?.id, currentDeployment, refetch],
+    [func?.id, currentDeployment, refetch, t],
   );
 
   return (
     <div className="flex gap-4 flex-col">
       {!func || func.deployments.length === 0 ? (
         <EmptyState
-          title="No deployments found"
-          description="Create your first deployment from the Playground or with the CLI."
+          title={t('empty.title')}
+          description={t('empty.description')}
           action={
             <Button variant="primary" href={`/playground/${func?.id}`}>
-              Go to Playground
+              {t('empty.action')}
             </Button>
           }
         />
@@ -69,7 +72,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
             <div className="relative flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0 md:items-center">
               {deployment.isCurrent ? (
                 <span className="absolute -top-5 -left-5 text-xs bg-blue-500 text-white px-1 rounded">
-                  Current deployment
+                  {t('list.current')}
                 </span>
               ) : null}
               <div className="md:w-1/3">
@@ -87,32 +90,36 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                 </Text>
               </div>
               <div>
-                <Text>{deployment.commit || 'No commit linked'}</Text>
-                <Text>By: {deployment.triggerer}</Text>
+                <Text>{deployment.commit || t('list.noCommit')}</Text>
+                <Text>
+                  {t('list.by')}&nbsp;{deployment.triggerer}
+                </Text>
               </div>
               <div className="flex gap-2 md:justify-end md:w-1/3">
                 {!deployment.isCurrent ? (
                   <>
                     <Dialog
-                      title="Rollback Deployment"
-                      description="Are you sure you want to rollback to this Deployment?"
+                      title={t('rollback.modal.title')}
+                      description={t('rollback.modal.description')}
                       disclosure={
                         <Button leftIcon={<RefreshIcon className="w-4 h-4" />} disabled={deleteDeployment.isLoading}>
-                          Rollback
+                          {t('rollback')}
                         </Button>
                       }
                     >
                       <Dialog.Buttons>
                         <Dialog.Cancel />
-                        <Dialog.Action onClick={() => rollbackDeployment(deployment)}>Rollback</Dialog.Action>
+                        <Dialog.Action onClick={() => rollbackDeployment(deployment)}>
+                          {t('rollback.modal.submit')}
+                        </Dialog.Action>
                       </Dialog.Buttons>
                     </Dialog>
                     <Dialog
-                      title="Delete Deployment"
-                      description="Are you sure you want to delete this Deployment?"
+                      title={t('delete.modal.title')}
+                      description={t('delete.modal.description')}
                       disclosure={
                         <Button variant="danger" disabled={deleteDeployment.isLoading}>
-                          Delete
+                          {t('delete')}
                         </Button>
                       }
                     >
@@ -123,7 +130,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                           onClick={() => removeDeplomyent(deployment)}
                           disabled={deleteDeployment.isLoading}
                         >
-                          Delete
+                          {t('delete.modal.submit')}
                         </Dialog.Action>
                       </Dialog.Buttons>
                     </Dialog>

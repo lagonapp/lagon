@@ -11,6 +11,7 @@ import Skeleton from 'lib/components/Skeleton';
 import useFunctionLogs from 'lib/hooks/useFunctionLogs';
 import { LogLevel, LOG_LEVELS, Timeframe, TIMEFRAMES } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
+import { useI18n } from 'locales';
 
 type ContentProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -19,15 +20,12 @@ type ContentProps = {
 };
 
 const Content = ({ func, logLevel, timeframe }: ContentProps) => {
+  const { scopedT } = useI18n();
+  const t = scopedT('functions.logs');
   const { data: logs } = useFunctionLogs({ functionId: func?.id, logLevel, timeframe });
 
   if (logs?.length === 0) {
-    return (
-      <EmptyState
-        title="No logs found"
-        description="Try to add some 'console.log', or select a bigger period of time."
-      />
-    );
+    return <EmptyState title={t('empty.title')} description={t('empty.description')} />;
   }
 
   return (
@@ -55,6 +53,8 @@ type FunctionLogsProps = {
 
 const FunctionLogs = ({ func }: FunctionLogsProps) => {
   const router = useRouter();
+  const { scopedT } = useI18n();
+  const t = scopedT('functions.logs');
   const [logLevel, setLogLevel] = useState<LogLevel>(() => (router.query.logLevel as LogLevel) || 'all');
   const [timeframe, setTimeframe] = useState<Timeframe>(() => (router.query.timeframe as Timeframe) || 'Last 24 hours');
 
@@ -76,7 +76,9 @@ const FunctionLogs = ({ func }: FunctionLogsProps) => {
         <div className="flex flex-col md:flex-row items-end md:items-center gap-2">
           <Menu>
             <Menu.Button>
-              <Button rightIcon={<ChevronDownIcon className="w-4 h-4" />}>Log Level: {logLevel}</Button>
+              <Button rightIcon={<ChevronDownIcon className="w-4 h-4" />}>
+                {t('logLevel')}&nbsp;{logLevel}
+              </Button>
             </Menu.Button>
             <Menu.Items>
               {LOG_LEVELS.filter(item => item !== 'all').map(item => (
