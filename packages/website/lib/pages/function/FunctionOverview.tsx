@@ -11,6 +11,7 @@ import Text from 'lib/components/Text';
 import useFunctionStats from 'lib/hooks/useFunctionStats';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
+import { useI18n } from 'locales';
 
 function formatKb(bytes: number): number {
   return parseFloat((bytes / 1000).toFixed(2));
@@ -26,6 +27,8 @@ type FunctionOverviewProps = {
 
 const FunctionOverview = ({ func }: FunctionOverviewProps) => {
   const router = useRouter();
+  const { scopedT } = useI18n();
+  const t = scopedT('functions.overview');
   const [timeframe, setTimeframe] = useState<Timeframe>(() => (router.query.timeframe as Timeframe) || 'Last 24 hours');
   const { data: stats = [] } = useFunctionStats({ functionId: func?.id, timeframe }) as {
     data: {
@@ -121,7 +124,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
     <div className="flex flex-col gap-8">
       <div className="flex justify-between">
         <Card
-          title="Usage & Limits"
+          title={t('usage')}
           fullWidth
           rightItem={
             <Menu>
@@ -139,14 +142,14 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           }
         >
           <div className="flex justify-between flex-wrap gap-4">
-            <Description title="Requests" total="100,000">
+            <Description title={t('usage.requests')} total="100,000">
               {stats.reduce((acc, current) => acc + current.requests, 0)}
             </Description>
-            <Description title="Avg. CPU time" total={`${func?.timeout || 0}ms`}>
+            <Description title={t('usage.avgCpu')} total={`${func?.timeout || 0}ms`}>
               {stats.length > 0 ? formatNs(stats.reduce((acc, current) => acc + current.cpuTime, 0) / stats.length) : 0}
               ms
             </Description>
-            <Description title="Avg. Received bytes">
+            <Description title={t('usage.avgInBytes')}>
               {stats.length > 0
                 ? formatKb(
                     stats.reduce((acc, current) => acc + current.receivedBytes, 0) /
@@ -155,7 +158,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
                 : 0}
               &nbsp;KB
             </Description>
-            <Description title="Avg. Send bytes">
+            <Description title={t('usage.avgOutBytes')}>
               {stats.length > 0
                 ? formatKb(
                     stats.reduce((acc, current) => acc + current.sendBytes, 0) /
@@ -168,7 +171,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           <Divider />
           <div className="flex gap-8">
             <Text size="sm">
-              Last update:&nbsp;
+              {t('usage.lastUpdate')}:&nbsp;
               {new Date(func?.updatedAt || Date.now()).toLocaleString('en-US', {
                 minute: 'numeric',
                 hour: 'numeric',
@@ -178,7 +181,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
               })}
             </Text>
             <Text size="sm">
-              Created:&nbsp;
+              {t('usage.created')}&nbsp;
               {new Date(func?.createdAt || Date.now()).toLocaleString('en-US', {
                 minute: 'numeric',
                 hour: 'numeric',
@@ -190,13 +193,13 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           </div>
         </Card>
       </div>
-      <Card title="Requests">
+      <Card title={t('requests')}>
         <div className="h-72">
           <Chart
             labels={labels}
             datasets={[
               {
-                label: 'Requests',
+                label: t('requests.label'),
                 color: '#3B82F6',
                 data: values.map(({ requests }) => requests),
               },
@@ -204,13 +207,13 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           />
         </div>
       </Card>
-      <Card title="CPU Time">
+      <Card title={t('cpuTime')}>
         <div className="h-72">
           <Chart
             labels={labels}
             datasets={[
               {
-                label: 'CPU',
+                label: t('cpuTime.label'),
                 color: '#F59E0B',
                 data: values.map(({ cpu }) => formatNs(cpu)),
               },
@@ -218,18 +221,18 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           />
         </div>
       </Card>
-      <Card title="Network">
+      <Card title={t('network')}>
         <div className="h-72">
           <Chart
             labels={labels}
             datasets={[
               {
-                label: 'Received bytes',
+                label: t('network.label.inBytes'),
                 color: '#10B981',
                 data: values.map(({ receivedBytes }) => receivedBytes),
               },
               {
-                label: 'Send bytes',
+                label: t('network.label.outBytes'),
                 color: '#3B82F6',
                 data: values.map(({ sendBytes }) => sendBytes),
               },

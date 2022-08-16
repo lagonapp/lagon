@@ -10,11 +10,14 @@ import { PlayIcon } from '@heroicons/react/outline';
 import Head from 'next/head';
 import LayoutTitle from 'lib/components/LayoutTitle';
 import FunctionLinks from 'lib/components/FunctionLinks';
+import { useI18n } from 'locales';
 
 const Function = () => {
   const {
     query: { functionId },
   } = useRouter();
+  const { scopedT } = useI18n();
+  const t = scopedT('function.nav');
 
   const { data: func, refetch } = useFunction(functionId as string);
 
@@ -27,14 +30,14 @@ const Function = () => {
         <Nav.List
           rightItem={
             <Button href={`/playground/${func?.id}`} leftIcon={<PlayIcon className="w-4 h-4" />}>
-              Playground
+              {t('playground')}
             </Button>
           }
         >
-          <Nav.Link value="overview">Overview</Nav.Link>
-          <Nav.Link value="deployments">Deployments</Nav.Link>
-          <Nav.Link value="logs">Logs</Nav.Link>
-          <Nav.Link value="settings">Settings</Nav.Link>
+          <Nav.Link value="overview">{t('overview')}</Nav.Link>
+          <Nav.Link value="deployments">{t('deployments')}</Nav.Link>
+          <Nav.Link value="logs">{t('logs')}</Nav.Link>
+          <Nav.Link value="settings">{t('settings')}</Nav.Link>
         </Nav.List>
         <Nav.Content value="overview">
           <FunctionOverview func={func} />
