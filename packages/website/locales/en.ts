@@ -89,4 +89,11 @@ export default {
   'new.description.title': 'Description',
   'new.description.placeholder': 'Description of my awesome project.',
   'new.submit': 'Create Organization',
+
+  'playground.title': '{functionName} playground',
+  'playground.back': 'Back to overview',
+  'playground.deploy': 'Deploy',
+  'playground.deploy.success': 'Function deployed successfully.',
+  'playground.deploy.error': 'Failed to deploy function.',
+  'playground.reload': 'Reload',
 } as const;
