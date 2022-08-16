@@ -16,7 +16,8 @@ export default {
   'layout.empty.description': 'Please create an Organization to get started.',
   'layout.empty.action': 'Create Organization',
 
-  'home.createfunction': 'Create a Function',
+  'home.title': 'Functions',
+  'home.createFunction': 'Create a Function',
 
   'settings.title': 'Settings',
 

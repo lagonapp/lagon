@@ -13,11 +13,12 @@ const Home = () => {
   const createFunction = trpc.useMutation(['functions.create']);
   const name = useRandomName();
   const router = useRouter();
-  const { t } = useI18n();
+  const { scopedT } = useI18n();
+  const t = scopedT('home');
 
   return (
     <LayoutTitle
-      title="Functions"
+      title={t('title')}
       rightItem={
         <Button
           variant="primary"
@@ -53,7 +54,7 @@ return new Response("Hello World!")
             router.push(`/playground/${func.id}`);
           }}
         >
-          {t('home.createfunction')}
+          {t('createFunction')}
         </Button>
       }
     >
