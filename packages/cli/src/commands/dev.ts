@@ -1,12 +1,13 @@
 import path from 'node:path';
 import fs from 'node:fs';
-import { logInfo, logError, logSuccess, logSpace } from '../utils/logger';
-import { clearCache, Deployment, getIsolate, HandlerRequest } from '@lagon/runtime';
+import { logInfo, logError, logSuccess, logSpace, logWarn } from '../utils/logger';
+import { clearCache, Deployment, getIsolate, HandlerRequest, OnReceiveStream } from '@lagon/runtime';
 import Fastify from 'fastify';
 import { bundleFunction } from '../utils/deployments';
 import chalk from 'chalk';
-import { getAssetsDir, getEnvironmentVariables, getFileToDeploy } from '../utils';
+import { getAssetsDir, getClientFile, getEnvironmentVariables, getFileToDeploy } from '../utils';
 import { extensionToContentType, FUNCTION_DEFAULT_MEMORY, FUNCTION_DEFAULT_TIMEOUT } from '@lagon/common';
+import { Readable } from 'node:stream';
 
 const fastify = Fastify({
   logger: false,
@@ -17,10 +18,32 @@ const dateFormatter = Intl.DateTimeFormat('en-US', {
   minute: '2-digit',
   second: '2-digit',
 });
+const getDate = () => dateFormatter.format(new Date());
+
+const streams = new Map<string, Readable>();
+
+const onReceiveStream: OnReceiveStream = (deployment, done, chunk) => {
+  let stream = streams.get(deployment.deploymentId);
+
+  if (!stream) {
+    stream = new Readable();
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    stream._read = () => {};
+    streams.set(deployment.deploymentId, stream);
+  }
+
+  stream.push(done ? null : chunk);
+};
 
 export async function dev(
   file: string,
-  { preact, publicDir, port, host }: { preact: boolean; publicDir: string; port: string; host: string },
+  {
+    preact,
+    client,
+    publicDir,
+    port,
+    host,
+  }: { preact: boolean; client: string; publicDir: string; port: string; host: string },
 ) {
   const fileToDeploy = getFileToDeploy(file);
 
@@ -34,14 +57,32 @@ export async function dev(
     return;
   }
 
-  let { code, assets } = await bundleFunction(fileToDeploy, preact, assetsDir);
+  let clientFile: string | undefined;
+
+  if (client || preact) {
+    if (preact) {
+      logWarn("'--preact' is deprecated, use '--client <file>' instead.");
+    }
+
+    clientFile = getClientFile(fileToDeploy, preact ? 'App.tsx' : client);
+
+    if (!clientFile) {
+      return;
+    }
+  }
+
+  let { code, assets } = await bundleFunction({ file: fileToDeploy, clientFile, assetsDir });
 
   const watcher = fs.watch(path.parse(fileToDeploy).dir, async eventType => {
     if (eventType === 'change') {
       console.clear();
       logInfo('Detected change, recompiling...');
 
-      const { code: newCode, assets: newAssets } = await bundleFunction(fileToDeploy, preact, assetsDir);
+      const { code: newCode, assets: newAssets } = await bundleFunction({
+        file: fileToDeploy,
+        clientFile,
+        assetsDir,
+      });
       code = newCode;
       assets = newAssets;
 
@@ -71,23 +112,23 @@ export async function dev(
   });
 
   fastify.all('/*', async (request, reply) => {
-    if (request.url === '/favicon.ico') {
-      reply.code(204);
-      return;
-    }
-
-    console.log(chalk.gray(dateFormatter.format(new Date())) + ' ' + chalk.blue(request.method) + ' ' + request.url);
+    console.log(`${chalk.gray(getDate())} ${chalk.blue.bold(request.method)} ${chalk.black(request.url)}`);
 
     const asset = deployment.assets.find(asset => request.url === `/${asset}`);
 
     if (asset) {
       const extension = path.extname(asset);
-      console.log(chalk.black(`            Found asset: ${asset}`));
+      console.log(chalk.black(`            ${chalk.gray('Found asset:')} ${chalk.gray.bold(asset)}`));
 
       reply
         .status(200)
         .header('Content-Type', extensionToContentType(extension) || 'text/plain')
-        .send(assets.find(({ name }) => name === asset)?.content);
+        .send(fs.createReadStream(path.join(assetsDir, asset)));
+      return;
+    }
+
+    if (request.url === '/favicon.ico') {
+      reply.code(204);
       return;
     }
 
@@ -95,6 +136,7 @@ export async function dev(
       const runIsolate = await getIsolate({
         deployment,
         getDeploymentCode: async () => code,
+        onReceiveStream,
         onDeploymentLog: ({ log }) => {
           const color =
             log.level === 'debug'
@@ -107,16 +149,18 @@ export async function dev(
               ? chalk.gray
               : chalk.yellow;
 
-          console.log(`            ${color(log.level)} ${log.content}`);
+          logSpace();
+          console.log(`${chalk.gray(getDate())} ${color.bold(log.level)} ${chalk.black(log.content)}`);
+          logSpace();
         },
       });
 
       const handlerRequest: HandlerRequest = {
-        input: request.url,
+        input: request.protocol + '://' + request.hostname + request.url,
         options: {
           method: request.method,
           headers: request.headers,
-          body: request.body as string,
+          body: typeof request.body === 'object' ? JSON.stringify(request.body) : String(request.body),
         },
       };
 
@@ -130,20 +174,37 @@ export async function dev(
 
       // @ts-expect-error we access `headers` which is the private map inside `Headers`
       for (const [key, values] of response.headers.headers.entries()) {
+        if (values[0] instanceof Map) {
+          for (const [key, value] of values[0]) {
+            headers[key] = value;
+          }
+        }
+
         headers[key] = values[0];
+      }
+
+      const payload = streams.get(deployment.deploymentId) || response.body;
+
+      if (payload instanceof Readable) {
+        payload.on('end', () => {
+          clearCache(deployment);
+          streams.delete(deployment.deploymentId);
+        });
       }
 
       reply
         .status(response.status || 200)
         .headers(headers)
-        .send(response.body);
+        .send(payload);
     } catch (error) {
       reply.status(500).header('Content-Type', 'text/html').send();
 
       logError(`An error occured while running the function: ${(error as Error).message}`);
     }
 
-    clearCache(deployment);
+    if (!streams.has(deployment.deploymentId)) {
+      clearCache(deployment);
+    }
   });
 
   // get an available port to listen.

@@ -1,6 +1,6 @@
 {
   "name": "lagon",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Deploy Serverless Functions at the Edge",
   "private": true,
   "scripts": {
@@ -26,9 +26,12 @@
     "pnpm": ">=7.3.0"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.4.6",
     "@changesets/cli": "^2.23.1",
+    "@types/mock-fs": "^4.13.1",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.26.0",
+    "c8": "^7.12.0",
     "concurrently": "^7.2.1",
     "esbuild": "^0.14.41",
     "eslint": "^8.16.0",
@@ -36,6 +39,7 @@
     "eslint-plugin-prettier": "^4.0.0",
     "husky": "^8.0.1",
     "lint-staged": "^13.0.2",
+    "mock-fs": "^5.1.4",
     "nodemon": "^2.0.16",
     "prettier": "^2.6.2",
     "tsup": "^6.0.1",

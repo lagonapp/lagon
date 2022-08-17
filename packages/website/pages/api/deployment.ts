@@ -65,7 +65,6 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
   });
 
   form.on('file', (formName, file) => {
-    console.log(formName, file);
     if (formName === 'code') {
       code = fs.readFileSync(file.filepath, 'utf-8');
     } else if (formName === 'assets') {

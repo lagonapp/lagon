@@ -9,9 +9,10 @@ import {
   ORGANIZATION_NAME_MIN_LENGTH,
 } from 'lib/constants';
 import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
-import Layout from 'lib/Layout';
 import { trpc } from 'lib/trpc';
 import { reloadSession } from 'lib/utils';
+import { getLocaleStaticProps, useI18n } from 'locales';
+import { GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
 
@@ -19,6 +20,8 @@ const New = () => {
   const router = useRouter();
   const createOrganization = trpc.useMutation(['organizations.create']);
   const queryContext = trpc.useContext();
+  const { scopedT } = useI18n();
+  const t = scopedT('new');
 
   return (
     <Form
@@ -29,7 +32,7 @@ const New = () => {
         });
       }}
       onSubmitSuccess={() => {
-        toast.success('Organization created.');
+        toast.success(t('success'));
 
         queryContext.refetchQueries();
         reloadSession();
@@ -38,10 +41,10 @@ const New = () => {
     >
       <div className="flex flex-col gap-8 w-96 mx-auto mt-12">
         <div className="flex flex-col gap-2">
-          <Text>Name</Text>
+          <Text>{t('name.title')}</Text>
           <Input
             name="name"
-            placeholder="awesome-project"
+            placeholder={t('name.placeholder')}
             disabled={createOrganization.isLoading}
             validator={composeValidators(
               requiredValidator,
@@ -51,16 +54,16 @@ const New = () => {
           />
         </div>
         <div className="flex flex-col gap-2">
-          <Text>Description</Text>
+          <Text>{t('description.title')}</Text>
           <Textarea
             name="description"
-            placeholder="Description of my new awesome project."
+            placeholder={t('description.placeholder')}
             disabled={createOrganization.isLoading}
             validator={maxLengthValidator(ORGANIZATION_DESCRIPTION_MAX_LENGTH)}
           />
         </div>
         <Button variant="primary" center submit disabled={createOrganization.isLoading}>
-          Create Organization
+          {t('submit')}
         </Button>
       </div>
     </Form>
@@ -68,5 +71,7 @@ const New = () => {
 };
 
 New.title = 'Create Organization';
+
+export const getStaticProps: GetStaticProps = getLocaleStaticProps();
 
 export default New;

@@ -11,6 +11,7 @@ import { getFullCurrentDomain } from 'lib/utils';
 import Text from 'lib/components/Text';
 import { PlayIcon, RefreshIcon } from '@heroicons/react/outline';
 import useFunctionCode from 'lib/hooks/useFunctionCode';
+import { useI18n } from 'locales';
 
 const PlaygroundPage = () => {
   const {
@@ -20,6 +21,8 @@ const PlaygroundPage = () => {
   const { data: functionCode } = useFunctionCode(functionId as string);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const monaco = useMonaco();
+  const { scopedT } = useI18n();
+  const t = scopedT('playground');
 
   const reloadIframe = useCallback(() => {
     if (iframeRef.current) {
@@ -53,18 +56,22 @@ const PlaygroundPage = () => {
             });
           }}
           onSubmitSuccess={() => {
-            toast.success('Function deployed successfully.');
+            toast.success(t('deploy.success'));
 
             setTimeout(reloadIframe, 100);
           }}
           onSubmitError={() => {
-            toast.error('Failed to deploy function.');
+            toast.error(t('deploy.error'));
           }}
         >
           <div className="w-[50vw] flex justify-between px-2 items-center h-full">
-            <Text>{func?.name} playground</Text>
+            <Text>
+              {t('title', {
+                functionName: func?.name as string,
+              })}
+            </Text>
             <div className="flex items-center gap-2">
-              <Button href={`/functions/${func?.id}`}>Back to function</Button>
+              <Button href={`/functions/${func?.id}`}>{t('back')}</Button>
               <Button
                 variant="primary"
                 leftIcon={<PlayIcon className="w-4 h-4" />}
@@ -72,14 +79,14 @@ const PlaygroundPage = () => {
                 // TODO
                 // disabled={deployFunction.isLoading}
               >
-                Deploy
+                {t('deploy')}
               </Button>
             </div>
           </div>
         </Form>
         <div className="w-[50vw] border-l border-l-stone-200 dark:border-l-stone-700 px-2 flex items-center gap-4">
           <Button onClick={reloadIframe} leftIcon={<RefreshIcon className="w-4 h-4" />}>
-            Reload
+            {t('reload')}
           </Button>
           {func ? <FunctionLinks func={func} /> : null}
         </div>

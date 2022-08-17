@@ -1,6 +1,7 @@
 import { DeploymentResult, Deployment } from '@lagon/runtime';
 import { Isolate } from 'isolated-vm';
 import { Worker } from 'node:worker_threads';
+import path from 'node:path';
 
 const CACHE_MS = 1000 * 10 * 60; // 10min
 
@@ -11,9 +12,16 @@ const lastRequests = new Map<string, Date>();
 let lastBatch: number;
 
 function sendResultsToDb() {
-  new Worker('./dist/exporter.js', {
-    workerData: deploymentsResult,
-  });
+  new Worker(
+    /* c8 ignore start */
+    process.env.NODE_ENV === 'test'
+      ? path.join(process.cwd(), 'packages/serverless/dist/exporter.js')
+      : new URL('exporter.js', import.meta.url),
+    /* c8 ignore end */
+    {
+      workerData: deploymentsResult,
+    },
+  );
 
   deploymentsResult.clear();
 }

@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { Deployment } from '@lagon/runtime';
 
-const DEPLOYMENTS_FOLDER = path.join(path.resolve(), 'dist', 'deployments');
+export const DEPLOYMENTS_FOLDER = path.join(path.resolve(), 'dist', 'deployments');
 
 export function deleteOldDeployments(deployments: Deployment[]) {
   const localDeploymentsFiles = fs.readdirSync(DEPLOYMENTS_FOLDER);
@@ -42,15 +42,16 @@ export function writeDeploymentCode(deployment: Deployment, code: string): void 
   fs.writeFileSync(file, code, 'utf8');
 }
 
-export function getAssetContent(deployment: Deployment, name: string): string {
+export function getAssetContent(deployment: Deployment, name: string): fs.ReadStream {
   const file = path.join(DEPLOYMENTS_FOLDER, deployment.deploymentId, name);
 
-  return fs.readFileSync(file, 'utf8');
+  return fs.createReadStream(file);
 }
 
 export function writeAssetContent(name: string, content: string): void {
   const file = path.join(DEPLOYMENTS_FOLDER, name);
 
+  fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, content, 'utf8');
 }
 

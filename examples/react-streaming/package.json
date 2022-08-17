@@ -1,0 +1,12 @@
+{
+  "name": "@lagon/example-react-streaming",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@lagon/types": "workspace:0.0.1",
+    "@types/react": "^18.0.9",
+    "@types/react-dom": "^18.0.5",
+    "react": "18.1.0",
+    "react-dom": "18.1.0"
+  }
+}

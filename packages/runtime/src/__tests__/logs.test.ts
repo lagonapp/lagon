@@ -33,6 +33,7 @@ describe('Logs', () => {
   console.log('Hello World');
   return new Response('');
 }`,
+      onReceiveStream: () => null,
       onDeploymentLog,
     });
 
@@ -58,6 +59,7 @@ describe('Logs', () => {
   console.log({ hello: 'world' });
   return new Response('');
 }`,
+      onReceiveStream: () => null,
       onDeploymentLog,
     });
 
@@ -83,6 +85,7 @@ describe('Logs', () => {
   console.log(['hello', 'world', 3]);
   return new Response('');
 }`,
+      onReceiveStream: () => null,
       onDeploymentLog,
     });
 
@@ -111,6 +114,7 @@ describe('Logs', () => {
   console.debug('Debug log');
   return new Response('');
 }`,
+      onReceiveStream: () => null,
       onDeploymentLog,
     });
 
