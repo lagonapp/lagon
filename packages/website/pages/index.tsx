@@ -6,7 +6,7 @@ import Button from 'lib/components/Button';
 import { trpc } from 'lib/trpc';
 import useRandomName from '@scaleway/use-random-name';
 import { useRouter } from 'next/router';
-import { getLocaleStaticProps, useI18n } from 'locales';
+import { getLocaleProps, useI18n } from 'locales';
 import { GetStaticProps } from 'next';
 
 const Home = () => {
@@ -67,6 +67,6 @@ return new Response("Hello World!")
 
 Home.title = 'Functions';
 
-export const getStaticProps: GetStaticProps = getLocaleStaticProps();
+export const getStaticProps: GetStaticProps = getLocaleProps();
 
 export default Home;

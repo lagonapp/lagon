@@ -16,7 +16,7 @@ import {
 import { trpc } from 'lib/trpc';
 import { reloadSession } from 'lib/utils';
 import LayoutTitle from 'lib/components/LayoutTitle';
-import { getLocaleStaticProps, useI18n } from 'locales';
+import { getLocaleProps, useI18n } from 'locales';
 import { GetStaticProps } from 'next';
 
 const Settings = () => {
@@ -170,6 +170,6 @@ const Settings = () => {
 
 Settings.title = 'Settings';
 
-export const getStaticProps: GetStaticProps = getLocaleStaticProps();
+export const getStaticProps: GetStaticProps = getLocaleProps();
 
 export default Settings;
