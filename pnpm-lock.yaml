@@ -272,7 +272,6 @@ importers:
       autoprefixer: ^10.4.7
       babel-loader: ^8.2.5
       chart.js: ^3.8.0
-      cron-parser: ^4.4.0
       eslint: ^8.16.0
       eslint-config-next: 12.1.6
       eslint-plugin-storybook: ^0.5.12
@@ -312,7 +311,6 @@ importers:
       '@trpc/react': 9.25.3_ub67m26lhncw2csxgbgk2dkbcm
       '@trpc/server': 9.25.3
       chart.js: 3.8.0
-      cron-parser: 4.5.0
       final-form: 4.20.7
       formidable: 2.0.1
       monaco-editor: 0.33.0
@@ -8336,13 +8334,6 @@ packages:
       sha.js: 2.4.11
     dev: true
 
-  /cron-parser/4.5.0:
-    resolution: {integrity: sha512-QHdeh3zLWz6YvYTFKpRb860rJlip16pEinbxXT1i2NZB/nOxBjd2RbSv54sn5UrAj9WykiSLYWWDgo8azQK0HA==}
-    engines: {node: '>=12.0.0'}
-    dependencies:
-      luxon: 2.4.0
-    dev: false
-
   /cross-spawn/5.1.0:
     resolution: {integrity: sha512-pTgQJ5KC0d2hcY8eyL1IzlBPYjTkyH72XRZPnLyKus2mBfNjQs3klqbJU2VILqZryAZUt9JOb3h/mWMy23/f5A==}
     dependencies:
@@ -12440,11 +12431,6 @@ packages:
 
   /lru_map/0.3.3:
     resolution: {integrity: sha512-Pn9cox5CsMYngeDbmChANltQl+5pi6XmTrraMSzhPmMBbmgcxmqWry0U3PGapCU1yB4/LqCcom7qhHZiF/jGfQ==}
-    dev: false
-
-  /luxon/2.4.0:
-    resolution: {integrity: sha512-w+NAwWOUL5hO0SgwOHsMBAmZ15SoknmQXhSO0hIbJCAmPKSsGeK8MlmhYh2w6Iib38IxN2M+/ooXWLbeis7GuA==}
-    engines: {node: '>=12'}
     dev: false
 
   /lz-string/1.4.4:

@@ -105,6 +105,8 @@ export const organizationsRouter = () =>
             },
             memory: true,
             timeout: true,
+            cron: true,
+            cronRegion: true,
             env: {
               select: {
                 key: true,

@@ -1,8 +1,10 @@
-import { clearCache, Deployment } from '@lagon/runtime';
+import { clearCache, Deployment, DeploymentLog, DeploymentResult, getIsolate, OnDeploymentLog } from '@lagon/runtime';
 import { deleteDeployment, getDeployments, setDeployment } from 'src/deployments/cache';
 import startServer from 'src/server';
 import { IS_DEV } from 'src/constants';
-import { clearStatsCache, shouldClearCache } from 'src/deployments/result';
+import { addDeploymentResult, clearStatsCache, getCpuTime, shouldClearCache } from 'src/deployments/result';
+import type { Isolate } from 'isolated-vm';
+import { getDeploymentCode } from 'src/deployments';
 
 function deploy(deployment: Deployment) {
   const { domains, deploymentId } = deployment;
@@ -93,6 +95,59 @@ function changeDomains(deployment: Deployment & { oldDomains: string[] }) {
   }
 }
 
+const logs = new Map<string, DeploymentLog[]>();
+
+const onDeploymentLog: OnDeploymentLog = ({ deploymentId, log }) => {
+  if (!logs.has(deploymentId)) {
+    logs.set(deploymentId, []);
+  }
+
+  logs.get(deploymentId)?.push(log);
+};
+
+async function executeDeployment(deployment: Deployment) {
+  const deploymentResult: DeploymentResult = {
+    cpuTime: BigInt(0),
+    receivedBytes: 0,
+    sentBytes: 0,
+    logs: [],
+  };
+
+  let isolateCache: Isolate | undefined = undefined;
+  let errored = false;
+
+  try {
+    const runIsolate = await getIsolate({
+      deployment,
+      getDeploymentCode,
+      onReceiveStream: () => null,
+      onDeploymentLog,
+    });
+
+    const { isolate } = await runIsolate({
+      input: '',
+      options: {
+        method: 'GET',
+        headers: {},
+      },
+    });
+
+    isolateCache = isolate;
+  } catch (e) {
+    errored = true;
+  }
+
+  if (!errored && isolateCache !== undefined) {
+    deploymentResult.cpuTime = getCpuTime({ isolate: isolateCache, deployment });
+  }
+
+  deploymentResult.logs = logs.get(deployment.deploymentId) || [];
+
+  logs.delete(deployment.deploymentId);
+
+  addDeploymentResult({ deployment, deploymentResult });
+}
+
 export default function worker() {
   const port = Number(process.env.LAGON_PORT || 4000);
   const host = process.env.LAGON_HOST || '0.0.0.0';
@@ -139,6 +194,10 @@ export default function worker() {
             clearStatsCache(deployment);
           }
         }
+        break;
+      }
+      case 'cron': {
+        executeDeployment(data);
         break;
       }
       default:

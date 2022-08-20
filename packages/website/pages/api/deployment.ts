@@ -90,6 +90,8 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
         },
         memory: true,
         timeout: true,
+        cron: true,
+        cronRegion: true,
         env: {
           select: {
             key: true,

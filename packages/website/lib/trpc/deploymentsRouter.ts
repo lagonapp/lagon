@@ -35,6 +35,8 @@ export const deploymentsRouter = () =>
             },
             memory: true,
             timeout: true,
+            cron: true,
+            cronRegion: true,
             env: {
               select: {
                 key: true,
