@@ -1,11 +1,12 @@
 import { Deployment } from '@lagon/runtime';
-import { deployments, getBytesFromReply, getBytesFromRequest, getDeploymentFromRequest } from 'src/deployments/utils';
+import { getBytesFromReply, getBytesFromRequest, getDeploymentFromRequest } from 'src/deployments/utils';
+import { setDeployment, clearDeployments } from 'src/deployments/cache';
 import { beforeAll, describe, expect, it } from 'vitest';
 
 describe('Misc', () => {
   describe('getDeploymentFromRequest', () => {
     beforeAll(() => {
-      deployments.clear();
+      clearDeployments();
     });
 
     it('should return deployment from host header', () => {
@@ -21,7 +22,7 @@ describe('Misc', () => {
         assets: [],
       };
 
-      deployments.set('localhost', deployment);
+      setDeployment('localhost', deployment);
 
       // @ts-expect-error only mock needed properties
       expect(getDeploymentFromRequest({ headers: { host: 'localhost' } })).toEqual(deployment);

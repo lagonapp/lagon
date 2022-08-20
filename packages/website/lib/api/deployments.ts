@@ -13,6 +13,8 @@ export async function createDeployment(
     domains: string[];
     memory: number;
     timeout: number;
+    cron: string | null;
+    cronRegion: string;
     env: { key: string; value: string }[];
   },
   code: string,
@@ -75,6 +77,8 @@ export async function createDeployment(
       domains: func.domains,
       memory: func.memory,
       timeout: func.timeout,
+      cron: func.cron,
+      cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isCurrent: deployment.isCurrent,
       assets: deployment.assets,
@@ -91,6 +95,8 @@ export async function removeDeployment(
     domains: string[];
     memory: number;
     timeout: number;
+    cron: string | null;
+    cronRegion: string;
     env: { key: string; value: string }[];
   },
   deploymentId: string,
@@ -162,6 +168,8 @@ export async function removeDeployment(
       domains: func.domains,
       memory: func.memory,
       timeout: func.timeout,
+      cron: func.cron,
+      cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isCurrent: deployment.isCurrent,
       assets: deployment.assets,
@@ -226,6 +234,8 @@ export async function setCurrentDeployment(
       domains: true,
       memory: true,
       timeout: true,
+      cron: true,
+      cronRegion: true,
       env: {
         select: {
           key: true,
@@ -273,6 +283,8 @@ export async function setCurrentDeployment(
       domains: func.domains,
       memory: func.memory,
       timeout: func.timeout,
+      cron: func.cron,
+      cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isCurrent: true,
       assets: deployment.assets,
@@ -292,6 +304,8 @@ export async function updateDomains(
     domains: string[];
     memory: number;
     timeout: number;
+    cron: string | null;
+    cronRegion: string;
     env: { key: string; value: string }[];
   },
   deployment: { id: string; isCurrent: boolean; assets: string[] },
@@ -306,6 +320,8 @@ export async function updateDomains(
       domains: func.domains,
       memory: func.memory,
       timeout: func.timeout,
+      cron: func.cron,
+      cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isCurrent: deployment.isCurrent,
       assets: deployment.assets,

@@ -1,8 +1,10 @@
-import { clearCache, Deployment } from '@lagon/runtime';
-import { deployments } from 'src/deployments/utils';
+import { clearCache, Deployment, DeploymentLog, DeploymentResult, getIsolate, OnDeploymentLog } from '@lagon/runtime';
+import { deleteDeployment, getDeployments, setDeployment } from 'src/deployments/cache';
 import startServer from 'src/server';
-import { IS_DEV } from '../constants';
-import { clearStatsCache, shouldClearCache } from '../deployments/result';
+import { IS_DEV } from 'src/constants';
+import { addDeploymentResult, clearStatsCache, getCpuTime, shouldClearCache } from 'src/deployments/result';
+import type { Isolate } from 'isolated-vm';
+import { getDeploymentCode } from 'src/deployments';
 
 function deploy(deployment: Deployment) {
   const { domains, deploymentId } = deployment;
@@ -16,14 +18,14 @@ function deploy(deployment: Deployment) {
   );
 
   if (deployment.isCurrent) {
-    deployments.set(`${deployment.functionName}.${process.env.LAGON_ROOT_DOMAIN}`, deployment);
+    setDeployment(`${deployment.functionName}.${process.env.LAGON_ROOT_DOMAIN}`, deployment);
 
     for (const domain of domains) {
-      deployments.set(domain, deployment);
+      setDeployment(domain, deployment);
     }
   }
 
-  deployments.set(`${deploymentId}.${process.env.LAGON_ROOT_DOMAIN}`, deployment);
+  setDeployment(`${deploymentId}.${process.env.LAGON_ROOT_DOMAIN}`, deployment);
 
   clearCache(deployment);
   clearStatsCache(deployment);
@@ -41,14 +43,14 @@ function undeploy(deployment: Deployment) {
   );
 
   if (deployment.isCurrent) {
-    deployments.delete(`${deployment.functionName}.${process.env.LAGON_ROOT_DOMAIN}`);
+    deleteDeployment(`${deployment.functionName}.${process.env.LAGON_ROOT_DOMAIN}`);
 
     for (const domain of domains) {
-      deployments.delete(domain);
+      deleteDeployment(domain);
     }
   }
 
-  deployments.delete(`${deploymentId}.${process.env.LAGON_ROOT_DOMAIN}`);
+  deleteDeployment(`${deploymentId}.${process.env.LAGON_ROOT_DOMAIN}`);
 
   clearCache(deployment);
   clearStatsCache(deployment);
@@ -85,12 +87,65 @@ function changeDomains(deployment: Deployment & { oldDomains: string[] }) {
   );
 
   for (const domain of deployment.oldDomains) {
-    deployments.delete(domain);
+    deleteDeployment(domain);
   }
 
   for (const domain of deployment.domains) {
-    deployments.set(domain, deployment);
+    setDeployment(domain, deployment);
   }
+}
+
+const logs = new Map<string, DeploymentLog[]>();
+
+const onDeploymentLog: OnDeploymentLog = ({ deploymentId, log }) => {
+  if (!logs.has(deploymentId)) {
+    logs.set(deploymentId, []);
+  }
+
+  logs.get(deploymentId)?.push(log);
+};
+
+async function executeDeployment(deployment: Deployment) {
+  const deploymentResult: DeploymentResult = {
+    cpuTime: BigInt(0),
+    receivedBytes: 0,
+    sentBytes: 0,
+    logs: [],
+  };
+
+  let isolateCache: Isolate | undefined = undefined;
+  let errored = false;
+
+  try {
+    const runIsolate = await getIsolate({
+      deployment,
+      getDeploymentCode,
+      onReceiveStream: () => null,
+      onDeploymentLog,
+    });
+
+    const { isolate } = await runIsolate({
+      input: '',
+      options: {
+        method: 'GET',
+        headers: {},
+      },
+    });
+
+    isolateCache = isolate;
+  } catch (e) {
+    errored = true;
+  }
+
+  if (!errored && isolateCache !== undefined) {
+    deploymentResult.cpuTime = getCpuTime({ isolate: isolateCache, deployment });
+  }
+
+  deploymentResult.logs = logs.get(deployment.deploymentId) || [];
+
+  logs.delete(deployment.deploymentId);
+
+  addDeploymentResult({ deployment, deploymentResult });
 }
 
 export default function worker() {
@@ -129,7 +184,7 @@ export default function worker() {
       case 'clean': {
         const now = new Date();
 
-        for (const deployment of deployments.values()) {
+        for (const deployment of getDeployments().values()) {
           if (shouldClearCache(deployment, now)) {
             if (IS_DEV) {
               console.log('Clear cache', deployment.deploymentId);
@@ -139,6 +194,10 @@ export default function worker() {
             clearStatsCache(deployment);
           }
         }
+        break;
+      }
+      case 'cron': {
+        executeDeployment(data);
         break;
       }
       default:

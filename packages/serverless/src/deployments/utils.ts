@@ -1,7 +1,6 @@
 import { Deployment } from '@lagon/runtime';
 import { FastifyReply, FastifyRequest } from 'fastify';
-
-export const deployments = new Map<string, Deployment>();
+import { getDeployments } from 'src/deployments/cache';
 
 export function getDeploymentFromRequest(req: FastifyRequest): Deployment | undefined {
   const { host } = req.headers;
@@ -10,7 +9,7 @@ export function getDeploymentFromRequest(req: FastifyRequest): Deployment | unde
     return;
   }
 
-  return deployments.get(host);
+  return getDeployments().get(host);
 }
 
 function getBytesFromHeaders(headers: { [key: string]: string | string[] | undefined }): number {

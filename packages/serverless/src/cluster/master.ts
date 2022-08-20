@@ -12,6 +12,7 @@ import {
 } from 'src/deployments';
 import { envStringToObject } from '@lagon/common';
 import { IS_DEV } from '../constants';
+import { parseExpression } from 'cron-parser';
 
 async function streamToString(stream: Readable): Promise<string> {
   return await new Promise((resolve, reject) => {
@@ -23,7 +24,7 @@ async function streamToString(stream: Readable): Promise<string> {
 }
 
 export default async function master() {
-  const desiredWorkers = IS_DEV ? 1 : process.env.LAGON_WORKERS || 1;
+  const desiredWorkers = IS_DEV ? 1 : parseInt(process.env.LAGON_WORKERS || '1');
 
   const deployments = (
     await prisma.deployment.findMany({
@@ -46,6 +47,7 @@ export default async function master() {
             },
             memory: true,
             timeout: true,
+            cron: true,
             env: {
               select: {
                 key: true,
@@ -55,13 +57,18 @@ export default async function master() {
           },
         },
       },
+      where: {
+        function: {
+          cronRegion: process.env.LAGON_REGION,
+        },
+      },
     })
   ).map(
     ({
       id: deploymentId,
       isCurrent,
       assets,
-      function: { id: functionId, name: functionName, domains, memory, timeout, env },
+      function: { id: functionId, name: functionName, domains, memory, timeout, cron, env },
     }) => ({
       functionId,
       functionName,
@@ -69,17 +76,23 @@ export default async function master() {
       domains: domains.map(({ domain }) => domain),
       memory,
       timeout,
+      cron,
       env: envStringToObject(env),
       isCurrent,
       assets: assets.map(({ name }) => name),
     }),
   );
 
+  const finalDeployments = deployments.filter(deployment => deployment.cron === null);
+  let cronDeployments = deployments.filter(deployment => deployment.cron !== null);
+
   for (let i = 0; i < desiredWorkers; i++) {
-    const worker = cluster.fork();
+    const worker = cluster.fork({
+      LAGON_REGION: process.env.LAGON_REGION,
+    });
 
     worker.on('message', () => {
-      worker.send({ msg: 'deployments', data: deployments });
+      worker.send({ msg: 'deployments', data: finalDeployments });
     });
   }
 
@@ -89,7 +102,7 @@ export default async function master() {
     const newWorker = cluster.fork();
 
     newWorker.on('message', () => {
-      newWorker.send({ msg: 'deployments', data: deployments });
+      newWorker.send({ msg: 'deployments', data: finalDeployments });
     });
   });
 
@@ -174,8 +187,12 @@ export default async function master() {
       writeAssetContent(asset.Key as string, assetContent);
     }
 
-    for (const i in cluster.workers) {
-      cluster.workers[i]?.send({ msg: 'deploy', data: deployment });
+    if (deployment.cron === null) {
+      for (const i in cluster.workers) {
+        cluster.workers[i]?.send({ msg: 'deploy', data: deployment });
+      }
+    } else if (deployment.cronRegion === process.env.LAGON_REGION) {
+      cronDeployments.push(deployment);
     }
   });
 
@@ -184,30 +201,61 @@ export default async function master() {
 
     deleteDeploymentCode(deployment);
 
-    for (const i in cluster.workers) {
-      cluster.workers[i]?.send({ msg: 'undeploy', data: deployment });
+    if (deployment.cron === null) {
+      for (const i in cluster.workers) {
+        cluster.workers[i]?.send({ msg: 'undeploy', data: deployment });
+      }
+    } else {
+      cronDeployments = cronDeployments.filter(({ deploymentId }) => deploymentId !== deployment.deploymentId);
     }
   });
 
   await redis.subscribe('current', message => {
     const deployment = JSON.parse(message);
 
-    for (const i in cluster.workers) {
-      cluster.workers[i]?.send({ msg: 'current', data: deployment });
+    if (deployment.cron === null) {
+      for (const i in cluster.workers) {
+        cluster.workers[i]?.send({ msg: 'current', data: deployment });
+      }
     }
   });
 
   await redis.subscribe('domains', message => {
     const deployment = JSON.parse(message);
 
-    for (const i in cluster.workers) {
-      cluster.workers[i]?.send({ msg: 'domains', data: deployment });
+    if (deployment.cron === null) {
+      for (const i in cluster.workers) {
+        cluster.workers[i]?.send({ msg: 'domains', data: deployment });
+      }
     }
   });
 
   setInterval(() => {
     for (const i in cluster.workers) {
       cluster.workers[i]?.send({ msg: 'clean' });
+    }
+
+    for (const deployment of cronDeployments) {
+      const interval = parseExpression(deployment.cron!);
+      const next = interval.prev();
+      const now = new Date();
+
+      if (
+        !(
+          next.getMinutes() === now.getMinutes() &&
+          next.getHours() === now.getHours() &&
+          next.getDate() === now.getDate() &&
+          next.getMonth() === now.getMonth() &&
+          next.getDay() === now.getDay()
+        )
+      ) {
+        return;
+      }
+
+      // Find a random worker the run the deployment
+      const id = Math.floor(Math.random() * desiredWorkers) + 1;
+      const worker = cluster.workers![id];
+      worker?.send({ msg: 'cron', data: deployment });
     }
   }, 1000 * 60); // 1min
 }

@@ -83,6 +83,7 @@ model Function {
   memory  Int
   timeout Int
   cron    String?
+  cronRegion String @default("EU-WEST-3")
   env     EnvVariable[]
 
   organization   Organization @relation(fields: [organizationId], references: [id])

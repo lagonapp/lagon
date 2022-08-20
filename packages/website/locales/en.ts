@@ -156,8 +156,11 @@ export default {
   'functions.settings.domains.update': 'Update',
   'functions.settings.domains.success': 'Function domains updated successfully.',
   'functions.settings.cron.title': 'Cron',
-  'functions.settings.cron.description': 'Run this Function automatically at a scheduled rate using a Cron expression.',
-  'functions.settings.cron.placeholder': '* */12 * * *',
+  'functions.settings.cron.description':
+    'Run this Function automatically at a scheduled rate using a Cron expression. You can also choose in which Region to run the Function.',
+  'functions.settings.cron.expression': 'Expression',
+  'functions.settings.cron.expression.placeholder': '* */12 * * *',
+  'functions.settings.cron.region': 'Region',
   'functions.settings.cron.submit': 'Update',
   'functions.settings.cron.success': 'Function Cron updated successfully.',
   'functions.settings.env.title': 'Environment variables',

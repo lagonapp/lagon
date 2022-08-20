@@ -22,6 +22,8 @@ import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from 'react-query';
 import { useI18n } from 'locales';
+import Menu from 'lib/components/Menu';
+import { Regions, REGIONS } from '@lagon/common';
 
 type FunctionSettingsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -126,8 +128,9 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
       <Form
         initialValues={{
           cron: func?.cron,
+          cronRegion: func?.cronRegion,
         }}
-        onSubmit={async ({ cron }) => {
+        onSubmit={async ({ cron, cronRegion }) => {
           if (!func) {
             return;
           }
@@ -136,27 +139,50 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
             functionId: func.id,
             ...func,
             cron: cron || null,
+            cronRegion: cronRegion,
           });
 
           await refetch();
         }}
         onSubmitSuccess={() => {
-          toast.success(t('cron.submit'));
+          toast.success(t('cron.success'));
         }}
       >
-        <Card title={t('cron.title')} description={t('cron.description')}>
-          <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
-            <Input
-              name="cron"
-              placeholder={t('cron.placeholder')}
-              disabled={updateFunction.isLoading}
-              validator={cronValidator}
-            />
-            <Button variant="primary" disabled={updateFunction.isLoading} submit>
-              {t('cron.submit')}
-            </Button>
-          </div>
-        </Card>
+        {({ values, form }) => (
+          <Card title={t('cron.title')} description={t('cron.description')}>
+            <div className="flex flex-col md:flex-row gap-6 md:gap-0 justify-between items-start">
+              <div className="flex flex-1 flex-col gap-1 items-start">
+                <Text size="lg">{t('cron.expression')}</Text>
+                <Input
+                  name="cron"
+                  placeholder={t('cron.expression.placeholder')}
+                  disabled={updateFunction.isLoading}
+                  validator={cronValidator}
+                />
+              </div>
+              <div className="flex flex-1 flex-col gap-1 items-start">
+                <Text size="lg">{t('cron.region')}</Text>
+                <Menu>
+                  <Menu.Button>
+                    <Button>{REGIONS[values.cronRegion as Regions] || REGIONS['EU-WEST-3']}</Button>
+                  </Menu.Button>
+                  <Menu.Items>
+                    {Object.entries(REGIONS).map(([key, value]) => (
+                      <Menu.Item key={key} onClick={() => form.change('cronRegion', key)}>
+                        {value}
+                      </Menu.Item>
+                    ))}
+                  </Menu.Items>
+                </Menu>
+              </div>
+            </div>
+            <div>
+              <Button variant="primary" disabled={updateFunction.isLoading} submit>
+                {t('cron.submit')}
+              </Button>
+            </div>
+          </Card>
+        )}
       </Form>
       <Form
         initialValues={{
@@ -246,7 +272,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           <Dialog
             title={t('delete.modal.title')}
             description={t('delete.modal.description', {
-              functionName: func?.name as string,
+              functionName: func?.name || ('' as string),
             })}
             disclosure={
               <Button variant="danger" disabled={deleteFunction.isLoading}>

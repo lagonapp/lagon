@@ -160,8 +160,11 @@ export default defineLocale({
   'functions.settings.domains.update': 'Mettre à jour',
   'functions.settings.domains.success': 'Les domaines de la Fonction ont été mis à jour.',
   'functions.settings.cron.title': 'Cron',
-  'functions.settings.cron.description': 'Exécuter automatiquement cette Fonction avec une expression Cron.',
-  'functions.settings.cron.placeholder': '* */12 * * *',
+  'functions.settings.cron.description':
+    'Exécuter automatiquement cette Fonction avec une expression Cron. Vous pouvez aussi choisir dans quelle Région exécuter la Fonction.',
+  'functions.settings.cron.expression': 'Expression',
+  'functions.settings.cron.expression.placeholder': '* */12 * * *',
+  'functions.settings.cron.region': 'Région',
   'functions.settings.cron.submit': 'Mettre à jour',
   'functions.settings.cron.success': 'Le Cron de la Fonction a été mis à jour.',
   'functions.settings.env.title': "Variables d'environement",

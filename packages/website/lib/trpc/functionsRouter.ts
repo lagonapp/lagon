@@ -2,7 +2,7 @@ import { z } from 'zod';
 import prisma from '@lagon/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { LOG_LEVELS, TIMEFRAMES } from 'lib/types';
-import { createDeployment, getDeploymentCode, removeDeployment, updateDomains } from 'lib/api/deployments';
+import { getDeploymentCode, removeDeployment, updateDomains } from 'lib/api/deployments';
 import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
 import { FUNCTION_DEFAULT_MEMORY, FUNCTION_DEFAULT_TIMEOUT } from '@lagon/common';
 import * as trpc from '@trpc/server';
@@ -34,6 +34,7 @@ export const functionsRouter = () =>
               },
             },
             cron: true,
+            cronRegion: true,
             deployments: {
               select: {
                 id: true,
@@ -86,6 +87,7 @@ export const functionsRouter = () =>
               },
             },
             cron: true,
+            cronRegion: true,
             deployments: {
               select: {
                 id: true,
@@ -258,6 +260,7 @@ export const functionsRouter = () =>
               },
             },
             cron: true,
+            cronRegion: true,
           },
         });
       },
@@ -268,6 +271,7 @@ export const functionsRouter = () =>
         name: z.string().min(FUNCTION_NAME_MIN_LENGTH).max(FUNCTION_NAME_MAX_LENGTH),
         domains: z.string().array(),
         cron: z.string().nullable(),
+        cronRegion: z.string(),
         env: z
           .object({
             key: z.string(),
@@ -315,6 +319,7 @@ export const functionsRouter = () =>
           data: {
             name: input.name,
             cron: input.cron,
+            cronRegion: input.cronRegion,
             env: {
               createMany: {
                 data: input.env.map(({ key, value }) => ({
@@ -337,6 +342,7 @@ export const functionsRouter = () =>
             memory: true,
             timeout: true,
             cron: true,
+            cronRegion: true,
             env: {
               select: {
                 key: true,
@@ -400,6 +406,8 @@ export const functionsRouter = () =>
             },
             memory: true,
             timeout: true,
+            cron: true,
+            cronRegion: true,
             env: {
               select: {
                 key: true,
