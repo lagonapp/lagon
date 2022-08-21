@@ -17,6 +17,7 @@ import type { Isolate } from 'isolated-vm';
 import { extensionToContentType } from '@lagon/common';
 import { IS_DEV } from './constants';
 import { Readable } from 'node:stream';
+import { TextDecoder } from 'node:util';
 
 const fastify = Fastify({
   logger: false,
@@ -159,12 +160,14 @@ export default function startServer(port: number, host: string) {
         headers[key] = values[0];
       }
 
-      const payload = streams.get(deployment.deploymentId) || response.body;
+      let payload = streams.get(deployment.deploymentId) || response.body;
 
       if (payload instanceof Readable) {
         payload.on('end', () => {
           streams.delete(deployment.deploymentId);
         });
+      } else if (payload instanceof Uint8Array) {
+        payload = new TextDecoder().decode(payload);
       }
 
       reply
@@ -181,7 +184,9 @@ export default function startServer(port: number, host: string) {
       reply.status(500).header('Content-Type', 'text/html').send(html500);
       if (IS_DEV) console.timeEnd(id);
 
-      console.log(`An error occured while running the function: ${(error as Error).message}`);
+      console.log(
+        `An error occured while running the function: ${(error as Error).message}: ${(error as Error).stack}`,
+      );
 
       addLog({ deploymentId: deployment.deploymentId, logLevel: 'error', onDeploymentLog })(
         getStackTrace(error as Error),
