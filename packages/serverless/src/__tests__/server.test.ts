@@ -80,6 +80,15 @@ describe('Server', () => {
     expect(response).toMatchSnapshot();
   });
 
+  it('should reply Uint8Array', async () => {
+    const response = await request(`export function handler(request) {
+  const body = new TextEncoder().encode('Hello World');
+  return new Response(body);
+}`);
+
+    expect(response).toMatchSnapshot();
+  });
+
   it('should handle json request', async () => {
     const response = await request(
       `export async function handler(request) {
