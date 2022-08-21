@@ -12,7 +12,8 @@ import {
 } from 'src/deployments';
 import { envStringToObject } from '@lagon/common';
 import { IS_DEV } from '../constants';
-import { parseExpression } from 'cron-parser';
+import cronParser from 'cron-parser';
+const { parseExpression } = cronParser;
 
 async function streamToString(stream: Readable): Promise<string> {
   return await new Promise((resolve, reject) => {

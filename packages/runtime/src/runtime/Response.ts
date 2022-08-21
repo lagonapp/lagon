@@ -9,14 +9,14 @@ export interface ResponseInit {
 }
 
 export class Response {
-  body: string;
+  body: string | Uint8Array;
   headers: Headers;
   ok: boolean;
   status: number;
   statusText: string;
   url: string;
 
-  constructor(body: string, options?: ResponseInit) {
+  constructor(body: string | Uint8Array, options?: ResponseInit) {
     this.body = body;
 
     if (options?.headers) {
@@ -41,14 +41,26 @@ export class Response {
   }
 
   async text(): Promise<string> {
+    if (this.body instanceof Uint8Array) {
+      throw new Error('Cannot read text from Uint8Array');
+    }
+
     return this.body;
   }
 
   async json<T>(): Promise<T> {
+    if (this.body instanceof Uint8Array) {
+      throw new Error('Cannot read text from Uint8Array');
+    }
+
     return JSON.parse(this.body);
   }
 
   async formData(): Promise<Record<string, string>> {
+    if (this.body instanceof Uint8Array) {
+      throw new Error('Cannot read text from Uint8Array');
+    }
+
     return parseMultipart(this.headers, this.body);
   }
 }
