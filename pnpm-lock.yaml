@@ -51,7 +51,7 @@ importers:
   examples/astro:
     specifiers:
       '@astrojs/deno': ^0.2.0
-      '@lagon/astro': workspace:0.0.2
+      '@lagon/astro': workspace:0.0.3
       '@lagon/types': workspace:0.0.1
       astro: 1.0.0-rc.7
     dependencies:
