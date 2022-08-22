@@ -347,6 +347,60 @@ export async function updateDomains(
   );
 }
 
+export async function removeFunction(func: {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  name: string;
+  domains: {
+    domain: string;
+  }[];
+  memory: number;
+  timeout: number;
+  cron: string | null;
+  cronRegion: string;
+  env: {
+    key: string;
+    value: string;
+  }[];
+  deployments: { id: string }[];
+}) {
+  const deleteDeployments = func.deployments.map(deployment =>
+    removeDeployment(
+      {
+        ...func,
+        domains: func.domains.map(({ domain }) => domain),
+      },
+      deployment.id,
+    ),
+  );
+
+  await Promise.all(deleteDeployments);
+  await Promise.all([
+    prisma.stat.deleteMany({
+      where: {
+        functionId: func.id,
+      },
+    }),
+    prisma.log.deleteMany({
+      where: {
+        functionId: func.id,
+      },
+    }),
+    prisma.domain.deleteMany({
+      where: {
+        functionId: func.id,
+      },
+    }),
+  ]);
+
+  await prisma.function.delete({
+    where: {
+      id: func.id,
+    },
+  });
+}
+
 async function streamToString(stream: Readable): Promise<string> {
   return await new Promise((resolve, reject) => {
     const chunks: Uint8Array[] = [];
