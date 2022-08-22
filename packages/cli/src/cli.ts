@@ -1,6 +1,7 @@
 import { program } from 'commander';
 import { version } from '../package.json';
 import { loggedInGuard } from './auth';
+import { build } from './commands/build';
 import { deploy } from './commands/deploy';
 import { dev } from './commands/dev';
 import { login } from './commands/login';
@@ -36,6 +37,14 @@ export function runCli() {
     .option('-c, --client <file>', 'Bundle this file as a client-side script')
     .option('-p, --public-dir <dir>', 'The directory to serve the public assets from', 'public')
     .action(dev);
+  program
+    .command('build')
+    .description('Build the given file but do not deploy it, useful for debug purposes')
+    .argument('<file>', 'The file to build')
+    .option('--preact', 'Bundle the function as a preact site (deprecated, use --client)')
+    .option('-c, --client <file>', 'Bundle this file as a client-side script')
+    .option('-p, --public-dir <dir>', 'The directory to serve the public assets from', 'public')
+    .action(build);
 
   program.parse();
 }

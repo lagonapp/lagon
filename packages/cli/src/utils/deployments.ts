@@ -7,7 +7,7 @@ import { logDeploymentSuccessful, logError, logInfo } from './logger';
 import { API_URL } from './constants';
 import fetch, { FormData, File } from 'node-fetch';
 
-const CONFIG_DIRECTORY = path.join(process.cwd(), '.lagon');
+export const CONFIG_DIRECTORY = path.join(process.cwd(), '.lagon');
 
 export type DeploymentConfig = {
   functionId: string;
