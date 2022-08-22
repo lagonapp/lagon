@@ -5,6 +5,7 @@ import prisma from '@lagon/prisma';
 import { envStringToObject } from '@lagon/common';
 import { Readable } from 'node:stream';
 import * as trpc from '@trpc/server';
+import fs from 'node:fs';
 
 export async function createDeployment(
   func: {
@@ -17,8 +18,8 @@ export async function createDeployment(
     cronRegion: string;
     env: { key: string; value: string }[];
   },
-  code: string,
-  assets: { name: string; content: string }[],
+  code: fs.ReadStream,
+  assets: { name: string; content: fs.ReadStream }[],
   triggerer: string,
 ): Promise<{
   id: string;
@@ -50,23 +51,29 @@ export async function createDeployment(
     },
   });
 
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: process.env.S3_BUCKET,
-      Key: `${deployment.id}.js`,
-      Body: code,
-    }),
-  );
-
-  for (const asset of assets) {
-    await s3.send(
+  const uploadPromises = [
+    s3.send(
       new PutObjectCommand({
         Bucket: process.env.S3_BUCKET,
-        Key: `${deployment.id}/${asset.name}`,
-        Body: asset.content,
+        Key: `${deployment.id}.js`,
+        Body: code,
       }),
+    ),
+  ];
+
+  for (const asset of assets) {
+    uploadPromises.push(
+      s3.send(
+        new PutObjectCommand({
+          Bucket: process.env.S3_BUCKET,
+          Key: `${deployment.id}/${asset.name}`,
+          Body: asset.content,
+        }),
+      ),
     );
   }
+
+  await Promise.all(uploadPromises);
 
   await redis.publish(
     'deploy',
@@ -139,25 +146,31 @@ export async function removeDeployment(
     },
   });
 
-  await s3.send(
-    new DeleteObjectCommand({
-      Bucket: process.env.S3_BUCKET,
-      Key: `${deployment.id}.js`,
-    }),
-  );
+  const deletePromises = [
+    s3.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.S3_BUCKET,
+        Key: `${deployment.id}.js`,
+      }),
+    ),
+  ];
 
   if (deployment.assets.length > 0) {
-    await s3.send(
-      new DeleteObjectsCommand({
-        Bucket: process.env.S3_BUCKET,
-        Delete: {
-          Objects: deployment.assets.map(asset => ({
-            Key: `${deployment.id}/${asset}`,
-          })),
-        },
-      }),
+    deletePromises.push(
+      s3.send(
+        new DeleteObjectsCommand({
+          Bucket: process.env.S3_BUCKET,
+          Delete: {
+            Objects: deployment.assets.map(asset => ({
+              Key: `${deployment.id}/${asset}`,
+            })),
+          },
+        }),
+      ),
     );
   }
+
+  await Promise.all(deletePromises);
 
   await redis.publish(
     'undeploy',

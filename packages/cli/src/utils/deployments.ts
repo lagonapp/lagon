@@ -53,8 +53,8 @@ export async function bundleFunction({
   file: string;
   clientFile?: string;
   assetsDir: string;
-}): Promise<{ code: string; assets: { name: string; content: string }[] }> {
-  const assets: { name: string; content: string }[] = [];
+}): Promise<{ code: string; assets: { name: string; content: string | Buffer }[] }> {
+  const assets: { name: string; content: string | Buffer }[] = [];
 
   logInfo('Bundling function handler...');
 
@@ -111,7 +111,7 @@ export async function bundleFunction({
   if (fs.existsSync(assetsDir) && fs.statSync(assetsDir).isDirectory()) {
     logInfo(`Found public directory (${path.basename(assetsDir)}), bundling assets...`);
 
-    const getAssets = (directory: string, root?: string): { name: string; content: string }[] => {
+    const getAssets = (directory: string, root?: string): { name: string; content: string | Buffer }[] => {
       const assets = [];
       const files = fs.readdirSync(directory);
 
@@ -119,7 +119,7 @@ export async function bundleFunction({
         const filePath = path.join(directory, file);
 
         if (fs.statSync(filePath).isFile()) {
-          const content = fs.readFileSync(filePath, 'utf8');
+          const content = fs.readFileSync(filePath);
 
           assets.push({
             name: root ? root + '/' + file : file,

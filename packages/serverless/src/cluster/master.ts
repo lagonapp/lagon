@@ -15,12 +15,12 @@ import { IS_DEV } from '../constants';
 import cronParser from 'cron-parser';
 const { parseExpression } = cronParser;
 
-async function streamToString(stream: Readable): Promise<string> {
+async function streamToString(stream: Readable): Promise<Buffer> {
   return await new Promise((resolve, reject) => {
     const chunks: Uint8Array[] = [];
     stream.on('data', chunk => chunks.push(chunk));
     stream.on('error', reject);
-    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
   });
 }
 
@@ -123,7 +123,7 @@ export default async function master() {
 
   deleteOldDeployments(deployments);
 
-  for (const deployment of deployments) {
+  const downloadPromises = deployments.map(async deployment => {
     if (!hasDeploymentCodeLocally(deployment)) {
       const content = await s3.send(
         new GetObjectCommand({
@@ -154,39 +154,46 @@ export default async function master() {
         writeAssetContent(asset.Key as string, assetContent);
       }
     }
-  }
+  });
+
+  await Promise.all(downloadPromises);
 
   await redis.subscribe('deploy', async message => {
     const deployment = JSON.parse(message);
 
-    const content = await s3.send(
-      new GetObjectCommand({
-        Bucket: process.env.S3_BUCKET,
-        Key: `${deployment.deploymentId}.js`,
-      }),
-    );
-
-    const code = await streamToString(content.Body);
-    writeDeploymentCode(deployment, code);
-
-    const assets = await s3.send(
-      new ListObjectsV2Command({
-        Bucket: process.env.S3_BUCKET,
-        Prefix: `${deployment.deploymentId}/`,
-      }),
-    );
-
-    for (const asset of assets.Contents || []) {
-      const content = await s3.send(
-        new GetObjectCommand({
+    const [assets] = await Promise.all([
+      s3.send(
+        new ListObjectsV2Command({
           Bucket: process.env.S3_BUCKET,
-          Key: asset.Key,
+          Prefix: `${deployment.deploymentId}/`,
         }),
-      );
+      ),
+      (async () => {
+        const content = await s3.send(
+          new GetObjectCommand({
+            Bucket: process.env.S3_BUCKET,
+            Key: `${deployment.deploymentId}.js`,
+          }),
+        );
 
-      const assetContent = await streamToString(content.Body);
-      writeAssetContent(asset.Key as string, assetContent);
-    }
+        const code = await streamToString(content.Body);
+        writeDeploymentCode(deployment, code);
+      })(),
+    ]);
+
+    await Promise.all(
+      (assets.Contents || []).map(async asset => {
+        const content = await s3.send(
+          new GetObjectCommand({
+            Bucket: process.env.S3_BUCKET,
+            Key: asset.Key,
+          }),
+        );
+
+        const assetContent = await streamToString(content.Body);
+        writeAssetContent(asset.Key as string, assetContent);
+      }),
+    );
 
     if (deployment.cron === null) {
       for (const i in cluster.workers) {
