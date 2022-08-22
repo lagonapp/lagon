@@ -3,11 +3,11 @@ import { build } from 'esbuild';
 import path from 'node:path';
 import { authToken } from '../auth';
 import { trpc } from '../trpc';
-import { logInfo } from './logger';
+import { logDeploymentSuccessful, logError, logInfo } from './logger';
 import { API_URL } from './constants';
 import fetch, { FormData, File } from 'node-fetch';
 
-const CONFIG_DIRECTORY = path.join(process.cwd(), '.lagon');
+export const CONFIG_DIRECTORY = path.join(process.cwd(), '.lagon');
 
 export type DeploymentConfig = {
   functionId: string;
@@ -53,8 +53,8 @@ export async function bundleFunction({
   file: string;
   clientFile?: string;
   assetsDir: string;
-}): Promise<{ code: string; assets: { name: string; content: string }[] }> {
-  const assets: { name: string; content: string }[] = [];
+}): Promise<{ code: string; assets: { name: string; content: string | Buffer }[] }> {
+  const assets: { name: string; content: string | Buffer }[] = [];
 
   logInfo('Bundling function handler...');
 
@@ -111,7 +111,7 @@ export async function bundleFunction({
   if (fs.existsSync(assetsDir) && fs.statSync(assetsDir).isDirectory()) {
     logInfo(`Found public directory (${path.basename(assetsDir)}), bundling assets...`);
 
-    const getAssets = (directory: string, root?: string): { name: string; content: string }[] => {
+    const getAssets = (directory: string, root?: string): { name: string; content: string | Buffer }[] => {
       const assets = [];
       const files = fs.readdirSync(directory);
 
@@ -119,7 +119,7 @@ export async function bundleFunction({
         const filePath = path.join(directory, file);
 
         if (fs.statSync(filePath).isFile()) {
-          const content = fs.readFileSync(filePath, 'utf8');
+          const content = fs.readFileSync(filePath);
 
           assets.push({
             name: root ? root + '/' + file : file,
@@ -154,7 +154,7 @@ export async function createDeployment({
   file: string;
   clientFile?: string;
   assetsDir: string;
-}): Promise<{ functionName: string }> {
+}) {
   const { code, assets } = await bundleFunction({ file, clientFile, assetsDir });
   const body = new FormData();
 
@@ -172,7 +172,14 @@ export async function createDeployment({
     body,
   });
 
-  return (await response.json()) as { functionName: string };
+  const result = (await response.json()) as { functionName: string } | { error: string };
+
+  if ('error' in result) {
+    logError('Error while creating deployment: ' + (result as { error: string }).error);
+    return null;
+  }
+
+  logDeploymentSuccessful(false, result.functionName);
 }
 
 export async function createFunction({
@@ -204,11 +211,18 @@ export async function createFunction({
   }
 
   logInfo('Uploading files...');
-  await fetch(`${API_URL}/deployment`, {
+  const response = await fetch(`${API_URL}/deployment`, {
     method: 'POST',
     headers: { 'x-lagon-token': authToken },
     body,
   });
+
+  const result = (await response.json()) as { functionName: string } | { error: string };
+
+  if ('error' in result) {
+    logError('Error while creating function: ' + (result as { error: string }).error);
+    return null;
+  }
 
   return func;
 }

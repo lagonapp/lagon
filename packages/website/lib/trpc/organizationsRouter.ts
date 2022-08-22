@@ -1,4 +1,4 @@
-import { removeDeployment } from 'lib/api/deployments';
+import { removeDeployment, removeFunction } from 'lib/api/deployments';
 import {
   ORGANIZATION_DESCRIPTION_MAX_LENGTH,
   ORGANIZATION_NAME_MAX_LENGTH,
@@ -97,6 +97,8 @@ export const organizationsRouter = () =>
           },
           select: {
             id: true,
+            createdAt: true,
+            updatedAt: true,
             name: true,
             domains: {
               select: {
@@ -116,41 +118,20 @@ export const organizationsRouter = () =>
             deployments: {
               select: {
                 id: true,
+                triggerer: true,
+                commit: true,
+                isCurrent: true,
+                assets: true,
+                createdAt: true,
+                updatedAt: true,
               },
             },
           },
         });
 
-        await prisma.function.deleteMany({
-          where: {
-            organizationId: input.organizationId,
-          },
-        });
+        const deleteFunctions = functions.map(removeFunction);
 
-        for (const func of functions) {
-          for (const deployment of func.deployments) {
-            await removeDeployment(
-              {
-                ...func,
-                domains: func.domains.map(({ domain }) => domain),
-              },
-              deployment.id,
-            );
-          }
-
-          await prisma.stat.deleteMany({
-            where: {
-              functionId: func.id,
-            },
-          });
-
-          await prisma.log.deleteMany({
-            where: {
-              functionId: func.id,
-            },
-          });
-        }
-
+        await Promise.all(deleteFunctions);
         await prisma.organization.delete({
           where: {
             id: input.organizationId,

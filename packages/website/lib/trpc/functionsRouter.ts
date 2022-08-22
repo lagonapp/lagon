@@ -2,7 +2,7 @@ import { z } from 'zod';
 import prisma from '@lagon/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { LOG_LEVELS, TIMEFRAMES } from 'lib/types';
-import { getDeploymentCode, removeDeployment, updateDomains } from 'lib/api/deployments';
+import { getDeploymentCode, removeFunction, updateDomains } from 'lib/api/deployments';
 import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
 import { FUNCTION_DEFAULT_MEMORY, FUNCTION_DEFAULT_TIMEOUT } from '@lagon/common';
 import * as trpc from '@trpc/server';
@@ -376,7 +376,7 @@ export const functionsRouter = () =>
             },
             {
               ...deployment,
-              assets: deployment.assets.map(asset => asset.name),
+              assets: deployment.assets.map(({ name }) => name),
             },
             currentDomains,
           );
@@ -434,33 +434,7 @@ export const functionsRouter = () =>
           });
         }
 
-        for (const deployment of func.deployments) {
-          await removeDeployment(
-            {
-              ...func,
-              domains: func.domains.map(({ domain }) => domain),
-            },
-            deployment.id,
-          );
-        }
-
-        await prisma.stat.deleteMany({
-          where: {
-            functionId: func.id,
-          },
-        });
-
-        await prisma.log.deleteMany({
-          where: {
-            functionId: func.id,
-          },
-        });
-
-        await prisma.function.delete({
-          where: {
-            id: func.id,
-          },
-        });
+        await removeFunction(func);
 
         return func;
       },
