@@ -3,7 +3,7 @@ import { build } from 'esbuild';
 import path from 'node:path';
 import { authToken } from '../auth';
 import { trpc } from '../trpc';
-import { logInfo } from './logger';
+import { logDeploymentSuccessful, logError, logInfo } from './logger';
 import { API_URL } from './constants';
 import fetch, { FormData, File } from 'node-fetch';
 
@@ -154,7 +154,7 @@ export async function createDeployment({
   file: string;
   clientFile?: string;
   assetsDir: string;
-}): Promise<{ functionName: string }> {
+}) {
   const { code, assets } = await bundleFunction({ file, clientFile, assetsDir });
   const body = new FormData();
 
@@ -172,7 +172,14 @@ export async function createDeployment({
     body,
   });
 
-  return (await response.json()) as { functionName: string };
+  const result = (await response.json()) as { functionName: string } | { error: string };
+
+  if ('error' in result) {
+    logError('Error while creating deployment: ' + (result as { error: string }).error);
+    return null;
+  }
+
+  logDeploymentSuccessful(false, result.functionName);
 }
 
 export async function createFunction({
@@ -204,11 +211,18 @@ export async function createFunction({
   }
 
   logInfo('Uploading files...');
-  await fetch(`${API_URL}/deployment`, {
+  const response = await fetch(`${API_URL}/deployment`, {
     method: 'POST',
     headers: { 'x-lagon-token': authToken },
     body,
   });
+
+  const result = (await response.json()) as { functionName: string } | { error: string };
+
+  if ('error' in result) {
+    logError('Error while creating function: ' + (result as { error: string }).error);
+    return null;
+  }
 
   return func;
 }

@@ -18,6 +18,7 @@ export function runCli() {
     .option('--preact', 'Bundle the function as a preact site (deprecated, use --client)')
     .option('-c, --client <file>', 'Bundle this file as a client-side script')
     .option('-p, --public-dir <dir>', 'The directory to serve the public assets from', 'public')
+    .option('-f, --force', 'Force the creation of a new Function')
     .action(loggedInGuard(deploy));
   program
     .command('remove')
