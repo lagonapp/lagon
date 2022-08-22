@@ -376,7 +376,7 @@ export const functionsRouter = () =>
             },
             {
               ...deployment,
-              assets: deployment.assets.map(asset => asset.name),
+              assets: deployment.assets.map(({ name }) => name),
             },
             currentDomains,
           );

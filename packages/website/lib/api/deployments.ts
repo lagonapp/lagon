@@ -46,7 +46,11 @@ export async function createDeployment(
       createdAt: true,
       updatedAt: true,
       isCurrent: true,
-      assets: true,
+      assets: {
+        select: {
+          name: true,
+        },
+      },
       functionId: true,
     },
   });
@@ -88,7 +92,7 @@ export async function createDeployment(
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isCurrent: deployment.isCurrent,
-      assets: deployment.assets,
+      assets: deployment.assets.map(({ name }) => name),
     }),
   );
 
@@ -185,13 +189,13 @@ export async function removeDeployment(
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isCurrent: deployment.isCurrent,
-      assets: deployment.assets,
+      assets: deployment.assets.map(({ name }) => name),
     }),
   );
 
   return {
     ...deployment,
-    assets: deployment.assets.map(asset => asset.name),
+    assets: deployment.assets.map(({ name }) => name),
   };
 }
 
@@ -300,13 +304,13 @@ export async function setCurrentDeployment(
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isCurrent: true,
-      assets: deployment.assets,
+      assets: deployment.assets.map(({ name }) => name),
     }),
   );
 
   return {
     ...deployment,
-    assets: deployment.assets.map(asset => asset.name),
+    assets: deployment.assets.map(({ name }) => name),
   };
 }
 
