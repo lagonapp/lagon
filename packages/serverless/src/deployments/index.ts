@@ -32,7 +32,7 @@ export async function getDeploymentCode(deployment: Deployment): Promise<string>
   return fs.readFileSync(file, 'utf8');
 }
 
-export function writeDeploymentCode(deployment: Deployment, code: Buffer): void {
+export function writeDeploymentCode(deployment: Deployment, code: string | Buffer): void {
   const file = path.join(DEPLOYMENTS_FOLDER, `${deployment.deploymentId}.js`);
 
   if (deployment.assets.length > 0) {
@@ -48,7 +48,7 @@ export function getAssetContent(deployment: Deployment, name: string): fs.ReadSt
   return fs.createReadStream(file);
 }
 
-export function writeAssetContent(name: string, content: Buffer): void {
+export function writeAssetContent(name: string, content: string | Buffer): void {
   const file = path.join(DEPLOYMENTS_FOLDER, name);
 
   fs.mkdirSync(path.dirname(file), { recursive: true });
