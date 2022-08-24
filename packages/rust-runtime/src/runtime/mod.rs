@@ -96,7 +96,7 @@ impl Runtime {
         }
     }
 
-    pub async fn get_isolate(&mut self, hostname: String) -> RunResult {
+    pub async fn get_isolate(&'static mut self, hostname: String) -> RunResult {
         let memory_limit = self.options.memory_limit;
 
         let lock = Instant::now();

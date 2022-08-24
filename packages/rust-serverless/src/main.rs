@@ -12,17 +12,19 @@ async fn handle_request(
     request_tx: flume::Sender<()>,
     response_rx: flume::Receiver<RunResult>,
 ) -> Result<Response<Body>, Infallible> {
+    let now = Instant::now();
+
     request_tx.send_async(()).await;
 
     let result = response_rx
         .recv_async()
         .await
-        .unwrap_or(RunResult::Timeout());
+        .unwrap_or(RunResult::Error("Failed to receive".into()));
 
     match result {
         RunResult::Response(response, duration) => {
             // println!(
-            //     "Response: {} in {:?} (total: {:?})",
+            //     "Response: {} in {:?} (CPU time) (Total: {:?})",
             //     response,
             //     duration,
             //     now.elapsed()
@@ -30,7 +32,7 @@ async fn handle_request(
             Ok(Response::new(response.into()))
         }
         RunResult::Error(error) => {
-            // println!("Error: {}", error);
+            println!("Error: {}", error);
             Ok(Response::builder().status(500).body(error.into()).unwrap())
         }
         RunResult::Timeout() => {
