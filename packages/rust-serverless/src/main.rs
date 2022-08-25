@@ -23,12 +23,12 @@ async fn handle_request(
 
     match result {
         RunResult::Response(response, duration) => {
-            // println!(
-            //     "Response: {} in {:?} (CPU time) (Total: {:?})",
-            //     response,
-            //     duration,
-            //     now.elapsed()
-            // );
+            println!(
+                "Response: {} in {:?} (CPU time) (Total: {:?})",
+                response,
+                duration,
+                now.elapsed()
+            );
             Ok(Response::new(response.into()))
         }
         RunResult::Error(error) => {
@@ -68,12 +68,14 @@ async fn main() {
 
     let wait = tokio::spawn(async move {
         let mut isolates = HashMap::new();
-        isolates.insert("hostname", Isolate::new());
 
         loop {
             request_rx.recv_async().await;
 
-            let isolate = isolates.get_mut("hostname").unwrap();
+            let isolate = isolates.entry("hostname").or_insert_with(|| {
+                // println!("Creating isolate");
+                Isolate::new()
+            });
             let result = isolate.run();
 
             response_tx.send_async(result).await;
