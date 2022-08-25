@@ -16,7 +16,7 @@ use tokio::{
     task::spawn_blocking,
     time::{timeout, Duration},
 };
-use v8::{script_compiler, CreateParams, ScriptOrigin, V8};
+use v8::V8;
 
 mod allocator;
 use allocator::create_allocator;
@@ -63,15 +63,8 @@ impl RuntimeOptions {
     // }
 }
 
-// lazy_static! {
-//     static ref ISOLATES: Mutex<HashMap<String, Isolate>> = Mutex::new(HashMap::new());
-// }
-
 pub struct Runtime {
     options: RuntimeOptions,
-    // isolates: HashMap<String, v8::OwnedIsolate>
-    // isolates: HashMap<String, Isolate<'static>>
-    isolates: HashMap<String, Isolate>,
 }
 
 unsafe impl Send for Runtime {}
@@ -92,26 +85,7 @@ impl Runtime {
 
         Runtime {
             options,
-            isolates: HashMap::new(),
         }
-    }
-
-    pub async fn get_isolate(&'static mut self, hostname: String) -> RunResult {
-        let memory_limit = self.options.memory_limit;
-
-        let lock = Instant::now();
-
-        // let mut isolates = ISOLATES.lock().await;
-        let isolate = self
-            .isolates
-            .entry(hostname)
-            .or_insert_with(|| Isolate::new());
-
-        let result = isolate.run();
-
-        println!("locked {:?}", lock.elapsed());
-
-        result
     }
 
     // pub async fn run(&self, code: &'static str, filename: Option<&'static str>) -> RunResult {

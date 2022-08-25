@@ -46,9 +46,10 @@ async fn handle_request(
     }
 }
 
-#[tokio::main]
+#[tokio::main(flavor = "current_thread")]
 async fn main() {
     let runtime = Runtime::new(None);
+    // let tokio_runtime = tokio::runtime::Builder::new_current_thread().build().unwrap();
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
     let (request_tx, request_rx) = flume::unbounded::<()>();

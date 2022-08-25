@@ -9,7 +9,7 @@ pub struct IsolateState {
 
 pub struct Isolate {
     isolate: v8::OwnedIsolate,
-    module: Option<v8::Global<v8::Module>>,
+    handler: Option<v8::Global<v8::Function>>,
 }
 
 unsafe impl Send for Isolate {}
@@ -33,7 +33,7 @@ impl Isolate {
 
         Self {
             isolate,
-            module: None,
+            handler: None,
         }
     }
 
@@ -51,7 +51,7 @@ impl Isolate {
         let scope =
             &mut v8::HandleScope::with_context(&mut self.isolate, state.global_context.clone());
 
-        if self.module.is_none() {
+        if self.handler.is_none() {
             let code = v8::String::new(scope, "export function handler() { return 'hello world' }")
                 .unwrap();
             let resource_name = v8::String::new(scope, "isolate.js").unwrap();
@@ -78,26 +78,23 @@ impl Isolate {
             module.instantiate_module(scope, |a, b, c, d| None).unwrap();
             module.evaluate(scope).unwrap();
 
-            let module = v8::Global::new(scope, module);
+            let namespace = module.get_module_namespace();
+            let namespace = v8::Local::<v8::Object>::try_from(namespace).unwrap();
 
-            self.module = Some(module);
+            let handler = v8::String::new(scope, "handler").unwrap();
+            let handler = namespace.get(scope, handler.into()).unwrap();
+            let handler = v8::Local::<v8::Function>::try_from(handler).unwrap();
+            let handler = v8::Global::new(scope, handler);
+
+            self.handler = Some(handler);
         }
 
-        let module = self.module.as_ref().unwrap();
-        let module = module.open(scope);
+        let handler = self.handler.as_ref().unwrap();
+        let handler = handler.open(scope);
 
-        let namespace = module.get_module_namespace();
-        let namespace = v8::Local::<v8::Object>::try_from(namespace).unwrap();
-
-        let handler = v8::String::new(scope, "handler").unwrap();
-        let handler = namespace.get(scope, handler.into()).unwrap();
-        let handler = v8::Local::<v8::Function>::try_from(handler).unwrap();
-
-        // let receiver = v8::undefined(scope).into();
         let global = state.global_context.open(scope);
         let try_catch = &mut v8::TryCatch::new(scope);
         let global = global.global(try_catch);
-        // let global: v8::Local<v8::Value> = scope.global(try_catch).into();
 
         let now = Instant::now();
 
