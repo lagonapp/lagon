@@ -52,12 +52,10 @@ impl Isolate {
             &mut v8::HandleScope::with_context(&mut self.isolate, state.global_context.clone());
 
         if self.module.is_none() {
-            let global = v8::ObjectTemplate::new(scope);
-
             let code = v8::String::new(scope, "export function handler() { return 'hello world' }")
                 .unwrap();
             let resource_name = v8::String::new(scope, "isolate.js").unwrap();
-            let source_map_url = v8::String::new(scope, "isolate.js").unwrap();
+            let source_map_url = v8::String::new(scope, "").unwrap();
 
             let source = v8::script_compiler::Source::new(
                 code,
@@ -116,11 +114,14 @@ impl Isolate {
                     Some(error) => RunResult::Error(error),
                     // Can be caused by memory limit being reached, or maybe by something else?
                     None => {
+                        let exception_message = v8::Exception::create_message(try_catch, exception);
+                        let exception_message = exception_message.get(try_catch).to_rust_string_lossy(try_catch);
+
                         // if count.load(Ordering::SeqCst) >= memory_mb {
                         //     RunResult::MemoryLimit()
                         // } else {
                         // println!("{:?}", exception.to_object(try_catch).unwrap().get_property_names(try_catch).unwrap());
-                        RunResult::Error("Unknown error".to_string())
+                        RunResult::Error(exception_message)
                         // }
                     }
                 }
