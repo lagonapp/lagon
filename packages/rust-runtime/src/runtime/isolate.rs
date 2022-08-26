@@ -1,13 +1,41 @@
-use std::{cell::RefCell, rc::Rc, time::Instant};
+use std::{
+    cell::RefCell,
+    rc::Rc,
+    sync::{atomic::AtomicUsize, Arc},
+    time::Instant,
+};
 
-use crate::{extract::extract_v8_string, result::RunResult, http::{Request, Response}};
+use crate::{
+    extract::extract_v8_string,
+    http::{Request, Response},
+    result::RunResult,
+};
+
+use super::allocator::create_allocator;
 
 #[derive(Clone)]
-pub struct IsolateState {
+pub(crate) struct IsolateState {
     global_context: v8::Global<v8::Context>,
 }
 
+pub struct IsolateOptions {
+    pub timeout: u64,
+    pub memory_limit: usize,
+    // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
+}
+
+impl Default for IsolateOptions {
+    fn default() -> Self {
+        Self {
+            timeout: 50, // 50ms
+            memory_limit: 128, // 128MB
+                         // snapshot_blob: None,
+        }
+    }
+}
+
 pub struct Isolate {
+    options: IsolateOptions,
     isolate: v8::OwnedIsolate,
     handler: Option<v8::Global<v8::Function>>,
 }
@@ -15,8 +43,21 @@ pub struct Isolate {
 unsafe impl Send for Isolate {}
 
 impl Isolate {
-    pub fn new() -> Self {
-        let mut isolate = v8::Isolate::new(v8::CreateParams::default());
+    pub fn new(options: IsolateOptions) -> Self {
+        let memory_mb = options.memory_limit * 1024 * 1024;
+        let count = Arc::new(AtomicUsize::new(options.memory_limit));
+        let array_buffer_allocator = create_allocator(count.clone());
+
+        let params = v8::CreateParams::default()
+            .heap_limits(0, memory_mb)
+            .array_buffer_allocator(array_buffer_allocator);
+
+        // TODO
+        // if let Some(snapshot_blob) = self.options.snapshot_blob {
+        //     params = params.snapshot_blob(snapshot_blob.as_mut());
+        // }
+
+        let mut isolate = v8::Isolate::new(params);
 
         let state = {
             let scope = &mut v8::HandleScope::new(&mut isolate);
@@ -32,12 +73,13 @@ impl Isolate {
         isolate.set_slot(Rc::new(RefCell::new(state)));
 
         Self {
+            options,
             isolate,
             handler: None,
         }
     }
 
-    pub fn global_realm(&self) -> IsolateState {
+    pub(crate) fn global_realm(&self) -> IsolateState {
         let state = self
             .isolate
             .get_slot::<Rc<RefCell<IsolateState>>>()
@@ -102,11 +144,14 @@ impl Isolate {
             Some(result) => {
                 let response = extract_v8_string(result, try_catch).unwrap();
 
-                RunResult::Response(Response {
-                    headers: None,
-                    body: response,
-                    status: 200,
-                }, now.elapsed())
+                RunResult::Response(
+                    Response {
+                        headers: None,
+                        body: response,
+                        status: 200,
+                    },
+                    now.elapsed(),
+                )
             }
             None => {
                 let exception = try_catch.exception().unwrap();
@@ -116,7 +161,9 @@ impl Isolate {
                     // Can be caused by memory limit being reached, or maybe by something else?
                     None => {
                         let exception_message = v8::Exception::create_message(try_catch, exception);
-                        let exception_message = exception_message.get(try_catch).to_rust_string_lossy(try_catch);
+                        let exception_message = exception_message
+                            .get(try_catch)
+                            .to_rust_string_lossy(try_catch);
 
                         // if count.load(Ordering::SeqCst) >= memory_mb {
                         //     RunResult::MemoryLimit()

@@ -2,7 +2,8 @@ use http::hyper_request_to_request;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::result::RunResult;
-use lagon_runtime::runtime::{Isolate, Runtime};
+use lagon_runtime::runtime::isolate::{Isolate, IsolateOptions};
+use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
@@ -41,7 +42,10 @@ async fn handle_request(
         }
         RunResult::Error(error) => {
             println!("Error: {}", error);
-            Ok(HyperResponse::builder().status(500).body(error.into()).unwrap())
+            Ok(HyperResponse::builder()
+                .status(500)
+                .body(error.into())
+                .unwrap())
         }
         RunResult::Timeout() => {
             // println!("Timeout");
@@ -56,7 +60,7 @@ async fn handle_request(
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
-    let runtime = Runtime::new(None);
+    let runtime = Runtime::new(RuntimeOptions::default());
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
     let (request_tx, request_rx) = flume::unbounded::<HyperRequest<Body>>();
@@ -84,7 +88,7 @@ async fn main() {
 
             let isolate = isolates.entry(hostname).or_insert_with(|| {
                 // println!("Creating isolate");
-                Isolate::new()
+                Isolate::new(IsolateOptions::default())
             });
 
             println!("Request: {:?}", request);

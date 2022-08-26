@@ -1,66 +1,21 @@
-use futures::task::noop_waker;
-use lazy_static::lazy_static;
-use std::{
-    borrow::Borrow,
-    collections::HashMap,
-    ops::Deref,
-    sync::{
-        atomic::{AtomicUsize, Ordering},
-        Arc,
-    },
-    task::{Context, Poll},
-    time::Instant,
-};
-use tokio::{
-    sync::{mpsc, Mutex},
-    task::spawn_blocking,
-    time::{timeout, Duration},
-};
+use std::{borrow::Borrow, ops::Deref};
 use v8::V8;
 
-mod allocator;
-use allocator::create_allocator;
-// mod isolate;
-// use isolate::Isolate;
-mod isolate;
-pub use isolate::Isolate;
+pub mod isolate;
 
-use crate::extract::extract_v8_string;
-use crate::result::RunResult;
+mod allocator;
 
 pub trait Allocated<T: ?Sized>: Deref<Target = T> + Borrow<T> + 'static {}
 
 pub struct RuntimeOptions {
-    pub timeout: u64,
-    pub memory_limit: usize,
-    pub allow_eval: bool,
+    allow_eval: bool,
     // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
 }
 
-impl RuntimeOptions {
-    pub fn new() -> RuntimeOptions {
-        RuntimeOptions {
-            timeout: 50,
-            memory_limit: 128, // TODO
-            allow_eval: false,
-            // snapshot_blob: None,
-        }
+impl Default for RuntimeOptions {
+    fn default() -> Self {
+        Self { allow_eval: false }
     }
-
-    pub fn with_timeout(mut self, timeout: u64) -> RuntimeOptions {
-        self.timeout = timeout;
-        self
-    }
-
-    pub fn with_memory_limit(mut self, memory_limit: usize) -> RuntimeOptions {
-        self.memory_limit = memory_limit;
-        self
-    }
-
-    // pub fn with_snapshot_blob(mut self, snapshot_blob: impl Allocated<[u8]>) -> RuntimeOptions {
-    //     self.snapshot_blob = Some(Box::new(snapshot_blob));
-    //     self
-    // }
 }
 
 pub struct Runtime {
@@ -71,21 +26,17 @@ unsafe impl Send for Runtime {}
 unsafe impl Sync for Runtime {}
 
 impl Runtime {
-    pub fn new(options: Option<RuntimeOptions>) -> Self {
+    pub fn new(options: RuntimeOptions) -> Self {
         let platform = v8::new_default_platform(0, false).make_shared();
         V8::initialize_platform(platform);
         V8::initialize();
-
-        let options = options.unwrap_or(RuntimeOptions::new());
 
         // Disable code generation from `eval(...)` / `new Function(...)`
         if !options.allow_eval {
             V8::set_flags_from_string("--disallow-code-generation-from-strings");
         }
 
-        Runtime {
-            options,
-        }
+        Runtime { options }
     }
 
     // pub async fn run(&self, code: &'static str, filename: Option<&'static str>) -> RunResult {
