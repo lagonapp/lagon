@@ -1,5 +1,6 @@
+use http::hyper_request_to_request;
 use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Request, Response, Server};
+use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::result::RunResult;
 use lagon_runtime::runtime::{Isolate, Runtime};
 use std::collections::HashMap;
@@ -7,14 +8,18 @@ use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::time::Instant;
 
+use crate::http::response_to_hyper_response;
+
+mod http;
+
 async fn handle_request(
-    _req: Request<Body>,
-    request_tx: flume::Sender<()>,
+    req: HyperRequest<Body>,
+    request_tx: flume::Sender<HyperRequest<Body>>,
     response_rx: flume::Receiver<RunResult>,
-) -> Result<Response<Body>, Infallible> {
+) -> Result<HyperResponse<Body>, Infallible> {
     let now = Instant::now();
 
-    request_tx.send_async(()).await;
+    request_tx.send_async(req).await;
 
     let result = response_rx
         .recv_async()
@@ -24,24 +29,27 @@ async fn handle_request(
     match result {
         RunResult::Response(response, duration) => {
             println!(
-                "Response: {} in {:?} (CPU time) (Total: {:?})",
+                "Response: {:?} in {:?} (CPU time) (Total: {:?})",
                 response,
                 duration,
                 now.elapsed()
             );
-            Ok(Response::new(response.into()))
+
+            let response = response_to_hyper_response(response);
+
+            Ok(response)
         }
         RunResult::Error(error) => {
             println!("Error: {}", error);
-            Ok(Response::builder().status(500).body(error.into()).unwrap())
+            Ok(HyperResponse::builder().status(500).body(error.into()).unwrap())
         }
         RunResult::Timeout() => {
             // println!("Timeout");
-            Ok(Response::new("Timeouted".into()))
+            Ok(HyperResponse::new("Timeouted".into()))
         }
         RunResult::MemoryLimit() => {
             // println!("MemoryLimit");
-            Ok(Response::new("MemoryLimited".into()))
+            Ok(HyperResponse::new("MemoryLimited".into()))
         }
     }
 }
@@ -49,10 +57,9 @@ async fn handle_request(
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
     let runtime = Runtime::new(None);
-    // let tokio_runtime = tokio::runtime::Builder::new_current_thread().build().unwrap();
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
 
-    let (request_tx, request_rx) = flume::unbounded::<()>();
+    let (request_tx, request_rx) = flume::unbounded::<HyperRequest<Body>>();
     let (response_tx, response_rx) = flume::unbounded::<RunResult>();
 
     let server = Server::bind(&addr).serve(make_service_fn(move |_conn| {
@@ -70,13 +77,18 @@ async fn main() {
         let mut isolates = HashMap::new();
 
         loop {
-            request_rx.recv_async().await;
+            let request = request_rx.recv_async().await.unwrap();
+            let request = hyper_request_to_request(request).await;
 
-            let isolate = isolates.entry("hostname").or_insert_with(|| {
+            let hostname = request.headers.get("host").unwrap().clone();
+
+            let isolate = isolates.entry(hostname).or_insert_with(|| {
                 // println!("Creating isolate");
                 Isolate::new()
             });
-            let result = isolate.run();
+
+            println!("Request: {:?}", request);
+            let result = isolate.run(request);
 
             response_tx.send_async(result).await;
         }

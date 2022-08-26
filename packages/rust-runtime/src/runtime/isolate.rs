@@ -1,6 +1,6 @@
 use std::{cell::RefCell, rc::Rc, time::Instant};
 
-use crate::{extract::extract_v8_string, result::RunResult};
+use crate::{extract::extract_v8_string, result::RunResult, http::{Request, Response}};
 
 #[derive(Clone)]
 pub struct IsolateState {
@@ -46,7 +46,7 @@ impl Isolate {
         state.clone()
     }
 
-    pub fn run(&mut self) -> RunResult {
+    pub fn run(&mut self, request: Request) -> RunResult {
         let state = self.global_realm();
         let scope =
             &mut v8::HandleScope::with_context(&mut self.isolate, state.global_context.clone());
@@ -102,7 +102,11 @@ impl Isolate {
             Some(result) => {
                 let response = extract_v8_string(result, try_catch).unwrap();
 
-                RunResult::Response(response, now.elapsed())
+                RunResult::Response(Response {
+                    headers: None,
+                    body: response,
+                    status: 200,
+                }, now.elapsed())
             }
             None => {
                 let exception = try_catch.exception().unwrap();

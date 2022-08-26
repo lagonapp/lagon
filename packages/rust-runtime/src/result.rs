@@ -1,8 +1,10 @@
 use std::time::Duration;
 
-#[derive(Debug, PartialEq)]
+use crate::http::Response;
+
+#[derive(Debug)]
 pub enum RunResult {
-    Response(String, Duration),
+    Response(Response, Duration),
     Timeout(),
     MemoryLimit(),
     Error(String),
