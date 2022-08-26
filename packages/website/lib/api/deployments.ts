@@ -413,7 +413,7 @@ async function streamToString(stream: Readable): Promise<string> {
 export async function getDeploymentCode(deploymentId: string) {
   const content = await s3.send(
     new GetObjectCommand({
-      Bucket: 'lagonapp',
+      Bucket: process.env.S3_BUCKET,
       Key: `${deploymentId}.js`,
     }),
   );
