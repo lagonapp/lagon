@@ -11,6 +11,20 @@ pub enum Method {
     OPTIONS,
 }
 
+impl Into<&str> for Method {
+    fn into(self) -> &'static str {
+        match self {
+            Self::GET => "GET",
+            Self::POST => "POST",
+            Self::PUT => "PUT",
+            Self::PATCH => "PATCH",
+            Self::DELETE => "DELETE",
+            Self::HEAD => "HEAD",
+            Self::OPTIONS => "OPTIONS",
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Request {
     pub headers: HashMap<String, String>,

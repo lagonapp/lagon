@@ -88,7 +88,10 @@ async fn main() {
 
             let isolate = isolates.entry(hostname).or_insert_with(|| {
                 // println!("Creating isolate");
-                Isolate::new(IsolateOptions::default())
+                Isolate::new(IsolateOptions::default("
+export function handler(request) {
+    return JSON.stringify(request)
+}".into()))
             });
 
             println!("Request: {:?}", request);
