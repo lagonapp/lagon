@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::time::Duration;
 
 #[derive(Debug)]
 pub enum Method {
@@ -37,4 +38,12 @@ pub struct Response {
     pub headers: Option<HashMap<String, String>>,
     pub body: String,
     pub status: u16,
+}
+
+#[derive(Debug)]
+pub enum RunResult {
+    Response(Response, Duration),
+    Timeout(),
+    MemoryLimit(),
+    Error(String),
 }

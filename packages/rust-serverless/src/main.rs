@@ -1,8 +1,8 @@
 use http::hyper_request_to_request;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
-use lagon_runtime::result::RunResult;
-use lagon_runtime::runtime::isolate::{Isolate, IsolateOptions};
+use lagon_runtime::http::RunResult;
+use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use std::collections::HashMap;
 use std::convert::Infallible;
@@ -20,7 +20,7 @@ async fn handle_request(
 ) -> Result<HyperResponse<Body>, Infallible> {
     let now = Instant::now();
 
-    request_tx.send_async(req).await;
+    request_tx.send_async(req).await.unwrap();
 
     let result = response_rx
         .recv_async()
@@ -87,21 +87,19 @@ async fn main() {
             let hostname = request.headers.get("host").unwrap().clone();
 
             let isolate = isolates.entry(hostname).or_insert_with(|| {
-                // println!("Creating isolate");
-                Isolate::new(IsolateOptions::default("
+                Isolate::new(IsolateOptions::default(
+                    "
 export function handler(request) {
-    return new Response(JSON.stringify(request), {
-        headers: {
-            'content-type': 'application/json',
-        }
-    })
-}".into()))
+    return new Response('hello world!')
+}"
+                    .into(),
+                ))
             });
 
             // println!("Request: {:?}", request);
             let result = isolate.run(request);
 
-            response_tx.send_async(result).await;
+            response_tx.send_async(result).await.unwrap();
         }
     });
 

@@ -1,23 +1,24 @@
 use std::{
     cell::RefCell,
+    collections::HashMap,
     rc::Rc,
     sync::{atomic::AtomicUsize, Arc},
-    time::Instant, collections::HashMap,
+    time::Instant,
 };
 
 use crate::{
+    http::{Request, Response, RunResult},
     utils::extract_v8_string,
-    http::{Request, Response},
-    result::RunResult,
 };
 
-use super::allocator::create_allocator;
+mod allocator;
+mod bindings;
 
 static JS_RUNTIME: &str = include_str!("../../js/runtime.js");
 
 #[derive(Clone)]
-pub(crate) struct IsolateState {
-    global_context: v8::Global<v8::Context>,
+struct IsolateState {
+    global: v8::Global<v8::Context>,
 }
 
 pub struct IsolateOptions {
@@ -46,25 +47,11 @@ pub struct Isolate {
 
 unsafe impl Send for Isolate {}
 
-fn log_callback(
-    scope: &mut v8::HandleScope,
-    args: v8::FunctionCallbackArguments,
-    mut _retval: v8::ReturnValue,
-  ) {
-    let message = args
-      .get(0)
-      .to_string(scope)
-      .unwrap()
-      .to_rust_string_lossy(scope);
-
-    println!("Logged: {}", message);
-  }
-
 impl Isolate {
     pub fn new(options: IsolateOptions) -> Self {
         let memory_mb = options.memory_limit * 1024 * 1024;
         let count = Arc::new(AtomicUsize::new(options.memory_limit));
-        let array_buffer_allocator = create_allocator(count.clone());
+        let array_buffer_allocator = allocator::create_allocator(count.clone());
 
         let params = v8::CreateParams::default()
             .heap_limits(0, memory_mb)
@@ -79,18 +66,9 @@ impl Isolate {
 
         let state = {
             let isolate_scope = &mut v8::HandleScope::new(&mut isolate);
-            let global = v8::ObjectTemplate::new(isolate_scope);
-            global.set(
-              v8::String::new(isolate_scope, "log").unwrap().into(),
-              v8::FunctionTemplate::new(isolate_scope, log_callback).into(),
-            );
+            let global = bindings::bind(isolate_scope);
 
-            let context = v8::Context::new_from_template(isolate_scope, global);
-            let global = v8::Global::new(isolate_scope, context);
-
-            IsolateState {
-                global_context: global,
-            }
+            IsolateState { global }
         };
 
         isolate.set_slot(Rc::new(RefCell::new(state)));
@@ -113,25 +91,30 @@ impl Isolate {
 
     pub fn run(&mut self, request: Request) -> RunResult {
         let state = self.global_realm();
-        let scope =
-            &mut v8::HandleScope::with_context(&mut self.isolate, state.global_context.clone());
+        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, state.global.clone());
 
         if self.handler.is_none() {
             let code = &self.options.code;
-            let code = v8::String::new(scope, &format!(r#"
+            let code = v8::String::new(
+                scope,
+                &format!(
+                    r#"
 {JS_RUNTIME}
 
 {code}
 
 export function masterHandler(request) {{
-    const handlerRequest = new Request(request.input, {{
-        method: request.method,
-        headers: request.headers,
-        body: request.body,
-    }});
+  const handlerRequest = new Request(request.input, {{
+      method: request.method,
+      headers: request.headers,
+      body: request.body,
+  }});
 
-    return handler(handlerRequest)
-}}"#)).unwrap();
+  return handler(handlerRequest)
+}}"#
+                ),
+            )
+            .unwrap();
             let resource_name = v8::String::new(scope, "isolate.js").unwrap();
             let source_map_url = v8::String::new(scope, "").unwrap();
 
@@ -173,19 +156,25 @@ export function masterHandler(request) {{
         let input_key = v8::Local::new(scope, input_key);
         let input_value = v8::String::new(scope, "TODO").unwrap();
         let input_value = v8::Local::new(scope, input_value);
-        request_param.set(scope, input_key.into(), input_value.into()).unwrap();
+        request_param
+            .set(scope, input_key.into(), input_value.into())
+            .unwrap();
 
         let method_key = v8::String::new(scope, "method").unwrap();
         let method_key = v8::Local::new(scope, method_key);
         let method_value = v8::String::new(scope, request.method.into()).unwrap();
         let method_value = v8::Local::new(scope, method_value);
-        request_param.set(scope, method_key.into(), method_value.into()).unwrap();
+        request_param
+            .set(scope, method_key.into(), method_value.into())
+            .unwrap();
 
         let body_key = v8::String::new(scope, "body").unwrap();
         let body_key = v8::Local::new(scope, body_key);
         let body_value = v8::String::new(scope, &request.body).unwrap();
         let body_value = v8::Local::new(scope, body_value);
-        request_param.set(scope, body_key.into(), body_value.into()).unwrap();
+        request_param
+            .set(scope, body_key.into(), body_value.into())
+            .unwrap();
 
         let headers_key = v8::String::new(scope, "headers").unwrap();
         let headers_key = v8::Local::new(scope, headers_key);
@@ -200,12 +189,14 @@ export function masterHandler(request) {{
             request_headers.set(scope, key.into(), value.into());
         }
 
-        request_param.set(scope, headers_key.into(), request_headers.into()).unwrap();
+        request_param
+            .set(scope, headers_key.into(), request_headers.into())
+            .unwrap();
 
         let handler = self.handler.as_ref().unwrap();
         let handler = handler.open(scope);
 
-        let global = state.global_context.open(scope);
+        let global = state.global.open(scope);
         let try_catch = &mut v8::TryCatch::new(scope);
         let global = global.global(try_catch);
 
@@ -222,7 +213,11 @@ export function masterHandler(request) {{
 
                 let headers_key = v8::String::new(try_catch, "headers").unwrap();
                 let headers_key = v8::Local::new(try_catch, headers_key);
-                let headers_object = response.get(try_catch, headers_key.into()).unwrap().to_object(try_catch).unwrap();
+                let headers_object = response
+                    .get(try_catch, headers_key.into())
+                    .unwrap()
+                    .to_object(try_catch)
+                    .unwrap();
                 let headers_map = headers_object.get(try_catch, headers_key.into()).unwrap();
                 let headers_map = unsafe { v8::Local::<v8::Map>::cast(headers_map) };
 
@@ -238,9 +233,15 @@ export function masterHandler(request) {{
                             continue;
                         }
 
-                        let key = headers_keys.get_index(try_catch, index).unwrap().to_rust_string_lossy(try_catch);
+                        let key = headers_keys
+                            .get_index(try_catch, index)
+                            .unwrap()
+                            .to_rust_string_lossy(try_catch);
                         index += 1;
-                        let value = headers_keys.get_index(try_catch, index).unwrap().to_rust_string_lossy(try_catch);
+                        let value = headers_keys
+                            .get_index(try_catch, index)
+                            .unwrap()
+                            .to_rust_string_lossy(try_catch);
 
                         final_headers.insert(key, value);
                     }
@@ -250,7 +251,11 @@ export function masterHandler(request) {{
 
                 let status_key = v8::String::new(try_catch, "status").unwrap();
                 let status_key = v8::Local::new(try_catch, status_key);
-                let status = response.get(try_catch, status_key.into()).unwrap().integer_value(try_catch).unwrap() as u16;
+                let status = response
+                    .get(try_catch, status_key.into())
+                    .unwrap()
+                    .integer_value(try_catch)
+                    .unwrap() as u16;
 
                 RunResult::Response(
                     Response {

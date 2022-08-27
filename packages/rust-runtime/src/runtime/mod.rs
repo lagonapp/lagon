@@ -1,15 +1,7 @@
-use std::{borrow::Borrow, ops::Deref};
 use v8::V8;
-
-pub mod isolate;
-
-mod allocator;
-
-pub trait Allocated<T: ?Sized>: Deref<Target = T> + Borrow<T> + 'static {}
 
 pub struct RuntimeOptions {
     allow_eval: bool,
-    // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
 }
 
 impl Default for RuntimeOptions {
@@ -18,9 +10,7 @@ impl Default for RuntimeOptions {
     }
 }
 
-pub struct Runtime {
-    options: RuntimeOptions,
-}
+pub struct Runtime;
 
 unsafe impl Send for Runtime {}
 unsafe impl Sync for Runtime {}
@@ -36,7 +26,7 @@ impl Runtime {
             V8::set_flags_from_string("--disallow-code-generation-from-strings");
         }
 
-        Runtime { options }
+        Runtime {}
     }
 
     // pub async fn run(&self, code: &'static str, filename: Option<&'static str>) -> RunResult {
