@@ -6,7 +6,7 @@ use std::{
 };
 
 use crate::{
-    extract::extract_v8_string,
+    utils::extract_v8_string,
     http::{Request, Response},
     result::RunResult,
 };
