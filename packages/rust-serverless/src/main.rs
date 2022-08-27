@@ -29,12 +29,12 @@ async fn handle_request(
 
     match result {
         RunResult::Response(response, duration) => {
-            println!(
-                "Response: {:?} in {:?} (CPU time) (Total: {:?})",
-                response,
-                duration,
-                now.elapsed()
-            );
+            // println!(
+            //     "Response: {:?} in {:?} (CPU time) (Total: {:?})",
+            //     response,
+            //     duration,
+            //     now.elapsed()
+            // );
 
             let response = response_to_hyper_response(response);
 
@@ -90,11 +90,15 @@ async fn main() {
                 // println!("Creating isolate");
                 Isolate::new(IsolateOptions::default("
 export function handler(request) {
-    return JSON.stringify(request)
+    return new Response(JSON.stringify(request), {
+        headers: {
+            'content-type': 'application/json',
+        }
+    })
 }".into()))
             });
 
-            println!("Request: {:?}", request);
+            // println!("Request: {:?}", request);
             let result = isolate.run(request);
 
             response_tx.send_async(result).await;
