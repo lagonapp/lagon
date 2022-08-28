@@ -69,15 +69,12 @@ export class Headers {
   }
 }
 
-// export async function fetch(resource: string, init: RequestInit) {
-//   // @ts-expect-error $0 is not defined
-//   const result = await $0.apply(undefined, [resource, init], {
-//     result: { promise: true, copy: true },
-//     arguments: { copy: true },
-//   });
+export async function fetch(resource: string, init: RequestInit) {
+  const response = await Lagon.fetch(resource, init);
 
-//   return new Response(result.body, result.options);
-// }
-
-// // @ts-expect-error global.fetch is not defined
-// global.fetch = fetch;
+  return new Response(response.body, {
+    // url: response.options.url,
+    // headers: response.options.headers,
+    // status: response.options.status,
+  });
+}

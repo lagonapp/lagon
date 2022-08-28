@@ -89,7 +89,8 @@ async fn main() {
             let isolate = isolates.entry(hostname).or_insert_with(|| {
                 Isolate::new(IsolateOptions::default(
                     "
-export function handler(request) {
+export async function handler(request) {
+    console.log(await fetch('urldetest'))
     return new Response('hello world!')
 }"
                     .into(),

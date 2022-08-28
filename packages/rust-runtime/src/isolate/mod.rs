@@ -103,7 +103,7 @@ impl Isolate {
 
 {code}
 
-export function masterHandler(request) {{
+export async function masterHandler(request) {{
   const handlerRequest = new Request(request.input, {{
       method: request.method,
       headers: request.headers,
@@ -203,7 +203,24 @@ export function masterHandler(request) {{
         let now = Instant::now();
 
         match handler.call(try_catch, global.into(), &[request_param.into()]) {
-            Some(response) => {
+            Some(mut response) => {
+                if response.is_promise() {
+                    let promise = v8::Local::<v8::Promise>::try_from(response).unwrap();
+                    println!("state: {:?}", promise.state());
+
+                    match promise.state() {
+                        v8::PromiseState::Pending => {
+                            println!("promise pending")
+                        }
+                        v8::PromiseState::Fulfilled => {
+                            response = promise.result(try_catch);
+                        }
+                        v8::PromiseState::Rejected => {
+                            println!("promise rejected")
+                        }
+                    };
+                }
+
                 let response = response.to_object(try_catch).unwrap();
 
                 let body_key = v8::String::new(try_catch, "body").unwrap();

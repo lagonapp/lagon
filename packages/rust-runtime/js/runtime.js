@@ -116,6 +116,78 @@ var TextDecoder = class {
   }
 };
 
+// js/parseMultipart.ts
+var parseMultipart = (headers, body) => {
+  if (!body) {
+    return {};
+  }
+  const contentTypeHeader = headers.get("content-type");
+  let boundary;
+  const getBoundary = (header) => header?.split(";")?.[1]?.split("=")?.[1];
+  if (Array.isArray(contentTypeHeader)) {
+    contentTypeHeader.forEach((header) => {
+      if (!boundary) {
+        boundary = getBoundary(header);
+      }
+    });
+  } else {
+    boundary = getBoundary(contentTypeHeader);
+  }
+  if (!boundary) {
+    return {};
+  }
+  const result = {};
+  for (const part of body.split(boundary)) {
+    if (part?.includes("Content-Disposition")) {
+      const content = part.split('name="')?.[1].split('"\\r\\n\\r\\n');
+      if (content) {
+        const [name, value] = content;
+        result[name] = value.replace("\\r\\n\\r\\n--", "");
+      }
+    }
+  }
+  return result;
+};
+
+// js/Response.ts
+var Response = class {
+  body;
+  headers;
+  ok;
+  status;
+  statusText;
+  url;
+  constructor(body, options) {
+    this.body = body;
+    if (options?.headers) {
+      if (options.headers instanceof Headers) {
+        this.headers = options.headers;
+      } else {
+        this.headers = new Headers(options.headers);
+      }
+    } else {
+      this.headers = new Headers();
+    }
+    if (options?.status) {
+      this.ok = options.status >= 200 && options.status < 300;
+    } else {
+      this.ok = true;
+    }
+    this.status = options?.status || 200;
+    this.statusText = options?.statusText || "OK";
+    this.url = options?.url || "";
+  }
+  async text() {
+    return this.body;
+  }
+  async json() {
+    return JSON.parse(this.body);
+  }
+  async formData() {
+    return parseMultipart(this.headers, this.body);
+  }
+};
+
 // js/fetch.ts
 var Headers = class {
   headers = /* @__PURE__ */ new Map();
@@ -173,39 +245,10 @@ var Headers = class {
     }
   }
 };
-
-// js/parseMultipart.ts
-var parseMultipart = (headers, body) => {
-  if (!body) {
-    return {};
-  }
-  const contentTypeHeader = headers.get("content-type");
-  let boundary;
-  const getBoundary = (header) => header?.split(";")?.[1]?.split("=")?.[1];
-  if (Array.isArray(contentTypeHeader)) {
-    contentTypeHeader.forEach((header) => {
-      if (!boundary) {
-        boundary = getBoundary(header);
-      }
-    });
-  } else {
-    boundary = getBoundary(contentTypeHeader);
-  }
-  if (!boundary) {
-    return {};
-  }
-  const result = {};
-  for (const part of body.split(boundary)) {
-    if (part?.includes("Content-Disposition")) {
-      const content = part.split('name="')?.[1].split('"\\r\\n\\r\\n');
-      if (content) {
-        const [name, value] = content;
-        result[name] = value.replace("\\r\\n\\r\\n--", "");
-      }
-    }
-  }
-  return result;
-};
+async function fetch(resource, init) {
+  const response = await Lagon.fetch(resource, init);
+  return new Response(response.body, {});
+}
 
 // js/Request.ts
 var Request = class {
@@ -232,45 +275,6 @@ var Request = class {
   }
   async json() {
     return JSON.parse(this.body || "{}");
-  }
-  async formData() {
-    return parseMultipart(this.headers, this.body);
-  }
-};
-
-// js/Response.ts
-var Response = class {
-  body;
-  headers;
-  ok;
-  status;
-  statusText;
-  url;
-  constructor(body, options) {
-    this.body = body;
-    if (options?.headers) {
-      if (options.headers instanceof Headers) {
-        this.headers = options.headers;
-      } else {
-        this.headers = new Headers(options.headers);
-      }
-    } else {
-      this.headers = new Headers();
-    }
-    if (options?.status) {
-      this.ok = options.status >= 200 && options.status < 300;
-    } else {
-      this.ok = true;
-    }
-    this.status = options?.status || 200;
-    this.statusText = options?.statusText || "OK";
-    this.url = options?.url || "";
-  }
-  async text() {
-    return this.body;
-  }
-  async json() {
-    return JSON.parse(this.body);
   }
   async formData() {
     return parseMultipart(this.headers, this.body);
@@ -444,5 +448,6 @@ export {
   URLSearchParams,
   atob,
   btoa,
+  fetch,
   parseMultipart
 };
