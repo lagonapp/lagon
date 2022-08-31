@@ -1,6 +1,6 @@
 {
   "name": "@lagon/serverless",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,9 +14,10 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.100.0",
     "@lagon/prisma": "workspace:0.0.1",
-    "@lagon/runtime": "workspace:0.0.5",
+    "@lagon/runtime": "workspace:0.0.6",
     "@sentry/node": "^7.1.1",
     "@sentry/tracing": "^7.1.1",
+    "cron-parser": "^4.4.0",
     "dotenv": "^16.0.1",
     "fastify": "^3.29.0",
     "isolated-vm": "^4.4.1",

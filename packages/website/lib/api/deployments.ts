@@ -5,6 +5,7 @@ import prisma from '@lagon/prisma';
 import { envStringToObject } from '@lagon/common';
 import { Readable } from 'node:stream';
 import * as trpc from '@trpc/server';
+import fs from 'node:fs';
 
 export async function createDeployment(
   func: {
@@ -13,10 +14,12 @@ export async function createDeployment(
     domains: string[];
     memory: number;
     timeout: number;
+    cron: string | null;
+    cronRegion: string;
     env: { key: string; value: string }[];
   },
-  code: string,
-  assets: { name: string; content: string }[],
+  code: fs.ReadStream,
+  assets: { name: string; content: fs.ReadStream }[],
   triggerer: string,
 ): Promise<{
   id: string;
@@ -43,28 +46,38 @@ export async function createDeployment(
       createdAt: true,
       updatedAt: true,
       isCurrent: true,
-      assets: true,
+      assets: {
+        select: {
+          name: true,
+        },
+      },
       functionId: true,
     },
   });
 
-  await s3.send(
-    new PutObjectCommand({
-      Bucket: process.env.S3_BUCKET,
-      Key: `${deployment.id}.js`,
-      Body: code,
-    }),
-  );
-
-  for (const asset of assets) {
-    await s3.send(
+  const uploadPromises = [
+    s3.send(
       new PutObjectCommand({
         Bucket: process.env.S3_BUCKET,
-        Key: `${deployment.id}/${asset.name}`,
-        Body: asset.content,
+        Key: `${deployment.id}.js`,
+        Body: code,
       }),
+    ),
+  ];
+
+  for (const asset of assets) {
+    uploadPromises.push(
+      s3.send(
+        new PutObjectCommand({
+          Bucket: process.env.S3_BUCKET,
+          Key: `${deployment.id}/${asset.name}`,
+          Body: asset.content,
+        }),
+      ),
     );
   }
+
+  await Promise.all(uploadPromises);
 
   await redis.publish(
     'deploy',
@@ -75,9 +88,11 @@ export async function createDeployment(
       domains: func.domains,
       memory: func.memory,
       timeout: func.timeout,
+      cron: func.cron,
+      cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isCurrent: deployment.isCurrent,
-      assets: deployment.assets,
+      assets: deployment.assets.map(({ name }) => name),
     }),
   );
 
@@ -91,6 +106,8 @@ export async function removeDeployment(
     domains: string[];
     memory: number;
     timeout: number;
+    cron: string | null;
+    cronRegion: string;
     env: { key: string; value: string }[];
   },
   deploymentId: string,
@@ -133,25 +150,31 @@ export async function removeDeployment(
     },
   });
 
-  await s3.send(
-    new DeleteObjectCommand({
-      Bucket: process.env.S3_BUCKET,
-      Key: `${deployment.id}.js`,
-    }),
-  );
+  const deletePromises = [
+    s3.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.S3_BUCKET,
+        Key: `${deployment.id}.js`,
+      }),
+    ),
+  ];
 
   if (deployment.assets.length > 0) {
-    await s3.send(
-      new DeleteObjectsCommand({
-        Bucket: process.env.S3_BUCKET,
-        Delete: {
-          Objects: deployment.assets.map(asset => ({
-            Key: `${deployment.id}/${asset}`,
-          })),
-        },
-      }),
+    deletePromises.push(
+      s3.send(
+        new DeleteObjectsCommand({
+          Bucket: process.env.S3_BUCKET,
+          Delete: {
+            Objects: deployment.assets.map(asset => ({
+              Key: `${deployment.id}/${asset}`,
+            })),
+          },
+        }),
+      ),
     );
   }
+
+  await Promise.all(deletePromises);
 
   await redis.publish(
     'undeploy',
@@ -162,15 +185,17 @@ export async function removeDeployment(
       domains: func.domains,
       memory: func.memory,
       timeout: func.timeout,
+      cron: func.cron,
+      cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isCurrent: deployment.isCurrent,
-      assets: deployment.assets,
+      assets: deployment.assets.map(({ name }) => name),
     }),
   );
 
   return {
     ...deployment,
-    assets: deployment.assets.map(asset => asset.name),
+    assets: deployment.assets.map(({ name }) => name),
   };
 }
 
@@ -226,6 +251,8 @@ export async function setCurrentDeployment(
       domains: true,
       memory: true,
       timeout: true,
+      cron: true,
+      cronRegion: true,
       env: {
         select: {
           key: true,
@@ -273,15 +300,17 @@ export async function setCurrentDeployment(
       domains: func.domains,
       memory: func.memory,
       timeout: func.timeout,
+      cron: func.cron,
+      cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isCurrent: true,
-      assets: deployment.assets,
+      assets: deployment.assets.map(({ name }) => name),
     }),
   );
 
   return {
     ...deployment,
-    assets: deployment.assets.map(asset => asset.name),
+    assets: deployment.assets.map(({ name }) => name),
   };
 }
 
@@ -292,6 +321,8 @@ export async function updateDomains(
     domains: string[];
     memory: number;
     timeout: number;
+    cron: string | null;
+    cronRegion: string;
     env: { key: string; value: string }[];
   },
   deployment: { id: string; isCurrent: boolean; assets: string[] },
@@ -306,12 +337,68 @@ export async function updateDomains(
       domains: func.domains,
       memory: func.memory,
       timeout: func.timeout,
+      cron: func.cron,
+      cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isCurrent: deployment.isCurrent,
       assets: deployment.assets,
       oldDomains,
     }),
   );
+}
+
+export async function removeFunction(func: {
+  id: string;
+  createdAt: Date;
+  updatedAt: Date;
+  name: string;
+  domains: {
+    domain: string;
+  }[];
+  memory: number;
+  timeout: number;
+  cron: string | null;
+  cronRegion: string;
+  env: {
+    key: string;
+    value: string;
+  }[];
+  deployments: { id: string }[];
+}) {
+  const deleteDeployments = func.deployments.map(deployment =>
+    removeDeployment(
+      {
+        ...func,
+        domains: func.domains.map(({ domain }) => domain),
+      },
+      deployment.id,
+    ),
+  );
+
+  await Promise.all(deleteDeployments);
+  await Promise.all([
+    prisma.stat.deleteMany({
+      where: {
+        functionId: func.id,
+      },
+    }),
+    prisma.log.deleteMany({
+      where: {
+        functionId: func.id,
+      },
+    }),
+    prisma.domain.deleteMany({
+      where: {
+        functionId: func.id,
+      },
+    }),
+  ]);
+
+  await prisma.function.delete({
+    where: {
+      id: func.id,
+    },
+  });
 }
 
 async function streamToString(stream: Readable): Promise<string> {
@@ -326,7 +413,7 @@ async function streamToString(stream: Readable): Promise<string> {
 export async function getDeploymentCode(deploymentId: string) {
   const content = await s3.send(
     new GetObjectCommand({
-      Bucket: 'lagonapp',
+      Bucket: process.env.S3_BUCKET,
       Key: `${deploymentId}.js`,
     }),
   );

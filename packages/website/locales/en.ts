@@ -18,7 +18,7 @@ export default {
 
   'home.title': 'Functions',
   'home.createFunction': 'Create a Function',
-  'home.empty.title': 'No functions found',
+  'home.empty.title': 'No Functions found',
   'home.empty.description': 'Start by creating a new Function by clicking the button in the right corner.',
   'home.list.lastUpdate': 'Last update:',
 
@@ -36,7 +36,7 @@ export default {
   'settings.description.success': 'Organization description updated successfully.',
 
   'settings.transfer.title': 'Transfer',
-  'settings.transfer.description': 'Transfer the ownership of this Organization to another user?',
+  'settings.transfer.description': 'Transfer the ownership of this Organization to another user.',
   'settings.transfer.placeholder': 'New Owner email',
   'settings.transfer.submit': 'Transfer ownership',
   'settings.transfer.success': 'Ownership of this Organization transferred successfully.',
@@ -47,7 +47,7 @@ export default {
   'settings.delete.submit': 'Delete',
   'settings.delete.modal.title': 'Delete Organization',
   'settings.delete.modal.description': "Write this Organization's name to confirm deletion: {organizationName}",
-  'settings.delete.modal.error': 'Confirm with the name of this Funtion',
+  'settings.delete.modal.error': 'Confirm with the name of this Organisation',
   'settings.delete.modal.submit': 'Delete Organization',
   'settings.delete.success': 'Organization deleted successfully.',
 
@@ -62,12 +62,12 @@ export default {
   'profile.information.success': 'Information updated successfully.',
 
   'profile.tokens.title': 'Tokens',
-  'profile.tokens.description': 'Below are your personal tokens, used for the CLI.',
+  'profile.tokens.description': 'Below are your personal Tokens, used for the CLI.',
   'profile.tokens.created': 'Created:',
   'profile.tokens.delete.submit': 'Delete',
   'profile.tokens.delete.modal.title': 'Delete Token',
   'profile.tokens.delete.modal.description':
-    'Are you sure you want to delete this token? You will lose access to the CLI if it is still used.',
+    'Are you sure you want to delete this Token? You will lose access to the CLI if it is still used.',
   'profile.tokens.delete.modal.submit': 'Delete Token',
   'profile.tokens.delete.success': 'Token has been deleted.',
 
@@ -84,7 +84,7 @@ export default {
   'cli.copy': 'Click to copy',
   'cli.copy.success': 'Copied to clipboard!',
 
-  'new.success': 'Organizationo created.',
+  'new.success': 'Organization created successfully.',
   'new.name.title': 'Name',
   'new.name.placeholder': 'awesome-project',
   'new.description.title': 'Description',
@@ -95,7 +95,7 @@ export default {
   'playground.back': 'Back to overview',
   'playground.deploy': 'Deploy',
   'playground.deploy.success': 'Function deployed successfully.',
-  'playground.deploy.error': 'Failed to deploy function.',
+  'playground.deploy.error': 'Failed to deploy Function.',
   'playground.reload': 'Reload',
 
   'function.nav.playground': 'Playground',
@@ -119,8 +119,8 @@ export default {
   'functions.overview.network.label.inBytes': 'IN bytes',
   'functions.overview.network.label.outBytes': 'OUT bytes',
 
-  'functions.deployments.empty.title': 'No deployments found',
-  'functions.deployments.empty.description': 'Create your first deployment from the Playground or with the CLI.',
+  'functions.deployments.empty.title': 'No Deployments found',
+  'functions.deployments.empty.description': 'Create your first Deployment from the Playground or with the CLI.',
   'functions.deployments.empty.action': 'Go to Playground',
   'functions.deployments.list.current': 'Current deployment',
   'functions.deployments.list.noCommit': 'No commit linked',
@@ -129,7 +129,7 @@ export default {
   'functions.deployments.rollback.modal.title': 'Rollback Deployment',
   'functions.deployments.rollback.modal.description': 'Are you sure you want to rollback to this Deployment?',
   'functions.deployments.rollback.modal.submit': 'Rollback',
-  'functions.deployments.rollback.success': 'Deploymend rollbacked successfully.',
+  'functions.deployments.rollback.success': 'Deployment rollbacked successfully.',
   'functions.deployments.delete': 'Delete',
   'functions.deployments.delete.modal.title': 'Delete Deployment',
   'functions.deployments.delete.modal.description': 'Are you sure you want to delete this Deployment?',
@@ -139,7 +139,7 @@ export default {
   'functions.logs.title': 'Live Logs & Errors',
   'functions.logs.logLevel': 'Log level:',
   'functions.logs.empty.title': 'No logs found',
-  'functions.logs.empty.description': "Try to add some 'console.log', or select a bigger period of time.",
+  'functions.logs.empty.description': "Try to add some 'console.log', or adjust the filters at the top-right.",
 
   'functions.settings.name.title': 'Name',
   'functions.settings.name.description':
@@ -156,8 +156,11 @@ export default {
   'functions.settings.domains.update': 'Update',
   'functions.settings.domains.success': 'Function domains updated successfully.',
   'functions.settings.cron.title': 'Cron',
-  'functions.settings.cron.description': 'Run this Function automatically at a scheduled rate using a Cron expression.',
-  'functions.settings.cron.placeholder': '* */12 * * *',
+  'functions.settings.cron.description':
+    'Run this Function automatically at a scheduled rate using a Cron expression. You can also choose in which Region to run the Function.',
+  'functions.settings.cron.expression': 'Expression',
+  'functions.settings.cron.expression.placeholder': '* */12 * * *',
+  'functions.settings.cron.region': 'Region',
   'functions.settings.cron.submit': 'Update',
   'functions.settings.cron.success': 'Function Cron updated successfully.',
   'functions.settings.env.title': 'Environment variables',

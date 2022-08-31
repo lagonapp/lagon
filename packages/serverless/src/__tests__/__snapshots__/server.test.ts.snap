@@ -16,6 +16,22 @@ exports[`Server > should handle json request 1`] = `
 }
 `;
 
+exports[`Server > should reply Uint8Array 1`] = `
+{
+  "body": "Hello World",
+  "options": {
+    "headers": {
+      "connection": "close",
+      "content-length": "11",
+      "content-type": "text/plain; charset=utf-8",
+    },
+    "status": 200,
+    "statusText": "OK",
+    "url": "",
+  },
+}
+`;
+
 exports[`Server > should reply custom headers 1`] = `
 {
   "body": "Hello World",

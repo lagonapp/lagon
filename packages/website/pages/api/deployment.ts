@@ -55,8 +55,8 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
   const form = new IncomingForm();
 
   let functionId: string;
-  let code: string;
-  const assets: { name: string; content: string }[] = [];
+  let code: fs.ReadStream;
+  const assets: { name: string; content: fs.ReadStream }[] = [];
 
   form.on('field', (name, value) => {
     if (name === 'functionId') {
@@ -66,11 +66,11 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
 
   form.on('file', (formName, file) => {
     if (formName === 'code') {
-      code = fs.readFileSync(file.filepath, 'utf-8');
+      code = fs.createReadStream(file.filepath);
     } else if (formName === 'assets') {
       assets.push({
         name: file.originalFilename!,
-        content: fs.readFileSync(file.filepath, 'utf-8'),
+        content: fs.createReadStream(file.filepath),
       });
     }
   });
@@ -90,6 +90,8 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
         },
         memory: true,
         timeout: true,
+        cron: true,
+        cronRegion: true,
         env: {
           select: {
             key: true,
@@ -100,7 +102,9 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
     });
 
     if (!func) {
-      response.status(404).end();
+      response.status(400).json({
+        error: `The function ${functionId} does not exist.`,
+      });
       return;
     }
 

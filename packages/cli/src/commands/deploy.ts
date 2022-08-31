@@ -8,7 +8,7 @@ import { getAssetsDir, getClientFile, getFileToDeploy } from '../utils';
 
 export async function deploy(
   file: string,
-  { preact, client, publicDir }: { preact: boolean; client: string; publicDir: string },
+  { preact, client, publicDir, force }: { preact: boolean; client: string; publicDir: string; force: boolean },
 ) {
   const fileToDeploy = getFileToDeploy(file);
 
@@ -38,8 +38,13 @@ export async function deploy(
 
   const config = getDeploymentConfig(fileToDeploy);
 
-  if (!config) {
-    logInfo('No deployment config found...');
+  if (!config || force) {
+    if (force) {
+      logWarn('Forcing a new deployment...');
+    } else {
+      logInfo('No deployment config found...');
+    }
+
     logSpace();
 
     const organizations = await trpc(authToken).query('organizations.list');
@@ -77,16 +82,16 @@ export async function deploy(
         },
       ]);
 
+      writeDeploymentConfig(fileToDeploy, { functionId: func, organizationId: organization, publicDir });
+
       logSpace();
 
-      const deployment = await createDeployment({
-        functionId: func.id,
+      await createDeployment({
+        functionId: func,
         file: fileToDeploy,
         clientFile,
         assetsDir,
       });
-      writeDeploymentConfig(fileToDeploy, { functionId: func, organizationId: organization, publicDir });
-      logDeploymentSuccessful(false, deployment.functionName);
     } else {
       const { name } = await inquirer.prompt([
         {
@@ -99,8 +104,11 @@ export async function deploy(
       logSpace();
 
       const func = await createFunction({ name, file: fileToDeploy, clientFile, assetsDir });
-      writeDeploymentConfig(fileToDeploy, { functionId: func.id, organizationId: organization, publicDir });
-      logDeploymentSuccessful(true, name);
+
+      if (func) {
+        writeDeploymentConfig(fileToDeploy, { functionId: func.id, organizationId: organization, publicDir });
+        logDeploymentSuccessful(true, name);
+      }
     }
 
     return;
@@ -114,11 +122,10 @@ export async function deploy(
     finalAssetsDir = path.join(path.parse(fileToDeploy).dir, config.publicDir);
   }
 
-  const deployment = await createDeployment({
+  await createDeployment({
     functionId: config.functionId,
     file: fileToDeploy,
     clientFile,
     assetsDir: finalAssetsDir,
   });
-  logDeploymentSuccessful(false, deployment.functionName);
 }

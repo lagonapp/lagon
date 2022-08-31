@@ -183,13 +183,15 @@ export async function dev(
         headers[key] = values[0];
       }
 
-      const payload = streams.get(deployment.deploymentId) || response.body;
+      let payload = streams.get(deployment.deploymentId) || response.body;
 
       if (payload instanceof Readable) {
         payload.on('end', () => {
           clearCache(deployment);
           streams.delete(deployment.deploymentId);
         });
+      } else if (payload instanceof Uint8Array) {
+        payload = new TextDecoder().decode(payload);
       }
 
       reply
@@ -199,7 +201,7 @@ export async function dev(
     } catch (error) {
       reply.status(500).header('Content-Type', 'text/html').send();
 
-      logError(`An error occured while running the function: ${(error as Error).message}`);
+      logError(`An error occured while running the function: ${(error as Error).message}: ${(error as Error).stack}`);
     }
 
     if (!streams.has(deployment.deploymentId)) {

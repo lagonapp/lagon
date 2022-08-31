@@ -1,5 +1,16 @@
 # @lagon/serverless
 
+## 0.0.4
+
+### Patch Changes
+
+- [#133](https://github.com/lagonapp/lagon/pull/133) [`5db35df`](https://github.com/lagonapp/lagon/commit/5db35df2b71df4c9d3b6c863857d53fc0660dab4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add assets streaming
+
+* [`bae2894`](https://github.com/lagonapp/lagon/commit/bae28943ce20abfa48a43ee28690cfc16c1e6751) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Suppport Uint8Array as Response body
+
+* Updated dependencies [[`bae2894`](https://github.com/lagonapp/lagon/commit/bae28943ce20abfa48a43ee28690cfc16c1e6751)]:
+  - @lagon/runtime@0.0.6
+
 ## 0.0.3
 
 ### Patch Changes
