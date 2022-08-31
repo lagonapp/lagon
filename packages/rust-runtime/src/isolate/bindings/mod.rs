@@ -1,3 +1,4 @@
+use crate::{isolate::Isolate, http::Response};
 
 fn log_callback(
     scope: &mut v8::HandleScope,
@@ -15,25 +16,48 @@ fn fetch_callback(
     mut retval: v8::ReturnValue,
 ) {
     let resource = args.get(0).to_rust_string_lossy(scope);
-    // let init = args.get(1).to_rust_string_lossy(scope);
-
-    println!("fetching: {}", resource);
-
-    let response = v8::Object::new(scope);
-
-    let body_key = v8::String::new(scope, "body").unwrap();
-    let body_key = v8::Local::new(scope, body_key);
-    let body_value = v8::String::new(scope, "VALUE").unwrap();
-    let body_value = v8::Local::new(scope, body_value);
-
-    response.set(scope, body_key.into(), body_value.into());
 
     let promise = v8::PromiseResolver::new(scope).unwrap();
-    promise.resolve(scope, response.into());
-
     let promise = v8::Local::new(scope, promise);
 
+    let state = Isolate::state(scope);
+    let mut state = state.borrow_mut();
+
+    let (sender, receiver) = std::sync::mpsc::channel();
+
+    let join_handle = tokio::task::spawn_blocking(move || {
+        println!("spawning task");
+
+        let reqwest = reqwest::blocking::get(resource).unwrap();
+        let status = reqwest.status().as_u16();
+        let body = reqwest.text().unwrap();
+
+        sender.send(Response {
+            body,
+            headers: None,
+            status,
+        }).unwrap();
+    });
+
+    state.promises.push(join_handle);
+
     retval.set(promise.into());
+
+    // TODO: should be moved to a real even-loop
+    loop {
+        if let Ok(response) = receiver.try_recv() {
+            let response_object = v8::Object::new(scope);
+            let body_key = v8::String::new(scope, "body").unwrap();
+            let body_key = v8::Local::new(scope, body_key);
+            let body_value = v8::String::new(scope, &response.body).unwrap();
+            let body_value = v8::Local::new(scope, body_value);
+
+            response_object.set(scope, body_key.into(), body_value.into());
+
+            promise.resolve(scope, response_object.into());
+            break;
+        }
+    }
 }
 
 pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {

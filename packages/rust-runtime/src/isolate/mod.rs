@@ -6,6 +6,8 @@ use std::{
     time::Instant,
 };
 
+use tokio::task::JoinHandle;
+
 use crate::{
     http::{Request, Response, RunResult},
     utils::extract_v8_string,
@@ -17,8 +19,13 @@ mod bindings;
 static JS_RUNTIME: &str = include_str!("../../js/runtime.js");
 
 #[derive(Clone)]
+struct GlobalRealm(v8::Global<v8::Context>);
+
 struct IsolateState {
-    global: v8::Global<v8::Context>,
+    global: GlobalRealm,
+    // promises: HashMap<JoinHandle<()>, v8::Global<v8::PromiseResolver>>,
+    // promises: HashMap<Box<dyn Future<Output = ()>>, v8::Global<v8::PromiseResolver>>,
+    promises: Vec<JoinHandle<()>>,
 }
 
 pub struct IsolateOptions {
@@ -68,7 +75,11 @@ impl Isolate {
             let isolate_scope = &mut v8::HandleScope::new(&mut isolate);
             let global = bindings::bind(isolate_scope);
 
-            IsolateState { global }
+            IsolateState {
+                global: GlobalRealm(global),
+                // promises: HashMap::new(),
+                promises: Vec::new(),
+            }
         };
 
         isolate.set_slot(Rc::new(RefCell::new(state)));
@@ -80,18 +91,23 @@ impl Isolate {
         }
     }
 
-    pub(crate) fn global_realm(&self) -> IsolateState {
+    pub(crate) fn state(isolate: &v8::Isolate) -> Rc<RefCell<IsolateState>> {
+        let s = isolate.get_slot::<Rc<RefCell<IsolateState>>>().unwrap();
+        s.clone()
+      }
+
+    pub(crate) fn global_realm(&self) -> GlobalRealm {
         let state = self
             .isolate
             .get_slot::<Rc<RefCell<IsolateState>>>()
             .unwrap();
         let state = state.borrow();
-        state.clone()
+        state.global.clone()
     }
 
     pub fn run(&mut self, request: Request) -> RunResult {
         let state = self.global_realm();
-        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, state.global.clone());
+        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, state.0.clone());
 
         if self.handler.is_none() {
             let code = &self.options.code;
@@ -196,13 +212,13 @@ export async function masterHandler(request) {{
         let handler = self.handler.as_ref().unwrap();
         let handler = handler.open(scope);
 
-        let global = state.global.open(scope);
+        let global = state.0.open(scope);
         let try_catch = &mut v8::TryCatch::new(scope);
         let global = global.global(try_catch);
 
         let now = Instant::now();
 
-        match handler.call(try_catch, global.into(), &[request_param.into()]) {
+       match handler.call(try_catch, global.into(), &[request_param.into()]) {
             Some(mut response) => {
                 if response.is_promise() {
                     let promise = v8::Local::<v8::Promise>::try_from(response).unwrap();
@@ -210,6 +226,7 @@ export async function masterHandler(request) {{
 
                     match promise.state() {
                         v8::PromiseState::Pending => {
+                            // Should never occur?
                             println!("promise pending")
                         }
                         v8::PromiseState::Fulfilled => {
