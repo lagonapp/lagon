@@ -4,6 +4,7 @@ coverage/
 .lagon/
 .turbo/
 ssl/
+target/
 
 .eslintcache
 .DS_Store
