@@ -46,15 +46,9 @@ fn fetch_callback(
     // TODO: should be moved to a real even-loop
     loop {
         if let Ok(response) = receiver.try_recv() {
-            let response_object = v8::Object::new(scope);
-            let body_key = v8::String::new(scope, "body").unwrap();
-            let body_key = v8::Local::new(scope, body_key);
-            let body_value = v8::String::new(scope, &response.body).unwrap();
-            let body_value = v8::Local::new(scope, body_value);
+            let response = response.to_v8_response(scope);
 
-            response_object.set(scope, body_key.into(), body_value.into());
-
-            promise.resolve(scope, response_object.into());
+            promise.resolve(scope, response.into());
             break;
         }
     }

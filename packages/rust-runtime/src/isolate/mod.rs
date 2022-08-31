@@ -1,6 +1,5 @@
 use std::{
     cell::RefCell,
-    collections::HashMap,
     rc::Rc,
     sync::{atomic::AtomicUsize, Arc},
     time::Instant,
@@ -166,48 +165,7 @@ export async function masterHandler(request) {{
             self.handler = Some(handler);
         }
 
-        let request_param = v8::Object::new(scope);
-
-        let input_key = v8::String::new(scope, "input").unwrap();
-        let input_key = v8::Local::new(scope, input_key);
-        let input_value = v8::String::new(scope, "TODO").unwrap();
-        let input_value = v8::Local::new(scope, input_value);
-        request_param
-            .set(scope, input_key.into(), input_value.into())
-            .unwrap();
-
-        let method_key = v8::String::new(scope, "method").unwrap();
-        let method_key = v8::Local::new(scope, method_key);
-        let method_value = v8::String::new(scope, request.method.into()).unwrap();
-        let method_value = v8::Local::new(scope, method_value);
-        request_param
-            .set(scope, method_key.into(), method_value.into())
-            .unwrap();
-
-        let body_key = v8::String::new(scope, "body").unwrap();
-        let body_key = v8::Local::new(scope, body_key);
-        let body_value = v8::String::new(scope, &request.body).unwrap();
-        let body_value = v8::Local::new(scope, body_value);
-        request_param
-            .set(scope, body_key.into(), body_value.into())
-            .unwrap();
-
-        let headers_key = v8::String::new(scope, "headers").unwrap();
-        let headers_key = v8::Local::new(scope, headers_key);
-
-        let request_headers = v8::Object::new(scope);
-
-        for (key, value) in request.headers.iter() {
-            let key = v8::String::new(scope, key).unwrap();
-            let key = v8::Local::new(scope, key);
-            let value = v8::String::new(scope, value).unwrap();
-            let value = v8::Local::new(scope, value);
-            request_headers.set(scope, key.into(), value.into());
-        }
-
-        request_param
-            .set(scope, headers_key.into(), request_headers.into())
-            .unwrap();
+        let request = request.to_v8_request(scope);
 
         let handler = self.handler.as_ref().unwrap();
         let handler = handler.open(scope);
@@ -218,7 +176,7 @@ export async function masterHandler(request) {{
 
         let now = Instant::now();
 
-       match handler.call(try_catch, global.into(), &[request_param.into()]) {
+       match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(mut response) => {
                 if response.is_promise() {
                     let promise = v8::Local::<v8::Promise>::try_from(response).unwrap();
@@ -238,67 +196,9 @@ export async function masterHandler(request) {{
                     };
                 }
 
-                let response = response.to_object(try_catch).unwrap();
+                let response = Response::from_v8_response(try_catch, response);
 
-                let body_key = v8::String::new(try_catch, "body").unwrap();
-                let body_key = v8::Local::new(try_catch, body_key);
-                let body = response.get(try_catch, body_key.into()).unwrap();
-                let body = extract_v8_string(body, try_catch).unwrap();
-
-                let headers_key = v8::String::new(try_catch, "headers").unwrap();
-                let headers_key = v8::Local::new(try_catch, headers_key);
-                let headers_object = response
-                    .get(try_catch, headers_key.into())
-                    .unwrap()
-                    .to_object(try_catch)
-                    .unwrap();
-                let headers_map = headers_object.get(try_catch, headers_key.into()).unwrap();
-                let headers_map = unsafe { v8::Local::<v8::Map>::cast(headers_map) };
-
-                let mut headers = None;
-
-                if headers_map.size() > 0 {
-                    let mut final_headers = HashMap::new();
-
-                    let headers_keys = headers_map.as_array(try_catch);
-
-                    for mut index in 0..headers_keys.length() {
-                        if index % 2 != 0 {
-                            continue;
-                        }
-
-                        let key = headers_keys
-                            .get_index(try_catch, index)
-                            .unwrap()
-                            .to_rust_string_lossy(try_catch);
-                        index += 1;
-                        let value = headers_keys
-                            .get_index(try_catch, index)
-                            .unwrap()
-                            .to_rust_string_lossy(try_catch);
-
-                        final_headers.insert(key, value);
-                    }
-
-                    headers = Some(final_headers);
-                }
-
-                let status_key = v8::String::new(try_catch, "status").unwrap();
-                let status_key = v8::Local::new(try_catch, status_key);
-                let status = response
-                    .get(try_catch, status_key.into())
-                    .unwrap()
-                    .integer_value(try_catch)
-                    .unwrap() as u16;
-
-                RunResult::Response(
-                    Response {
-                        headers,
-                        body,
-                        status,
-                    },
-                    now.elapsed(),
-                )
+                RunResult::Response(response, now.elapsed())
             }
             None => {
                 let exception = try_catch.exception().unwrap();
