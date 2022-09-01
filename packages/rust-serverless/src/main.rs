@@ -90,7 +90,7 @@ export async function handler(request) {
     // const body = await fetch('https://random-data-api.com/api/users/random_user')
     // console.log(body)
     // return new Response(JSON.stringify(body))
-    return new Response('Hello World!'
+    return new Response('Hello World!')
 }"
                     .into(),
                 ))

@@ -196,7 +196,7 @@ export async function masterHandler(request) {{
             Some(mut response) => {
                 if response.is_promise() {
                     let promise = v8::Local::<v8::Promise>::try_from(response).unwrap();
-                    println!("state: {:?}", promise.state());
+                    // println!("state: {:?}", promise.state());
 
                     match promise.state() {
                         v8::PromiseState::Pending => {
