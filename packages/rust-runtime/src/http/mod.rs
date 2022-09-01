@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::time::Duration;
 
-use crate::utils::extract_v8_string;
+use crate::utils::{extract_v8_string, Result, v8_string};
 
 #[derive(Debug, Copy, Clone)]
 pub enum Method {
@@ -103,22 +103,16 @@ impl Response {
         response_object
     }
 
-    pub fn from_v8_response<'a>(scope: &mut v8::HandleScope<'a>, response: v8::Local<'a, v8::Value>) -> Self {
-        let response = response.to_object(scope).unwrap();
+    pub fn from_v8_response<'a>(scope: &mut v8::HandleScope<'a>, response: v8::Local<'a, v8::Value>) -> Option<Self> {
+        let response = response.to_object(scope)?;
 
-        let body_key = v8::String::new(scope, "body").unwrap();
-        let body_key = v8::Local::new(scope, body_key);
-        let body = response.get(scope, body_key.into()).unwrap();
-        let body = extract_v8_string(body, scope).unwrap();
+        let body_key = v8_string(scope, "body")?;
+        let body = response.get(scope, body_key.into())?;
+        let body = extract_v8_string(body, scope)?;
 
-        let headers_key = v8::String::new(scope, "headers").unwrap();
-        let headers_key = v8::Local::new(scope, headers_key);
-        let headers_object = response
-            .get(scope, headers_key.into())
-            .unwrap()
-            .to_object(scope)
-            .unwrap();
-        let headers_map = headers_object.get(scope, headers_key.into()).unwrap();
+        let headers_key = v8_string(scope, "headers")?;
+        let headers_object = response.get(scope, headers_key.into())?.to_object(scope)?;
+        let headers_map = headers_object.get(scope, headers_key.into())?;
         let headers_map = unsafe { v8::Local::<v8::Map>::cast(headers_map) };
 
         let mut headers = None;
@@ -133,15 +127,9 @@ impl Response {
                     continue;
                 }
 
-                let key = headers_keys
-                    .get_index(scope, index)
-                    .unwrap()
-                    .to_rust_string_lossy(scope);
+                let key = headers_keys.get_index(scope, index)?.to_rust_string_lossy(scope);
                 index += 1;
-                let value = headers_keys
-                    .get_index(scope, index)
-                    .unwrap()
-                    .to_rust_string_lossy(scope);
+                let value = headers_keys.get_index(scope, index)?.to_rust_string_lossy(scope);
 
                 final_headers.insert(key, value);
             }
@@ -149,19 +137,14 @@ impl Response {
             headers = Some(final_headers);
         }
 
-        let status_key = v8::String::new(scope, "status").unwrap();
-        let status_key = v8::Local::new(scope, status_key);
-        let status = response
-            .get(scope, status_key.into())
-            .unwrap()
-            .integer_value(scope)
-            .unwrap() as u16;
+        let status_key = v8_string(scope, "status")?;
+        let status = response.get(scope, status_key.into())?.integer_value(scope)? as u16;
 
-        Self {
+        Some(Self {
             headers,
             body,
             status,
-        }
+        })
     }
 }
 

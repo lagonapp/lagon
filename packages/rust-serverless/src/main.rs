@@ -90,8 +90,8 @@ async fn main() {
                 Isolate::new(IsolateOptions::default(
                     "
 export async function handler(request) {
-    const body = await fetch('https://random-data-api.com/api/users/random_user')
-    console.log(body)
+    // const body = await fetch('https://random-data-api.com/api/users/random_user')
+    // console.log(body)
     return new Response(JSON.stringify(body))
 }"
                     .into(),

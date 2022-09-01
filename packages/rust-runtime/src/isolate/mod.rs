@@ -190,37 +190,38 @@ export async function masterHandler(request) {{
                         v8::PromiseState::Fulfilled => {
                             response = promise.result(try_catch);
                         }
-                        v8::PromiseState::Rejected => {
-                            println!("promise rejected")
-                        }
+                        _ => {}
                     };
                 }
 
-                let response = Response::from_v8_response(try_catch, response);
-
-                RunResult::Response(response, now.elapsed())
-            }
-            None => {
-                let exception = try_catch.exception().unwrap();
-
-                match extract_v8_string(exception, try_catch) {
-                    Some(error) => RunResult::Error(error),
-                    // Can be caused by memory limit being reached, or maybe by something else?
-                    None => {
-                        let exception_message = v8::Exception::create_message(try_catch, exception);
-                        let exception_message = exception_message
-                            .get(try_catch)
-                            .to_rust_string_lossy(try_catch);
-
-                        // if count.load(Ordering::SeqCst) >= memory_mb {
-                        //     RunResult::MemoryLimit()
-                        // } else {
-                        // println!("{:?}", exception.to_object(try_catch).unwrap().get_property_names(try_catch).unwrap());
-                        RunResult::Error(exception_message)
-                        // }
-                    }
+                match Response::from_v8_response(try_catch, response) {
+                    Some(response) => RunResult::Response(response, now.elapsed()),
+                    None => extract_error(try_catch),
                 }
             }
+            None => extract_error(try_catch),
+        }
+    }
+}
+
+fn extract_error(scope: &mut v8::TryCatch<v8::HandleScope>) -> RunResult {
+    let exception = scope.exception().unwrap();
+
+    match extract_v8_string(exception, scope) {
+        Some(error) => RunResult::Error(error),
+        // Can be caused by memory limit being reached, or maybe by something else?
+        None => {
+            let exception_message = v8::Exception::create_message(scope, exception);
+            let exception_message = exception_message
+                .get(scope)
+                .to_rust_string_lossy(scope);
+
+            // if count.load(Ordering::SeqCst) >= memory_mb {
+            //     RunResult::MemoryLimit()
+            // } else {
+            // println!("{:?}", exception.to_object(try_catch).unwrap().get_property_names(try_catch).unwrap());
+            RunResult::Error(exception_message)
+            // }
         }
     }
 }
