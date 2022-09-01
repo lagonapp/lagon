@@ -41,18 +41,15 @@ async fn handle_request(
             Ok(response)
         }
         RunResult::Error(error) => {
-            println!("Error: {}", error);
             Ok(HyperResponse::builder()
                 .status(500)
                 .body(error.into())
                 .unwrap())
         }
         RunResult::Timeout() => {
-            // println!("Timeout");
             Ok(HyperResponse::new("Timeouted".into()))
         }
         RunResult::MemoryLimit() => {
-            // println!("MemoryLimit");
             Ok(HyperResponse::new("MemoryLimited".into()))
         }
     }
@@ -92,7 +89,8 @@ async fn main() {
 export async function handler(request) {
     // const body = await fetch('https://random-data-api.com/api/users/random_user')
     // console.log(body)
-    return new Response(JSON.stringify(body))
+    // return new Response(JSON.stringify(body))
+    return new Response('Hello World!'
 }"
                     .into(),
                 ))

@@ -22,8 +22,6 @@ struct GlobalRealm(v8::Global<v8::Context>);
 
 struct IsolateState {
     global: GlobalRealm,
-    // promises: HashMap<JoinHandle<()>, v8::Global<v8::PromiseResolver>>,
-    // promises: HashMap<Box<dyn Future<Output = ()>>, v8::Global<v8::PromiseResolver>>,
     promises: Vec<JoinHandle<()>>,
 }
 
@@ -49,6 +47,7 @@ pub struct Isolate {
     options: IsolateOptions,
     isolate: v8::OwnedIsolate,
     handler: Option<v8::Global<v8::Function>>,
+    compilation_error: Option<String>,
 }
 
 unsafe impl Send for Isolate {}
@@ -76,7 +75,6 @@ impl Isolate {
 
             IsolateState {
                 global: GlobalRealm(global),
-                // promises: HashMap::new(),
                 promises: Vec::new(),
             }
         };
@@ -87,6 +85,7 @@ impl Isolate {
             options,
             isolate,
             handler: None,
+            compilation_error: None,
         }
     }
 
@@ -107,11 +106,12 @@ impl Isolate {
     pub fn run(&mut self, request: Request) -> RunResult {
         let state = self.global_realm();
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, state.0.clone());
+        let try_catch = &mut v8::TryCatch::new(scope);
 
-        if self.handler.is_none() {
+        if self.handler.is_none() && self.compilation_error.is_none() {
             let code = &self.options.code;
             let code = v8::String::new(
-                scope,
+                try_catch,
                 &format!(
                     r#"
 {JS_RUNTIME}
@@ -130,13 +130,13 @@ export async function masterHandler(request) {{
                 ),
             )
             .unwrap();
-            let resource_name = v8::String::new(scope, "isolate.js").unwrap();
-            let source_map_url = v8::String::new(scope, "").unwrap();
+            let resource_name = v8::String::new(try_catch, "isolate.js").unwrap();
+            let source_map_url = v8::String::new(try_catch, "").unwrap();
 
             let source = v8::script_compiler::Source::new(
                 code,
                 Some(&v8::ScriptOrigin::new(
-                    scope,
+                    try_catch,
                     resource_name.into(),
                     0,
                     0,
@@ -149,29 +149,45 @@ export async function masterHandler(request) {{
                 )),
             );
 
-            let module = v8::script_compiler::compile_module(scope, source).unwrap();
-            // TODO: disable imports
-            module.instantiate_module(scope, |a, b, c, d| None).unwrap();
-            module.evaluate(scope).unwrap();
+            match v8::script_compiler::compile_module(try_catch, source) {
+                Some(module) => {
+                    // TODO: disable imports
+                    module.instantiate_module(try_catch, |a, b, c, d| None).unwrap();
+                    module.evaluate(try_catch).unwrap();
 
-            let namespace = module.get_module_namespace();
-            let namespace = v8::Local::<v8::Object>::try_from(namespace).unwrap();
+                    let namespace = module.get_module_namespace();
+                    let namespace = v8::Local::<v8::Object>::try_from(namespace).unwrap();
 
-            let handler = v8::String::new(scope, "masterHandler").unwrap();
-            let handler = namespace.get(scope, handler.into()).unwrap();
-            let handler = v8::Local::<v8::Function>::try_from(handler).unwrap();
-            let handler = v8::Global::new(scope, handler);
+                    let handler = v8::String::new(try_catch, "masterHandler").unwrap();
+                    let handler = namespace.get(try_catch, handler.into()).unwrap();
+                    let handler = v8::Local::<v8::Function>::try_from(handler).unwrap();
+                    let handler = v8::Global::new(try_catch, handler);
 
-            self.handler = Some(handler);
+                    self.handler = Some(handler);
+                }
+                None => {
+                    match extract_error(try_catch) {
+                        RunResult::Error(error) => {
+                            self.compilation_error = Some(error);
+                        }
+                        _ => {
+                            self.compilation_error = Some("Unkown error".into())
+                        }
+                    };
+                }
+            };
         }
 
-        let request = request.to_v8_request(scope);
+        if let Some(error) = &self.compilation_error {
+            return RunResult::Error(error.clone());
+        }
+
+        let request = request.to_v8_request(try_catch);
 
         let handler = self.handler.as_ref().unwrap();
-        let handler = handler.open(scope);
+        let handler = handler.open(try_catch);
 
-        let global = state.0.open(scope);
-        let try_catch = &mut v8::TryCatch::new(scope);
+        let global = state.0.open(try_catch);
         let global = global.global(try_catch);
 
         let now = Instant::now();

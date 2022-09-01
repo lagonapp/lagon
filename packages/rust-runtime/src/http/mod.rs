@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::time::Duration;
 
-use crate::utils::{extract_v8_string, Result, v8_string};
+use crate::utils::{extract_v8_string, v8_string, Result};
 
 #[derive(Debug, Copy, Clone)]
 pub enum Method {
@@ -103,7 +103,10 @@ impl Response {
         response_object
     }
 
-    pub fn from_v8_response<'a>(scope: &mut v8::HandleScope<'a>, response: v8::Local<'a, v8::Value>) -> Option<Self> {
+    pub fn from_v8_response<'a>(
+        scope: &mut v8::HandleScope<'a>,
+        response: v8::Local<'a, v8::Value>,
+    ) -> Option<Self> {
         let response = response.to_object(scope)?;
 
         let body_key = v8_string(scope, "body")?;
@@ -127,9 +130,13 @@ impl Response {
                     continue;
                 }
 
-                let key = headers_keys.get_index(scope, index)?.to_rust_string_lossy(scope);
+                let key = headers_keys
+                    .get_index(scope, index)?
+                    .to_rust_string_lossy(scope);
                 index += 1;
-                let value = headers_keys.get_index(scope, index)?.to_rust_string_lossy(scope);
+                let value = headers_keys
+                    .get_index(scope, index)?
+                    .to_rust_string_lossy(scope);
 
                 final_headers.insert(key, value);
             }
@@ -138,7 +145,9 @@ impl Response {
         }
 
         let status_key = v8_string(scope, "status")?;
-        let status = response.get(scope, status_key.into())?.integer_value(scope)? as u16;
+        let status = response
+            .get(scope, status_key.into())?
+            .integer_value(scope)? as u16;
 
         Some(Self {
             headers,

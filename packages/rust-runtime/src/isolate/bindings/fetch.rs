@@ -1,4 +1,4 @@
-use crate::{isolate::Isolate, http::Response};
+use crate::{http::Response, isolate::Isolate};
 
 pub fn fetch_binding(
     scope: &mut v8::HandleScope,
@@ -22,11 +22,13 @@ pub fn fetch_binding(
         let status = reqwest.status().as_u16();
         let body = reqwest.text().unwrap();
 
-        sender.send(Response {
-            body,
-            headers: None,
-            status,
-        }).unwrap();
+        sender
+            .send(Response {
+                body,
+                headers: None,
+                status,
+            })
+            .unwrap();
     });
 
     state.promises.push(join_handle);

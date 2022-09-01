@@ -1,8 +1,8 @@
 use console::console_binding;
 use fetch::fetch_binding;
 
-mod fetch;
 mod console;
+mod fetch;
 
 pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
     let global = v8::ObjectTemplate::new(scope);
