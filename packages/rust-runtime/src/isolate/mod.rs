@@ -92,7 +92,7 @@ impl Isolate {
     pub(crate) fn state(isolate: &v8::Isolate) -> Rc<RefCell<IsolateState>> {
         let s = isolate.get_slot::<Rc<RefCell<IsolateState>>>().unwrap();
         s.clone()
-      }
+    }
 
     pub(crate) fn global_realm(&self) -> GlobalRealm {
         let state = self
@@ -152,7 +152,9 @@ export async function masterHandler(request) {{
             match v8::script_compiler::compile_module(try_catch, source) {
                 Some(module) => {
                     // TODO: disable imports
-                    module.instantiate_module(try_catch, |a, b, c, d| None).unwrap();
+                    module
+                        .instantiate_module(try_catch, |a, b, c, d| None)
+                        .unwrap();
                     module.evaluate(try_catch).unwrap();
 
                     let namespace = module.get_module_namespace();
@@ -170,9 +172,7 @@ export async function masterHandler(request) {{
                         RunResult::Error(error) => {
                             self.compilation_error = Some(error);
                         }
-                        _ => {
-                            self.compilation_error = Some("Unkown error".into())
-                        }
+                        _ => self.compilation_error = Some("Unkown error".into()),
                     };
                 }
             };
@@ -192,7 +192,7 @@ export async function masterHandler(request) {{
 
         let now = Instant::now();
 
-       match handler.call(try_catch, global.into(), &[request.into()]) {
+        match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(mut response) => {
                 if response.is_promise() {
                     let promise = v8::Local::<v8::Promise>::try_from(response).unwrap();
@@ -228,9 +228,7 @@ fn extract_error(scope: &mut v8::TryCatch<v8::HandleScope>) -> RunResult {
         // Can be caused by memory limit being reached, or maybe by something else?
         None => {
             let exception_message = v8::Exception::create_message(scope, exception);
-            let exception_message = exception_message
-                .get(scope)
-                .to_rust_string_lossy(scope);
+            let exception_message = exception_message.get(scope).to_rust_string_lossy(scope);
 
             // if count.load(Ordering::SeqCst) >= memory_mb {
             //     RunResult::MemoryLimit()

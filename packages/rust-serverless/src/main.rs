@@ -9,8 +9,10 @@ use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::time::Instant;
 
+use crate::deployments::{get_deployment_code, Deployment};
 use crate::http::response_to_hyper_response;
 
+mod deployments;
 mod http;
 
 async fn handle_request(
@@ -40,18 +42,16 @@ async fn handle_request(
 
             Ok(response)
         }
-        RunResult::Error(error) => {
-            Ok(HyperResponse::builder()
-                .status(500)
-                .body(error.into())
-                .unwrap())
-        }
-        RunResult::Timeout() => {
-            Ok(HyperResponse::new("Timeouted".into()))
-        }
-        RunResult::MemoryLimit() => {
-            Ok(HyperResponse::new("MemoryLimited".into()))
-        }
+        RunResult::Error(error) => Ok(HyperResponse::builder()
+            .status(500)
+            .body(error.into())
+            .unwrap()),
+        RunResult::Timeout() => Ok(HyperResponse::new("Timeouted".into())),
+        RunResult::MemoryLimit() => Ok(HyperResponse::new("MemoryLimited".into())),
+        RunResult::NotFound() => Ok(HyperResponse::builder()
+            .status(404)
+            .body("Deployment not found".into())
+            .unwrap()),
     }
 }
 
@@ -75,6 +75,17 @@ async fn main() {
     }));
 
     let wait = tokio::spawn(async move {
+        let mut deployments = HashMap::new();
+
+        deployments.insert(
+            "localhost:3000".to_string(),
+            Deployment {
+                id: "localhost".to_string(),
+                domains: vec!["localhost".to_string()],
+                assets: vec![],
+            },
+        );
+
         let mut isolates = HashMap::new();
 
         loop {
@@ -83,23 +94,23 @@ async fn main() {
 
             let hostname = request.headers.get("host").unwrap().clone();
 
-            let isolate = isolates.entry(hostname).or_insert_with(|| {
-                Isolate::new(IsolateOptions::default(
-                    "
-export async function handler(request) {
-    // const body = await fetch('https://random-data-api.com/api/users/random_user')
-    // console.log(body)
-    // return new Response(JSON.stringify(body))
-    return new Response('Hello World!')
-}"
-                    .into(),
-                ))
-            });
+            match deployments.get(&hostname) {
+                Some(deployment) => {
+                    let isolate = isolates.entry(hostname).or_insert_with(|| {
+                        // TODO: handle read error
+                        let code = get_deployment_code(deployment).unwrap();
 
-            // println!("Request: {:?}", request);
-            let result = isolate.run(request);
+                        Isolate::new(IsolateOptions::default(code))
+                    });
 
-            response_tx.send_async(result).await.unwrap();
+                    let result = isolate.run(request);
+
+                    response_tx.send_async(result).await.unwrap();
+                }
+                None => {
+                    response_tx.send_async(RunResult::NotFound()).await.unwrap();
+                }
+            };
         }
     });
 

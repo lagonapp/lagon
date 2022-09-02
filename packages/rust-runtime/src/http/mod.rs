@@ -163,4 +163,5 @@ pub enum RunResult {
     Timeout(),
     MemoryLimit(),
     Error(String),
+    NotFound(),
 }
