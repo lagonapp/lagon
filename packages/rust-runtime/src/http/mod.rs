@@ -85,7 +85,7 @@ impl Request {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Response {
     pub headers: Option<HashMap<String, String>>,
     pub body: String,
@@ -158,9 +158,9 @@ impl Response {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum RunResult {
-    Response(Response, Duration),
+    Response(Response),
     Timeout(),
     MemoryLimit(),
     Error(String),

@@ -2,7 +2,6 @@ use std::{
     cell::RefCell,
     rc::Rc,
     sync::{atomic::AtomicUsize, Arc},
-    time::Instant,
 };
 
 use tokio::task::JoinHandle;
@@ -190,8 +189,6 @@ export async function masterHandler(request) {{
         let global = state.0.open(try_catch);
         let global = global.global(try_catch);
 
-        let now = Instant::now();
-
         match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(mut response) => {
                 if response.is_promise() {
@@ -211,7 +208,7 @@ export async function masterHandler(request) {{
                 }
 
                 match Response::from_v8_response(try_catch, response) {
-                    Some(response) => RunResult::Response(response, now.elapsed()),
+                    Some(response) => RunResult::Response(response),
                     None => extract_error(try_catch),
                 }
             }

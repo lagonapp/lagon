@@ -7,7 +7,7 @@ use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
-use std::time::{Instant, Duration};
+use std::time::Instant;
 
 use crate::deployments::assets::handle_asset;
 use crate::deployments::{get_deployment_code, Deployment};
@@ -31,7 +31,7 @@ async fn handle_request(
         .unwrap_or(RunResult::Error("Failed to receive".into()));
 
     match result {
-        RunResult::Response(response, duration) => {
+        RunResult::Response(response) => {
             // println!(
             //     "Response: {:?} in {:?} (CPU time) (Total: {:?})",
             //     response,
@@ -103,7 +103,7 @@ async fn main() {
                     if let Some(asset) = deployment.assets.iter().find(|asset| *asset == url) {
                         // TODO: handle read error
                         let response = handle_asset(deployment, asset).unwrap();
-                        let response = RunResult::Response(response, Duration::from_millis(0));
+                        let response = RunResult::Response(response);
 
                         response_tx.send_async(response).await.unwrap();
                     } else {
