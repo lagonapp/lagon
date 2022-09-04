@@ -23,7 +23,7 @@ async fn handle_request(
 ) -> Result<HyperResponse<Body>, Infallible> {
     let now = Instant::now();
 
-    request_tx.send_async(req).await.unwrap();
+    request_tx.send_async(req).await;
 
     let result = response_rx
         .recv_async()
@@ -83,7 +83,7 @@ async fn main() {
             Deployment {
                 id: "localhost".to_string(),
                 domains: vec!["localhost".to_string()],
-                assets: vec![],
+                assets: vec!["index.css".into()],
             },
         );
 
@@ -97,24 +97,27 @@ async fn main() {
 
             match deployments.get(&hostname) {
                 Some(deployment) => {
-                    if let Some(asset) = deployment.assets.iter().find(|asset| *asset == &request.url) {
-                        let response= handle_asset(deployment, asset);
+                    let url = &mut request.url.clone();
+                    url.remove(0);
+
+                    if let Some(asset) = deployment.assets.iter().find(|asset| *asset == url) {
+                        // TODO: handle read error
+                        let response = handle_asset(deployment, asset).unwrap();
                         let response = RunResult::Response(response, Duration::from_millis(0));
 
                         response_tx.send_async(response).await.unwrap();
-                        return;
+                    } else {
+                        let isolate = isolates.entry(hostname).or_insert_with(|| {
+                            // TODO: handle read error
+                            let code = get_deployment_code(deployment).unwrap();
+
+                            Isolate::new(IsolateOptions::default(code))
+                        });
+
+                        let result = isolate.run(request);
+
+                        response_tx.send_async(result).await.unwrap();
                     }
-
-                    let isolate = isolates.entry(hostname).or_insert_with(|| {
-                        // TODO: handle read error
-                        let code = get_deployment_code(deployment).unwrap();
-
-                        Isolate::new(IsolateOptions::default(code))
-                    });
-
-                    let result = isolate.run(request);
-
-                    response_tx.send_async(result).await.unwrap();
                 }
                 None => {
                     response_tx.send_async(RunResult::NotFound()).await.unwrap();
