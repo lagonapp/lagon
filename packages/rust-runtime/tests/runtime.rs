@@ -43,6 +43,109 @@ return new Response('Hello world');
 }
 
 #[test]
+fn get_body() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::default(
+        "export function handler(request) {
+return new Response(request.body);
+}"
+        .into(),
+    ));
+
+    assert_eq!(
+        isolate.run(Request {
+            body: "Hello world".into(),
+            headers: HashMap::new(),
+            method: Method::GET,
+            url: "".into(),
+        }),
+        RunResult::Response(Response {
+            body: "Hello world".into(),
+            headers: None,
+            status: 200,
+        })
+    );
+}
+
+#[test]
+fn get_input() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::default(
+        "export function handler(request) {
+return new Response(request.url);
+}"
+        .into(),
+    ));
+
+    assert_eq!(
+        isolate.run(Request {
+            body: "".into(),
+            headers: HashMap::new(),
+            method: Method::GET,
+            url: "https://hello.world".into(),
+        }),
+        RunResult::Response(Response {
+            body: "https://hello.world".into(),
+            headers: None,
+            status: 200,
+        })
+    );
+}
+
+#[test]
+fn get_method() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::default(
+        "export function handler(request) {
+return new Response(request.method);
+}"
+        .into(),
+    ));
+
+    assert_eq!(
+        isolate.run(Request {
+            body: "".into(),
+            headers: HashMap::new(),
+            method: Method::POST,
+            url: "".into(),
+        }),
+        RunResult::Response(Response {
+            body: "POST".into(),
+            headers: None,
+            status: 200,
+        })
+    );
+}
+
+#[test]
+fn get_headers() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::default(
+        "export function handler(request) {
+return new Response(request.headers.get('x-auth'));
+}"
+        .into(),
+    ));
+
+    let mut headers = HashMap::new();
+    headers.insert("x-auth".into(), "token".into());
+
+    assert_eq!(
+        isolate.run(Request {
+            body: "".into(),
+            headers,
+            method: Method::POST,
+            url: "".into(),
+        }),
+        RunResult::Response(Response {
+            body: "token".into(),
+            headers: None,
+            status: 200,
+        })
+    );
+}
+
+#[test]
 fn return_headers() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::default(

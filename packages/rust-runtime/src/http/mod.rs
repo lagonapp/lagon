@@ -42,7 +42,7 @@ impl Request {
 
         let input_key = v8::String::new(scope, "input").unwrap();
         let input_key = v8::Local::new(scope, input_key);
-        let input_value = v8::String::new(scope, "TODO").unwrap();
+        let input_value = v8::String::new(scope, &self.url).unwrap();
         let input_value = v8::Local::new(scope, input_value);
         request
             .set(scope, input_key.into(), input_value.into())
