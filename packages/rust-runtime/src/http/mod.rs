@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::time::Duration;
 
-use crate::utils::{extract_v8_string, v8_string, Result};
+use crate::utils::{extract_v8_string, v8_string};
 
 #[derive(Debug, Copy, Clone)]
 pub enum Method {
@@ -33,6 +33,7 @@ pub struct Request {
     pub headers: HashMap<String, String>,
     pub method: Method,
     pub body: String,
+    pub url: String,
 }
 
 impl Request {

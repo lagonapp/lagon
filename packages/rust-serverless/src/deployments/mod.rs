@@ -1,5 +1,7 @@
 use std::{env, fs, io, path::Path};
 
+pub mod assets;
+
 pub struct Deployment {
     pub id: String,
     pub domains: Vec<String>,

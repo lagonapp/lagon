@@ -7,8 +7,9 @@ use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
-use std::time::Instant;
+use std::time::{Instant, Duration};
 
+use crate::deployments::assets::handle_asset;
 use crate::deployments::{get_deployment_code, Deployment};
 use crate::http::response_to_hyper_response;
 
@@ -96,6 +97,14 @@ async fn main() {
 
             match deployments.get(&hostname) {
                 Some(deployment) => {
+                    if let Some(asset) = deployment.assets.iter().find(|asset| *asset == &request.url) {
+                        let response= handle_asset(deployment, asset);
+                        let response = RunResult::Response(response, Duration::from_millis(0));
+
+                        response_tx.send_async(response).await.unwrap();
+                        return;
+                    }
+
                     let isolate = isolates.entry(hostname).or_insert_with(|| {
                         // TODO: handle read error
                         let code = get_deployment_code(deployment).unwrap();

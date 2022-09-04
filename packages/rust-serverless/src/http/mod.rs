@@ -24,6 +24,8 @@ pub async fn hyper_request_to_request(request: HyperRequest<Body>) -> Request {
         _ => Method::GET,
     };
 
+    let url = request.uri().to_string();
+
     let body = body::to_bytes(request.into_body()).await.unwrap();
     let body = String::from_utf8(body.to_vec()).unwrap();
 
@@ -31,6 +33,7 @@ pub async fn hyper_request_to_request(request: HyperRequest<Body>) -> Request {
         headers,
         method,
         body,
+        url,
     }
 }
 
