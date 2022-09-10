@@ -67,7 +67,7 @@ const PlaygroundPage = () => {
           <div className="w-[50vw] flex justify-between px-2 items-center h-full">
             <Text>
               {t('title', {
-                functionName: func?.name as string,
+                functionName: func?.name || '',
               })}
             </Text>
             <div className="flex items-center gap-2">
