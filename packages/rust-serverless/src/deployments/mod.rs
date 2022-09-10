@@ -39,6 +39,8 @@ pub async fn get_deployments(mut conn: PooledConn, bucket: Bucket) -> Arc<RwLock
 
     println!("Deployments: {:?}", deployments_list);
 
+    // TODO: delete old deployments
+
     {
         let mut deployments = deployments.write().await;
 
@@ -65,12 +67,19 @@ fn has_deployment_code(deployment: &Deployment) -> bool {
 }
 
 async fn download_deployment(deployment: &Deployment, bucket: &Bucket) {
-    let index = bucket.get_object(deployment.id.clone() + ".js").await.unwrap();
+    let content = bucket.get_object(deployment.id.clone() + ".js").await.unwrap();
 
     let mut file = fs::File::create(Path::new("deployments").join(deployment.id.clone() + ".js")).unwrap();
-    file.write_all(index.bytes()).unwrap();
+    file.write_all(content.bytes()).unwrap();
 
-    // TODO: download assets
+    if deployment.assets.len() > 0 {
+        for asset in &deployment.assets {
+            let content = bucket.get_object(deployment.id.clone() + "/" + asset.as_str()).await.unwrap();
+
+            let mut file = fs::File::create(Path::new("deployments").join(deployment.id.clone() + "/" + asset.as_str())).unwrap();
+            file.write_all(content.bytes()).unwrap();
+        }
+    }
 }
 
 pub fn get_deployment_code(deployment: &Deployment) -> io::Result<String> {
