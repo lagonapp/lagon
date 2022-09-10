@@ -39,7 +39,7 @@ pub async fn get_deployments(mut conn: PooledConn, bucket: Bucket) -> Arc<RwLock
 
     println!("Deployments: {:?}", deployments_list);
 
-    // TODO: delete old deployments
+    delete_old_deployments(&deployments_list).await;
 
     {
         let mut deployments = deployments.write().await;
@@ -58,6 +58,28 @@ pub async fn get_deployments(mut conn: PooledConn, bucket: Bucket) -> Arc<RwLock
     }
 
     deployments
+}
+
+async fn delete_old_deployments(deployments: &Vec<Deployment>) {
+    let local_deployments_files = fs::read_dir(Path::new("deployments")).unwrap();
+
+    for local_deployment_file in local_deployments_files {
+        let local_deployment_file = local_deployment_file.unwrap();
+        let local_deployment_file_name = local_deployment_file.file_name().into_string().unwrap();
+
+        // Skip folders
+        if !local_deployment_file_name.ends_with(".js") {
+            continue;
+        }
+
+        let local_deployment_id = local_deployment_file_name.replace(".js", "");
+
+        if !deployments.iter().any(|deployment| deployment.id == local_deployment_id) {
+            fs::remove_file(Path::new("deployments").join(local_deployment_file_name)).unwrap();
+            // Don't unwrap because it's possible that folder doesn't exists
+            fs::remove_dir(Path::new("deployments").join(local_deployment_id));
+        }
+    }
 }
 
 fn has_deployment_code(deployment: &Deployment) -> bool {
