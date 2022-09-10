@@ -51,7 +51,9 @@ pub async fn get_deployments(
 
     println!("Deployments: {:?}", deployments_list);
 
-    delete_old_deployments(&deployments_list).await;
+    if let Err(error) = delete_old_deployments(&deployments_list).await {
+        println!("Failed to delete old deployments: {:?}", error);
+    }
 
     {
         let mut deployments = deployments.write().await;
@@ -61,7 +63,9 @@ pub async fn get_deployments(
                 let deployment = deployment.clone();
 
                 if !has_deployment_code(&deployment) {
-                    download_deployment(&deployment, &bucket).await;
+                    if let Err(error) = download_deployment(&deployment, &bucket).await {
+                        println!("Failed to download deployment: {:?}", error);
+                    }
                 }
 
                 deployments.insert(domain, deployment);
@@ -72,12 +76,15 @@ pub async fn get_deployments(
     deployments
 }
 
-async fn delete_old_deployments(deployments: &Vec<Deployment>) {
-    let local_deployments_files = fs::read_dir(Path::new("deployments")).unwrap();
+async fn delete_old_deployments(deployments: &Vec<Deployment>) -> io::Result<()> {
+    let local_deployments_files = fs::read_dir(Path::new("deployments"))?;
 
     for local_deployment_file in local_deployments_files {
         let local_deployment_file = local_deployment_file.unwrap();
-        let local_deployment_file_name = local_deployment_file.file_name().into_string().unwrap();
+        let local_deployment_file_name = local_deployment_file
+            .file_name()
+            .into_string()
+            .unwrap_or("".into());
 
         // Skip folders
         if !local_deployment_file_name.ends_with(".js") {
@@ -90,11 +97,13 @@ async fn delete_old_deployments(deployments: &Vec<Deployment>) {
             .iter()
             .any(|deployment| deployment.id == local_deployment_id)
         {
-            fs::remove_file(Path::new("deployments").join(local_deployment_file_name)).unwrap();
-            // Don't unwrap because it's possible that folder doesn't exists
-            fs::remove_dir(Path::new("deployments").join(local_deployment_id));
+            fs::remove_file(Path::new("deployments").join(local_deployment_file_name))?;
+            // It's possible that folder doesn't exists
+            fs::remove_dir(Path::new("deployments").join(local_deployment_id)).unwrap_or(());
         }
     }
+
+    Ok(())
 }
 
 fn has_deployment_code(deployment: &Deployment) -> bool {
@@ -103,29 +112,34 @@ fn has_deployment_code(deployment: &Deployment) -> bool {
     path.exists()
 }
 
-async fn download_deployment(deployment: &Deployment, bucket: &Bucket) {
-    let content = bucket
-        .get_object(deployment.id.clone() + ".js")
-        .await
-        .unwrap();
+async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io::Result<()> {
+    match bucket.get_object(deployment.id.clone() + ".js").await {
+        Ok(object) => {
+            let mut file =
+                fs::File::create(Path::new("deployments").join(deployment.id.clone() + ".js"))?;
+            file.write_all(object.bytes())?;
 
-    let mut file =
-        fs::File::create(Path::new("deployments").join(deployment.id.clone() + ".js")).unwrap();
-    file.write_all(content.bytes()).unwrap();
+            if deployment.assets.len() > 0 {
+                for asset in &deployment.assets {
+                    let object = bucket
+                        .get_object(deployment.id.clone() + "/" + asset.as_str())
+                        .await;
 
-    if deployment.assets.len() > 0 {
-        for asset in &deployment.assets {
-            let content = bucket
-                .get_object(deployment.id.clone() + "/" + asset.as_str())
-                .await
-                .unwrap();
+                    if let Err(error) = object {
+                        return Err(io::Error::new(io::ErrorKind::Other, error));
+                    }
 
-            let mut file = fs::File::create(
-                Path::new("deployments").join(deployment.id.clone() + "/" + asset.as_str()),
-            )
-            .unwrap();
-            file.write_all(content.bytes()).unwrap();
+                    let object = object.unwrap();
+                    let mut file = fs::File::create(
+                        Path::new("deployments").join(deployment.id.clone() + "/" + asset.as_str()),
+                    )?;
+                    file.write_all(object.bytes())?;
+                }
+            }
+
+            Ok(())
         }
+        Err(error) => Err(io::Error::new(io::ErrorKind::Other, error)),
     }
 }
 
