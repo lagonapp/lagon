@@ -17,6 +17,7 @@ pub struct Deployment {
     pub id: String,
     pub domains: Vec<String>,
     pub assets: Vec<String>,
+    pub environment_variables: HashMap<String, String>,
 }
 
 pub async fn get_deployments(
@@ -45,6 +46,7 @@ pub async fn get_deployments(
                 id,
                 domains: domain.map(|d| vec![d]).unwrap_or(vec![]),
                 assets: asset.map(|a| vec![a]).unwrap_or(vec![]),
+                environment_variables: HashMap::new(),
             },
         )
         .unwrap();

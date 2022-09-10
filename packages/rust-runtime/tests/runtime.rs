@@ -20,7 +20,7 @@ fn setup() {
 #[test]
 fn execute_function() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::default(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
 return new Response('Hello world');
 }"
@@ -43,9 +43,41 @@ return new Response('Hello world');
 }
 
 #[test]
+fn environment_variables() {
+    setup();
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
+return new Response(process.env.TEST);
+}"
+            .into(),
+        )
+        .with_environment_variables(
+            vec![("TEST".into(), "Hello world".into())]
+                .into_iter()
+                .collect(),
+        ),
+    );
+
+    assert_eq!(
+        isolate.run(Request {
+            body: "".into(),
+            headers: HashMap::new(),
+            method: Method::GET,
+            url: "".into(),
+        }),
+        RunResult::Response(Response {
+            body: "Hello world".into(),
+            headers: None,
+            status: 200,
+        })
+    );
+}
+
+#[test]
 fn get_body() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::default(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
 return new Response(request.body);
 }"
@@ -70,7 +102,7 @@ return new Response(request.body);
 #[test]
 fn get_input() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::default(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
 return new Response(request.url);
 }"
@@ -95,7 +127,7 @@ return new Response(request.url);
 #[test]
 fn get_method() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::default(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
 return new Response(request.method);
 }"
@@ -120,7 +152,7 @@ return new Response(request.method);
 #[test]
 fn get_headers() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::default(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
 return new Response(request.headers.get('x-auth'));
 }"
@@ -148,7 +180,7 @@ return new Response(request.headers.get('x-auth'));
 #[test]
 fn return_headers() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::default(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
 return new Response('Hello world', {
     headers: {
@@ -182,7 +214,7 @@ return new Response('Hello world', {
 #[test]
 fn return_headers_from_headers_api() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::default(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
 return new Response('Hello world', {
     headers: new Headers({
@@ -216,7 +248,7 @@ return new Response('Hello world', {
 #[test]
 fn return_status() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::default(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
 return new Response('Moved permanently', {
     status: 302,

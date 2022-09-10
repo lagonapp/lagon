@@ -41,6 +41,12 @@ pub fn listen_pub_sub(
                     .iter()
                     .map(|v| v.as_str().unwrap().to_string())
                     .collect(),
+                environment_variables: value["env"]
+                    .as_object()
+                    .unwrap()
+                    .iter()
+                    .map(|(k, v)| (k.to_owned(), v.as_str().unwrap().to_string()))
+                    .collect::<HashMap<_, _>>(),
             };
 
             match channel {
@@ -62,7 +68,6 @@ pub fn listen_pub_sub(
                     match rm_deployment(deployment.id) {
                         Ok(_) => {
                             let mut deployments = deployments.write().await;
-
 
                             for domain in deployment.domains.clone() {
                                 deployments.remove(&domain);

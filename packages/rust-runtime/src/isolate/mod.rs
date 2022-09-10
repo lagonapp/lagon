@@ -1,5 +1,6 @@
 use std::{
     cell::RefCell,
+    collections::HashMap,
     rc::Rc,
     sync::{atomic::AtomicUsize, Arc},
 };
@@ -26,19 +27,39 @@ struct IsolateState {
 
 pub struct IsolateOptions {
     pub code: String,
+    pub environment_variables: Option<HashMap<String, String>>,
     pub timeout: u64,
     pub memory_limit: usize,
     // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
 }
 
 impl IsolateOptions {
-    pub fn default(code: String) -> Self {
+    pub fn new(code: String) -> Self {
         Self {
             code,
+            environment_variables: None,
             timeout: 50, // 50ms
             memory_limit: 128, // 128MB
                          // snapshot_blob: None,
         }
+    }
+
+    pub fn with_environment_variables(
+        mut self,
+        environment_variables: HashMap<String, String>,
+    ) -> Self {
+        self.environment_variables = Some(environment_variables);
+        self
+    }
+
+    pub fn with_timeout(mut self, timeout: u64) -> Self {
+        self.timeout = timeout;
+        self
+    }
+
+    pub fn with_memory_limit(mut self, memory_limit: usize) -> Self {
+        self.memory_limit = memory_limit;
+        self
     }
 }
 
@@ -109,11 +130,27 @@ impl Isolate {
 
         if self.handler.is_none() && self.compilation_error.is_none() {
             let code = &self.options.code;
+            let environment_variables = match &self.options.environment_variables {
+                Some(environment_variables) => environment_variables
+                    .iter()
+                    .map(|(k, v)| format!("globalThis.process.env.{} = '{}'", k, v))
+                    .collect::<Vec<String>>()
+                    .join("\n"),
+                None => "".to_string(),
+            };
+
             let code = v8::String::new(
                 try_catch,
                 &format!(
                     r#"
 {JS_RUNTIME}
+(() => {{
+    globalThis.process = {{
+        env: {{}},
+    }}
+
+    {environment_variables}
+}})()
 
 {code}
 

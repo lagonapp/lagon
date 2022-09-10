@@ -132,8 +132,11 @@ async fn main() {
                             let isolate = isolates.entry(hostname).or_insert_with(|| {
                                 // TODO: handle read error
                                 let code = get_deployment_code(deployment).unwrap();
+                                let options = IsolateOptions::new(code).with_environment_variables(
+                                    deployment.environment_variables.clone(),
+                                );
 
-                                Isolate::new(IsolateOptions::default(code))
+                                Isolate::new(options)
                             });
 
                             let result = isolate.run(request);
