@@ -4,20 +4,17 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::RunResult;
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
-use mysql::prelude::Queryable;
 use mysql::Pool;
 use s3::creds::Credentials;
 use s3::Bucket;
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::env;
 use std::net::SocketAddr;
-use std::sync::Arc;
 use std::time::Instant;
-use tokio::sync::RwLock;
 
 use crate::deployments::assets::handle_asset;
-use crate::deployments::{get_deployment_code, get_deployments, Deployment};
+use crate::deployments::filesystem::get_deployment_code;
+use crate::deployments::get_deployments;
 use crate::http::response_to_hyper_response;
 
 mod deployments;

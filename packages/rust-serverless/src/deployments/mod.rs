@@ -1,16 +1,15 @@
-use std::{
-    collections::HashMap,
-    env, fs,
-    io::{self, Write},
-    path::Path,
-    sync::Arc,
-};
+use std::{collections::HashMap, fs, io, path::Path, sync::Arc};
 
 use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
 use tokio::sync::RwLock;
 
+use crate::deployments::filesystem::has_deployment_code;
+
+use self::filesystem::{rm_deployment, write_deployment, write_deployment_asset};
+
 pub mod assets;
+pub mod filesystem;
 
 #[derive(Debug, Clone)]
 pub struct Deployment {
@@ -97,27 +96,17 @@ async fn delete_old_deployments(deployments: &Vec<Deployment>) -> io::Result<()>
             .iter()
             .any(|deployment| deployment.id == local_deployment_id)
         {
-            fs::remove_file(Path::new("deployments").join(local_deployment_file_name))?;
-            // It's possible that folder doesn't exists
-            fs::remove_dir(Path::new("deployments").join(local_deployment_id)).unwrap_or(());
+            rm_deployment(local_deployment_id)?;
         }
     }
 
     Ok(())
 }
 
-fn has_deployment_code(deployment: &Deployment) -> bool {
-    let path = Path::new("deployments").join(deployment.id.clone() + ".js");
-
-    path.exists()
-}
-
 async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io::Result<()> {
     match bucket.get_object(deployment.id.clone() + ".js").await {
         Ok(object) => {
-            let mut file =
-                fs::File::create(Path::new("deployments").join(deployment.id.clone() + ".js"))?;
-            file.write_all(object.bytes())?;
+            write_deployment(deployment.id.clone(), object.bytes())?;
 
             if deployment.assets.len() > 0 {
                 for asset in &deployment.assets {
@@ -130,10 +119,7 @@ async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io::Re
                     }
 
                     let object = object.unwrap();
-                    let mut file = fs::File::create(
-                        Path::new("deployments").join(deployment.id.clone() + "/" + asset.as_str()),
-                    )?;
-                    file.write_all(object.bytes())?;
+                    write_deployment_asset(deployment.id.clone(), asset, object.bytes())?;
                 }
             }
 
@@ -141,13 +127,4 @@ async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io::Re
         }
         Err(error) => Err(io::Error::new(io::ErrorKind::Other, error)),
     }
-}
-
-pub fn get_deployment_code(deployment: &Deployment) -> io::Result<String> {
-    let path = Path::new(env::current_dir().unwrap().as_path())
-        .join("deployments")
-        .join(deployment.id.clone() + ".js");
-    let code = fs::read_to_string(path)?;
-
-    Ok(code)
 }
