@@ -10,6 +10,7 @@ use self::filesystem::{rm_deployment, write_deployment, write_deployment_asset};
 
 pub mod assets;
 pub mod filesystem;
+pub mod pubsub;
 
 #[derive(Debug, Clone)]
 pub struct Deployment {
@@ -58,16 +59,14 @@ pub async fn get_deployments(
         let mut deployments = deployments.write().await;
 
         for deployment in deployments_list {
-            for domain in deployment.domains.clone() {
-                let deployment = deployment.clone();
-
-                if !has_deployment_code(&deployment) {
-                    if let Err(error) = download_deployment(&deployment, &bucket).await {
-                        println!("Failed to download deployment: {:?}", error);
-                    }
+            if !has_deployment_code(&deployment) {
+                if let Err(error) = download_deployment(&deployment, &bucket).await {
+                    println!("Failed to download deployment: {:?}", error);
                 }
+            }
 
-                deployments.insert(domain, deployment);
+            for domain in deployment.domains.clone() {
+                deployments.insert(domain, deployment.clone());
             }
         }
     }
@@ -103,7 +102,7 @@ async fn delete_old_deployments(deployments: &Vec<Deployment>) -> io::Result<()>
     Ok(())
 }
 
-async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io::Result<()> {
+pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io::Result<()> {
     match bucket.get_object(deployment.id.clone() + ".js").await {
         Ok(object) => {
             write_deployment(deployment.id.clone(), object.bytes())?;

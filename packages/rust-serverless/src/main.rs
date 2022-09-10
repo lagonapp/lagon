@@ -11,10 +11,12 @@ use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::time::Instant;
+use tokio::task::LocalSet;
 
 use crate::deployments::assets::handle_asset;
 use crate::deployments::filesystem::get_deployment_code;
 use crate::deployments::get_deployments;
+use crate::deployments::pubsub::listen_pub_sub;
 use crate::http::response_to_hyper_response;
 
 mod deployments;
@@ -60,7 +62,7 @@ async fn handle_request(
     }
 }
 
-#[tokio::main(flavor = "current_thread")]
+#[tokio::main]
 async fn main() {
     dotenv::dotenv().ok();
     let runtime = Runtime::new(RuntimeOptions::default());
@@ -95,53 +97,60 @@ async fn main() {
         None,
     )
     .unwrap();
+
     let bucket = Bucket::new(&bucket_name, region, credentials).unwrap();
 
-    let deployments = get_deployments(conn, bucket).await;
+    let deployments = get_deployments(conn, bucket.clone()).await;
+    let redis = listen_pub_sub(bucket.clone(), deployments.clone());
 
-    let request_handler = tokio::spawn(async move {
-        let deployments = deployments.clone();
-        let deployments = deployments.read().await;
-        let mut isolates = HashMap::new();
+    let local_set = LocalSet::new();
 
-        loop {
-            let request = request_rx.recv_async().await.unwrap();
-            let request = hyper_request_to_request(request).await;
+    let request_handler = local_set.run_until(async move {
+        tokio::task::spawn_local(async move {
+            let deployments = deployments.clone();
+            let mut isolates = HashMap::new();
 
-            let hostname = request.headers.get("host").unwrap().clone();
+            loop {
+                let request = request_rx.recv_async().await.unwrap();
+                let request = hyper_request_to_request(request).await;
 
-            match deployments.get(&hostname) {
-                Some(deployment) => {
-                    let url = &mut request.url.clone();
-                    url.remove(0);
+                let hostname = request.headers.get("host").unwrap().clone();
+                let deployments = deployments.read().await;
 
-                    if let Some(asset) = deployment.assets.iter().find(|asset| *asset == url) {
-                        // TODO: handle read error
-                        let response = handle_asset(deployment, asset).unwrap();
-                        let response = RunResult::Response(response);
+                match deployments.get(&hostname) {
+                    Some(deployment) => {
+                        let url = &mut request.url.clone();
+                        url.remove(0);
 
-                        response_tx.send_async(response).await.unwrap();
-                    } else {
-                        let isolate = isolates.entry(hostname).or_insert_with(|| {
+                        if let Some(asset) = deployment.assets.iter().find(|asset| *asset == url) {
                             // TODO: handle read error
-                            let code = get_deployment_code(deployment).unwrap();
+                            let response = handle_asset(deployment, asset).unwrap();
+                            let response = RunResult::Response(response);
 
-                            Isolate::new(IsolateOptions::default(code))
-                        });
+                            response_tx.send_async(response).await.unwrap();
+                        } else {
+                            let isolate = isolates.entry(hostname).or_insert_with(|| {
+                                // TODO: handle read error
+                                let code = get_deployment_code(deployment).unwrap();
 
-                        let result = isolate.run(request);
+                                Isolate::new(IsolateOptions::default(code))
+                            });
 
-                        response_tx.send_async(result).await.unwrap();
+                            let result = isolate.run(request);
+
+                            response_tx.send_async(result).await.unwrap();
+                        }
                     }
-                }
-                None => {
-                    response_tx.send_async(RunResult::NotFound()).await.unwrap();
-                }
-            };
-        }
+                    None => {
+                        response_tx.send_async(RunResult::NotFound()).await.unwrap();
+                    }
+                };
+            }
+        })
+        .await
     });
 
-    tokio::join!(server, request_handler);
+    tokio::join!(server, redis, request_handler);
 
     // if let Err(e) =  {
     //     eprintln!("server error: {}", e);
