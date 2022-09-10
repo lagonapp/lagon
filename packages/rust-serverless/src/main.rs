@@ -4,13 +4,20 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::RunResult;
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
+use mysql::Pool;
+use mysql::prelude::Queryable;
+use s3::Bucket;
+use s3::creds::Credentials;
+use tokio::sync::RwLock;
 use std::collections::HashMap;
 use std::convert::Infallible;
+use std::env;
 use std::net::SocketAddr;
+use std::sync::Arc;
 use std::time::Instant;
 
 use crate::deployments::assets::handle_asset;
-use crate::deployments::{get_deployment_code, Deployment};
+use crate::deployments::{get_deployment_code, Deployment, get_deployments};
 use crate::http::response_to_hyper_response;
 
 mod deployments;
@@ -58,8 +65,9 @@ async fn handle_request(
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
+    dotenv::dotenv().ok();
     let runtime = Runtime::new(RuntimeOptions::default());
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr = SocketAddr::from(([127, 0, 0, 1], 4000));
 
     let (request_tx, request_rx) = flume::unbounded::<HyperRequest<Body>>();
     let (response_tx, response_rx) = flume::unbounded::<RunResult>();
@@ -75,18 +83,26 @@ async fn main() {
         }
     }));
 
-    let wait = tokio::spawn(async move {
-        let mut deployments = HashMap::new();
 
-        deployments.insert(
-            "localhost:3000".to_string(),
-            Deployment {
-                id: "localhost".to_string(),
-                domains: vec!["localhost".to_string()],
-                assets: vec!["index.css".into()],
-            },
-        );
+    let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let url = url.as_str();
+    let pool = Pool::new(url).unwrap();
+    let conn = pool.get_conn().unwrap();
 
+    let bucket_name = dotenv::var("S3_BUCKET").expect("S3_BUCKET must be set");
+    let region = "eu-west-3".parse().unwrap();
+    let credentials = Credentials::new(
+        Some(&dotenv::var("S3_ACCESS_KEY_ID").expect("S3_ACCESS_KEY_ID must be set")),
+        Some(&dotenv::var("S3_SECRET_ACCESS_KEY").expect("S3_SECRET_ACCESS_KEY must be set")),
+        None, None, None
+    ).unwrap();
+    let bucket = Bucket::new(&bucket_name, region, credentials).unwrap();
+
+    let deployments = get_deployments(conn, bucket).await;
+
+    let request_handler = tokio::spawn(async move {
+        let deployments = deployments.clone();
+        let deployments = deployments.read().await;
         let mut isolates = HashMap::new();
 
         loop {
@@ -126,7 +142,7 @@ async fn main() {
         }
     });
 
-    tokio::join!(server, wait);
+    tokio::join!(server, request_handler);
 
     // if let Err(e) =  {
     //     eprintln!("server error: {}", e);

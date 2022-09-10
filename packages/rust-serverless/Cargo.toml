@@ -8,3 +8,6 @@ hyper = { version = "0.14", features = ["server", "http1", "http2", "runtime"] }
 tokio = { version = "1", features = ["rt", "macros"] }
 lagon-runtime = { path = "../rust-runtime" }
 flume = "0.10.14"
+mysql = "22.2.0"
+dotenv = "0.15.0"
+rust-s3 = "0.32"
