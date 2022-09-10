@@ -4,20 +4,20 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::RunResult;
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
-use mysql::Pool;
 use mysql::prelude::Queryable;
-use s3::Bucket;
+use mysql::Pool;
 use s3::creds::Credentials;
-use tokio::sync::RwLock;
+use s3::Bucket;
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::env;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Instant;
+use tokio::sync::RwLock;
 
 use crate::deployments::assets::handle_asset;
-use crate::deployments::{get_deployment_code, Deployment, get_deployments};
+use crate::deployments::{get_deployment_code, get_deployments, Deployment};
 use crate::http::response_to_hyper_response;
 
 mod deployments;
@@ -83,7 +83,6 @@ async fn main() {
         }
     }));
 
-
     let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let pool = Pool::new(url).unwrap();
@@ -94,8 +93,11 @@ async fn main() {
     let credentials = Credentials::new(
         Some(&dotenv::var("S3_ACCESS_KEY_ID").expect("S3_ACCESS_KEY_ID must be set")),
         Some(&dotenv::var("S3_SECRET_ACCESS_KEY").expect("S3_SECRET_ACCESS_KEY must be set")),
-        None, None, None
-    ).unwrap();
+        None,
+        None,
+        None,
+    )
+    .unwrap();
     let bucket = Bucket::new(&bucket_name, region, credentials).unwrap();
 
     let deployments = get_deployments(conn, bucket).await;

@@ -1,6 +1,12 @@
-use std::{env, fs, io::{self, Write}, path::Path, sync::Arc, collections::HashMap};
+use std::{
+    collections::HashMap,
+    env, fs,
+    io::{self, Write},
+    path::Path,
+    sync::Arc,
+};
 
-use mysql::{PooledConn, prelude::Queryable};
+use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
 use tokio::sync::RwLock;
 
@@ -13,10 +19,15 @@ pub struct Deployment {
     pub assets: Vec<String>,
 }
 
-pub async fn get_deployments(mut conn: PooledConn, bucket: Bucket) -> Arc<RwLock<HashMap<String, Deployment>>> {
+pub async fn get_deployments(
+    mut conn: PooledConn,
+    bucket: Bucket,
+) -> Arc<RwLock<HashMap<String, Deployment>>> {
     let deployments = Arc::new(RwLock::new(HashMap::new()));
 
-    let deployments_list = conn.query_map(r"
+    let deployments_list = conn
+        .query_map(
+            r"
         SELECT
             Deployment.id,
             Domain.domain,
@@ -29,13 +40,14 @@ pub async fn get_deployments(mut conn: PooledConn, bucket: Bucket) -> Arc<RwLock
             ON Function.id = Domain.functionId
         LEFT JOIN Asset
             ON Deployment.id = Asset.deploymentId
-    ", |(id, domain, asset): (String, Option<String>, Option<String>)| {
-        Deployment {
-            id,
-            domains: domain.map(|d| vec![d]).unwrap_or(vec![]),
-            assets: asset.map(|a| vec![a]).unwrap_or(vec![]),
-        }
-    }).unwrap();
+    ",
+            |(id, domain, asset): (String, Option<String>, Option<String>)| Deployment {
+                id,
+                domains: domain.map(|d| vec![d]).unwrap_or(vec![]),
+                assets: asset.map(|a| vec![a]).unwrap_or(vec![]),
+            },
+        )
+        .unwrap();
 
     println!("Deployments: {:?}", deployments_list);
 
@@ -74,7 +86,10 @@ async fn delete_old_deployments(deployments: &Vec<Deployment>) {
 
         let local_deployment_id = local_deployment_file_name.replace(".js", "");
 
-        if !deployments.iter().any(|deployment| deployment.id == local_deployment_id) {
+        if !deployments
+            .iter()
+            .any(|deployment| deployment.id == local_deployment_id)
+        {
             fs::remove_file(Path::new("deployments").join(local_deployment_file_name)).unwrap();
             // Don't unwrap because it's possible that folder doesn't exists
             fs::remove_dir(Path::new("deployments").join(local_deployment_id));
@@ -89,16 +104,26 @@ fn has_deployment_code(deployment: &Deployment) -> bool {
 }
 
 async fn download_deployment(deployment: &Deployment, bucket: &Bucket) {
-    let content = bucket.get_object(deployment.id.clone() + ".js").await.unwrap();
+    let content = bucket
+        .get_object(deployment.id.clone() + ".js")
+        .await
+        .unwrap();
 
-    let mut file = fs::File::create(Path::new("deployments").join(deployment.id.clone() + ".js")).unwrap();
+    let mut file =
+        fs::File::create(Path::new("deployments").join(deployment.id.clone() + ".js")).unwrap();
     file.write_all(content.bytes()).unwrap();
 
     if deployment.assets.len() > 0 {
         for asset in &deployment.assets {
-            let content = bucket.get_object(deployment.id.clone() + "/" + asset.as_str()).await.unwrap();
+            let content = bucket
+                .get_object(deployment.id.clone() + "/" + asset.as_str())
+                .await
+                .unwrap();
 
-            let mut file = fs::File::create(Path::new("deployments").join(deployment.id.clone() + "/" + asset.as_str())).unwrap();
+            let mut file = fs::File::create(
+                Path::new("deployments").join(deployment.id.clone() + "/" + asset.as_str()),
+            )
+            .unwrap();
             file.write_all(content.bytes()).unwrap();
         }
     }
