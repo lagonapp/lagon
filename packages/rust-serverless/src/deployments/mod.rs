@@ -18,6 +18,8 @@ pub struct Deployment {
     pub domains: Vec<String>,
     pub assets: Vec<String>,
     pub environment_variables: HashMap<String, String>,
+    pub memory: usize,  // in MB (MegaBytes)
+    pub timeout: usize, // in ms (MilliSeconds)
 }
 
 pub async fn get_deployments(
@@ -31,6 +33,8 @@ pub async fn get_deployments(
             r"
         SELECT
             Deployment.id,
+            Function.memory,
+            Function.timeout,
             Domain.domain,
             Asset.name
         FROM
@@ -42,11 +46,19 @@ pub async fn get_deployments(
         LEFT JOIN Asset
             ON Deployment.id = Asset.deploymentId
     ",
-            |(id, domain, asset): (String, Option<String>, Option<String>)| Deployment {
+            |(id, memory, timeout, domain, asset): (
+                String,
+                usize,
+                usize,
+                Option<String>,
+                Option<String>,
+            )| Deployment {
                 id,
                 domains: domain.map(|d| vec![d]).unwrap_or(vec![]),
                 assets: asset.map(|a| vec![a]).unwrap_or(vec![]),
                 environment_variables: HashMap::new(),
+                memory,
+                timeout,
             },
         )
         .unwrap();

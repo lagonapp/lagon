@@ -47,6 +47,8 @@ pub fn listen_pub_sub(
                     .iter()
                     .map(|(k, v)| (k.to_owned(), v.as_str().unwrap().to_string()))
                     .collect::<HashMap<_, _>>(),
+                memory: value["memory"].as_u64().unwrap() as usize,
+                timeout: value["timeout"].as_u64().unwrap() as usize,
             };
 
             match channel {

@@ -28,9 +28,9 @@ struct IsolateState {
 pub struct IsolateOptions {
     pub code: String,
     pub environment_variables: Option<HashMap<String, String>>,
-    pub timeout: u64,
-    pub memory_limit: usize,
-    // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
+    pub memory: usize, // in MB (MegaBytes)
+    pub timeout: usize, // in ms (MilliSeconds)
+                       // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
 }
 
 impl IsolateOptions {
@@ -38,9 +38,9 @@ impl IsolateOptions {
         Self {
             code,
             environment_variables: None,
-            timeout: 50, // 50ms
-            memory_limit: 128, // 128MB
-                         // snapshot_blob: None,
+            timeout: 50,
+            memory: 128,
+            // snapshot_blob: None,
         }
     }
 
@@ -52,13 +52,13 @@ impl IsolateOptions {
         self
     }
 
-    pub fn with_timeout(mut self, timeout: u64) -> Self {
+    pub fn with_timeout(mut self, timeout: usize) -> Self {
         self.timeout = timeout;
         self
     }
 
-    pub fn with_memory_limit(mut self, memory_limit: usize) -> Self {
-        self.memory_limit = memory_limit;
+    pub fn with_memory(mut self, memory: usize) -> Self {
+        self.memory = memory;
         self
     }
 }
@@ -74,8 +74,8 @@ unsafe impl Send for Isolate {}
 
 impl Isolate {
     pub fn new(options: IsolateOptions) -> Self {
-        let memory_mb = options.memory_limit * 1024 * 1024;
-        let count = Arc::new(AtomicUsize::new(options.memory_limit));
+        let memory_mb = options.memory * 1024 * 1024;
+        let count = Arc::new(AtomicUsize::new(options.memory));
         let array_buffer_allocator = allocator::create_allocator(count.clone());
 
         let params = v8::CreateParams::default()
