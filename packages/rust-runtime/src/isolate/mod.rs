@@ -2,10 +2,10 @@ use std::{
     cell::RefCell,
     collections::HashMap,
     rc::Rc,
-    sync::{atomic::AtomicUsize, Arc},
+    sync::{atomic::{AtomicUsize, AtomicBool, Ordering}, Arc}, time::Duration,
 };
 
-use tokio::task::JoinHandle;
+use tokio::{task::JoinHandle, spawn};
 
 use crate::{
     http::{Request, Response, RunResult},
@@ -123,7 +123,9 @@ impl Isolate {
         state.global.clone()
     }
 
-    pub fn run(&mut self, request: Request) -> RunResult {
+    pub async fn run(&mut self, request: Request) -> RunResult {
+        let thread_safe_handle = self.isolate.thread_safe_handle();
+
         let state = self.global_realm();
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, state.0.clone());
         let try_catch = &mut v8::TryCatch::new(scope);
@@ -226,6 +228,19 @@ export async function masterHandler(request) {{
         let global = state.0.open(try_catch);
         let global = global.global(try_catch);
 
+        let terminated = Arc::new(AtomicBool::new(false));
+        let terminated_handle = terminated.clone();
+
+        spawn(async move {
+            tokio::time::sleep(Duration::from_millis(50)).await;
+
+            terminated_handle.store(true, Ordering::SeqCst);
+
+            if !thread_safe_handle.is_execution_terminating() {
+                thread_safe_handle.terminate_execution();
+            }
+        });
+
         match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(mut response) => {
                 if response.is_promise() {
@@ -249,7 +264,12 @@ export async function masterHandler(request) {{
                     None => extract_error(try_catch),
                 }
             }
-            None => extract_error(try_catch),
+            None => {
+                match terminated.load(Ordering::SeqCst) {
+                    true => RunResult::Timeout(),
+                    false => extract_error(try_catch),
+                }
+            }
         }
     }
 }
