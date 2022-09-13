@@ -2,10 +2,14 @@ use std::{
     cell::RefCell,
     collections::HashMap,
     rc::Rc,
-    sync::{atomic::{AtomicUsize, AtomicBool, Ordering}, Arc}, time::Duration,
+    sync::{
+        atomic::{AtomicBool, AtomicUsize, Ordering},
+        Arc,
+    },
+    time::Duration,
 };
 
-use tokio::{task::JoinHandle, spawn};
+use tokio::{spawn, task::JoinHandle};
 
 use crate::{
     http::{Request, Response, RunResult},
@@ -264,12 +268,10 @@ export async function masterHandler(request) {{
                     None => extract_error(try_catch),
                 }
             }
-            None => {
-                match terminated.load(Ordering::SeqCst) {
-                    true => RunResult::Timeout(),
-                    false => extract_error(try_catch),
-                }
-            }
+            None => match terminated.load(Ordering::SeqCst) {
+                true => RunResult::Timeout(),
+                false => extract_error(try_catch),
+            },
         }
     }
 }
