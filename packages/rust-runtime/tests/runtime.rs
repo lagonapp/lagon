@@ -17,12 +17,12 @@ fn setup() {
     });
 }
 
-#[test]
-fn execute_function() {
+#[tokio::test]
+async fn execute_function() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
-return new Response('Hello world');
+    return new Response('Hello world');
 }"
         .into(),
     ));
@@ -42,13 +42,13 @@ return new Response('Hello world');
     );
 }
 
-#[test]
-fn environment_variables() {
+#[tokio::test]
+async fn environment_variables() {
     setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
-return new Response(process.env.TEST);
+    return new Response(process.env.TEST);
 }"
             .into(),
         )
@@ -74,12 +74,12 @@ return new Response(process.env.TEST);
     );
 }
 
-#[test]
-fn get_body() {
+#[tokio::test]
+async fn get_body() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
-return new Response(request.body);
+    return new Response(request.body);
 }"
         .into(),
     ));
@@ -99,12 +99,12 @@ return new Response(request.body);
     );
 }
 
-#[test]
-fn get_input() {
+#[tokio::test]
+async fn get_input() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
-return new Response(request.url);
+    return new Response(request.url);
 }"
         .into(),
     ));
@@ -124,12 +124,12 @@ return new Response(request.url);
     );
 }
 
-#[test]
-fn get_method() {
+#[tokio::test]
+async fn get_method() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
-return new Response(request.method);
+    return new Response(request.method);
 }"
         .into(),
     ));
@@ -149,12 +149,12 @@ return new Response(request.method);
     );
 }
 
-#[test]
-fn get_headers() {
+#[tokio::test]
+async fn get_headers() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
-return new Response(request.headers.get('x-auth'));
+    return new Response(request.headers.get('x-auth'));
 }"
         .into(),
     ));
@@ -177,17 +177,17 @@ return new Response(request.headers.get('x-auth'));
     );
 }
 
-#[test]
-fn return_headers() {
+#[tokio::test]
+async fn return_headers() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
-return new Response('Hello world', {
-    headers: {
-        'Content-Type': 'text/html',
-        'X-Test': 'test',
-    }
-});
+    return new Response('Hello world', {
+        headers: {
+            'Content-Type': 'text/html',
+            'X-Test': 'test',
+        }
+    });
 }"
         .into(),
     ));
@@ -211,17 +211,17 @@ return new Response('Hello world', {
     );
 }
 
-#[test]
-fn return_headers_from_headers_api() {
+#[tokio::test]
+async fn return_headers_from_headers_api() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
-return new Response('Hello world', {
-    headers: new Headers({
-        'Content-Type': 'text/html',
-        'X-Test': 'test',
-    })
-});
+    return new Response('Hello world', {
+        headers: new Headers({
+            'Content-Type': 'text/html',
+            'X-Test': 'test',
+        })
+    });
 }"
         .into(),
     ));
@@ -245,14 +245,14 @@ return new Response('Hello world', {
     );
 }
 
-#[test]
-fn return_status() {
+#[tokio::test]
+async fn return_status() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
-return new Response('Moved permanently', {
-    status: 302,
-});
+    return new Response('Moved permanently', {
+        status: 302,
+    });
 }"
         .into(),
     ));
@@ -269,5 +269,27 @@ return new Response('Moved permanently', {
             headers: None,
             status: 302,
         })
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn timeout() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    while(true) {}
+    return new Response('Should not be reached');
+}"
+        .into(),
+    ));
+
+    assert_eq!(
+        isolate.run(Request {
+            body: "".into(),
+            headers: HashMap::new(),
+            method: Method::GET,
+            url: "".into(),
+        }),
+        RunResult::Timeout(),
     );
 }

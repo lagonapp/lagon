@@ -123,7 +123,7 @@ impl Isolate {
         state.global.clone()
     }
 
-    pub async fn run(&mut self, request: Request) -> RunResult {
+    pub fn run(&mut self, request: Request) -> RunResult {
         let thread_safe_handle = self.isolate.thread_safe_handle();
 
         let state = self.global_realm();

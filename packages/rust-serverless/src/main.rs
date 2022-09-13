@@ -142,7 +142,7 @@ async fn main() {
                                 Isolate::new(options)
                             });
 
-                            let result = isolate.run(request).await;
+                            let result = isolate.run(request);
 
                             response_tx.send_async(result).await.unwrap();
                         }
