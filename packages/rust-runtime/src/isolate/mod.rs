@@ -4,9 +4,9 @@ use std::{
     rc::Rc,
     sync::{
         atomic::{AtomicBool, AtomicUsize, Ordering},
-        Arc,
+        Arc, RwLock,
     },
-    time::Duration,
+    time::{Duration, Instant},
 };
 
 use tokio::{spawn, task::JoinHandle};
@@ -20,6 +20,14 @@ mod allocator;
 mod bindings;
 
 static JS_RUNTIME: &str = include_str!("../../js/runtime.js");
+
+#[derive(PartialEq)]
+enum ExecutionResult {
+    WillRun,
+    Run,
+    MemoryReached,
+    TimeoutReached,
+}
 
 #[derive(Clone)]
 struct GlobalRealm(v8::Global<v8::Context>);
@@ -72,6 +80,7 @@ pub struct Isolate {
     isolate: v8::OwnedIsolate,
     handler: Option<v8::Global<v8::Function>>,
     compilation_error: Option<String>,
+    count: Arc<AtomicUsize>,
 }
 
 unsafe impl Send for Isolate {}
@@ -110,6 +119,7 @@ impl Isolate {
             isolate,
             handler: None,
             compilation_error: None,
+            count,
         }
     }
 
@@ -232,21 +242,46 @@ export async function masterHandler(request) {{
         let global = state.0.open(try_catch);
         let global = global.global(try_catch);
 
-        let terminated = Arc::new(AtomicBool::new(false));
+        let terminated = Arc::new(RwLock::new(ExecutionResult::WillRun));
         let terminated_handle = terminated.clone();
 
+        let count_handle = self.count.clone();
+
+        let now = Instant::now();
+        let timeout = Duration::from_millis(self.options.timeout as u64);
+        let memory = self.options.memory * 1024 * 1024;
+
         spawn(async move {
-            tokio::time::sleep(Duration::from_millis(50)).await;
+            loop {
+                let memory_reached = count_handle.load(Ordering::SeqCst) >= memory;
+                let timeout_reached = now.elapsed() >= timeout;
 
-            terminated_handle.store(true, Ordering::SeqCst);
+                if memory_reached || timeout_reached {
+                    // If execution is already done, don't force termination
+                    if *terminated_handle.read().unwrap() == ExecutionResult::Run {
+                        return;
+                    }
 
-            if !thread_safe_handle.is_execution_terminating() {
-                thread_safe_handle.terminate_execution();
+                    let mut terminated_handle = terminated_handle.write().unwrap();
+                    *terminated_handle = if memory_reached {
+                        ExecutionResult::MemoryReached
+                    } else {
+                        ExecutionResult::TimeoutReached
+                    };
+
+                    if !thread_safe_handle.is_execution_terminating() {
+                        thread_safe_handle.terminate_execution();
+                    }
+
+                    break;
+                }
             }
         });
 
         match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(mut response) => {
+                *terminated.write().unwrap() = ExecutionResult::Run;
+
                 if response.is_promise() {
                     let promise = v8::Local::<v8::Promise>::try_from(response).unwrap();
                     // println!("state: {:?}", promise.state());
@@ -268,9 +303,10 @@ export async function masterHandler(request) {{
                     None => extract_error(try_catch),
                 }
             }
-            None => match terminated.load(Ordering::SeqCst) {
-                true => RunResult::Timeout(),
-                false => extract_error(try_catch),
+            None => match *terminated.read().unwrap() {
+                ExecutionResult::MemoryReached => RunResult::MemoryLimit(),
+                ExecutionResult::TimeoutReached => RunResult::Timeout(),
+                _ => extract_error(try_catch),
             },
         }
     }
@@ -281,17 +317,11 @@ fn extract_error(scope: &mut v8::TryCatch<v8::HandleScope>) -> RunResult {
 
     match extract_v8_string(exception, scope) {
         Some(error) => RunResult::Error(error),
-        // Can be caused by memory limit being reached, or maybe by something else?
         None => {
             let exception_message = v8::Exception::create_message(scope, exception);
             let exception_message = exception_message.get(scope).to_rust_string_lossy(scope);
 
-            // if count.load(Ordering::SeqCst) >= memory_mb {
-            //     RunResult::MemoryLimit()
-            // } else {
-            // println!("{:?}", exception.to_object(try_catch).unwrap().get_property_names(try_catch).unwrap());
             RunResult::Error(exception_message)
-            // }
         }
     }
 }
