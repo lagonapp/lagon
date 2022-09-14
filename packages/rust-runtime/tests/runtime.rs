@@ -273,7 +273,7 @@ async fn return_status() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn timeout() {
+async fn timeout_reached() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
@@ -291,5 +291,35 @@ async fn timeout() {
             url: "".into(),
         }),
         RunResult::Timeout(),
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn memory_reached() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    const storage = [];
+    const twoMegabytes = 1024 * 1024 * 2;
+    while (true) {
+        const array = new Uint8Array(twoMegabytes);
+        for (let ii = 0; ii < twoMegabytes; ii += 4096) {
+        array[ii] = 1; // we have to put something in the array to flush to real memory
+        }
+        storage.push(array);
+    }
+    return new Response('Should not be reached');
+}"
+        .into(),
+    ));
+
+    assert_eq!(
+        isolate.run(Request {
+            body: "".into(),
+            headers: HashMap::new(),
+            method: Method::GET,
+            url: "".into(),
+        }),
+        RunResult::MemoryLimit(),
     );
 }

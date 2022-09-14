@@ -3,7 +3,7 @@ use std::{
     collections::HashMap,
     rc::Rc,
     sync::{
-        atomic::{AtomicBool, AtomicUsize, Ordering},
+        atomic::{AtomicUsize, Ordering},
         Arc, RwLock,
     },
     time::{Duration, Instant},
