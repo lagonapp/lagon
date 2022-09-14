@@ -1,0 +1,19 @@
+{
+  "name": "rust-runtime",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "pnpm esbuild js/index.ts --bundle --outfile=js/runtime.js --format=esm --target=es2022"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "esbuild": "^0.14.41"
+  },
+  "dependencies": {
+    "web-streams-polyfill": "^3.2.1"
+  }
+}
