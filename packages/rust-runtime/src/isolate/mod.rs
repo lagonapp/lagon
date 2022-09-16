@@ -13,13 +13,12 @@ use tokio::{spawn, task::JoinHandle};
 
 use crate::{
     http::{Request, Response, RunResult},
+    runtime::get_runtime_code,
     utils::extract_v8_string,
 };
 
 mod allocator;
 mod bindings;
-
-static JS_RUNTIME: &str = include_str!("../../js/runtime.js");
 
 #[derive(PartialEq)]
 enum ExecutionResult {
@@ -145,43 +144,8 @@ impl Isolate {
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if self.handler.is_none() && self.compilation_error.is_none() {
-            let code = &self.options.code;
-            let environment_variables = match &self.options.environment_variables {
-                Some(environment_variables) => environment_variables
-                    .iter()
-                    .map(|(k, v)| format!("globalThis.process.env.{} = '{}'", k, v))
-                    .collect::<Vec<String>>()
-                    .join("\n"),
-                None => "".to_string(),
-            };
+            let code = get_runtime_code(try_catch, &self.options);
 
-            let code = v8::String::new(
-                try_catch,
-                &format!(
-                    r#"
-{JS_RUNTIME}
-(() => {{
-    globalThis.process = {{
-        env: {{}},
-    }}
-
-    {environment_variables}
-}})()
-
-{code}
-
-export async function masterHandler(request) {{
-  const handlerRequest = new Request(request.input, {{
-      method: request.method,
-      headers: request.headers,
-      body: request.body,
-  }});
-
-  return handler(handlerRequest)
-}}"#
-                ),
-            )
-            .unwrap();
             let resource_name = v8::String::new(try_catch, "isolate.js").unwrap();
             let source_map_url = v8::String::new(try_catch, "").unwrap();
 

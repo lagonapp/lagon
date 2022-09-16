@@ -6,4 +6,6 @@ export * from './URL';
 export * from './parseMultipart';
 export * from './fetch';
 // export * from './streams';
-export * from './console';
+
+import './console';
+import './process';

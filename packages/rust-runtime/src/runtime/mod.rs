@@ -1,5 +1,9 @@
 use v8::V8;
 
+use crate::isolate::IsolateOptions;
+
+static JS_RUNTIME: &str = include_str!("../../js/runtime.js");
+
 pub struct RuntimeOptions {
     allow_eval: bool,
 }
@@ -42,4 +46,50 @@ impl Drop for Runtime {
     fn drop(&mut self) {
         self.dispose();
     }
+}
+
+pub fn get_runtime_code<'a>(
+    scope: &mut v8::HandleScope<'a, ()>,
+    options: &IsolateOptions,
+) -> v8::Local<'a, v8::String> {
+    let IsolateOptions {
+        code,
+        environment_variables,
+        ..
+    } = options;
+
+    let environment_variables = match environment_variables {
+        Some(environment_variables) => environment_variables
+            .iter()
+            .map(|(k, v)| format!("globalThis.process.env.{} = '{}'", k, v))
+            .collect::<Vec<String>>()
+            .join("\n"),
+        None => "".to_string(),
+    };
+
+    v8::String::new(
+        scope,
+        &format!(
+            r#"
+{JS_RUNTIME}
+
+(() => {{
+    {environment_variables}
+}})()
+
+{code}
+
+export async function masterHandler(request) {{
+    const handlerRequest = new Request(request.input, {{
+      method: request.method,
+      headers: request.headers,
+      body: request.body,
+    }});
+
+    return handler(handlerRequest);
+  }}
+"#
+        ),
+    )
+    .unwrap()
 }
