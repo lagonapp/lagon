@@ -51,7 +51,7 @@ impl Drop for Runtime {
 pub fn get_runtime_code<'a>(
     scope: &mut v8::HandleScope<'a, ()>,
     options: &IsolateOptions,
-) -> v8::Local<'a, v8::String> {
+) -> Option<v8::Local<'a, v8::String>> {
     let IsolateOptions {
         code,
         environment_variables,
@@ -91,5 +91,4 @@ export async function masterHandler(request) {{
 "#
         ),
     )
-    .unwrap()
 }

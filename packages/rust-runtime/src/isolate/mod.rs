@@ -144,7 +144,14 @@ impl Isolate {
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if self.handler.is_none() && self.compilation_error.is_none() {
-            let code = get_runtime_code(try_catch, &self.options);
+            let code = match get_runtime_code(try_catch, &self.options) {
+                Some(code) => code,
+                None => {
+                    self.compilation_error = Some("Failed to get runtime code".to_string());
+
+                    return RunResult::Error(self.compilation_error.clone().unwrap());
+                }
+            };
 
             let resource_name = v8::String::new(try_catch, "isolate.js").unwrap();
             let source_map_url = v8::String::new(try_catch, "").unwrap();
