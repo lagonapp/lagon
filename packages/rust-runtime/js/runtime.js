@@ -438,6 +438,13 @@ var URL = class {
     Lagon.log(`[warn] ${format(...args)}`);
   };
 })(globalThis);
+
+// js/process.ts
+((globalThis2) => {
+  globalThis2.process = {
+    env: {}
+  };
+})(globalThis);
 export {
   Headers,
   Request,
