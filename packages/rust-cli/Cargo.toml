@@ -1,0 +1,8 @@
+[package]
+name = "lagon-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lagon-runtime = { path = "../rust-runtime" }
+clap = { version = "3.2", features = ["derive"] }
