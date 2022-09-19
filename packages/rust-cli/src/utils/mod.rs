@@ -1,8 +1,10 @@
 mod deployments;
+mod trpc;
 
 use std::path::PathBuf;
 
 pub use deployments::*;
+pub use trpc::*;
 
 #[cfg(debug_assertions)]
 pub fn get_site_url() -> String {

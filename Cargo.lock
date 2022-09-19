@@ -987,6 +987,9 @@ dependencies = [
  "dialoguer",
  "dirs",
  "lagon-runtime",
+ "reqwest",
+ "serde",
+ "serde_json",
  "webbrowser",
 ]
 

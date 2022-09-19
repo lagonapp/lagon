@@ -1,7 +1,18 @@
 use dialoguer::{Confirm, Input};
+use serde::{Deserialize, Serialize};
 
 use crate::auth::{get_token, set_token};
-use crate::utils::get_cli_url;
+use crate::utils::{get_cli_url, TrpcClient};
+
+#[derive(Deserialize, Debug)]
+struct CliResponse {
+    token: String,
+}
+
+#[derive(Serialize, Debug)]
+struct CliRequest {
+    code: String,
+}
 
 pub fn login() {
     if let Some(_) = get_token() {
@@ -24,15 +35,23 @@ pub fn login() {
     println!("Please copy and paste the verification code from the browser.");
     println!();
 
-    if let Ok(code) = Input::<String>::new()
+    if let Ok(ref code) = Input::<String>::new()
         .with_prompt("Verification code")
         .interact_text()
     {
-        // TODO: Check code and get token back
+        let client = TrpcClient::new(code);
+        let request = CliRequest {
+            code: code.to_string(),
+        };
 
-        set_token("token".to_string());
+        match client.mutation::<CliRequest, CliResponse>("tokens.authenticate", request) {
+            Some(response) => {
+                set_token(response.result.data.token);
 
-        println!();
-        println!("You can now close the browser tab.");
+                println!();
+                println!("You can now close the browser tab.");
+            }
+            None => println!("Failed to log in."),
+        };
     }
 }
