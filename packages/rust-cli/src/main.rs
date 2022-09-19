@@ -2,7 +2,9 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 
+mod auth;
 mod commands;
+mod utils;
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about, long_about = None)]
@@ -77,10 +79,25 @@ fn main() {
         match command {
             Commands::Login => commands::login(),
             Commands::Logout => commands::logout(),
-            Commands::Deploy { file, client, public_dir, force } => commands::deploy(file, client, public_dir, force),
+            Commands::Deploy {
+                file,
+                client,
+                public_dir,
+                force,
+            } => commands::deploy(file, client, public_dir, force),
             Commands::Undeploy { file } => commands::undeploy(file),
-            Commands::Dev { file, client, public_dir, port, hostname } => commands::dev(file, client, public_dir, port, hostname),
-            Commands::Build { file, client, public_dir } => commands::build(file, client, public_dir),
+            Commands::Dev {
+                file,
+                client,
+                public_dir,
+                port,
+                hostname,
+            } => commands::dev(file, client, public_dir, port, hostname),
+            Commands::Build {
+                file,
+                client,
+                public_dir,
+            } => commands::build(file, client, public_dir),
             _ => {}
         };
     }
