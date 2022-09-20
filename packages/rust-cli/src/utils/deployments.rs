@@ -12,60 +12,50 @@ fn esbuild(file: &PathBuf) -> io::Result<String> {
         .arg("--format=esm")
         .arg("--target=es2020")
         .arg("--platform=browser")
-        .output();
-
-    if let Err(e) = result {
-        return Err(Error::new(
-            ErrorKind::Other,
-            format!("Failed to bundle function: {}", e),
-        ));
-    }
+        .output()?;
 
     // TODO: check status code
-    let output = result.unwrap().stdout;
+    if result.status.success() {
+        let output = result.stdout;
 
-    match String::from_utf8(output) {
-        Ok(s) => Ok(s),
-        Err(_) => Err(Error::new(
-            ErrorKind::Other,
-            "Failed to convert output to string",
-        )),
+        return match String::from_utf8(output) {
+            Ok(s) => Ok(s),
+            Err(_) => Err(Error::new(
+                ErrorKind::Other,
+                "Failed to convert output to string",
+            )),
+        };
     }
+
+    Err(Error::new(
+        ErrorKind::Other,
+        format!("Unexpected status code {}", result.status),
+    ))
 }
 
 pub fn bundle_function(
     index: PathBuf,
     client: Option<PathBuf>,
     public_dir: PathBuf,
-) -> Option<(String, HashMap<String, String>)> {
+) -> io::Result<(String, HashMap<String, String>)> {
     if let Err(_) = Command::new("esbuild").arg("--version").output() {
-        println!("esbuild is not installed. Please install it with `npm install -g esbuild`");
-        return None;
+        return Err(Error::new(
+            ErrorKind::Other,
+            "esbuild is not installed. Please install it with `npm install -g esbuild`",
+        ));
     }
 
-    let index_output = esbuild(&index);
-
-    if let Err(e) = index_output {
-        println!("{}", e);
-        return None;
-    }
-
-    let index_output = index_output.unwrap();
+    let index_output = esbuild(&index)?;
     let mut assets = HashMap::<String, String>::new();
 
     if let Some(client) = client {
-        let client_output = esbuild(&client);
-
-        if let Err(e) = client_output {
-            println!("{}", e);
-            return None;
-        }
+        let client_output = esbuild(&client)?;
 
         assets.insert(
             client.into_os_string().into_string().unwrap(),
-            client_output.unwrap(),
+            client_output,
         );
     }
 
-    Some((index_output, assets))
+    Ok((index_output, assets))
 }

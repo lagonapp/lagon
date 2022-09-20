@@ -1,7 +1,10 @@
 mod deployments;
 mod trpc;
 
-use std::path::PathBuf;
+use std::{
+    io::{self, Error, ErrorKind},
+    path::PathBuf,
+};
 
 pub use deployments::*;
 pub use trpc::*;
@@ -20,7 +23,29 @@ pub fn get_cli_url() -> String {
     get_site_url() + "/cli"
 }
 
-pub fn validate_index_file(file: &PathBuf) -> bool {
+pub fn validate_index_file(file: &PathBuf) -> io::Result<()> {
+    match file.extension() {
+        Some(ext) => {
+            let validate = ext == "js"
+                || ext == "jsx"
+                || ext == "ts"
+                || ext == "tsx"
+                || ext == "mjs"
+                || ext == "cjs";
+
+            match validate {
+                true => Ok(()),
+                false => Err(Error::new(ErrorKind::Other, format!("Extension {} is not supported (should be one of .js, .jsx, .ts, .tsx, .mjs, .cjs)", ext.to_str().unwrap()))),
+            }
+        }
+        None => Err(Error::new(
+            ErrorKind::Other,
+            "No extension found for the given file.",
+        )),
+    }
+}
+
+pub fn validate_client_file(file: PathBuf) -> io::Result<PathBuf> {
     match file.extension() {
         Some(ext) => {
             let validate = ext == "js"
@@ -31,54 +56,29 @@ pub fn validate_index_file(file: &PathBuf) -> bool {
                 || ext == "cjs";
 
             if !validate {
-                println!("Extension {} is not supported (should be one of .js, .jsx, .ts, .tsx, .mjs, .cjs)", ext.to_str().unwrap());
+                return Err(Error::new(ErrorKind::Other, format!("Extension {} is not supported (should be one of .js, .jsx, .ts, .tsx, .mjs, .cjs)", ext.to_str().unwrap())));
             }
 
-            validate
+            Ok(file)
         }
-        None => {
-            println!("No extension found for the given file.");
-            false
-        }
+        None => Err(Error::new(
+            ErrorKind::Other,
+            "No extension found for the given file.",
+        )),
     }
 }
 
-pub fn validate_client_file(file: Option<PathBuf>) -> Option<PathBuf> {
-    match file {
-        Some(file) => match file.extension() {
-            Some(ext) => {
-                let validate = ext == "js"
-                    || ext == "jsx"
-                    || ext == "ts"
-                    || ext == "tsx"
-                    || ext == "mjs"
-                    || ext == "cjs";
-
-                if !validate {
-                    println!("Extension {} is not supported (should be one of .js, .jsx, .ts, .tsx, .mjs, .cjs)", ext.to_str().unwrap());
-                    return None;
-                }
-
-                Some(file)
-            }
-            None => {
-                println!("No extension found for the given file.");
-                None
-            }
-        },
-        None => None,
-    }
-}
-
-pub fn validate_public_dir(public_dir: Option<PathBuf>) -> Option<PathBuf> {
+pub fn validate_public_dir(public_dir: Option<PathBuf>) -> io::Result<PathBuf> {
     if let Some(dir) = public_dir {
         if !dir.is_dir() {
-            println!("Public directory {} does not exist.", dir.to_str().unwrap());
-            return None;
+            return Err(Error::new(
+                ErrorKind::Other,
+                format!("Public directory {} does not exist.", dir.to_str().unwrap()),
+            ));
         }
 
-        return Some(dir);
+        return Ok(dir);
     }
 
-    Some(PathBuf::from("./public"))
+    Ok(PathBuf::from("./public"))
 }

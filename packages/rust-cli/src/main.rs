@@ -77,28 +77,28 @@ fn main() {
 
     if let Some(command) = args.command {
         match command {
-            Commands::Login => commands::login(),
-            Commands::Logout => commands::logout(),
-            Commands::Deploy {
-                file,
-                client,
-                public_dir,
-                force,
-            } => commands::deploy(file, client, public_dir, force),
-            Commands::Undeploy { file } => commands::undeploy(file),
-            Commands::Dev {
-                file,
-                client,
-                public_dir,
-                port,
-                hostname,
-            } => commands::dev(file, client, public_dir, port, hostname),
+            // Commands::Login => commands::login(),
+            // Commands::Logout => commands::logout(),
+            // Commands::Deploy {
+            //     file,
+            //     client,
+            //     public_dir,
+            //     force,
+            // } => commands::deploy(file, client, public_dir, force),
+            // Commands::Undeploy { file } => commands::undeploy(file),
+            // Commands::Dev {
+            //     file,
+            //     client,
+            //     public_dir,
+            //     port,
+            //     hostname,
+            // } => commands::dev(file, client, public_dir, port, hostname),
             Commands::Build {
                 file,
                 client,
                 public_dir,
             } => commands::build(file, client, public_dir),
-            _ => {}
+            // _ => {}
         };
     }
 }
