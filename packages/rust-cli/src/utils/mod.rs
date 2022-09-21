@@ -19,8 +19,8 @@ pub fn get_site_url() -> String {
     "https://dash.lagon.app".to_string()
 }
 
-pub fn get_cli_url() -> String {
-    get_site_url() + "/cli"
+pub fn get_api_url() -> String {
+    get_site_url() + "/api"
 }
 
 pub fn validate_code_file(file: &PathBuf) -> io::Result<()> {

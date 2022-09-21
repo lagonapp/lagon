@@ -4,7 +4,7 @@ use dialoguer::{Confirm, Input};
 use serde::{Deserialize, Serialize};
 
 use crate::auth::{get_token, set_token};
-use crate::utils::{get_cli_url, TrpcClient};
+use crate::utils::{TrpcClient, get_site_url};
 
 #[derive(Deserialize, Debug)]
 struct CliResponse {
@@ -29,7 +29,8 @@ pub fn login() -> io::Result<()> {
     println!();
     println!("Opening browser...");
 
-    webbrowser::open(&get_cli_url()).unwrap();
+    let url = get_site_url() + "/cli";
+    webbrowser::open(&url).unwrap();
 
     println!("Please copy and paste the verification code from the browser.");
     println!();

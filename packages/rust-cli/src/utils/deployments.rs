@@ -1,9 +1,32 @@
 use std::{
     collections::HashMap,
     io::{self, Error, ErrorKind},
-    path::PathBuf,
-    process::Command,
+    path::{PathBuf, Path},
+    process::Command, fs,
 };
+
+use serde::{Serialize, Deserialize};
+
+use crate::utils::get_api_url;
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DeploymentConfig {
+    pub function_id: String,
+    pub organization_id: String,
+}
+
+pub fn get_function_config() -> io::Result<Option<DeploymentConfig>> {
+    let path = Path::new(".lagon/config.json");
+
+    if !path.exists() {
+        return Ok(None);
+    }
+
+    let content = fs::read_to_string(path)?;
+    let config = serde_json::from_str::<DeploymentConfig>(&content)?;
+
+    Ok(Some(config))
+}
 
 fn esbuild(file: &PathBuf) -> io::Result<String> {
     let result = Command::new("esbuild")
@@ -58,4 +81,38 @@ pub fn bundle_function(
     }
 
     Ok((index_output, assets))
+}
+
+pub fn create_deployment(function_id: String, file: PathBuf, client: Option<PathBuf>, public_dir: PathBuf) -> io::Result<()> {
+    let (index, assets) = bundle_function(file, client, public_dir)?;
+
+    println!("Uploading files...");
+
+    let code_part = reqwest::blocking::multipart::Part::text(index)
+        .file_name("index.js")
+        .mime_str("text/javascript").unwrap();
+
+    let form = reqwest::blocking::multipart::Form::new()
+        .text("functionId", function_id)
+        .part("code", code_part);
+
+    for (path, content) in assets {
+        let asset_part = reqwest::blocking::multipart::Part::text(content)
+            .file_name(path)
+            // TODO: get mime type from file extension
+            .mime_str("text/javascript").unwrap();
+
+        form.part("assets", asset_part);
+    }
+
+    let client = reqwest::blocking::Client::new();
+    let response = client.post(get_api_url() + "/deployment").multipart(form).header("x-lagon-token", "").send();
+
+    println!();
+    // println!(createdFunction ? `Function ${functionName} created.` : 'Function deployed.');
+    println!();
+    // println!(` ➤ ${chalk.gray('https://') + chalk.blueBright.bold(functionName) + chalk.gray('.lagon.app')}`);
+    println!();
+
+    Ok(())
 }
