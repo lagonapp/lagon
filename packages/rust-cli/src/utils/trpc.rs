@@ -1,3 +1,9 @@
+use hyper::{
+    body::{self, HttpBody},
+    client::HttpConnector,
+    http::Result,
+    Body, Client, Method, Request,
+};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use super::get_site_url;
@@ -15,14 +21,14 @@ pub struct TrpcResult<T> {
 }
 
 pub struct TrpcClient<'a> {
-    pub client: reqwest::blocking::Client,
+    pub client: Client<HttpConnector>,
     pub token: &'a str,
 }
 
 impl<'a> TrpcClient<'a> {
     pub fn new(token: &'a str) -> Self {
         Self {
-            client: reqwest::blocking::Client::new(),
+            client: Client::new(),
             token,
         }
     }
@@ -31,27 +37,26 @@ impl<'a> TrpcClient<'a> {
         None
     }
 
-    pub fn mutation<T: Serialize, R: DeserializeOwned>(
+    pub async fn mutation<T: Serialize, R: DeserializeOwned>(
         &self,
         key: &str,
-        request: T,
-    ) -> Option<TrpcResponse<R>> {
-        let request = serde_json::to_string(&request).unwrap();
+        body: T,
+    ) -> Result<TrpcResponse<R>> {
+        let body = serde_json::to_string(&body).unwrap();
 
-        let response = self
-            .client
-            .post(get_site_url() + "/api/trpc/" + key)
-            .body(request)
-            .header("Content-Type", "application/json")
+        let request = Request::builder()
+            .method(Method::POST)
+            .uri(get_site_url() + "/api/trpc/" + key)
+            .header("content-type", "application/json")
             .header("x-lagon-token", self.token)
-            .send();
+            .body(Body::from(body))?;
 
-        if let Ok(response) = response {
-            if let Ok(response) = response.json::<TrpcResponse<R>>() {
-                return Some(response);
-            }
-        }
+        let response = self.client.request(request).await.unwrap();
+        let body = body::to_bytes(response.into_body()).await.unwrap();
+        let body = String::from_utf8(body.to_vec()).unwrap();
 
-        None
+        let response = serde_json::from_str::<TrpcResponse<R>>(&body).unwrap();
+
+        Ok(response)
     }
 }

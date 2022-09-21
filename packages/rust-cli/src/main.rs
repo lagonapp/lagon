@@ -72,12 +72,13 @@ enum Commands {
     },
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let args = Cli::parse();
 
     if let Some(command) = args.command {
         if let Err(error) = match command {
-            Commands::Login => commands::login(),
+            Commands::Login => commands::login().await,
             Commands::Logout => commands::logout(),
             Commands::Deploy {
                 file,

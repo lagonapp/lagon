@@ -1,11 +1,17 @@
 use std::{
     collections::HashMap,
+    fs,
     io::{self, Error, ErrorKind},
-    path::{PathBuf, Path},
-    process::Command, fs,
+    path::{Path, PathBuf},
+    process::Command,
 };
 
-use serde::{Serialize, Deserialize};
+use hyper::{Method, Request};
+use multipart::{
+    client::lazy::Multipart,
+    server::nickel::nickel::hyper::{header::Headers, Client},
+};
+use serde::{Deserialize, Serialize};
 
 use crate::utils::get_api_url;
 
@@ -83,30 +89,38 @@ pub fn bundle_function(
     Ok((index_output, assets))
 }
 
-pub fn create_deployment(function_id: String, file: PathBuf, client: Option<PathBuf>, public_dir: PathBuf) -> io::Result<()> {
+pub fn create_deployment(
+    function_id: String,
+    file: PathBuf,
+    client: Option<PathBuf>,
+    public_dir: PathBuf,
+    token: String,
+) -> io::Result<()> {
     let (index, assets) = bundle_function(file, client, public_dir)?;
 
     println!("Uploading files...");
 
-    let code_part = reqwest::blocking::multipart::Part::text(index)
-        .file_name("index.js")
-        .mime_str("text/javascript").unwrap();
+    let mut multipart = Multipart::new();
+    multipart.add_text("functionId", function_id);
+    multipart.add_stream(
+        "code",
+        index.as_bytes(),
+        Some("index.js"),
+        Some(mime::TEXT_JAVASCRIPT),
+    );
 
-    let form = reqwest::blocking::multipart::Form::new()
-        .text("functionId", function_id)
-        .part("code", code_part);
+    let client = Client::new();
+    let url = get_api_url() + "/deployment";
 
-    for (path, content) in assets {
-        let asset_part = reqwest::blocking::multipart::Part::text(content)
-            .file_name(path)
-            // TODO: get mime type from file extension
-            .mime_str("text/javascript").unwrap();
+    let response = multipart
+        .client_request_mut(&client, &url, |request| {
+            let mut headers = Headers::new();
+            headers.set_raw("x-lagon-token", vec![token.as_bytes().to_vec()]);
+            request.headers(headers)
+        })
+        .unwrap();
 
-        form.part("assets", asset_part);
-    }
-
-    let client = reqwest::blocking::Client::new();
-    let response = client.post(get_api_url() + "/deployment").multipart(form).header("x-lagon-token", "").send();
+    println!("{:?}", response);
 
     println!();
     // println!(createdFunction ? `Function ${functionName} created.` : 'Function deployed.');

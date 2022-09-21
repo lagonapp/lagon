@@ -4,7 +4,7 @@ use dialoguer::{Confirm, Input};
 use serde::{Deserialize, Serialize};
 
 use crate::auth::{get_token, set_token};
-use crate::utils::{TrpcClient, get_site_url};
+use crate::utils::{get_site_url, TrpcClient};
 
 #[derive(Deserialize, Debug)]
 struct CliResponse {
@@ -16,7 +16,7 @@ struct CliRequest {
     code: String,
 }
 
-pub fn login() -> io::Result<()> {
+pub async fn login() -> io::Result<()> {
     if let Some(_) = get_token()? {
         if !Confirm::new()
             .with_prompt("You are already logged in. Are you sure you want to log in again?")
@@ -42,8 +42,11 @@ pub fn login() -> io::Result<()> {
     let client = TrpcClient::new(&code);
     let request = CliRequest { code: code.clone() };
 
-    match client.mutation::<CliRequest, CliResponse>("tokens.authenticate", request) {
-        Some(response) => {
+    match client
+        .mutation::<CliRequest, CliResponse>("tokens.authenticate", request)
+        .await
+    {
+        Ok(response) => {
             set_token(response.result.data.token)?;
 
             println!();
@@ -51,6 +54,6 @@ pub fn login() -> io::Result<()> {
 
             Ok(())
         }
-        None => Err(Error::new(ErrorKind::Other, "Failed to log in.")),
+        Err(_) => Err(Error::new(ErrorKind::Other, "Failed to log in.")),
     }
 }

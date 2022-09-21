@@ -1,8 +1,6 @@
 use std::{fs, io, path::PathBuf};
 
-use crate::utils::{
-    bundle_function, validate_code_file, validate_public_dir,
-};
+use crate::utils::{bundle_function, validate_code_file, validate_public_dir};
 
 pub fn build(
     file: PathBuf,
