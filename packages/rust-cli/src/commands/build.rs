@@ -1,7 +1,7 @@
 use std::{fs, io, path::PathBuf};
 
 use crate::utils::{
-    bundle_function, validate_client_file, validate_index_file, validate_public_dir,
+    bundle_function, validate_code_file, validate_public_dir,
 };
 
 pub fn build(
@@ -9,10 +9,13 @@ pub fn build(
     client: Option<PathBuf>,
     public_dir: Option<PathBuf>,
 ) -> io::Result<()> {
-    validate_index_file(&file)?;
+    validate_code_file(&file)?;
 
     let client = match client {
-        Some(client) => Some(validate_client_file(client)?),
+        Some(client) => {
+            validate_code_file(&client)?;
+            Some(client)
+        }
         None => None,
     };
 
@@ -22,14 +25,14 @@ pub fn build(
     println!();
     println!("Writting index.js...");
 
-    fs::create_dir_all(".lagon").unwrap();
-    fs::write(".lagon/index.js", index).unwrap();
+    fs::create_dir_all(".lagon")?;
+    fs::write(".lagon/index.js", index)?;
 
     for (path, content) in assets {
         println!("Writting {}...", path);
 
-        fs::create_dir_all(format!(".lagon/{}", path)).unwrap();
-        fs::write(format!(".lagon/{}", path), content).unwrap();
+        fs::create_dir_all(format!(".lagon/{}", path))?;
+        fs::write(format!(".lagon/{}", path), content)?;
     }
 
     println!();

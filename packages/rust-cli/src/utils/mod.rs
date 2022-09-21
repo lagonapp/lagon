@@ -23,7 +23,14 @@ pub fn get_cli_url() -> String {
     get_site_url() + "/cli"
 }
 
-pub fn validate_index_file(file: &PathBuf) -> io::Result<()> {
+pub fn validate_code_file(file: &PathBuf) -> io::Result<()> {
+    if !file.exists() || !file.is_file() {
+        return Err(Error::new(
+            ErrorKind::Other,
+            format!("{} is not a file", file.to_str().unwrap()),
+        ));
+    }
+
     match file.extension() {
         Some(ext) => {
             let validate = ext == "js"
@@ -37,29 +44,6 @@ pub fn validate_index_file(file: &PathBuf) -> io::Result<()> {
                 true => Ok(()),
                 false => Err(Error::new(ErrorKind::Other, format!("Extension {} is not supported (should be one of .js, .jsx, .ts, .tsx, .mjs, .cjs)", ext.to_str().unwrap()))),
             }
-        }
-        None => Err(Error::new(
-            ErrorKind::Other,
-            "No extension found for the given file.",
-        )),
-    }
-}
-
-pub fn validate_client_file(file: PathBuf) -> io::Result<PathBuf> {
-    match file.extension() {
-        Some(ext) => {
-            let validate = ext == "js"
-                || ext == "jsx"
-                || ext == "ts"
-                || ext == "tsx"
-                || ext == "mjs"
-                || ext == "cjs";
-
-            if !validate {
-                return Err(Error::new(ErrorKind::Other, format!("Extension {} is not supported (should be one of .js, .jsx, .ts, .tsx, .mjs, .cjs)", ext.to_str().unwrap())));
-            }
-
-            Ok(file)
         }
         None => Err(Error::new(
             ErrorKind::Other,
