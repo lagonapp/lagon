@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     fs,
-    io::{self, Error, ErrorKind},
+    io::{self, Error, ErrorKind, Read},
     path::{Path, PathBuf},
     process::Command,
 };
@@ -84,19 +84,28 @@ pub fn bundle_function(
         ));
     }
 
+    println!("Bundling Function handler...");
     let index_output = esbuild(&index)?;
     let mut assets = HashMap::<String, String>::new();
 
     if let Some(client) = client {
+        println!("Bundling client file...");
         let client_output = esbuild(&client)?;
 
         assets.insert(
-            client.into_os_string().into_string().unwrap(),
+            client.file_name().unwrap().to_str().unwrap().to_string(),
             client_output,
         );
     }
 
+    // TODO: assets
+
     Ok((index_output, assets))
+}
+
+#[derive(Deserialize, Debug)]
+struct DeploymentResponse {
+    functionName: String,
 }
 
 pub fn create_deployment(
@@ -120,18 +129,13 @@ pub fn create_deployment(
     );
 
     for (path, content) in &assets {
-        multipart.add_stream(
-            "assets",
-            content.as_bytes(),
-            Some(path),
-            Some(mime::TEXT_JAVASCRIPT),
-        );
+        multipart.add_stream("assets", content.as_bytes(), Some(path), None);
     }
 
     let client = Client::new();
     let url = get_api_url() + "/deployment";
 
-    let response = multipart
+    let mut response = multipart
         .client_request_mut(&client, &url, |request| {
             let mut headers = Headers::new();
             headers.set_raw("x-lagon-token", vec![token.as_bytes().to_vec()]);
@@ -139,13 +143,15 @@ pub fn create_deployment(
         })
         .unwrap();
 
-    println!("{:?}", response);
+    let mut buf = String::new();
+    response.read_to_string(&mut buf)?;
+
+    let response = serde_json::from_str::<DeploymentResponse>(&buf)?;
 
     println!();
-    // println!(createdFunction ? `Function ${functionName} created.` : 'Function deployed.');
+    println!("Function deployed!");
     println!();
-    // println!(` ➤ ${chalk.gray('https://') + chalk.blueBright.bold(functionName) + chalk.gray('.lagon.app')}`);
-    println!(" ➤ https://{}.lagon.app", "TODO");
+    println!(" ➤ https://{}.lagon.app", response.functionName);
     println!();
 
     Ok(())
