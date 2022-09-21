@@ -1,34 +1,36 @@
-use std::fs;
+use std::{fs, io};
 
-// TODO: Handle errors
-
-pub fn get_token() -> Option<String> {
+pub fn get_token() -> io::Result<Option<String>> {
     let path = dirs::home_dir().unwrap().join(".lagon").join("config");
 
     if !path.exists() {
-        return None;
+        return Ok(None);
     }
 
     match fs::read_to_string(path) {
-        Ok(content) => Some(content),
-        Err(_) => None,
+        Ok(content) => Ok(Some(content)),
+        Err(error) => Err(error),
     }
 }
 
-pub fn set_token(token: String) {
+pub fn set_token(token: String) -> io::Result<()> {
     let path = dirs::home_dir().unwrap().join(".lagon").join("config");
 
     if !path.exists() {
-        fs::create_dir_all(path.parent().unwrap()).unwrap();
+        fs::create_dir_all(path.parent().unwrap())?;
     }
 
-    fs::write(path, token).unwrap();
+    fs::write(path, token)?;
+
+    Ok(())
 }
 
-pub fn rm_token() {
+pub fn rm_token() -> io::Result<()> {
     let path = dirs::home_dir().unwrap().join(".lagon").join("config");
 
     if path.exists() {
-        fs::remove_file(path).unwrap();
+        fs::remove_file(path)?;
     }
+
+    Ok(())
 }
