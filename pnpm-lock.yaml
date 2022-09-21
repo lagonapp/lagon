@@ -362,7 +362,6 @@ importers:
 
   www:
     specifiers:
-      '@splitbee/web': ^0.3.0
       '@types/node': ^17.0.35
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
@@ -372,15 +371,16 @@ importers:
       eslint-config-next: 12.1.6
       next: 12.1.6
       postcss: ^8.4.14
+      posthog-js: ^1.30.0
       react: 18.1.0
       react-dom: 18.1.0
       react-use-system-theme: ^1.1.1
       tailwindcss: ^3.0.24
       typescript: ^4.6.4
     dependencies:
-      '@splitbee/web': 0.3.0
       cobe: 0.5.0
       next: 12.1.6_ef5jwxihqo6n7gxfmzogljlgcm
+      posthog-js: 1.30.0
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
       react-use-system-theme: 1.1.1_react@18.1.0
@@ -4096,10 +4096,6 @@ packages:
   /@sindresorhus/is/4.6.0:
     resolution: {integrity: sha512-t09vSN3MdfsyCHoFcTRCH/iUtG7OJ0CsjzB8cjAmKc/va/kIgeDI/TxsigdncE/4be734m0cvIYwNaV4i2XqAw==}
     engines: {node: '>=10'}
-    dev: false
-
-  /@splitbee/web/0.3.0:
-    resolution: {integrity: sha512-jNPDKg0GQGa4jCaBc6JQsv0NHmBA80WCwZE49nFyhcbo32WF0GyqXeice7ZApy7OUHI16bAUAzm4MOQw3gvxfQ==}
     dev: false
 
   /@storybook/addon-actions/6.5.9_ef5jwxihqo6n7gxfmzogljlgcm:
@@ -9995,6 +9991,10 @@ packages:
     resolution: {integrity: sha512-uJQyMrX5IJZkhoEUBQ3EjxkeiZkppBd5jS/fMTJmfZxLSiaQjv2zD0kTvuvkSH89uFvgSlB6ueGpjD3HWN7Bxw==}
     dev: true
 
+  /fflate/0.4.8:
+    resolution: {integrity: sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA==}
+    dev: false
+
   /figgy-pudding/3.5.2:
     resolution: {integrity: sha512-0btnI/H8f2pavGMN8w40mlSKOfTK2SVJmBfBeVIj3kNw0swwgzyRq0d5TJVOwodFmtvpPeWPN/MCcfuWF0Ezbw==}
     dev: true
@@ -14652,6 +14652,14 @@ packages:
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
+  /posthog-js/1.30.0:
+    resolution: {integrity: sha512-uUcpIjuzke0QWwBpPRm8nVcSqgckGb+AzGTGQnhEn7gX9P7/BVoXmIo9zv1i5fj2jN3X95brO61ra9FJr5lrfQ==}
+    dependencies:
+      '@sentry/types': 7.5.0
+      fflate: 0.4.8
+      rrweb-snapshot: 1.1.14
+    dev: false
+
   /preact-render-to-string/5.2.0_preact@10.8.2:
     resolution: {integrity: sha512-+RGwSW78Cl+NsZRUbFW1MGB++didsfqRk+IyRVTaqy+3OjtpKK/6HgBtfszUX0YXMfo41k2iaQSseAHGKEwrbg==}
     peerDependencies:
@@ -15821,6 +15829,10 @@ packages:
     optionalDependencies:
       fsevents: 2.3.2
     dev: true
+
+  /rrweb-snapshot/1.1.14:
+    resolution: {integrity: sha512-eP5pirNjP5+GewQfcOQY4uBiDnpqxNRc65yKPW0eSoU1XamDfc4M8oqpXGMyUyvLyxFDB0q0+DChuxxiU2FXBQ==}
+    dev: false
 
   /rsvp/4.8.5:
     resolution: {integrity: sha512-nfMOlASu9OnRJo1mbEk2cz0D56a1MBNrJ7orjRZQG10XDyuvwksKbuXNp6qa+kbn839HwjwhBzhFmdsaEAfauA==}
