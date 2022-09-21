@@ -1,11 +1,8 @@
 import Head from 'next/head';
 import Header from '../lib/components/Header';
 import Globe from '../lib/components/Globe';
-import Splitbee from '@splitbee/web';
 import useSystemTheme from '../lib/hooks/useSystemTheme';
 import { DiscordIcon } from '../lib/components/Icons';
-
-Splitbee.init();
 
 const Home = () => {
   const theme = useSystemTheme();
@@ -38,7 +35,6 @@ const Home = () => {
             target="_blank"
             className="text-base text-purple-100 px-8 py-2 rounded-full bg-gradient-to-br from-purple-500/70 to-purple-500/0 border border-purple-500 transition duration-300 hover:shadow-purple-500/40 hover:shadow-xl hover:border-purple-400 animate-fade-slow select-none"
             rel="noreferrer"
-            onClick={() => Splitbee.track('email')}
           >
             Get email updates
           </a>
