@@ -6,7 +6,6 @@ use std::{
     process::Command,
 };
 
-use hyper::{Method, Request};
 use multipart::{
     client::lazy::Multipart,
     server::nickel::nickel::hyper::{header::Headers, Client},
@@ -32,6 +31,17 @@ pub fn get_function_config() -> io::Result<Option<DeploymentConfig>> {
     let config = serde_json::from_str::<DeploymentConfig>(&content)?;
 
     Ok(Some(config))
+}
+
+pub fn write_function_config(config: DeploymentConfig) -> io::Result<()> {
+    let path = Path::new(".lagon/config.json");
+
+    if !path.exists() {
+        fs::create_dir_all(".lagon")?;
+    }
+
+    let content = serde_json::to_string(&config)?;
+    fs::write(path, content)
 }
 
 fn esbuild(file: &PathBuf) -> io::Result<String> {
@@ -109,6 +119,15 @@ pub fn create_deployment(
         Some(mime::TEXT_JAVASCRIPT),
     );
 
+    for (path, content) in &assets {
+        multipart.add_stream(
+            "assets",
+            content.as_bytes(),
+            Some(path),
+            Some(mime::TEXT_JAVASCRIPT),
+        );
+    }
+
     let client = Client::new();
     let url = get_api_url() + "/deployment";
 
@@ -126,6 +145,7 @@ pub fn create_deployment(
     // println!(createdFunction ? `Function ${functionName} created.` : 'Function deployed.');
     println!();
     // println!(` ➤ ${chalk.gray('https://') + chalk.blueBright.bold(functionName) + chalk.gray('.lagon.app')}`);
+    println!(" ➤ https://{}.lagon.app", "TODO");
     println!();
 
     Ok(())
