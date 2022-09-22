@@ -88,7 +88,7 @@ async fn main() {
                 public_dir,
                 force,
             } => commands::deploy(file, client, public_dir, force).await,
-            Commands::Undeploy { file } => commands::undeploy(file),
+            Commands::Undeploy { file } => commands::undeploy(file).await,
             Commands::Dev {
                 file,
                 client,

@@ -45,6 +45,19 @@ pub fn write_function_config(config: DeploymentConfig) -> io::Result<()> {
     fs::write(path, content)
 }
 
+pub fn delete_function_config() -> io::Result<()> {
+    let path = Path::new(".lagon/config.json");
+
+    if !path.exists() {
+        return Err(Error::new(
+            ErrorKind::Other,
+            "No configuration found in this directory.",
+        ));
+    }
+
+    fs::remove_file(path)
+}
+
 fn esbuild(file: &PathBuf) -> io::Result<String> {
     let result = Command::new("esbuild")
         .arg(file)
