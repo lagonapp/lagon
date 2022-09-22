@@ -2,4 +2,5 @@
 members = [
   "packages/rust-runtime",
   "packages/rust-serverless",
+  "packages/rust-cli",
 ]

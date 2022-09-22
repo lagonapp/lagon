@@ -1,0 +1,69 @@
+use std::io::{self, Error, ErrorKind};
+
+use dialoguer::{Confirm, Password};
+use serde::{Deserialize, Serialize};
+
+use crate::auth::{get_token, set_token};
+use crate::utils::{debug, get_site_url, info, input, print_progress, success, TrpcClient};
+
+#[derive(Deserialize, Debug)]
+struct CliResponse {
+    token: String,
+}
+
+#[derive(Serialize, Debug)]
+struct CliRequest {
+    code: String,
+}
+
+pub async fn login() -> io::Result<()> {
+    if let Some(_) = get_token()? {
+        if !Confirm::new()
+            .with_prompt(info(
+                "You are already logged in. Are you sure you want to log in again?",
+            ))
+            .interact()?
+        {
+            return Err(Error::new(ErrorKind::Other, "Login aborted."));
+        }
+    }
+
+    println!();
+
+    let end_progress = print_progress("Opening browser...");
+    let url = get_site_url() + "/cli";
+    webbrowser::open(&url).unwrap();
+    end_progress();
+
+    println!();
+    println!(
+        "{}",
+        info("Please copy and paste the verification from your browser.")
+    );
+
+    let code = Password::new()
+        .with_prompt(input("Verification code"))
+        .interact()?;
+
+    let client = TrpcClient::new(&code);
+    let request = CliRequest { code: code.clone() };
+
+    match client
+        .mutation::<CliRequest, CliResponse>("tokens.authenticate", request)
+        .await
+    {
+        Ok(response) => {
+            set_token(response.result.data.token)?;
+
+            println!();
+            println!(
+                "{} {}",
+                success("You are now logged in."),
+                debug("You can close your browser tab.")
+            );
+
+            Ok(())
+        }
+        Err(_) => Err(Error::new(ErrorKind::Other, "Failed to log in.")),
+    }
+}
