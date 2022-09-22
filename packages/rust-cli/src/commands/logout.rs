@@ -2,7 +2,10 @@ use std::io::{self, Error, ErrorKind};
 
 use dialoguer::Confirm;
 
-use crate::auth::{get_token, rm_token};
+use crate::{
+    auth::{get_token, rm_token},
+    utils::{info, success},
+};
 
 pub fn logout() -> io::Result<()> {
     if let None = get_token()? {
@@ -10,14 +13,14 @@ pub fn logout() -> io::Result<()> {
     }
 
     match Confirm::new()
-        .with_prompt("Are you sure you want to log out?")
+        .with_prompt(info("Are you sure you want to log out?"))
         .interact()?
     {
         true => {
             rm_token()?;
 
             println!();
-            println!("You have been logged out.");
+            println!("{}", success("You have been logged out."));
 
             Ok(())
         }
