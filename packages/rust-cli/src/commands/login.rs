@@ -1,10 +1,10 @@
 use std::io::{self, Error, ErrorKind};
 
-use dialoguer::{Confirm, Input};
+use dialoguer::{Confirm, Password};
 use serde::{Deserialize, Serialize};
 
 use crate::auth::{get_token, set_token};
-use crate::utils::{get_site_url, TrpcClient};
+use crate::utils::{debug, get_site_url, info, input, print_progress, success, TrpcClient};
 
 #[derive(Deserialize, Debug)]
 struct CliResponse {
@@ -19,7 +19,9 @@ struct CliRequest {
 pub async fn login() -> io::Result<()> {
     if let Some(_) = get_token()? {
         if !Confirm::new()
-            .with_prompt("You are already logged in. Are you sure you want to log in again?")
+            .with_prompt(info(
+                "You are already logged in. Are you sure you want to log in again?",
+            ))
             .interact()?
         {
             return Err(Error::new(ErrorKind::Other, "Login aborted."));
@@ -27,17 +29,21 @@ pub async fn login() -> io::Result<()> {
     }
 
     println!();
-    println!("Opening browser...");
 
+    let end_progress = print_progress("Opening browser...");
     let url = get_site_url() + "/cli";
     webbrowser::open(&url).unwrap();
+    end_progress();
 
-    println!("Please copy and paste the verification code from the browser.");
     println!();
+    println!(
+        "{}",
+        info("Please copy and paste the verification from your browser.")
+    );
 
-    let code = Input::<String>::new()
-        .with_prompt("Verification code")
-        .interact_text()?;
+    let code = Password::new()
+        .with_prompt(input("Verification code"))
+        .interact()?;
 
     let client = TrpcClient::new(&code);
     let request = CliRequest { code: code.clone() };
@@ -50,7 +56,11 @@ pub async fn login() -> io::Result<()> {
             set_token(response.result.data.token)?;
 
             println!();
-            println!("You can now close the browser tab.");
+            println!(
+                "{} {}",
+                success("You are now logged in."),
+                debug("You can close your browser tab.")
+            );
 
             Ok(())
         }

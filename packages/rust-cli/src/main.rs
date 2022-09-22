@@ -2,6 +2,8 @@ use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 
+use crate::utils::error;
+
 mod auth;
 mod commands;
 mod utils;
@@ -77,7 +79,7 @@ async fn main() {
     let args = Cli::parse();
 
     if let Some(command) = args.command {
-        if let Err(error) = match command {
+        if let Err(err) = match command {
             Commands::Login => commands::login().await,
             Commands::Logout => commands::logout(),
             Commands::Deploy {
@@ -101,7 +103,7 @@ async fn main() {
             } => commands::build(file, client, public_dir),
             _ => Ok(()),
         } {
-            println!("Error: {}", error);
+            println!("{}", error(&err.to_string()));
         }
     }
 }

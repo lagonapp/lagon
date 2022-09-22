@@ -95,12 +95,10 @@ pub async fn deploy(
             .query::<(), OrganizationsResponse>("organizations.list", None)
             .await
             .unwrap();
+        let organizations = response.result.data;
 
-        let index = Select::new()
-            .items(&response.result.data)
-            .default(0)
-            .interact()?;
-        let organization = &response.result.data[index];
+        let index = Select::new().items(&organizations).default(0).interact()?;
+        let organization = &organizations[index];
 
         match Confirm::new()
             .with_prompt("Link to an existing Function?")

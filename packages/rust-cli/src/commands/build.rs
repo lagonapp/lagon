@@ -1,6 +1,8 @@
 use std::{fs, io, path::PathBuf};
 
-use crate::utils::{bundle_function, validate_code_file, validate_public_dir};
+use crate::utils::{
+    bundle_function, debug, print_progress, success, validate_code_file, validate_public_dir,
+};
 
 pub fn build(
     file: PathBuf,
@@ -20,22 +22,24 @@ pub fn build(
     let public_dir = validate_public_dir(public_dir)?;
     let (index, assets) = bundle_function(file, client, public_dir)?;
 
-    println!();
-    println!("Writting index.js...");
-
+    let end_progress = print_progress("Writting index.js...");
     fs::create_dir_all(".lagon")?;
     fs::write(".lagon/index.js", index)?;
+    end_progress();
 
     for (path, content) in assets {
-        println!("Writting {}...", path);
-
-        fs::create_dir_all(format!(".lagon/{}", path))?;
+        let message = format!("Writting {}...", path);
+        let end_progress = print_progress(&message);
         fs::write(format!(".lagon/{}", path), content)?;
+        end_progress();
     }
 
     println!();
-    println!("Build successful! You can find it in .lagon");
-    println!();
+    println!(
+        "{} {}",
+        success("Build successful!"),
+        debug("You can find it in .lagon folder.")
+    );
 
     Ok(())
 }

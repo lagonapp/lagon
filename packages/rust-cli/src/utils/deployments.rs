@@ -12,7 +12,7 @@ use multipart::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::utils::get_api_url;
+use crate::utils::{get_api_url, print_progress};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeploymentConfig {
@@ -84,13 +84,16 @@ pub fn bundle_function(
         ));
     }
 
-    println!("Bundling Function handler...");
+    let end_progress = print_progress("Bundling Function handler...");
     let index_output = esbuild(&index)?;
+    end_progress();
+
     let mut assets = HashMap::<String, String>::new();
 
     if let Some(client) = client {
-        println!("Bundling client file...");
+        let end_progress = print_progress("Bundling client file...");
         let client_output = esbuild(&client)?;
+        end_progress();
 
         assets.insert(
             client.file_name().unwrap().to_str().unwrap().to_string(),
