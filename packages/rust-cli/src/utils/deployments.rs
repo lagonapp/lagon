@@ -1,3 +1,4 @@
+use colored::Colorize;
 use std::{
     collections::HashMap,
     fs,
@@ -12,7 +13,7 @@ use multipart::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::utils::{get_api_url, print_progress};
+use crate::utils::{get_api_url, print_progress, success};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeploymentConfig {
@@ -120,7 +121,7 @@ pub fn create_deployment(
 ) -> io::Result<()> {
     let (index, assets) = bundle_function(file, client, public_dir)?;
 
-    println!("Uploading files...");
+    let end_progress = print_progress("Uploading files...");
 
     let mut multipart = Multipart::new();
     multipart.add_text("functionId", function_id);
@@ -146,15 +147,21 @@ pub fn create_deployment(
         })
         .unwrap();
 
+    end_progress();
+
     let mut buf = String::new();
     response.read_to_string(&mut buf)?;
 
     let response = serde_json::from_str::<DeploymentResponse>(&buf)?;
 
     println!();
-    println!("Function deployed!");
+    println!("{}", success("Function deployed!"));
     println!();
-    println!(" ➤ https://{}.lagon.app", response.functionName);
+    println!(
+        " {} https://{}.lagon.app",
+        "➤".black(),
+        response.functionName.blue()
+    );
     println!();
 
     Ok(())

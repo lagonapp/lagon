@@ -10,8 +10,8 @@ use serde::{Deserialize, Serialize};
 use crate::{
     auth::get_token,
     utils::{
-        create_deployment, get_function_config, validate_code_file, validate_public_dir,
-        write_function_config, DeploymentConfig, TrpcClient,
+        create_deployment, debug, get_function_config, info, print_progress, validate_code_file,
+        validate_public_dir, write_function_config, DeploymentConfig, TrpcClient,
     },
 };
 
@@ -87,7 +87,7 @@ pub async fn deploy(
     let config = get_function_config()?;
 
     if config.is_none() {
-        println!("No deployment config found...");
+        println!("{}", debug("No deployment config found..."));
         println!();
 
         let trpc_client = TrpcClient::new(&token);
@@ -101,7 +101,7 @@ pub async fn deploy(
         let organization = &organizations[index];
 
         match Confirm::new()
-            .with_prompt("Link to an existing Function?")
+            .with_prompt(info("Link to an existing Function?"))
             .interact()?
         {
             true => {
@@ -125,11 +125,12 @@ pub async fn deploy(
             }
             false => {
                 let name = Input::<String>::new()
-                    .with_prompt("What is the name of this new Function?")
+                    .with_prompt(info("What is the name of this new Function?"))
                     .interact_text()?;
 
                 println!();
-                println!("Creating Function {}...", name);
+                let message = format!("Creating Function {}...", name);
+                let end_progress = print_progress(&message);
 
                 let response = trpc_client
                     .mutation::<CreateFunctionRequest, CreateFunctionResponse>(
@@ -143,6 +144,8 @@ pub async fn deploy(
                     )
                     .await
                     .unwrap();
+
+                end_progress();
 
                 write_function_config(DeploymentConfig {
                     function_id: response.result.data.id.clone(),
