@@ -1,0 +1,9 @@
+{
+  "name": "@lagon/serverless",
+  "version": "0.1.0",
+  "description": "Serverless software using Lagon Runtime",
+  "private": true,
+  "scripts": {
+    "build": "cargo build"
+  }
+}

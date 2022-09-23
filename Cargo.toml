@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "packages/rust-runtime",
-  "packages/rust-serverless",
-  "packages/rust-cli",
+  "packages/runtime",
+  "packages/serverless",
+  "packages/cli",
 ]

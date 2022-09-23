@@ -1,0 +1,8 @@
+{
+  "name": "@lagon/cli",
+  "version": "0.1.0",
+  "description": "CLI for Lagon",
+  "scripts": {
+    "build": "cargo build"
+  }
+}
