@@ -1,5 +1,5 @@
 {
-  "name": "@lagon/runtime",
+  "name": "@lagon/old-runtime",
   "version": "0.0.6",
   "description": "JavaScript Serverless Runtime for Lagon",
   "type": "module",
