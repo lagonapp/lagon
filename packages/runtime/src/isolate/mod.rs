@@ -122,16 +122,13 @@ impl Isolate {
         }
     }
 
-    pub(crate) fn state(isolate: &v8::Isolate) -> Rc<RefCell<IsolateState>> {
+    pub(self) fn state(isolate: &v8::Isolate) -> Rc<RefCell<IsolateState>> {
         let s = isolate.get_slot::<Rc<RefCell<IsolateState>>>().unwrap();
         s.clone()
     }
 
-    pub(crate) fn global_realm(&self) -> GlobalRealm {
-        let state = self
-            .isolate
-            .get_slot::<Rc<RefCell<IsolateState>>>()
-            .unwrap();
+    pub(self) fn global_realm(&self) -> GlobalRealm {
+        let state = Isolate::state(&self.isolate);
         let state = state.borrow();
         state.global.clone()
     }
