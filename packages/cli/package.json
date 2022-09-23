@@ -1,35 +1,8 @@
 {
   "name": "@lagon/cli",
-  "version": "0.0.11",
+  "version": "0.1.0",
   "description": "CLI for Lagon",
-  "type": "module",
-  "files": [
-    "dist"
-  ],
-  "bin": {
-    "lagon": "dist/index.js"
-  },
   "scripts": {
-    "watch": "tsup src/index.ts --format=esm --watch",
-    "build": "tsup src/index.ts --format=esm --define.process.env.NODE_ENV \\\"production\\\"",
-    "lint": "eslint --cache --ignore-pattern dist .",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@lagon/runtime": "workspace:0.0.6",
-    "@trpc/client": "^9.25.3",
-    "chalk": "^5.0.1",
-    "commander": "^9.3.0",
-    "esbuild": "^0.14.41",
-    "fastify": "^3.29.0",
-    "inquirer": "^9.0.0",
-    "node-fetch": "^3.2.6",
-    "open": "^8.4.0",
-    "update-notifier": "^6.0.1"
-  },
-  "devDependencies": {
-    "@lagon/common": "workspace:0.0.2",
-    "@types/inquirer": "^8.2.1",
-    "@types/update-notifier": "^5.1.0"
+    "build": "cargo build"
   }
 }

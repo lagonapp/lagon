@@ -1,0 +1,28 @@
+{
+  "name": "@lagon/old-runtime",
+  "version": "0.0.6",
+  "description": "JavaScript Serverless Runtime for Lagon",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "watch": "tsup src/index.ts --format=esm --dts --watch",
+    "build": "tsup src/index.ts --format=esm --dts",
+    "build:runtime": "for file in src/runtime/*; do pnpm esbuild $file --outdir=dist/runtime --bundle --format=esm && pnpm tsc $file --target es2015 --moduleResolution node --declaration --emitDeclarationOnly --outDir dist/runtime; done",
+    "lint": "eslint --cache --ignore-pattern dist .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "isolated-vm": "^4.4.1",
+    "web-streams-polyfill": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.35"
+  },
+  "peerDependencies": {
+    "isolated-vm": "^4.4.1"
+  }
+}

@@ -5,10 +5,10 @@ coverage/
 .turbo/
 ssl/
 target/
-packages/rust-serverless/deployments/
+packages/serverless/deployments/
+.vercel/
 
 .eslintcache
 .DS_Store
 .env
 tsconfig.tsbuildinfo
-.vercel

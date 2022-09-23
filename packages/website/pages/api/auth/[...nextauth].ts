@@ -1,7 +1,7 @@
 import NextAuth, { Session, NextAuthOptions } from 'next-auth';
 import GithubProvider from 'next-auth/providers/github';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import prisma from '@lagon/prisma';
+import prisma from 'lib/prisma';
 import apiHandler from 'lib/api';
 import * as Sentry from '@sentry/nextjs';
 

@@ -1,0 +1,9 @@
+[package]
+name = "lagon-runtime"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+v8 = "0.45.0"
+tokio = { version = "1", features = ["full"] }
+hyper = { version = "0.14", features = ["client", "http1", "http2", "tcp"] }

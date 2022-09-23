@@ -4,7 +4,7 @@ import {
   ORGANIZATION_NAME_MAX_LENGTH,
   ORGANIZATION_NAME_MIN_LENGTH,
 } from 'lib/constants';
-import prisma from '@lagon/prisma';
+import prisma from 'lib/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 

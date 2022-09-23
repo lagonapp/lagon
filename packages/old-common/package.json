@@ -1,0 +1,17 @@
+{
+  "name": "@lagon/old-common",
+  "version": "0.0.2",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "watch": "tsup src/index.ts --format=esm --dts --watch",
+    "build": "tsup src/index.ts --format=esm --dts",
+    "lint": "eslint --cache --ignore-pattern dist .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "mrmime": "^1.0.1"
+  }
+}

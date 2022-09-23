@@ -1,5 +1,5 @@
 import { removeDeployment, setCurrentDeployment } from 'lib/api/deployments';
-import prisma from '@lagon/prisma';
+import prisma from 'lib/prisma';
 import * as trpc from '@trpc/server';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';

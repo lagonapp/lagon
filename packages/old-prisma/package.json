@@ -1,0 +1,20 @@
+{
+  "name": "@lagon/old-prisma",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc index.ts --outDir dist --declaration --target es6 --moduleResolution node",
+    "lint": "eslint --cache --ignore-pattern dist .",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^3.15.2"
+  },
+  "devDependencies": {
+    "prisma": "^3.15.2"
+  }
+}

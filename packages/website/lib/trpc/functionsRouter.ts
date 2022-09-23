@@ -1,10 +1,14 @@
 import { z } from 'zod';
-import prisma from '@lagon/prisma';
+import prisma from 'lib/prisma';
 import { createRouter } from 'pages/api/trpc/[trpc]';
 import { LOG_LEVELS, TIMEFRAMES } from 'lib/types';
 import { getDeploymentCode, removeFunction, updateDomains } from 'lib/api/deployments';
-import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
-import { FUNCTION_DEFAULT_MEMORY, FUNCTION_DEFAULT_TIMEOUT } from '@lagon/common';
+import {
+  FUNCTION_DEFAULT_MEMORY,
+  FUNCTION_DEFAULT_TIMEOUT,
+  FUNCTION_NAME_MAX_LENGTH,
+  FUNCTION_NAME_MIN_LENGTH,
+} from 'lib/constants';
 import * as trpc from '@trpc/server';
 
 export const functionsRouter = () =>

@@ -1,0 +1,19 @@
+[package]
+name = "lagon-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lagon-runtime = { path = "../runtime" }
+clap = { version = "3.2", features = ["derive"] }
+dialoguer = "0.10.2"
+indicatif = "0.17.1"
+colored = "2.0.0"
+dirs = "4.0.0"
+webbrowser = "0.8.0"
+tokio = { version = "1", features = ["full"] }
+hyper = { version = "0.14", features = ["client", "http1", "http2", "tcp"] }
+multipart = "0.18.0"
+mime = "0.3.16"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
