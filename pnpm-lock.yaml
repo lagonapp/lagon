@@ -150,10 +150,16 @@ importers:
     devDependencies:
       astro: 1.0.0-rc.7
 
-  packages/cli:
+  packages/common:
+    specifiers:
+      mrmime: ^1.0.1
+    dependencies:
+      mrmime: 1.0.1
+
+  packages/old-cli:
     specifiers:
       '@lagon/common': workspace:0.0.2
-      '@lagon/runtime': workspace:0.0.6
+      '@lagon/old-runtime': workspace:0.0.6
       '@trpc/client': ^9.25.3
       '@types/inquirer': ^8.2.1
       '@types/update-notifier': ^5.1.0
@@ -166,7 +172,7 @@ importers:
       open: ^8.4.0
       update-notifier: ^6.0.1
     dependencies:
-      '@lagon/runtime': link:../runtime
+      '@lagon/old-runtime': link:../old-runtime
       '@trpc/client': 9.25.3
       chalk: 5.0.1
       commander: 9.3.0
@@ -181,22 +187,7 @@ importers:
       '@types/inquirer': 8.2.1
       '@types/update-notifier': 5.1.0
 
-  packages/common:
-    specifiers:
-      mrmime: ^1.0.1
-    dependencies:
-      mrmime: 1.0.1
-
-  packages/prisma:
-    specifiers:
-      '@prisma/client': ^3.15.2
-      prisma: ^3.15.2
-    dependencies:
-      '@prisma/client': 3.15.2_prisma@3.15.2
-    devDependencies:
-      prisma: 3.15.2
-
-  packages/runtime:
+  packages/old-runtime:
     specifiers:
       '@types/node': ^17.0.35
       isolated-vm: ^4.4.1
@@ -207,21 +198,12 @@ importers:
     devDependencies:
       '@types/node': 17.0.35
 
-  packages/rust-runtime:
-    specifiers:
-      esbuild: ^0.14.41
-      web-streams-polyfill: ^3.2.1
-    dependencies:
-      web-streams-polyfill: 3.2.1
-    devDependencies:
-      esbuild: 0.14.48
-
-  packages/serverless:
+  packages/old-serverless:
     specifiers:
       '@aws-sdk/client-s3': ^3.100.0
       '@lagon/common': workspace:0.0.2
+      '@lagon/old-runtime': workspace:0.0.6
       '@lagon/prisma': workspace:0.0.1
-      '@lagon/runtime': workspace:0.0.6
       '@sentry/node': ^7.1.1
       '@sentry/tracing': ^7.1.1
       '@types/node': ^17.0.35
@@ -232,8 +214,8 @@ importers:
       redis: ^4.1.0
     dependencies:
       '@aws-sdk/client-s3': 3.121.0
+      '@lagon/old-runtime': link:../old-runtime
       '@lagon/prisma': link:../prisma
-      '@lagon/runtime': link:../runtime
       '@sentry/node': 7.5.0
       '@sentry/tracing': 7.5.0
       cron-parser: 4.6.0
@@ -244,6 +226,24 @@ importers:
     devDependencies:
       '@lagon/common': link:../common
       '@types/node': 17.0.35
+
+  packages/prisma:
+    specifiers:
+      '@prisma/client': ^3.15.2
+      prisma: ^3.15.2
+    dependencies:
+      '@prisma/client': 3.15.2_prisma@3.15.2
+    devDependencies:
+      prisma: 3.15.2
+
+  packages/rust-runtime:
+    specifiers:
+      esbuild: ^0.14.41
+      web-streams-polyfill: ^3.2.1
+    dependencies:
+      web-streams-polyfill: 3.2.1
+    devDependencies:
+      esbuild: 0.14.48
 
   packages/types:
     specifiers:
