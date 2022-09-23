@@ -5,7 +5,7 @@ coverage/
 .turbo/
 ssl/
 target/
-packages/rust-serverless/deployments/
+packages/serverless/deployments/
 
 .eslintcache
 .DS_Store

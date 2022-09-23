@@ -1,4 +1,6 @@
-use crate::{http::Response, isolate::Isolate};
+use hyper::{Client, http::Request, body};
+
+use crate::{http::{Response}, isolate::Isolate};
 
 pub fn fetch_binding(
     scope: &mut v8::HandleScope,
@@ -15,23 +17,31 @@ pub fn fetch_binding(
 
     let (sender, receiver) = std::sync::mpsc::channel();
 
-    let join_handle = tokio::task::spawn_blocking(move || {
+    let join_handle = tokio::task::spawn_local(async move {
         println!("spawning task");
 
-        let reqwest = reqwest::blocking::get(resource).unwrap();
-        let status = reqwest.status().as_u16();
-        let body = reqwest.text().unwrap();
-
-        sender
-            .send(Response {
-                body,
-                headers: None,
-                status,
-            })
+        let request = Request::builder()
+            .method("GET")
+            .uri(resource)
+            .body(hyper::Body::empty())
             .unwrap();
+        let client = Client::new();
+
+            let response = client.request(request).await.unwrap();
+            let status = response.status().as_u16();
+            let body = body::to_bytes(response.into_body()).await.unwrap();
+            let body = String::from_utf8(body.to_vec()).unwrap();
+
+            sender
+                .send(Response {
+                    body,
+                    headers: None,
+                    status,
+                })
+                .unwrap();
     });
 
-    state.promises.push(join_handle);
+    // state.promises.push(join_handle);
 
     retval.set(promise.into());
 

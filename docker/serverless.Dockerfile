@@ -1,34 +1,51 @@
-FROM node:16-slim as builder
+# FROM node:16-slim as builder
 
-RUN apt update
-RUN apt install -y python3 make g++ openssl
+# RUN apt update
+# RUN apt install -y python3 make g++ openssl
 
-RUN npm install -g pnpm
+# RUN npm install -g pnpm
+# WORKDIR /app
+
+# COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# COPY packages/runtime/package.json ./packages/runtime/package.json
+# COPY packages/serverless/package.json ./packages/serverless/package.json
+# COPY packages/prisma/package.json ./packages/prisma/package.json
+# COPY packages/common/package.json ./packages/common/package.json
+
+# RUN pnpm install --frozen-lockfile
+
+# COPY packages/runtime/ ./packages/runtime/
+# COPY packages/serverless/ ./packages/serverless/
+# COPY packages/prisma/ ./packages/prisma/
+# COPY packages/common/ ./packages/common/
+
+# WORKDIR /app/packages/runtime
+# RUN pnpm build
+# RUN pnpm build:runtime
+
+# WORKDIR /app/packages/prisma
+# RUN pnpm prisma generate
+
+# WORKDIR /app/packages/serverless
+# RUN pnpm build
+
+# EXPOSE 4000
+# ENV NODE_ENV=production
+# CMD [ "pnpm", "start" ]
+
+
+FROM rust:1.63 as builder
+
 WORKDIR /app
-
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY packages/runtime/package.json ./packages/runtime/package.json
-COPY packages/serverless/package.json ./packages/serverless/package.json
-COPY packages/prisma/package.json ./packages/prisma/package.json
-COPY packages/common/package.json ./packages/common/package.json
-
-RUN pnpm install --frozen-lockfile
-
-COPY packages/runtime/ ./packages/runtime/
-COPY packages/serverless/ ./packages/serverless/
-COPY packages/prisma/ ./packages/prisma/
-COPY packages/common/ ./packages/common/
-
-WORKDIR /app/packages/runtime
-RUN pnpm build
-RUN pnpm build:runtime
-
-WORKDIR /app/packages/prisma
-RUN pnpm prisma generate
+COPY . .
 
 WORKDIR /app/packages/serverless
-RUN pnpm build
+RUN cargo build --release
+
+FROM debian:buster-slim
+
+RUN apt-get update && apt-get install libssl-dev -y &&  rm -rf /var/lib/apt/lists/*
+COPY --from=builder /app/target/release/lagon-serverless /usr/local/bin/lagon-serverless
 
 EXPOSE 4000
-ENV NODE_ENV=production
-CMD [ "pnpm", "start" ]
+CMD ["lagon-serverless"]
