@@ -9,7 +9,7 @@
     "lint": "turbo lint --filter=!@lagon/old-*",
     "typecheck": "turbo typecheck --continue --filter=!@lagon/old-*",
     "docker:build:serverless": "docker build -t lagon/serverless -f docker/serverless.Dockerfile .",
-    "docker:start:serverless": "docker run --rm -p 4000:4000 lagon/serverless",
+    "docker:start:serverless": "docker run --rm -p 4000:4000 --env-file packages/serverless/.env --network host lagon/serverless",
     "docker:build:nginx": "docker build -t lagon/nginx -f docker/nginx.Dockerfile ./docker/nginx",
     "docker:start:nginx": "docker run --rm -p 80:80 lagon/nginx",
     "release": "pnpm build && pnpm changeset publish",
