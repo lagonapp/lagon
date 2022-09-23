@@ -6,9 +6,9 @@ coverage/
 ssl/
 target/
 packages/serverless/deployments/
+.vercel/
 
 .eslintcache
 .DS_Store
 .env
 tsconfig.tsbuildinfo
-.vercel

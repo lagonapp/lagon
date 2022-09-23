@@ -11,6 +11,10 @@
       ],
       "outputs": []
     },
+    "lint": {
+      "dependsOn": [],
+      "outputs": []
+    },
     "build": {
       "dependsOn": [
         "^build"
@@ -19,14 +23,6 @@
         "dist/**",
         ".next/**",
         "target/debug/**"
-      ]
-    },
-    "build:runtime": {
-      "dependsOn": [
-        "^build:runtime"
-      ],
-      "outputs": [
-        "js/runtime.js"
       ]
     }
   }

@@ -2,7 +2,7 @@ use v8::V8;
 
 use crate::isolate::IsolateOptions;
 
-static JS_RUNTIME: &str = include_str!("../../js/runtime.js");
+static JS_RUNTIME: &str = include_str!("../../runtime.js");
 
 pub struct RuntimeOptions {
     allow_eval: bool,
