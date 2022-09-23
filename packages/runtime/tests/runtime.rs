@@ -311,7 +311,7 @@ async fn memory_reached() {
     return new Response('Should not be reached');
 }"
         .into(),
-    ));
+    ).with_timeout(1000)); // Increase timeout for CI
 
     assert_eq!(
         isolate.run(Request {
