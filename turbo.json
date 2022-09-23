@@ -2,10 +2,6 @@
   "$schema": "https://turborepo.org/schema.json",
   "baseBranch": "origin/main",
   "pipeline": {
-    "lint": {
-      "dependsOn": [],
-      "outputs": []
-    },
     "typecheck": {
       "dependsOn": [
         "^build"
@@ -18,7 +14,8 @@
       ],
       "outputs": [
         "dist/**",
-        ".next/**"
+        ".next/**",
+        "target/debug/**"
       ]
     },
     "build:runtime": {
@@ -26,7 +23,7 @@
         "^build:runtime"
       ],
       "outputs": [
-        "dist/**"
+        "js/runtime.js"
       ]
     }
   }
