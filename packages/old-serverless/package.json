@@ -1,5 +1,5 @@
 {
-  "name": "@lagon/serverless",
+  "name": "@lagon/old-serverless",
   "version": "0.0.4",
   "private": true,
   "type": "module",
@@ -14,7 +14,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.100.0",
     "@lagon/prisma": "workspace:0.0.1",
-    "@lagon/runtime": "workspace:0.0.6",
+    "@lagon/old-runtime": "workspace:0.0.6",
     "@sentry/node": "^7.1.1",
     "@sentry/tracing": "^7.1.1",
     "cron-parser": "^4.4.0",
