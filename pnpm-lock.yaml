@@ -153,21 +153,6 @@ importers:
   packages/cli:
     specifiers: {}
 
-  packages/common:
-    specifiers:
-      mrmime: ^1.0.1
-    dependencies:
-      mrmime: 1.0.1
-
-  packages/prisma:
-    specifiers:
-      '@prisma/client': ^3.15.2
-      prisma: ^3.15.2
-    dependencies:
-      '@prisma/client': 3.15.2_prisma@3.15.2
-    devDependencies:
-      prisma: 3.15.2
-
   packages/runtime:
     specifiers:
       esbuild: ^0.14.41
@@ -192,10 +177,9 @@ importers:
       '@babel/core': ^7.18.2
       '@headlessui/react': ^1.6.4
       '@heroicons/react': ^1.0.6
-      '@lagon/common': workspace:0.0.2
-      '@lagon/prisma': workspace:0.0.1
       '@monaco-editor/react': ^4.4.5
       '@next-auth/prisma-adapter': ^1.0.3
+      '@prisma/client': ^3.15.2
       '@radix-ui/react-alert-dialog': ^0.1.7
       '@radix-ui/react-tabs': ^0.1.5
       '@scaleway/use-random-name': ^0.2.3
@@ -227,8 +211,8 @@ importers:
       next: 12.1.6
       next-auth: ^4.3.4
       next-international: ^0.2.0
-      next-transpile-modules: ^9.0.0
       postcss: ^8.4.14
+      prisma: ^3.15.2
       react: 18.1.0
       react-chartjs-2: ^4.2.0
       react-dom: 18.1.0
@@ -244,10 +228,9 @@ importers:
       '@aws-sdk/client-s3': 3.121.0
       '@headlessui/react': 1.6.5_ef5jwxihqo6n7gxfmzogljlgcm
       '@heroicons/react': 1.0.6_react@18.1.0
-      '@lagon/common': link:../common
-      '@lagon/prisma': link:../prisma
       '@monaco-editor/react': 4.4.5_d24t5d2y775ybedwi37th2htxm
-      '@next-auth/prisma-adapter': 1.0.3_next-auth@4.8.0
+      '@next-auth/prisma-adapter': 1.0.3_tl25cndjt3hldaanbvhdxcx6uq
+      '@prisma/client': 3.15.2_prisma@3.15.2
       '@radix-ui/react-alert-dialog': 0.1.7_iupzlfzo47c7rghj3avw7kmjhq
       '@radix-ui/react-tabs': 0.1.5_react@18.1.0
       '@scaleway/use-random-name': 0.2.4_react@18.1.0
@@ -263,7 +246,6 @@ importers:
       next: 12.1.6_yz5u6557yqtbarbugy7nmayfrq
       next-auth: 4.8.0_ef5jwxihqo6n7gxfmzogljlgcm
       next-international: 0.2.0_next@12.1.6+react@18.1.0
-      next-transpile-modules: 9.0.0
       react: 18.1.0
       react-chartjs-2: 4.2.0_3loy6czceob3hzurpbyqxprqge
       react-dom: 18.1.0_react@18.1.0
@@ -291,6 +273,7 @@ importers:
       eslint-config-next: 12.1.6_qu5xcsxwwf75pejx4fklajr4oe
       eslint-plugin-storybook: 0.5.13_4x5o4skxv6sl53vpwefgt23khm
       postcss: 8.4.14
+      prisma: 3.15.2
       tailwindcss: 3.1.4
       tsconfig-paths-webpack-plugin: 3.5.2
       typescript: 4.7.4
@@ -3296,12 +3279,13 @@ packages:
       glob-to-regexp: 0.3.0
     dev: true
 
-  /@next-auth/prisma-adapter/1.0.3_next-auth@4.8.0:
+  /@next-auth/prisma-adapter/1.0.3_tl25cndjt3hldaanbvhdxcx6uq:
     resolution: {integrity: sha512-3Lq1cD3ytKM3EGKJZ4UZvlqshLtlPvYxLeCrUV9ifYwYlq51kmDaHjsIawlp8EbH5pE1UhlsvtlXMery7RghtA==}
     peerDependencies:
       '@prisma/client': '>=2.26.0 || >=3'
       next-auth: ^4.0.1
     dependencies:
+      '@prisma/client': 3.15.2_prisma@3.15.2
       next-auth: 4.8.0_ef5jwxihqo6n7gxfmzogljlgcm
     dev: false
 
@@ -8676,6 +8660,7 @@ packages:
     dependencies:
       graceful-fs: 4.2.10
       tapable: 2.2.1
+    dev: true
 
   /enquirer/2.3.6:
     resolution: {integrity: sha512-yjNnPr315/FjS4zIsUxYguYUPP2e1NK4d7E7ZOLiyYCcbFBiTMyID+2wvm2w6+pZ/odMA7cRkjhsPbltwBOrLg==}
@@ -9030,7 +9015,7 @@ packages:
       eslint-plugin-jsx-a11y: 6.6.0_eslint@8.19.0
       eslint-plugin-react: 7.30.1_eslint@8.19.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.19.0
-      next: 12.1.6_ef5jwxihqo6n7gxfmzogljlgcm
+      next: 12.1.6_yz5u6557yqtbarbugy7nmayfrq
       typescript: 4.7.4
     transitivePeerDependencies:
       - eslint-import-resolver-webpack
@@ -10314,6 +10299,7 @@ packages:
 
   /graceful-fs/4.2.10:
     resolution: {integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==}
+    dev: true
 
   /grapheme-splitter/1.0.4:
     resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}
@@ -12807,6 +12793,7 @@ packages:
   /mrmime/1.0.1:
     resolution: {integrity: sha512-hzzEagAgDyoU1Q6yg5uI+AorQgdvMCur3FcKf7NhMKWsaYg+RnbTyHRa/9IlLF9rf455MOCtcqqrQQ83pPP7Uw==}
     engines: {node: '>=10'}
+    dev: true
 
   /ms/2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
@@ -12918,13 +12905,6 @@ packages:
       react: 18.1.0
     dev: false
 
-  /next-transpile-modules/9.0.0:
-    resolution: {integrity: sha512-VCNFOazIAnXn1hvgYYSTYMnoWgKgwlYh4lm1pKbSfiB3kj5ZYLcKVhfh3jkPOg1cnd9DP+pte9yCUocdPEUBTQ==}
-    dependencies:
-      enhanced-resolve: 5.10.0
-      escalade: 3.1.1
-    dev: false
-
   /next/12.1.6_ef5jwxihqo6n7gxfmzogljlgcm:
     resolution: {integrity: sha512-cebwKxL3/DhNKfg9tPZDQmbRKjueqykHHbgaoG4VBRH3AHQJ2HO0dbKFiS1hPhe1/qgc2d/hFeadsbPicmLD+A==}
     engines: {node: '>=12.22.0'}
@@ -12965,6 +12945,7 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
+    dev: false
 
   /next/12.1.6_yz5u6557yqtbarbugy7nmayfrq:
     resolution: {integrity: sha512-cebwKxL3/DhNKfg9tPZDQmbRKjueqykHHbgaoG4VBRH3AHQJ2HO0dbKFiS1hPhe1/qgc2d/hFeadsbPicmLD+A==}
@@ -13006,7 +12987,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
-    dev: false
 
   /nice-try/1.0.5:
     resolution: {integrity: sha512-1nh45deeb5olNY7eX82BkPO7SSxR5SSYJiPTrTdFUVYwAl8CKMA5N9PjTYkHiRjisVcxcQ1HXdLhx2qxxJzLNQ==}
@@ -16020,7 +16000,6 @@ packages:
     dependencies:
       '@babel/core': 7.18.6
       react: 18.1.0
-    dev: false
 
   /styled-jsx/5.0.2_react@18.1.0:
     resolution: {integrity: sha512-LqPQrbBh3egD57NBcHET4qcgshPks+yblyhPlH2GY8oaDgKs8SK4C3dBh3oSJjgzJ3G5t1SYEZGHkP+QEpX9EQ==}
@@ -16036,6 +16015,7 @@ packages:
         optional: true
     dependencies:
       react: 18.1.0
+    dev: false
 
   /sucrase/3.23.0:
     resolution: {integrity: sha512-xgC1xboStzGhCnRywlBf/DLmkC+SkdAKqrNCDsxGrzM0phR5oUxoFKiQNrsc2D8wDdAm03iLbSZqjHDddo3IzQ==}
@@ -16134,6 +16114,7 @@ packages:
   /tapable/2.2.1:
     resolution: {integrity: sha512-GNzQvQTOIP6RyTfE2Qxb8ZVlNmw0n88vp1szwWRimP02mnTsx3Wtn5qRdqY9w2XduFNUgvOwhNnQsjwCp+kqaQ==}
     engines: {node: '>=6'}
+    dev: true
 
   /tar/6.1.11:
     resolution: {integrity: sha512-an/KZQzQUkZCkuoAA64hM92X0Urb6VpRhAFllDzz44U2mcD5scmT3zBc4VgVpkugF580+DQn8eAFSyoQt0tznA==}

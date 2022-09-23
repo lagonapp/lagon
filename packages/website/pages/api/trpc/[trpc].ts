@@ -6,7 +6,7 @@ import { functionsRouter } from 'lib/trpc/functionsRouter';
 import { organizationsRouter } from 'lib/trpc/organizationsRouter';
 import { tokensRouter } from 'lib/trpc/tokensRouter';
 import { deploymentsRouter } from 'lib/trpc/deploymentsRouter';
-import prisma from '@lagon/prisma';
+import prisma from 'lib/prisma';
 import { Session } from 'next-auth';
 import * as Sentry from '@sentry/nextjs';
 import { accountsRouter } from 'lib/trpc/accountsRouter';

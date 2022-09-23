@@ -17,13 +17,12 @@ import {
   requiredValidator,
 } from 'lib/form/validators';
 import Dialog from 'lib/components/Dialog';
-import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH } from 'lib/constants';
+import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH, Regions, REGIONS } from 'lib/constants';
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from 'react-query';
 import { useI18n } from 'locales';
 import Menu from 'lib/components/Menu';
-import { Regions, REGIONS } from '@lagon/common';
 
 type FunctionSettingsProps = {
   func: ReturnType<typeof useFunction>['data'];
