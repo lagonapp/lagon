@@ -1,6 +1,6 @@
-use hyper::{Client, http::Request, body};
+use hyper::{body, http::Request, Client};
 
-use crate::{http::{Response}, isolate::Isolate};
+use crate::{http::Response, isolate::Isolate};
 
 pub fn fetch_binding(
     scope: &mut v8::HandleScope,
@@ -27,18 +27,18 @@ pub fn fetch_binding(
             .unwrap();
         let client = Client::new();
 
-            let response = client.request(request).await.unwrap();
-            let status = response.status().as_u16();
-            let body = body::to_bytes(response.into_body()).await.unwrap();
-            let body = String::from_utf8(body.to_vec()).unwrap();
+        let response = client.request(request).await.unwrap();
+        let status = response.status().as_u16();
+        let body = body::to_bytes(response.into_body()).await.unwrap();
+        let body = String::from_utf8(body.to_vec()).unwrap();
 
-            sender
-                .send(Response {
-                    body,
-                    headers: None,
-                    status,
-                })
-                .unwrap();
+        sender
+            .send(Response {
+                body,
+                headers: None,
+                status,
+            })
+            .unwrap();
     });
 
     // state.promises.push(join_handle);

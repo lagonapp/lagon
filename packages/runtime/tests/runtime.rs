@@ -297,8 +297,9 @@ async fn timeout_reached() {
 #[tokio::test(flavor = "multi_thread")]
 async fn memory_reached() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     const storage = [];
     const twoMegabytes = 1024 * 1024 * 2;
     while (true) {
@@ -310,8 +311,10 @@ async fn memory_reached() {
     }
     return new Response('Should not be reached');
 }"
-        .into(),
-    ).with_timeout(1000)); // Increase timeout for CI
+            .into(),
+        )
+        .with_timeout(1000),
+    ); // Increase timeout for CI
 
     assert_eq!(
         isolate.run(Request {

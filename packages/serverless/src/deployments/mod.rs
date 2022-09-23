@@ -6,7 +6,9 @@ use tokio::sync::RwLock;
 
 use crate::deployments::filesystem::has_deployment_code;
 
-use self::filesystem::{rm_deployment, write_deployment, write_deployment_asset};
+use self::filesystem::{
+    create_deployments_folder, rm_deployment, write_deployment, write_deployment_asset,
+};
 
 pub mod assets;
 pub mod filesystem;
@@ -63,7 +65,9 @@ pub async fn get_deployments(
         )
         .unwrap();
 
-    println!("Deployments: {:?}", deployments_list);
+    if let Err(error) = create_deployments_folder() {
+        println!("Could not create deployments folder: {}", error);
+    }
 
     if let Err(error) = delete_old_deployments(&deployments_list).await {
         println!("Failed to delete old deployments: {:?}", error);

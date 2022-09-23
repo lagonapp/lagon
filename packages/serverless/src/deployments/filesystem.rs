@@ -3,6 +3,16 @@ use std::{env, fs, io, path::Path};
 
 use super::Deployment;
 
+pub fn create_deployments_folder() -> io::Result<()> {
+    let path = Path::new("deployments");
+
+    if !path.exists() {
+        fs::create_dir(path)?;
+    }
+
+    Ok(())
+}
+
 pub fn has_deployment_code(deployment: &Deployment) -> bool {
     let path = Path::new("deployments").join(deployment.id.clone() + ".js");
 
