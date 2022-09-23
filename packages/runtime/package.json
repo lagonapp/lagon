@@ -5,7 +5,8 @@
   "private": true,
   "scripts": {
     "build": "cargo build",
-    "build:runtime": "pnpm esbuild js/index.ts --bundle --outfile=js/runtime.js --format=esm --target=es2022"
+    "build:runtime": "pnpm esbuild js/index.ts --bundle --outfile=js/runtime.js --format=esm --target=es2022",
+    "test": "cargo test"
   },
   "devDependencies": {
     "esbuild": "^0.14.41"

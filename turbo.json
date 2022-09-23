@@ -2,6 +2,10 @@
   "$schema": "https://turborepo.org/schema.json",
   "pipeline": {
     "typecheck": {
+      "dependsOn": [],
+      "outputs": []
+    },
+    "test": {
       "dependsOn": [
         "^build"
       ],

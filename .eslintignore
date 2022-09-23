@@ -1,2 +1,5 @@
 dist/
+packages/old-*/**/*
 runtime.js
+
+*.log
