@@ -19,7 +19,7 @@ jobs:
         cache: 'pnpm'
     - name: Install dependencies
       run: pnpm install
-    - name: Run ESLint
+    - name: Lint
       run: pnpm lint
   test:
     runs-on: ubuntu-20.04
@@ -35,9 +35,9 @@ jobs:
         cache: 'pnpm'
     - name: Install dependencies
       run: pnpm install
-    - name: Build needed packages
-      run: pnpm turbo run build build:runtime --filter="@lagon/common" --filter="@lagon/runtime" --filter="@lagon/serverless"
-    - name: Run Vitest
+    - name: Build runtime
+      run: pnpm turbo build --filter=@lagon/js-runtime
+    - name: Test
       run: pnpm test
   typecheck:
     runs-on: ubuntu-20.04
@@ -53,7 +53,7 @@ jobs:
         cache: 'pnpm'
     - name: Install dependencies
       run: pnpm install
-    - name: Run TSC
+    - name: Typecheck
       run: pnpm typecheck
   build:
     runs-on: ubuntu-20.04
