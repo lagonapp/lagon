@@ -17,6 +17,9 @@ function getPlatform() {
 }
 
 function getBinary() {
+  // Prevent exiting with code 1
+  process.exit = () => {};
+
   const platform = getPlatform();
   const { version } = require('../package.json');
   const url = `https://github.com/lagonapp/lagon/releases/download/v${version}/lagon-${platform}.tar.gz`;
