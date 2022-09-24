@@ -1,0 +1,25 @@
+name: CD
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  artifacts:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            asset_name: lagon-linux-x64
+          - os: macos-latest
+            asset_name: lagon-darwin-x64
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: cargo build --release
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.asset_name }}
+        path: target/release/lagon-cli
