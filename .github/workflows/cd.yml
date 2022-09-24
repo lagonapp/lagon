@@ -29,9 +29,13 @@ jobs:
     - name: Build js-runtime
       run: pnpm turbo build --filter=@lagon/js-runtime
     - name: Build CLI
-      run: cd packages/cli && cargo build --release
+      run: |
+        cd packages/cli && cargo build --release
+        mkdir -p builds/${{ matrix.asset_name }}
+        cp ../../target/release/lagon-cli builds/${{ matrix.asset_name }}/lagon
+        tar -C builds -czvf ${{ matrix.asset_name }}.tar.gz ${{ matrix.asset_name }}
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
         name: ${{ matrix.asset_name }}
-        path: target/release/lagon-cli
+        path: packages/cli/*.tar.gz
