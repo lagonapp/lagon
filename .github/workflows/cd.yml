@@ -16,8 +16,20 @@ jobs:
             asset_name: lagon-darwin-x64
     steps:
     - uses: actions/checkout@v2
-    - name: Build
-      run: cargo build --release
+    - uses: pnpm/action-setup@v2.2.2
+      with:
+        version: 7
+    - name: Use Node.js 16
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
+        cache: 'pnpm'
+    - name: Install dependencies
+      run: pnpm install
+    - name: Build js-runtime
+      run: pnpm turbo build --filter=@lagon/js-runtime
+    - name: Build CLI
+      run: cd packages/cli && cargo build --release
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
