@@ -14,15 +14,23 @@ jobs:
           - os: ubuntu-20.04
             target: x86_64-unknown-linux-gnu
             asset_name: lagon-linux-x64
+            input: lagon-cli
+            output: lagon
           - os: ubuntu-20.04
             target: aarch64-unknown-linux-gnu
             asset_name: lagon-linux-arm64
+            input: lagon-cli
+            output: lagon
           - os: macOS-latest
             target: x86_64-apple-darwin
             asset_name: lagon-darwin-x64
+            input: lagon-cli
+            output: lagon
           - os: windows-2019
             target: x86_64-pc-windows-msvc
             asset_name: lagon-win-x64
+            input: lagon-cli.exe
+            output: lagon.exe
     steps:
     - uses: actions/checkout@v2
     - uses: actions-rs/toolchain@v1
@@ -59,11 +67,7 @@ jobs:
       run: |
         cd packages/cli && cargo build --release --target ${{ matrix.target }}
         mkdir -p builds/${{ matrix.asset_name }}
-        ls ../../
-        ls ../../target
-        ls ../../target/${{ matrix.target }}
-        ls ../../target/${{ matrix.target }}/release
-        cp ../../target/${{ matrix.target }}/release/lagon-cli builds/${{ matrix.asset_name }}/lagon
+        cp ../../target/${{ matrix.target }}/release/${{ matrix.input }} builds/${{ matrix.asset_name }}/${{ matrix.output }}
         tar -C builds -czvf ${{ matrix.asset_name }}.tar.gz ${{ matrix.asset_name }}
     - name: Upload artifact
       uses: actions/upload-artifact@v3
