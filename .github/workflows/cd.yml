@@ -5,6 +5,9 @@ on:
       - main
     tags:
       - '@lagon/cli@*'
+    paths:
+      - packages/cli/**
+      - packages/runtime/**
   pull_request:
     paths:
       - packages/cli/**
