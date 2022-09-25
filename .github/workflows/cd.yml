@@ -8,6 +8,7 @@ jobs:
   artifacts:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: ubuntu-20.04
@@ -58,7 +59,7 @@ jobs:
       run: |
         cd packages/cli && cargo build --release --target ${{ matrix.target }}
         mkdir -p builds/${{ matrix.asset_name }}
-        cp ../../target/release/lagon-cli builds/${{ matrix.asset_name }}/lagon
+        cp ../../target/${{ matrix.target }}/release/lagon-cli builds/${{ matrix.asset_name }}/lagon
         tar -C builds -czvf ${{ matrix.asset_name }}.tar.gz ${{ matrix.asset_name }}
     - name: Upload artifact
       uses: actions/upload-artifact@v3
