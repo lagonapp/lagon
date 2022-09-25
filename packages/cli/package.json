@@ -5,7 +5,9 @@
   "files": [
     "npm"
   ],
-  "bin": "./npm/run.js",
+  "bin": {
+    "lagon": "./npm/run.js"
+  },
   "scripts": {
     "build": "cargo build",
     "postinstall": "node npm/install.js",
