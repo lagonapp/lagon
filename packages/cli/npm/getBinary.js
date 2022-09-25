@@ -5,9 +5,7 @@ function getPlatform() {
   const type = os.type();
   const arch = os.arch();
 
-  if (type === 'Windows_NT' && arch === 'x64') return 'win64-x64';
-  if (type === 'Windows_NT' && arch === 'arm64') return 'win64-arm64';
-  if (type === 'Windows_NT') return 'win32';
+  if (type === 'Windows_NT' && arch === 'x64') return 'win-x64';
   if (type === 'Linux' && arch === 'x64') return 'linux-x64';
   if (type === 'Linux' && arch === 'arm64') return 'linux-arm64';
   if (type === 'Darwin' && arch === 'x64') return 'darwin-x64';
