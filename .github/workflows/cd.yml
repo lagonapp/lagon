@@ -6,6 +6,9 @@ on:
     tags:
       - '@lagon/cli@*'
   pull_request:
+    paths:
+      - packages/cli/**
+      - packages/runtime/**
 jobs:
   artifacts:
     name: Create Artifact ${{ matrix.target }} (${{ matrix.os }})
