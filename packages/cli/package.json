@@ -2,7 +2,16 @@
   "name": "@lagon/cli",
   "version": "0.1.0",
   "description": "CLI for Lagon",
+  "files": [
+    "npm"
+  ],
+  "bin": "./npm/run.js",
   "scripts": {
-    "build": "cargo build"
+    "build": "cargo build",
+    "postinstall": "node npm/install.js",
+    "preuninstall": "node npm/uninstall.js"
+  },
+  "dependencies": {
+    "binary-install": "^1.0.6"
   }
 }

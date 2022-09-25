@@ -1,0 +1,77 @@
+name: CD
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  artifacts:
+    name: Create Artifact ${{ matrix.target }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-20.04
+            target: x86_64-unknown-linux-gnu
+            asset_name: lagon-linux-x64
+            input: lagon-cli
+            output: lagon
+          - os: ubuntu-20.04
+            target: aarch64-unknown-linux-gnu
+            asset_name: lagon-linux-arm64
+            input: lagon-cli
+            output: lagon
+          - os: macOS-latest
+            target: x86_64-apple-darwin
+            asset_name: lagon-darwin-x64
+            input: lagon-cli
+            output: lagon
+          - os: windows-2019
+            target: x86_64-pc-windows-msvc
+            asset_name: lagon-win-x64
+            input: lagon-cli.exe
+            output: lagon.exe
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: stable
+        target: ${{ matrix.target }}
+        override: true
+    - uses: pnpm/action-setup@v2.2.2
+      with:
+        version: 7
+    - name: Use Node.js 16
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
+        cache: 'pnpm'
+    - name: Install cross compilation toolchain
+      if: matrix.target == 'aarch64-unknown-linux-gnu'
+      run: |
+        rustup target add aarch64-unknown-linux-gnu
+        sudo apt update
+        sudo apt install -yq --no-install-suggests --no-install-recommends \
+          binfmt-support g++-10-aarch64-linux-gnu g++-10-multilib \
+          gcc-10-aarch64-linux-gnu libc6-arm64-cross qemu qemu-user \
+          qemu-user-binfmt
+        sudo ln -s /usr/aarch64-linux-gnu/lib/ld-linux-aarch64.so.1 \
+                    /lib/ld-linux-aarch64.so.1
+        echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/aarch64-linux-gnu-gcc-10" >> ${GITHUB_ENV}
+        echo "QEMU_LD_PREFIX=/usr/aarch64-linux-gnu" >> ${GITHUB_ENV}
+    - name: Install dependencies
+      run: pnpm install
+    - name: Build js-runtime
+      run: pnpm turbo build --filter=@lagon/js-runtime
+    - name: Build CLI
+      run: |
+        cd packages/cli && cargo build --release --target ${{ matrix.target }}
+        mkdir -p builds/${{ matrix.asset_name }}
+        cp ../../target/${{ matrix.target }}/release/${{ matrix.input }} builds/${{ matrix.asset_name }}/${{ matrix.output }}
+        tar -C builds -czvf ${{ matrix.asset_name }}.tar.gz ${{ matrix.asset_name }}
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.asset_name }}
+        path: packages/cli/*.tar.gz
