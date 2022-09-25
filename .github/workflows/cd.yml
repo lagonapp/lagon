@@ -6,6 +6,7 @@ on:
   pull_request:
 jobs:
   artifacts:
+    name: Create Artifact ${{ matrix.target }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
