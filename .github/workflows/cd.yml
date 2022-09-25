@@ -11,23 +11,23 @@ jobs:
       matrix:
         include:
           # Linux
-          - toolchain: x86_64-unknown-linux-gnu
+          - target: x86_64-unknown-linux-gnu
             asset_name: lagon-linux-x64
-          - toolchain: aarch64-unknown-linux-musl
+          - target: aarch64-unknown-linux-musl
             asset_name: lagon-linux-arm64
           # Windows
-          - toolchain: x86_64-pc-windows-gnu
+          - target: x86_64-pc-windows-gnu
             asset_name: lagon-win-x64
           # Darwin
-          - toolchain: x86_64-apple-darwin
+          - target: x86_64-apple-darwin
             asset_name: lagon-darwin-x64
-          - toolchain: aarch64-apple-darwin
+          - target: aarch64-apple-darwin
             asset_name: lagon-darwin-arm64
     steps:
     - uses: actions/checkout@v2
     - uses: actions-rs/toolchain@v1
       with:
-        toolchain: ${{ matrix.toolchain }}
+        target: ${{ matrix.target }}
         override: true
     - uses: pnpm/action-setup@v2.2.2
       with:
@@ -43,7 +43,7 @@ jobs:
       run: pnpm turbo build --filter=@lagon/js-runtime
     - name: Build CLI
       run: |
-        cd packages/cli && cargo build --release --target ${{ matrix.toolchain }}
+        cd packages/cli && cargo build --release --target ${{ matrix.target }}
         mkdir -p builds/${{ matrix.asset_name }}
         cp ../../target/release/lagon-cli builds/${{ matrix.asset_name }}/lagon
         tar -C builds -czvf ${{ matrix.asset_name }}.tar.gz ${{ matrix.asset_name }}
