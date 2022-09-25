@@ -25,6 +25,10 @@ jobs:
             asset_name: lagon-darwin-arm64
     steps:
     - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.toolchain }}
+        override: true
     - uses: pnpm/action-setup@v2.2.2
       with:
         version: 7
@@ -39,7 +43,7 @@ jobs:
       run: pnpm turbo build --filter=@lagon/js-runtime
     - name: Build CLI
       run: |
-        cd packages/cli && cargo build --release
+        cd packages/cli && cargo build --release --target ${{ matrix.toolchain }}
         mkdir -p builds/${{ matrix.asset_name }}
         cp ../../target/release/lagon-cli builds/${{ matrix.asset_name }}/lagon
         tar -C builds -czvf ${{ matrix.asset_name }}.tar.gz ${{ matrix.asset_name }}
