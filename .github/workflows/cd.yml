@@ -59,6 +59,8 @@ jobs:
       run: |
         cd packages/cli && cargo build --release --target ${{ matrix.target }}
         mkdir -p builds/${{ matrix.asset_name }}
+        ls
+        ls ../../
         cp ../../target/${{ matrix.target }}/release/lagon-cli builds/${{ matrix.asset_name }}/lagon
         tar -C builds -czvf ${{ matrix.asset_name }}.tar.gz ${{ matrix.asset_name }}
     - name: Upload artifact
