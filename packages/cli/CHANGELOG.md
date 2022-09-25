@@ -1,5 +1,11 @@
 # @lagon/cli
 
+## 0.1.2
+
+### Patch Changes
+
+- [#150](https://github.com/lagonapp/lagon/pull/150) [`4b4a991`](https://github.com/lagonapp/lagon/commit/4b4a99135330a2d35689a7aed8feaeb5a6d162a8) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix binary name
+
 ## 0.1.1
 
 ### Patch Changes
