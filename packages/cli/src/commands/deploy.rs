@@ -60,7 +60,7 @@ pub async fn deploy(
     file: PathBuf,
     client: Option<PathBuf>,
     public_dir: Option<PathBuf>,
-    force: bool,
+    _force: bool,
 ) -> io::Result<()> {
     let token = get_token()?;
 

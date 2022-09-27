@@ -8,7 +8,7 @@ use crate::{
 };
 
 pub fn logout() -> io::Result<()> {
-    if let None = get_token()? {
+    if (get_token()?).is_none() {
         return Err(Error::new(ErrorKind::Other, "You are not logged in."));
     }
 
