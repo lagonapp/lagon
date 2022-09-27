@@ -1,38 +1,38 @@
-import { removeDeployment, removeFunction } from 'lib/api/deployments';
+import { removeFunction } from 'lib/api/deployments';
 import {
   ORGANIZATION_DESCRIPTION_MAX_LENGTH,
   ORGANIZATION_NAME_MAX_LENGTH,
   ORGANIZATION_NAME_MIN_LENGTH,
 } from 'lib/constants';
 import prisma from 'lib/prisma';
-import { createRouter } from 'pages/api/trpc/[trpc]';
+import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 
-export const organizationsRouter = () =>
-  createRouter()
-    .query('list', {
-      resolve: async ({ ctx }) => {
-        return prisma.organization.findMany({
-          where: {
-            ownerId: ctx.session.user.id,
-          },
-          select: {
-            id: true,
-            createdAt: true,
-            updatedAt: true,
-            name: true,
-            description: true,
-            ownerId: true,
-          },
-        });
-      },
-    })
-    .mutation('create', {
-      input: z.object({
-        name: z.string(),
-        description: z.string(),
-      }),
-      resolve: async ({ ctx, input }) => {
+export const organizationsRouter = (t: T) =>
+  t.router({
+    organizationsList: t.procedure.query(async ({ ctx }) => {
+      return prisma.organization.findMany({
+        where: {
+          ownerId: ctx.session.user.id,
+        },
+        select: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          name: true,
+          description: true,
+          ownerId: true,
+        },
+      });
+    }),
+    organizationCreate: t.procedure
+      .input(
+        z.object({
+          name: z.string(),
+          description: z.string(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
         const organization = await prisma.organization.create({
           data: {
             name: input.name,
@@ -59,15 +59,16 @@ export const organizationsRouter = () =>
         });
 
         return organization;
-      },
-    })
-    .mutation('update', {
-      input: z.object({
-        organizationId: z.string(),
-        name: z.string().min(ORGANIZATION_NAME_MIN_LENGTH).max(ORGANIZATION_NAME_MAX_LENGTH),
-        description: z.string().max(ORGANIZATION_DESCRIPTION_MAX_LENGTH).nullable(),
       }),
-      resolve: async ({ input }) => {
+    organizationUpdate: t.procedure
+      .input(
+        z.object({
+          organizationId: z.string(),
+          name: z.string().min(ORGANIZATION_NAME_MIN_LENGTH).max(ORGANIZATION_NAME_MAX_LENGTH),
+          description: z.string().max(ORGANIZATION_DESCRIPTION_MAX_LENGTH).nullable(),
+        }),
+      )
+      .mutation(async ({ input }) => {
         return prisma.organization.update({
           where: {
             id: input.organizationId,
@@ -84,13 +85,14 @@ export const organizationsRouter = () =>
             description: true,
           },
         });
-      },
-    })
-    .mutation('delete', {
-      input: z.object({
-        organizationId: z.string(),
       }),
-      resolve: async ({ ctx, input }) => {
+    organizationsDelete: t.procedure
+      .input(
+        z.object({
+          organizationId: z.string(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
         const functions = await prisma.function.findMany({
           where: {
             organizationId: input.organizationId,
@@ -157,13 +159,14 @@ export const organizationsRouter = () =>
         });
 
         return { ok: true };
-      },
-    })
-    .mutation('current', {
-      input: z.object({
-        organizationId: z.string(),
       }),
-      resolve: async ({ ctx, input }) => {
+    organizationSetCurrent: t.procedure
+      .input(
+        z.object({
+          organizationId: z.string(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
         await prisma.user.update({
           where: {
             id: ctx.session.user.id,
@@ -186,5 +189,5 @@ export const organizationsRouter = () =>
             ownerId: true,
           },
         });
-      },
-    });
+      }),
+  });

@@ -1,7 +1,7 @@
 import { trpc } from 'lib/trpc';
 
 const useVerificationCode = () => {
-  return trpc.useQuery(['tokens.verification-code']);
+  return trpc.tokensVerificationCode.useQuery();
 };
 
 export default useVerificationCode;

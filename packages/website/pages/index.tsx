@@ -10,7 +10,7 @@ import { getLocaleProps, useI18n } from 'locales';
 import { GetStaticProps } from 'next';
 
 const Home = () => {
-  const createFunction = trpc.useMutation(['functions.create']);
+  const createFunction = trpc.functionCreate.useMutation();
   const name = useRandomName();
   const router = useRouter();
   const { scopedT } = useI18n();

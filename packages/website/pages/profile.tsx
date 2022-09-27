@@ -18,8 +18,8 @@ import toast from 'react-hot-toast';
 const Profile = () => {
   const { data: session } = useSession();
   const { data: tokens = [], refetch } = useTokens();
-  const deleteToken = trpc.useMutation(['tokens.delete']);
-  const updateAccount = trpc.useMutation(['accounts.update']);
+  const deleteToken = trpc.tokensDelete.useMutation();
+  const updateAccount = trpc.accountUpdate.useMutation();
   const { scopedT } = useI18n();
   const t = scopedT('profile');
 

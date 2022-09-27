@@ -1,26 +1,29 @@
+import { TRPCError } from '@trpc/server';
 import { removeDeployment, setCurrentDeployment } from 'lib/api/deployments';
 import prisma from 'lib/prisma';
-import * as trpc from '@trpc/server';
-import { createRouter } from 'pages/api/trpc/[trpc]';
+import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 
-export const deploymentsRouter = () =>
-  createRouter()
-    .mutation('current', {
-      input: z.object({
-        functionId: z.string(),
-        deploymentId: z.string(),
-      }),
-      resolve: async ({ input }) => {
+export const deploymentsRouter = (t: T) =>
+  t.router({
+    deploymentCurrent: t.procedure
+      .input(
+        z.object({
+          functionId: z.string(),
+          deploymentId: z.string(),
+        }),
+      )
+      .mutation(async ({ input }) => {
         return setCurrentDeployment(input.functionId, input.deploymentId);
-      },
-    })
-    .mutation('delete', {
-      input: z.object({
-        functionId: z.string(),
-        deploymentId: z.string(),
       }),
-      resolve: async ({ input }) => {
+    deploymentDelete: t.procedure
+      .input(
+        z.object({
+          functionId: z.string(),
+          deploymentId: z.string(),
+        }),
+      )
+      .mutation(async ({ input }) => {
         const func = await prisma.function.findFirst({
           where: {
             id: input.functionId,
@@ -47,7 +50,7 @@ export const deploymentsRouter = () =>
         });
 
         if (!func) {
-          throw new trpc.TRPCError({
+          throw new TRPCError({
             code: 'NOT_FOUND',
           });
         }
@@ -59,5 +62,5 @@ export const deploymentsRouter = () =>
           },
           input.deploymentId,
         );
-      },
-    });
+      }),
+  });

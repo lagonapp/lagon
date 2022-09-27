@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import Button from 'lib/components/Button';
 import Form from 'lib/components/Form';
 import Input from 'lib/components/Input';
@@ -18,8 +19,8 @@ import toast from 'react-hot-toast';
 
 const New = () => {
   const router = useRouter();
-  const createOrganization = trpc.useMutation(['organizations.create']);
-  const queryContext = trpc.useContext();
+  const createOrganization = trpc.organizationCreate.useMutation();
+  const queryClient = useQueryClient();
   const { scopedT } = useI18n();
   const t = scopedT('new');
 
@@ -34,7 +35,7 @@ const New = () => {
       onSubmitSuccess={() => {
         toast.success(t('success'));
 
-        queryContext.refetchQueries();
+        queryClient.refetchQueries();
         reloadSession();
         router.push('/');
       }}

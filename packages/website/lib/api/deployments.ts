@@ -3,7 +3,7 @@ import redis from 'lib/redis';
 import s3 from 'lib/s3';
 import prisma from 'lib/prisma';
 import { Readable } from 'node:stream';
-import * as trpc from '@trpc/server';
+import { TRPCError } from '@trpc/server';
 import fs from 'node:fs';
 import { envStringToObject } from 'lib/utils';
 
@@ -213,7 +213,7 @@ export async function removeCurrentDeployment(functionId: string): Promise<{
   });
 
   if (!currentDeployment) {
-    throw new trpc.TRPCError({
+    throw new TRPCError({
       code: 'NOT_FOUND',
     });
   }
@@ -263,7 +263,7 @@ export async function setCurrentDeployment(
   });
 
   if (!func) {
-    throw new trpc.TRPCError({
+    throw new TRPCError({
       code: 'NOT_FOUND',
     });
   }

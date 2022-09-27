@@ -1,69 +1,67 @@
 import prisma from 'lib/prisma';
-import { createRouter } from 'pages/api/trpc/[trpc]';
+import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
-import * as trpc from '@trpc/server';
+import { TRPCError } from '@trpc/server';
 
-export const tokensRouter = () =>
-  createRouter()
-    .query('list', {
-      resolve: async ({ ctx }) => {
-        return prisma.token.findMany({
-          where: {
-            userId: ctx.session.user.id,
-          },
-          select: {
-            id: true,
-            createdAt: true,
-            updatedAt: true,
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
+export const tokensRouter = (t: T) =>
+  t.router({
+    tokensList: t.procedure.query(async ({ ctx }) => {
+      return prisma.token.findMany({
+        where: {
+          userId: ctx.session.user.id,
+        },
+        select: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+    }),
+    tokensVerificationCode: t.procedure.query(async ({ ctx }) => {
+      const user = await prisma.user.findFirst({
+        where: {
+          id: ctx.session.user.id,
+        },
+        select: {
+          id: true,
+          verificationCode: true,
+        },
+      });
+
+      if (!user) {
+        return new TRPCError({
+          code: 'NOT_FOUND',
         });
-      },
-    })
-    .query('verification-code', {
-      resolve: async ({ ctx }) => {
-        const user = await prisma.user.findFirst({
-          where: {
-            id: ctx.session.user.id,
-          },
-          select: {
-            id: true,
-            verificationCode: true,
-          },
-        });
+      }
 
-        if (!user) {
-          return new trpc.TRPCError({
-            code: 'NOT_FOUND',
-          });
-        }
+      let verificationCode: string | null = user.verificationCode;
 
-        let verificationCode: string | null = user.verificationCode;
+      if (!verificationCode) {
+        verificationCode = (
+          await prisma.user.update({
+            where: {
+              id: user.id,
+            },
+            data: {
+              verificationCode:
+                Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+            },
+          })
+        ).verificationCode;
+      }
 
-        if (!verificationCode) {
-          verificationCode = (
-            await prisma.user.update({
-              where: {
-                id: user.id,
-              },
-              data: {
-                verificationCode:
-                  Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
-              },
-            })
-          ).verificationCode;
-        }
-
-        return { code: verificationCode };
-      },
-    })
-    .mutation('authenticate', {
-      input: z.object({
-        code: z.string(),
-      }),
-      resolve: async ({ input }) => {
+      return { code: verificationCode };
+    }),
+    tokensAuthenticate: t.procedure
+      .input(
+        z.object({
+          code: z.string(),
+        }),
+      )
+      .mutation(async ({ input }) => {
         const user = await prisma.user.findFirst({
           where: {
             verificationCode: input.code,
@@ -108,17 +106,18 @@ export const tokensRouter = () =>
         }
 
         return { token: token.value };
-      },
-    })
-    .mutation('delete', {
-      input: z.object({
-        tokenId: z.string(),
       }),
-      resolve: async ({ input }) => {
+    tokensDelete: t.procedure
+      .input(
+        z.object({
+          tokenId: z.string(),
+        }),
+      )
+      .mutation(async ({ input }) => {
         return prisma.token.delete({
           where: {
             id: input.tokenId,
           },
         });
-      },
-    });
+      }),
+  });

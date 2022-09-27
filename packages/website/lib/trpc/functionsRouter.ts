@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma from 'lib/prisma';
-import { createRouter } from 'pages/api/trpc/[trpc]';
+// import { t } from 'pages/api/trpc/[trpc]';
 import { LOG_LEVELS, TIMEFRAMES } from 'lib/types';
 import { getDeploymentCode, removeFunction, updateDomains } from 'lib/api/deployments';
 import {
@@ -9,64 +9,65 @@ import {
   FUNCTION_NAME_MAX_LENGTH,
   FUNCTION_NAME_MIN_LENGTH,
 } from 'lib/constants';
-import * as trpc from '@trpc/server';
+import { TRPCError } from '@trpc/server';
+import { T } from 'pages/api/trpc/[trpc]';
 
-export const functionsRouter = () =>
-  createRouter()
-    .query('list', {
-      resolve: async ({ ctx }) => {
-        const functions = await prisma.function.findMany({
-          where: {
-            organizationId: ctx.session.organization.id,
-          },
-          select: {
-            id: true,
-            createdAt: true,
-            updatedAt: true,
-            name: true,
-            domains: {
-              select: {
-                domain: true,
-              },
-            },
-            memory: true,
-            timeout: true,
-            env: {
-              select: {
-                key: true,
-                value: true,
-              },
-            },
-            cron: true,
-            cronRegion: true,
-            deployments: {
-              select: {
-                id: true,
-                triggerer: true,
-                commit: true,
-                isCurrent: true,
-                assets: true,
-                createdAt: true,
-                updatedAt: true,
-              },
+export const functionsRouter = (t: T) =>
+  t.router({
+    functionsList: t.procedure.query(async ({ ctx }) => {
+      const functions = await prisma.function.findMany({
+        where: {
+          organizationId: ctx.session.organization.id,
+        },
+        select: {
+          id: true,
+          createdAt: true,
+          updatedAt: true,
+          name: true,
+          domains: {
+            select: {
+              domain: true,
             },
           },
-          orderBy: {
-            updatedAt: 'desc',
+          memory: true,
+          timeout: true,
+          env: {
+            select: {
+              key: true,
+              value: true,
+            },
           },
-        });
+          cron: true,
+          cronRegion: true,
+          deployments: {
+            select: {
+              id: true,
+              triggerer: true,
+              commit: true,
+              isCurrent: true,
+              assets: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
+        },
+        orderBy: {
+          updatedAt: 'desc',
+        },
+      });
 
-        return functions.map(func => ({
-          ...func,
-          domains: func.domains.map(({ domain }) => domain),
-        }));
-      },
-    })
-    .query('get', {
-      input: z.object({
-        functionId: z.string(),
-      }),
-      resolve: async ({ ctx, input }) => {
+      return functions.map(func => ({
+        ...func,
+        domains: func.domains.map(({ domain }) => domain),
+      }));
+    }),
+    functionGet: t.procedure
+      .input(
+        z.object({
+          functionId: z.string(),
+        }),
+      )
+      .query(async ({ ctx, input }) => {
         const func = await prisma.function.findFirst({
           where: {
             organizationId: ctx.session.organization.id,
@@ -110,7 +111,7 @@ export const functionsRouter = () =>
         });
 
         if (!func) {
-          throw new trpc.TRPCError({
+          throw new TRPCError({
             code: 'NOT_FOUND',
           });
         }
@@ -119,15 +120,16 @@ export const functionsRouter = () =>
           ...func,
           domains: func.domains.map(({ domain }) => domain),
         };
-      },
-    })
-    .query('logs', {
-      input: z.object({
-        functionId: z.string(),
-        logLevel: z.enum(LOG_LEVELS),
-        timeframe: z.enum(TIMEFRAMES),
       }),
-      resolve: async ({ input }) => {
+    functionLogs: t.procedure
+      .input(
+        z.object({
+          functionId: z.string(),
+          logLevel: z.enum(LOG_LEVELS),
+          timeframe: z.enum(TIMEFRAMES),
+        }),
+      )
+      .query(async ({ input }) => {
         return prisma.log.findMany({
           where: {
             functionId: input.functionId,
@@ -151,13 +153,14 @@ export const functionsRouter = () =>
             createdAt: 'desc',
           },
         });
-      },
-    })
-    .query('code', {
-      input: z.object({
-        functionId: z.string(),
       }),
-      resolve: async ({ input }) => {
+    functionCode: t.procedure
+      .input(
+        z.object({
+          functionId: z.string(),
+        }),
+      )
+      .query(async ({ input }) => {
         const deployment = await prisma.deployment.findFirst({
           where: {
             functionId: input.functionId,
@@ -169,7 +172,7 @@ export const functionsRouter = () =>
         });
 
         if (!deployment) {
-          throw new trpc.TRPCError({
+          throw new TRPCError({
             code: 'NOT_FOUND',
           });
         }
@@ -177,14 +180,15 @@ export const functionsRouter = () =>
         const code = await getDeploymentCode(deployment.id);
 
         return { code };
-      },
-    })
-    .query('stats', {
-      input: z.object({
-        functionId: z.string(),
-        timeframe: z.enum(TIMEFRAMES),
       }),
-      resolve: async ({ input }) => {
+    functionStats: t.procedure
+      .input(
+        z.object({
+          functionId: z.string(),
+          timeframe: z.enum(TIMEFRAMES),
+        }),
+      )
+      .query(async ({ input }) => {
         return prisma.stat.findMany({
           where: {
             functionId: input.functionId,
@@ -207,21 +211,22 @@ export const functionsRouter = () =>
             sendBytes: true,
           },
         });
-      },
-    })
-    .mutation('create', {
-      input: z.object({
-        name: z.string(),
-        domains: z.string().array(),
-        env: z
-          .object({
-            key: z.string(),
-            value: z.string(),
-          })
-          .array(),
-        cron: z.string().nullable(),
       }),
-      resolve: async ({ ctx, input }) => {
+    functionCreate: t.procedure
+      .input(
+        z.object({
+          name: z.string(),
+          domains: z.string().array(),
+          env: z
+            .object({
+              key: z.string(),
+              value: z.string(),
+            })
+            .array(),
+          cron: z.string().nullable(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
         return prisma.function.create({
           data: {
             organizationId: ctx.session.organization.id,
@@ -267,23 +272,24 @@ export const functionsRouter = () =>
             cronRegion: true,
           },
         });
-      },
-    })
-    .mutation('update', {
-      input: z.object({
-        functionId: z.string(),
-        name: z.string().min(FUNCTION_NAME_MIN_LENGTH).max(FUNCTION_NAME_MAX_LENGTH),
-        domains: z.string().array(),
-        cron: z.string().nullable(),
-        cronRegion: z.string(),
-        env: z
-          .object({
-            key: z.string(),
-            value: z.string(),
-          })
-          .array(),
       }),
-      resolve: async ({ input }) => {
+    functionUpdate: t.procedure
+      .input(
+        z.object({
+          functionId: z.string(),
+          name: z.string().min(FUNCTION_NAME_MIN_LENGTH).max(FUNCTION_NAME_MAX_LENGTH),
+          domains: z.string().array(),
+          cron: z.string().nullable(),
+          cronRegion: z.string(),
+          env: z
+            .object({
+              key: z.string(),
+              value: z.string(),
+            })
+            .array(),
+        }),
+      )
+      .mutation(async ({ input }) => {
         const currentFunction = await prisma.function.findFirst({
           where: {
             id: input.functionId,
@@ -298,7 +304,7 @@ export const functionsRouter = () =>
         });
 
         if (!currentFunction) {
-          throw new trpc.TRPCError({
+          throw new TRPCError({
             code: 'NOT_FOUND',
           });
         }
@@ -387,13 +393,14 @@ export const functionsRouter = () =>
         }
 
         return func;
-      },
-    })
-    .mutation('delete', {
-      input: z.object({
-        functionId: z.string(),
       }),
-      resolve: async ({ input }) => {
+    functionDelete: t.procedure
+      .input(
+        z.object({
+          functionId: z.string(),
+        }),
+      )
+      .mutation(async ({ input }) => {
         const func = await prisma.function.findFirst({
           where: {
             id: input.functionId,
@@ -433,7 +440,7 @@ export const functionsRouter = () =>
         });
 
         if (!func) {
-          throw new trpc.TRPCError({
+          throw new TRPCError({
             code: 'NOT_FOUND',
           });
         }
@@ -441,5 +448,5 @@ export const functionsRouter = () =>
         await removeFunction(func);
 
         return func;
-      },
-    });
+      }),
+  });

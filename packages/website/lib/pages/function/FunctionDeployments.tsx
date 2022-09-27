@@ -10,7 +10,7 @@ import Dialog from 'lib/components/Dialog';
 import { RefreshIcon } from '@heroicons/react/outline';
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
-import { QueryObserverBaseResult } from 'react-query';
+import { QueryObserverBaseResult } from '@tanstack/react-query';
 import { useI18n } from 'locales';
 
 type FunctionDeploymentsProps = {
@@ -21,8 +21,8 @@ type FunctionDeploymentsProps = {
 const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
   const { scopedT } = useI18n();
   const t = scopedT('functions.deployments');
-  const deleteDeployment = trpc.useMutation(['deployments.delete']);
-  const currentDeployment = trpc.useMutation(['deployments.current']);
+  const deleteDeployment = trpc.deploymentDelete.useMutation();
+  const currentDeployment = trpc.deploymentCurrent.useMutation();
 
   const removeDeplomyent = useCallback(
     async (deployment: { id: string }) => {

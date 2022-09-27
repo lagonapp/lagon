@@ -1,7 +1,7 @@
 import { trpc } from 'lib/trpc';
 
 const useFunctions = () => {
-  return trpc.useQuery(['functions.list']);
+  return trpc.functionsList.useQuery();
 };
 
 export default useFunctions;

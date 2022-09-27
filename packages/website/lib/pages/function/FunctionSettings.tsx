@@ -20,7 +20,7 @@ import Dialog from 'lib/components/Dialog';
 import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH, Regions, REGIONS } from 'lib/constants';
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
-import { QueryObserverBaseResult } from 'react-query';
+import { QueryObserverBaseResult } from '@tanstack/react-query';
 import { useI18n } from 'locales';
 import Menu from 'lib/components/Menu';
 
@@ -33,8 +33,8 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
   const router = useRouter();
   const { scopedT } = useI18n();
   const t = scopedT('functions.settings');
-  const updateFunction = trpc.useMutation(['functions.update']);
-  const deleteFunction = trpc.useMutation(['functions.delete']);
+  const updateFunction = trpc.functionUpdate.useMutation();
+  const deleteFunction = trpc.functionDelete.useMutation();
 
   return (
     <div className="flex flex-col gap-8">

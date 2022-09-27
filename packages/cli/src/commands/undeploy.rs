@@ -58,7 +58,7 @@ pub async fn undeploy(file: PathBuf) -> io::Result<()> {
             let end_progress = print_progress("Deleting Function...");
             TrpcClient::new(&token)
                 .mutation::<DeleteFunctionRequest, DeleteFunctionResponse>(
-                    "functions.delete",
+                    "functionDelete",
                     DeleteFunctionRequest {
                         function_id: config.function_id,
                     },

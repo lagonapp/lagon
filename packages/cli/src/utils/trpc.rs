@@ -5,13 +5,11 @@ use super::get_site_url;
 
 #[derive(Deserialize, Debug)]
 pub struct TrpcResponse<T> {
-    pub id: Option<String>,
     pub result: TrpcResult<T>,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct TrpcResult<T> {
-    pub r#type: String,
     pub data: T,
 }
 

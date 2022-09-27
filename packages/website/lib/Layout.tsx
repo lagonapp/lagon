@@ -23,6 +23,7 @@ import { trpc } from './trpc';
 import { reloadSession } from './utils';
 import useTheme from './hooks/useTheme';
 import { useChangeLocale, useI18n } from 'locales';
+import { useQueryClient } from '@tanstack/react-query';
 
 type HeaderLinkProps = {
   href: string;
@@ -48,8 +49,8 @@ const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
 const OrganizationsList = () => {
   const { data: organizations } = useOrganizations();
   const router = useRouter();
-  const currentOrganization = trpc.useMutation(['organizations.current']);
-  const queryContext = trpc.useContext();
+  const currentOrganization = trpc.organizationSetCurrent.useMutation();
+  const queryClient = useQueryClient();
   const { data: session } = useSession();
 
   const switchOrganization = useCallback(
@@ -58,11 +59,11 @@ const OrganizationsList = () => {
         organizationId: organization.id,
       });
 
-      queryContext.refetchQueries();
+      queryClient.refetchQueries();
       reloadSession();
       router.push('/');
     },
-    [router, currentOrganization, queryContext],
+    [router, currentOrganization, queryClient],
   );
 
   // If we only have one organization, hide completly
