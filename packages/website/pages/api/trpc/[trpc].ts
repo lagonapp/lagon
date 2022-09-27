@@ -84,9 +84,16 @@ const createContext = async ({
   }
 };
 
-export const t = initTRPC.context<inferAsyncReturnType<typeof createContext>>().create();
+const t = initTRPC.context<inferAsyncReturnType<typeof createContext>>().create();
+export type T = typeof t;
 
-const router = t.mergeRouters(functionsRouter, organizationsRouter, tokensRouter, deploymentsRouter, accountsRouter);
+const router = t.mergeRouters(
+  functionsRouter(t),
+  organizationsRouter(t),
+  tokensRouter(t),
+  deploymentsRouter(t),
+  accountsRouter(t),
+);
 
 export type AppRouter = typeof router;
 
