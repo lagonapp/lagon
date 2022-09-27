@@ -1,11 +1,11 @@
 use std::{io, path::PathBuf};
 
 pub fn dev(
-    file: PathBuf,
-    client: Option<PathBuf>,
-    public_dir: Option<PathBuf>,
-    port: Option<u16>,
-    hostname: Option<String>,
+    _file: PathBuf,
+    _client: Option<PathBuf>,
+    _public_dir: Option<PathBuf>,
+    _port: Option<u16>,
+    _hostname: Option<String>,
 ) -> io::Result<()> {
     println!("dev");
 

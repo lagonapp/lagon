@@ -89,7 +89,7 @@ fn esbuild(file: &PathBuf) -> io::Result<String> {
 pub fn bundle_function(
     index: PathBuf,
     client: Option<PathBuf>,
-    public_dir: PathBuf,
+    _public_dir: PathBuf,
 ) -> io::Result<(String, HashMap<String, String>)> {
     if let Err(_) = Command::new("esbuild").arg("--version").output() {
         return Err(Error::new(

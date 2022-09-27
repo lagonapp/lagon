@@ -9,7 +9,7 @@ mod commands;
 mod utils;
 
 #[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
+#[clap(author, version, about, long_about = None, arg_required_else_help = true)]
 struct Cli {
     #[clap(subcommand)]
     command: Option<Commands>,
@@ -101,7 +101,6 @@ async fn main() {
                 client,
                 public_dir,
             } => commands::build(file, client, public_dir),
-            _ => Ok(()),
         } {
             println!("{}", error(&err.to_string()));
         }
