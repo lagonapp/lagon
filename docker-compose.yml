@@ -19,6 +19,28 @@ services:
       - 3306:3306
     volumes:
       - mysql:/var/lib/mysql
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    restart: always
+    ports:
+      - 9090:9090
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus:/prometheus
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    ports:
+      - 3001:3000
+    volumes:
+      - ./docker/grafana/datasources:/etc/grafana/provisioning/datasources
+      - grafana:/var/lib/grafana
 volumes:
   redis:
   mysql:
+  prometheus:
+  grafana:

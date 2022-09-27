@@ -37,6 +37,7 @@ pub fn write_deployment(deployment_id: String, buf: &[u8]) -> io::Result<()> {
 }
 
 pub fn write_deployment_asset(deployment_id: String, asset: &str, buf: &[u8]) -> io::Result<()> {
+    fs::create_dir(Path::new("deployments").join(&deployment_id))?;
     let mut file = fs::File::create(Path::new("deployments").join(deployment_id + "/" + asset))?;
 
     file.write_all(buf)?;

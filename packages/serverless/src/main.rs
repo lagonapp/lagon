@@ -4,6 +4,7 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::RunResult;
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
+use metrics::{gauge, increment_gauge};
 use mysql::Pool;
 use s3::creds::Credentials;
 use s3::Bucket;
@@ -12,6 +13,7 @@ use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::time::Instant;
 use tokio::task::LocalSet;
+use metrics_exporter_prometheus::PrometheusBuilder;
 
 use crate::deployments::assets::handle_asset;
 use crate::deployments::filesystem::get_deployment_code;
@@ -82,6 +84,9 @@ async fn main() {
         }
     }));
 
+    let builder = PrometheusBuilder::new();
+    builder.install().expect("Failed to start metrics exporter");
+
     let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let pool = Pool::new(url).unwrap();
@@ -122,6 +127,8 @@ async fn main() {
                         let url = &mut request.url.clone();
                         url.remove(0);
 
+                        increment_gauge!("lagon_requests", 1., "deployment" => deployment.id.clone());
+
                         if let Some(asset) = deployment.assets.iter().find(|asset| *asset == url) {
                             // TODO: handle read error
                             let response = handle_asset(deployment, asset).unwrap();
@@ -142,7 +149,11 @@ async fn main() {
                                 Isolate::new(options)
                             });
 
+                            // TODO: replace by real duration
+                            let now = Instant::now();
                             let result = isolate.run(request);
+
+                            gauge!("lagon_isolate_duration", now.elapsed(), "deployment" => deployment.id.clone());
 
                             response_tx.send_async(result).await.unwrap();
                         }
