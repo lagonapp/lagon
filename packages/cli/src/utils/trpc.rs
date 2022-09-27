@@ -5,13 +5,11 @@ use super::get_site_url;
 
 #[derive(Deserialize, Debug)]
 pub struct TrpcResponse<T> {
-    pub id: Option<String>,
     pub result: TrpcResult<T>,
 }
 
 #[derive(Deserialize, Debug)]
 pub struct TrpcResult<T> {
-    pub r#type: String,
     pub data: T,
 }
 
@@ -71,6 +69,8 @@ impl<'a> TrpcClient<'a> {
         let response = self.client.request(request).await.unwrap();
         let body = body::to_bytes(response.into_body()).await.unwrap();
         let body = String::from_utf8(body.to_vec()).unwrap();
+
+        println!("{}", body);
 
         let response = serde_json::from_str::<TrpcResponse<R>>(&body).unwrap();
 

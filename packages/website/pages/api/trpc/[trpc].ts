@@ -22,8 +22,8 @@ const createContext = async ({
 }> => {
   const tokenValue = req.headers['x-lagon-token'] as string;
 
-  // tokens.authenticaton needs to skip authentication
-  if (req.query.trpc === 'tokens.authenticate') {
+  // tokensAuthenticate needs to skip authentication
+  if (req.query.trpc === 'tokensAuthenticate') {
     return {
       req,
       res,

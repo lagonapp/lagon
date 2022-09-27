@@ -46,7 +46,7 @@ pub async fn login() -> io::Result<()> {
     let request = CliRequest { code: code.clone() };
 
     match client
-        .mutation::<CliRequest, CliResponse>("tokens.authenticate", request)
+        .mutation::<CliRequest, CliResponse>("tokensAuthenticate", request)
         .await
     {
         Ok(response) => {

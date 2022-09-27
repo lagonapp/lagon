@@ -92,7 +92,7 @@ pub async fn deploy(
 
         let trpc_client = TrpcClient::new(&token);
         let response = trpc_client
-            .query::<(), OrganizationsResponse>("organizations.list", None)
+            .query::<(), OrganizationsResponse>("organizationsList", None)
             .await
             .unwrap();
         let organizations = response.result.data;
@@ -106,7 +106,7 @@ pub async fn deploy(
         {
             true => {
                 let response = trpc_client
-                    .query::<(), FunctionsResponse>("functions.list", None)
+                    .query::<(), FunctionsResponse>("functionsList", None)
                     .await
                     .unwrap();
 
@@ -134,7 +134,7 @@ pub async fn deploy(
 
                 let response = trpc_client
                     .mutation::<CreateFunctionRequest, CreateFunctionResponse>(
-                        "functions.create",
+                        "functionCreate",
                         CreateFunctionRequest {
                             name,
                             domains: Vec::new(),
