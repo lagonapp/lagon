@@ -18,13 +18,14 @@ import { reloadSession } from 'lib/utils';
 import LayoutTitle from 'lib/components/LayoutTitle';
 import { getLocaleProps, useI18n } from 'locales';
 import { GetStaticProps } from 'next';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Settings = () => {
   const { data: session } = useSession();
   const deleteOrganization = trpc.organizationsDelete.useMutation();
   const updateOrganization = trpc.organizationUpdate.useMutation();
   const router = useRouter();
-  const queryContext = trpc.useContext();
+  const queryClient = useQueryClient();
   const { scopedT } = useI18n();
   const t = scopedT('settings');
 
@@ -42,7 +43,7 @@ const Settings = () => {
               description: session?.organization.description || null,
             });
 
-            queryContext.refetchQueries();
+            queryClient.refetchQueries();
             reloadSession();
           }}
           onSubmitSuccess={() => {
@@ -78,7 +79,7 @@ const Settings = () => {
               description,
             });
 
-            queryContext.refetchQueries();
+            queryClient.refetchQueries();
             reloadSession();
           }}
           onSubmitSuccess={() => {
@@ -139,7 +140,7 @@ const Settings = () => {
                 onSubmitSuccess={() => {
                   toast.success(t('delete.success'));
 
-                  queryContext.refetchQueries();
+                  queryClient.refetchQueries();
                   reloadSession();
                   router.push('/');
                 }}
