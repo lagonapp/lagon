@@ -48,7 +48,7 @@ const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
 const OrganizationsList = () => {
   const { data: organizations } = useOrganizations();
   const router = useRouter();
-  const currentOrganization = trpc.useMutation(['organizations.current']);
+  const currentOrganization = trpc.organizationSetCurrent.useMutation();
   const queryContext = trpc.useContext();
   const { data: session } = useSession();
 
@@ -58,7 +58,7 @@ const OrganizationsList = () => {
         organizationId: organization.id,
       });
 
-      queryContext.refetchQueries();
+      // queryContext.refetchQueries();
       reloadSession();
       router.push('/');
     },

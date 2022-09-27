@@ -1,7 +1,7 @@
 import { trpc } from 'lib/trpc';
 
 const useTokens = () => {
-  return trpc.useQuery(['tokens.list'], {
+  return trpc.tokensList.useQuery(undefined, {
     suspense: false,
   });
 };

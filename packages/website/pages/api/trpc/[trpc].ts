@@ -1,6 +1,5 @@
-import * as trpc from '@trpc/server';
+import { inferAsyncReturnType, initTRPC, TRPCError } from '@trpc/server';
 import * as trpcNext from '@trpc/server/adapters/next';
-import { getSession } from 'next-auth/react';
 import { unstable_getServerSession } from 'next-auth/next';
 import { functionsRouter } from 'lib/trpc/functionsRouter';
 import { organizationsRouter } from 'lib/trpc/organizationsRouter';
@@ -50,7 +49,7 @@ const createContext = async ({
     });
 
     if (!token) {
-      throw new trpc.TRPCError({
+      throw new TRPCError({
         code: 'UNAUTHORIZED',
       });
     }
@@ -72,7 +71,7 @@ const createContext = async ({
     const session = await unstable_getServerSession(req, res, authOptions);
 
     if (!session) {
-      throw new trpc.TRPCError({
+      throw new TRPCError({
         code: 'UNAUTHORIZED',
       });
     }
@@ -85,14 +84,9 @@ const createContext = async ({
   }
 };
 
-export const createRouter = () => trpc.router<trpc.inferAsyncReturnType<typeof createContext>>();
+export const t = initTRPC.context<inferAsyncReturnType<typeof createContext>>().create();
 
-const router = createRouter()
-  .merge('functions.', functionsRouter())
-  .merge('organizations.', organizationsRouter())
-  .merge('tokens.', tokensRouter())
-  .merge('deployments.', deploymentsRouter())
-  .merge('accounts.', accountsRouter());
+const router = t.mergeRouters(functionsRouter, organizationsRouter, tokensRouter, deploymentsRouter, accountsRouter);
 
 export type AppRouter = typeof router;
 

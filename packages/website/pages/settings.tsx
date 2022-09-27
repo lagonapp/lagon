@@ -21,8 +21,8 @@ import { GetStaticProps } from 'next';
 
 const Settings = () => {
   const { data: session } = useSession();
-  const updateOrganization = trpc.useMutation(['organizations.update']);
-  const deleteOrganization = trpc.useMutation(['organizations.delete']);
+  const deleteOrganization = trpc.organizationsDelete.useMutation();
+  const updateOrganization = trpc.organizationUpdate.useMutation();
   const router = useRouter();
   const queryContext = trpc.useContext();
   const { scopedT } = useI18n();

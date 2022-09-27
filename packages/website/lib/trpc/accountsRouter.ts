@@ -1,14 +1,16 @@
 import prisma from 'lib/prisma';
-import { createRouter } from 'pages/api/trpc/[trpc]';
+import { t } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 
-export const accountsRouter = () =>
-  createRouter().mutation('update', {
-    input: z.object({
-      name: z.string(),
-      email: z.string(),
-    }),
-    resolve: async ({ ctx, input }) => {
+export const accountsRouter = t.router({
+  accountUpdate: t.procedure
+    .input(
+      z.object({
+        name: z.string(),
+        email: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
       return prisma.user.update({
         where: {
           id: ctx.session.user.id,
@@ -23,5 +25,5 @@ export const accountsRouter = () =>
           email: true,
         },
       });
-    },
-  });
+    }),
+});

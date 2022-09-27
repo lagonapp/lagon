@@ -10,10 +10,13 @@ const useFunctionLogs = ({
   logLevel: LogLevel;
   timeframe: Timeframe;
 }) => {
-  return trpc.useQuery(['functions.logs', { functionId: functionId || '', logLevel, timeframe }], {
-    refetchInterval: 1000,
-    enabled: !!functionId,
-  });
+  return trpc.functionLogs.useQuery(
+    { functionId: functionId || '', logLevel, timeframe },
+    {
+      refetchInterval: 1000,
+      enabled: !!functionId,
+    },
+  );
 };
 
 export default useFunctionLogs;

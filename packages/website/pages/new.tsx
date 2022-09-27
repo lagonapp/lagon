@@ -18,7 +18,7 @@ import toast from 'react-hot-toast';
 
 const New = () => {
   const router = useRouter();
-  const createOrganization = trpc.useMutation(['organizations.create']);
+  const createOrganization = trpc.organizationCreate.useMutation();
   const queryContext = trpc.useContext();
   const { scopedT } = useI18n();
   const t = scopedT('new');
