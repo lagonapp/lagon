@@ -70,8 +70,6 @@ impl<'a> TrpcClient<'a> {
         let body = body::to_bytes(response.into_body()).await.unwrap();
         let body = String::from_utf8(body.to_vec()).unwrap();
 
-        println!("{}", body);
-
         let response = serde_json::from_str::<TrpcResponse<R>>(&body).unwrap();
 
         Ok(response)
