@@ -4,7 +4,7 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::RunResult;
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
-use metrics::{gauge, increment_gauge};
+use metrics::{increment_counter, histogram};
 use mysql::Pool;
 use s3::creds::Credentials;
 use s3::Bucket;
@@ -127,7 +127,7 @@ async fn main() {
                         let url = &mut request.url.clone();
                         url.remove(0);
 
-                        increment_gauge!("lagon_requests", 1., "deployment" => deployment.id.clone());
+                        increment_counter!("lagon_requests", "deployment" => deployment.id.clone());
 
                         if let Some(asset) = deployment.assets.iter().find(|asset| *asset == url) {
                             // TODO: handle read error
@@ -153,7 +153,7 @@ async fn main() {
                             let now = Instant::now();
                             let result = isolate.run(request);
 
-                            gauge!("lagon_isolate_duration", now.elapsed(), "deployment" => deployment.id.clone());
+                            histogram!("lagon_isolate_duration", now.elapsed(), "deployment" => deployment.id.clone());
 
                             response_tx.send_async(result).await.unwrap();
                         }
