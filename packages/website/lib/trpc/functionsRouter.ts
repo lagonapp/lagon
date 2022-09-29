@@ -181,14 +181,6 @@ export const functionsRouter = (t: T) =>
 
         return { code };
       }),
-    functionStats: t.procedure
-      .input(
-        z.object({
-          functionId: z.string(),
-          timeframe: z.enum(TIMEFRAMES),
-        }),
-      )
-      .query(() => []),
     functionCreate: t.procedure
       .input(
         z.object({

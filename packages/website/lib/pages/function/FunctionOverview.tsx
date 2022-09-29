@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from '@heroicons/react/outline';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from 'lib/components/Button';
 import Card from 'lib/components/Card';
 import Chart from 'lib/components/Chart';
@@ -30,85 +30,13 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
   const { scopedT } = useI18n();
   const t = scopedT('functions.overview');
   const [timeframe, setTimeframe] = useState<Timeframe>(() => (router.query.timeframe as Timeframe) || 'Last 24 hours');
-  const { data: stats = [] } = useFunctionStats({ functionId: func?.id, timeframe }) as {
-    data: {
-      createdAt: Date;
-      requests: number;
-      cpuTime: number;
-      receivedBytes: number;
-      sendBytes: number;
-    }[];
-  };
-
-  const { labels, values } = useMemo(() => {
-    const result = {
-      labels: [],
-      values: [],
-    } as {
-      labels: string[];
-      values: {
-        requests: number;
-        cpu: number;
-        receivedBytes: number;
-        sendBytes: number;
-      }[];
-    };
-
-    if (timeframe === 'Last 24 hours') {
-      for (let i = 24 - 1; i >= 0; i--) {
-        const date = new Date();
-        date.setHours(date.getHours() - i);
-
-        result.labels.push(
-          date.toLocaleString('en-US', {
-            hour: 'numeric',
-          }),
-        );
-
-        const stat = stats.filter(
-          stat =>
-            new Date(stat.createdAt).getHours() === date.getHours() &&
-            new Date(stat.createdAt).getDate() === date.getDate(),
-        );
-
-        result.values.push({
-          requests: stat.reduce((acc, current) => acc + current.requests, 0),
-          cpu: stat.reduce((acc, current) => acc + current.cpuTime, 0) / stat.length || 0,
-          receivedBytes: stat.reduce((acc, current) => acc + current.receivedBytes, 0) / stat.length || 0,
-          sendBytes: stat.reduce((acc, current) => acc + current.sendBytes, 0) / stat.length || 0,
-        });
-      }
-    } else {
-      const daysInTimeframe = timeframe === 'Last 30 days' ? 30 : 7;
-
-      for (let i = daysInTimeframe - 1; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-
-        result.labels.push(
-          date.toLocaleString('en-US', {
-            day: 'numeric',
-            month: 'long',
-          }),
-        );
-
-        const stat = stats.filter(
-          stat =>
-            new Date(stat.createdAt).getDate() === date.getDate() &&
-            new Date(stat.createdAt).getMonth() === date.getMonth(),
-        );
-
-        result.values.push({
-          requests: stat.reduce((acc, current) => acc + current.requests, 0),
-          cpu: stat.reduce((acc, current) => acc + current.cpuTime, 0) / stat.length || 0,
-          receivedBytes: stat.reduce((acc, current) => acc + current.receivedBytes, 0) / stat.length || 0,
-          sendBytes: stat.reduce((acc, current) => acc + current.sendBytes, 0) / stat.length || 0,
-        });
-      }
-    }
-
-    return result;
-  }, [stats, timeframe]);
+  const {
+    requests: { data: requestsData = [] },
+    cpuTime: { data: cpuTimeData = [] },
+    // memoryUsage: { data: memoryUsageData = [] },
+    bytesIn: { data: bytesInData = [] },
+    bytesOut: { data: bytesOutData = [] },
+  } = useFunctionStats({ functionId: func?.id, timeframe });
 
   useEffect(() => {
     router.replace({
@@ -143,29 +71,29 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
         >
           <div className="flex justify-between flex-wrap gap-4">
             <Description title={t('usage.requests')} total="100,000">
-              {stats.reduce((acc, current) => acc + current.requests, 0)}
+              {/* {stats.reduce((acc, current) => acc + current.requests, 0)} */}0
             </Description>
             <Description title={t('usage.avgCpu')} total={`${func?.timeout || 0}ms`}>
-              {stats.length > 0 ? formatNs(stats.reduce((acc, current) => acc + current.cpuTime, 0) / stats.length) : 0}
-              ms
+              {/* {stats.length > 0 ? formatNs(stats.reduce((acc, current) => acc + current.cpuTime, 0) / stats.length) : 0} */}
+              0ms
             </Description>
             <Description title={t('usage.avgInBytes')}>
-              {stats.length > 0
+              {/* {stats.length > 0
                 ? formatKb(
                     stats.reduce((acc, current) => acc + current.receivedBytes, 0) /
                       stats.reduce((acc, current) => acc + current.requests, 0),
                   )
-                : 0}
-              &nbsp;KB
+                : 0} */}
+              0&nbsp;KB
             </Description>
             <Description title={t('usage.avgOutBytes')}>
-              {stats.length > 0
+              {/* {stats.length > 0
                 ? formatKb(
                     stats.reduce((acc, current) => acc + current.sendBytes, 0) /
                       stats.reduce((acc, current) => acc + current.requests, 0),
                   )
-                : 0}
-              &nbsp;KB
+                : 0} */}
+              0&nbsp;KB
             </Description>
           </div>
           <Divider />
@@ -196,12 +124,12 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
       <Card title={t('requests')}>
         <div className="h-72">
           <Chart
-            labels={labels}
+            labels={requestsData.map(({ time }) => new Date(time).toLocaleDateString())}
             datasets={[
               {
                 label: t('requests.label'),
                 color: '#3B82F6',
-                data: values.map(({ requests }) => requests),
+                data: requestsData.map(({ value }) => Number(value)),
               },
             ]}
           />
@@ -210,12 +138,12 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
       <Card title={t('cpuTime')}>
         <div className="h-72">
           <Chart
-            labels={labels}
+            labels={cpuTimeData.map(({ time }) => new Date(time).toLocaleDateString())}
             datasets={[
               {
                 label: t('cpuTime.label'),
                 color: '#F59E0B',
-                data: values.map(({ cpu }) => formatNs(cpu)),
+                data: cpuTimeData.map(({ value }) => Number(value)),
               },
             ]}
           />
@@ -224,17 +152,17 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
       <Card title={t('network')}>
         <div className="h-72">
           <Chart
-            labels={labels}
+            labels={bytesInData.map(({ time }) => new Date(time).toLocaleDateString())}
             datasets={[
               {
                 label: t('network.label.inBytes'),
                 color: '#10B981',
-                data: values.map(({ receivedBytes }) => receivedBytes),
+                data: bytesInData.map(({ value }) => Number(value)),
               },
               {
                 label: t('network.label.outBytes'),
                 color: '#3B82F6',
-                data: values.map(({ sendBytes }) => sendBytes),
+                data: bytesOutData.map(({ value }) => Number(value)),
               },
             ]}
           />
