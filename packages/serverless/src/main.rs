@@ -12,7 +12,6 @@ use s3::Bucket;
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
-use std::time::Instant;
 use tokio::task::LocalSet;
 
 use crate::deployments::assets::handle_asset;
@@ -118,8 +117,13 @@ async fn main() {
                         let url = &mut request.url.clone();
                         url.remove(0);
 
-                        increment_counter!("lagon_requests", "deployment" => deployment.id.clone());
-                        gauge!("lagon_bytes_in", request.len() as f64, "deployment" => deployment.id.clone());
+                        let labels = vec![
+                            ("deployment", deployment.id.clone()),
+                            ("function", deployment.function_id.clone()),
+                        ];
+
+                        increment_counter!("lagon_requests", &labels);
+                        gauge!("lagon_bytes_in", request.len() as f64, &labels);
 
                         if let Some(asset) = deployment.assets.iter().find(|asset| *asset == url) {
                             // TODO: handle read error
@@ -144,12 +148,16 @@ async fn main() {
                             let (run_result, maybe_statistics) = isolate.run(request);
 
                             if let Some(statistics) = maybe_statistics {
-                                histogram!("lagon_isolate_cpu_time", statistics.cpu_time, "deployment" => deployment.id.clone());
-                                histogram!("lagon_isolate_memory_usage", statistics.memory_usage as f64, "deployment" => deployment.id.clone());
+                                histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
+                                histogram!(
+                                    "lagon_isolate_memory_usage",
+                                    statistics.memory_usage as f64,
+                                    &labels
+                                );
                             }
 
                             if let RunResult::Response(response) = &run_result {
-                                gauge!("lagon_bytes_out", response.len() as f64, "deployment" => deployment.id.clone());
+                                gauge!("lagon_bytes_out", response.len() as f64, &labels);
                             }
 
                             response_tx.send_async(run_result).await.unwrap();
