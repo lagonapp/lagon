@@ -4,7 +4,8 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::RunResult;
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
-use metrics::{increment_counter, histogram};
+use metrics::{gauge, histogram, increment_counter};
+use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::Pool;
 use s3::creds::Credentials;
 use s3::Bucket;
@@ -13,7 +14,6 @@ use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::time::Instant;
 use tokio::task::LocalSet;
-use metrics_exporter_prometheus::PrometheusBuilder;
 
 use crate::deployments::assets::handle_asset;
 use crate::deployments::filesystem::get_deployment_code;
@@ -29,8 +29,6 @@ async fn handle_request(
     request_tx: flume::Sender<HyperRequest<Body>>,
     response_rx: flume::Receiver<RunResult>,
 ) -> Result<HyperResponse<Body>, Infallible> {
-    let now = Instant::now();
-
     request_tx.send_async(req).await;
 
     let result = response_rx
@@ -40,13 +38,6 @@ async fn handle_request(
 
     match result {
         RunResult::Response(response) => {
-            // println!(
-            //     "Response: {:?} in {:?} (CPU time) (Total: {:?})",
-            //     response,
-            //     duration,
-            //     now.elapsed()
-            // );
-
             let response = response_to_hyper_response(response);
 
             Ok(response)
@@ -116,8 +107,8 @@ async fn main() {
             let mut isolates = HashMap::new();
 
             loop {
-                let request = request_rx.recv_async().await.unwrap();
-                let request = hyper_request_to_request(request).await;
+                let hyper_request = request_rx.recv_async().await.unwrap();
+                let request = hyper_request_to_request(hyper_request).await;
 
                 let hostname = request.headers.get("host").unwrap().clone();
                 let deployments = deployments.read().await;
@@ -128,6 +119,7 @@ async fn main() {
                         url.remove(0);
 
                         increment_counter!("lagon_requests", "deployment" => deployment.id.clone());
+                        gauge!("lagon_bytes_in", request.len() as f64, "deployment" => deployment.id.clone());
 
                         if let Some(asset) = deployment.assets.iter().find(|asset| *asset == url) {
                             // TODO: handle read error
@@ -149,13 +141,18 @@ async fn main() {
                                 Isolate::new(options)
                             });
 
-                            // TODO: replace by real duration
-                            let now = Instant::now();
-                            let result = isolate.run(request);
+                            let (run_result, maybe_statistics) = isolate.run(request);
 
-                            histogram!("lagon_isolate_duration", now.elapsed(), "deployment" => deployment.id.clone());
+                            if let Some(statistics) = maybe_statistics {
+                                histogram!("lagon_isolate_cpu_time", statistics.cpu_time, "deployment" => deployment.id.clone());
+                                histogram!("lagon_isolate_memory_usage", statistics.memory_usage as f64, "deployment" => deployment.id.clone());
+                            }
 
-                            response_tx.send_async(result).await.unwrap();
+                            if let RunResult::Response(response) = &run_result {
+                                gauge!("lagon_bytes_out", response.len() as f64, "deployment" => deployment.id.clone());
+                            }
+
+                            response_tx.send_async(run_result).await.unwrap();
                         }
                     }
                     None => {
