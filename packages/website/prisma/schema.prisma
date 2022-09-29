@@ -90,7 +90,6 @@ model Function {
   organizationId String
 
   deployments Deployment[]
-  stats Stat[]
   logs Log[]
 }
 
@@ -131,7 +130,6 @@ model Deployment {
   triggerer String  @default("Lagon")
   commit    String?
 
-  stats Stat[]
   logs Log[]
 }
 
@@ -156,23 +154,6 @@ model Token {
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
-}
-
-model Stat {
-  id     String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  function Function @relation(fields: [functionId], references: [id])
-  functionId String
-
-  deployment Deployment @relation(fields: [deploymentId], references: [id])
-  deploymentId String
-
-  cpuTime Int
-  sendBytes Int
-  receivedBytes Int
-  requests Int
 }
 
 enum LogLevel {

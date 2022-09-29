@@ -377,11 +377,6 @@ export async function removeFunction(func: {
 
   await Promise.all(deleteDeployments);
   await Promise.all([
-    prisma.stat.deleteMany({
-      where: {
-        functionId: func.id,
-      },
-    }),
     prisma.log.deleteMany({
       where: {
         functionId: func.id,

@@ -188,30 +188,7 @@ export const functionsRouter = (t: T) =>
           timeframe: z.enum(TIMEFRAMES),
         }),
       )
-      .query(async ({ input }) => {
-        return prisma.stat.findMany({
-          where: {
-            functionId: input.functionId,
-            createdAt: {
-              gte: new Date(
-                new Date().getTime() -
-                  (input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 30 days' ? 30 : 7) *
-                    24 *
-                    60 *
-                    60 *
-                    1000,
-              ),
-            },
-          },
-          select: {
-            createdAt: true,
-            requests: true,
-            cpuTime: true,
-            receivedBytes: true,
-            sendBytes: true,
-          },
-        });
-      }),
+      .query(() => []),
     functionCreate: t.procedure
       .input(
         z.object({
