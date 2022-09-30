@@ -47,7 +47,7 @@ export default {
   'settings.delete.submit': 'Delete',
   'settings.delete.modal.title': 'Delete Organization',
   'settings.delete.modal.description': "Write this Organization's name to confirm deletion: {organizationName}",
-  'settings.delete.modal.error': 'Confirm with the name of this Organisation',
+  'settings.delete.modal.error': 'Confirm with the name of this Organization',
   'settings.delete.modal.submit': 'Delete Organization',
   'settings.delete.success': 'Organization deleted successfully.',
 
