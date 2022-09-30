@@ -4,6 +4,8 @@
   "description": "Deploy Serverless Functions at the Edge",
   "private": true,
   "scripts": {
+    "start:docs": "pnpm --filter @lagon/docs dev",
+    "start:www": "pnpm --filter @lagon/www dev",
     "test": "turbo test --continue --filter=!@lagon/example-* --filter=!@lagon/old-*",
     "build": "turbo build --continue --filter=!@lagon/example-* --filter=!@lagon/old-*",
     "lint": "turbo lint --filter=!@lagon/old-*",
