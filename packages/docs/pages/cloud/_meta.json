@@ -1,0 +1,12 @@
+{
+  "organizations": "Organizations",
+  "functions": "Functions",
+  "deployments": "Deployments",
+  "logs": "Logs",
+  "environment-variables": "Environment variables",
+  "domains": "Domains",
+  "plans": "Plans",
+  "limitations": "Limitations",
+  "regions": "Regions",
+  "security": "Security"
+}
