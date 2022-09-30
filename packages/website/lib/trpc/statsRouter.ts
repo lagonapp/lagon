@@ -3,31 +3,41 @@ import { z } from 'zod';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
 import fetch from 'node-fetch';
 
+const getStep = (timeframe: Timeframe) => {
+  if (timeframe === 'Last 30 days') {
+    return 24 * 60;
+  } else if (timeframe === 'Last 7 days') {
+    return 24 * 60;
+  } else {
+    return 60 * 10;
+  }
+};
+
 const getRange = (timeframe: Timeframe) => {
-  let start = new Date().getTime() - 24 * 60 * 60 * 1000;
+  let start = new Date().getTime() - 24 * 60 * 60 * 1000; // 24 hours ago
   const end = new Date().getTime();
-  let step = 60 * 60;
 
   if (timeframe === 'Last 7 days') {
-    start = new Date().getTime() - 7 * 24 * 60 * 60 * 1000;
-    step = 24 * 60;
+    start = new Date().getTime() - 7 * 24 * 60 * 60 * 1000; // 7 days ago
   } else if (timeframe === 'Last 30 days') {
-    start = new Date().getTime() - 30 * 24 * 60 * 60 * 1000;
-    step = 24 * 60;
+    start = new Date().getTime() - 30 * 24 * 60 * 60 * 1000; // 30 days ago
   }
 
   return {
     start,
     end,
-    step,
   };
 };
 
+const toUnixTimestamp = (time: number) => Math.floor(time / 1000);
+
 const prometheus = async (query: string, timeframe: Timeframe) => {
-  const { start, end, step } = getRange(timeframe);
-  const url = `${process.env.PROMETHEUS_ENDPOINT}/api/v1/query_range?query=${encodeURIComponent(query)}&start=${
-    start / 1000
-  }&end=${end / 1000}&step=${step}`;
+  const { start, end } = getRange(timeframe);
+  const step = getStep(timeframe);
+
+  const url = `${process.env.PROMETHEUS_ENDPOINT}/api/v1/query_range?query=${encodeURIComponent(
+    query,
+  )}&start=${toUnixTimestamp(start)}&end=${toUnixTimestamp(end)}&step=${step}`;
 
   const response = await fetch(url, {
     headers: {
@@ -59,7 +69,11 @@ export const statsRouter = (t: T) =>
         }),
       )
       .query(async ({ input }) => {
-        const { result } = await prometheus(`lagon_requests{function="${input.functionId}"}`, input.timeframe);
+        const step = getStep(input.timeframe);
+        const { result } = await prometheus(
+          `increase(lagon_requests{function="${input.functionId}"}[${step}s])`,
+          input.timeframe,
+        );
 
         return result.reduce(
           (acc, { values }) => {
@@ -80,7 +94,7 @@ export const statsRouter = (t: T) =>
       )
       .query(async ({ input }) => {
         const { result } = await prometheus(
-          `lagon_isolate_cpu_time{function="${input.functionId}",quantile="0.99"} * 100000`,
+          `lagon_isolate_cpu_time{function="${input.functionId}",quantile="0.99"}`,
           input.timeframe,
         );
 
@@ -125,7 +139,11 @@ export const statsRouter = (t: T) =>
         }),
       )
       .query(async ({ input }) => {
-        const { result } = await prometheus(`lagon_bytes_in{function="${input.functionId}"}`, input.timeframe);
+        const step = getStep(input.timeframe);
+        const { result } = await prometheus(
+          `increase(lagon_bytes_in{function="${input.functionId}"}[${step}s])`,
+          input.timeframe,
+        );
 
         return result.reduce(
           (acc, { values }) => {
@@ -145,7 +163,11 @@ export const statsRouter = (t: T) =>
         }),
       )
       .query(async ({ input }) => {
-        const { result } = await prometheus(`lagon_bytes_out{function="${input.functionId}"}`, input.timeframe);
+        const step = getStep(input.timeframe);
+        const { result } = await prometheus(
+          `increase(lagon_bytes_out{function="${input.functionId}"}[${step}s])`,
+          input.timeframe,
+        );
 
         return result.reduce(
           (acc, { values }) => {

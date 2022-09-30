@@ -4,7 +4,7 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::RunResult;
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
-use metrics::{gauge, histogram, increment_counter};
+use metrics::{histogram, increment_counter, counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::Pool;
 use s3::creds::Credentials;
@@ -123,7 +123,7 @@ async fn main() {
                         ];
 
                         increment_counter!("lagon_requests", &labels);
-                        gauge!("lagon_bytes_in", request.len() as f64, &labels);
+                        counter!("lagon_bytes_in", request.len() as u64, &labels);
 
                         if let Some(asset) = deployment.assets.iter().find(|asset| *asset == url) {
                             // TODO: handle read error
@@ -157,7 +157,7 @@ async fn main() {
                             }
 
                             if let RunResult::Response(response) = &run_result {
-                                gauge!("lagon_bytes_out", response.len() as f64, &labels);
+                                counter!("lagon_bytes_out", response.len() as u64, &labels);
                             }
 
                             response_tx.send_async(run_result).await.unwrap();
