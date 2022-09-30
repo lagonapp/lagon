@@ -36,8 +36,9 @@ const Header = () => {
           Features
         </HeaderLink>
         <HeaderLink href="#" soon>
-          Documentation
+          Pricing
         </HeaderLink>
+        <HeaderLink href="https://docs.lagon.app">Documentation</HeaderLink>
       </div>
       <div className="flex gap-8">
         <HeaderLink href="https://discord.lagon.app" target="_blank">
