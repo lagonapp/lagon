@@ -1,4 +1,5 @@
-import { DocsThemeConfig } from 'nextra-theme-docs';
+/* eslint-disable react-hooks/rules-of-hooks */
+import { DocsThemeConfig, useTheme } from 'nextra-theme-docs';
 
 const config: DocsThemeConfig = {
   project: {
@@ -14,22 +15,34 @@ const config: DocsThemeConfig = {
   footer: {
     text: `${new Date().getFullYear()} © Lagon.`,
   },
-  logo: <img src="/logo-black.png" alt="Logo" className="h-6" />,
+  logo: () => {
+    const { resolvedTheme } = useTheme();
+
+    if (resolvedTheme === 'light' || !resolvedTheme) {
+      return <img src="/logo-black.png" alt="Logo" className="h-6" />;
+    }
+
+    return <img src="/logo-white.png" alt="Logo" className="h-6" />;
+  },
   head: (
     <>
-      <meta name="msapplication-TileColor" content="#ffffff" />
-      <meta name="theme-color" content="#ffffff" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <meta httpEquiv="Content-Language" content="en" />
-      <meta name="description" content="Lagon - Deploy Serverless Functions at the Edge" />
-      <meta name="og:description" content="Lagon - Deploy Serverless Functions at the Edge" />
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:image" content="https://docs.lagon.app/og.png" />
-      <meta name="twitter:site:domain" content="nextra.vercel.app" />
-      <meta name="twitter:url" content="https://docs.lagon.app" />
-      <meta name="og:title" content="Lagon - Deploy Serverless Functions at the Edge" />
-      <meta name="og:image" content="https://docs.lagon.app/og.png" />
-      <meta name="apple-mobile-web-app-title" content="Lagon" />
+      <meta
+        name="description"
+        content="Deploy Serverless Functions at the Edge. Lagon is an open source platform that allows you to run TypeScript and JavaScript close to your users."
+      />
+      <meta property="og:url" content="https://lagon.app" />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content="Lagon" />
+      <meta
+        name="twitter:card"
+        content="Lagon is an open source platform that allows you to run TypeScript and JavaScript close to your users."
+      />
+      <meta
+        property="og:description"
+        content="Lagon is an open source platform that allows you to run TypeScript and JavaScript close to your users."
+      />
+      <meta property="og:image" content="https://i.imgur.com/lqVcA5Y.png" />
     </>
   ),
   chat: {
