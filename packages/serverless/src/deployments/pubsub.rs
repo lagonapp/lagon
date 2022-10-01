@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
+use log::error;
 use s3::Bucket;
 use serde_json::Value;
 use tokio::{sync::RwLock, task::JoinHandle};
@@ -62,13 +63,16 @@ pub fn listen_pub_sub(
                                 deployments.insert(domain, deployment.clone());
                             }
                         }
-                        Err(error) => {
-                            println!("Failed to download deployment: {:?}", error);
+                        Err(err) => {
+                            error!(
+                                "Failed to download deployment ({}): {:?}",
+                                deployment.id, err
+                            );
                         }
                     };
                 }
                 "undeploy" => {
-                    match rm_deployment(deployment.id) {
+                    match rm_deployment(&deployment.id) {
                         Ok(_) => {
                             let mut deployments = deployments.write().await;
 
@@ -76,12 +80,12 @@ pub fn listen_pub_sub(
                                 deployments.remove(&domain);
                             }
                         }
-                        Err(error) => {
-                            println!("Failed to delete deployment: {:?}", error);
+                        Err(err) => {
+                            error!("Failed to delete deployment ({}): {:?}", deployment.id, err);
                         }
                     };
                 }
-                _ => println!("Unknown channel: {}", channel),
+                _ => error!("Unknown channel: {}", channel),
             };
         }
     })

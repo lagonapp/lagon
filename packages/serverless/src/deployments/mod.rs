@@ -5,6 +5,7 @@ use std::{
     sync::Arc,
 };
 
+use log::{error, info};
 use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
 use tokio::sync::RwLock;
@@ -100,14 +101,16 @@ pub async fn get_deployments(
     )
     .unwrap();
 
-    let deployments_list = deployments_list.values().cloned().collect();
+    let deployments_list: Vec<Deployment> = deployments_list.values().cloned().collect();
+
+    info!("Found {} deployment(s) to deploy", deployments_list.len());
 
     if let Err(error) = create_deployments_folder() {
-        println!("Could not create deployments folder: {}", error);
+        error!("Could not create deployments folder: {}", error);
     }
 
     if let Err(error) = delete_old_deployments(&deployments_list).await {
-        println!("Failed to delete old deployments: {:?}", error);
+        error!("Failed to delete old deployments: {:?}", error);
     }
 
     {
@@ -116,7 +119,10 @@ pub async fn get_deployments(
         for deployment in deployments_list {
             if !has_deployment_code(&deployment) {
                 if let Err(error) = download_deployment(&deployment, &bucket).await {
-                    println!("Failed to download deployment: {:?}", error);
+                    error!(
+                        "Failed to download deployment ({}): {:?}",
+                        deployment.id, error
+                    );
                 }
             }
 
@@ -130,6 +136,7 @@ pub async fn get_deployments(
 }
 
 async fn delete_old_deployments(deployments: &Vec<Deployment>) -> io::Result<()> {
+    info!("Deleting old deployments");
     let local_deployments_files = fs::read_dir(Path::new("deployments"))?;
 
     for local_deployment_file in local_deployments_files {
@@ -150,9 +157,10 @@ async fn delete_old_deployments(deployments: &Vec<Deployment>) -> io::Result<()>
             .iter()
             .any(|deployment| deployment.id == local_deployment_id)
         {
-            rm_deployment(local_deployment_id)?;
+            rm_deployment(&local_deployment_id)?;
         }
     }
+    info!("Old deployments deleted");
 
     Ok(())
 }
@@ -160,7 +168,7 @@ async fn delete_old_deployments(deployments: &Vec<Deployment>) -> io::Result<()>
 pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io::Result<()> {
     match bucket.get_object(deployment.id.clone() + ".js").await {
         Ok(object) => {
-            write_deployment(deployment.id.clone(), object.bytes())?;
+            write_deployment(&deployment.id, object.bytes())?;
 
             if deployment.assets.len() > 0 {
                 for asset in &deployment.assets {
@@ -173,7 +181,7 @@ pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io
                     }
 
                     let object = object.unwrap();
-                    write_deployment_asset(deployment.id.clone(), asset, object.bytes())?;
+                    write_deployment_asset(&deployment.id, asset, object.bytes())?;
                 }
             }
 

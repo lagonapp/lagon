@@ -19,9 +19,11 @@ use crate::deployments::filesystem::get_deployment_code;
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
 use crate::http::response_to_hyper_response;
+use crate::logger::init_logger;
 
 mod deployments;
 mod http;
+mod logger;
 
 async fn handle_request(
     req: HyperRequest<Body>,
@@ -56,7 +58,9 @@ async fn handle_request(
 
 #[tokio::main]
 async fn main() {
-    dotenv::dotenv().ok();
+    dotenv::dotenv().expect("Failed to load .env file");
+    init_logger().expect("Failed to init logger");
+
     let runtime = Runtime::new(RuntimeOptions::default());
     let addr = SocketAddr::from(([127, 0, 0, 1], 4000));
 
