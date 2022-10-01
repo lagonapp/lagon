@@ -11,6 +11,7 @@ import * as Sentry from '@sentry/nextjs';
 import { accountsRouter } from 'lib/trpc/accountsRouter';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { authOptions } from '../auth/[...nextauth]';
+import { statsRouter } from 'lib/trpc/statsRouter';
 
 const createContext = async ({
   req,
@@ -93,6 +94,7 @@ const router = t.mergeRouters(
   tokensRouter(t),
   deploymentsRouter(t),
   accountsRouter(t),
+  statsRouter(t),
 );
 
 export type AppRouter = typeof router;

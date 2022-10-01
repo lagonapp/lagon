@@ -17,6 +17,7 @@ pub mod pubsub;
 #[derive(Debug, Clone)]
 pub struct Deployment {
     pub id: String,
+    pub function_id: String,
     pub domains: Vec<String>,
     pub assets: Vec<String>,
     pub environment_variables: HashMap<String, String>,
@@ -35,6 +36,7 @@ pub async fn get_deployments(
             r"
         SELECT
             Deployment.id,
+            Function.id,
             Function.memory,
             Function.timeout,
             Domain.domain,
@@ -48,7 +50,8 @@ pub async fn get_deployments(
         LEFT JOIN Asset
             ON Deployment.id = Asset.deploymentId
     ",
-            |(id, memory, timeout, domain, asset): (
+            |(id, function_id, memory, timeout, domain, asset): (
+                String,
                 String,
                 usize,
                 usize,
@@ -56,6 +59,7 @@ pub async fn get_deployments(
                 Option<String>,
             )| Deployment {
                 id,
+                function_id,
                 domains: domain.map(|d| vec![d]).unwrap_or(vec![]),
                 assets: asset.map(|a| vec![a]).unwrap_or(vec![]),
                 environment_variables: HashMap::new(),

@@ -4,13 +4,14 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::RunResult;
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
+use metrics::{histogram, increment_counter, counter};
+use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::Pool;
 use s3::creds::Credentials;
 use s3::Bucket;
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
-use std::time::Instant;
 use tokio::task::LocalSet;
 
 use crate::deployments::assets::handle_asset;
@@ -27,8 +28,6 @@ async fn handle_request(
     request_tx: flume::Sender<HyperRequest<Body>>,
     response_rx: flume::Receiver<RunResult>,
 ) -> Result<HyperResponse<Body>, Infallible> {
-    let now = Instant::now();
-
     request_tx.send_async(req).await;
 
     let result = response_rx
@@ -38,13 +37,6 @@ async fn handle_request(
 
     match result {
         RunResult::Response(response) => {
-            // println!(
-            //     "Response: {:?} in {:?} (CPU time) (Total: {:?})",
-            //     response,
-            //     duration,
-            //     now.elapsed()
-            // );
-
             let response = response_to_hyper_response(response);
 
             Ok(response)
@@ -82,6 +74,9 @@ async fn main() {
         }
     }));
 
+    let builder = PrometheusBuilder::new();
+    builder.install().expect("Failed to start metrics exporter");
+
     let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let pool = Pool::new(url).unwrap();
@@ -111,8 +106,8 @@ async fn main() {
             let mut isolates = HashMap::new();
 
             loop {
-                let request = request_rx.recv_async().await.unwrap();
-                let request = hyper_request_to_request(request).await;
+                let hyper_request = request_rx.recv_async().await.unwrap();
+                let request = hyper_request_to_request(hyper_request).await;
 
                 let hostname = request.headers.get("host").unwrap().clone();
                 let deployments = deployments.read().await;
@@ -121,6 +116,14 @@ async fn main() {
                     Some(deployment) => {
                         let url = &mut request.url.clone();
                         url.remove(0);
+
+                        let labels = vec![
+                            ("deployment", deployment.id.clone()),
+                            ("function", deployment.function_id.clone()),
+                        ];
+
+                        increment_counter!("lagon_requests", &labels);
+                        counter!("lagon_bytes_in", request.len() as u64, &labels);
 
                         if let Some(asset) = deployment.assets.iter().find(|asset| *asset == url) {
                             // TODO: handle read error
@@ -142,9 +145,22 @@ async fn main() {
                                 Isolate::new(options)
                             });
 
-                            let result = isolate.run(request);
+                            let (run_result, maybe_statistics) = isolate.run(request);
 
-                            response_tx.send_async(result).await.unwrap();
+                            if let Some(statistics) = maybe_statistics {
+                                histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
+                                histogram!(
+                                    "lagon_isolate_memory_usage",
+                                    statistics.memory_usage as f64,
+                                    &labels
+                                );
+                            }
+
+                            if let RunResult::Response(response) = &run_result {
+                                counter!("lagon_bytes_out", response.len() as u64, &labels);
+                            }
+
+                            response_tx.send_async(run_result).await.unwrap();
                         }
                     }
                     None => {

@@ -36,6 +36,11 @@ struct IsolateState {
     promises: Vec<JoinHandle<()>>,
 }
 
+pub struct IsolateStatistics {
+    pub cpu_time: Duration,
+    pub memory_usage: usize,
+}
+
 pub struct IsolateOptions {
     pub code: String,
     pub environment_variables: Option<HashMap<String, String>>,
@@ -133,7 +138,7 @@ impl Isolate {
         state.global.clone()
     }
 
-    pub fn run(&mut self, request: Request) -> RunResult {
+    pub fn run(&mut self, request: Request) -> (RunResult, Option<IsolateStatistics>) {
         let thread_safe_handle = self.isolate.thread_safe_handle();
 
         let state = self.global_realm();
@@ -146,7 +151,10 @@ impl Isolate {
                 None => {
                     self.compilation_error = Some("Failed to get runtime code".to_string());
 
-                    return RunResult::Error(self.compilation_error.clone().unwrap());
+                    return (
+                        RunResult::Error(self.compilation_error.clone().unwrap()),
+                        None,
+                    );
                 }
             };
 
@@ -199,7 +207,7 @@ impl Isolate {
         }
 
         if let Some(error) = &self.compilation_error {
-            return RunResult::Error(error.clone());
+            return (RunResult::Error(error.clone()), None);
         }
 
         let request = request.to_v8_request(try_catch);
@@ -266,16 +274,36 @@ impl Isolate {
                     };
                 }
 
+                // let mut heap_statistics = v8::HeapStatistics::default();
+                // try_catch.get_heap_statistics(&mut heap_statistics);
+                // println!("count: {} used heap size: {}", self.count.load(Ordering::SeqCst), heap_statistics.used_heap_size());
+
+                let cpu_time = now.elapsed();
+                let memory_usage = self.count.load(Ordering::SeqCst);
+                self.count.store(0, Ordering::SeqCst);
+
                 match Response::from_v8_response(try_catch, response) {
-                    Some(response) => RunResult::Response(response),
-                    None => extract_error(try_catch),
+                    Some(response) => (
+                        RunResult::Response(response),
+                        Some(IsolateStatistics {
+                            cpu_time,
+                            memory_usage,
+                        }),
+                    ),
+                    None => (extract_error(try_catch), None),
                 }
             }
-            None => match *terminated.read().unwrap() {
-                ExecutionResult::MemoryReached => RunResult::MemoryLimit(),
-                ExecutionResult::TimeoutReached => RunResult::Timeout(),
-                _ => extract_error(try_catch),
-            },
+            None => {
+                self.count.store(0, Ordering::SeqCst);
+
+                let run_result = match *terminated.read().unwrap() {
+                    ExecutionResult::MemoryReached => RunResult::MemoryLimit(),
+                    ExecutionResult::TimeoutReached => RunResult::Timeout(),
+                    _ => extract_error(try_catch),
+                };
+
+                return (run_result, None);
+            }
         }
     }
 }

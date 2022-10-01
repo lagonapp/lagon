@@ -29,6 +29,7 @@ pub fn listen_pub_sub(
 
             let deployment = Deployment {
                 id: value["deploymentId"].as_str().unwrap().to_string(),
+                function_id: value["functionId"].as_str().unwrap().to_string(),
                 assets: value["assets"]
                     .as_array()
                     .unwrap()

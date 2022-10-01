@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::time::Duration;
 
 use crate::utils::{extract_v8_string, v8_string};
 
@@ -83,6 +82,11 @@ impl Request {
 
         request
     }
+
+    // TODO: Return the full request length
+    pub fn len(&self) -> usize {
+        self.body.len()
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -155,6 +159,11 @@ impl Response {
             body,
             status,
         })
+    }
+
+    // TODO: Return the full response length
+    pub fn len(&self) -> usize {
+        self.body.len()
     }
 }
 

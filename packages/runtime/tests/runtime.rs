@@ -28,12 +28,14 @@ async fn execute_function() {
     ));
 
     assert_eq!(
-        isolate.run(Request {
-            body: "".into(),
-            headers: HashMap::new(),
-            method: Method::GET,
-            url: "".into(),
-        }),
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            })
+            .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: None,
@@ -60,12 +62,14 @@ async fn environment_variables() {
     );
 
     assert_eq!(
-        isolate.run(Request {
-            body: "".into(),
-            headers: HashMap::new(),
-            method: Method::GET,
-            url: "".into(),
-        }),
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            })
+            .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: None,
@@ -85,12 +89,14 @@ async fn get_body() {
     ));
 
     assert_eq!(
-        isolate.run(Request {
-            body: "Hello world".into(),
-            headers: HashMap::new(),
-            method: Method::GET,
-            url: "".into(),
-        }),
+        isolate
+            .run(Request {
+                body: "Hello world".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            })
+            .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: None,
@@ -110,12 +116,14 @@ async fn get_input() {
     ));
 
     assert_eq!(
-        isolate.run(Request {
-            body: "".into(),
-            headers: HashMap::new(),
-            method: Method::GET,
-            url: "https://hello.world".into(),
-        }),
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "https://hello.world".into(),
+            })
+            .0,
         RunResult::Response(Response {
             body: "https://hello.world".into(),
             headers: None,
@@ -135,12 +143,14 @@ async fn get_method() {
     ));
 
     assert_eq!(
-        isolate.run(Request {
-            body: "".into(),
-            headers: HashMap::new(),
-            method: Method::POST,
-            url: "".into(),
-        }),
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::POST,
+                url: "".into(),
+            })
+            .0,
         RunResult::Response(Response {
             body: "POST".into(),
             headers: None,
@@ -163,12 +173,14 @@ async fn get_headers() {
     headers.insert("x-auth".into(), "token".into());
 
     assert_eq!(
-        isolate.run(Request {
-            body: "".into(),
-            headers,
-            method: Method::POST,
-            url: "".into(),
-        }),
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers,
+                method: Method::POST,
+                url: "".into(),
+            })
+            .0,
         RunResult::Response(Response {
             body: "token".into(),
             headers: None,
@@ -197,12 +209,14 @@ async fn return_headers() {
     headers.insert("X-Test".into(), "test".into());
 
     assert_eq!(
-        isolate.run(Request {
-            body: "".into(),
-            headers: HashMap::new(),
-            method: Method::GET,
-            url: "".into(),
-        }),
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            })
+            .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: Some(headers),
@@ -231,12 +245,14 @@ async fn return_headers_from_headers_api() {
     headers.insert("X-Test".into(), "test".into());
 
     assert_eq!(
-        isolate.run(Request {
-            body: "".into(),
-            headers: HashMap::new(),
-            method: Method::GET,
-            url: "".into(),
-        }),
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            })
+            .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: Some(headers),
@@ -258,12 +274,14 @@ async fn return_status() {
     ));
 
     assert_eq!(
-        isolate.run(Request {
-            body: "".into(),
-            headers: HashMap::new(),
-            method: Method::GET,
-            url: "".into(),
-        }),
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            })
+            .0,
         RunResult::Response(Response {
             body: "Moved permanently".into(),
             headers: None,
@@ -284,12 +302,14 @@ async fn timeout_reached() {
     ));
 
     assert_eq!(
-        isolate.run(Request {
-            body: "".into(),
-            headers: HashMap::new(),
-            method: Method::GET,
-            url: "".into(),
-        }),
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            })
+            .0,
         RunResult::Timeout(),
     );
 }
@@ -317,12 +337,14 @@ async fn memory_reached() {
     ); // Increase timeout for CI
 
     assert_eq!(
-        isolate.run(Request {
-            body: "".into(),
-            headers: HashMap::new(),
-            method: Method::GET,
-            url: "".into(),
-        }),
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            })
+            .0,
         RunResult::MemoryLimit(),
     );
 }
