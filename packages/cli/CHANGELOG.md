@@ -1,5 +1,15 @@
 # @lagon/cli
 
+## 0.1.3
+
+### Patch Changes
+
+- [#153](https://github.com/lagonapp/lagon/pull/153) [`f2a70de`](https://github.com/lagonapp/lagon/commit/f2a70ded31c126ea2630ec39738826b01f0ab6b3) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Show help when no subcommand provided
+
+* [#160](https://github.com/lagonapp/lagon/pull/160) [`94c14ac`](https://github.com/lagonapp/lagon/commit/94c14ac522075079e0d271467f4445b38f9a2d47) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Correctly bundle assets
+
+- [#155](https://github.com/lagonapp/lagon/pull/155) [`92e4710`](https://github.com/lagonapp/lagon/commit/92e471016ee8b23a608126e97ea73f330efa80cd) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Migrate tRPC v9 to v10
+
 ## 0.1.2
 
 ### Patch Changes
