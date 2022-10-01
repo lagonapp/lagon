@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fs, io, path::Path, sync::Arc};
+use std::{collections::{HashMap, HashSet}, fs, io, path::Path, sync::Arc};
 
 use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
@@ -18,8 +18,8 @@ pub mod pubsub;
 pub struct Deployment {
     pub id: String,
     pub function_id: String,
-    pub domains: Vec<String>,
-    pub assets: Vec<String>,
+    pub domains: HashSet<String>,
+    pub assets: HashSet<String>,
     pub environment_variables: HashMap<String, String>,
     pub memory: usize,  // in MB (MegaBytes)
     pub timeout: usize, // in ms (MilliSeconds)
@@ -31,7 +31,9 @@ pub async fn get_deployments(
 ) -> Arc<RwLock<HashMap<String, Deployment>>> {
     let deployments = Arc::new(RwLock::new(HashMap::new()));
 
-    let deployments_list = conn
+    let mut deployments_list: HashMap<String, Deployment> = HashMap::new();
+
+    conn
         .query_map(
             r"
         SELECT
@@ -57,17 +59,36 @@ pub async fn get_deployments(
                 usize,
                 Option<String>,
                 Option<String>,
-            )| Deployment {
-                id,
-                function_id,
-                domains: domain.map(|d| vec![d]).unwrap_or(vec![]),
-                assets: asset.map(|a| vec![a]).unwrap_or(vec![]),
-                environment_variables: HashMap::new(),
-                memory,
-                timeout,
+            )| {
+                deployments_list.entry(id.clone()).and_modify(|deployment| {
+                    if let Some(domain) = domain.clone() {
+                        deployment.domains.insert(domain);
+                    }
+
+                    if let Some(asset) = asset.clone() {
+                        deployment.assets.insert(asset);
+                    }
+                }).or_insert(Deployment {
+                    id,
+                    function_id,
+                    domains: domain.map(|domain| {
+                        let mut domains = HashSet::new();
+                        domains.insert(domain);
+                        domains
+                    }).unwrap_or_default(),
+                    assets: asset.map(|asset| {
+                        let mut assets = HashSet::new();
+                        assets.insert(asset);
+                        assets
+                    }).unwrap_or_default(),
+                    environment_variables: HashMap::new(),
+                    memory,
+                    timeout,
+                });
             },
-        )
-        .unwrap();
+        ).unwrap();
+
+    let deployments_list = deployments_list.values().cloned().collect();
 
     if let Err(error) = create_deployments_folder() {
         println!("Could not create deployments folder: {}", error);
@@ -82,7 +103,6 @@ pub async fn get_deployments(
 
         for deployment in deployments_list {
             if !has_deployment_code(&deployment) {
-                println!("deployment {:?}", deployment);
                 if let Err(error) = download_deployment(&deployment, &bucket).await {
                     println!("Failed to download deployment: {:?}", error);
                 }
