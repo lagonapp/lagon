@@ -12,7 +12,7 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
   <div id="root">${renderToString(<App />)}</div>
-  <script type="module" src="/app.js"></script>
+  <script type="module" src="/App.js"></script>
 </body>
 </html>`;
 

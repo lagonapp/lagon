@@ -2,7 +2,7 @@ use colored::Colorize;
 use std::{
     collections::HashMap,
     fs,
-    io::{self, Error, ErrorKind, Read},
+    io::{self, Error, ErrorKind, Read, Cursor},
     path::{Path, PathBuf},
     process::Command,
 };
@@ -58,7 +58,7 @@ pub fn delete_function_config() -> io::Result<()> {
     fs::remove_file(path)
 }
 
-fn esbuild(file: &PathBuf) -> io::Result<String> {
+fn esbuild(file: &PathBuf) -> io::Result<Cursor<Vec<u8>>> {
     let result = Command::new("esbuild")
         .arg(file)
         .arg("--bundle")
@@ -71,13 +71,7 @@ fn esbuild(file: &PathBuf) -> io::Result<String> {
     if result.status.success() {
         let output = result.stdout;
 
-        return match String::from_utf8(output) {
-            Ok(s) => Ok(s),
-            Err(_) => Err(Error::new(
-                ErrorKind::Other,
-                "Failed to convert output to string",
-            )),
-        };
+        return Ok(Cursor::new(output));
     }
 
     Err(Error::new(
@@ -89,8 +83,8 @@ fn esbuild(file: &PathBuf) -> io::Result<String> {
 pub fn bundle_function(
     index: PathBuf,
     client: Option<PathBuf>,
-    _public_dir: PathBuf,
-) -> io::Result<(String, HashMap<String, String>)> {
+    public_dir: PathBuf,
+) -> io::Result<(Cursor<Vec<u8>>, HashMap<String, Cursor<Vec<u8>>>)> {
     if let Err(_) = Command::new("esbuild").arg("--version").output() {
         return Err(Error::new(
             ErrorKind::Other,
@@ -102,7 +96,7 @@ pub fn bundle_function(
     let index_output = esbuild(&index)?;
     end_progress();
 
-    let mut assets = HashMap::<String, String>::new();
+    let mut assets = HashMap::<String, Cursor<Vec<u8>>>::new();
 
     if let Some(client) = client {
         let end_progress = print_progress("Bundling client file...");
@@ -110,7 +104,7 @@ pub fn bundle_function(
         end_progress();
 
         assets.insert(
-            client.file_name().unwrap().to_str().unwrap().to_string(),
+            client.as_path().file_stem().unwrap().to_str().unwrap().to_string() + ".js",
             client_output,
         );
     }
@@ -140,13 +134,13 @@ pub fn create_deployment(
     multipart.add_text("functionId", function_id);
     multipart.add_stream(
         "code",
-        index.as_bytes(),
+        index,
         Some("index.js"),
         Some(mime::TEXT_JAVASCRIPT),
     );
 
-    for (path, content) in &assets {
-        multipart.add_stream("assets", content.as_bytes(), Some(path), None);
+    for (path, content) in assets {
+        multipart.add_stream("assets", content, Some(path), None);
     }
 
     let client = Client::new();
