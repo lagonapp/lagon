@@ -8,7 +8,7 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
   <div id="root" />
-  <script type="module" src="/app.js"></script>
+  <script type="module" src="/App.js"></script>
 </body>
 </html>`;
 

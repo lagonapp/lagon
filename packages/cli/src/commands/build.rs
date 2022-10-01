@@ -23,14 +23,22 @@ pub fn build(
     let (index, assets) = bundle_function(file, client, public_dir)?;
 
     let end_progress = print_progress("Writting index.js...");
+
     fs::create_dir_all(".lagon")?;
-    fs::write(".lagon/index.js", index)?;
+    fs::write(".lagon/index.js", index.get_ref())?;
+
     end_progress();
 
     for (path, content) in assets {
         let message = format!("Writting {}...", path);
         let end_progress = print_progress(&message);
-        fs::write(format!(".lagon/{}", path), content)?;
+
+        let dir = PathBuf::from(".lagon")
+            .join("public")
+            .join(PathBuf::from(&path).parent().unwrap());
+        fs::create_dir_all(dir)?;
+        fs::write(format!(".lagon/public/{}", path), content.get_ref())?;
+
         end_progress();
     }
 
