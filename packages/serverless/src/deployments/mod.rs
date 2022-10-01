@@ -1,4 +1,9 @@
-use std::{collections::{HashMap, HashSet}, fs, io, path::Path, sync::Arc};
+use std::{
+    collections::{HashMap, HashSet},
+    fs, io,
+    path::Path,
+    sync::Arc,
+};
 
 use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
@@ -33,9 +38,8 @@ pub async fn get_deployments(
 
     let mut deployments_list: HashMap<String, Deployment> = HashMap::new();
 
-    conn
-        .query_map(
-            r"
+    conn.query_map(
+        r"
         SELECT
             Deployment.id,
             Function.id,
@@ -52,15 +56,17 @@ pub async fn get_deployments(
         LEFT JOIN Asset
             ON Deployment.id = Asset.deploymentId
     ",
-            |(id, function_id, memory, timeout, domain, asset): (
-                String,
-                String,
-                usize,
-                usize,
-                Option<String>,
-                Option<String>,
-            )| {
-                deployments_list.entry(id.clone()).and_modify(|deployment| {
+        |(id, function_id, memory, timeout, domain, asset): (
+            String,
+            String,
+            usize,
+            usize,
+            Option<String>,
+            Option<String>,
+        )| {
+            deployments_list
+                .entry(id.clone())
+                .and_modify(|deployment| {
                     if let Some(domain) = domain.clone() {
                         deployment.domains.insert(domain);
                     }
@@ -68,25 +74,31 @@ pub async fn get_deployments(
                     if let Some(asset) = asset.clone() {
                         deployment.assets.insert(asset);
                     }
-                }).or_insert(Deployment {
+                })
+                .or_insert(Deployment {
                     id,
                     function_id,
-                    domains: domain.map(|domain| {
-                        let mut domains = HashSet::new();
-                        domains.insert(domain);
-                        domains
-                    }).unwrap_or_default(),
-                    assets: asset.map(|asset| {
-                        let mut assets = HashSet::new();
-                        assets.insert(asset);
-                        assets
-                    }).unwrap_or_default(),
+                    domains: domain
+                        .map(|domain| {
+                            let mut domains = HashSet::new();
+                            domains.insert(domain);
+                            domains
+                        })
+                        .unwrap_or_default(),
+                    assets: asset
+                        .map(|asset| {
+                            let mut assets = HashSet::new();
+                            assets.insert(asset);
+                            assets
+                        })
+                        .unwrap_or_default(),
                     environment_variables: HashMap::new(),
                     memory,
                     timeout,
                 });
-            },
-        ).unwrap();
+        },
+    )
+    .unwrap();
 
     let deployments_list = deployments_list.values().cloned().collect();
 

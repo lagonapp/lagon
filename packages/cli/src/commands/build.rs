@@ -33,7 +33,9 @@ pub fn build(
         let message = format!("Writting {}...", path);
         let end_progress = print_progress(&message);
 
-        let dir = PathBuf::from(".lagon").join("public").join(PathBuf::from(&path).parent().unwrap());
+        let dir = PathBuf::from(".lagon")
+            .join("public")
+            .join(PathBuf::from(&path).parent().unwrap());
         fs::create_dir_all(dir)?;
         fs::write(format!(".lagon/public/{}", path), content.get_ref())?;
 

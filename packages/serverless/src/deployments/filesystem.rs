@@ -41,7 +41,9 @@ pub fn write_deployment_asset(deployment_id: String, asset: &str, buf: &[u8]) ->
     let asset = asset.replace("public/", "");
     let asset = asset.as_str();
 
-    let dir = PathBuf::from("deployments").join(&deployment_id).join(PathBuf::from(asset).parent().unwrap());
+    let dir = PathBuf::from("deployments")
+        .join(&deployment_id)
+        .join(PathBuf::from(asset).parent().unwrap());
     fs::create_dir_all(dir)?;
 
     let mut file = fs::File::create(Path::new("deployments").join(deployment_id + "/" + asset))?;

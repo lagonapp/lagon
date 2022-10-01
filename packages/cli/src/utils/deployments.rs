@@ -1,21 +1,21 @@
 use colored::Colorize;
-use walkdir::WalkDir;
 use std::{
     collections::HashMap,
     fs,
-    io::{self, Error, ErrorKind, Read, Cursor},
+    io::{self, Cursor, Error, ErrorKind, Read},
     path::{Path, PathBuf},
     process::Command,
 };
+use walkdir::WalkDir;
 
 use multipart::{
     client::lazy::Multipart,
     server::nickel::nickel::hyper::{header::Headers, Client},
 };
-use serde::{Deserialize, Serialize};
 use pathdiff::diff_paths;
+use serde::{Deserialize, Serialize};
 
-use crate::utils::{get_api_url, print_progress, success, debug};
+use crate::utils::{debug, get_api_url, print_progress, success};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeploymentConfig {
@@ -106,13 +106,23 @@ pub fn bundle_function(
         end_progress();
 
         assets.insert(
-            client.as_path().file_stem().unwrap().to_str().unwrap().to_string() + ".js",
+            client
+                .as_path()
+                .file_stem()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string()
+                + ".js",
             client_output,
         );
     }
 
     if public_dir.exists() && public_dir.is_dir() {
-        let msg = format!("Found public directory ({}), bundling assets...", public_dir.display());
+        let msg = format!(
+            "Found public directory ({}), bundling assets...",
+            public_dir.display()
+        );
         let end_progress = print_progress(&msg);
 
         for file in WalkDir::new(&public_dir) {
@@ -120,7 +130,11 @@ pub fn bundle_function(
             let path = file.path();
 
             if path.is_file() {
-                let diff = diff_paths(path, &public_dir).unwrap().to_str().unwrap().to_string();
+                let diff = diff_paths(path, &public_dir)
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
                 let file_content = fs::read(path)?;
 
                 assets.insert(diff, Cursor::new(file_content));
@@ -153,12 +167,7 @@ pub fn create_deployment(
 
     let mut multipart = Multipart::new();
     multipart.add_text("functionId", function_id);
-    multipart.add_stream(
-        "code",
-        index,
-        Some("index.js"),
-        Some(mime::TEXT_JAVASCRIPT),
-    );
+    multipart.add_stream("code", index, Some("index.js"), Some(mime::TEXT_JAVASCRIPT));
 
     for (path, content) in assets {
         let extension = Path::new(&path).extension().unwrap().to_str().unwrap();
