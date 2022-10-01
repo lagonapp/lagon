@@ -9,7 +9,7 @@ mod commands;
 mod utils;
 
 #[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None, arg_required_else_help = true)]
+#[command(author, version, about, long_about = None, arg_required_else_help = true)]
 struct Cli {
     #[clap(subcommand)]
     command: Option<Commands>,
