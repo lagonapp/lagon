@@ -6,7 +6,7 @@ use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use metrics::{counter, histogram, increment_counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
-use mysql::Pool;
+use mysql::{Pool, Opts, OptsBuilder, SslOpts};
 use s3::creds::Credentials;
 use s3::Bucket;
 use std::collections::HashMap;
@@ -62,7 +62,7 @@ async fn main() {
     init_logger().expect("Failed to init logger");
 
     let runtime = Runtime::new(RuntimeOptions::default());
-    let addr = SocketAddr::from(([127, 0, 0, 1], 4000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 4000));
 
     let (request_tx, request_rx) = flume::unbounded::<HyperRequest<Body>>();
     let (response_tx, response_rx) = flume::unbounded::<RunResult>();
@@ -83,7 +83,9 @@ async fn main() {
 
     let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
-    let pool = Pool::new(url).unwrap();
+    let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
+    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(SslOpts::default().with_danger_accept_invalid_certs(true)));
+    let pool = Pool::new(opts).unwrap();
     let conn = pool.get_conn().unwrap();
 
     let bucket_name = dotenv::var("S3_BUCKET").expect("S3_BUCKET must be set");
