@@ -9,6 +9,12 @@ on:
     paths:
       - packages/cli/**
       - packages/runtime/**
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 jobs:
   artifacts:
     name: Create Artifact ${{ matrix.target }} (${{ matrix.os }})

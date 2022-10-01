@@ -3,7 +3,12 @@ on:
   push:
     branches:
       - main
-concurrency: ${{ github.workflow }}-${{ github.ref }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 jobs:
   release:
     name: Release
@@ -23,7 +28,9 @@ jobs:
     - name: Create release
       uses: changesets/action@v1
       with:
+        commit: 'ci: release'
+        title: 'ci: release'
         publish: pnpm release
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PAT }}
         NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
