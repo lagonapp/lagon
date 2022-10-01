@@ -1,4 +1,5 @@
 use colored::Colorize;
+use walkdir::WalkDir;
 use std::{
     collections::HashMap,
     fs,
@@ -12,8 +13,9 @@ use multipart::{
     server::nickel::nickel::hyper::{header::Headers, Client},
 };
 use serde::{Deserialize, Serialize};
+use pathdiff::diff_paths;
 
-use crate::utils::{get_api_url, print_progress, success};
+use crate::utils::{get_api_url, print_progress, success, debug};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeploymentConfig {
@@ -109,7 +111,26 @@ pub fn bundle_function(
         );
     }
 
-    // TODO: assets
+    if public_dir.exists() && public_dir.is_dir() {
+        let msg = format!("Found public directory ({}), bundling assets...", public_dir.display());
+        let end_progress = print_progress(&msg);
+
+        for file in WalkDir::new(&public_dir) {
+            let file = file?;
+            let path = file.path();
+
+            if path.is_file() {
+                let diff = diff_paths(path, &public_dir).unwrap().to_str().unwrap().to_string();
+                let file_content = fs::read(path)?;
+
+                assets.insert(diff, Cursor::new(file_content));
+            }
+        }
+
+        end_progress();
+    } else {
+        println!("{}", debug("No public directory found, skipping..."));
+    }
 
     Ok((index_output, assets))
 }
@@ -140,7 +161,20 @@ pub fn create_deployment(
     );
 
     for (path, content) in assets {
-        multipart.add_stream("assets", content, Some(path), None);
+        let extension = Path::new(&path).extension().unwrap().to_str().unwrap();
+        let content_type = match extension {
+            "js" => mime::APPLICATION_JAVASCRIPT,
+            "css" => mime::TEXT_CSS,
+            "html" => mime::TEXT_HTML,
+            "png" => mime::IMAGE_PNG,
+            "jpg" | "jpeg" => mime::IMAGE_JPEG,
+            "svg" => mime::IMAGE_SVG,
+            "json" => mime::APPLICATION_JSON,
+            "txt" => mime::TEXT_PLAIN,
+            _ => mime::APPLICATION_OCTET_STREAM,
+        };
+
+        multipart.add_stream("assets", content, Some(path), Some(content_type));
     }
 
     let client = Client::new();

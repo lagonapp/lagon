@@ -68,6 +68,7 @@ const handler = async (request: NextApiRequest, response: NextApiResponse) => {
     if (formName === 'code') {
       code = fs.createReadStream(file.filepath);
     } else if (formName === 'assets') {
+      console.log(file.originalFilename);
       assets.push({
         name: file.originalFilename!,
         content: fs.createReadStream(file.filepath),

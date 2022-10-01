@@ -1,4 +1,5 @@
 use std::io::Write;
+use std::path::PathBuf;
 use std::{env, fs, io, path::Path};
 
 use super::Deployment;
@@ -37,7 +38,12 @@ pub fn write_deployment(deployment_id: String, buf: &[u8]) -> io::Result<()> {
 }
 
 pub fn write_deployment_asset(deployment_id: String, asset: &str, buf: &[u8]) -> io::Result<()> {
-    fs::create_dir(Path::new("deployments").join(&deployment_id))?;
+    let asset = asset.replace("public/", "");
+    let asset = asset.as_str();
+
+    let dir = PathBuf::from("deployments").join(&deployment_id).join(PathBuf::from(asset).parent().unwrap());
+    fs::create_dir_all(dir)?;
+
     let mut file = fs::File::create(Path::new("deployments").join(deployment_id + "/" + asset))?;
 
     file.write_all(buf)?;
