@@ -15,3 +15,6 @@ redis = "0.21.6"
 serde_json = "1.0"
 metrics = "0.20.1"
 metrics-exporter-prometheus = { version = "0.11.0", features = ["http-listener"] }
+log = { version = "0.4.17", features = ["std"] }
+axiom-rs = "0.5.0"
+chrono = "0.4.22"
