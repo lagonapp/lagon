@@ -317,6 +317,29 @@ async fn return_uint8array() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn promise_rejected() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    throw new Error('Rejected');
+}"
+        .into(),
+    ));
+
+    assert_eq!(
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            }).await
+            .0,
+        RunResult::Error("Uncaught Error: Rejected".into()),
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn timeout_reached() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(

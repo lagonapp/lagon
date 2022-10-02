@@ -37,6 +37,7 @@ struct GlobalRealm(v8::Global<v8::Context>);
 struct PromiseResult {
     promise: v8::Global<v8::Promise>,
     sender: oneshot::Sender<(RunResult, Option<IsolateStatistics>)>,
+    statistics: IsolateStatistics,
 }
 
 #[derive(Debug)]
@@ -213,10 +214,8 @@ impl Isolate {
                     self.handler = Some(handler);
                 }
                 None => {
-                    match extract_error(try_catch) {
-                        RunResult::Error(error) => {
-                            self.compilation_error = Some(error);
-                        }
+                    match handle_error(try_catch) {
+                        RunResult::Error(error) => self.compilation_error = Some(error),
                         _ => self.compilation_error = Some("Unkown error".into()),
                     };
                 }
@@ -245,72 +244,62 @@ impl Isolate {
         let timeout = Duration::from_millis(self.options.timeout as u64);
         let memory = self.options.memory * 1024 * 1024;
 
-        // spawn(async move {
-        //     loop {
-        //         println!("loop");
-        //         let memory_reached = count_handle.load(Ordering::SeqCst) >= memory;
-        //         let timeout_reached = now.elapsed() >= timeout;
+        spawn(async move {
+            loop {
+                // // If execution is already done, don't force termination
+                if *terminated_handle.read().unwrap() == ExecutionResult::Run {
+                    break;
+                }
 
-        //         if memory_reached || timeout_reached {
-        //             // If execution is already done, don't force termination
-        //             if *terminated_handle.read().unwrap() == ExecutionResult::Run {
-        //                 return;
-        //             }
+                let memory_reached = count_handle.load(Ordering::SeqCst) >= memory;
+                let timeout_reached = now.elapsed() >= timeout;
 
-        //             let mut terminated_handle = terminated_handle.write().unwrap();
-        //             *terminated_handle = if memory_reached {
-        //                 ExecutionResult::MemoryReached
-        //             } else {
-        //                 ExecutionResult::TimeoutReached
-        //             };
+                if memory_reached || timeout_reached {
+                    let mut terminated_handle = terminated_handle.write().unwrap();
+                    *terminated_handle = if memory_reached {
+                        ExecutionResult::MemoryReached
+                    } else {
+                        ExecutionResult::TimeoutReached
+                    };
 
-        //             if !thread_safe_handle.is_execution_terminating() {
-        //                 thread_safe_handle.terminate_execution();
-        //             }
+                    if !thread_safe_handle.is_execution_terminating() {
+                        thread_safe_handle.terminate_execution();
+                    }
 
-        //             break;
-        //         }
-        //     }
-        // });
+                    break;
+                }
+            }
+        });
 
         match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(response) => {
                 *terminated.write().unwrap() = ExecutionResult::Run;
 
                 let promise = v8::Local::<v8::Promise>::try_from(response).expect("Handler did not return a promise");
-
                 let promise = v8::Global::new(try_catch, promise);
-                isolate_state.promise_result = Some(PromiseResult {
-                    promise,
-                    sender,
-                });
+
+                let cpu_time = now.elapsed();
+                let memory_usage = self.count.load(Ordering::SeqCst);
 
                 // let mut heap_statistics = v8::HeapStatistics::default();
                 // try_catch.get_heap_statistics(&mut heap_statistics);
                 // println!("count: {} used heap size: {}", self.count.load(Ordering::SeqCst), heap_statistics.used_heap_size());
+                let statistics = IsolateStatistics {
+                    cpu_time,
+                    memory_usage,
+                };
 
-                let _cpu_time = now.elapsed();
-                let _memory_usage = self.count.load(Ordering::SeqCst);
-                self.count.store(0, Ordering::SeqCst);
-
-                // match Response::from_v8_response(try_catch, response) {
-                //     Some(response) => (
-                //         RunResult::Response(response),
-                //         Some(IsolateStatistics {
-                //             cpu_time,
-                //             memory_usage,
-                //         }),
-                //     ),
-                //     None => (extract_error(try_catch), None),
-                // };
+                isolate_state.promise_result = Some(PromiseResult {
+                    promise,
+                    sender,
+                    statistics,
+                });
             }
             None => {
-                self.count.store(0, Ordering::SeqCst);
-
                 let run_result = match *terminated.read().unwrap() {
                     ExecutionResult::MemoryReached => RunResult::MemoryLimit(),
                     ExecutionResult::TimeoutReached => RunResult::Timeout(),
-                    _ => extract_error(try_catch),
+                    _ => handle_error(try_catch),
                 };
 
                 isolate_state.force_terminate = true;
@@ -342,19 +331,18 @@ impl Isolate {
 
         try_catch.perform_microtask_checkpoint();
 
-        if let Some(PromiseResult { promise, sender }) = isolate_state.promise_result.take() {
+        if let Some(PromiseResult { promise, sender, statistics }) = isolate_state.promise_result.take() {
             let promise = promise.open(try_catch);
 
             match promise.state() {
                 PromiseState::Fulfilled => {
-                    println!("fulfilled");
                     let response = promise.result(try_catch);
                     let result = match Response::from_v8_response(try_catch, response) {
                         Some(response) => (
                             RunResult::Response(response),
-                            None
+                            Some(statistics)
                         ),
-                        None => (extract_error(try_catch), None),
+                        None => (handle_error(try_catch), Some(statistics)),
                     };
 
                     sender.send(result).unwrap();
@@ -362,8 +350,9 @@ impl Isolate {
                     return Poll::Ready(());
                 }
                 PromiseState::Rejected => {
-                    println!("rejected");
+                    let exception = promise.result(try_catch);
 
+                    sender.send((RunResult::Error(get_exception_message(try_catch, exception)), None)).unwrap();
                     return Poll::Ready(());
                 }
                 PromiseState::Pending => {
@@ -389,16 +378,17 @@ impl Isolate {
     }
 }
 
-fn extract_error(scope: &mut v8::TryCatch<v8::HandleScope>) -> RunResult {
+fn get_exception_message(scope: &mut v8::TryCatch<v8::HandleScope>, exception: v8::Local<v8::Value>) -> String {
+    let exception_message = v8::Exception::create_message(scope, exception);
+
+    exception_message.get(scope).to_rust_string_lossy(scope)
+}
+
+fn handle_error(scope: &mut v8::TryCatch<v8::HandleScope>) -> RunResult {
     let exception = scope.exception().unwrap();
 
     match extract_v8_string(exception, scope) {
         Some(error) => RunResult::Error(error),
-        None => {
-            let exception_message = v8::Exception::create_message(scope, exception);
-            let exception_message = exception_message.get(scope).to_rust_string_lossy(scope);
-
-            RunResult::Error(exception_message)
-        }
+        None => RunResult::Error(get_exception_message(scope, exception)),
     }
 }
