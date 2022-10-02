@@ -24,11 +24,34 @@ pub mod pubsub;
 pub struct Deployment {
     pub id: String,
     pub function_id: String,
+    pub function_name: String,
     pub domains: HashSet<String>,
     pub assets: HashSet<String>,
     pub environment_variables: HashMap<String, String>,
     pub memory: usize,  // in MB (MegaBytes)
     pub timeout: usize, // in ms (MilliSeconds)
+}
+
+impl Deployment {
+    pub fn get_domains(&self) -> Vec<String> {
+        let mut domains = Vec::new();
+
+        domains.push(format!(
+            "{}.{}",
+            self.id,
+            dotenv::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
+        ));
+
+        // TODO: should only set function name and domains deployments when deployment is the production one
+        domains.push(format!(
+            "{}.{}",
+            self.function_name,
+            dotenv::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
+        ));
+        domains.extend(self.domains.clone());
+
+        domains
+    }
 }
 
 pub async fn get_deployments(
@@ -44,6 +67,7 @@ pub async fn get_deployments(
         SELECT
             Deployment.id,
             Function.id,
+            Function.name,
             Function.memory,
             Function.timeout,
             Domain.domain,
@@ -57,7 +81,8 @@ pub async fn get_deployments(
         LEFT JOIN Asset
             ON Deployment.id = Asset.deploymentId
     ",
-        |(id, function_id, memory, timeout, domain, asset): (
+        |(id, function_id, function_name, memory, timeout, domain, asset): (
+            String,
             String,
             String,
             usize,
@@ -79,6 +104,7 @@ pub async fn get_deployments(
                 .or_insert(Deployment {
                     id,
                     function_id,
+                    function_name,
                     domains: domain
                         .map(|domain| {
                             let mut domains = HashSet::new();
@@ -126,7 +152,7 @@ pub async fn get_deployments(
                 }
             }
 
-            for domain in deployment.domains.clone() {
+            for domain in deployment.get_domains() {
                 deployments.insert(domain, deployment.clone());
             }
         }

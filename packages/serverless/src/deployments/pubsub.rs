@@ -31,6 +31,7 @@ pub fn listen_pub_sub(
             let deployment = Deployment {
                 id: value["deploymentId"].as_str().unwrap().to_string(),
                 function_id: value["functionId"].as_str().unwrap().to_string(),
+                function_name: value["functionName"].as_str().unwrap().to_string(),
                 assets: value["assets"]
                     .as_array()
                     .unwrap()
@@ -59,7 +60,7 @@ pub fn listen_pub_sub(
                         Ok(_) => {
                             let mut deployments = deployments.write().await;
 
-                            for domain in deployment.domains.clone() {
+                            for domain in deployment.get_domains() {
                                 deployments.insert(domain, deployment.clone());
                             }
                         }
@@ -76,7 +77,7 @@ pub fn listen_pub_sub(
                         Ok(_) => {
                             let mut deployments = deployments.write().await;
 
-                            for domain in deployment.domains.clone() {
+                            for domain in deployment.get_domains() {
                                 deployments.remove(&domain);
                             }
                         }

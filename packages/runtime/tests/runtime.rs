@@ -3,17 +3,14 @@ use std::{collections::HashMap, sync::Once};
 use lagon_runtime::{
     http::{Method, Request, Response, RunResult},
     isolate::{Isolate, IsolateOptions},
+    runtime::{Runtime, RuntimeOptions},
 };
 
 fn setup() {
     static START: Once = Once::new();
 
     START.call_once(|| {
-        let platform = v8::new_default_platform(0, false).make_shared();
-        v8::V8::initialize_platform(platform);
-        v8::V8::initialize();
-
-        v8::V8::set_flags_from_string("--disallow-code-generation-from-strings");
+        Runtime::new(RuntimeOptions::default());
     });
 }
 

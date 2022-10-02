@@ -11,7 +11,7 @@ flume = "0.10.14"
 mysql = "22.2.0"
 dotenv = "0.15.0"
 rust-s3 = "0.32"
-redis = "0.21.6"
+redis = { version = "0.21.6", features = ["tls"] }
 serde_json = "1.0"
 metrics = "0.20.1"
 metrics-exporter-prometheus = { version = "0.11.0", features = ["http-listener"] }
