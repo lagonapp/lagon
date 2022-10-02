@@ -10,7 +10,9 @@ export * from './runtime/fetch';
 import './runtime/console';
 import './runtime/process';
 
-import type { RequestInit } from './runtime/Request';
+import { TextDecoder } from './runtime/encoding';
+import { Request, RequestInit } from './runtime/Request';
+import { Response } from './runtime/Response';
 
 declare global {
   const Lagon: {
@@ -22,4 +24,21 @@ declare global {
       body: string;
     };
   };
+  const handler: (request: Request) => Promise<Response>;
+}
+
+export async function masterHandler(request: { input: string } & Request): Promise<Response> {
+  const handlerRequest = new Request(request.input, {
+    method: request.method,
+    headers: request.headers,
+    body: request.body,
+  });
+
+  const response = await handler(handlerRequest);
+
+  if (response.body instanceof Uint8Array) {
+    response.body = new TextDecoder().decode(response.body);
+  }
+
+  return response;
 }

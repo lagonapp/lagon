@@ -29,8 +29,7 @@ pub fn fetch_binding(
 
         let response = client.request(request).await.unwrap();
         let status = response.status().as_u16();
-        let body = body::to_bytes(response.into_body()).await.unwrap();
-        let body = String::from_utf8(body.to_vec()).unwrap();
+        let body = body::to_bytes(response.into_body()).await.unwrap().to_vec();
 
         sender
             .send(Response {
