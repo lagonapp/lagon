@@ -50,12 +50,6 @@ impl Runtime {
     }
 }
 
-impl Drop for Runtime {
-    fn drop(&mut self) {
-        self.dispose();
-    }
-}
-
 pub fn get_runtime_code<'a>(
     scope: &mut v8::HandleScope<'a, ()>,
     options: &IsolateOptions,
