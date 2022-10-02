@@ -31,7 +31,8 @@ async fn execute_function() {
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
@@ -65,7 +66,8 @@ async fn environment_variables() {
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
@@ -92,7 +94,8 @@ async fn get_body() {
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
@@ -119,7 +122,8 @@ async fn get_input() {
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "https://hello.world".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Response(Response {
             body: "https://hello.world".into(),
@@ -146,7 +150,8 @@ async fn get_method() {
                 headers: HashMap::new(),
                 method: Method::POST,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Response(Response {
             body: "POST".into(),
@@ -176,7 +181,8 @@ async fn get_headers() {
                 headers,
                 method: Method::POST,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Response(Response {
             body: "token".into(),
@@ -212,7 +218,8 @@ async fn return_headers() {
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
@@ -248,7 +255,8 @@ async fn return_headers_from_headers_api() {
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
@@ -277,7 +285,8 @@ async fn return_status() {
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Moved permanently".into(),
@@ -306,7 +315,8 @@ async fn return_uint8array() {
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
@@ -333,7 +343,8 @@ async fn promise_rejected() {
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Error("Uncaught Error: Rejected".into()),
     );
@@ -357,7 +368,8 @@ async fn timeout_reached() {
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::Timeout(),
     );
@@ -392,7 +404,8 @@ async fn memory_reached() {
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            }).await
+            })
+            .await
             .0,
         RunResult::MemoryLimit(),
     );

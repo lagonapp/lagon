@@ -6,11 +6,12 @@ use std::{
         atomic::{AtomicUsize, Ordering},
         Arc, RwLock,
     },
-    time::{Duration, Instant}, task::{Poll, Context},
+    task::{Context, Poll},
+    time::{Duration, Instant},
 };
 
 use futures::future::poll_fn;
-use tokio::{spawn, task::JoinHandle, sync::oneshot};
+use tokio::{spawn, sync::oneshot, task::JoinHandle};
 use v8::PromiseState;
 
 use crate::{
@@ -154,7 +155,10 @@ impl Isolate {
         state.global.clone()
     }
 
-    pub fn evaluate(&mut self, request: Request) -> oneshot::Receiver<(RunResult, Option<IsolateStatistics>)> {
+    pub fn evaluate(
+        &mut self,
+        request: Request,
+    ) -> oneshot::Receiver<(RunResult, Option<IsolateStatistics>)> {
         let (sender, receiver) = oneshot::channel();
         let thread_safe_handle = self.isolate.thread_safe_handle();
 
@@ -171,7 +175,12 @@ impl Isolate {
                 Some(code) => code,
                 None => {
                     self.compilation_error = Some("Failed to get runtime code".to_string());
-                    sender.send((RunResult::Error(self.compilation_error.clone().unwrap()), None)).unwrap();
+                    sender
+                        .send((
+                            RunResult::Error(self.compilation_error.clone().unwrap()),
+                            None,
+                        ))
+                        .unwrap();
                     return receiver;
                 }
             };
@@ -223,7 +232,9 @@ impl Isolate {
         }
 
         if let Some(error) = &self.compilation_error {
-            sender.send((RunResult::Error(error.clone()), None)).unwrap();
+            sender
+                .send((RunResult::Error(error.clone()), None))
+                .unwrap();
             return receiver;
         }
 
@@ -275,7 +286,8 @@ impl Isolate {
             Some(response) => {
                 *terminated.write().unwrap() = ExecutionResult::Run;
 
-                let promise = v8::Local::<v8::Promise>::try_from(response).expect("Handler did not return a promise");
+                let promise = v8::Local::<v8::Promise>::try_from(response)
+                    .expect("Handler did not return a promise");
                 let promise = v8::Global::new(try_catch, promise);
 
                 let cpu_time = now.elapsed();
@@ -323,25 +335,23 @@ impl Isolate {
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, state.0.clone());
         let try_catch = &mut v8::TryCatch::new(scope);
 
-        while v8::Platform::pump_message_loop(
-            &v8::V8::get_current_platform(),
-            try_catch,
-            false,
-        ) {}
+        while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), try_catch, false) {}
 
         try_catch.perform_microtask_checkpoint();
 
-        if let Some(PromiseResult { promise, sender, statistics }) = isolate_state.promise_result.take() {
+        if let Some(PromiseResult {
+            promise,
+            sender,
+            statistics,
+        }) = isolate_state.promise_result.take()
+        {
             let promise = promise.open(try_catch);
 
             match promise.state() {
                 PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
                     let result = match Response::from_v8_response(try_catch, response) {
-                        Some(response) => (
-                            RunResult::Response(response),
-                            Some(statistics)
-                        ),
+                        Some(response) => (RunResult::Response(response), Some(statistics)),
                         None => (handle_error(try_catch), Some(statistics)),
                     };
 
@@ -352,7 +362,12 @@ impl Isolate {
                 PromiseState::Rejected => {
                     let exception = promise.result(try_catch);
 
-                    sender.send((RunResult::Error(get_exception_message(try_catch, exception)), None)).unwrap();
+                    sender
+                        .send((
+                            RunResult::Error(get_exception_message(try_catch, exception)),
+                            None,
+                        ))
+                        .unwrap();
                     return Poll::Ready(());
                 }
                 PromiseState::Pending => {
@@ -378,7 +393,10 @@ impl Isolate {
     }
 }
 
-fn get_exception_message(scope: &mut v8::TryCatch<v8::HandleScope>, exception: v8::Local<v8::Value>) -> String {
+fn get_exception_message(
+    scope: &mut v8::TryCatch<v8::HandleScope>,
+    exception: v8::Local<v8::Value>,
+) -> String {
     let exception_message = v8::Exception::create_message(scope, exception);
 
     exception_message.get(scope).to_rust_string_lossy(scope)
