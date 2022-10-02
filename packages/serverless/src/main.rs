@@ -116,6 +116,11 @@ async fn main() {
 
             loop {
                 let hyper_request = request_rx.recv_async().await.unwrap();
+
+                let mut url = hyper_request.uri().to_string();
+                // Remove the leading '/' from the url
+                url.remove(0);
+
                 let request = hyper_request_to_request(hyper_request).await;
 
                 let hostname = request.headers.get("host").unwrap().clone();
@@ -123,9 +128,6 @@ async fn main() {
 
                 match deployments.get(&hostname) {
                     Some(deployment) => {
-                        let url = &mut request.url.clone();
-                        url.remove(0);
-
                         let labels = vec![
                             ("deployment", deployment.id.clone()),
                             ("function", deployment.function_id.clone()),
@@ -134,7 +136,7 @@ async fn main() {
                         increment_counter!("lagon_requests", &labels);
                         counter!("lagon_bytes_in", request.len() as u64, &labels);
 
-                        if let Some(asset) = deployment.assets.iter().find(|asset| *asset == url) {
+                        if let Some(asset) = deployment.assets.iter().find(|asset| *asset == &url) {
                             // TODO: handle read error
                             let response = handle_asset(deployment, asset).unwrap();
                             let response = RunResult::Response(response);

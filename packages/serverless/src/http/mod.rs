@@ -24,7 +24,10 @@ pub async fn hyper_request_to_request(request: HyperRequest<Body>) -> Request {
         _ => Method::GET,
     };
 
-    let host = headers.get("host").map(|host| host.to_string()).unwrap_or(String::new());
+    let host = headers
+        .get("host")
+        .map(|host| host.to_string())
+        .unwrap_or(String::new());
     let url = format!("http://{}{}", host, request.uri().to_string().as_str());
 
     let body = body::to_bytes(request.into_body()).await.unwrap();
