@@ -287,6 +287,35 @@ async fn return_status() {
     );
 }
 
+#[tokio::test]
+async fn return_uint8array() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    // TextEncoder#encode returns a Uint8Array
+    const body = new TextEncoder().encode('Hello world');
+    return new Response(body);
+}"
+        .into(),
+    ));
+
+    assert_eq!(
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            })
+            .0,
+        RunResult::Response(Response {
+            body: "Hello world".into(),
+            headers: None,
+            status: 200,
+        })
+    );
+}
+
 #[tokio::test(flavor = "multi_thread")]
 async fn timeout_reached() {
     setup();

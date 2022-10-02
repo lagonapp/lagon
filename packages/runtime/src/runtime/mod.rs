@@ -80,16 +80,6 @@ pub fn get_runtime_code<'a>(
 }})()
 
 {code}
-
-export async function masterHandler(request) {{
-    const handlerRequest = new Request(request.input, {{
-      method: request.method,
-      headers: request.headers,
-      body: request.body,
-    }});
-
-    return handler(handlerRequest);
-  }}
 "#
         ),
     )
