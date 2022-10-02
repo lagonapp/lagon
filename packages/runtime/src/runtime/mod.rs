@@ -21,15 +21,15 @@ unsafe impl Sync for Runtime {}
 
 impl Runtime {
     pub fn new(options: RuntimeOptions) -> Self {
-        let platform = v8::new_default_platform(0, false).make_shared();
-        V8::initialize_platform(platform);
-        V8::initialize();
 
         // Disable code generation from `eval(...)` / `new Function(...)`
         if !options.allow_eval {
             V8::set_flags_from_string("--disallow-code-generation-from-strings");
         }
 
+        let platform = v8::new_default_platform(0, false).make_shared();
+        V8::initialize_platform(platform);
+        V8::initialize();
         Runtime {}
     }
 
