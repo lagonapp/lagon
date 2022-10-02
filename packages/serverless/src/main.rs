@@ -6,7 +6,7 @@ use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use metrics::{counter, histogram, increment_counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
-use mysql::{Pool, Opts, OptsBuilder, SslOpts};
+use mysql::{Opts, OptsBuilder, Pool, SslOpts};
 use s3::creds::Credentials;
 use s3::Bucket;
 use std::collections::HashMap;
@@ -84,7 +84,9 @@ async fn main() {
     let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
-    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(SslOpts::default().with_danger_accept_invalid_certs(true)));
+    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
+        SslOpts::default().with_danger_accept_invalid_certs(true),
+    ));
     let pool = Pool::new(opts).unwrap();
     let conn = pool.get_conn().unwrap();
 

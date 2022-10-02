@@ -36,10 +36,18 @@ impl Deployment {
     pub fn get_domains(&self) -> Vec<String> {
         let mut domains = Vec::new();
 
-        domains.push(format!("{}.{}", self.id, dotenv::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")));
+        domains.push(format!(
+            "{}.{}",
+            self.id,
+            dotenv::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
+        ));
 
         // TODO: should only set function name and domains deployments when deployment is the production one
-        domains.push(format!("{}.{}", self.function_name, dotenv::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")));
+        domains.push(format!(
+            "{}.{}",
+            self.function_name,
+            dotenv::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
+        ));
         domains.extend(self.domains.clone());
 
         domains
