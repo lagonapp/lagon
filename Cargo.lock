@@ -1263,6 +1263,7 @@ dependencies = [
 name = "lagon-runtime"
 version = "0.1.0"
 dependencies = [
+ "futures",
  "hyper 0.14.20",
  "tokio",
  "v8",

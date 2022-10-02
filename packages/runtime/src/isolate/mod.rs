@@ -6,10 +6,12 @@ use std::{
         atomic::{AtomicUsize, Ordering},
         Arc, RwLock,
     },
-    time::{Duration, Instant},
+    time::{Duration, Instant}, task::{Poll, Context},
 };
 
-use tokio::{spawn, task::JoinHandle};
+use futures::future::poll_fn;
+use tokio::{spawn, task::JoinHandle, sync::oneshot};
+use v8::PromiseState;
 
 use crate::{
     http::{Request, Response, RunResult},
@@ -20,7 +22,7 @@ use crate::{
 mod allocator;
 mod bindings;
 
-#[derive(PartialEq)]
+#[derive(Debug, PartialEq)]
 enum ExecutionResult {
     WillRun,
     Run,
@@ -28,19 +30,30 @@ enum ExecutionResult {
     TimeoutReached,
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 struct GlobalRealm(v8::Global<v8::Context>);
 
+#[derive(Debug)]
+struct PromiseResult {
+    promise: v8::Global<v8::Promise>,
+    sender: oneshot::Sender<(RunResult, Option<IsolateStatistics>)>,
+}
+
+#[derive(Debug)]
 struct IsolateState {
     global: GlobalRealm,
+    promise_result: Option<PromiseResult>,
+    force_terminate: bool,
     promises: Vec<JoinHandle<()>>,
 }
 
+#[derive(Debug)]
 pub struct IsolateStatistics {
     pub cpu_time: Duration,
     pub memory_usage: usize,
 }
 
+#[derive(Debug)]
 pub struct IsolateOptions {
     pub code: String,
     pub environment_variables: Option<HashMap<String, String>>,
@@ -112,6 +125,8 @@ impl Isolate {
 
             IsolateState {
                 global: GlobalRealm(global),
+                promise_result: None,
+                force_terminate: false,
                 promises: Vec::new(),
             }
         };
@@ -138,10 +153,15 @@ impl Isolate {
         state.global.clone()
     }
 
-    pub fn run(&mut self, request: Request) -> (RunResult, Option<IsolateStatistics>) {
+    pub fn evaluate(&mut self, request: Request) -> oneshot::Receiver<(RunResult, Option<IsolateStatistics>)> {
+        let (sender, receiver) = oneshot::channel();
         let thread_safe_handle = self.isolate.thread_safe_handle();
 
-        let state = self.global_realm();
+        // let state = self.global_realm();
+        let isolate_state = Isolate::state(&self.isolate);
+        let mut isolate_state = isolate_state.borrow_mut();
+        let state = isolate_state.global.clone();
+
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, state.0.clone());
         let try_catch = &mut v8::TryCatch::new(scope);
 
@@ -150,11 +170,8 @@ impl Isolate {
                 Some(code) => code,
                 None => {
                     self.compilation_error = Some("Failed to get runtime code".to_string());
-
-                    return (
-                        RunResult::Error(self.compilation_error.clone().unwrap()),
-                        None,
-                    );
+                    sender.send((RunResult::Error(self.compilation_error.clone().unwrap()), None)).unwrap();
+                    return receiver;
                 }
             };
 
@@ -207,7 +224,8 @@ impl Isolate {
         }
 
         if let Some(error) = &self.compilation_error {
-            return (RunResult::Error(error.clone()), None);
+            sender.send((RunResult::Error(error.clone()), None)).unwrap();
+            return receiver;
         }
 
         let request = request.to_v8_request(try_catch);
@@ -227,71 +245,64 @@ impl Isolate {
         let timeout = Duration::from_millis(self.options.timeout as u64);
         let memory = self.options.memory * 1024 * 1024;
 
-        spawn(async move {
-            loop {
-                let memory_reached = count_handle.load(Ordering::SeqCst) >= memory;
-                let timeout_reached = now.elapsed() >= timeout;
+        // spawn(async move {
+        //     loop {
+        //         println!("loop");
+        //         let memory_reached = count_handle.load(Ordering::SeqCst) >= memory;
+        //         let timeout_reached = now.elapsed() >= timeout;
 
-                if memory_reached || timeout_reached {
-                    // If execution is already done, don't force termination
-                    if *terminated_handle.read().unwrap() == ExecutionResult::Run {
-                        return;
-                    }
+        //         if memory_reached || timeout_reached {
+        //             // If execution is already done, don't force termination
+        //             if *terminated_handle.read().unwrap() == ExecutionResult::Run {
+        //                 return;
+        //             }
 
-                    let mut terminated_handle = terminated_handle.write().unwrap();
-                    *terminated_handle = if memory_reached {
-                        ExecutionResult::MemoryReached
-                    } else {
-                        ExecutionResult::TimeoutReached
-                    };
+        //             let mut terminated_handle = terminated_handle.write().unwrap();
+        //             *terminated_handle = if memory_reached {
+        //                 ExecutionResult::MemoryReached
+        //             } else {
+        //                 ExecutionResult::TimeoutReached
+        //             };
 
-                    if !thread_safe_handle.is_execution_terminating() {
-                        thread_safe_handle.terminate_execution();
-                    }
+        //             if !thread_safe_handle.is_execution_terminating() {
+        //                 thread_safe_handle.terminate_execution();
+        //             }
 
-                    break;
-                }
-            }
-        });
+        //             break;
+        //         }
+        //     }
+        // });
 
         match handler.call(try_catch, global.into(), &[request.into()]) {
-            Some(mut response) => {
+            Some(response) => {
                 *terminated.write().unwrap() = ExecutionResult::Run;
 
-                if response.is_promise() {
-                    let promise = v8::Local::<v8::Promise>::try_from(response).unwrap();
-                    // println!("state: {:?}", promise.state());
+                let promise = v8::Local::<v8::Promise>::try_from(response).expect("Handler did not return a promise");
 
-                    match promise.state() {
-                        v8::PromiseState::Pending => {
-                            // Should never occur?
-                            println!("promise pending")
-                        }
-                        v8::PromiseState::Fulfilled => {
-                            response = promise.result(try_catch);
-                        }
-                        _ => {}
-                    };
-                }
+                let promise = v8::Global::new(try_catch, promise);
+                isolate_state.promise_result = Some(PromiseResult {
+                    promise,
+                    sender,
+                });
 
                 // let mut heap_statistics = v8::HeapStatistics::default();
                 // try_catch.get_heap_statistics(&mut heap_statistics);
                 // println!("count: {} used heap size: {}", self.count.load(Ordering::SeqCst), heap_statistics.used_heap_size());
 
-                let cpu_time = now.elapsed();
-                let memory_usage = self.count.load(Ordering::SeqCst);
+                let _cpu_time = now.elapsed();
+                let _memory_usage = self.count.load(Ordering::SeqCst);
                 self.count.store(0, Ordering::SeqCst);
 
-                match Response::from_v8_response(try_catch, response) {
-                    Some(response) => (
-                        RunResult::Response(response),
-                        Some(IsolateStatistics {
-                            cpu_time,
-                            memory_usage,
-                        }),
-                    ),
-                    None => (extract_error(try_catch), None),
-                }
+                // match Response::from_v8_response(try_catch, response) {
+                //     Some(response) => (
+                //         RunResult::Response(response),
+                //         Some(IsolateStatistics {
+                //             cpu_time,
+                //             memory_usage,
+                //         }),
+                //     ),
+                //     None => (extract_error(try_catch), None),
+                // };
             }
             None => {
                 self.count.store(0, Ordering::SeqCst);
@@ -302,9 +313,79 @@ impl Isolate {
                     _ => extract_error(try_catch),
                 };
 
-                return (run_result, None);
+                isolate_state.force_terminate = true;
+
+                sender.send((run_result, None)).unwrap();
             }
+        };
+
+        receiver
+    }
+
+    async fn run_event_loop(&mut self) {
+        poll_fn(|cx| self.poll_event_loop(cx)).await;
+    }
+
+    fn poll_event_loop(&mut self, cx: &mut Context) -> Poll<()> {
+        let isolate_state = Isolate::state(&self.isolate);
+        let mut isolate_state = isolate_state.borrow_mut();
+        let state = isolate_state.global.clone();
+
+        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, state.0.clone());
+        let try_catch = &mut v8::TryCatch::new(scope);
+
+        while v8::Platform::pump_message_loop(
+            &v8::V8::get_current_platform(),
+            try_catch,
+            false,
+        ) {}
+
+        try_catch.perform_microtask_checkpoint();
+
+        if let Some(PromiseResult { promise, sender }) = isolate_state.promise_result.take() {
+            let promise = promise.open(try_catch);
+
+            match promise.state() {
+                PromiseState::Fulfilled => {
+                    println!("fulfilled");
+                    let response = promise.result(try_catch);
+                    let result = match Response::from_v8_response(try_catch, response) {
+                        Some(response) => (
+                            RunResult::Response(response),
+                            None
+                        ),
+                        None => (extract_error(try_catch), None),
+                    };
+
+                    sender.send(result).unwrap();
+
+                    return Poll::Ready(());
+                }
+                PromiseState::Rejected => {
+                    println!("rejected");
+
+                    return Poll::Ready(());
+                }
+                PromiseState::Pending => {
+                    println!("pending");
+                }
+            };
         }
+
+        if isolate_state.force_terminate {
+            return Poll::Ready(());
+        }
+
+        cx.waker().wake_by_ref();
+
+        Poll::Pending
+    }
+
+    pub async fn run(&mut self, request: Request) -> (RunResult, Option<IsolateStatistics>) {
+        let receiver = self.evaluate(request);
+        self.run_event_loop().await;
+
+        receiver.await.unwrap()
     }
 }
 
