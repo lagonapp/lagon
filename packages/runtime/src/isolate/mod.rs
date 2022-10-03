@@ -42,11 +42,16 @@ struct PromiseResult {
 }
 
 #[derive(Debug)]
+struct TerminationResult {
+    sender: oneshot::Sender<(RunResult, Option<IsolateStatistics>)>,
+    run_result: RunResult,
+}
+
+#[derive(Debug)]
 struct IsolateState {
     global: GlobalRealm,
     promise_result: Option<PromiseResult>,
-    force_terminate: bool,
-    promises: Vec<JoinHandle<()>>,
+    termination_result: Option<TerminationResult>,
 }
 
 #[derive(Debug)]
@@ -128,8 +133,7 @@ impl Isolate {
             IsolateState {
                 global: GlobalRealm(global),
                 promise_result: None,
-                force_terminate: false,
-                promises: Vec::new(),
+                termination_result: None,
             }
         };
 
@@ -314,9 +318,7 @@ impl Isolate {
                     _ => handle_error(try_catch),
                 };
 
-                isolate_state.force_terminate = true;
-
-                sender.send((run_result, None)).unwrap();
+                isolate_state.termination_result = Some(TerminationResult { sender, run_result });
             }
         };
 
@@ -339,6 +341,13 @@ impl Isolate {
 
         try_catch.perform_microtask_checkpoint();
 
+        if let Some(TerminationResult { sender, run_result }) =
+            isolate_state.termination_result.take()
+        {
+            sender.send((run_result, None)).unwrap();
+            return Poll::Ready(());
+        }
+
         if let Some(PromiseResult {
             promise,
             sender,
@@ -356,7 +365,6 @@ impl Isolate {
                     };
 
                     sender.send(result).unwrap();
-
                     return Poll::Ready(());
                 }
                 PromiseState::Rejected => {
@@ -370,18 +378,11 @@ impl Isolate {
                         .unwrap();
                     return Poll::Ready(());
                 }
-                PromiseState::Pending => {
-                    println!("pending");
-                }
+                PromiseState::Pending => {}
             };
         }
 
-        if isolate_state.force_terminate {
-            return Poll::Ready(());
-        }
-
         cx.waker().wake_by_ref();
-
         Poll::Pending
     }
 
