@@ -1,3 +1,4 @@
+import { TextDecoder } from './encoding';
 import { Headers } from './fetch';
 import { parseMultipart } from './parseMultipart';
 
@@ -8,15 +9,19 @@ export interface ResponseInit {
   url?: string;
 }
 
+const DECODER = new TextDecoder();
+
+const isIterable = (value: unknown): value is Iterable<number> => Symbol.iterator in Object(value);
+
 export class Response {
-  body: string;
+  body: string | Iterable<number>;
   headers: Headers;
   ok: boolean;
   status: number;
   statusText: string;
   url: string;
 
-  constructor(body: string, options?: ResponseInit) {
+  constructor(body: string | Iterable<number>, options?: ResponseInit) {
     this.body = body;
 
     if (options?.headers) {
@@ -41,14 +46,18 @@ export class Response {
   }
 
   async text(): Promise<string> {
+    if (isIterable(this.body)) {
+      return DECODER.decode(this.body);
+    }
+
     return this.body;
   }
 
   async json<T>(): Promise<T> {
-    return JSON.parse(this.body);
+    return JSON.parse(await this.text());
   }
 
   async formData(): Promise<Record<string, string>> {
-    return parseMultipart(this.headers, this.body);
+    return parseMultipart(this.headers, await this.text());
   }
 }

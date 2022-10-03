@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::time::Duration;
 
 use crate::utils::{extract_v8_string, v8_string};
 
@@ -83,12 +82,17 @@ impl Request {
 
         request
     }
+
+    // TODO: Return the full request length
+    pub fn len(&self) -> usize {
+        self.body.len()
+    }
 }
 
 #[derive(Debug, PartialEq)]
 pub struct Response {
     pub headers: Option<HashMap<String, String>>,
-    pub body: String,
+    pub body: Vec<u8>,
     pub status: u16,
 }
 
@@ -97,7 +101,7 @@ impl Response {
         let response_object = v8::Object::new(scope);
         let body_key = v8::String::new(scope, "body").unwrap();
         let body_key = v8::Local::new(scope, body_key);
-        let body_value = v8::String::new(scope, &self.body).unwrap();
+        let body_value = v8::String::new(scope, std::str::from_utf8(&self.body).unwrap()).unwrap();
         let body_value = v8::Local::new(scope, body_value);
 
         response_object.set(scope, body_key.into(), body_value.into());
@@ -152,9 +156,14 @@ impl Response {
 
         Some(Self {
             headers,
-            body,
+            body: body.into_bytes(),
             status,
         })
+    }
+
+    // TODO: Return the full response length
+    pub fn len(&self) -> usize {
+        self.body.len()
     }
 }
 

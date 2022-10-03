@@ -17,11 +17,13 @@ struct CliRequest {
 }
 
 pub async fn login() -> io::Result<()> {
-    if (get_token()?).is_some() && !Confirm::new()
+    if (get_token()?).is_some()
+        && !Confirm::new()
             .with_prompt(info(
                 "You are already logged in. Are you sure you want to log in again?",
             ))
-            .interact()? {
+            .interact()?
+    {
         return Err(Error::new(ErrorKind::Other, "Login aborted."));
     }
 

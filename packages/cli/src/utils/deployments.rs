@@ -2,18 +2,20 @@ use colored::Colorize;
 use std::{
     collections::HashMap,
     fs,
-    io::{self, Error, ErrorKind, Read},
+    io::{self, Cursor, Error, ErrorKind, Read},
     path::{Path, PathBuf},
     process::Command,
 };
+use walkdir::WalkDir;
 
 use multipart::{
     client::lazy::Multipart,
     server::nickel::nickel::hyper::{header::Headers, Client},
 };
+use pathdiff::diff_paths;
 use serde::{Deserialize, Serialize};
 
-use crate::utils::{get_api_url, print_progress, success};
+use crate::utils::{debug, get_api_url, print_progress, success};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeploymentConfig {
@@ -58,7 +60,7 @@ pub fn delete_function_config() -> io::Result<()> {
     fs::remove_file(path)
 }
 
-fn esbuild(file: &PathBuf) -> io::Result<String> {
+fn esbuild(file: &PathBuf) -> io::Result<Cursor<Vec<u8>>> {
     let result = Command::new("esbuild")
         .arg(file)
         .arg("--bundle")
@@ -71,13 +73,7 @@ fn esbuild(file: &PathBuf) -> io::Result<String> {
     if result.status.success() {
         let output = result.stdout;
 
-        return match String::from_utf8(output) {
-            Ok(s) => Ok(s),
-            Err(_) => Err(Error::new(
-                ErrorKind::Other,
-                "Failed to convert output to string",
-            )),
-        };
+        return Ok(Cursor::new(output));
     }
 
     Err(Error::new(
@@ -89,8 +85,8 @@ fn esbuild(file: &PathBuf) -> io::Result<String> {
 pub fn bundle_function(
     index: PathBuf,
     client: Option<PathBuf>,
-    _public_dir: PathBuf,
-) -> io::Result<(String, HashMap<String, String>)> {
+    public_dir: PathBuf,
+) -> io::Result<(Cursor<Vec<u8>>, HashMap<String, Cursor<Vec<u8>>>)> {
     if let Err(_) = Command::new("esbuild").arg("--version").output() {
         return Err(Error::new(
             ErrorKind::Other,
@@ -102,7 +98,7 @@ pub fn bundle_function(
     let index_output = esbuild(&index)?;
     end_progress();
 
-    let mut assets = HashMap::<String, String>::new();
+    let mut assets = HashMap::<String, Cursor<Vec<u8>>>::new();
 
     if let Some(client) = client {
         let end_progress = print_progress("Bundling client file...");
@@ -110,12 +106,45 @@ pub fn bundle_function(
         end_progress();
 
         assets.insert(
-            client.file_name().unwrap().to_str().unwrap().to_string(),
+            client
+                .as_path()
+                .file_stem()
+                .unwrap()
+                .to_str()
+                .unwrap()
+                .to_string()
+                + ".js",
             client_output,
         );
     }
 
-    // TODO: assets
+    if public_dir.exists() && public_dir.is_dir() {
+        let msg = format!(
+            "Found public directory ({}), bundling assets...",
+            public_dir.display()
+        );
+        let end_progress = print_progress(&msg);
+
+        for file in WalkDir::new(&public_dir) {
+            let file = file?;
+            let path = file.path();
+
+            if path.is_file() {
+                let diff = diff_paths(path, &public_dir)
+                    .unwrap()
+                    .to_str()
+                    .unwrap()
+                    .to_string();
+                let file_content = fs::read(path)?;
+
+                assets.insert(diff, Cursor::new(file_content));
+            }
+        }
+
+        end_progress();
+    } else {
+        println!("{}", debug("No public directory found, skipping..."));
+    }
 
     Ok((index_output, assets))
 }
@@ -138,15 +167,23 @@ pub fn create_deployment(
 
     let mut multipart = Multipart::new();
     multipart.add_text("functionId", function_id);
-    multipart.add_stream(
-        "code",
-        index.as_bytes(),
-        Some("index.js"),
-        Some(mime::TEXT_JAVASCRIPT),
-    );
+    multipart.add_stream("code", index, Some("index.js"), Some(mime::TEXT_JAVASCRIPT));
 
-    for (path, content) in &assets {
-        multipart.add_stream("assets", content.as_bytes(), Some(path), None);
+    for (path, content) in assets {
+        let extension = Path::new(&path).extension().unwrap().to_str().unwrap();
+        let content_type = match extension {
+            "js" => mime::APPLICATION_JAVASCRIPT,
+            "css" => mime::TEXT_CSS,
+            "html" => mime::TEXT_HTML,
+            "png" => mime::IMAGE_PNG,
+            "jpg" | "jpeg" => mime::IMAGE_JPEG,
+            "svg" => mime::IMAGE_SVG,
+            "json" => mime::APPLICATION_JSON,
+            "txt" => mime::TEXT_PLAIN,
+            _ => mime::APPLICATION_OCTET_STREAM,
+        };
+
+        multipart.add_stream("assets", content, Some(path), Some(content_type));
     }
 
     let client = Client::new();

@@ -9,7 +9,7 @@ pub fn handle_asset(deployment: &Deployment, asset: &String) -> io::Result<Respo
         .join("deployments")
         .join(deployment.id.clone())
         .join(asset);
-    let body = fs::read_to_string(path)?;
+    let body = fs::read(path)?;
 
     let extension = Path::new(asset).extension().unwrap().to_str().unwrap();
     let content_type = match extension {

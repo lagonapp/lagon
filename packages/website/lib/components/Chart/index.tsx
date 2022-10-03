@@ -64,12 +64,20 @@ const Chart = ({ labels, datasets }: ChartProps) => {
             grid: {
               display: false,
             },
+            ticks: {
+              color: '#78716c',
+              maxRotation: 0,
+              maxTicksLimit: 10,
+            },
           },
           y: {
             grid: {
               display: false,
             },
             beginAtZero: true,
+            ticks: {
+              color: '#78716c',
+            },
           },
         },
         plugins: {

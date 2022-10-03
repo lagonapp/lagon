@@ -1,5 +1,11 @@
-use std::{collections::HashMap, fs, io, path::Path, sync::Arc};
+use std::{
+    collections::{HashMap, HashSet},
+    fs, io,
+    path::Path,
+    sync::Arc,
+};
 
+use log::{error, info};
 use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
 use tokio::sync::RwLock;
@@ -17,11 +23,35 @@ pub mod pubsub;
 #[derive(Debug, Clone)]
 pub struct Deployment {
     pub id: String,
-    pub domains: Vec<String>,
-    pub assets: Vec<String>,
+    pub function_id: String,
+    pub function_name: String,
+    pub domains: HashSet<String>,
+    pub assets: HashSet<String>,
     pub environment_variables: HashMap<String, String>,
     pub memory: usize,  // in MB (MegaBytes)
     pub timeout: usize, // in ms (MilliSeconds)
+}
+
+impl Deployment {
+    pub fn get_domains(&self) -> Vec<String> {
+        let mut domains = Vec::new();
+
+        domains.push(format!(
+            "{}.{}",
+            self.id,
+            dotenv::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
+        ));
+
+        // TODO: should only set function name and domains deployments when deployment is the production one
+        domains.push(format!(
+            "{}.{}",
+            self.function_name,
+            dotenv::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
+        ));
+        domains.extend(self.domains.clone());
+
+        domains
+    }
 }
 
 pub async fn get_deployments(
@@ -30,11 +60,14 @@ pub async fn get_deployments(
 ) -> Arc<RwLock<HashMap<String, Deployment>>> {
     let deployments = Arc::new(RwLock::new(HashMap::new()));
 
-    let deployments_list = conn
-        .query_map(
-            r"
+    let mut deployments_list: HashMap<String, Deployment> = HashMap::new();
+
+    conn.query_map(
+        r"
         SELECT
             Deployment.id,
+            Function.id,
+            Function.name,
             Function.memory,
             Function.timeout,
             Domain.domain,
@@ -48,29 +81,62 @@ pub async fn get_deployments(
         LEFT JOIN Asset
             ON Deployment.id = Asset.deploymentId
     ",
-            |(id, memory, timeout, domain, asset): (
-                String,
-                usize,
-                usize,
-                Option<String>,
-                Option<String>,
-            )| Deployment {
-                id,
-                domains: domain.map(|d| vec![d]).unwrap_or(vec![]),
-                assets: asset.map(|a| vec![a]).unwrap_or(vec![]),
-                environment_variables: HashMap::new(),
-                memory,
-                timeout,
-            },
-        )
-        .unwrap();
+        |(id, function_id, function_name, memory, timeout, domain, asset): (
+            String,
+            String,
+            String,
+            usize,
+            usize,
+            Option<String>,
+            Option<String>,
+        )| {
+            deployments_list
+                .entry(id.clone())
+                .and_modify(|deployment| {
+                    if let Some(domain) = domain.clone() {
+                        deployment.domains.insert(domain);
+                    }
+
+                    if let Some(asset) = asset.clone() {
+                        deployment.assets.insert(asset);
+                    }
+                })
+                .or_insert(Deployment {
+                    id,
+                    function_id,
+                    function_name,
+                    domains: domain
+                        .map(|domain| {
+                            let mut domains = HashSet::new();
+                            domains.insert(domain);
+                            domains
+                        })
+                        .unwrap_or_default(),
+                    assets: asset
+                        .map(|asset| {
+                            let mut assets = HashSet::new();
+                            assets.insert(asset);
+                            assets
+                        })
+                        .unwrap_or_default(),
+                    environment_variables: HashMap::new(),
+                    memory,
+                    timeout,
+                });
+        },
+    )
+    .unwrap();
+
+    let deployments_list: Vec<Deployment> = deployments_list.values().cloned().collect();
+
+    info!("Found {} deployment(s) to deploy", deployments_list.len());
 
     if let Err(error) = create_deployments_folder() {
-        println!("Could not create deployments folder: {}", error);
+        error!("Could not create deployments folder: {}", error);
     }
 
     if let Err(error) = delete_old_deployments(&deployments_list).await {
-        println!("Failed to delete old deployments: {:?}", error);
+        error!("Failed to delete old deployments: {:?}", error);
     }
 
     {
@@ -79,11 +145,14 @@ pub async fn get_deployments(
         for deployment in deployments_list {
             if !has_deployment_code(&deployment) {
                 if let Err(error) = download_deployment(&deployment, &bucket).await {
-                    println!("Failed to download deployment: {:?}", error);
+                    error!(
+                        "Failed to download deployment ({}): {:?}",
+                        deployment.id, error
+                    );
                 }
             }
 
-            for domain in deployment.domains.clone() {
+            for domain in deployment.get_domains() {
                 deployments.insert(domain, deployment.clone());
             }
         }
@@ -93,6 +162,7 @@ pub async fn get_deployments(
 }
 
 async fn delete_old_deployments(deployments: &Vec<Deployment>) -> io::Result<()> {
+    info!("Deleting old deployments");
     let local_deployments_files = fs::read_dir(Path::new("deployments"))?;
 
     for local_deployment_file in local_deployments_files {
@@ -113,9 +183,10 @@ async fn delete_old_deployments(deployments: &Vec<Deployment>) -> io::Result<()>
             .iter()
             .any(|deployment| deployment.id == local_deployment_id)
         {
-            rm_deployment(local_deployment_id)?;
+            rm_deployment(&local_deployment_id)?;
         }
     }
+    info!("Old deployments deleted");
 
     Ok(())
 }
@@ -123,7 +194,7 @@ async fn delete_old_deployments(deployments: &Vec<Deployment>) -> io::Result<()>
 pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io::Result<()> {
     match bucket.get_object(deployment.id.clone() + ".js").await {
         Ok(object) => {
-            write_deployment(deployment.id.clone(), object.bytes())?;
+            write_deployment(&deployment.id, object.bytes())?;
 
             if deployment.assets.len() > 0 {
                 for asset in &deployment.assets {
@@ -136,7 +207,7 @@ pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io
                     }
 
                     let object = object.unwrap();
-                    write_deployment_asset(deployment.id.clone(), asset, object.bytes())?;
+                    write_deployment_asset(&deployment.id, asset, object.bytes())?;
                 }
             }
 

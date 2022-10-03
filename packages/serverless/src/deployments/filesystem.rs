@@ -1,5 +1,8 @@
 use std::io::Write;
+use std::path::PathBuf;
 use std::{env, fs, io, path::Path};
+
+use log::info;
 
 use super::Deployment;
 
@@ -8,6 +11,7 @@ pub fn create_deployments_folder() -> io::Result<()> {
 
     if !path.exists() {
         fs::create_dir(path)?;
+        info!("Created deployments folder");
     }
 
     Ok(())
@@ -28,27 +32,40 @@ pub fn get_deployment_code(deployment: &Deployment) -> io::Result<String> {
     Ok(code)
 }
 
-pub fn write_deployment(deployment_id: String, buf: &[u8]) -> io::Result<()> {
-    let mut file = fs::File::create(Path::new("deployments").join(deployment_id + ".js"))?;
+pub fn write_deployment(deployment_id: &str, buf: &[u8]) -> io::Result<()> {
+    let mut file =
+        fs::File::create(Path::new("deployments").join(deployment_id.to_owned() + ".js"))?;
 
     file.write_all(buf)?;
+    info!("Wrote deployment: {}", deployment_id);
 
     Ok(())
 }
 
-pub fn write_deployment_asset(deployment_id: String, asset: &str, buf: &[u8]) -> io::Result<()> {
-    let mut file = fs::File::create(Path::new("deployments").join(deployment_id + "/" + asset))?;
+pub fn write_deployment_asset(deployment_id: &str, asset: &str, buf: &[u8]) -> io::Result<()> {
+    let asset = asset.replace("public/", "");
+    let asset = asset.as_str();
+
+    let dir = PathBuf::from("deployments")
+        .join(deployment_id)
+        .join(PathBuf::from(asset).parent().unwrap());
+    fs::create_dir_all(dir)?;
+
+    let mut file =
+        fs::File::create(Path::new("deployments").join(deployment_id.to_owned() + "/" + asset))?;
 
     file.write_all(buf)?;
+    info!("Wrote deployment ({}) asset: {}", deployment_id, asset);
 
     Ok(())
 }
 
-pub fn rm_deployment(deployment_id: String) -> io::Result<()> {
-    fs::remove_file(Path::new("deployments").join(deployment_id.clone() + ".js"))?;
+pub fn rm_deployment(deployment_id: &str) -> io::Result<()> {
+    fs::remove_file(Path::new("deployments").join(deployment_id.to_owned() + ".js"))?;
 
-    // It's possible that folder doesn't exists
-    fs::remove_dir(Path::new("deployments").join(deployment_id)).unwrap_or(());
+    // It's possible that the folder doesn't exists if the deployment has no assets
+    fs::remove_dir(Path::new("deployments").join(deployment_id.clone())).unwrap_or(());
+    info!("Deleted deployment: {}", deployment_id);
 
     Ok(())
 }

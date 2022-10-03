@@ -2,7 +2,11 @@ use v8::V8;
 
 use crate::isolate::IsolateOptions;
 
+#[repr(C, align(16))]
+struct IcuData([u8; 10454784]);
+
 static JS_RUNTIME: &str = include_str!("../../runtime.js");
+static ICU_DATA: IcuData = IcuData(*include_bytes!("../../icudtl.dat"));
 
 pub struct RuntimeOptions {
     allow_eval: bool,
@@ -21,14 +25,18 @@ unsafe impl Sync for Runtime {}
 
 impl Runtime {
     pub fn new(options: RuntimeOptions) -> Self {
-        let platform = v8::new_default_platform(0, false).make_shared();
-        V8::initialize_platform(platform);
-        V8::initialize();
+        // Load ICU data to enable i18n, similar to Deno:
+        // https://github.com/denoland/deno/blob/a55b194638bcaace38917703b7d9233fb1989d44/core/runtime.rs#L223
+        v8::icu::set_common_data_71(&ICU_DATA.0).unwrap();
 
         // Disable code generation from `eval(...)` / `new Function(...)`
         if !options.allow_eval {
             V8::set_flags_from_string("--disallow-code-generation-from-strings");
         }
+
+        let platform = v8::new_default_platform(0, false).make_shared();
+        V8::initialize_platform(platform);
+        V8::initialize();
 
         Runtime {}
     }
@@ -39,12 +47,6 @@ impl Runtime {
         }
 
         V8::dispose_platform();
-    }
-}
-
-impl Drop for Runtime {
-    fn drop(&mut self) {
-        self.dispose();
     }
 }
 
@@ -78,16 +80,6 @@ pub fn get_runtime_code<'a>(
 }})()
 
 {code}
-
-export async function masterHandler(request) {{
-    const handlerRequest = new Request(request.input, {{
-      method: request.method,
-      headers: request.headers,
-      body: request.body,
-    }});
-
-    return handler(handlerRequest);
-  }}
 "#
         ),
     )

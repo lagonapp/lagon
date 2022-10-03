@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
+use log::error;
 use s3::Bucket;
 use serde_json::Value;
 use tokio::{sync::RwLock, task::JoinHandle};
@@ -29,6 +30,8 @@ pub fn listen_pub_sub(
 
             let deployment = Deployment {
                 id: value["deploymentId"].as_str().unwrap().to_string(),
+                function_id: value["functionId"].as_str().unwrap().to_string(),
+                function_name: value["functionName"].as_str().unwrap().to_string(),
                 assets: value["assets"]
                     .as_array()
                     .unwrap()
@@ -57,30 +60,33 @@ pub fn listen_pub_sub(
                         Ok(_) => {
                             let mut deployments = deployments.write().await;
 
-                            for domain in deployment.domains.clone() {
+                            for domain in deployment.get_domains() {
                                 deployments.insert(domain, deployment.clone());
                             }
                         }
-                        Err(error) => {
-                            println!("Failed to download deployment: {:?}", error);
+                        Err(err) => {
+                            error!(
+                                "Failed to download deployment ({}): {:?}",
+                                deployment.id, err
+                            );
                         }
                     };
                 }
                 "undeploy" => {
-                    match rm_deployment(deployment.id) {
+                    match rm_deployment(&deployment.id) {
                         Ok(_) => {
                             let mut deployments = deployments.write().await;
 
-                            for domain in deployment.domains.clone() {
+                            for domain in deployment.get_domains() {
                                 deployments.remove(&domain);
                             }
                         }
-                        Err(error) => {
-                            println!("Failed to delete deployment: {:?}", error);
+                        Err(err) => {
+                            error!("Failed to delete deployment ({}): {:?}", deployment.id, err);
                         }
                     };
                 }
-                _ => println!("Unknown channel: {}", channel),
+                _ => error!("Unknown channel: {}", channel),
             };
         }
     })

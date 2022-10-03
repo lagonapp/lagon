@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Function` ADD COLUMN `cronRegion` VARCHAR(191) NOT NULL DEFAULT 'EU-WEST-3';

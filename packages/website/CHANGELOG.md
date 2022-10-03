@@ -1,5 +1,13 @@
 # @lagon/website
 
+## 0.0.4
+
+### Patch Changes
+
+- [#155](https://github.com/lagonapp/lagon/pull/155) [`92e4710`](https://github.com/lagonapp/lagon/commit/92e471016ee8b23a608126e97ea73f330efa80cd) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Migrate tRPC v9 to v10
+
+* [#156](https://github.com/lagonapp/lagon/pull/156) [`dcfdf5d`](https://github.com/lagonapp/lagon/commit/dcfdf5d591fb787a8d9c549345f8c8901593a455) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add statistics
+
 ## 0.0.3
 
 ### Patch Changes
