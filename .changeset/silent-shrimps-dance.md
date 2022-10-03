@@ -2,4 +2,4 @@
 '@lagon/cli': minor
 ---
 
-update clap to v4
+Update clap to v4
