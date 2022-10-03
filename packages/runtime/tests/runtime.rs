@@ -32,6 +32,7 @@ async fn execute_function() {
                 method: Method::GET,
                 url: "".into(),
             })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
@@ -66,6 +67,7 @@ async fn environment_variables() {
                 method: Method::GET,
                 url: "".into(),
             })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
@@ -93,6 +95,7 @@ async fn get_body() {
                 method: Method::GET,
                 url: "".into(),
             })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
@@ -120,6 +123,7 @@ async fn get_input() {
                 method: Method::GET,
                 url: "https://hello.world".into(),
             })
+            .await
             .0,
         RunResult::Response(Response {
             body: "https://hello.world".into(),
@@ -147,6 +151,7 @@ async fn get_method() {
                 method: Method::POST,
                 url: "".into(),
             })
+            .await
             .0,
         RunResult::Response(Response {
             body: "POST".into(),
@@ -177,6 +182,7 @@ async fn get_headers() {
                 method: Method::POST,
                 url: "".into(),
             })
+            .await
             .0,
         RunResult::Response(Response {
             body: "token".into(),
@@ -213,6 +219,7 @@ async fn return_headers() {
                 method: Method::GET,
                 url: "".into(),
             })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
@@ -249,6 +256,7 @@ async fn return_headers_from_headers_api() {
                 method: Method::GET,
                 url: "".into(),
             })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
@@ -278,6 +286,7 @@ async fn return_status() {
                 method: Method::GET,
                 url: "".into(),
             })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Moved permanently".into(),
@@ -307,12 +316,37 @@ async fn return_uint8array() {
                 method: Method::GET,
                 url: "".into(),
             })
+            .await
             .0,
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: None,
             status: 200,
         })
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn promise_rejected() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    throw new Error('Rejected');
+}"
+        .into(),
+    ));
+
+    assert_eq!(
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            })
+            .await
+            .0,
+        RunResult::Error("Uncaught Error: Rejected".into()),
     );
 }
 
@@ -335,6 +369,7 @@ async fn timeout_reached() {
                 method: Method::GET,
                 url: "".into(),
             })
+            .await
             .0,
         RunResult::Timeout(),
     );
@@ -370,6 +405,7 @@ async fn memory_reached() {
                 method: Method::GET,
                 url: "".into(),
             })
+            .await
             .0,
         RunResult::MemoryLimit(),
     );

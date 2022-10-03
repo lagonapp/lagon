@@ -156,7 +156,7 @@ async fn main() {
                                 Isolate::new(options)
                             });
 
-                            let (run_result, maybe_statistics) = isolate.run(request);
+                            let (run_result, maybe_statistics) = isolate.run(request).await;
 
                             if let Some(statistics) = maybe_statistics {
                                 histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
