@@ -99,6 +99,9 @@ const router = t.mergeRouters(
 
 export type AppRouter = typeof router;
 
+type t = AppRouter['accountUpdate']['_def']['_input_in'];
+type r = AppRouter['accountUpdate']['_def']['_output_in'];
+
 export default trpcNext.createNextApiHandler({
   router,
   createContext,
