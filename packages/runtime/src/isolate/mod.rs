@@ -1,13 +1,14 @@
 use std::{
     cell::RefCell,
     collections::HashMap,
+    pin::Pin,
     rc::Rc,
     sync::{
         atomic::{AtomicUsize, Ordering},
         Arc, RwLock,
     },
     task::{Context, Poll},
-    time::{Duration, Instant}, pin::Pin,
+    time::{Duration, Instant},
 };
 
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
@@ -352,7 +353,7 @@ impl Isolate {
                         promise.resolve(scope, response.into());
                     }
                 };
-            };
+            }
         }
 
         let try_catch = &mut v8::TryCatch::new(scope);

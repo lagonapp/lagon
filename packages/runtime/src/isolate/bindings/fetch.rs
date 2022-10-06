@@ -1,6 +1,9 @@
 use hyper::{body, http::Request, Client};
 
-use crate::{http::Response, isolate::{Isolate, bindings::PromiseResult}};
+use crate::{
+    http::Response,
+    isolate::{bindings::PromiseResult, Isolate},
+};
 
 pub fn fetch_binding(
     scope: &mut v8::HandleScope,
