@@ -1,8 +1,19 @@
 use console::console_binding;
 use fetch::fetch_binding;
 
+use crate::http::Response;
+
 mod console;
 mod fetch;
+
+pub struct BindingResult {
+    pub id: usize,
+    pub result: PromiseResult,
+}
+
+pub enum PromiseResult {
+    Response(Response),
+}
 
 pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
     let global = v8::ObjectTemplate::new(scope);

@@ -327,7 +327,36 @@ async fn return_uint8array() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn promise_rejected() {
+async fn promise() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
+    const body = await fetch('http://google.com').then((res) => res.text());
+    return new Response(body);
+}"
+        .into(),
+    ));
+
+    assert_eq!(
+        isolate
+            .run(Request {
+                body: "".into(),
+                headers: HashMap::new(),
+                method: Method::GET,
+                url: "".into(),
+            })
+            .await
+            .0,
+        RunResult::Response(Response {
+            body: [].into(),
+            headers: None,
+            status: 200,
+        })
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn handler_reject() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {

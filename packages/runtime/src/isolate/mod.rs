@@ -1,6 +1,7 @@
 use std::{
     cell::RefCell,
     collections::HashMap,
+    pin::Pin,
     rc::Rc,
     sync::{
         atomic::{AtomicUsize, Ordering},
@@ -10,8 +11,8 @@ use std::{
     time::{Duration, Instant},
 };
 
-use futures::future::poll_fn;
-use tokio::{spawn, sync::oneshot, task::JoinHandle};
+use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
+use tokio::spawn;
 use v8::PromiseState;
 
 use crate::{
@@ -19,6 +20,8 @@ use crate::{
     runtime::get_runtime_code,
     utils::extract_v8_string,
 };
+
+use self::bindings::{BindingResult, PromiseResult};
 
 mod allocator;
 mod bindings;
@@ -35,26 +38,28 @@ enum ExecutionResult {
 struct GlobalRealm(v8::Global<v8::Context>);
 
 #[derive(Debug)]
-struct PromiseResult {
+struct HandlerResult {
     promise: v8::Global<v8::Promise>,
-    sender: oneshot::Sender<(RunResult, Option<IsolateStatistics>)>,
+    sender: flume::Sender<(RunResult, Option<IsolateStatistics>)>,
     statistics: IsolateStatistics,
 }
 
 #[derive(Debug)]
 struct TerminationResult {
-    sender: oneshot::Sender<(RunResult, Option<IsolateStatistics>)>,
+    sender: flume::Sender<(RunResult, Option<IsolateStatistics>)>,
     run_result: RunResult,
 }
 
 #[derive(Debug)]
 struct IsolateState {
     global: GlobalRealm,
-    promise_result: Option<PromiseResult>,
+    promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
+    js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
+    handler_result: Option<HandlerResult>,
     termination_result: Option<TerminationResult>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct IsolateStatistics {
     pub cpu_time: Duration,
     pub memory_usage: usize,
@@ -132,7 +137,9 @@ impl Isolate {
 
             IsolateState {
                 global: GlobalRealm(global),
-                promise_result: None,
+                promises: FuturesUnordered::new(),
+                js_promises: HashMap::new(),
+                handler_result: None,
                 termination_result: None,
             }
         };
@@ -153,22 +160,15 @@ impl Isolate {
         s.clone()
     }
 
-    pub(self) fn global_realm(&self) -> GlobalRealm {
-        let state = Isolate::state(&self.isolate);
-        let state = state.borrow();
-        state.global.clone()
-    }
-
     pub fn evaluate(
         &mut self,
         request: Request,
-    ) -> oneshot::Receiver<(RunResult, Option<IsolateStatistics>)> {
-        let (sender, receiver) = oneshot::channel();
+    ) -> flume::Receiver<(RunResult, Option<IsolateStatistics>)> {
+        let (sender, receiver) = flume::bounded(1);
         let thread_safe_handle = self.isolate.thread_safe_handle();
 
-        // let state = self.global_realm();
-        let isolate_state = Isolate::state(&self.isolate);
-        let mut isolate_state = isolate_state.borrow_mut();
+        let initial_isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = initial_isolate_state.borrow();
         let state = isolate_state.global.clone();
 
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, state.0.clone());
@@ -286,6 +286,8 @@ impl Isolate {
             }
         });
 
+        drop(isolate_state);
+
         match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(response) => {
                 *terminated.write().unwrap() = ExecutionResult::Run;
@@ -305,7 +307,8 @@ impl Isolate {
                     memory_usage,
                 };
 
-                isolate_state.promise_result = Some(PromiseResult {
+                let mut isolate_state = initial_isolate_state.borrow_mut();
+                isolate_state.handler_result = Some(HandlerResult {
                     promise,
                     sender,
                     statistics,
@@ -318,6 +321,7 @@ impl Isolate {
                     _ => handle_error(try_catch),
                 };
 
+                let mut isolate_state = initial_isolate_state.borrow_mut();
                 isolate_state.termination_result = Some(TerminationResult { sender, run_result });
             }
         };
@@ -332,14 +336,32 @@ impl Isolate {
     fn poll_event_loop(&mut self, cx: &mut Context) -> Poll<()> {
         let isolate_state = Isolate::state(&self.isolate);
         let mut isolate_state = isolate_state.borrow_mut();
-        let state = isolate_state.global.clone();
+        let realm = isolate_state.global.clone();
+        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, realm.0);
 
-        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, state.0.clone());
+        while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), scope, false) {}
+        scope.perform_microtask_checkpoint();
+
+        if isolate_state.promises.len() > 0 {
+            while let Poll::Ready(Some(BindingResult { id, result })) =
+                isolate_state.promises.poll_next_unpin(cx)
+            {
+                let promise = isolate_state
+                    .js_promises
+                    .remove(&id)
+                    .expect(&format!("JS promise {} not found", id));
+                let promise = promise.open(scope);
+
+                match result {
+                    PromiseResult::Response(response) => {
+                        let response = response.to_v8_response(scope);
+                        promise.resolve(scope, response.into());
+                    }
+                };
+            }
+        }
+
         let try_catch = &mut v8::TryCatch::new(scope);
-
-        while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), try_catch, false) {}
-
-        try_catch.perform_microtask_checkpoint();
 
         if let Some(TerminationResult { sender, run_result }) =
             isolate_state.termination_result.take()
@@ -348,11 +370,11 @@ impl Isolate {
             return Poll::Ready(());
         }
 
-        if let Some(PromiseResult {
+        if let Some(HandlerResult {
             promise,
             sender,
             statistics,
-        }) = isolate_state.promise_result.take()
+        }) = isolate_state.handler_result.as_ref()
         {
             let promise = promise.open(try_catch);
 
@@ -360,8 +382,8 @@ impl Isolate {
                 PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
                     let result = match Response::from_v8_response(try_catch, response) {
-                        Some(response) => (RunResult::Response(response), Some(statistics)),
-                        None => (handle_error(try_catch), Some(statistics)),
+                        Some(response) => (RunResult::Response(response), Some(statistics.clone())),
+                        None => (handle_error(try_catch), Some(statistics.clone())),
                     };
 
                     sender.send(result).unwrap();
@@ -390,7 +412,7 @@ impl Isolate {
         let receiver = self.evaluate(request);
         self.run_event_loop().await;
 
-        receiver.await.unwrap()
+        receiver.recv_async().await.unwrap()
     }
 }
 

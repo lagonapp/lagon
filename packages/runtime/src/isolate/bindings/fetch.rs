@@ -1,6 +1,11 @@
 use hyper::{body, http::Request, Client};
 
-use crate::{http::Response, isolate::Isolate};
+use crate::{
+    http::Response,
+    isolate::{bindings::PromiseResult, Isolate},
+};
+
+use super::BindingResult;
 
 pub fn fetch_binding(
     scope: &mut v8::HandleScope,
@@ -14,12 +19,9 @@ pub fn fetch_binding(
 
     let state = Isolate::state(scope);
     let mut state = state.borrow_mut();
+    let id = state.js_promises.len() + 1;
 
-    let (sender, receiver) = std::sync::mpsc::channel();
-
-    let join_handle = tokio::task::spawn_local(async move {
-        println!("spawning task");
-
+    let future = async move {
         let request = Request::builder()
             .method("GET")
             .uri(resource)
@@ -31,26 +33,22 @@ pub fn fetch_binding(
         let status = response.status().as_u16();
         let body = body::to_bytes(response.into_body()).await.unwrap().to_vec();
 
-        sender
-            .send(Response {
-                body,
-                headers: None,
-                status,
-            })
-            .unwrap();
-    });
+        let response = Response {
+            body,
+            headers: None,
+            status,
+        };
 
-    // state.promises.push(join_handle);
+        return BindingResult {
+            id,
+            result: PromiseResult::Response(response),
+        };
+    };
+
+    state.promises.push(Box::pin(future));
+
+    let global_promise = v8::Global::new(scope, promise);
+    state.js_promises.insert(id, global_promise);
 
     retval.set(promise.into());
-
-    // TODO: should be moved to a real even-loop
-    loop {
-        if let Ok(response) = receiver.try_recv() {
-            let response = response.to_v8_response(scope);
-
-            promise.resolve(scope, response.into());
-            break;
-        }
-    }
 }
