@@ -5,6 +5,8 @@ use crate::{
     isolate::{bindings::PromiseResult, Isolate},
 };
 
+use super::BindingResult;
+
 pub fn fetch_binding(
     scope: &mut v8::HandleScope,
     args: v8::FunctionCallbackArguments,
@@ -14,6 +16,10 @@ pub fn fetch_binding(
 
     let promise = v8::PromiseResolver::new(scope).unwrap();
     let promise = v8::Local::new(scope, promise);
+
+    let state = Isolate::state(scope);
+    let mut state = state.borrow_mut();
+    let id = state.js_promises.len() + 1;
 
     let future = async move {
         let request = Request::builder()
@@ -33,15 +39,16 @@ pub fn fetch_binding(
             status,
         };
 
-        return PromiseResult::Response(response);
+        return BindingResult {
+            id,
+            result: PromiseResult::Response(response),
+        };
     };
 
-    let state = Isolate::state(scope);
-    let mut state = state.borrow_mut();
     state.promises.push(Box::pin(future));
 
     let global_promise = v8::Global::new(scope, promise);
-    state.js_promises.push(global_promise);
+    state.js_promises.insert(id, global_promise);
 
     retval.set(promise.into());
 }

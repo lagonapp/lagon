@@ -329,15 +329,13 @@ async fn return_uint8array() {
 #[tokio::test(flavor = "multi_thread")]
 async fn promise() {
     setup();
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(
-            "export async function handler() {
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
     const body = await fetch('http://google.com').then((res) => res.text());
     return new Response(body);
 }"
-            .into(),
-        ),
-    );
+        .into(),
+    ));
 
     assert_eq!(
         isolate

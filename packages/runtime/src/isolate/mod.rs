@@ -21,7 +21,7 @@ use crate::{
     utils::extract_v8_string,
 };
 
-use self::bindings::PromiseResult;
+use self::bindings::{BindingResult, PromiseResult};
 
 mod allocator;
 mod bindings;
@@ -53,8 +53,8 @@ struct TerminationResult {
 #[derive(Debug)]
 struct IsolateState {
     global: GlobalRealm,
-    promises: FuturesUnordered<Pin<Box<dyn Future<Output = PromiseResult>>>>,
-    js_promises: Vec<v8::Global<v8::PromiseResolver>>,
+    promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
+    js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
     handler_result: Option<HandlerResult>,
     termination_result: Option<TerminationResult>,
 }
@@ -138,7 +138,7 @@ impl Isolate {
             IsolateState {
                 global: GlobalRealm(global),
                 promises: FuturesUnordered::new(),
-                js_promises: Vec::new(),
+                js_promises: HashMap::new(),
                 handler_result: None,
                 termination_result: None,
             }
@@ -343,8 +343,13 @@ impl Isolate {
         scope.perform_microtask_checkpoint();
 
         if isolate_state.promises.len() > 0 {
-            while let Poll::Ready(Some(result)) = isolate_state.promises.poll_next_unpin(cx) {
-                let promise = isolate_state.js_promises.remove(0);
+            while let Poll::Ready(Some(BindingResult { id, result })) =
+                isolate_state.promises.poll_next_unpin(cx)
+            {
+                let promise = isolate_state
+                    .js_promises
+                    .remove(&id)
+                    .expect(&format!("JS promise {} not found", id));
                 let promise = promise.open(scope);
 
                 match result {

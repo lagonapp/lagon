@@ -6,6 +6,11 @@ use crate::http::Response;
 mod console;
 mod fetch;
 
+pub struct BindingResult {
+    pub id: usize,
+    pub result: PromiseResult,
+}
+
 pub enum PromiseResult {
     Response(Response),
 }
