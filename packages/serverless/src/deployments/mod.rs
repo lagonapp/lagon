@@ -161,7 +161,7 @@ pub async fn get_deployments(
     deployments
 }
 
-async fn delete_old_deployments(deployments: &Vec<Deployment>) -> io::Result<()> {
+async fn delete_old_deployments(deployments: &[Deployment]) -> io::Result<()> {
     info!("Deleting old deployments");
     let local_deployments_files = fs::read_dir(Path::new("deployments"))?;
 
@@ -170,7 +170,7 @@ async fn delete_old_deployments(deployments: &Vec<Deployment>) -> io::Result<()>
         let local_deployment_file_name = local_deployment_file
             .file_name()
             .into_string()
-            .unwrap_or("".into());
+            .unwrap_or_else(|_| "".into());
 
         // Skip folders
         if !local_deployment_file_name.ends_with(".js") {
@@ -196,7 +196,7 @@ pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io
         Ok(object) => {
             write_deployment(&deployment.id, object.bytes())?;
 
-            if deployment.assets.len() > 0 {
+            if !deployment.assets.is_empty() {
                 for asset in &deployment.assets {
                     let object = bucket
                         .get_object(deployment.id.clone() + "/" + asset.as_str())

@@ -14,20 +14,20 @@ pub async fn hyper_request_to_request(request: HyperRequest<Body>) -> Request {
         headers.insert(key.to_string(), value.to_str().unwrap().to_string());
     }
 
-    let method = match request.method() {
-        &HyperMethod::POST => Method::POST,
-        &HyperMethod::PUT => Method::PUT,
-        &HyperMethod::PATCH => Method::PATCH,
-        &HyperMethod::DELETE => Method::DELETE,
-        &HyperMethod::HEAD => Method::HEAD,
-        &HyperMethod::OPTIONS => Method::OPTIONS,
+    let method = match *request.method() {
+        HyperMethod::POST => Method::POST,
+        HyperMethod::PUT => Method::PUT,
+        HyperMethod::PATCH => Method::PATCH,
+        HyperMethod::DELETE => Method::DELETE,
+        HyperMethod::HEAD => Method::HEAD,
+        HyperMethod::OPTIONS => Method::OPTIONS,
         _ => Method::GET,
     };
 
     let host = headers
         .get("host")
         .map(|host| host.to_string())
-        .unwrap_or(String::new());
+        .unwrap_or_default();
     let url = format!("http://{}{}", host, request.uri().to_string().as_str());
 
     let body = body::to_bytes(request.into_body()).await.unwrap();

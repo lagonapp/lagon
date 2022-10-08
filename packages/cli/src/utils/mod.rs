@@ -4,7 +4,7 @@ mod trpc;
 
 use std::{
     io::{self, Error, ErrorKind},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 pub use console::*;
@@ -25,7 +25,7 @@ pub fn get_api_url() -> String {
     get_site_url() + "/api"
 }
 
-pub fn validate_code_file(file: &PathBuf) -> io::Result<()> {
+pub fn validate_code_file(file: &Path) -> io::Result<()> {
     if !file.exists() || !file.is_file() {
         return Err(Error::new(
             ErrorKind::Other,

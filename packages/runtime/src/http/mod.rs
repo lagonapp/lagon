@@ -13,16 +13,16 @@ pub enum Method {
     OPTIONS,
 }
 
-impl Into<&str> for Method {
-    fn into(self) -> &'static str {
-        match self {
-            Self::GET => "GET",
-            Self::POST => "POST",
-            Self::PUT => "PUT",
-            Self::PATCH => "PATCH",
-            Self::DELETE => "DELETE",
-            Self::HEAD => "HEAD",
-            Self::OPTIONS => "OPTIONS",
+impl From<Method> for &str {
+    fn from(method: Method) -> &'static str {
+        match method {
+            Method::GET => "GET",
+            Method::POST => "POST",
+            Method::PUT => "PUT",
+            Method::PATCH => "PATCH",
+            Method::DELETE => "DELETE",
+            Method::HEAD => "HEAD",
+            Method::OPTIONS => "OPTIONS",
         }
     }
 }
@@ -89,7 +89,7 @@ impl Request {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct Response {
     pub headers: Option<HashMap<String, String>>,
     pub body: Vec<u8>,
@@ -167,7 +167,7 @@ impl Response {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum RunResult {
     Response(Response),
     Timeout(),

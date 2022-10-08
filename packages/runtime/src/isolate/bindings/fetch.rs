@@ -39,10 +39,10 @@ pub fn fetch_binding(
             status,
         };
 
-        return BindingResult {
+        BindingResult {
             id,
             result: PromiseResult::Response(response),
-        };
+        }
     };
 
     state.promises.push(Box::pin(future));

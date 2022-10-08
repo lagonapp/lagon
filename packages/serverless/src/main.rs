@@ -4,9 +4,10 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::RunResult;
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
+use log::error;
 use metrics::{counter, histogram, increment_counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
-use mysql::{Opts, OptsBuilder, Pool, SslOpts};
+use mysql::{Opts, Pool};
 use s3::creds::Credentials;
 use s3::Bucket;
 use std::collections::HashMap;
@@ -30,12 +31,15 @@ async fn handle_request(
     request_tx: flume::Sender<HyperRequest<Body>>,
     response_rx: flume::Receiver<RunResult>,
 ) -> Result<HyperResponse<Body>, Infallible> {
-    request_tx.send_async(req).await;
+    request_tx
+        .send_async(req)
+        .await
+        .expect("Failed to send request");
 
     let result = response_rx
         .recv_async()
         .await
-        .unwrap_or(RunResult::Error("Failed to receive".into()));
+        .unwrap_or_else(|_| RunResult::Error("Failed to receive".into()));
 
     match result {
         RunResult::Response(response) => {
@@ -183,7 +187,19 @@ async fn main() {
         .await
     });
 
-    tokio::join!(server, redis, request_handler);
+    let result = tokio::join!(server, redis, request_handler);
+
+    if let Err(error) = result.0 {
+        error!("{}", error);
+    }
+
+    if let Err(error) = result.1 {
+        error!("{}", error);
+    }
+
+    if let Err(error) = result.2 {
+        error!("{}", error);
+    }
 
     // if let Err(e) =  {
     //     eprintln!("server error: {}", e);
