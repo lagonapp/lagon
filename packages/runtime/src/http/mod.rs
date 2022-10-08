@@ -113,7 +113,7 @@ impl Request {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Response {
     pub headers: Option<HashMap<String, String>>,
     pub body: Vec<u8>,
@@ -215,7 +215,7 @@ impl Response {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunResult {
     Response(Response),
     Timeout(),

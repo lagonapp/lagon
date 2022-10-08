@@ -361,9 +361,9 @@ impl Isolate {
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if let Some(TerminationResult { sender, run_result }) =
-            isolate_state.termination_result.take()
+            isolate_state.termination_result.as_ref()
         {
-            sender.send((run_result, None)).unwrap();
+            sender.send((run_result.clone(), None)).unwrap();
             return Poll::Ready(());
         }
 
