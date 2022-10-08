@@ -407,7 +407,12 @@ impl Isolate {
 
     pub async fn run(&mut self, request: Request) -> (RunResult, Option<IsolateStatistics>) {
         let receiver = self.evaluate(request);
-        self.run_event_loop().await;
+
+        // Run the event loop only is we don't have any compilation Error
+        // If one has occurred, it will be received immediately by the receiver.
+        if self.compilation_error.is_none() {
+            self.run_event_loop().await;
+        }
 
         receiver.recv_async().await.unwrap()
     }
