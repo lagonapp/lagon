@@ -15,23 +15,11 @@
     return str;
   };
 
-  globalThis.console.log = (...args: any[]) => {
-    Lagon.log(`[log] ${format(...args)}`);
-  };
+  const types = ['log', 'info', 'debug', 'error', 'warn'] as const;
 
-  globalThis.console.info = (...args: any[]) => {
-    Lagon.log(`[info] ${format(...args)}`);
-  };
-
-  globalThis.console.debug = (...args: any[]) => {
-    Lagon.log(`[debug] ${format(...args)}`);
-  };
-
-  globalThis.console.error = (...args: any[]) => {
-    Lagon.log(`[error] ${format(...args)}`);
-  };
-
-  globalThis.console.warn = (...args: any[]) => {
-    Lagon.log(`[warn] ${format(...args)}`);
-  };
+  types.forEach(type => {
+    globalThis.console[type] = (...args: unknown[]) => {
+      Lagon.log(`[${type}] ${format(...args)}`);
+    };
+  });
 })(globalThis);
