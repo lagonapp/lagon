@@ -8,6 +8,8 @@ use log::error;
 use metrics::{counter, histogram, increment_counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
+#[cfg(not(debug_assertions))]
+use mysql::{OptsBuilder, SslOpts};
 use s3::creds::Credentials;
 use s3::Bucket;
 use std::collections::HashMap;
@@ -200,10 +202,6 @@ async fn main() {
     if let Err(error) = result.2 {
         error!("{}", error);
     }
-
-    // if let Err(e) =  {
-    //     eprintln!("server error: {}", e);
-    // }
 
     runtime.dispose();
 }
