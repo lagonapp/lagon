@@ -16,7 +16,7 @@ use tokio::spawn;
 use v8::PromiseState;
 
 use crate::{
-    http::{Request, Response, RunResult},
+    http::{FromV8, IntoV8, Request, Response, RunResult},
     runtime::get_runtime_code,
     utils::extract_v8_string,
 };
@@ -35,7 +35,7 @@ enum ExecutionResult {
 }
 
 #[derive(Debug, Clone)]
-struct GlobalRealm(v8::Global<v8::Context>);
+struct Global(v8::Global<v8::Context>);
 
 #[derive(Debug)]
 struct HandlerResult {
@@ -52,7 +52,7 @@ struct TerminationResult {
 
 #[derive(Debug)]
 struct IsolateState {
-    global: GlobalRealm,
+    global: Global,
     promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
     js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
     handler_result: Option<HandlerResult>,
@@ -136,7 +136,7 @@ impl Isolate {
             let global = bindings::bind(isolate_scope);
 
             IsolateState {
-                global: GlobalRealm(global),
+                global: Global(global),
                 promises: FuturesUnordered::new(),
                 js_promises: HashMap::new(),
                 handler_result: None,
@@ -167,11 +167,11 @@ impl Isolate {
         let (sender, receiver) = flume::bounded(1);
         let thread_safe_handle = self.isolate.thread_safe_handle();
 
-        let initial_isolate_state = Isolate::state(&self.isolate);
-        let isolate_state = initial_isolate_state.borrow();
-        let state = isolate_state.global.clone();
+        let isolate_state = Isolate::state(&self.isolate);
+        let state = isolate_state.borrow();
+        let global = state.global.0.clone();
 
-        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, state.0.clone());
+        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global.clone());
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if self.handler.is_none() && self.compilation_error.is_none() {
@@ -226,12 +226,10 @@ impl Isolate {
 
                     self.handler = Some(handler);
                 }
-                None => {
-                    match handle_error(try_catch) {
-                        RunResult::Error(error) => self.compilation_error = Some(error),
-                        _ => self.compilation_error = Some("Unkown error".into()),
-                    };
-                }
+                None => match handle_error(try_catch) {
+                    RunResult::Error(error) => self.compilation_error = Some(error),
+                    _ => self.compilation_error = Some("Unkown error".into()),
+                },
             };
         }
 
@@ -242,17 +240,17 @@ impl Isolate {
             return receiver;
         }
 
-        let request = request.to_v8_request(try_catch);
+        let request = request.into_v8(try_catch);
 
         let handler = self.handler.as_ref().unwrap();
         let handler = handler.open(try_catch);
 
-        let global = state.0.open(try_catch);
+        let global = global.open(try_catch);
         let global = global.global(try_catch);
 
-        let terminated = Arc::new(RwLock::new(ExecutionResult::WillRun));
-        let terminated_handle = terminated.clone();
+        let execution_result = Arc::new(RwLock::new(ExecutionResult::WillRun));
 
+        let execution_result_handle = execution_result.clone();
         let count_handle = self.count.clone();
 
         let now = Instant::now();
@@ -262,7 +260,7 @@ impl Isolate {
         spawn(async move {
             loop {
                 // // If execution is already done, don't force termination
-                if *terminated_handle.read().unwrap() == ExecutionResult::Run {
+                if *execution_result_handle.read().unwrap() == ExecutionResult::Run {
                     break;
                 }
 
@@ -270,7 +268,7 @@ impl Isolate {
                 let timeout_reached = now.elapsed() >= timeout;
 
                 if memory_reached || timeout_reached {
-                    let mut terminated_handle = terminated_handle.write().unwrap();
+                    let mut terminated_handle = execution_result_handle.write().unwrap();
                     *terminated_handle = if memory_reached {
                         ExecutionResult::MemoryReached
                     } else {
@@ -286,11 +284,11 @@ impl Isolate {
             }
         });
 
-        drop(isolate_state);
+        drop(state);
 
         match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(response) => {
-                *terminated.write().unwrap() = ExecutionResult::Run;
+                *execution_result.write().unwrap() = ExecutionResult::Run;
 
                 let promise = v8::Local::<v8::Promise>::try_from(response)
                     .expect("Handler did not return a promise");
@@ -307,22 +305,21 @@ impl Isolate {
                     memory_usage,
                 };
 
-                let mut isolate_state = initial_isolate_state.borrow_mut();
-                isolate_state.handler_result = Some(HandlerResult {
+                isolate_state.borrow_mut().handler_result = Some(HandlerResult {
                     promise,
                     sender,
                     statistics,
                 });
             }
             None => {
-                let run_result = match *terminated.read().unwrap() {
+                let run_result = match *execution_result.read().unwrap() {
                     ExecutionResult::MemoryReached => RunResult::MemoryLimit(),
                     ExecutionResult::TimeoutReached => RunResult::Timeout(),
                     _ => handle_error(try_catch),
                 };
 
-                let mut isolate_state = initial_isolate_state.borrow_mut();
-                isolate_state.termination_result = Some(TerminationResult { sender, run_result });
+                isolate_state.borrow_mut().termination_result =
+                    Some(TerminationResult { sender, run_result });
             }
         };
 
@@ -336,8 +333,8 @@ impl Isolate {
     fn poll_event_loop(&mut self, cx: &mut Context) -> Poll<()> {
         let isolate_state = Isolate::state(&self.isolate);
         let mut isolate_state = isolate_state.borrow_mut();
-        let realm = isolate_state.global.clone();
-        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, realm.0);
+        let global = isolate_state.global.0.clone();
+        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
 
         while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), scope, false) {}
         scope.perform_microtask_checkpoint();
@@ -354,7 +351,7 @@ impl Isolate {
 
                 match result {
                     PromiseResult::Response(response) => {
-                        let response = response.to_v8_response(scope);
+                        let response = response.into_v8(scope);
                         promise.resolve(scope, response.into());
                     }
                 };
@@ -364,9 +361,9 @@ impl Isolate {
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if let Some(TerminationResult { sender, run_result }) =
-            isolate_state.termination_result.take()
+            isolate_state.termination_result.as_ref()
         {
-            sender.send((run_result, None)).unwrap();
+            sender.send((run_result.clone(), None)).unwrap();
             return Poll::Ready(());
         }
 
@@ -381,7 +378,7 @@ impl Isolate {
             match promise.state() {
                 PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
-                    let result = match Response::from_v8_response(try_catch, response) {
+                    let result = match Response::from_v8(try_catch, response) {
                         Some(response) => (RunResult::Response(response), Some(*statistics)),
                         None => (handle_error(try_catch), Some(*statistics)),
                     };
@@ -410,7 +407,12 @@ impl Isolate {
 
     pub async fn run(&mut self, request: Request) -> (RunResult, Option<IsolateStatistics>) {
         let receiver = self.evaluate(request);
-        self.run_event_loop().await;
+
+        // Run the event loop only is we don't have any compilation Error
+        // If one has occurred, it will be received immediately by the receiver.
+        if self.compilation_error.is_none() {
+            self.run_event_loop().await;
+        }
 
         receiver.recv_async().await.unwrap()
     }

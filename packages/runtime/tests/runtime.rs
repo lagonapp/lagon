@@ -25,20 +25,8 @@ async fn execute_function() {
     ));
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::Response(Response {
-            body: "Hello world".into(),
-            headers: None,
-            status: 200,
-        })
+        isolate.run(Request::default()).await.0,
+        RunResult::Response(Response::from("Hello world"))
     );
 }
 
@@ -60,20 +48,8 @@ async fn environment_variables() {
     );
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::Response(Response {
-            body: "Hello world".into(),
-            headers: None,
-            status: 200,
-        })
+        isolate.run(Request::default()).await.0,
+        RunResult::Response(Response::from("Hello world"))
     );
 }
 
@@ -97,11 +73,7 @@ async fn get_body() {
             })
             .await
             .0,
-        RunResult::Response(Response {
-            body: "Hello world".into(),
-            headers: None,
-            status: 200,
-        })
+        RunResult::Response(Response::from("Hello world"))
     );
 }
 
@@ -125,11 +97,7 @@ async fn get_input() {
             })
             .await
             .0,
-        RunResult::Response(Response {
-            body: "https://hello.world".into(),
-            headers: None,
-            status: 200,
-        })
+        RunResult::Response(Response::from("https://hello.world"))
     );
 }
 
@@ -153,11 +121,7 @@ async fn get_method() {
             })
             .await
             .0,
-        RunResult::Response(Response {
-            body: "POST".into(),
-            headers: None,
-            status: 200,
-        })
+        RunResult::Response(Response::from("POST"))
     );
 }
 
@@ -184,11 +148,7 @@ async fn get_headers() {
             })
             .await
             .0,
-        RunResult::Response(Response {
-            body: "token".into(),
-            headers: None,
-            status: 200,
-        })
+        RunResult::Response(Response::from("token"))
     );
 }
 
@@ -212,15 +172,7 @@ async fn return_headers() {
     headers.insert("X-Test".into(), "test".into());
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
+        isolate.run(Request::default()).await.0,
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: Some(headers),
@@ -249,15 +201,7 @@ async fn return_headers_from_headers_api() {
     headers.insert("X-Test".into(), "test".into());
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
+        isolate.run(Request::default()).await.0,
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: Some(headers),
@@ -279,15 +223,7 @@ async fn return_status() {
     ));
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
+        isolate.run(Request::default()).await.0,
         RunResult::Response(Response {
             body: "Moved permanently".into(),
             headers: None,
@@ -309,133 +245,29 @@ async fn return_uint8array() {
     ));
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::Response(Response {
-            body: "Hello world".into(),
-            headers: None,
-            status: 200,
-        })
+        isolate.run(Request::default()).await.0,
+        RunResult::Response(Response::from("Hello world"))
     );
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn promise() {
-    setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export async function handler() {
-    const body = await fetch('http://google.com').then((res) => res.text());
-    return new Response(body);
-}"
-        .into(),
-    ));
-
-    assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::Response(Response {
-            body: [].into(),
-            headers: None,
-            status: 200,
-        })
-    );
-}
-
-#[tokio::test(flavor = "multi_thread")]
-async fn handler_reject() {
+async fn console_log() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
-    throw new Error('Rejected');
+    const types = ['log', 'info', 'debug', 'error', 'warn'];
+
+    types.forEach(type => {
+        console[type]('Hello world!')
+    })
+
+    return new Response('');
 }"
         .into(),
     ));
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::Error("Uncaught Error: Rejected".into()),
-    );
-}
-
-#[tokio::test(flavor = "multi_thread")]
-async fn timeout_reached() {
-    setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
-    while(true) {}
-    return new Response('Should not be reached');
-}"
-        .into(),
-    ));
-
-    assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::Timeout(),
-    );
-}
-
-#[tokio::test(flavor = "multi_thread")]
-async fn memory_reached() {
-    setup();
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(
-            "export function handler() {
-    const storage = [];
-    const twoMegabytes = 1024 * 1024 * 2;
-    while (true) {
-        const array = new Uint8Array(twoMegabytes);
-        for (let ii = 0; ii < twoMegabytes; ii += 4096) {
-        array[ii] = 1; // we have to put something in the array to flush to real memory
-        }
-        storage.push(array);
-    }
-    return new Response('Should not be reached');
-}"
-            .into(),
-        )
-        .with_timeout(1000),
-    ); // Increase timeout for CI
-
-    assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::MemoryLimit(),
+        isolate.run(Request::default()).await.0,
+        RunResult::Response(Response::default())
     );
 }

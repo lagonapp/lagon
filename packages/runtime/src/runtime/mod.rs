@@ -15,9 +15,6 @@ pub struct RuntimeOptions {
 
 pub struct Runtime;
 
-unsafe impl Send for Runtime {}
-unsafe impl Sync for Runtime {}
-
 impl Runtime {
     pub fn new(options: RuntimeOptions) -> Self {
         // Load ICU data to enable i18n, similar to Deno:
@@ -46,7 +43,7 @@ impl Runtime {
 }
 
 pub fn get_runtime_code<'a>(
-    scope: &mut v8::HandleScope<'a, ()>,
+    scope: &mut v8::HandleScope<'a>,
     options: &IsolateOptions,
 ) -> Option<v8::Local<'a, v8::String>> {
     let IsolateOptions {
@@ -67,15 +64,9 @@ pub fn get_runtime_code<'a>(
     v8::String::new(
         scope,
         &format!(
-            r#"
-{JS_RUNTIME}
-
-(() => {{
-    {environment_variables}
-}})()
-
-{code}
-"#
+            r"{JS_RUNTIME}
+{environment_variables}
+{code}"
         ),
     )
 }

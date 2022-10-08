@@ -2,6 +2,17 @@ use std::collections::HashMap;
 
 use crate::utils::{extract_v8_string, v8_string};
 
+pub trait IntoV8 {
+    fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object>;
+}
+
+pub trait FromV8: Sized {
+    fn from_v8<'a>(
+        scope: &mut v8::HandleScope<'a>,
+        object: v8::Local<'a, v8::Value>,
+    ) -> Option<Self>;
+}
+
 #[derive(Debug, Copy, Clone)]
 pub enum Method {
     GET,
@@ -35,8 +46,19 @@ pub struct Request {
     pub url: String,
 }
 
-impl Request {
-    pub fn to_v8_request<'a>(&self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
+impl Default for Request {
+    fn default() -> Self {
+        Request {
+            headers: HashMap::new(),
+            method: Method::GET,
+            body: "".into(),
+            url: "".into(),
+        }
+    }
+}
+
+impl IntoV8 for Request {
+    fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
         let request = v8::Object::new(scope);
 
         let input_key = v8::String::new(scope, "input").unwrap();
@@ -82,22 +104,44 @@ impl Request {
 
         request
     }
+}
 
+impl Request {
     // TODO: Return the full request length
     pub fn len(&self) -> usize {
         self.body.len()
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Response {
     pub headers: Option<HashMap<String, String>>,
     pub body: Vec<u8>,
     pub status: u16,
 }
 
-impl Response {
-    pub fn to_v8_response<'a>(&self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
+impl Default for Response {
+    fn default() -> Self {
+        Response {
+            headers: None,
+            body: [].into(),
+            status: 200,
+        }
+    }
+}
+
+impl From<&str> for Response {
+    fn from(body: &str) -> Self {
+        Response {
+            headers: None,
+            body: body.into(),
+            status: 200,
+        }
+    }
+}
+
+impl IntoV8 for Response {
+    fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
         let response_object = v8::Object::new(scope);
         let body_key = v8::String::new(scope, "body").unwrap();
         let body_key = v8::Local::new(scope, body_key);
@@ -107,8 +151,10 @@ impl Response {
         response_object.set(scope, body_key.into(), body_value.into());
         response_object
     }
+}
 
-    pub fn from_v8_response<'a>(
+impl FromV8 for Response {
+    fn from_v8<'a>(
         scope: &mut v8::HandleScope<'a>,
         response: v8::Local<'a, v8::Value>,
     ) -> Option<Self> {
@@ -160,14 +206,16 @@ impl Response {
             status,
         })
     }
+}
 
+impl Response {
     // TODO: Return the full response length
     pub fn len(&self) -> usize {
         self.body.len()
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunResult {
     Response(Response),
     Timeout(),
