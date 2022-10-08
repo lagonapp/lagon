@@ -17,6 +17,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::utils::{debug, get_api_url, print_progress, success};
 
+type FileCursor = Cursor<Vec<u8>>;
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeploymentConfig {
     pub function_id: String,
@@ -60,7 +62,7 @@ pub fn delete_function_config() -> io::Result<()> {
     fs::remove_file(path)
 }
 
-fn esbuild(file: &PathBuf) -> io::Result<Cursor<Vec<u8>>> {
+fn esbuild(file: &PathBuf) -> io::Result<FileCursor> {
     let result = Command::new("esbuild")
         .arg(file)
         .arg("--bundle")
@@ -86,8 +88,8 @@ pub fn bundle_function(
     index: PathBuf,
     client: Option<PathBuf>,
     public_dir: PathBuf,
-) -> io::Result<(Cursor<Vec<u8>>, HashMap<String, Cursor<Vec<u8>>>)> {
-    if let Err(_) = Command::new("esbuild").arg("--version").output() {
+) -> io::Result<(FileCursor, HashMap<String, FileCursor>)> {
+    if Command::new("esbuild").arg("--version").output().is_err() {
         return Err(Error::new(
             ErrorKind::Other,
             "esbuild is not installed. Please install it with `npm install -g esbuild`",
@@ -98,7 +100,7 @@ pub fn bundle_function(
     let index_output = esbuild(&index)?;
     end_progress();
 
-    let mut assets = HashMap::<String, Cursor<Vec<u8>>>::new();
+    let mut assets = HashMap::<String, FileCursor>::new();
 
     if let Some(client) = client {
         let end_progress = print_progress("Bundling client file...");
@@ -150,8 +152,9 @@ pub fn bundle_function(
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 struct DeploymentResponse {
-    functionName: String,
+    function_name: String,
 }
 
 pub fn create_deployment(
@@ -210,7 +213,7 @@ pub fn create_deployment(
     println!(
         " {} https://{}.lagon.app",
         "➤".black(),
-        response.functionName.blue()
+        response.function_name.blue()
     );
     println!();
 

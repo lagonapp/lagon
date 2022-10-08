@@ -212,7 +212,7 @@ impl Isolate {
                 Some(module) => {
                     // TODO: disable imports
                     module
-                        .instantiate_module(try_catch, |a, b, c, d| None)
+                        .instantiate_module(try_catch, |_a, _b, _c, _d| None)
                         .unwrap();
                     module.evaluate(try_catch).unwrap();
 
@@ -342,14 +342,14 @@ impl Isolate {
         while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), scope, false) {}
         scope.perform_microtask_checkpoint();
 
-        if isolate_state.promises.len() > 0 {
+        if !isolate_state.promises.is_empty() {
             while let Poll::Ready(Some(BindingResult { id, result })) =
                 isolate_state.promises.poll_next_unpin(cx)
             {
                 let promise = isolate_state
                     .js_promises
                     .remove(&id)
-                    .expect(&format!("JS promise {} not found", id));
+                    .unwrap_or_else(|| panic!("JS promise {} not found", id));
                 let promise = promise.open(scope);
 
                 match result {
@@ -382,8 +382,8 @@ impl Isolate {
                 PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
                     let result = match Response::from_v8_response(try_catch, response) {
-                        Some(response) => (RunResult::Response(response), Some(statistics.clone())),
-                        None => (handle_error(try_catch), Some(statistics.clone())),
+                        Some(response) => (RunResult::Response(response), Some(*statistics)),
+                        None => (handle_error(try_catch), Some(*statistics)),
                     };
 
                     sender.send(result).unwrap();

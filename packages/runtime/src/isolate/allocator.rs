@@ -47,5 +47,5 @@ pub fn create_allocator(count: Arc<AtomicUsize>) -> v8::UniqueRef<v8::Allocator>
         drop,
     };
 
-    unsafe { v8::new_rust_allocator(Arc::into_raw(count.clone()), vtable) }
+    unsafe { v8::new_rust_allocator(Arc::into_raw(count), vtable) }
 }

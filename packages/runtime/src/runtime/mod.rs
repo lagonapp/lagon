@@ -8,14 +8,9 @@ struct IcuData([u8; 10454784]);
 static JS_RUNTIME: &str = include_str!("../../runtime.js");
 static ICU_DATA: IcuData = IcuData(*include_bytes!("../../icudtl.dat"));
 
+#[derive(Default)]
 pub struct RuntimeOptions {
     allow_eval: bool,
-}
-
-impl Default for RuntimeOptions {
-    fn default() -> Self {
-        Self { allow_eval: false }
-    }
 }
 
 pub struct Runtime;
