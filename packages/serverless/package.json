@@ -5,6 +5,6 @@
   "private": true,
   "scripts": {
     "build": "cargo build",
-    "lint": "cargo clippy -- -Dwarnings"
+    "lint": "cargo clippy -- -Dwarnings --no-deps"
   }
 }

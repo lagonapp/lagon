@@ -6,6 +6,6 @@
   "scripts": {
     "build": "cargo build",
     "test": "cargo test",
-    "lint": "cargo clippy -- -Dwarnings"
+    "lint": "cargo clippy -- -Dwarnings --no-deps"
   }
 }

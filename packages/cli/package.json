@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "cargo build",
-    "lint": "cargo clippy -- -Dwarnings",
+    "lint": "cargo clippy -- -Dwarnings --no-deps",
     "postinstall": "node npm/install.js",
     "preuninstall": "node npm/uninstall.js"
   },

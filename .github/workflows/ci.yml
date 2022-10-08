@@ -15,55 +15,57 @@ jobs:
     name: Lint
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
-    - uses: pnpm/action-setup@v2.2.2
-      with:
-        version: 7
-    - name: Use Node.js 16
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16
-        cache: 'pnpm'
-    - name: Install dependencies
-      run: pnpm install
-    - name: Lint
-      run: pnpm lint
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build runtime
+        run: pnpm turbo build --filter=@lagon/js-runtime
+      - name: Lint
+        run: pnpm lint
   test:
     name: Test
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
-    - uses: pnpm/action-setup@v2.2.2
-      with:
-        version: 7
-    - name: Use Node.js 16
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16
-        cache: 'pnpm'
-    - name: Install dependencies
-      run: pnpm install
-    - name: Build runtime
-      run: pnpm turbo build --filter=@lagon/js-runtime
-    - name: Test
-      run: pnpm test
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build runtime
+        run: pnpm turbo build --filter=@lagon/js-runtime
+      - name: Test
+        run: pnpm test
   typecheck:
     name: Typecheck
     runs-on: ubuntu-20.04
     steps:
-    - uses: actions/checkout@v2
-    - uses: pnpm/action-setup@v2.2.2
-      with:
-        version: 7
-    - name: Use Node.js 16
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16
-        cache: 'pnpm'
-    - name: Install dependencies
-      run: pnpm install
-    - name: Typecheck
-      run: pnpm typecheck
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Typecheck
+        run: pnpm typecheck
   build:
     name: Build
     runs-on: ubuntu-20.04
@@ -71,16 +73,16 @@ jobs:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
     steps:
-    - uses: actions/checkout@v2
-    - uses: pnpm/action-setup@v2.2.2
-      with:
-        version: 7
-    - name: Use Node.js 16
-      uses: actions/setup-node@v2
-      with:
-        node-version: 16
-        cache: 'pnpm'
-    - name: Install dependencies
-      run: pnpm install
-    - name: Build
-      run: pnpm build
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2.2.2
+        with:
+          version: 7
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build
+        run: pnpm build
