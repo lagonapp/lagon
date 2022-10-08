@@ -25,20 +25,8 @@ async fn execute_function() {
     ));
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::Response(Response {
-            body: "Hello world".into(),
-            headers: None,
-            status: 200,
-        })
+        isolate.run(Request::default()).await.0,
+        RunResult::Response(Response::from("Hello world"))
     );
 }
 
@@ -60,20 +48,8 @@ async fn environment_variables() {
     );
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::Response(Response {
-            body: "Hello world".into(),
-            headers: None,
-            status: 200,
-        })
+        isolate.run(Request::default()).await.0,
+        RunResult::Response(Response::from("Hello world"))
     );
 }
 
@@ -97,11 +73,7 @@ async fn get_body() {
             })
             .await
             .0,
-        RunResult::Response(Response {
-            body: "Hello world".into(),
-            headers: None,
-            status: 200,
-        })
+        RunResult::Response(Response::from("Hello world"))
     );
 }
 
@@ -125,11 +97,7 @@ async fn get_input() {
             })
             .await
             .0,
-        RunResult::Response(Response {
-            body: "https://hello.world".into(),
-            headers: None,
-            status: 200,
-        })
+        RunResult::Response(Response::from("https://hello.world"))
     );
 }
 
@@ -153,11 +121,7 @@ async fn get_method() {
             })
             .await
             .0,
-        RunResult::Response(Response {
-            body: "POST".into(),
-            headers: None,
-            status: 200,
-        })
+        RunResult::Response(Response::from("POST"))
     );
 }
 
@@ -184,11 +148,7 @@ async fn get_headers() {
             })
             .await
             .0,
-        RunResult::Response(Response {
-            body: "token".into(),
-            headers: None,
-            status: 200,
-        })
+        RunResult::Response(Response::from("token"))
     );
 }
 
@@ -212,15 +172,7 @@ async fn return_headers() {
     headers.insert("X-Test".into(), "test".into());
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
+        isolate.run(Request::default()).await.0,
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: Some(headers),
@@ -249,15 +201,7 @@ async fn return_headers_from_headers_api() {
     headers.insert("X-Test".into(), "test".into());
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
+        isolate.run(Request::default()).await.0,
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: Some(headers),
@@ -279,15 +223,7 @@ async fn return_status() {
     ));
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
+        isolate.run(Request::default()).await.0,
         RunResult::Response(Response {
             body: "Moved permanently".into(),
             headers: None,
@@ -309,20 +245,8 @@ async fn return_uint8array() {
     ));
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::Response(Response {
-            body: "Hello world".into(),
-            headers: None,
-            status: 200,
-        })
+        isolate.run(Request::default()).await.0,
+        RunResult::Response(Response::from("Hello world"))
     );
 }
 
@@ -338,20 +262,8 @@ async fn promise() {
     ));
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::Response(Response {
-            body: [].into(),
-            headers: None,
-            status: 200,
-        })
+        isolate.run(Request::default()).await.0,
+        RunResult::Response(Response::default())
     );
 }
 
@@ -366,15 +278,7 @@ async fn handler_reject() {
     ));
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
+        isolate.run(Request::default()).await.0,
         RunResult::Error("Uncaught Error: Rejected".into()),
     );
 }
@@ -391,15 +295,7 @@ async fn timeout_reached() {
     ));
 
     assert_eq!(
-        isolate
-            .run(Request {
-                body: "".into(),
-                headers: HashMap::new(),
-                method: Method::GET,
-                url: "".into(),
-            })
-            .await
-            .0,
+        isolate.run(Request::default()).await.0,
         RunResult::Timeout(),
     );
 }
@@ -423,8 +319,9 @@ async fn memory_reached() {
 }"
             .into(),
         )
+        // Increase timeout for CI
         .with_timeout(1000),
-    ); // Increase timeout for CI
+    );
 
     assert_eq!(
         isolate

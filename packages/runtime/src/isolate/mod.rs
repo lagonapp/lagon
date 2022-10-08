@@ -16,7 +16,7 @@ use tokio::spawn;
 use v8::PromiseState;
 
 use crate::{
-    http::{Request, Response, RunResult},
+    http::{FromV8, IntoV8, Request, Response, RunResult},
     runtime::get_runtime_code,
     utils::extract_v8_string,
 };
@@ -242,7 +242,7 @@ impl Isolate {
             return receiver;
         }
 
-        let request = request.to_v8_request(try_catch);
+        let request = request.into_v8(try_catch);
 
         let handler = self.handler.as_ref().unwrap();
         let handler = handler.open(try_catch);
@@ -354,7 +354,7 @@ impl Isolate {
 
                 match result {
                     PromiseResult::Response(response) => {
-                        let response = response.to_v8_response(scope);
+                        let response = response.into_v8(scope);
                         promise.resolve(scope, response.into());
                     }
                 };
@@ -381,7 +381,7 @@ impl Isolate {
             match promise.state() {
                 PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
-                    let result = match Response::from_v8_response(try_catch, response) {
+                    let result = match Response::from_v8(try_catch, response) {
                         Some(response) => (RunResult::Response(response), Some(*statistics)),
                         None => (handle_error(try_catch), Some(*statistics)),
                     };
