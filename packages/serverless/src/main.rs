@@ -104,7 +104,7 @@ async fn handle_request(
                                 // TODO: read() then write() if not present
                                 let mut isolates = ISOLATES.write().await;
                                 let thread_isolates =
-                                    isolates.entry(thread_id).or_insert_with(|| HashMap::new());
+                                    isolates.entry(thread_id).or_insert_with(HashMap::new);
 
                                 let isolate =
                                     thread_isolates.entry(hostname).or_insert_with(|| {
