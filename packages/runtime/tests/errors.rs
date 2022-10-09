@@ -83,7 +83,8 @@ async fn memory_reached() {
             .into(),
         )
         // Increase timeout for CI
-        .with_timeout(1000),
+        .with_timeout(1000)
+        .with_memory(1),
     );
 
     assert_eq!(
