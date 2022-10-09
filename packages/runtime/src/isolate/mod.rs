@@ -3,10 +3,7 @@ use std::{
     collections::HashMap,
     pin::Pin,
     rc::Rc,
-    sync::{
-        atomic::{AtomicUsize, Ordering},
-        Arc, RwLock,
-    },
+    sync::{Arc, RwLock},
     task::{Context, Poll},
     time::{Duration, Instant},
 };
@@ -23,14 +20,25 @@ use crate::{
 
 use self::bindings::{BindingResult, PromiseResult};
 
-mod allocator;
 mod bindings;
+
+extern "C" fn heap_limit_callback(
+    data: *mut std::ffi::c_void,
+    current_heap_limit: usize,
+    _initial_heap_limit: usize,
+) -> usize {
+    let isolate = unsafe { &mut *(data as *mut Isolate) };
+
+    isolate.heap_limit_reached();
+    // Avoid OOM killer by increasing the limit, since we kill
+    // Immediately the isolate above.
+    current_heap_limit * 2
+}
 
 #[derive(Debug, PartialEq)]
 enum ExecutionResult {
     WillRun,
     Run,
-    MemoryReached,
     TimeoutReached,
 }
 
@@ -40,13 +48,11 @@ struct Global(v8::Global<v8::Context>);
 #[derive(Debug)]
 struct HandlerResult {
     promise: v8::Global<v8::Promise>,
-    sender: flume::Sender<(RunResult, Option<IsolateStatistics>)>,
     statistics: IsolateStatistics,
 }
 
 #[derive(Debug)]
 struct TerminationResult {
-    sender: flume::Sender<(RunResult, Option<IsolateStatistics>)>,
     run_result: RunResult,
 }
 
@@ -57,6 +63,7 @@ struct IsolateState {
     js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
     handler_result: Option<HandlerResult>,
     termination_result: Option<TerminationResult>,
+    sender: Option<flume::Sender<(RunResult, Option<IsolateStatistics>)>>,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -109,7 +116,6 @@ pub struct Isolate {
     isolate: v8::OwnedIsolate,
     handler: Option<v8::Global<v8::Function>>,
     compilation_error: Option<String>,
-    count: Arc<AtomicUsize>,
 }
 
 unsafe impl Send for Isolate {}
@@ -118,12 +124,8 @@ unsafe impl Sync for Isolate {}
 impl Isolate {
     pub fn new(options: IsolateOptions) -> Self {
         let memory_mb = options.memory * 1024 * 1024;
-        let count = Arc::new(AtomicUsize::new(options.memory));
-        let array_buffer_allocator = allocator::create_allocator(count.clone());
 
-        let params = v8::CreateParams::default()
-            .heap_limits(0, memory_mb)
-            .array_buffer_allocator(array_buffer_allocator);
+        let params = v8::CreateParams::default().heap_limits(0, memory_mb);
 
         // TODO
         // if let Some(snapshot_blob) = self.options.snapshot_blob {
@@ -142,18 +144,39 @@ impl Isolate {
                 js_promises: HashMap::new(),
                 handler_result: None,
                 termination_result: None,
+                sender: None,
             }
         };
 
         isolate.set_slot(Rc::new(RefCell::new(state)));
 
-        Self {
+        let mut this = Self {
             options,
             isolate,
             handler: None,
             compilation_error: None,
-            count,
+        };
+
+        let isolate_ptr = &mut this as *mut _ as *mut std::ffi::c_void;
+        this.isolate
+            .add_near_heap_limit_callback(heap_limit_callback, isolate_ptr);
+
+        this
+    }
+
+    fn heap_limit_reached(&mut self) {
+        let isolate_state = Isolate::state(&self.isolate);
+        let mut state = isolate_state.borrow_mut();
+
+        state.termination_result = Some(TerminationResult {
+            run_result: RunResult::MemoryLimit(),
+        });
+
+        if !self.isolate.is_execution_terminating() {
+            self.isolate.terminate_execution();
         }
+
+        // TODO: add callback for serverless to log killed process?
     }
 
     pub(self) fn state(isolate: &v8::Isolate) -> Rc<RefCell<IsolateState>> {
@@ -169,6 +192,12 @@ impl Isolate {
         let thread_safe_handle = self.isolate.thread_safe_handle();
 
         let isolate_state = Isolate::state(&self.isolate);
+
+        {
+            let mut state = isolate_state.borrow_mut();
+            state.sender = Some(sender.clone());
+        }
+
         let state = isolate_state.borrow();
         let global = state.global.0.clone();
 
@@ -180,7 +209,10 @@ impl Isolate {
                 Some(code) => code,
                 None => {
                     self.compilation_error = Some("Failed to get runtime code".to_string());
-                    sender
+                    state
+                        .sender
+                        .as_ref()
+                        .unwrap()
                         .send((
                             RunResult::Error(self.compilation_error.clone().unwrap()),
                             None,
@@ -252,11 +284,9 @@ impl Isolate {
         let execution_result = Arc::new(RwLock::new(ExecutionResult::WillRun));
 
         let execution_result_handle = execution_result.clone();
-        let count_handle = self.count.clone();
 
         let now = Instant::now();
         let timeout = Duration::from_millis(self.options.timeout as u64);
-        let memory = self.options.memory * 1024 * 1024;
 
         spawn(async move {
             loop {
@@ -265,16 +295,9 @@ impl Isolate {
                     break;
                 }
 
-                let memory_reached = count_handle.load(Ordering::SeqCst) >= memory;
-                let timeout_reached = now.elapsed() >= timeout;
-
-                if memory_reached || timeout_reached {
+                if now.elapsed() >= timeout {
                     let mut terminated_handle = execution_result_handle.write().unwrap();
-                    *terminated_handle = if memory_reached {
-                        ExecutionResult::MemoryReached
-                    } else {
-                        ExecutionResult::TimeoutReached
-                    };
+                    *terminated_handle = ExecutionResult::TimeoutReached;
 
                     if !thread_safe_handle.is_execution_terminating() {
                         thread_safe_handle.terminate_execution();
@@ -295,32 +318,31 @@ impl Isolate {
                     .expect("Handler did not return a promise");
                 let promise = v8::Global::new(try_catch, promise);
 
-                let cpu_time = now.elapsed();
-                let memory_usage = self.count.load(Ordering::SeqCst);
+                let mut heap_statistics = v8::HeapStatistics::default();
+                try_catch.get_heap_statistics(&mut heap_statistics);
 
-                // let mut heap_statistics = v8::HeapStatistics::default();
-                // try_catch.get_heap_statistics(&mut heap_statistics);
-                // println!("count: {} used heap size: {}", self.count.load(Ordering::SeqCst), heap_statistics.used_heap_size());
                 let statistics = IsolateStatistics {
-                    cpu_time,
-                    memory_usage,
+                    cpu_time: now.elapsed(),
+                    memory_usage: heap_statistics.used_heap_size(),
                 };
 
                 isolate_state.borrow_mut().handler_result = Some(HandlerResult {
                     promise,
-                    sender,
                     statistics,
                 });
             }
             None => {
-                let run_result = match *execution_result.read().unwrap() {
-                    ExecutionResult::MemoryReached => RunResult::MemoryLimit(),
-                    ExecutionResult::TimeoutReached => RunResult::Timeout(),
-                    _ => handle_error(try_catch),
-                };
+                // Only overide termination_result if it hasn't been set before,
+                // e.g due to heap limit.
+                if isolate_state.borrow().termination_result.is_none() {
+                    let run_result = match *execution_result.read().unwrap() {
+                        ExecutionResult::TimeoutReached => RunResult::Timeout(),
+                        _ => handle_error(try_catch),
+                    };
 
-                isolate_state.borrow_mut().termination_result =
-                    Some(TerminationResult { sender, run_result });
+                    isolate_state.borrow_mut().termination_result =
+                        Some(TerminationResult { run_result });
+                }
             }
         };
 
@@ -361,16 +383,18 @@ impl Isolate {
 
         let try_catch = &mut v8::TryCatch::new(scope);
 
-        if let Some(TerminationResult { sender, run_result }) =
-            isolate_state.termination_result.as_ref()
-        {
-            sender.send((run_result.clone(), None)).unwrap();
+        if let Some(TerminationResult { run_result }) = isolate_state.termination_result.as_ref() {
+            isolate_state
+                .sender
+                .as_ref()
+                .unwrap()
+                .send((run_result.clone(), None))
+                .unwrap();
             return Poll::Ready(());
         }
 
         if let Some(HandlerResult {
             promise,
-            sender,
             statistics,
         }) = isolate_state.handler_result.as_ref()
         {
@@ -384,13 +408,16 @@ impl Isolate {
                         None => (handle_error(try_catch), Some(*statistics)),
                     };
 
-                    sender.send(result).unwrap();
+                    isolate_state.sender.as_ref().unwrap().send(result).unwrap();
                     return Poll::Ready(());
                 }
                 PromiseState::Rejected => {
                     let exception = promise.result(try_catch);
 
-                    sender
+                    isolate_state
+                        .sender
+                        .as_ref()
+                        .unwrap()
                         .send((
                             RunResult::Error(get_exception_message(try_catch, exception)),
                             None,
