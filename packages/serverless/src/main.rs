@@ -1,21 +1,26 @@
+use deployments::Deployment;
 use http::hyper_request_to_request;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::RunResult;
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
+use lazy_static::lazy_static;
 use log::error;
 use metrics::{counter, histogram, increment_counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
 #[cfg(not(debug_assertions))]
 use mysql::{OptsBuilder, SslOpts};
+use rand::prelude::*;
 use s3::creds::Credentials;
 use s3::Bucket;
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
-use tokio::task::LocalSet;
+use std::sync::Arc;
+use tokio::sync::RwLock;
+use tokio_util::task::LocalPoolHandle;
 
 use crate::deployments::assets::handle_asset;
 use crate::deployments::filesystem::get_deployment_code;
@@ -28,20 +33,123 @@ mod deployments;
 mod http;
 mod logger;
 
+lazy_static! {
+    static ref ISOLATES: RwLock<HashMap<usize, HashMap<String, Isolate>>> =
+        RwLock::new(HashMap::new());
+}
+
+const POOL_SIZE: usize = 8;
+
 async fn handle_request(
     req: HyperRequest<Body>,
-    request_tx: flume::Sender<HyperRequest<Body>>,
-    response_rx: flume::Receiver<RunResult>,
+    pool: LocalPoolHandle,
+    deployments: Arc<RwLock<HashMap<String, Deployment>>>,
+    thread_ids: Arc<RwLock<HashMap<String, usize>>>,
 ) -> Result<HyperResponse<Body>, Infallible> {
-    request_tx
-        .send_async(req)
-        .await
-        .expect("Failed to send request");
+    let mut url = req.uri().to_string();
+    // Remove the leading '/' from the url
+    url.remove(0);
 
-    let result = response_rx
-        .recv_async()
+    let request = hyper_request_to_request(req).await;
+    let hostname = request.headers.get("host").unwrap().clone();
+
+    let thread_ids_reader = thread_ids.read().await;
+
+    let thread_id = match thread_ids_reader.get(&hostname) {
+        Some(thread_id) => *thread_id,
+        None => {
+            let mut rng = rand::rngs::StdRng::from_entropy();
+            let id = rng.gen_range(0..POOL_SIZE);
+
+            drop(thread_ids_reader);
+
+            thread_ids.write().await.insert(hostname.clone(), id);
+            id
+        }
+    };
+
+    let result = pool
+        .spawn_pinned_by_idx(
+            move || {
+                async move {
+                    let deployments = deployments.read().await;
+
+                    match deployments.get(&hostname) {
+                        Some(deployment) => {
+                            let labels = vec![
+                                ("deployment", deployment.id.clone()),
+                                ("function", deployment.function_id.clone()),
+                            ];
+
+                            increment_counter!("lagon_requests", &labels);
+                            counter!("lagon_bytes_in", request.len() as u64, &labels);
+
+                            if let Some(asset) =
+                                deployment.assets.iter().find(|asset| *asset == &url)
+                            {
+                                match handle_asset(deployment, asset) {
+                                    Ok(response) => RunResult::Response(response),
+                                    Err(error) => {
+                                        error!(
+                                            "Error while handing asset ({}, {}): {}",
+                                            asset, deployment.id, error
+                                        );
+
+                                        RunResult::Error("Could not retrieve asset.".into())
+                                    }
+                                }
+                            } else {
+                                // Only acquire the lock when we are sure we have a deployment,
+                                // and that it should the isolate should be called.
+                                // TODO: read() then write() if not present
+                                let mut isolates = ISOLATES.write().await;
+                                let thread_isolates =
+                                    isolates.entry(thread_id).or_insert_with(|| HashMap::new());
+
+                                let isolate =
+                                    thread_isolates.entry(hostname).or_insert_with(|| {
+                                        // TODO: handle read error
+                                        let code = get_deployment_code(deployment).unwrap();
+                                        let options = IsolateOptions::new(code)
+                                            .with_environment_variables(
+                                                deployment.environment_variables.clone(),
+                                            )
+                                            .with_memory(deployment.memory)
+                                            .with_timeout(deployment.timeout);
+
+                                        Isolate::new(options)
+                                    });
+
+                                let (run_result, maybe_statistics) = isolate.run(request).await;
+
+                                if let Some(statistics) = maybe_statistics {
+                                    histogram!(
+                                        "lagon_isolate_cpu_time",
+                                        statistics.cpu_time,
+                                        &labels
+                                    );
+                                    histogram!(
+                                        "lagon_isolate_memory_usage",
+                                        statistics.memory_usage as f64,
+                                        &labels
+                                    );
+                                }
+
+                                if let RunResult::Response(response) = &run_result {
+                                    counter!("lagon_bytes_out", response.len() as u64, &labels);
+                                }
+
+                                run_result
+                            }
+                        }
+                        None => RunResult::NotFound(),
+                    }
+                }
+            },
+            thread_id,
+        )
         .await
-        .unwrap_or_else(|_| RunResult::Error("Failed to receive".into()));
+        .unwrap();
 
     match result {
         RunResult::Response(response) => {
@@ -69,20 +177,6 @@ async fn main() {
 
     let runtime = Runtime::new(RuntimeOptions::default());
     let addr = SocketAddr::from(([0, 0, 0, 0], 4000));
-
-    let (request_tx, request_rx) = flume::unbounded::<HyperRequest<Body>>();
-    let (response_tx, response_rx) = flume::unbounded::<RunResult>();
-
-    let server = Server::bind(&addr).serve(make_service_fn(move |_conn| {
-        let request_tx = request_tx.clone();
-        let response_rx = response_rx.clone();
-
-        async move {
-            Ok::<_, Infallible>(service_fn(move |req| {
-                handle_request(req, request_tx.clone(), response_rx.clone())
-            }))
-        }
-    }));
 
     let builder = PrometheusBuilder::new();
     builder.install().expect("Failed to start metrics exporter");
@@ -113,93 +207,28 @@ async fn main() {
     let deployments = get_deployments(conn, bucket.clone()).await;
     let redis = listen_pub_sub(bucket.clone(), deployments.clone());
 
-    let local_set = LocalSet::new();
+    let pool = LocalPoolHandle::new(POOL_SIZE);
+    let thread_ids = Arc::new(RwLock::new(HashMap::new()));
 
-    let request_handler = local_set.run_until(async move {
-        tokio::task::spawn_local(async move {
-            let deployments = deployments.clone();
-            let mut isolates = HashMap::new();
+    let server = Server::bind(&addr).serve(make_service_fn(move |_conn| {
+        let deployments = deployments.clone();
+        let pool = pool.clone();
+        let thread_ids = thread_ids.clone();
 
-            loop {
-                let hyper_request = request_rx.recv_async().await.unwrap();
+        async move {
+            Ok::<_, Infallible>(service_fn(move |req| {
+                handle_request(req, pool.clone(), deployments.clone(), thread_ids.clone())
+            }))
+        }
+    }));
 
-                let mut url = hyper_request.uri().to_string();
-                // Remove the leading '/' from the url
-                url.remove(0);
-
-                let request = hyper_request_to_request(hyper_request).await;
-
-                let hostname = request.headers.get("host").unwrap().clone();
-                let deployments = deployments.read().await;
-
-                match deployments.get(&hostname) {
-                    Some(deployment) => {
-                        let labels = vec![
-                            ("deployment", deployment.id.clone()),
-                            ("function", deployment.function_id.clone()),
-                        ];
-
-                        increment_counter!("lagon_requests", &labels);
-                        counter!("lagon_bytes_in", request.len() as u64, &labels);
-
-                        if let Some(asset) = deployment.assets.iter().find(|asset| *asset == &url) {
-                            // TODO: handle read error
-                            let response = handle_asset(deployment, asset).unwrap();
-                            let response = RunResult::Response(response);
-
-                            response_tx.send_async(response).await.unwrap();
-                        } else {
-                            let isolate = isolates.entry(hostname).or_insert_with(|| {
-                                // TODO: handle read error
-                                let code = get_deployment_code(deployment).unwrap();
-                                let options = IsolateOptions::new(code)
-                                    .with_environment_variables(
-                                        deployment.environment_variables.clone(),
-                                    )
-                                    .with_memory(deployment.memory)
-                                    .with_timeout(deployment.timeout);
-
-                                Isolate::new(options)
-                            });
-
-                            let (run_result, maybe_statistics) = isolate.run(request).await;
-
-                            if let Some(statistics) = maybe_statistics {
-                                histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
-                                histogram!(
-                                    "lagon_isolate_memory_usage",
-                                    statistics.memory_usage as f64,
-                                    &labels
-                                );
-                            }
-
-                            if let RunResult::Response(response) = &run_result {
-                                counter!("lagon_bytes_out", response.len() as u64, &labels);
-                            }
-
-                            response_tx.send_async(run_result).await.unwrap();
-                        }
-                    }
-                    None => {
-                        response_tx.send_async(RunResult::NotFound()).await.unwrap();
-                    }
-                };
-            }
-        })
-        .await
-    });
-
-    let result = tokio::join!(server, redis, request_handler);
+    let result = tokio::join!(server, redis);
 
     if let Err(error) = result.0 {
         error!("{}", error);
     }
 
     if let Err(error) = result.1 {
-        error!("{}", error);
-    }
-
-    if let Err(error) = result.2 {
         error!("{}", error);
     }
 

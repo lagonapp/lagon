@@ -113,6 +113,7 @@ pub struct Isolate {
 }
 
 unsafe impl Send for Isolate {}
+unsafe impl Sync for Isolate {}
 
 impl Isolate {
     pub fn new(options: IsolateOptions) -> Self {
