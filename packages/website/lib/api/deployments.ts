@@ -17,7 +17,6 @@ export async function createDeployment(
     cronRegion: string;
     env: { key: string; value: string }[];
   },
-  // code: fs.ReadStream,
   assets: string[],
   triggerer: string,
 ): Promise<{
@@ -53,47 +52,6 @@ export async function createDeployment(
       functionId: true,
     },
   });
-
-  // const uploadPromises = [
-  //   s3.send(
-  //     new PutObjectCommand({
-  //       Bucket: process.env.S3_BUCKET,
-  //       Key: `${deployment.id}.js`,
-  //       Body: code,
-  //     }),
-  //   ),
-  // ];
-  //
-  // for (const asset of assets) {
-  //   uploadPromises.push(
-  //     s3.send(
-  //       new PutObjectCommand({
-  //         Bucket: process.env.S3_BUCKET,
-  //         Key: `${deployment.id}/${asset.name}`,
-  //         Body: asset.content,
-  //       }),
-  //     ),
-  //   );
-  // }
-
-  // await Promise.all(uploadPromises);
-
-  // await redis.publish(
-  //   'deploy',
-  //   JSON.stringify({
-  //     functionId: func.id,
-  //     functionName: func.name,
-  //     deploymentId: deployment.id,
-  //     domains: func.domains,
-  //     memory: func.memory,
-  //     timeout: func.timeout,
-  //     cron: func.cron,
-  //     cronRegion: func.cronRegion,
-  //     env: envStringToObject(func.env),
-  //     isCurrent: deployment.isCurrent,
-  //     assets: deployment.assets.map(({ name }) => name),
-  //   }),
-  // );
 
   return deployment;
 }
