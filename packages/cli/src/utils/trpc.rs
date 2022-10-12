@@ -1,4 +1,5 @@
 use hyper::{body, client::HttpConnector, http::Result, Body, Client, Method, Request};
+use hyper_tls::HttpsConnector;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use super::get_site_url;
@@ -14,16 +15,15 @@ pub struct TrpcResult<T> {
 }
 
 pub struct TrpcClient<'a> {
-    pub client: Client<HttpConnector>,
+    pub client: Client<HttpsConnector<HttpConnector>>,
     pub token: &'a str,
 }
 
 impl<'a> TrpcClient<'a> {
     pub fn new(token: &'a str) -> Self {
-        Self {
-            client: Client::new(),
-            token,
-        }
+        let client = Client::builder().build::<_, hyper::Body>(HttpsConnector::new());
+
+        Self { client, token }
     }
 
     pub async fn query<T: Serialize, R: DeserializeOwned>(

@@ -1,21 +1,18 @@
 use colored::Colorize;
+use hyper::{Body, Method, Request};
 use std::{
     collections::HashMap,
     fs,
-    io::{self, Cursor, Error, ErrorKind, Read},
+    io::{self, Cursor, Error, ErrorKind},
     path::{Path, PathBuf},
     process::Command,
 };
 use walkdir::WalkDir;
 
-use multipart::{
-    client::lazy::Multipart,
-    server::nickel::nickel::hyper::{header::Headers, Client},
-};
 use pathdiff::diff_paths;
 use serde::{Deserialize, Serialize};
 
-use crate::utils::{debug, get_api_url, print_progress, success};
+use crate::utils::{debug, print_progress, success, TrpcClient};
 
 type FileCursor = Cursor<Vec<u8>>;
 
@@ -151,13 +148,35 @@ pub fn bundle_function(
     Ok((index_output, assets))
 }
 
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+struct CreateDeploymentRequest {
+    function_id: String,
+    assets: Vec<String>,
+}
+
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-struct DeploymentResponse {
+struct CreateDeploymentResponse {
+    deployment_id: String,
+    code_url: String,
+    assets_urls: HashMap<String, String>,
+}
+
+#[derive(Serialize, Debug)]
+#[serde(rename_all = "camelCase")]
+struct CurrentDeploymentRequest {
+    function_id: String,
+    deployment_id: String,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+struct CurrentDeploymentResponse {
     function_name: String,
 }
 
-pub fn create_deployment(
+pub async fn create_deployment(
     function_id: String,
     file: PathBuf,
     client: Option<PathBuf>,
@@ -166,46 +185,65 @@ pub fn create_deployment(
 ) -> io::Result<()> {
     let (index, assets) = bundle_function(file, client, public_dir)?;
 
-    let end_progress = print_progress("Uploading files...");
+    let end_progress = print_progress("Creating deployment...");
 
-    let mut multipart = Multipart::new();
-    multipart.add_text("functionId", function_id);
-    multipart.add_stream("code", index, Some("index.js"), Some(mime::TEXT_JAVASCRIPT));
-
-    for (path, content) in assets {
-        let extension = Path::new(&path).extension().unwrap().to_str().unwrap();
-        let content_type = match extension {
-            "js" => mime::APPLICATION_JAVASCRIPT,
-            "css" => mime::TEXT_CSS,
-            "html" => mime::TEXT_HTML,
-            "png" => mime::IMAGE_PNG,
-            "jpg" | "jpeg" => mime::IMAGE_JPEG,
-            "svg" => mime::IMAGE_SVG,
-            "json" => mime::APPLICATION_JSON,
-            "txt" => mime::TEXT_PLAIN,
-            _ => mime::APPLICATION_OCTET_STREAM,
-        };
-
-        multipart.add_stream("assets", content, Some(path), Some(content_type));
-    }
-
-    let client = Client::new();
-    let url = get_api_url() + "/deployment";
-
-    let mut response = multipart
-        .client_request_mut(&client, &url, |request| {
-            let mut headers = Headers::new();
-            headers.set_raw("x-lagon-token", vec![token.as_bytes().to_vec()]);
-            request.headers(headers)
-        })
+    let trpc_client = TrpcClient::new(&token);
+    let response = trpc_client
+        .mutation::<CreateDeploymentRequest, CreateDeploymentResponse>(
+            "deploymentCreate",
+            CreateDeploymentRequest {
+                function_id: function_id.clone(),
+                assets: assets.keys().cloned().collect(),
+            },
+        )
+        .await
         .unwrap();
 
     end_progress();
 
-    let mut buf = String::new();
-    response.read_to_string(&mut buf)?;
+    let CreateDeploymentResponse {
+        deployment_id,
+        code_url,
+        assets_urls,
+    } = response.result.data;
 
-    let response = serde_json::from_str::<DeploymentResponse>(&buf)?;
+    let end_progress = print_progress("Uploading files...");
+
+    let request = Request::builder()
+        .method(Method::PUT)
+        .uri(code_url)
+        .body(Body::from(index.into_inner()))
+        .unwrap();
+
+    trpc_client.client.request(request).await.unwrap();
+
+    // TODO upload in parallel
+    for (asset, url) in assets_urls {
+        let asset = assets
+            .get(&asset)
+            .expect(&format!("Couldn't find asset {}", asset));
+
+        let request = Request::builder()
+            .method(Method::PUT)
+            .uri(url)
+            .body(Body::from(asset.clone().into_inner()))
+            .unwrap();
+
+        trpc_client.client.request(request).await.unwrap();
+    }
+
+    end_progress();
+
+    let response = trpc_client
+        .mutation::<CurrentDeploymentRequest, CurrentDeploymentResponse>(
+            "deploymentCurrent",
+            CurrentDeploymentRequest {
+                function_id,
+                deployment_id,
+            },
+        )
+        .await
+        .unwrap();
 
     println!();
     println!("{}", success("Function deployed!"));
@@ -213,7 +251,7 @@ pub fn create_deployment(
     println!(
         " {} https://{}.lagon.app",
         "➤".black(),
-        response.function_name.blue()
+        response.result.data.function_name.blue()
     );
     println!();
 
