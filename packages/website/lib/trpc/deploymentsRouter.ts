@@ -1,6 +1,6 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { TRPCError } from '@trpc/server';
-import { createDeployment, removeDeployment, setCurrentDeployment } from 'lib/api/deployments';
+import { createDeployment, removeCurrentDeployment, removeDeployment, setCurrentDeployment } from 'lib/api/deployments';
 import prisma from 'lib/prisma';
 import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
@@ -91,6 +91,12 @@ export const deploymentsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input }) => {
+        try {
+          await removeCurrentDeployment(input.functionId);
+        } catch {
+          // this is the first deployment
+        }
+
         const [func, deployment] = await Promise.all([
           prisma.function.findFirst({
             where: {
