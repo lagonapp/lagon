@@ -31,11 +31,12 @@
 
 ## About
 
-Lagon is a free Open Source Runtime and SaaS that make it easy to deploy TypeScript and JavaScript Serverless Functions at the Edge, using V8 Isolates. You will be able to self-host it.
+Lagon is a free Open Source Runtime and SaaS that make it easy to deploy TypeScript and JavaScript Serverless Functions at the Edge, using V8 Isolates. It's also self-hostable.
 
 > **Warning**: Lagon is still in heavy development. Do not use for production usages.
 
 Current status:
+
 - **Dev**
 - ~Alpha~
 - ~Beta~
@@ -43,12 +44,11 @@ Current status:
 
 ## Packages
 
-- **[cli](./packages/cli)** CLI to deploy functions
-- **[common](./packages/common)** Functions and constants used in multiple packages
-- **[prisma](./packages/prisma)** Prisma Client schema and migrations
-- **[runtime](./packages/runtime)** Runtime used to run functions inside V8 Isolates
-- **[serverless](./packages/serverless)** Entrypoint for all functions, using the runtime and exporting metrics
-- **[types](./packages/types)** Types of the runtime used when creating functions
+- **[runtime](./packages/runtime)** Rust JavaScript Runtime, using V8 Isolates
+- **[js-runtime](./packages/runtime)** JavaScript code for the Runtime, containing the Web APIs
+- **[cli](./packages/cli)** CLI to manage Functions
+- **[docs](./packages/docs)** Documentation website
+- **[serverless](./packages/serverless)** HTTP entrypoint for Functions, using the Runtime and exporting metrics
 - **[website](./packages/website)** Dashboard and API
 - **[www](./www)** Public website
 
@@ -56,9 +56,9 @@ Current status:
 
 - JavaScript Runtime based on V8 Isolates with Web APIs
 - Deploy APIs, SSR(ed) websites, Webhooks endpoints, Cron jobs...
-- CLI to deploy/remove functions and run them locally
+- CLI to manage Functions and run them locally
 - Playground in the website
-- Deploy at the Edge using the SaaS, or self-host it
+- Deploy at the Edge using the Cloud SaaS, or self-host it
 
 ## Roadmap
 
@@ -68,11 +68,9 @@ Lagon is a fairly recent project. It is still in heavy development, so expect br
 
 ## How it works
 
-Lagon uses V8 Isolates, which are sandboxed environments used to run plain JavaScript. That means each Function memory is isolated from each other and from the host.
+Lagon uses V8 Isolates, which are sandboxed environments used to run plain JavaScript. That means each Function memory is isolated from each other and from the host. They are used behind the scene by [Node.js](https://nodejs.org/), [Electron](https://www.electronjs.org/), [Deno](https://deno.land/) (and [Deno Deploy](https://deno.com/deploy)), [Cloudflare Workers](https://workers.cloudflare.com/) and more.
 
-They start very quickly (faster than starting a Node.js process), and we can run multiple Isolates inside a single Node.js process.
-
-Each Function is then deployed globally in 8 locations (expect more locations soon), close to users to reduce latency.
+V8 Isolates are very fast to start (faster than starting a whole Node.js process) and such allows to have a very low latency coupled with almost free cold-starts.
 
 ## License
 
