@@ -26,9 +26,9 @@ export async function createDeployment(
   isCurrent: boolean;
   functionId: string;
 }> {
-  const deployment = await prisma.deployment.create({
+  return prisma.deployment.create({
     data: {
-      isCurrent: true,
+      isCurrent: false,
       assets: {
         createMany: {
           data: assets.map(name => ({
@@ -52,8 +52,6 @@ export async function createDeployment(
       functionId: true,
     },
   });
-
-  return deployment;
 }
 
 export async function removeDeployment(

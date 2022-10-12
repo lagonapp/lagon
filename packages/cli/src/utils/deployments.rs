@@ -165,14 +165,14 @@ struct CreateDeploymentResponse {
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-struct CurrentDeploymentRequest {
+struct DeployDeploymentRequest {
     function_id: String,
     deployment_id: String,
 }
 
 #[derive(Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
-struct CurrentDeploymentResponse {
+struct DeployDeploymentResponse {
     function_name: String,
 }
 
@@ -235,9 +235,9 @@ pub async fn create_deployment(
     end_progress();
 
     let response = trpc_client
-        .mutation::<CurrentDeploymentRequest, CurrentDeploymentResponse>(
-            "deploymentCurrent",
-            CurrentDeploymentRequest {
+        .mutation::<DeployDeploymentRequest, DeployDeploymentResponse>(
+            "deploymentDeploy",
+            DeployDeploymentRequest {
                 function_id,
                 deployment_id,
             },

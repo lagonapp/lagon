@@ -5,6 +5,8 @@ import prisma from 'lib/prisma';
 import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import redis from 'lib/redis';
+import { envStringToObject } from 'lib/utils';
 
 export const deploymentsRouter = (t: T) =>
   t.router({
@@ -16,7 +18,6 @@ export const deploymentsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        // return setCurrentDeployment(input.functionId, input.deploymentId);
         const func = await prisma.function.findFirst({
           where: {
             id: input.functionId as string,
@@ -80,6 +81,72 @@ export const deploymentsRouter = (t: T) =>
           deploymentId: deployment.id,
           codeUrl,
           assetsUrls,
+        };
+      }),
+    deploymentDeploy: t.procedure
+      .input(
+        z.object({
+          functionId: z.string(),
+          deploymentId: z.string(),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        const [func, deployment] = await Promise.all([
+          prisma.function.findFirst({
+            where: {
+              id: input.functionId,
+            },
+            select: {
+              id: true,
+              name: true,
+              domains: true,
+              memory: true,
+              timeout: true,
+              cron: true,
+              cronRegion: true,
+              env: true,
+            },
+          }),
+          prisma.deployment.update({
+            where: {
+              id: input.deploymentId,
+            },
+            data: {
+              isCurrent: true,
+            },
+            select: {
+              id: true,
+              isCurrent: true,
+              assets: true,
+            },
+          }),
+        ]);
+
+        if (!func) {
+          return new TRPCError({
+            code: 'NOT_FOUND',
+          });
+        }
+
+        await redis.publish(
+          'deploy',
+          JSON.stringify({
+            functionId: func.id,
+            functionName: func.name,
+            deploymentId: deployment.id,
+            domains: func.domains,
+            memory: func.memory,
+            timeout: func.timeout,
+            cron: func.cron,
+            cronRegion: func.cronRegion,
+            env: envStringToObject(func.env),
+            isCurrent: deployment.isCurrent,
+            assets: deployment.assets.map(({ name }) => name),
+          }),
+        );
+
+        return {
+          functionName: func.name,
         };
       }),
     deploymentCurrent: t.procedure
