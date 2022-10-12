@@ -221,7 +221,7 @@ pub async fn create_deployment(
     for (asset, url) in assets_urls {
         let asset = assets
             .get(&asset)
-            .expect(&format!("Couldn't find asset {}", asset));
+            .unwrap_or_else(|| panic!("Couldn't find asset {}", asset));
 
         let request = Request::builder()
             .method(Method::PUT)
