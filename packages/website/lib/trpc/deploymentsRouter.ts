@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import redis from 'lib/redis';
 import { envStringToObject } from 'lib/utils';
+import s3 from 'lib/s3';
 
 export const deploymentsRouter = (t: T) =>
   t.router({
@@ -64,7 +65,6 @@ export const deploymentsRouter = (t: T) =>
             Key: key,
           });
 
-          // @ts-expect-error s3 type error
           return getSignedUrl(s3, putCommand, {
             expiresIn: 3600,
           });
