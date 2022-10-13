@@ -1,10 +1,9 @@
-import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import redis from 'lib/redis';
 import s3 from 'lib/s3';
 import prisma from 'lib/prisma';
 import { Readable } from 'node:stream';
 import { TRPCError } from '@trpc/server';
-import fs from 'node:fs';
 import { envStringToObject } from 'lib/utils';
 
 export async function createDeployment(
@@ -18,8 +17,7 @@ export async function createDeployment(
     cronRegion: string;
     env: { key: string; value: string }[];
   },
-  code: fs.ReadStream,
-  assets: { name: string; content: fs.ReadStream }[],
+  assets: string[],
   triggerer: string,
 ): Promise<{
   id: string;
@@ -28,13 +26,13 @@ export async function createDeployment(
   isCurrent: boolean;
   functionId: string;
 }> {
-  const deployment = await prisma.deployment.create({
+  return prisma.deployment.create({
     data: {
-      isCurrent: true,
+      isCurrent: false,
       assets: {
         createMany: {
-          data: assets.map(({ name }) => ({
-            name: name,
+          data: assets.map(name => ({
+            name,
           })),
         },
       },
@@ -54,49 +52,6 @@ export async function createDeployment(
       functionId: true,
     },
   });
-
-  const uploadPromises = [
-    s3.send(
-      new PutObjectCommand({
-        Bucket: process.env.S3_BUCKET,
-        Key: `${deployment.id}.js`,
-        Body: code,
-      }),
-    ),
-  ];
-
-  for (const asset of assets) {
-    uploadPromises.push(
-      s3.send(
-        new PutObjectCommand({
-          Bucket: process.env.S3_BUCKET,
-          Key: `${deployment.id}/${asset.name}`,
-          Body: asset.content,
-        }),
-      ),
-    );
-  }
-
-  await Promise.all(uploadPromises);
-
-  await redis.publish(
-    'deploy',
-    JSON.stringify({
-      functionId: func.id,
-      functionName: func.name,
-      deploymentId: deployment.id,
-      domains: func.domains,
-      memory: func.memory,
-      timeout: func.timeout,
-      cron: func.cron,
-      cronRegion: func.cronRegion,
-      env: envStringToObject(func.env),
-      isCurrent: deployment.isCurrent,
-      assets: deployment.assets.map(({ name }) => name),
-    }),
-  );
-
-  return deployment;
 }
 
 export async function removeDeployment(
@@ -236,6 +191,7 @@ export async function setCurrentDeployment(
   newDeploymentId: string,
 ): Promise<{
   id: string;
+  functionName: string;
   createdAt: Date;
   updatedAt: Date;
   isCurrent: boolean;
@@ -310,6 +266,7 @@ export async function setCurrentDeployment(
 
   return {
     ...deployment,
+    functionName: func.name,
     assets: deployment.assets.map(({ name }) => name),
   };
 }

@@ -21,10 +21,6 @@ pub fn get_site_url() -> String {
     "https://dash.lagon.app".to_string()
 }
 
-pub fn get_api_url() -> String {
-    get_site_url() + "/api"
-}
-
 pub fn validate_code_file(file: &Path) -> io::Result<()> {
     if !file.exists() || !file.is_file() {
         return Err(Error::new(
