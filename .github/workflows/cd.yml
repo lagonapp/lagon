@@ -66,7 +66,7 @@ jobs:
           sudo apt install -yq --no-install-suggests --no-install-recommends \
             binfmt-support g++-10-aarch64-linux-gnu g++-10-multilib \
             gcc-10-aarch64-linux-gnu libc6-arm64-cross qemu qemu-user \
-            qemu-user-binfmt libssl-dev
+            qemu-user-binfmt libssl-dev gcc-aarch64-linux-gnu
           sudo ln -s /usr/aarch64-linux-gnu/lib/ld-linux-aarch64.so.1 \
                       /lib/ld-linux-aarch64.so.1
           echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/aarch64-linux-gnu-gcc-10" >> ${GITHUB_ENV}
