@@ -1,5 +1,17 @@
 # @lagon/serverless
 
+## 0.1.3
+
+### Patch Changes
+
+- [#164](https://github.com/lagonapp/lagon/pull/164) [`d7f6f32`](https://github.com/lagonapp/lagon/commit/d7f6f3210af0a5f59acd69ddae2452c217603fcd) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix URL format
+
+* [#164](https://github.com/lagonapp/lagon/pull/164) [`d7f6f32`](https://github.com/lagonapp/lagon/commit/d7f6f3210af0a5f59acd69ddae2452c217603fcd) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix domains assignement
+
+- [#164](https://github.com/lagonapp/lagon/pull/164) [`d7f6f32`](https://github.com/lagonapp/lagon/commit/d7f6f3210af0a5f59acd69ddae2452c217603fcd) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use TLS for Redis / MySQL connections
+
+* [#162](https://github.com/lagonapp/lagon/pull/162) [`2821265`](https://github.com/lagonapp/lagon/commit/282126547213021475c05d36e5c12fd2db51add5) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add stdout & axiom logging
+
 ## 0.1.2
 
 ### Patch Changes

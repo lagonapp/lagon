@@ -1,5 +1,11 @@
 # @lagon/website
 
+## 0.0.5
+
+### Patch Changes
+
+- [#179](https://github.com/lagonapp/lagon/pull/179) [`d5d3759`](https://github.com/lagonapp/lagon/commit/d5d3759f87afc49786aeb62c0e0c7e04a20643de) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Using presigned URLs for file uploads
+
 ## 0.0.4
 
 ### Patch Changes

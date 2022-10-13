@@ -1,5 +1,17 @@
 # @lagon/cli
 
+## 0.2.0
+
+### Minor Changes
+
+- [#159](https://github.com/lagonapp/lagon/pull/159) [`cbf1778`](https://github.com/lagonapp/lagon/commit/cbf1778d274ee90285d3119c0b971995b74f806a) Thanks [@G3root](https://github.com/G3root)! - Update clap to v4
+
+### Patch Changes
+
+- [#179](https://github.com/lagonapp/lagon/pull/179) [`d5d3759`](https://github.com/lagonapp/lagon/commit/d5d3759f87afc49786aeb62c0e0c7e04a20643de) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Using presigned URLs for file uploads
+
+* [#179](https://github.com/lagonapp/lagon/pull/179) [`d5d3759`](https://github.com/lagonapp/lagon/commit/d5d3759f87afc49786aeb62c0e0c7e04a20643de) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix HTTPS requests error
+
 ## 0.1.3
 
 ### Patch Changes
