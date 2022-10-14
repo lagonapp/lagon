@@ -218,6 +218,7 @@ impl Response {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunResult {
     Response(Response),
+    Stream,
     Timeout(),
     MemoryLimit(),
     Error(String),

@@ -1,0 +1,28 @@
+use crate::isolate::Isolate;
+
+use super::StreamResult;
+
+pub fn pull_stream_binding(
+    scope: &mut v8::HandleScope,
+    args: v8::FunctionCallbackArguments,
+    mut _retval: v8::ReturnValue,
+) {
+    let state = Isolate::state(scope);
+    let state = state.borrow();
+
+    let done = args.get(0).to_boolean(scope);
+
+    if done.is_false() {
+        let chunk = unsafe { v8::Local::<v8::Uint8Array>::cast(args.get(1)) };
+        let buf = chunk.buffer(scope).unwrap();
+
+        let buf: &[u8] =
+            unsafe { std::slice::from_raw_parts(buf.data() as *mut u8, chunk.byte_length()) };
+
+        let bytes = hyper::body::Bytes::from(buf);
+
+        state.stream_sender.send(StreamResult::Data(bytes)).unwrap();
+    } else {
+        state.stream_sender.send(StreamResult::Done).unwrap();
+    }
+}

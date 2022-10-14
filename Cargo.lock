@@ -1156,6 +1156,7 @@ dependencies = [
  "flume",
  "futures",
  "hyper",
+ "hyper-tls",
  "tokio",
  "v8",
 ]

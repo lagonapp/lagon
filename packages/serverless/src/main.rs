@@ -53,6 +53,8 @@ async fn handle_request(
     let request = hyper_request_to_request(req).await;
     let hostname = request.headers.get("host").unwrap().clone();
 
+    let (sender, body) = Body::channel();
+
     let thread_ids_reader = thread_ids.read().await;
 
     let thread_id = match thread_ids_reader.get(&hostname) {
@@ -68,90 +70,94 @@ async fn handle_request(
         }
     };
 
-    let result = pool
-        .spawn_pinned_by_idx(
-            move || {
-                async move {
-                    let deployments = deployments.read().await;
+    let (tx, rx) = flume::bounded(1);
 
-                    match deployments.get(&hostname) {
-                        Some(deployment) => {
-                            let labels = vec![
-                                ("deployment", deployment.id.clone()),
-                                ("function", deployment.function_id.clone()),
-                            ];
+    pool.spawn_pinned_by_idx(
+        move || {
+            async move {
+                let deployments = deployments.read().await;
 
-                            increment_counter!("lagon_requests", &labels);
-                            counter!("lagon_bytes_in", request.len() as u64, &labels);
+                match deployments.get(&hostname) {
+                    Some(deployment) => {
+                        let labels = vec![
+                            ("deployment", deployment.id.clone()),
+                            ("function", deployment.function_id.clone()),
+                        ];
 
-                            if let Some(asset) =
-                                deployment.assets.iter().find(|asset| *asset == &url)
-                            {
-                                match handle_asset(deployment, asset) {
-                                    Ok(response) => RunResult::Response(response),
-                                    Err(error) => {
-                                        error!(
-                                            "Error while handing asset ({}, {}): {}",
-                                            asset, deployment.id, error
-                                        );
+                        increment_counter!("lagon_requests", &labels);
+                        counter!("lagon_bytes_in", request.len() as u64, &labels);
 
-                                        RunResult::Error("Could not retrieve asset.".into())
-                                    }
-                                }
-                            } else {
-                                // Only acquire the lock when we are sure we have a deployment,
-                                // and that it should the isolate should be called.
-                                // TODO: read() then write() if not present
-                                let mut isolates = ISOLATES.write().await;
-                                let thread_isolates =
-                                    isolates.entry(thread_id).or_insert_with(HashMap::new);
-
-                                let isolate =
-                                    thread_isolates.entry(hostname).or_insert_with(|| {
-                                        // TODO: handle read error
-                                        let code = get_deployment_code(deployment).unwrap();
-                                        let options = IsolateOptions::new(code)
-                                            .with_environment_variables(
-                                                deployment.environment_variables.clone(),
-                                            )
-                                            .with_memory(deployment.memory)
-                                            .with_timeout(deployment.timeout);
-
-                                        Isolate::new(options)
-                                    });
-
-                                let (run_result, maybe_statistics) = isolate.run(request).await;
-
-                                if let Some(statistics) = maybe_statistics {
-                                    histogram!(
-                                        "lagon_isolate_cpu_time",
-                                        statistics.cpu_time,
-                                        &labels
+                        if let Some(asset) = deployment.assets.iter().find(|asset| *asset == &url) {
+                            let run_result = match handle_asset(deployment, asset) {
+                                Ok(response) => RunResult::Response(response),
+                                Err(error) => {
+                                    error!(
+                                        "Error while handing asset ({}, {}): {}",
+                                        asset, deployment.id, error
                                     );
-                                    histogram!(
-                                        "lagon_isolate_memory_usage",
-                                        statistics.memory_usage as f64,
-                                        &labels
-                                    );
-                                }
 
-                                if let RunResult::Response(response) = &run_result {
-                                    counter!("lagon_bytes_out", response.len() as u64, &labels);
+                                    RunResult::Error("Could not retrieve asset.".into())
                                 }
+                            };
 
-                                run_result
+                            tx.send_async(run_result).await.unwrap();
+                        } else {
+                            // Only acquire the lock when we are sure we have a
+                            // deployment and that the isolate should be called.
+                            // TODO: read() then write() if not present
+                            let mut isolates = ISOLATES.write().await;
+                            let thread_isolates =
+                                isolates.entry(thread_id).or_insert_with(HashMap::new);
+
+                            let isolate = thread_isolates.entry(hostname).or_insert_with(|| {
+                                // TODO: handle read error
+                                let code = get_deployment_code(deployment).unwrap();
+                                let options = IsolateOptions::new(code)
+                                    .with_environment_variables(
+                                        deployment.environment_variables.clone(),
+                                    )
+                                    .with_memory(deployment.memory)
+                                    .with_timeout(deployment.timeout);
+
+                                Isolate::new(options)
+                            });
+
+                            let (run_result, maybe_statistics) =
+                                isolate.run(request, sender, tx.clone()).await;
+
+                            if let Some(statistics) = maybe_statistics {
+                                histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
+                                histogram!(
+                                    "lagon_isolate_memory_usage",
+                                    statistics.memory_usage as f64,
+                                    &labels
+                                );
+                            }
+
+                            if let RunResult::Response(response) = &run_result {
+                                counter!("lagon_bytes_out", response.len() as u64, &labels);
+                            }
+
+                            if run_result != RunResult::Stream {
+                                tx.send_async(run_result).await.unwrap();
                             }
                         }
-                        None => RunResult::NotFound(),
+                    }
+                    None => {
+                        tx.send_async(RunResult::NotFound()).await.unwrap();
                     }
                 }
-            },
-            thread_id,
-        )
-        .await
-        .unwrap();
+            }
+        },
+        thread_id,
+    );
+
+    let result = rx.recv_async().await.unwrap();
 
     match result {
+        RunResult::Stream => {
+            return Ok(HyperResponse::builder().body(body).unwrap());
+        }
         RunResult::Response(response) => {
             let response = response_to_hyper_response(response);
 

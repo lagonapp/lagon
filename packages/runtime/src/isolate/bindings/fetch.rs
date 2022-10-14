@@ -1,4 +1,5 @@
 use hyper::{body, http::Request, Client};
+use hyper_tls::HttpsConnector;
 
 use crate::{
     http::Response,
@@ -27,7 +28,7 @@ pub fn fetch_binding(
             .uri(resource)
             .body(hyper::Body::empty())
             .unwrap();
-        let client = Client::new();
+        let client = Client::builder().build::<_, hyper::Body>(HttpsConnector::new());
 
         let response = client.request(request).await.unwrap();
         let status = response.status().as_u16();

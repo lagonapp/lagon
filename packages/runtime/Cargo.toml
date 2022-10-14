@@ -8,4 +8,5 @@ v8 = "0.51.0"
 tokio = { version = "1", features = ["full"] }
 futures = "0.3.24"
 hyper = { version = "0.14", features = ["client", "http1", "http2", "tcp"] }
+hyper-tls = { version = "0.5.0", features = ["vendored"] }
 flume = "0.10.14"

@@ -18,7 +18,7 @@ use crate::{
     utils::extract_v8_string,
 };
 
-use self::bindings::{BindingResult, PromiseResult};
+use self::bindings::{BindingResult, PromiseResult, StreamResult};
 
 mod bindings;
 
@@ -64,6 +64,7 @@ struct IsolateState {
     handler_result: Option<HandlerResult>,
     termination_result: Option<TerminationResult>,
     sender: Option<flume::Sender<(RunResult, Option<IsolateStatistics>)>>,
+    stream_sender: flume::Sender<StreamResult>,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -111,11 +112,19 @@ impl IsolateOptions {
     }
 }
 
+#[derive(Debug)]
+enum StreamStatus {
+    None,
+    HasStream,
+}
+
 pub struct Isolate {
     options: IsolateOptions,
     isolate: v8::OwnedIsolate,
     handler: Option<v8::Global<v8::Function>>,
     compilation_error: Option<String>,
+    stream_receiver: flume::Receiver<StreamResult>,
+    stream_status: StreamStatus,
 }
 
 unsafe impl Send for Isolate {}
@@ -132,6 +141,7 @@ impl Isolate {
         //     params = params.snapshot_blob(snapshot_blob.as_mut());
         // }
 
+        let (stream_sender, stream_receiver) = flume::unbounded();
         let mut isolate = v8::Isolate::new(params);
 
         let state = {
@@ -145,6 +155,7 @@ impl Isolate {
                 handler_result: None,
                 termination_result: None,
                 sender: None,
+                stream_sender,
             }
         };
 
@@ -155,6 +166,8 @@ impl Isolate {
             isolate,
             handler: None,
             compilation_error: None,
+            stream_receiver,
+            stream_status: StreamStatus::None,
         };
 
         let isolate_ptr = &mut this as *mut _ as *mut std::ffi::c_void;
@@ -349,36 +362,94 @@ impl Isolate {
         receiver
     }
 
-    async fn run_event_loop(&mut self) {
-        poll_fn(|cx| self.poll_event_loop(cx)).await;
+    async fn run_event_loop(
+        &mut self,
+        sender: &mut hyper::body::Sender,
+        tx: &flume::Sender<RunResult>,
+    ) {
+        poll_fn(|cx| self.poll_event_loop(cx, sender, tx)).await;
     }
 
-    fn poll_event_loop(&mut self, cx: &mut Context) -> Poll<()> {
-        let isolate_state = Isolate::state(&self.isolate);
-        let mut isolate_state = isolate_state.borrow_mut();
+    fn poll_event_loop(
+        &mut self,
+        cx: &mut Context,
+        sender: &mut hyper::body::Sender,
+        tx: &flume::Sender<RunResult>,
+    ) -> Poll<()> {
+        let initial_isolate_state = Isolate::state(&self.isolate);
+
+        {
+            let isolate_state = initial_isolate_state.borrow();
+            let global = isolate_state.global.0.clone();
+            let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
+
+            while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), scope, false) {}
+            scope.perform_microtask_checkpoint();
+        }
+
+        let mut results = Vec::new();
+
+        {
+            let mut isolate_state = initial_isolate_state.borrow_mut();
+
+            if !isolate_state.promises.is_empty() {
+                while let Poll::Ready(Some(BindingResult { id, result })) =
+                    isolate_state.promises.poll_next_unpin(cx)
+                {
+                    let promise = isolate_state
+                        .js_promises
+                        .remove(&id)
+                        .unwrap_or_else(|| panic!("JS promise {} not found", id));
+                    results.push((result, promise));
+                }
+            }
+        }
+
+        let isolate_state = initial_isolate_state.borrow();
         let global = isolate_state.global.0.clone();
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
 
-        while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), scope, false) {}
-        scope.perform_microtask_checkpoint();
+        for (result, promise) in results {
+            let promise = promise.open(scope);
 
-        if !isolate_state.promises.is_empty() {
-            while let Poll::Ready(Some(BindingResult { id, result })) =
-                isolate_state.promises.poll_next_unpin(cx)
-            {
-                let promise = isolate_state
-                    .js_promises
-                    .remove(&id)
-                    .unwrap_or_else(|| panic!("JS promise {} not found", id));
-                let promise = promise.open(scope);
+            match result {
+                PromiseResult::Response(response) => {
+                    let response = response.into_v8(scope);
+                    promise.resolve(scope, response.into());
+                }
+            };
+        }
 
-                match result {
-                    PromiseResult::Response(response) => {
-                        let response = response.into_v8(scope);
-                        promise.resolve(scope, response.into());
-                    }
-                };
+        while let Ok(stream_result) = self.stream_receiver.try_recv() {
+            if let StreamStatus::None = self.stream_status {
+                self.stream_status = StreamStatus::HasStream;
+
+                tx.send(RunResult::Stream).unwrap();
             }
+
+            match stream_result {
+                StreamResult::Done => {
+                    self.stream_status = StreamStatus::None;
+
+                    // Dropping the sender will close the other half
+                    // and such end the body streaming from Hyper
+                    drop(&sender);
+
+                    isolate_state
+                        .sender
+                        .as_ref()
+                        .unwrap()
+                        .send((RunResult::Stream, None))
+                        .unwrap();
+                    return Poll::Ready(());
+                }
+                StreamResult::Data(bytes) => {
+                    sender.try_send_data(bytes).unwrap();
+                }
+            };
+
+            cx.waker().wake_by_ref();
+            return Poll::Pending;
         }
 
         let try_catch = &mut v8::TryCatch::new(scope);
@@ -403,12 +474,20 @@ impl Isolate {
             match promise.state() {
                 PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
+
                     let result = match Response::from_v8(try_catch, response) {
                         Some(response) => (RunResult::Response(response), Some(*statistics)),
                         None => (handle_error(try_catch), Some(*statistics)),
                     };
 
+                    if let (RunResult::Response(ref response), _) = result {
+                        if response.body == b"null".to_vec() {
+                            return Poll::Pending;
+                        }
+                    }
+
                     isolate_state.sender.as_ref().unwrap().send(result).unwrap();
+
                     return Poll::Ready(());
                 }
                 PromiseState::Rejected => {
@@ -433,13 +512,18 @@ impl Isolate {
         Poll::Pending
     }
 
-    pub async fn run(&mut self, request: Request) -> (RunResult, Option<IsolateStatistics>) {
+    pub async fn run(
+        &mut self,
+        request: Request,
+        mut sender: hyper::body::Sender,
+        tx: flume::Sender<RunResult>,
+    ) -> (RunResult, Option<IsolateStatistics>) {
         let receiver = self.evaluate(request);
 
         // Run the event loop only is we don't have any compilation Error
         // If one has occurred, it will be received immediately by the receiver.
         if self.compilation_error.is_none() {
-            self.run_event_loop().await;
+            self.run_event_loop(&mut sender, &tx).await;
         }
 
         receiver.recv_async().await.unwrap()

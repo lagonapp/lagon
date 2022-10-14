@@ -8,7 +8,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "vitest --run",
-    "build": "tsup src/index.ts --format=esm --dts",
+    "build": "esbuild src/index.ts --format=esm --bundle --outdir=dist",
     "lint": "eslint --cache --ignore-pattern dist .",
     "typecheck": "tsc --noEmit"
   },
