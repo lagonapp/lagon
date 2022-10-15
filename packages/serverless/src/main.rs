@@ -2,7 +2,7 @@ use deployments::Deployment;
 use http::hyper_request_to_request;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
-use lagon_runtime::http::RunResult;
+use lagon_runtime::http::{RunResult, StreamResult};
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use lazy_static::lazy_static;
@@ -52,8 +52,6 @@ async fn handle_request(
 
     let request = hyper_request_to_request(req).await;
     let hostname = request.headers.get("host").unwrap().clone();
-
-    let (sender, body) = Body::channel();
 
     let thread_ids_reader = thread_ids.read().await;
 
@@ -122,29 +120,28 @@ async fn handle_request(
                                 Isolate::new(options)
                             });
 
-                            let (run_result, maybe_statistics) =
-                                isolate.run(request, sender, tx.clone()).await;
+                            isolate.run(request, tx.clone()).await;
 
-                            if let Some(statistics) = maybe_statistics {
-                                histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
-                                histogram!(
-                                    "lagon_isolate_memory_usage",
-                                    statistics.memory_usage as f64,
-                                    &labels
-                                );
-                            }
-
-                            if let RunResult::Response(response) = &run_result {
-                                counter!("lagon_bytes_out", response.len() as u64, &labels);
-                            }
-
-                            if run_result != RunResult::Stream {
-                                tx.send_async(run_result).await.unwrap();
-                            }
+                            // if let Some(statistics) = maybe_statistics {
+                            //     histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
+                            //     histogram!(
+                            //         "lagon_isolate_memory_usage",
+                            //         statistics.memory_usage as f64,
+                            //         &labels
+                            //     );
+                            // }
+                            //
+                            // if let RunResult::Response(response) = &run_result {
+                            //     counter!("lagon_bytes_out", response.len() as u64, &labels);
+                            // }
+                            //
+                            // if run_result != RunResult::Stream {
+                            //     tx.send_async(run_result).await.unwrap();
+                            // }
                         }
                     }
                     None => {
-                        tx.send_async(RunResult::NotFound()).await.unwrap();
+                        tx.send_async(RunResult::NotFound).await.unwrap();
                     }
                 }
             }
@@ -155,7 +152,38 @@ async fn handle_request(
     let result = rx.recv_async().await.unwrap();
 
     match result {
-        RunResult::Stream => {
+        // We assume the first StreamResult is always start
+        RunResult::Stream(_) => {
+            let (mut sender, body) = Body::channel();
+
+            // match stream_result {
+            //     StreamResult::Data(bytes) => {
+            //         let bytes = hyper::body::Bytes::from(bytes);
+            //         sender.send_data(bytes).await.unwrap();
+            //     }
+            //     StreamResult::Done => {}
+            // };
+
+            tokio::spawn(async move {
+                loop {
+                    if let RunResult::Stream(stream_result) = rx.recv_async().await.unwrap() {
+                        match stream_result {
+                            StreamResult::Start => {}
+                            StreamResult::Data(bytes) => {
+                                let bytes = hyper::body::Bytes::from(bytes);
+                                sender.send_data(bytes).await.unwrap();
+                            }
+                            StreamResult::Done => {
+                                drop(&sender);
+                                break;
+                            }
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            });
+
             return Ok(HyperResponse::builder().body(body).unwrap());
         }
         RunResult::Response(response) => {
@@ -167,9 +195,9 @@ async fn handle_request(
             .status(500)
             .body(error.into())
             .unwrap()),
-        RunResult::Timeout() => Ok(HyperResponse::new("Timeouted".into())),
-        RunResult::MemoryLimit() => Ok(HyperResponse::new("MemoryLimited".into())),
-        RunResult::NotFound() => Ok(HyperResponse::builder()
+        RunResult::Timeout => Ok(HyperResponse::new("Timeouted".into())),
+        RunResult::MemoryLimit => Ok(HyperResponse::new("MemoryLimited".into())),
+        RunResult::NotFound => Ok(HyperResponse::builder()
             .status(404)
             .body("Deployment not found".into())
             .unwrap()),

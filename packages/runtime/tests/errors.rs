@@ -23,10 +23,12 @@ async fn handler_reject() {
 }"
         .into(),
     ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
 
     assert_eq!(
-        isolate.run(Request::default()).await.0,
-        RunResult::Error("Uncaught Error: Rejected".into()),
+        rx.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: Rejected".into())
     );
 }
 
@@ -39,9 +41,11 @@ async fn compilation_error() {
 }"
         .into(),
     ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
 
     assert_eq!(
-        isolate.run(Request::default()).await.0,
+        rx.recv_async().await.unwrap(),
         RunResult::Error("SyntaxError: Unexpected identifier 'syntax'".into()),
     );
 }
@@ -56,11 +60,10 @@ async fn timeout_reached() {
 }"
         .into(),
     ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
 
-    assert_eq!(
-        isolate.run(Request::default()).await.0,
-        RunResult::Timeout(),
-    );
+    assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
 }
 
 #[tokio::test(flavor = "multi_thread")]
@@ -86,17 +89,18 @@ async fn memory_reached() {
         .with_timeout(1000)
         .with_memory(1),
     );
-
-    assert_eq!(
-        isolate
-            .run(Request {
+    let (tx, rx) = flume::unbounded();
+    isolate
+        .run(
+            Request {
                 body: "".into(),
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            })
-            .await
-            .0,
-        RunResult::MemoryLimit(),
-    );
+            },
+            tx,
+        )
+        .await;
+
+    assert_eq!(rx.recv_async().await.unwrap(), RunResult::MemoryLimit);
 }

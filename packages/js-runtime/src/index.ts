@@ -58,9 +58,6 @@ export async function masterHandler(request: { input: string } & Request): Promi
         push();
       },
     });
-
-    // @ts-ignore assign body to null
-    response.body = null;
   } else if (response.body instanceof Uint8Array) {
     response.body = new TextDecoder().decode(response.body);
   }

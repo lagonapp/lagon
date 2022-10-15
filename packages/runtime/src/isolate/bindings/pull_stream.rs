@@ -1,6 +1,4 @@
-use crate::isolate::Isolate;
-
-use super::StreamResult;
+use crate::{http::StreamResult, isolate::Isolate};
 
 pub fn pull_stream_binding(
     scope: &mut v8::HandleScope,
@@ -19,9 +17,7 @@ pub fn pull_stream_binding(
         let buf: &[u8] =
             unsafe { std::slice::from_raw_parts(buf.data() as *mut u8, chunk.byte_length()) };
 
-        let bytes = hyper::body::Bytes::from(buf);
-
-        state.stream_sender.send(StreamResult::Data(bytes)).unwrap();
+        state.stream_sender.send(StreamResult::Data(buf)).unwrap();
     } else {
         state.stream_sender.send(StreamResult::Done).unwrap();
     }

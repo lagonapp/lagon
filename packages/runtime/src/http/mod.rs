@@ -216,11 +216,18 @@ impl Response {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub enum StreamResult {
+    Start,
+    Data(&'static [u8]),
+    Done,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunResult {
     Response(Response),
-    Stream,
-    Timeout(),
-    MemoryLimit(),
+    Stream(StreamResult),
+    Timeout,
+    MemoryLimit,
     Error(String),
-    NotFound(),
+    NotFound,
 }

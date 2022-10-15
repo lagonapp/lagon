@@ -13,12 +13,12 @@ use tokio::spawn;
 use v8::PromiseState;
 
 use crate::{
-    http::{FromV8, IntoV8, Request, Response, RunResult},
+    http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult},
     runtime::get_runtime_code,
     utils::extract_v8_string,
 };
 
-use self::bindings::{BindingResult, PromiseResult, StreamResult};
+use self::bindings::{BindingResult, PromiseResult};
 
 mod bindings;
 
@@ -63,7 +63,6 @@ struct IsolateState {
     js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
     handler_result: Option<HandlerResult>,
     termination_result: Option<TerminationResult>,
-    sender: Option<flume::Sender<(RunResult, Option<IsolateStatistics>)>>,
     stream_sender: flume::Sender<StreamResult>,
 }
 
@@ -116,6 +115,7 @@ impl IsolateOptions {
 enum StreamStatus {
     None,
     HasStream,
+    Done,
 }
 
 pub struct Isolate {
@@ -154,7 +154,6 @@ impl Isolate {
                 js_promises: HashMap::new(),
                 handler_result: None,
                 termination_result: None,
-                sender: None,
                 stream_sender,
             }
         };
@@ -182,7 +181,7 @@ impl Isolate {
         let mut state = isolate_state.borrow_mut();
 
         state.termination_result = Some(TerminationResult {
-            run_result: RunResult::MemoryLimit(),
+            run_result: RunResult::MemoryLimit,
         });
 
         if !self.isolate.is_execution_terminating() {
@@ -197,19 +196,9 @@ impl Isolate {
         s.clone()
     }
 
-    pub fn evaluate(
-        &mut self,
-        request: Request,
-    ) -> flume::Receiver<(RunResult, Option<IsolateStatistics>)> {
-        let (sender, receiver) = flume::bounded(1);
+    pub fn evaluate(&mut self, request: Request) {
         let thread_safe_handle = self.isolate.thread_safe_handle();
-
         let isolate_state = Isolate::state(&self.isolate);
-
-        {
-            let mut state = isolate_state.borrow_mut();
-            state.sender = Some(sender.clone());
-        }
 
         let state = isolate_state.borrow();
         let global = state.global.0.clone();
@@ -222,16 +211,7 @@ impl Isolate {
                 Some(code) => code,
                 None => {
                     self.compilation_error = Some("Failed to get runtime code".to_string());
-                    state
-                        .sender
-                        .as_ref()
-                        .unwrap()
-                        .send((
-                            RunResult::Error(self.compilation_error.clone().unwrap()),
-                            None,
-                        ))
-                        .unwrap();
-                    return receiver;
+                    return;
                 }
             };
 
@@ -272,18 +252,15 @@ impl Isolate {
 
                     self.handler = Some(handler);
                 }
-                None => match handle_error(try_catch) {
-                    RunResult::Error(error) => self.compilation_error = Some(error),
-                    _ => self.compilation_error = Some("Unkown error".into()),
-                },
-            };
-        }
+                None => {
+                    match handle_error(try_catch) {
+                        RunResult::Error(error) => self.compilation_error = Some(error),
+                        _ => self.compilation_error = Some("Unkown error".into()),
+                    };
 
-        if let Some(error) = &self.compilation_error {
-            sender
-                .send((RunResult::Error(error.clone()), None))
-                .unwrap();
-            return receiver;
+                    return;
+                }
+            };
         }
 
         let request = request.into_v8(try_catch);
@@ -349,7 +326,7 @@ impl Isolate {
                 // e.g due to heap limit.
                 if isolate_state.borrow().termination_result.is_none() {
                     let run_result = match *execution_result.read().unwrap() {
-                        ExecutionResult::TimeoutReached => RunResult::Timeout(),
+                        ExecutionResult::TimeoutReached => RunResult::Timeout,
                         _ => handle_error(try_catch),
                     };
 
@@ -358,24 +335,13 @@ impl Isolate {
                 }
             }
         };
-
-        receiver
     }
 
-    async fn run_event_loop(
-        &mut self,
-        sender: &mut hyper::body::Sender,
-        tx: &flume::Sender<RunResult>,
-    ) {
-        poll_fn(|cx| self.poll_event_loop(cx, sender, tx)).await;
+    async fn run_event_loop(&mut self, tx: &flume::Sender<RunResult>) {
+        poll_fn(|cx| self.poll_event_loop(cx, tx)).await;
     }
 
-    fn poll_event_loop(
-        &mut self,
-        cx: &mut Context,
-        sender: &mut hyper::body::Sender,
-        tx: &flume::Sender<RunResult>,
-    ) -> Poll<()> {
+    fn poll_event_loop(&mut self, cx: &mut Context, tx: &flume::Sender<RunResult>) -> Poll<()> {
         let initial_isolate_state = Isolate::state(&self.isolate);
 
         {
@@ -421,52 +387,45 @@ impl Isolate {
         }
 
         while let Ok(stream_result) = self.stream_receiver.try_recv() {
+            // Set that we are streaming if it's the first time
+            // we receive a stream
             if let StreamStatus::None = self.stream_status {
                 self.stream_status = StreamStatus::HasStream;
 
-                tx.send(RunResult::Stream).unwrap();
+                tx.send(RunResult::Stream(StreamResult::Start)).unwrap();
             }
 
-            match stream_result {
-                StreamResult::Done => {
-                    self.stream_status = StreamStatus::None;
+            if let StreamResult::Done = stream_result {
+                self.stream_status = StreamStatus::Done;
+            }
 
-                    // Dropping the sender will close the other half
-                    // and such end the body streaming from Hyper
-                    drop(&sender);
-
-                    isolate_state
-                        .sender
-                        .as_ref()
-                        .unwrap()
-                        .send((RunResult::Stream, None))
-                        .unwrap();
-                    return Poll::Ready(());
-                }
-                StreamResult::Data(bytes) => {
-                    sender.try_send_data(bytes).unwrap();
-                }
-            };
-
-            cx.waker().wake_by_ref();
-            return Poll::Pending;
+            println!("received");
+            tx.send(RunResult::Stream(stream_result)).unwrap();
+            println!("sent");
         }
+
+        // Don't reach the handler polling if we are streaming
+        match self.stream_status {
+            StreamStatus::HasStream => return Poll::Pending,
+            StreamStatus::Done => {
+                self.stream_status = StreamStatus::None;
+
+                println!("ready");
+                return Poll::Ready(());
+            }
+            _ => {}
+        };
 
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if let Some(TerminationResult { run_result }) = isolate_state.termination_result.as_ref() {
-            isolate_state
-                .sender
-                .as_ref()
-                .unwrap()
-                .send((run_result.clone(), None))
-                .unwrap();
+            tx.send(run_result.clone()).unwrap();
             return Poll::Ready(());
         }
 
         if let Some(HandlerResult {
             promise,
-            statistics,
+            statistics: _,
         }) = isolate_state.handler_result.as_ref()
         {
             let promise = promise.open(try_catch);
@@ -475,33 +434,23 @@ impl Isolate {
                 PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
 
-                    let result = match Response::from_v8(try_catch, response) {
-                        Some(response) => (RunResult::Response(response), Some(*statistics)),
-                        None => (handle_error(try_catch), Some(*statistics)),
+                    let run_result = match Response::from_v8(try_catch, response) {
+                        Some(response) => RunResult::Response(response),
+                        None => handle_error(try_catch),
                     };
 
-                    if let (RunResult::Response(ref response), _) = result {
-                        if response.body == b"null".to_vec() {
-                            return Poll::Pending;
-                        }
-                    }
-
-                    isolate_state.sender.as_ref().unwrap().send(result).unwrap();
+                    tx.send(run_result).unwrap();
 
                     return Poll::Ready(());
                 }
                 PromiseState::Rejected => {
                     let exception = promise.result(try_catch);
 
-                    isolate_state
-                        .sender
-                        .as_ref()
-                        .unwrap()
-                        .send((
-                            RunResult::Error(get_exception_message(try_catch, exception)),
-                            None,
-                        ))
-                        .unwrap();
+                    tx.send(RunResult::Error(get_exception_message(
+                        try_catch, exception,
+                    )))
+                    .unwrap();
+
                     return Poll::Ready(());
                 }
                 PromiseState::Pending => {}
@@ -512,21 +461,16 @@ impl Isolate {
         Poll::Pending
     }
 
-    pub async fn run(
-        &mut self,
-        request: Request,
-        mut sender: hyper::body::Sender,
-        tx: flume::Sender<RunResult>,
-    ) -> (RunResult, Option<IsolateStatistics>) {
-        let receiver = self.evaluate(request);
+    pub async fn run(&mut self, request: Request, tx: flume::Sender<RunResult>) {
+        self.evaluate(request);
 
-        // Run the event loop only is we don't have any compilation Error
-        // If one has occurred, it will be received immediately by the receiver.
-        if self.compilation_error.is_none() {
-            self.run_event_loop(&mut sender, &tx).await;
+        if let Some(compilation_error) = &self.compilation_error {
+            tx.send(RunResult::Error(compilation_error.to_string()))
+                .unwrap();
+            return;
         }
 
-        receiver.recv_async().await.unwrap()
+        self.run_event_loop(&tx).await;
     }
 }
 

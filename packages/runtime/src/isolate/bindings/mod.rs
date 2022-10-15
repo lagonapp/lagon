@@ -17,11 +17,6 @@ pub enum PromiseResult {
     Response(Response),
 }
 
-pub enum StreamResult {
-    Done,
-    Data(hyper::body::Bytes),
-}
-
 pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
     let global = v8::ObjectTemplate::new(scope);
 
