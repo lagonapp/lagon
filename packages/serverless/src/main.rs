@@ -1,13 +1,14 @@
 use deployments::Deployment;
-use http::hyper_request_to_request;
+use hyper::body::Bytes;
+use hyper::http::response::Builder;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
-use lagon_runtime::http::RunResult;
+use lagon_runtime::http::{Request, RunResult, StreamResult};
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use lazy_static::lazy_static;
 use log::error;
-use metrics::{counter, histogram, increment_counter};
+use metrics::{counter, /*histogram,*/ increment_counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
 #[cfg(not(debug_assertions))]
@@ -26,11 +27,9 @@ use crate::deployments::assets::handle_asset;
 use crate::deployments::filesystem::get_deployment_code;
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
-use crate::http::response_to_hyper_response;
 use crate::logger::init_logger;
 
 mod deployments;
-mod http;
 mod logger;
 
 lazy_static! {
@@ -50,7 +49,7 @@ async fn handle_request(
     // Remove the leading '/' from the url
     url.remove(0);
 
-    let request = hyper_request_to_request(req).await;
+    let request = Request::from(req).await;
     let hostname = request.headers.get("host").unwrap().clone();
 
     let thread_ids_reader = thread_ids.read().await;
@@ -68,102 +67,153 @@ async fn handle_request(
         }
     };
 
-    let result = pool
-        .spawn_pinned_by_idx(
-            move || {
-                async move {
-                    let deployments = deployments.read().await;
+    let (tx, rx) = flume::bounded(1);
 
-                    match deployments.get(&hostname) {
-                        Some(deployment) => {
-                            let labels = vec![
-                                ("deployment", deployment.id.clone()),
-                                ("function", deployment.function_id.clone()),
-                            ];
+    pool.spawn_pinned_by_idx(
+        move || {
+            async move {
+                let deployments = deployments.read().await;
 
-                            increment_counter!("lagon_requests", &labels);
-                            counter!("lagon_bytes_in", request.len() as u64, &labels);
+                match deployments.get(&hostname) {
+                    Some(deployment) => {
+                        let labels = vec![
+                            ("deployment", deployment.id.clone()),
+                            ("function", deployment.function_id.clone()),
+                        ];
 
-                            if let Some(asset) =
-                                deployment.assets.iter().find(|asset| *asset == &url)
-                            {
-                                match handle_asset(deployment, asset) {
-                                    Ok(response) => RunResult::Response(response),
-                                    Err(error) => {
-                                        error!(
-                                            "Error while handing asset ({}, {}): {}",
-                                            asset, deployment.id, error
-                                        );
+                        increment_counter!("lagon_requests", &labels);
+                        counter!("lagon_bytes_in", request.len() as u64, &labels);
 
-                                        RunResult::Error("Could not retrieve asset.".into())
-                                    }
-                                }
-                            } else {
-                                // Only acquire the lock when we are sure we have a deployment,
-                                // and that it should the isolate should be called.
-                                // TODO: read() then write() if not present
-                                let mut isolates = ISOLATES.write().await;
-                                let thread_isolates =
-                                    isolates.entry(thread_id).or_insert_with(HashMap::new);
-
-                                let isolate =
-                                    thread_isolates.entry(hostname).or_insert_with(|| {
-                                        // TODO: handle read error
-                                        let code = get_deployment_code(deployment).unwrap();
-                                        let options = IsolateOptions::new(code)
-                                            .with_environment_variables(
-                                                deployment.environment_variables.clone(),
-                                            )
-                                            .with_memory(deployment.memory)
-                                            .with_timeout(deployment.timeout);
-
-                                        Isolate::new(options)
-                                    });
-
-                                let (run_result, maybe_statistics) = isolate.run(request).await;
-
-                                if let Some(statistics) = maybe_statistics {
-                                    histogram!(
-                                        "lagon_isolate_cpu_time",
-                                        statistics.cpu_time,
-                                        &labels
+                        if let Some(asset) = deployment.assets.iter().find(|asset| *asset == &url) {
+                            let run_result = match handle_asset(deployment, asset) {
+                                Ok(response) => RunResult::Response(response),
+                                Err(error) => {
+                                    error!(
+                                        "Error while handing asset ({}, {}): {}",
+                                        asset, deployment.id, error
                                     );
-                                    histogram!(
-                                        "lagon_isolate_memory_usage",
-                                        statistics.memory_usage as f64,
-                                        &labels
-                                    );
-                                }
 
-                                if let RunResult::Response(response) = &run_result {
-                                    counter!("lagon_bytes_out", response.len() as u64, &labels);
+                                    RunResult::Error("Could not retrieve asset.".into())
                                 }
+                            };
 
-                                run_result
-                            }
+                            tx.send_async(run_result).await.unwrap();
+                        } else {
+                            // Only acquire the lock when we are sure we have a
+                            // deployment and that the isolate should be called.
+                            // TODO: read() then write() if not present
+                            let mut isolates = ISOLATES.write().await;
+                            let thread_isolates =
+                                isolates.entry(thread_id).or_insert_with(HashMap::new);
+
+                            let isolate = thread_isolates.entry(hostname).or_insert_with(|| {
+                                // TODO: handle read error
+                                let code = get_deployment_code(deployment).unwrap();
+                                let options = IsolateOptions::new(code)
+                                    .with_environment_variables(
+                                        deployment.environment_variables.clone(),
+                                    )
+                                    .with_memory(deployment.memory)
+                                    .with_timeout(deployment.timeout);
+
+                                Isolate::new(options)
+                            });
+
+                            isolate.run(request, tx.clone()).await;
+
+                            // TODO: handle stats
+                            // if let Some(statistics) = maybe_statistics {
+                            //     histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
+                            //     histogram!(
+                            //         "lagon_isolate_memory_usage",
+                            //         statistics.memory_usage as f64,
+                            //         &labels
+                            //     );
+                            // }
+                            //
+                            // if let RunResult::Response(response) = &run_result {
+                            //     counter!("lagon_bytes_out", response.len() as u64, &labels);
+                            // }
+                            //
+                            // if run_result != RunResult::Stream {
+                            //     tx.send_async(run_result).await.unwrap();
+                            // }
                         }
-                        None => RunResult::NotFound(),
+                    }
+                    None => {
+                        tx.send_async(RunResult::NotFound).await.unwrap();
                     }
                 }
-            },
-            thread_id,
-        )
-        .await
-        .unwrap();
+            }
+        },
+        thread_id,
+    );
+
+    let result = rx.recv_async().await.unwrap();
 
     match result {
-        RunResult::Response(response) => {
-            let response = response_to_hyper_response(response);
+        RunResult::Stream(stream_result) => {
+            let (mut sender, body) = Body::channel();
 
-            Ok(response)
+            let (response_tx, response_rx) = flume::bounded(1);
+            let mut received_response = false;
+
+            match stream_result {
+                StreamResult::Start(response) => {
+                    response_tx.send_async(response).await.unwrap();
+                    received_response = true;
+                }
+                StreamResult::Data(bytes) => {
+                    let bytes = Bytes::from(bytes);
+                    sender.send_data(bytes).await.unwrap();
+                }
+                StreamResult::Done => panic!("Got a stream done without data"),
+            }
+
+            tokio::spawn(async move {
+                while let Ok(RunResult::Stream(stream_result)) = rx.recv_async().await {
+                    match stream_result {
+                        StreamResult::Start(response) => {
+                            response_tx.send_async(response).await.unwrap();
+                            received_response = true;
+                        }
+                        StreamResult::Data(bytes) => {
+                            let bytes = Bytes::from(bytes);
+                            sender.send_data(bytes).await.unwrap();
+                        }
+                        StreamResult::Done => {
+                            // Dropping the sender will end the body streaming,
+                            // and we only want to drop it when the Response
+                            // has been constructed
+                            if received_response {
+                                drop(sender);
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+
+            let response = response_rx.recv_async().await.unwrap();
+
+            let hyper_response = Builder::from(&response);
+            let hyper_response = hyper_response.body(body).unwrap();
+
+            Ok(hyper_response)
+        }
+        RunResult::Response(response) => {
+            let hyper_response = Builder::from(&response);
+            let hyper_response = hyper_response.body(response.body.into()).unwrap();
+
+            Ok(hyper_response)
         }
         RunResult::Error(error) => Ok(HyperResponse::builder()
             .status(500)
             .body(error.into())
             .unwrap()),
-        RunResult::Timeout() => Ok(HyperResponse::new("Timeouted".into())),
-        RunResult::MemoryLimit() => Ok(HyperResponse::new("MemoryLimited".into())),
-        RunResult::NotFound() => Ok(HyperResponse::builder()
+        RunResult::Timeout => Ok(HyperResponse::new("Timeouted".into())),
+        RunResult::MemoryLimit => Ok(HyperResponse::new("MemoryLimited".into())),
+        RunResult::NotFound => Ok(HyperResponse::builder()
             .status(404)
             .body("Deployment not found".into())
             .unwrap()),
@@ -184,10 +234,10 @@ async fn main() {
     let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
-    #[cfg(not(debug_assertions))]
-    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
-        SslOpts::default().with_danger_accept_invalid_certs(true),
-    ));
+    // #[cfg(not(debug_assertions))]
+    // let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
+    //     SslOpts::default().with_danger_accept_invalid_certs(true),
+    // ));
     let pool = Pool::new(opts).unwrap();
     let conn = pool.get_conn().unwrap();
 

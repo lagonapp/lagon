@@ -23,9 +23,11 @@ async fn execute_function() {
 }"
         .into(),
     ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
 
     assert_eq!(
-        isolate.run(Request::default()).await.0,
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response::from("Hello world"))
     );
 }
@@ -46,9 +48,11 @@ async fn environment_variables() {
                 .collect(),
         ),
     );
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
 
     assert_eq!(
-        isolate.run(Request::default()).await.0,
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response::from("Hello world"))
     );
 }
@@ -62,17 +66,21 @@ async fn get_body() {
 }"
         .into(),
     ));
-
-    assert_eq!(
-        isolate
-            .run(Request {
+    let (tx, rx) = flume::unbounded();
+    isolate
+        .run(
+            Request {
                 body: "Hello world".into(),
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "".into(),
-            })
-            .await
-            .0,
+            },
+            tx,
+        )
+        .await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response::from("Hello world"))
     );
 }
@@ -86,17 +94,21 @@ async fn get_input() {
 }"
         .into(),
     ));
-
-    assert_eq!(
-        isolate
-            .run(Request {
+    let (tx, rx) = flume::unbounded();
+    isolate
+        .run(
+            Request {
                 body: "".into(),
                 headers: HashMap::new(),
                 method: Method::GET,
                 url: "https://hello.world".into(),
-            })
-            .await
-            .0,
+            },
+            tx,
+        )
+        .await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response::from("https://hello.world"))
     );
 }
@@ -110,17 +122,21 @@ async fn get_method() {
 }"
         .into(),
     ));
-
-    assert_eq!(
-        isolate
-            .run(Request {
+    let (tx, rx) = flume::unbounded();
+    isolate
+        .run(
+            Request {
                 body: "".into(),
                 headers: HashMap::new(),
                 method: Method::POST,
                 url: "".into(),
-            })
-            .await
-            .0,
+            },
+            tx,
+        )
+        .await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response::from("POST"))
     );
 }
@@ -138,16 +154,21 @@ async fn get_headers() {
     let mut headers = HashMap::new();
     headers.insert("x-auth".into(), "token".into());
 
-    assert_eq!(
-        isolate
-            .run(Request {
+    let (tx, rx) = flume::unbounded();
+    isolate
+        .run(
+            Request {
                 body: "".into(),
                 headers,
                 method: Method::POST,
                 url: "".into(),
-            })
-            .await
-            .0,
+            },
+            tx,
+        )
+        .await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response::from("token"))
     );
 }
@@ -171,8 +192,11 @@ async fn return_headers() {
     headers.insert("Content-Type".into(), "text/html".into());
     headers.insert("X-Test".into(), "test".into());
 
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
     assert_eq!(
-        isolate.run(Request::default()).await.0,
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: Some(headers),
@@ -200,8 +224,11 @@ async fn return_headers_from_headers_api() {
     headers.insert("Content-Type".into(), "text/html".into());
     headers.insert("X-Test".into(), "test".into());
 
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
     assert_eq!(
-        isolate.run(Request::default()).await.0,
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response {
             body: "Hello world".into(),
             headers: Some(headers),
@@ -221,9 +248,11 @@ async fn return_status() {
 }"
         .into(),
     ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
 
     assert_eq!(
-        isolate.run(Request::default()).await.0,
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response {
             body: "Moved permanently".into(),
             headers: None,
@@ -243,9 +272,11 @@ async fn return_uint8array() {
 }"
         .into(),
     ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
 
     assert_eq!(
-        isolate.run(Request::default()).await.0,
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response::from("Hello world"))
     );
 }
@@ -265,9 +296,11 @@ async fn console_log() {
 }"
         .into(),
     ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
 
     assert_eq!(
-        isolate.run(Request::default()).await.0,
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response::default())
     );
 }

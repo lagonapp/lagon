@@ -23,9 +23,11 @@ async fn execute_async_handler() {
 }"
         .into(),
     ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
 
     assert_eq!(
-        isolate.run(Request::default()).await.0,
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response::from("Async handler"))
     );
 }
@@ -40,9 +42,11 @@ async fn execute_promise() {
 }"
         .into(),
     ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
 
     assert_eq!(
-        isolate.run(Request::default()).await.0,
+        rx.recv_async().await.unwrap(),
         RunResult::Response(Response::default())
     );
 }

@@ -1,10 +1,12 @@
 use console::console_binding;
 use fetch::fetch_binding;
+use pull_stream::pull_stream_binding;
 
 use crate::http::Response;
 
 mod console;
 mod fetch;
+mod pull_stream;
 
 pub struct BindingResult {
     pub id: usize,
@@ -28,6 +30,11 @@ pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
     lagon_object.set(
         v8::String::new(scope, "fetch").unwrap().into(),
         v8::FunctionTemplate::new(scope, fetch_binding).into(),
+    );
+
+    lagon_object.set(
+        v8::String::new(scope, "pullStream").unwrap().into(),
+        v8::FunctionTemplate::new(scope, pull_stream_binding).into(),
     );
 
     global.set(

@@ -5,7 +5,7 @@ export * from './runtime/Response';
 export * from './runtime/URL';
 export * from './runtime/parseMultipart';
 export * from './runtime/fetch';
-// export * from './streams';
+export * from './runtime/streams';
 
 import './runtime/console';
 import './runtime/process';
@@ -13,6 +13,7 @@ import './runtime/process';
 import { TextDecoder } from './runtime/encoding';
 import { Request, RequestInit } from './runtime/Request';
 import { Response } from './runtime/Response';
+import { ReadableStream } from './runtime/streams';
 
 declare global {
   const Lagon: {
@@ -23,6 +24,7 @@ declare global {
     ) => {
       body: string;
     };
+    pullStream: (done: boolean, chunk?: Uint8Array) => void;
   };
   const handler: (request: Request) => Promise<Response>;
 }
@@ -36,7 +38,27 @@ export async function masterHandler(request: { input: string } & Request): Promi
 
   const response = await handler(handlerRequest);
 
-  if (response.body instanceof Uint8Array) {
+  if (response.body instanceof ReadableStream) {
+    const reader = response.body.getReader();
+
+    new ReadableStream({
+      start: controller => {
+        const push = () => {
+          reader.read().then(({ done, value }) => {
+            if (done) {
+              controller.close();
+              Lagon.pullStream(done);
+              return;
+            }
+            controller.enqueue(value);
+            Lagon.pullStream(done, value);
+            push();
+          });
+        };
+        push();
+      },
+    });
+  } else if (response.body instanceof Uint8Array) {
     response.body = new TextDecoder().decode(response.body);
   }
 
