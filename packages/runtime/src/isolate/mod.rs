@@ -337,26 +337,22 @@ impl Isolate {
         };
     }
 
-    async fn run_event_loop(&mut self, tx: &flume::Sender<RunResult>) {
-        poll_fn(|cx| self.poll_event_loop(cx, tx)).await;
+    fn poll_v8(&mut self) {
+        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = isolate_state.borrow();
+        let global = isolate_state.global.0.clone();
+        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
+
+        while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), scope, false) {}
+        scope.perform_microtask_checkpoint();
     }
 
-    fn poll_event_loop(&mut self, cx: &mut Context, tx: &flume::Sender<RunResult>) -> Poll<()> {
-        let initial_isolate_state = Isolate::state(&self.isolate);
-
-        {
-            let isolate_state = initial_isolate_state.borrow();
-            let global = isolate_state.global.0.clone();
-            let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
-
-            while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), scope, false) {}
-            scope.perform_microtask_checkpoint();
-        }
-
+    fn resolve_promises(&mut self, cx: &mut Context) {
+        let isolate_state = Isolate::state(&self.isolate);
         let mut results = Vec::new();
 
         {
-            let mut isolate_state = initial_isolate_state.borrow_mut();
+            let mut isolate_state = isolate_state.borrow_mut();
 
             if !isolate_state.promises.is_empty() {
                 while let Poll::Ready(Some(BindingResult { id, result })) =
@@ -371,7 +367,7 @@ impl Isolate {
             }
         }
 
-        let isolate_state = initial_isolate_state.borrow();
+        let isolate_state = isolate_state.borrow();
         let global = isolate_state.global.0.clone();
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
 
@@ -385,10 +381,12 @@ impl Isolate {
                 }
             };
         }
+    }
 
+    fn poll_stream(&mut self, tx: &flume::Sender<RunResult>) {
         while let Ok(stream_result) = self.stream_receiver.try_recv() {
             // Set that we are streaming if it's the first time
-            // we receive a stream
+            // we receive a stream event
             if let StreamStatus::None = self.stream_status {
                 self.stream_status = StreamStatus::HasStream;
 
@@ -399,10 +397,14 @@ impl Isolate {
                 self.stream_status = StreamStatus::Done;
             }
 
-            println!("received");
             tx.send(RunResult::Stream(stream_result)).unwrap();
-            println!("sent");
         }
+    }
+
+    fn poll_event_loop(&mut self, cx: &mut Context, tx: &flume::Sender<RunResult>) -> Poll<()> {
+        self.poll_v8();
+        self.resolve_promises(cx);
+        self.poll_stream(tx);
 
         // Don't reach the handler polling if we are streaming
         match self.stream_status {
@@ -410,12 +412,15 @@ impl Isolate {
             StreamStatus::Done => {
                 self.stream_status = StreamStatus::None;
 
-                println!("ready");
                 return Poll::Ready(());
             }
             _ => {}
         };
 
+        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = isolate_state.borrow();
+        let global = isolate_state.global.0.clone();
+        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if let Some(TerminationResult { run_result }) = isolate_state.termination_result.as_ref() {
@@ -440,7 +445,6 @@ impl Isolate {
                     };
 
                     tx.send(run_result).unwrap();
-
                     return Poll::Ready(());
                 }
                 PromiseState::Rejected => {
@@ -450,7 +454,6 @@ impl Isolate {
                         try_catch, exception,
                     )))
                     .unwrap();
-
                     return Poll::Ready(());
                 }
                 PromiseState::Pending => {}
@@ -461,9 +464,15 @@ impl Isolate {
         Poll::Pending
     }
 
+    async fn run_event_loop(&mut self, tx: &flume::Sender<RunResult>) {
+        poll_fn(|cx| self.poll_event_loop(cx, tx)).await;
+    }
+
     pub async fn run(&mut self, request: Request, tx: flume::Sender<RunResult>) {
         self.evaluate(request);
 
+        // Don't run the event loop if we have a compilation error,
+        // and return it directly in that case
         if let Some(compilation_error) = &self.compilation_error {
             tx.send(RunResult::Error(compilation_error.to_string()))
                 .unwrap();

@@ -122,6 +122,7 @@ async fn handle_request(
 
                             isolate.run(request, tx.clone()).await;
 
+                            // TODO: handle stats
                             // if let Some(statistics) = maybe_statistics {
                             //     histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
                             //     histogram!(
@@ -156,14 +157,7 @@ async fn handle_request(
         RunResult::Stream(_) => {
             let (mut sender, body) = Body::channel();
 
-            // match stream_result {
-            //     StreamResult::Data(bytes) => {
-            //         let bytes = hyper::body::Bytes::from(bytes);
-            //         sender.send_data(bytes).await.unwrap();
-            //     }
-            //     StreamResult::Done => {}
-            // };
-
+            // TODO: don't spawn in a thread?
             tokio::spawn(async move {
                 loop {
                     if let RunResult::Stream(stream_result) = rx.recv_async().await.unwrap() {
