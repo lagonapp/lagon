@@ -64,7 +64,7 @@ pub fn rm_deployment(deployment_id: &str) -> io::Result<()> {
     fs::remove_file(Path::new("deployments").join(deployment_id.to_owned() + ".js"))?;
 
     // It's possible that the folder doesn't exists if the deployment has no assets
-    fs::remove_dir(Path::new("deployments").join(deployment_id)).unwrap_or(());
+    fs::remove_dir_all(Path::new("deployments").join(deployment_id)).unwrap_or(());
     info!("Deleted deployment: {}", deployment_id);
 
     Ok(())
