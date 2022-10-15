@@ -21,7 +21,7 @@ pub struct TrpcClient<'a> {
 
 impl<'a> TrpcClient<'a> {
     pub fn new(token: &'a str) -> Self {
-        let client = Client::builder().build::<_, hyper::Body>(HttpsConnector::new());
+        let client = Client::builder().build::<_, Body>(HttpsConnector::new());
 
         Self { client, token }
     }

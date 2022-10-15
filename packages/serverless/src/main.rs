@@ -1,8 +1,9 @@
 use deployments::Deployment;
-use http::{hyper_request_to_request, response_to_hyper_response_builder};
+use hyper::body::Bytes;
+use hyper::http::response::Builder;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
-use lagon_runtime::http::{RunResult, StreamResult};
+use lagon_runtime::http::{Request, RunResult, StreamResult};
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use lazy_static::lazy_static;
@@ -29,7 +30,6 @@ use crate::deployments::pubsub::listen_pub_sub;
 use crate::logger::init_logger;
 
 mod deployments;
-mod http;
 mod logger;
 
 lazy_static! {
@@ -49,7 +49,7 @@ async fn handle_request(
     // Remove the leading '/' from the url
     url.remove(0);
 
-    let request = hyper_request_to_request(req).await;
+    let request = Request::from(req).await;
     let hostname = request.headers.get("host").unwrap().clone();
 
     let thread_ids_reader = thread_ids.read().await;
@@ -164,7 +164,7 @@ async fn handle_request(
                     received_response = true;
                 }
                 StreamResult::Data(bytes) => {
-                    let bytes = hyper::body::Bytes::from(bytes);
+                    let bytes = Bytes::from(bytes);
                     sender.send_data(bytes).await.unwrap();
                 }
                 StreamResult::Done => panic!("Got a stream done without data"),
@@ -179,7 +179,7 @@ async fn handle_request(
                                 received_response = true;
                             }
                             StreamResult::Data(bytes) => {
-                                let bytes = hyper::body::Bytes::from(bytes);
+                                let bytes = Bytes::from(bytes);
                                 sender.send_data(bytes).await.unwrap();
                             }
                             StreamResult::Done => {
@@ -200,13 +200,13 @@ async fn handle_request(
 
             let response = response_rx.recv_async().await.unwrap();
 
-            let hyper_response = response_to_hyper_response_builder(&response);
+            let hyper_response = Builder::from(&response);
             let hyper_response = hyper_response.body(body).unwrap();
 
             return Ok(hyper_response);
         }
         RunResult::Response(response) => {
-            let hyper_response = response_to_hyper_response_builder(&response);
+            let hyper_response = Builder::from(&response);
             let hyper_response = hyper_response.body(response.body.into()).unwrap();
 
             Ok(hyper_response)
