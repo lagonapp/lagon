@@ -1,5 +1,5 @@
 use deployments::Deployment;
-use http::hyper_request_to_request;
+use http::{hyper_request_to_request, response_to_hyper_response_builder};
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::{RunResult, StreamResult};
@@ -26,7 +26,6 @@ use crate::deployments::assets::handle_asset;
 use crate::deployments::filesystem::get_deployment_code;
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
-use crate::http::response_to_hyper_response;
 use crate::logger::init_logger;
 
 mod deployments;
@@ -153,23 +152,48 @@ async fn handle_request(
     let result = rx.recv_async().await.unwrap();
 
     match result {
-        // We assume the first StreamResult is always start
-        RunResult::Stream(_) => {
+        RunResult::Stream(stream_result) => {
             let (mut sender, body) = Body::channel();
+            let (response_tx, response_rx) = flume::bounded(1);
+            // let mut received_done = false;
+            let mut received_response = false;
 
-            // TODO: don't spawn in a thread?
+            match stream_result {
+                StreamResult::Start(response) => {
+                    response_tx.send_async(response).await.unwrap();
+                    received_response = true;
+                }
+                StreamResult::Data(bytes) => {
+                    let bytes = hyper::body::Bytes::from(bytes);
+                    sender.send_data(bytes).await.unwrap();
+                }
+                StreamResult::Done => panic!("Got a stream done without data"),
+            }
+
             tokio::spawn(async move {
                 loop {
-                    if let RunResult::Stream(stream_result) = rx.recv_async().await.unwrap() {
+                    if let Ok(RunResult::Stream(stream_result)) = rx.recv_async().await {
                         match stream_result {
-                            StreamResult::Start => {}
+                            StreamResult::Start(response) => {
+                                response_tx.send_async(response).await.unwrap();
+                                received_response = true;
+
+                                // if received_done {
+                                //     drop(&sender);
+                                //     break;
+                                // }
+                            }
                             StreamResult::Data(bytes) => {
                                 let bytes = hyper::body::Bytes::from(bytes);
                                 sender.send_data(bytes).await.unwrap();
                             }
                             StreamResult::Done => {
-                                drop(&sender);
-                                break;
+                                // received_done = true;
+
+                                if received_response {
+                                    drop(&sender);
+                                    break;
+                                }
                             }
                         }
                     } else {
@@ -178,12 +202,18 @@ async fn handle_request(
                 }
             });
 
-            return Ok(HyperResponse::builder().body(body).unwrap());
+            let response = response_rx.recv_async().await.unwrap();
+
+            let hyper_response = response_to_hyper_response_builder(&response);
+            let hyper_response = hyper_response.body(body).unwrap();
+
+            return Ok(hyper_response);
         }
         RunResult::Response(response) => {
-            let response = response_to_hyper_response(response);
+            let hyper_response = response_to_hyper_response_builder(&response);
+            let hyper_response = hyper_response.body(response.body.into()).unwrap();
 
-            Ok(response)
+            Ok(hyper_response)
         }
         RunResult::Error(error) => Ok(HyperResponse::builder()
             .status(500)

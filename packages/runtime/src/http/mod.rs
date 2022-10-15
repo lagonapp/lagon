@@ -217,9 +217,19 @@ impl Response {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StreamResult {
-    Start,
+    Start(Response),
     Data(&'static [u8]),
     Done,
+}
+
+impl StreamResult {
+    pub fn get_response(self) -> Response {
+        if let StreamResult::Start(response) = self {
+            response
+        } else {
+            panic!("Not a response")
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

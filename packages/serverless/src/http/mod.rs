@@ -41,12 +41,12 @@ pub async fn hyper_request_to_request(request: HyperRequest<Body>) -> Request {
     }
 }
 
-pub fn response_to_hyper_response(response: Response) -> hyper::Response<Body> {
+pub fn response_to_hyper_response_builder(response: &Response) -> hyper::http::response::Builder {
     let mut builder = HyperResponse::builder().status(response.status);
 
     let builder_headers = builder.headers_mut().unwrap();
 
-    if let Some(headers) = response.headers {
+    if let Some(headers) = &response.headers {
         for (key, value) in headers {
             builder_headers.insert(
                 HeaderName::from_str(&key).unwrap(),
@@ -55,5 +55,5 @@ pub fn response_to_hyper_response(response: Response) -> hyper::Response<Body> {
         }
     }
 
-    builder.body(response.body.into()).unwrap()
+    builder
 }

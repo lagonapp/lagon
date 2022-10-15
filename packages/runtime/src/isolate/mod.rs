@@ -118,6 +118,15 @@ enum StreamStatus {
     Done,
 }
 
+impl StreamStatus {
+    pub fn is_done(&self) -> bool {
+        match self {
+            StreamStatus::Done => true,
+            _ => false,
+        }
+    }
+}
+
 pub struct Isolate {
     options: IsolateOptions,
     isolate: v8::OwnedIsolate,
@@ -125,6 +134,7 @@ pub struct Isolate {
     compilation_error: Option<String>,
     stream_receiver: flume::Receiver<StreamResult>,
     stream_status: StreamStatus,
+    stream_response_sent: bool,
 }
 
 unsafe impl Send for Isolate {}
@@ -141,8 +151,8 @@ impl Isolate {
         //     params = params.snapshot_blob(snapshot_blob.as_mut());
         // }
 
-        let (stream_sender, stream_receiver) = flume::unbounded();
         let mut isolate = v8::Isolate::new(params);
+        let (stream_sender, stream_receiver) = flume::unbounded();
 
         let state = {
             let isolate_scope = &mut v8::HandleScope::new(&mut isolate);
@@ -167,6 +177,7 @@ impl Isolate {
             compilation_error: None,
             stream_receiver,
             stream_status: StreamStatus::None,
+            stream_response_sent: false,
         };
 
         let isolate_ptr = &mut this as *mut _ as *mut std::ffi::c_void;
@@ -199,6 +210,9 @@ impl Isolate {
     pub fn evaluate(&mut self, request: Request) {
         let thread_safe_handle = self.isolate.thread_safe_handle();
         let isolate_state = Isolate::state(&self.isolate);
+
+        self.stream_status = StreamStatus::None;
+        self.stream_response_sent = false;
 
         let state = isolate_state.borrow();
         let global = state.global.0.clone();
@@ -389,8 +403,6 @@ impl Isolate {
             // we receive a stream event
             if let StreamStatus::None = self.stream_status {
                 self.stream_status = StreamStatus::HasStream;
-
-                tx.send(RunResult::Stream(StreamResult::Start)).unwrap();
             }
 
             if let StreamResult::Done = stream_result {
@@ -406,24 +418,21 @@ impl Isolate {
         self.resolve_promises(cx);
         self.poll_stream(tx);
 
-        // Don't reach the handler polling if we are streaming
-        match self.stream_status {
-            StreamStatus::HasStream => return Poll::Pending,
-            StreamStatus::Done => {
-                self.stream_status = StreamStatus::None;
-
+        if self.stream_response_sent {
+            if self.stream_status.is_done() {
                 return Poll::Ready(());
             }
-            _ => {}
-        };
+
+            return Poll::Pending;
+        }
 
         let isolate_state = Isolate::state(&self.isolate);
-        let isolate_state = isolate_state.borrow();
-        let global = isolate_state.global.0.clone();
+        let state = isolate_state.borrow();
+        let global = state.global.0.clone();
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
         let try_catch = &mut v8::TryCatch::new(scope);
 
-        if let Some(TerminationResult { run_result }) = isolate_state.termination_result.as_ref() {
+        if let Some(TerminationResult { run_result }) = state.termination_result.as_ref() {
             tx.send(run_result.clone()).unwrap();
             return Poll::Ready(());
         }
@@ -431,7 +440,7 @@ impl Isolate {
         if let Some(HandlerResult {
             promise,
             statistics: _,
-        }) = isolate_state.handler_result.as_ref()
+        }) = state.handler_result.as_ref()
         {
             let promise = promise.open(try_catch);
 
@@ -443,6 +452,23 @@ impl Isolate {
                         Some(response) => RunResult::Response(response),
                         None => handle_error(try_catch),
                     };
+
+                    if let RunResult::Response(ref response) = run_result {
+                        if response.body == b"[object ReadableStream]".to_vec() {
+                            if !self.stream_response_sent {
+                                tx.send(RunResult::Stream(StreamResult::Start(response.clone())))
+                                    .unwrap();
+                            }
+
+                            self.stream_response_sent = true;
+
+                            return if self.stream_status.is_done() {
+                                Poll::Ready(())
+                            } else {
+                                Poll::Pending
+                            };
+                        }
+                    }
 
                     tx.send(run_result).unwrap();
                     return Poll::Ready(());
@@ -480,6 +506,7 @@ impl Isolate {
         }
 
         self.run_event_loop(&tx).await;
+        println!("done running");
     }
 }
 
