@@ -48,7 +48,7 @@ struct Global(v8::Global<v8::Context>);
 #[derive(Debug)]
 struct HandlerResult {
     promise: v8::Global<v8::Promise>,
-    statistics: IsolateStatistics,
+    _statistics: IsolateStatistics,
 }
 
 #[derive(Debug)]
@@ -120,10 +120,7 @@ enum StreamStatus {
 
 impl StreamStatus {
     pub fn is_done(&self) -> bool {
-        match self {
-            StreamStatus::Done => true,
-            _ => false,
-        }
+        matches!(self, StreamStatus::Done)
     }
 }
 
@@ -333,7 +330,7 @@ impl Isolate {
 
                 isolate_state.borrow_mut().handler_result = Some(HandlerResult {
                     promise,
-                    statistics,
+                    _statistics: statistics,
                 });
             }
             None => {
@@ -447,7 +444,7 @@ impl Isolate {
 
         if let Some(HandlerResult {
             promise,
-            statistics: _,
+            _statistics,
         }) = state.handler_result.as_ref()
         {
             let promise = promise.open(try_catch);

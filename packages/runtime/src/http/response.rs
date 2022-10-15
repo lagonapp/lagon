@@ -114,8 +114,8 @@ impl From<&Response> for http::response::Builder {
         if let Some(headers) = &response.headers {
             for (key, value) in headers {
                 builder_headers.insert(
-                    HeaderName::from_str(&key).unwrap(),
-                    HeaderValue::from_str(&value).unwrap(),
+                    HeaderName::from_str(key).unwrap(),
+                    HeaderValue::from_str(value).unwrap(),
                 );
             }
         }

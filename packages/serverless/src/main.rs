@@ -8,7 +8,7 @@ use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use lazy_static::lazy_static;
 use log::error;
-use metrics::{counter, histogram, increment_counter};
+use metrics::{counter, /*histogram,*/ increment_counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
 #[cfg(not(debug_assertions))]
@@ -171,29 +171,25 @@ async fn handle_request(
             }
 
             tokio::spawn(async move {
-                loop {
-                    if let Ok(RunResult::Stream(stream_result)) = rx.recv_async().await {
-                        match stream_result {
-                            StreamResult::Start(response) => {
-                                response_tx.send_async(response).await.unwrap();
-                                received_response = true;
-                            }
-                            StreamResult::Data(bytes) => {
-                                let bytes = Bytes::from(bytes);
-                                sender.send_data(bytes).await.unwrap();
-                            }
-                            StreamResult::Done => {
-                                // Dropping the sender will end the body streaming,
-                                // and we only want to drop it when the Response
-                                // has been constructed
-                                if received_response {
-                                    drop(&sender);
-                                    break;
-                                }
+                while let Ok(RunResult::Stream(stream_result)) = rx.recv_async().await {
+                    match stream_result {
+                        StreamResult::Start(response) => {
+                            response_tx.send_async(response).await.unwrap();
+                            received_response = true;
+                        }
+                        StreamResult::Data(bytes) => {
+                            let bytes = Bytes::from(bytes);
+                            sender.send_data(bytes).await.unwrap();
+                        }
+                        StreamResult::Done => {
+                            // Dropping the sender will end the body streaming,
+                            // and we only want to drop it when the Response
+                            // has been constructed
+                            if received_response {
+                                drop(sender);
+                                break;
                             }
                         }
-                    } else {
-                        break;
                     }
                 }
             });
@@ -203,7 +199,7 @@ async fn handle_request(
             let hyper_response = Builder::from(&response);
             let hyper_response = hyper_response.body(body).unwrap();
 
-            return Ok(hyper_response);
+            Ok(hyper_response)
         }
         RunResult::Response(response) => {
             let hyper_response = Builder::from(&response);
@@ -238,10 +234,10 @@ async fn main() {
     let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
-    #[cfg(not(debug_assertions))]
-    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
-        SslOpts::default().with_danger_accept_invalid_certs(true),
-    ));
+    // #[cfg(not(debug_assertions))]
+    // let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
+    //     SslOpts::default().with_danger_accept_invalid_certs(true),
+    // ));
     let pool = Pool::new(opts).unwrap();
     let conn = pool.get_conn().unwrap();
 
