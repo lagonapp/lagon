@@ -154,8 +154,8 @@ async fn handle_request(
     match result {
         RunResult::Stream(stream_result) => {
             let (mut sender, body) = Body::channel();
+
             let (response_tx, response_rx) = flume::bounded(1);
-            // let mut received_done = false;
             let mut received_response = false;
 
             match stream_result {
@@ -177,19 +177,15 @@ async fn handle_request(
                             StreamResult::Start(response) => {
                                 response_tx.send_async(response).await.unwrap();
                                 received_response = true;
-
-                                // if received_done {
-                                //     drop(&sender);
-                                //     break;
-                                // }
                             }
                             StreamResult::Data(bytes) => {
                                 let bytes = hyper::body::Bytes::from(bytes);
                                 sender.send_data(bytes).await.unwrap();
                             }
                             StreamResult::Done => {
-                                // received_done = true;
-
+                                // Dropping the sender will end the body streaming,
+                                // and we only want to drop it when the Response
+                                // has been constructed
                                 if received_response {
                                     drop(&sender);
                                     break;

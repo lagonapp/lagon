@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use crate::utils::{extract_v8_string, v8_string};
 
+static READABLE_STREAM_STR: &[u8] = b"[object ReadableStream]";
+
 pub trait IntoV8 {
     fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object>;
 }
@@ -213,6 +215,10 @@ impl Response {
     pub fn len(&self) -> usize {
         self.body.len()
     }
+
+    pub fn is_streamed(&self) -> bool {
+        self.body == READABLE_STREAM_STR
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -220,16 +226,6 @@ pub enum StreamResult {
     Start(Response),
     Data(&'static [u8]),
     Done,
-}
-
-impl StreamResult {
-    pub fn get_response(self) -> Response {
-        if let StreamResult::Start(response) = self {
-            response
-        } else {
-            panic!("Not a response")
-        }
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

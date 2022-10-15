@@ -211,6 +211,7 @@ impl Isolate {
         let thread_safe_handle = self.isolate.thread_safe_handle();
         let isolate_state = Isolate::state(&self.isolate);
 
+        // Reset the stream status after each `run()`
         self.stream_status = StreamStatus::None;
         self.stream_response_sent = false;
 
@@ -363,10 +364,14 @@ impl Isolate {
 
     fn resolve_promises(&mut self, cx: &mut Context) {
         let isolate_state = Isolate::state(&self.isolate);
-        let mut results = Vec::new();
+        let mut promises = None;
 
         {
             let mut isolate_state = isolate_state.borrow_mut();
+
+            if !isolate_state.promises.is_empty() {
+                promises = Some(Vec::new());
+            }
 
             if !isolate_state.promises.is_empty() {
                 while let Poll::Ready(Some(BindingResult { id, result })) =
@@ -376,24 +381,27 @@ impl Isolate {
                         .js_promises
                         .remove(&id)
                         .unwrap_or_else(|| panic!("JS promise {} not found", id));
-                    results.push((result, promise));
+
+                    promises.as_mut().unwrap().push((result, promise));
                 }
             }
         }
 
-        let isolate_state = isolate_state.borrow();
-        let global = isolate_state.global.0.clone();
-        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
+        if let Some(promises) = promises {
+            let isolate_state = isolate_state.borrow();
+            let global = isolate_state.global.0.clone();
+            let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
 
-        for (result, promise) in results {
-            let promise = promise.open(scope);
+            for (result, promise) in promises {
+                let promise = promise.open(scope);
 
-            match result {
-                PromiseResult::Response(response) => {
-                    let response = response.into_v8(scope);
-                    promise.resolve(scope, response.into());
-                }
-            };
+                match result {
+                    PromiseResult::Response(response) => {
+                        let response = response.into_v8(scope);
+                        promise.resolve(scope, response.into());
+                    }
+                };
+            }
         }
     }
 
@@ -454,7 +462,7 @@ impl Isolate {
                     };
 
                     if let RunResult::Response(ref response) = run_result {
-                        if response.body == b"[object ReadableStream]".to_vec() {
+                        if response.is_streamed() {
                             if !self.stream_response_sent {
                                 tx.send(RunResult::Stream(StreamResult::Start(response.clone())))
                                     .unwrap();
@@ -506,7 +514,6 @@ impl Isolate {
         }
 
         self.run_event_loop(&tx).await;
-        println!("done running");
     }
 }
 
