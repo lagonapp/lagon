@@ -140,7 +140,7 @@ export const deploymentsRouter = (t: T) =>
             functionId: func.id,
             functionName: func.name,
             deploymentId: deployment.id,
-            domains: func.domains,
+            domains: func.domains.map(({ domain }) => domain),
             memory: func.memory,
             timeout: func.timeout,
             cron: func.cron,
