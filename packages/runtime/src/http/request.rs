@@ -2,7 +2,7 @@ use hyper::{
     body,
     header::HeaderName,
     http::{self, HeaderValue},
-    Body, Method as HyperMethod, Request as HyperRequest,
+    Body, Request as HyperRequest,
 };
 use std::{collections::HashMap, str::FromStr};
 
@@ -182,16 +182,7 @@ impl Request {
             headers.insert(key.to_string(), value.to_str().unwrap().to_string());
         }
 
-        let method = match *request.method() {
-            HyperMethod::POST => Method::POST,
-            HyperMethod::PUT => Method::PUT,
-            HyperMethod::PATCH => Method::PATCH,
-            HyperMethod::DELETE => Method::DELETE,
-            HyperMethod::HEAD => Method::HEAD,
-            HyperMethod::OPTIONS => Method::OPTIONS,
-            _ => Method::GET,
-        };
-
+        let method = Method::from(request.method());
         let host = headers
             .get("host")
             .map(|host| host.to_string())

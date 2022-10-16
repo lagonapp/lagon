@@ -18,7 +18,6 @@ import { ReadableStream } from './runtime/streams';
 declare global {
   const Lagon: {
     log: (message: string) => void;
-    //
     fetch: ({
       headers,
       method,

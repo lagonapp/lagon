@@ -1,6 +1,8 @@
+mod method;
 mod request;
 mod response;
 
+pub use method::*;
 pub use request::*;
 pub use response::*;
 
@@ -13,45 +15,6 @@ pub trait FromV8: Sized {
         scope: &mut v8::HandleScope<'a>,
         object: v8::Local<'a, v8::Value>,
     ) -> Option<Self>;
-}
-
-#[derive(Debug, Copy, Clone)]
-pub enum Method {
-    GET,
-    POST,
-    PUT,
-    PATCH,
-    DELETE,
-    HEAD,
-    OPTIONS,
-}
-
-impl From<Method> for &str {
-    fn from(method: Method) -> &'static str {
-        match method {
-            Method::GET => "GET",
-            Method::POST => "POST",
-            Method::PUT => "PUT",
-            Method::PATCH => "PATCH",
-            Method::DELETE => "DELETE",
-            Method::HEAD => "HEAD",
-            Method::OPTIONS => "OPTIONS",
-        }
-    }
-}
-
-impl From<&str> for Method {
-    fn from(method: &str) -> Method {
-        match method {
-            "POST" => Method::POST,
-            "PUT" => Method::PUT,
-            "PATCH" => Method::PATCH,
-            "DELETE" => Method::DELETE,
-            "HEAD" => Method::HEAD,
-            "OPTIONS" => Method::OPTIONS,
-            _ => Method::GET,
-        }
-    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
