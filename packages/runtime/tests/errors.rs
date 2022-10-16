@@ -28,7 +28,7 @@ async fn handler_reject() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: Rejected".into())
+        RunResult::Error("Uncaught Error: Rejected, at:\n    throw new Error('Rejected');".into())
     );
 }
 
@@ -46,7 +46,10 @@ async fn compilation_error() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("SyntaxError: Unexpected identifier 'syntax'".into()),
+        RunResult::Error(
+            "Uncaught SyntaxError: Unexpected identifier 'syntax', at:\n    this syntax is invalid"
+                .into()
+        ),
     );
 }
 

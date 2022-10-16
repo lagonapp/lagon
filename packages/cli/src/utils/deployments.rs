@@ -77,7 +77,11 @@ fn esbuild(file: &PathBuf) -> io::Result<FileCursor> {
 
     Err(Error::new(
         ErrorKind::Other,
-        format!("Unexpected status code {}", result.status),
+        format!(
+            "Unexpected status code {}:\n\n{}",
+            result.status.code().unwrap_or(0),
+            String::from_utf8(result.stderr).unwrap_or_else(|_| "Unknown error.".to_string())
+        ),
     ))
 }
 

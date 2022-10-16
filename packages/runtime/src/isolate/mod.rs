@@ -15,7 +15,6 @@ use v8::PromiseState;
 use crate::{
     http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult},
     runtime::get_runtime_code,
-    utils::extract_v8_string,
 };
 
 use self::bindings::{BindingResult, PromiseResult};
@@ -212,8 +211,10 @@ impl Isolate {
         self.stream_status = StreamStatus::None;
         self.stream_response_sent = false;
 
-        let state = isolate_state.borrow();
-        let global = state.global.0.clone();
+        let global = {
+            let state = isolate_state.borrow();
+            state.global.0.clone()
+        };
 
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global.clone());
         let try_catch = &mut v8::TryCatch::new(scope);
@@ -309,8 +310,6 @@ impl Isolate {
                 }
             }
         });
-
-        drop(state);
 
         match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(response) => {
@@ -519,15 +518,17 @@ fn get_exception_message(
     exception: v8::Local<v8::Value>,
 ) -> String {
     let exception_message = v8::Exception::create_message(scope, exception);
+    let message = exception_message.get(scope).to_rust_string_lossy(scope);
 
-    exception_message.get(scope).to_rust_string_lossy(scope)
+    if let Some(line) = exception_message.get_source_line(scope) {
+        return format!("{}, at:\n{}", message, line.to_rust_string_lossy(scope),);
+    }
+
+    message
 }
 
 fn handle_error(scope: &mut v8::TryCatch<v8::HandleScope>) -> RunResult {
     let exception = scope.exception().unwrap();
 
-    match extract_v8_string(exception, scope) {
-        Some(error) => RunResult::Error(error),
-        None => RunResult::Error(get_exception_message(scope, exception)),
-    }
+    RunResult::Error(get_exception_message(scope, exception))
 }
