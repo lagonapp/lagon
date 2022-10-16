@@ -11,19 +11,29 @@ import './runtime/console';
 import './runtime/process';
 
 import { TextDecoder } from './runtime/encoding';
-import { Request, RequestInit } from './runtime/Request';
+import { Request } from './runtime/Request';
 import { Response } from './runtime/Response';
 import { ReadableStream } from './runtime/streams';
 
 declare global {
   const Lagon: {
     log: (message: string) => void;
-    fetch: (
-      resource: string,
-      init: RequestInit,
-    ) => {
+    //
+    fetch: ({
+      headers,
+      method,
+      body,
+      url,
+    }: {
+      headers?: Record<string, string>;
+      method: string;
+      body?: string;
+      url: string;
+    }) => Promise<{
       body: string;
-    };
+      status: number;
+      headers?: Record<string, string>;
+    }>;
     pullStream: (done: boolean, chunk?: Uint8Array) => void;
   };
   const handler: (request: Request) => Promise<Response>;

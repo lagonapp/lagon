@@ -40,6 +40,20 @@ impl From<Method> for &str {
     }
 }
 
+impl From<&str> for Method {
+    fn from(method: &str) -> Method {
+        match method {
+            "POST" => Method::POST,
+            "PUT" => Method::PUT,
+            "PATCH" => Method::PATCH,
+            "DELETE" => Method::DELETE,
+            "HEAD" => Method::HEAD,
+            "OPTIONS" => Method::OPTIONS,
+            _ => Method::GET,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StreamResult {
     Start(Response),

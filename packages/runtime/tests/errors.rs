@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Once};
+use std::sync::Once;
 
 use lagon_runtime::{
     http::{Method, Request, RunResult},
@@ -96,8 +96,8 @@ async fn memory_reached() {
     isolate
         .run(
             Request {
-                body: "".into(),
-                headers: HashMap::new(),
+                body: None,
+                headers: None,
                 method: Method::GET,
                 url: "".into(),
             },

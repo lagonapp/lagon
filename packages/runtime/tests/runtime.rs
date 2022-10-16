@@ -70,8 +70,8 @@ async fn get_body() {
     isolate
         .run(
             Request {
-                body: "Hello world".into(),
-                headers: HashMap::new(),
+                body: Some("Hello world".into()),
+                headers: None,
                 method: Method::GET,
                 url: "".into(),
             },
@@ -98,8 +98,8 @@ async fn get_input() {
     isolate
         .run(
             Request {
-                body: "".into(),
-                headers: HashMap::new(),
+                body: None,
+                headers: None,
                 method: Method::GET,
                 url: "https://hello.world".into(),
             },
@@ -126,8 +126,8 @@ async fn get_method() {
     isolate
         .run(
             Request {
-                body: "".into(),
-                headers: HashMap::new(),
+                body: None,
+                headers: None,
                 method: Method::POST,
                 url: "".into(),
             },
@@ -158,8 +158,8 @@ async fn get_headers() {
     isolate
         .run(
             Request {
-                body: "".into(),
-                headers,
+                body: None,
+                headers: Some(headers),
                 method: Method::POST,
                 url: "".into(),
             },

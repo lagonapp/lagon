@@ -1,7 +1,8 @@
 use hyper::{
+    body,
     header::HeaderName,
     http::{self, HeaderValue},
-    Response as HyperResponse,
+    Body, Response as HyperResponse,
 };
 use std::{collections::HashMap, str::FromStr};
 
@@ -39,14 +40,36 @@ impl From<&str> for Response {
 
 impl IntoV8 for Response {
     fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
-        let response_object = v8::Object::new(scope);
-        let body_key = v8::String::new(scope, "body").unwrap();
-        let body_key = v8::Local::new(scope, body_key);
+        let response = v8::Object::new(scope);
+
+        let body_key = v8_string(scope, "body").unwrap();
         let body_value = v8::String::new(scope, std::str::from_utf8(&self.body).unwrap()).unwrap();
         let body_value = v8::Local::new(scope, body_value);
+        response.set(scope, body_key.into(), body_value.into());
 
-        response_object.set(scope, body_key.into(), body_value.into());
-        response_object
+        let status_key = v8_string(scope, "status").unwrap();
+        let status_value = v8::Integer::new(scope, self.status.into());
+        let status_value = v8::Local::new(scope, status_value);
+        response.set(scope, status_key.into(), status_value.into());
+
+        let headers_key = v8_string(scope, "headers").unwrap();
+        let request_headers = v8::Object::new(scope);
+
+        if let Some(headers) = self.headers {
+            for (key, value) in headers.iter() {
+                let key = v8::String::new(scope, key).unwrap();
+                let key = v8::Local::new(scope, key);
+                let value = v8::String::new(scope, value).unwrap();
+                let value = v8::Local::new(scope, value);
+                request_headers.set(scope, key.into(), value.into());
+            }
+
+            response
+                .set(scope, headers_key.into(), request_headers.into())
+                .unwrap();
+        }
+
+        response
     }
 }
 
@@ -132,5 +155,27 @@ impl Response {
 
     pub fn is_streamed(&self) -> bool {
         self.body == READABLE_STREAM_STR
+    }
+
+    pub async fn from_hyper(response: HyperResponse<Body>) -> Self {
+        let mut headers = HashMap::new();
+
+        for (key, value) in response.headers().iter() {
+            headers.insert(key.to_string(), value.to_str().unwrap().to_string());
+        }
+
+        let status = response.status().as_u16();
+
+        let body = body::to_bytes(response.into_body()).await.unwrap();
+
+        Response {
+            status,
+            headers: if !headers.is_empty() {
+                Some(headers)
+            } else {
+                None
+            },
+            body: body.to_vec(),
+        }
     }
 }
