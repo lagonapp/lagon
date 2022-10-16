@@ -28,7 +28,9 @@ async fn handler_reject() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: Rejected".into())
+        RunResult::Error(
+            "Uncaught Error: Rejected, at 2442:10:\n    throw new Error('Rejected');".into()
+        )
     );
 }
 
