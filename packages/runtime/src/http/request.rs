@@ -1,5 +1,5 @@
 use hyper::{
-    body,
+    body::{self, Bytes},
     header::HeaderName,
     http::{self, HeaderValue},
     Body, Request as HyperRequest,
@@ -14,7 +14,7 @@ use super::{FromV8, IntoV8, Method};
 pub struct Request {
     pub headers: Option<HashMap<String, String>>,
     pub method: Method,
-    pub body: Option<String>,
+    pub body: Bytes,
     pub url: String,
 }
 
@@ -23,7 +23,7 @@ impl Default for Request {
         Request {
             headers: None,
             method: Method::GET,
-            body: None,
+            body: Bytes::new(),
             url: "".into(),
         }
     }
@@ -47,9 +47,10 @@ impl IntoV8 for Request {
             .set(scope, method_key.into(), method_value.into())
             .unwrap();
 
-        if let Some(body) = self.body {
+        if !self.body.is_empty() {
             let body_key = v8_string(scope, "body").unwrap();
-            let body_value = v8::String::new(scope, &body).unwrap();
+            let body_value =
+                v8::String::new(scope, &String::from_utf8(self.body.to_vec()).unwrap()).unwrap();
             let body_value = v8::Local::new(scope, body_value);
             request
                 .set(scope, body_key.into(), body_value.into())
@@ -84,12 +85,12 @@ impl FromV8 for Request {
     ) -> Option<Self> {
         let response = request.to_object(scope)?;
 
-        let mut body = None;
+        let mut body = Bytes::new();
         let body_key = v8_string(scope, "body")?;
 
         if let Some(body_value) = response.get(scope, body_key.into()) {
             if !body_value.is_null_or_undefined() {
-                body = Some(extract_v8_string(body_value, scope)?);
+                body = Bytes::from(extract_v8_string(body_value, scope)?);
             }
         }
 
@@ -172,7 +173,7 @@ impl From<&Request> for http::request::Builder {
 impl Request {
     // TODO: Return the full request length
     pub fn len(&self) -> usize {
-        self.body.as_ref().map_or(0, |body| body.len())
+        self.body.len()
     }
 
     pub async fn from_hyper(request: HyperRequest<Body>) -> Self {
@@ -190,7 +191,6 @@ impl Request {
         let url = format!("http://{}{}", host, request.uri().to_string().as_str());
 
         let body = body::to_bytes(request.into_body()).await.unwrap();
-        let body = String::from_utf8(body.to_vec()).unwrap();
 
         Request {
             headers: if !headers.is_empty() {
@@ -199,7 +199,7 @@ impl Request {
                 None
             },
             method,
-            body: Some(body),
+            body,
             url,
         }
     }

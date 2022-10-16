@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Once};
 
+use hyper::body::Bytes;
 use lagon_runtime::{
     http::{Method, Request, Response, RunResult},
     isolate::{Isolate, IsolateOptions},
@@ -70,7 +71,7 @@ async fn get_body() {
     isolate
         .run(
             Request {
-                body: Some("Hello world".into()),
+                body: Bytes::from("Hello world"),
                 headers: None,
                 method: Method::GET,
                 url: "".into(),
@@ -98,7 +99,7 @@ async fn get_input() {
     isolate
         .run(
             Request {
-                body: None,
+                body: Bytes::new(),
                 headers: None,
                 method: Method::GET,
                 url: "https://hello.world".into(),
@@ -126,7 +127,7 @@ async fn get_method() {
     isolate
         .run(
             Request {
-                body: None,
+                body: Bytes::new(),
                 headers: None,
                 method: Method::POST,
                 url: "".into(),
@@ -158,7 +159,7 @@ async fn get_headers() {
     isolate
         .run(
             Request {
-                body: None,
+                body: Bytes::new(),
                 headers: Some(headers),
                 method: Method::POST,
                 url: "".into(),

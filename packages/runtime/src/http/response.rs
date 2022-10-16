@@ -1,5 +1,5 @@
 use hyper::{
-    body,
+    body::{self, Bytes},
     header::HeaderName,
     http::{self, HeaderValue},
     Body, Response as HyperResponse,
@@ -14,7 +14,7 @@ static READABLE_STREAM_STR: &[u8] = b"[object ReadableStream]";
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Response {
     pub headers: Option<HashMap<String, String>>,
-    pub body: Vec<u8>,
+    pub body: Bytes,
     pub status: u16,
 }
 
@@ -22,7 +22,7 @@ impl Default for Response {
     fn default() -> Self {
         Response {
             headers: None,
-            body: [].into(),
+            body: Bytes::new(),
             status: 200,
         }
     }
@@ -32,7 +32,7 @@ impl From<&str> for Response {
     fn from(body: &str) -> Self {
         Response {
             headers: None,
-            body: body.into(),
+            body: Bytes::from(body.to_string()),
             status: 200,
         }
     }
@@ -122,7 +122,7 @@ impl FromV8 for Response {
 
         Some(Self {
             headers,
-            body: body.into_bytes(),
+            body: Bytes::from(body),
             status,
         })
     }
@@ -175,7 +175,7 @@ impl Response {
             } else {
                 None
             },
-            body: body.to_vec(),
+            body,
         }
     }
 }

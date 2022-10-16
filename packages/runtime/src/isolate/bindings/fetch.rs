@@ -25,9 +25,7 @@ pub fn fetch_binding(
 
     let future = async move {
         let hyper_request = Builder::from(&request);
-        let hyper_request = hyper_request
-            .body(request.body.map_or_else(Body::empty, Body::from))
-            .unwrap();
+        let hyper_request = hyper_request.body(Body::from(request.body)).unwrap();
 
         let client = Client::builder().build::<_, Body>(HttpsConnector::new());
 
