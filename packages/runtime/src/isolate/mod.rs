@@ -15,7 +15,6 @@ use v8::PromiseState;
 use crate::{
     http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult},
     runtime::get_runtime_code,
-    utils::extract_v8_string,
 };
 
 use self::bindings::{BindingResult, PromiseResult};
@@ -522,13 +521,7 @@ fn get_exception_message(
     let message = exception_message.get(scope).to_rust_string_lossy(scope);
 
     if let Some(line) = exception_message.get_source_line(scope) {
-        return format!(
-            "{}, at {}:{}:\n{}",
-            message,
-            exception_message.get_line_number(scope).unwrap_or(0),
-            exception_message.get_start_column(),
-            line.to_rust_string_lossy(scope),
-        );
+        return format!("{}, at:\n{}", message, line.to_rust_string_lossy(scope),);
     }
 
     message
@@ -537,8 +530,5 @@ fn get_exception_message(
 fn handle_error(scope: &mut v8::TryCatch<v8::HandleScope>) -> RunResult {
     let exception = scope.exception().unwrap();
 
-    match extract_v8_string(exception, scope) {
-        Some(error) => RunResult::Error(error),
-        None => RunResult::Error(get_exception_message(scope, exception)),
-    }
+    RunResult::Error(get_exception_message(scope, exception))
 }
