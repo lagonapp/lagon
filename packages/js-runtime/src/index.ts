@@ -24,7 +24,7 @@ declare global {
       body,
       url,
     }: {
-      headers?: Record<string, string>;
+      headers?: Map<string, string>;
       method: string;
       body?: string;
       url: string;

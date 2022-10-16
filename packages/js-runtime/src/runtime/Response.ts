@@ -11,7 +11,8 @@ export interface ResponseInit {
 
 const DECODER = new TextDecoder();
 
-const isIterable = (value: unknown): value is Iterable<number> => Symbol.iterator in Object(value);
+const isIterable = (value: unknown): value is Iterable<number> =>
+  typeof value !== 'string' && Symbol.iterator in Object(value);
 
 export class Response {
   body: string | Iterable<number>;

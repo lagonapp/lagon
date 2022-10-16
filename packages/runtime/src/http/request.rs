@@ -97,10 +97,8 @@ impl FromV8 for Request {
         let mut headers = None;
         let headers_key = v8_string(scope, "headers")?;
 
-        if let Some(headers_object) = response.get(scope, headers_key.into()) {
-            if !headers_object.is_null_or_undefined() {
-                let headers_object = headers_object.to_object(scope)?;
-                let headers_map = headers_object.get(scope, headers_key.into())?;
+        if let Some(headers_map) = response.get(scope, headers_key.into()) {
+            if !headers_map.is_null_or_undefined() {
                 let headers_map = unsafe { v8::Local::<v8::Map>::cast(headers_map) };
 
                 if headers_map.size() > 0 {
