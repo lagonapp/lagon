@@ -126,6 +126,30 @@ async fn request_headers() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn request_headers_class() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
+    const body = await fetch('http://localhost:5555/request-headers', {
+        headers: new Headers({
+            'x-token': 'hello'
+        })
+    }).then(res => res.text());
+
+    return new Response(body);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("host: localhost:5555 x-token: hello"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn request_body() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
