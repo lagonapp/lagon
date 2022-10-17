@@ -95,7 +95,7 @@ async fn main() {
                 public_dir,
                 port,
                 hostname,
-            } => commands::dev(file, client, public_dir, port, hostname),
+            } => commands::dev(file, client, public_dir, port, hostname).await,
             Commands::Build {
                 file,
                 client,

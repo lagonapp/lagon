@@ -240,10 +240,10 @@ async fn main() {
     let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
-    // #[cfg(not(debug_assertions))]
-    // let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
-    //     SslOpts::default().with_danger_accept_invalid_certs(true),
-    // ));
+    #[cfg(not(debug_assertions))]
+    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
+        SslOpts::default().with_danger_accept_invalid_certs(true),
+    ));
     let pool = Pool::new(opts).unwrap();
     let conn = pool.get_conn().unwrap();
 
