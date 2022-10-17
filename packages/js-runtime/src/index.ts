@@ -15,8 +15,14 @@ import { Request } from './runtime/Request';
 import { Response } from './runtime/Response';
 import { ReadableStream } from './runtime/streams';
 
+// Declare the global functions and variables available
+// on the runtime, that are injected from the Rust code.
+//
+// NOTE: we use `var` to that we can refer to these variables
+// using `globalThis.VARIABLE`.
 declare global {
-  const Lagon: {
+  // eslint-disable-next-line no-var
+  var Lagon: {
     log: (message: string) => void;
     fetch: ({
       headers,
@@ -35,7 +41,8 @@ declare global {
     }>;
     pullStream: (done: boolean, chunk?: Uint8Array) => void;
   };
-  const handler: (request: Request) => Promise<Response>;
+  // eslint-disable-next-line no-var
+  var handler: (request: Request) => Promise<Response>;
 }
 
 export async function masterHandler(request: { input: string } & Request): Promise<Response> {

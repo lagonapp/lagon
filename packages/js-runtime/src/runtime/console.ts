@@ -1,5 +1,5 @@
 (globalThis => {
-  const format = (...args: any[]): string => {
+  const format = (...args: unknown[]): string => {
     let str = '';
 
     for (let i = 0; i < args.length; i++) {

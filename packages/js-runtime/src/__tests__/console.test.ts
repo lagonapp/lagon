@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import '../runtime/console';
 
 beforeEach(() => {
-  // @ts-expect-error Lagon is not defined
   globalThis.Lagon = {
+    ...globalThis.Lagon,
     log: vi.fn(),
   };
 });
@@ -12,7 +12,7 @@ afterEach(() => {
   vi.resetAllMocks();
 });
 
-describe('Logs', () => {
+describe('Console', () => {
   it('should log', () => {
     console.log('Hello World');
 
@@ -46,8 +46,9 @@ describe('Logs', () => {
     expect(Lagon.log).toHaveBeenCalledWith('[log] ["hello","world"]');
   });
 
+  // TODO: test callbacks and functions
   it('should log functions', () => {
-    console.log(function () {
+    console.log(() => {
       return 'Hello World';
     });
 
