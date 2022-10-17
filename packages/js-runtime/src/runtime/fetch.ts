@@ -69,12 +69,32 @@ export class Headers {
   }
 }
 
-export async function fetch(resource: string, init: RequestInit) {
-  const response = await Lagon.fetch(resource, init);
+const isHeadersObject = (headers: Record<string, string> | Headers | undefined): headers is Headers =>
+  !!headers && 'entries' in headers;
+
+export async function fetch(resource: string, options?: RequestInit) {
+  let headers: Map<string, string> | undefined = undefined;
+
+  if (isHeadersObject(options?.headers)) {
+    headers = new Map();
+
+    for (const [key, value] of (options?.headers as Headers).entries()) {
+      headers.set(key, value);
+    }
+  } else if (options?.headers) {
+    headers = new Map(Object.entries(options.headers));
+  }
+
+  const response = await Lagon.fetch({
+    method: options?.method || 'GET',
+    url: resource,
+    body: options?.body,
+    headers,
+  });
 
   return new Response(response.body, {
     // url: response.options.url,
-    // headers: response.options.headers,
-    // status: response.options.status,
+    headers: response.headers,
+    status: response.status,
   });
 }

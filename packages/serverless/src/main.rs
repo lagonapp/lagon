@@ -49,8 +49,14 @@ async fn handle_request(
     // Remove the leading '/' from the url
     url.remove(0);
 
-    let request = Request::from(req).await;
-    let hostname = request.headers.get("host").unwrap().clone();
+    let request = Request::from_hyper(req).await;
+    let hostname = request
+        .headers
+        .as_ref()
+        .unwrap()
+        .get("host")
+        .unwrap()
+        .clone();
 
     let thread_ids_reader = thread_ids.read().await;
 

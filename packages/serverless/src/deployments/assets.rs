@@ -1,5 +1,6 @@
 use std::{collections::HashMap, env, fs, io, path::Path};
 
+use hyper::body::Bytes;
 use lagon_runtime::http::Response;
 
 use super::Deployment;
@@ -31,6 +32,6 @@ pub fn handle_asset(deployment: &Deployment, asset: &String) -> io::Result<Respo
     Ok(Response {
         status: 200,
         headers: Some(headers),
-        body,
+        body: Bytes::from(body),
     })
 }

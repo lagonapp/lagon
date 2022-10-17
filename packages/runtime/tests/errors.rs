@@ -1,5 +1,6 @@
-use std::{collections::HashMap, sync::Once};
+use std::sync::Once;
 
+use hyper::body::Bytes;
 use lagon_runtime::{
     http::{Method, Request, RunResult},
     isolate::{Isolate, IsolateOptions},
@@ -96,8 +97,8 @@ async fn memory_reached() {
     isolate
         .run(
             Request {
-                body: "".into(),
-                headers: HashMap::new(),
+                body: Bytes::new(),
+                headers: None,
                 method: Method::GET,
                 url: "".into(),
             },

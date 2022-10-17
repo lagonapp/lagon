@@ -1,8 +1,10 @@
 (globalThis => {
-  const format = (...args: any[]): string => {
+  const format = (...args: unknown[]): string => {
     let str = '';
 
     for (let i = 0; i < args.length; i++) {
+      str += ' ';
+
       const arg = args[i];
 
       if (typeof arg === 'string') {
@@ -19,7 +21,7 @@
 
   types.forEach(type => {
     globalThis.console[type] = (...args: unknown[]) => {
-      Lagon.log(`[${type}] ${format(...args)}`);
+      Lagon.log(`[${type}]${format(...args)}`);
     };
   });
 })(globalThis);

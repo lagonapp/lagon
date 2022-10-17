@@ -1,8 +1,8 @@
-use hyper::{body, http::Request, Body, Client};
+use hyper::{http::request::Builder, Body, Client};
 use hyper_tls::HttpsConnector;
 
 use crate::{
-    http::Response,
+    http::{FromV8, Request, Response},
     isolate::{bindings::PromiseResult, Isolate},
 };
 
@@ -13,7 +13,8 @@ pub fn fetch_binding(
     args: v8::FunctionCallbackArguments,
     mut retval: v8::ReturnValue,
 ) {
-    let resource = args.get(0).to_rust_string_lossy(scope);
+    let request = args.get(0).to_object(scope).unwrap();
+    let request = Request::from_v8(scope, request.into()).unwrap();
 
     let promise = v8::PromiseResolver::new(scope).unwrap();
     let promise = v8::Local::new(scope, promise);
@@ -23,22 +24,13 @@ pub fn fetch_binding(
     let id = state.js_promises.len() + 1;
 
     let future = async move {
-        let request = Request::builder()
-            .method("GET")
-            .uri(resource)
-            .body(Body::empty())
-            .unwrap();
+        let hyper_request = Builder::from(&request);
+        let hyper_request = hyper_request.body(Body::from(request.body)).unwrap();
+
         let client = Client::builder().build::<_, Body>(HttpsConnector::new());
 
-        let response = client.request(request).await.unwrap();
-        let status = response.status().as_u16();
-        let body = body::to_bytes(response.into_body()).await.unwrap().to_vec();
-
-        let response = Response {
-            body,
-            headers: None,
-            status,
-        };
+        let hyper_response = client.request(hyper_request).await.unwrap();
+        let response = Response::from_hyper(hyper_response).await;
 
         BindingResult {
             id,
