@@ -45,8 +45,10 @@ pub async fn login() -> io::Result<()> {
         .with_prompt(input("Verification code"))
         .interact()?;
 
-    let client = TrpcClient::new(&code);
-    let request = CliRequest { code: code.clone() };
+    config.set_token(Some(code.clone()));
+
+    let client = TrpcClient::new(&config);
+    let request = CliRequest { code };
 
     match client
         .mutation::<CliRequest, CliResponse>("tokensAuthenticate", request)

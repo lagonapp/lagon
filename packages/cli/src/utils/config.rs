@@ -3,11 +3,7 @@ use std::fs;
 use std::io;
 use std::path::PathBuf;
 
-#[cfg(debug_assertions)]
-static DEFAULT_SITE_URL: &str = "http://localhost:3000";
-
-#[cfg(not(debug_assertions))]
-static DEFAULT_SITE_URL: &str = "https://dash.lagon.app";
+use super::get_site_url;
 
 fn get_config_path() -> PathBuf {
     dirs::home_dir().unwrap().join(".lagon").join("config.json")
@@ -28,7 +24,7 @@ impl Config {
 
             let config = Config {
                 token: None,
-                site_url: DEFAULT_SITE_URL.to_string(),
+                site_url: get_site_url(),
             };
 
             fs::write(path, serde_json::to_string(&config)?)?;
@@ -50,9 +46,5 @@ impl Config {
 
     pub fn set_token(&mut self, token: Option<String>) {
         self.token = token;
-    }
-
-    pub fn set_site_url(&mut self, site_url: String) {
-        self.site_url = site_url;
     }
 }

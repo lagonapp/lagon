@@ -2,7 +2,7 @@ use hyper::{body, client::HttpConnector, http::Result, Body, Client, Method, Req
 use hyper_tls::HttpsConnector;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-use super::{get_site_url, Config};
+use super::Config;
 
 #[derive(Deserialize, Debug)]
 pub struct TrpcResponse<T> {
@@ -14,13 +14,13 @@ pub struct TrpcResult<T> {
     pub data: T,
 }
 
-pub struct TrpcClient {
+pub struct TrpcClient<'a> {
     pub client: Client<HttpsConnector<HttpConnector>>,
-    config: Config,
+    config: &'a Config,
 }
 
-impl TrpcClient {
-    pub fn new(config: Config) -> Self {
+impl<'a> TrpcClient<'a> {
+    pub fn new(config: &'a Config) -> Self {
         let client = Client::builder().build::<_, Body>(HttpsConnector::new());
 
         Self { client, config }
