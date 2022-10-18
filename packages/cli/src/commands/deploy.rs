@@ -11,7 +11,7 @@ use crate::{
     auth::get_token,
     utils::{
         create_deployment, debug, get_function_config, info, print_progress, validate_code_file,
-        validate_public_dir, write_function_config, DeploymentConfig, TrpcClient,
+        validate_public_dir, write_function_config, Config, DeploymentConfig, TrpcClient,
     },
 };
 
@@ -62,16 +62,16 @@ pub async fn deploy(
     public_dir: Option<PathBuf>,
     _force: bool,
 ) -> io::Result<()> {
-    let token = get_token()?;
+    let config = Config::new()?;
 
-    if token.is_none() {
+    if config.token.is_none() {
         return Err(Error::new(
             ErrorKind::Other,
             "You are not logged in. Please login with `lagon login`",
         ));
     }
 
-    let token = token.unwrap();
+    let token = config.token.as_ref().unwrap();
 
     validate_code_file(&file)?;
 
@@ -84,13 +84,13 @@ pub async fn deploy(
     };
 
     let public_dir = validate_public_dir(public_dir)?;
-    let config = get_function_config()?;
+    let function_config = get_function_config()?;
 
-    if config.is_none() {
+    if function_config.is_none() {
         println!("{}", debug("No deployment config found..."));
         println!();
 
-        let trpc_client = TrpcClient::new(&token);
+        let trpc_client = TrpcClient::new(config);
         let response = trpc_client
             .query::<(), OrganizationsResponse>("organizationsList", None)
             .await
@@ -159,7 +159,7 @@ pub async fn deploy(
         return Ok(());
     }
 
-    let config = config.unwrap();
+    let config = function_config.unwrap();
 
     create_deployment(config.function_id, file, client, public_dir, token).await
 }

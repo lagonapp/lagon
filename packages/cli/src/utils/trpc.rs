@@ -2,7 +2,7 @@ use hyper::{body, client::HttpConnector, http::Result, Body, Client, Method, Req
 use hyper_tls::HttpsConnector;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
-use super::get_site_url;
+use super::{get_site_url, Config};
 
 #[derive(Deserialize, Debug)]
 pub struct TrpcResponse<T> {
@@ -14,16 +14,16 @@ pub struct TrpcResult<T> {
     pub data: T,
 }
 
-pub struct TrpcClient<'a> {
+pub struct TrpcClient {
     pub client: Client<HttpsConnector<HttpConnector>>,
-    pub token: &'a str,
+    config: Config,
 }
 
-impl<'a> TrpcClient<'a> {
-    pub fn new(token: &'a str) -> Self {
+impl TrpcClient {
+    pub fn new(config: Config) -> Self {
         let client = Client::builder().build::<_, Body>(HttpsConnector::new());
 
-        Self { client, token }
+        Self { client, config }
     }
 
     pub async fn query<T: Serialize, R: DeserializeOwned>(
@@ -38,9 +38,9 @@ impl<'a> TrpcClient<'a> {
 
         let request = Request::builder()
             .method(Method::GET)
-            .uri(get_site_url() + "/api/trpc/" + key)
+            .uri(self.config.site_url.clone() + "/api/trpc/" + key)
             .header("content-type", "application/json")
-            .header("x-lagon-token", self.token)
+            .header("x-lagon-token", self.config.token.as_ref().unwrap())
             .body(body)?;
 
         let response = self.client.request(request).await.unwrap();
@@ -61,9 +61,9 @@ impl<'a> TrpcClient<'a> {
 
         let request = Request::builder()
             .method(Method::POST)
-            .uri(get_site_url() + "/api/trpc/" + key)
+            .uri(self.config.site_url.clone() + "/api/trpc/" + key)
             .header("content-type", "application/json")
-            .header("x-lagon-token", self.token)
+            .header("x-lagon-token", self.config.token.as_ref().unwrap())
             .body(Body::from(body))?;
 
         let response = self.client.request(request).await.unwrap();
