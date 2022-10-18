@@ -3,8 +3,7 @@ use std::io::{self, Error, ErrorKind};
 use dialoguer::{Confirm, Password};
 use serde::{Deserialize, Serialize};
 
-use crate::auth::{get_token, set_token};
-use crate::utils::{debug, get_site_url, info, input, print_progress, success, TrpcClient};
+use crate::utils::{debug, get_site_url, info, input, print_progress, success, Config, TrpcClient};
 
 #[derive(Deserialize, Debug)]
 struct CliResponse {
@@ -17,7 +16,9 @@ struct CliRequest {
 }
 
 pub async fn login() -> io::Result<()> {
-    if (get_token()?).is_some()
+    let mut config = Config::new()?;
+
+    if config.token.is_some()
         && !Confirm::new()
             .with_prompt(info(
                 "You are already logged in. Are you sure you want to log in again?",
@@ -44,15 +45,18 @@ pub async fn login() -> io::Result<()> {
         .with_prompt(input("Verification code"))
         .interact()?;
 
-    let client = TrpcClient::new(&code);
-    let request = CliRequest { code: code.clone() };
+    config.set_token(Some(code.clone()));
+
+    let client = TrpcClient::new(&config);
+    let request = CliRequest { code };
 
     match client
         .mutation::<CliRequest, CliResponse>("tokensAuthenticate", request)
         .await
     {
         Ok(response) => {
-            set_token(response.result.data.token)?;
+            config.set_token(Some(response.result.data.token));
+            config.save()?;
 
             println!();
             println!(

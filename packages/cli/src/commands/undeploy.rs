@@ -6,12 +6,9 @@ use std::{
 use dialoguer::Confirm;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    auth::get_token,
-    utils::{
-        delete_function_config, get_function_config, info, print_progress, success,
-        validate_code_file, TrpcClient,
-    },
+use crate::utils::{
+    delete_function_config, get_function_config, info, print_progress, success, validate_code_file,
+    Config, TrpcClient,
 };
 
 #[derive(Serialize, Debug)]
@@ -24,29 +21,27 @@ struct DeleteFunctionRequest {
 struct DeleteFunctionResponse {}
 
 pub async fn undeploy(file: PathBuf) -> io::Result<()> {
-    let token = get_token()?;
+    let config = Config::new()?;
 
-    if token.is_none() {
+    if config.token.is_none() {
         return Err(Error::new(
             ErrorKind::Other,
             "You are not logged in. Please login with `lagon login`",
         ));
     }
 
-    let token = token.unwrap();
-
     validate_code_file(&file)?;
 
-    let config = get_function_config()?;
+    let function_config = get_function_config()?;
 
-    if config.is_none() {
+    if function_config.is_none() {
         return Err(Error::new(
             ErrorKind::Other,
             "No configuration found in this directory.",
         ));
     }
 
-    let config = config.unwrap();
+    let function_config = function_config.unwrap();
 
     match Confirm::new()
         .with_prompt(info(
@@ -56,11 +51,11 @@ pub async fn undeploy(file: PathBuf) -> io::Result<()> {
     {
         true => {
             let end_progress = print_progress("Deleting Function...");
-            TrpcClient::new(&token)
+            TrpcClient::new(&config)
                 .mutation::<DeleteFunctionRequest, DeleteFunctionResponse>(
                     "functionDelete",
                     DeleteFunctionRequest {
-                        function_id: config.function_id,
+                        function_id: function_config.function_id,
                     },
                 )
                 .await

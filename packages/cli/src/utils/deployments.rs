@@ -14,6 +14,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::utils::{debug, print_progress, success, TrpcClient};
 
+use super::Config;
+
 type FileCursor = Cursor<Vec<u8>>;
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -185,13 +187,13 @@ pub async fn create_deployment(
     file: PathBuf,
     client: Option<PathBuf>,
     public_dir: PathBuf,
-    token: String,
+    config: &Config,
 ) -> io::Result<()> {
     let (index, assets) = bundle_function(file, client, public_dir)?;
 
     let end_progress = print_progress("Creating deployment...");
 
-    let trpc_client = TrpcClient::new(&token);
+    let trpc_client = TrpcClient::new(config);
     let response = trpc_client
         .mutation::<CreateDeploymentRequest, CreateDeploymentResponse>(
             "deploymentCreate",

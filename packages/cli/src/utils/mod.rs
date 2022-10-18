@@ -1,3 +1,4 @@
+mod config;
 mod console;
 mod deployments;
 mod trpc;
@@ -7,6 +8,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+pub use config::*;
 pub use console::*;
 pub use deployments::*;
 pub use trpc::*;

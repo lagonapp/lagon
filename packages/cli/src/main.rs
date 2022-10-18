@@ -4,7 +4,6 @@ use clap::{Parser, Subcommand};
 
 use crate::utils::error;
 
-mod auth;
 mod commands;
 mod utils;
 

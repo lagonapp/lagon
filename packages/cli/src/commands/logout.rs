@@ -2,13 +2,12 @@ use std::io::{self, Error, ErrorKind};
 
 use dialoguer::Confirm;
 
-use crate::{
-    auth::{get_token, rm_token},
-    utils::{info, success},
-};
+use crate::utils::{info, success, Config};
 
 pub fn logout() -> io::Result<()> {
-    if (get_token()?).is_none() {
+    let mut config = Config::new()?;
+
+    if config.token.is_none() {
         return Err(Error::new(ErrorKind::Other, "You are not logged in."));
     }
 
@@ -17,7 +16,8 @@ pub fn logout() -> io::Result<()> {
         .interact()?
     {
         true => {
-            rm_token()?;
+            config.set_token(None);
+            config.save()?;
 
             println!();
             println!("{}", success("You have been logged out."));
