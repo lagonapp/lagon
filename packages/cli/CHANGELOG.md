@@ -1,5 +1,11 @@
 # @lagon/cli
 
+## 0.3.1
+
+### Patch Changes
+
+- [#195](https://github.com/lagonapp/lagon/pull/195) [`8c12b2b`](https://github.com/lagonapp/lagon/commit/8c12b2b7384af87615cfb8a5d34983d0421a5b28) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix dev command
+
 ## 0.3.0
 
 ### Minor Changes
