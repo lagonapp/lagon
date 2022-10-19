@@ -1,6 +1,4 @@
-try {
-  const getBinary = require('./getBinary');
-  getBinary().uninstall();
-} catch (err) {
-  console.log(error);
-}
+#!/usr/bin/env node
+
+const getBinary = require('./getBinary');
+getBinary().uninstall();
