@@ -10,6 +10,7 @@ use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
 use std::convert::Infallible;
+use std::fs;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
@@ -199,8 +200,10 @@ pub async fn dev(
     )
     .unwrap();
 
+    let path = fs::canonicalize(&file)?;
+
     watcher
-        .watch(file.parent().unwrap(), RecursiveMode::Recursive)
+        .watch(path.parent().unwrap(), RecursiveMode::Recursive)
         .unwrap();
 
     let watcher_content = content.clone();
