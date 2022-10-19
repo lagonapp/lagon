@@ -1,5 +1,13 @@
 # @lagon/serverless
 
+## 0.1.4
+
+### Patch Changes
+
+- [#181](https://github.com/lagonapp/lagon/pull/181) [`fe752fb`](https://github.com/lagonapp/lagon/commit/fe752fb54011208a76ef4ff538d6aadbd41b2c7f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add support for http streaming via ReadableStream
+
+* [#183](https://github.com/lagonapp/lagon/pull/183) [`2830c24`](https://github.com/lagonapp/lagon/commit/2830c24116924353140f077d10ec978b7c0952e3) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix assets directory not deleting on undeploys
+
 ## 0.1.3
 
 ### Patch Changes

@@ -1,5 +1,15 @@
 # @lagon/runtime
 
+## 0.1.4
+
+### Patch Changes
+
+- [#181](https://github.com/lagonapp/lagon/pull/181) [`fe752fb`](https://github.com/lagonapp/lagon/commit/fe752fb54011208a76ef4ff538d6aadbd41b2c7f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add support for http streaming via ReadableStream
+
+* [#186](https://github.com/lagonapp/lagon/pull/186) [`7e30211`](https://github.com/lagonapp/lagon/commit/7e30211209b3e0f3e0260d26bd7ac3887410b7f9) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Complete fetch API
+
+- [#185](https://github.com/lagonapp/lagon/pull/185) [`d40f143`](https://github.com/lagonapp/lagon/commit/d40f143aa8836a3867f7a501bcd76322889c4a2b) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Beautify errors
+
 ## 0.1.3
 
 ### Patch Changes

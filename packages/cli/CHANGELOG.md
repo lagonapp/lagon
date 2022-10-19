@@ -1,5 +1,23 @@
 # @lagon/cli
 
+## 0.3.0
+
+### Minor Changes
+
+- [#189](https://github.com/lagonapp/lagon/pull/189) [`77a7218`](https://github.com/lagonapp/lagon/commit/77a7218801cd7bd99ba388fcb064e81d5204e487) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add lagon dev command
+
+* [#191](https://github.com/lagonapp/lagon/pull/191) [`84c2e44`](https://github.com/lagonapp/lagon/commit/84c2e44afcc3f0a4290718c81f3f3c2cea0bc47d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow custom site URL for self hosting
+
+### Patch Changes
+
+- [#192](https://github.com/lagonapp/lagon/pull/192) [`bfa85c7`](https://github.com/lagonapp/lagon/commit/bfa85c7dbbdd3a94cb75f53ac16f5be0efd9c1b2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Correctly install the binary before executing it
+
+* [#185](https://github.com/lagonapp/lagon/pull/185) [`d40f143`](https://github.com/lagonapp/lagon/commit/d40f143aa8836a3867f7a501bcd76322889c4a2b) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Beautify errors
+
+- [#193](https://github.com/lagonapp/lagon/pull/193) [`b9f2623`](https://github.com/lagonapp/lagon/commit/b9f26230ca1412e59bb27c8941566cdb864f495e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add live-reload to dev server
+
+* [#192](https://github.com/lagonapp/lagon/pull/192) [`bfa85c7`](https://github.com/lagonapp/lagon/commit/bfa85c7dbbdd3a94cb75f53ac16f5be0efd9c1b2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix executable name on Windows
+
 ## 0.2.0
 
 ### Minor Changes
