@@ -1,5 +1,11 @@
 # @lagon/website
 
+## 0.0.6
+
+### Patch Changes
+
+- [#184](https://github.com/lagonapp/lagon/pull/184) [`43d4df4`](https://github.com/lagonapp/lagon/commit/43d4df47191c9eeec58e91cb695082fd6b069713) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix deployments domain field that wasn't an array
+
 ## 0.0.5
 
 ### Patch Changes
