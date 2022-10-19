@@ -7,22 +7,25 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::{Request, Response, RunResult, StreamResult};
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
+use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::io::Cursor;
 use std::path::Path;
 use std::sync::Arc;
+use std::time::Duration;
 use std::{io, path::PathBuf};
+use tokio::sync::Mutex;
 
-use crate::utils::{bundle_function, input, success, validate_code_file, validate_public_dir};
+use crate::utils::{
+    bundle_function, info, input, success, validate_code_file, validate_public_dir, FileCursor,
+};
 
 // This function is similar to packages/serverless/src/main.rs,
 // expect that we don't have multiple deployments and such multiple
 // threads to manage.
 async fn handle_request(
     req: HyperRequest<Body>,
-    index: Arc<Cursor<Vec<u8>>>,
-    assets: Arc<HashMap<String, Cursor<Vec<u8>>>>,
+    content: Arc<Mutex<(FileCursor, HashMap<String, FileCursor>)>>,
 ) -> Result<HyperResponse<Body>, Infallible> {
     let mut url = req.uri().to_string();
 
@@ -37,6 +40,7 @@ async fn handle_request(
     url.remove(0);
 
     let (tx, rx) = flume::bounded(1);
+    let (index, assets) = content.lock().await.to_owned();
 
     if let Some(asset) = assets.iter().find(|asset| *asset.0 == url) {
         println!("              {}", input("Asset found"));
@@ -164,10 +168,9 @@ pub async fn dev(
     };
 
     let public_dir = validate_public_dir(public_dir)?;
-    let (index, assets) = bundle_function(file, client, public_dir)?;
+    let (index, assets) = bundle_function(&file, &client, &public_dir)?;
 
-    let index = Arc::new(index);
-    let assets = Arc::new(assets);
+    let content = Arc::new(Mutex::new((index, assets)));
 
     let runtime = Runtime::new(RuntimeOptions::default());
     let addr = format!(
@@ -178,16 +181,45 @@ pub async fn dev(
     .parse()
     .unwrap();
 
-    let server = Server::bind(&addr).serve(make_service_fn(move |_conn| {
-        let index = index.clone();
-        let assets = assets.clone();
+    let server_content = content.clone();
 
-        async move {
-            Ok::<_, Infallible>(service_fn(move |req| {
-                handle_request(req, index.clone(), assets.clone())
-            }))
+    let server =
+        Server::bind(&addr).serve(make_service_fn(move |_conn| {
+            let content = server_content.clone();
+
+            async move {
+                Ok::<_, Infallible>(service_fn(move |req| handle_request(req, content.clone())))
+            }
+        }));
+
+    let (tx, rx) = std::sync::mpsc::channel();
+    let mut watcher = RecommendedWatcher::new(
+        tx,
+        Config::default().with_poll_interval(Duration::from_secs(1)),
+    )
+    .unwrap();
+
+    watcher
+        .watch(file.parent().unwrap(), RecursiveMode::Recursive)
+        .unwrap();
+
+    let watcher_content = content.clone();
+
+    tokio::spawn(async move {
+        let content = watcher_content.clone();
+
+        for _ in rx {
+            // Clear the screen and put the cursor at first row & first col of the screen.
+            print!("\x1B[2J\x1B[1;1H");
+            println!("{}", info("Found change, updating..."));
+
+            let (index, assets) = bundle_function(&file, &client, &public_dir)?;
+
+            *content.lock().await = (index, assets);
         }
-    }));
+
+        Ok::<(), io::Error>(())
+    });
 
     println!();
     println!("{}", success("Dev Server started!"));

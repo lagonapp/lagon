@@ -20,7 +20,7 @@ pub fn build(
     };
 
     let public_dir = validate_public_dir(public_dir)?;
-    let (index, assets) = bundle_function(file, client, public_dir)?;
+    let (index, assets) = bundle_function(&file, &client, &public_dir)?;
 
     let end_progress = print_progress("Writting index.js...");
 

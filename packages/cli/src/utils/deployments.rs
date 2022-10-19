@@ -16,7 +16,7 @@ use crate::utils::{debug, print_progress, success, TrpcClient};
 
 use super::Config;
 
-type FileCursor = Cursor<Vec<u8>>;
+pub type FileCursor = Cursor<Vec<u8>>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeploymentConfig {
@@ -88,9 +88,9 @@ fn esbuild(file: &PathBuf) -> io::Result<FileCursor> {
 }
 
 pub fn bundle_function(
-    index: PathBuf,
-    client: Option<PathBuf>,
-    public_dir: PathBuf,
+    index: &PathBuf,
+    client: &Option<PathBuf>,
+    public_dir: &PathBuf,
 ) -> io::Result<(FileCursor, HashMap<String, FileCursor>)> {
     if Command::new("esbuild").arg("--version").output().is_err() {
         return Err(Error::new(
@@ -100,14 +100,14 @@ pub fn bundle_function(
     }
 
     let end_progress = print_progress("Bundling Function handler...");
-    let index_output = esbuild(&index)?;
+    let index_output = esbuild(index)?;
     end_progress();
 
     let mut assets = HashMap::<String, FileCursor>::new();
 
     if let Some(client) = client {
         let end_progress = print_progress("Bundling client file...");
-        let client_output = esbuild(&client)?;
+        let client_output = esbuild(client)?;
         end_progress();
 
         assets.insert(
@@ -184,9 +184,9 @@ struct DeployDeploymentResponse {
 
 pub async fn create_deployment(
     function_id: String,
-    file: PathBuf,
-    client: Option<PathBuf>,
-    public_dir: PathBuf,
+    file: &PathBuf,
+    client: &Option<PathBuf>,
+    public_dir: &PathBuf,
     config: &Config,
 ) -> io::Result<()> {
     let (index, assets) = bundle_function(file, client, public_dir)?;
