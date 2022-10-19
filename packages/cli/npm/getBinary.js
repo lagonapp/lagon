@@ -37,6 +37,9 @@ function getPlatform() {
 }
 
 function getBinary() {
+  // Prevent exiting with code 1
+  process.exit = () => { };
+
   const { platform, name } = getPlatform();
   const { name: packageName, version } = require('../package.json');
 

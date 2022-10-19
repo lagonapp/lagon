@@ -1,4 +1,8 @@
 #!/usr/bin/env node
 
-const getBinary = require('./getBinary');
-getBinary().install();
+try {
+  const getBinary = require('./getBinary');
+  getBinary().install();
+} catch (error) {
+  console.error(error);
+}
