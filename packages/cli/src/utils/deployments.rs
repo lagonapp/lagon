@@ -88,9 +88,9 @@ fn esbuild(file: &PathBuf) -> io::Result<FileCursor> {
 }
 
 pub fn bundle_function(
-    index: PathBuf,
-    client: Option<PathBuf>,
-    public_dir: PathBuf,
+    index: &PathBuf,
+    client: &Option<PathBuf>,
+    public_dir: &PathBuf,
 ) -> io::Result<(FileCursor, HashMap<String, FileCursor>)> {
     if Command::new("esbuild").arg("--version").output().is_err() {
         return Err(Error::new(
@@ -184,9 +184,9 @@ struct DeployDeploymentResponse {
 
 pub async fn create_deployment(
     function_id: String,
-    file: PathBuf,
-    client: Option<PathBuf>,
-    public_dir: PathBuf,
+    file: &PathBuf,
+    client: &Option<PathBuf>,
+    public_dir: &PathBuf,
     config: &Config,
 ) -> io::Result<()> {
     let (index, assets) = bundle_function(file, client, public_dir)?;

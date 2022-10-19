@@ -116,7 +116,8 @@ pub async fn deploy(
                     organization_id: organization.id.clone(),
                 })?;
 
-                create_deployment(function.id.clone(), file, client, public_dir, &config).await?;
+                create_deployment(function.id.clone(), &file, &client, &public_dir, &config)
+                    .await?;
             }
             false => {
                 let name = Input::<String>::new()
@@ -147,8 +148,14 @@ pub async fn deploy(
                     organization_id: organization.id.clone(),
                 })?;
 
-                create_deployment(response.result.data.id, file, client, public_dir, &config)
-                    .await?;
+                create_deployment(
+                    response.result.data.id,
+                    &file,
+                    &client,
+                    &public_dir,
+                    &config,
+                )
+                .await?;
             }
         };
 
@@ -159,9 +166,9 @@ pub async fn deploy(
 
     create_deployment(
         function_config.function_id,
-        file,
-        client,
-        public_dir,
+        &file,
+        &client,
+        &public_dir,
         &config,
     )
     .await
