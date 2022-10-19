@@ -10,7 +10,6 @@ use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::io::Cursor;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Duration;
@@ -18,7 +17,7 @@ use std::{io, path::PathBuf};
 use tokio::sync::Mutex;
 
 use crate::utils::{
-    bundle_function, info, input, success, validate_code_file, validate_public_dir,
+    bundle_function, info, input, success, validate_code_file, validate_public_dir, FileCursor,
 };
 
 // This function is similar to packages/serverless/src/main.rs,
@@ -26,7 +25,7 @@ use crate::utils::{
 // threads to manage.
 async fn handle_request(
     req: HyperRequest<Body>,
-    content: Arc<Mutex<(Cursor<Vec<u8>>, HashMap<String, Cursor<Vec<u8>>>)>>,
+    content: Arc<Mutex<(FileCursor, HashMap<String, FileCursor>)>>,
 ) -> Result<HyperResponse<Body>, Infallible> {
     let mut url = req.uri().to_string();
 

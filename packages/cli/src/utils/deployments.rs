@@ -16,7 +16,7 @@ use crate::utils::{debug, print_progress, success, TrpcClient};
 
 use super::Config;
 
-type FileCursor = Cursor<Vec<u8>>;
+pub type FileCursor = Cursor<Vec<u8>>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeploymentConfig {
@@ -100,14 +100,14 @@ pub fn bundle_function(
     }
 
     let end_progress = print_progress("Bundling Function handler...");
-    let index_output = esbuild(&index)?;
+    let index_output = esbuild(index)?;
     end_progress();
 
     let mut assets = HashMap::<String, FileCursor>::new();
 
     if let Some(client) = client {
         let end_progress = print_progress("Bundling client file...");
-        let client_output = esbuild(&client)?;
+        let client_output = esbuild(client)?;
         end_progress();
 
         assets.insert(
