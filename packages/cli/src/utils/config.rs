@@ -3,7 +3,15 @@ use std::fs;
 use std::io;
 use std::path::PathBuf;
 
-use super::get_site_url;
+#[cfg(debug_assertions)]
+fn get_site_url() -> String {
+    "http://localhost:3000".to_string()
+}
+
+#[cfg(not(debug_assertions))]
+fn get_site_url() -> String {
+    "https://dash.lagon.app".to_string()
+}
 
 fn get_config_path() -> PathBuf {
     dirs::home_dir().unwrap().join(".lagon").join("config.json")
