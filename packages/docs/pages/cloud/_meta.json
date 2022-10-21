@@ -1,4 +1,5 @@
 {
+  "account": "Account",
   "organizations": "Organizations",
   "functions": "Functions",
   "deployments": "Deployments",

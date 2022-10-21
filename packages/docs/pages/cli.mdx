@@ -1,1 +1,130 @@
-CLI
+import { Callout, Collapse } from 'nextra-theme-docs'
+
+The easiest way to deploy and manage Functions is through our [Command-line interface](https://en.wikipedia.org/wiki/Command-line_interface).
+
+## Installation
+
+<Callout type="warning">
+  The CLI is not stable yet, so you might encounter bugs. Please [open an issue](https://github.com/lagonapp/lagon/issues/new?assignees=&labels=bug&template=bug_report.md&title=) if it's the case.
+</Callout>
+
+Lagon CLI is available for the following operating systems:
+
+- macOS (Intel and M1)
+- Linux (x64 and arm64)
+- Windows (x64)
+
+We recommend to install the CLI globally, using the package manager of your choice:
+
+```bash
+# NPM
+npm install --global @lagon/cli
+# Yarn
+npm global add @lagon/cli
+# PNPM
+pnpm install --global @lagon/cli
+```
+
+<Callout type="info">
+  You will also be able to install it through [Cargo](https://doc.rust-lang.org/stable/cargo/) - Rust's package manager - soon.
+</Callout>
+
+
+## Usage
+
+Once installed, execute the `lagon` CLI to see all the commands available.
+
+### `lagon login`
+
+Before being able to deploy and manage Functions, you will need to log in. Make sure you have already [created an account](/cloud/account). If you try to execute a command that requires being logged in, you will be warned and the command will be aborted.
+
+To proceed, run `lagon login` and follow the instructions.
+
+### `lagon logout`
+
+If you want, you can log out at anytime. For security, you will be asked to confirm that you really want to log out.
+
+To proceed, run `lagon logout` and follow the instructions.
+
+### `lagon deploy`
+
+Create a new Function or a new Deployment for the given files. Make sure you are [logged in](#lagon-login) before proceeding. If you are executing the command for the first time:
+
+1) You will be prompted to select an Organization
+2) You will be able to link to an existing Function, or create a new one by specifying a name
+
+If you then want to trigger a new Deployment, re-run the same command. This command accept the following arguments and options:
+
+- `<FILE>` is the only required argument. It should be the path to a file containing and exporting a Function.
+- `--client, -c <CLIENT>` allows you to specify a path to an additional file to bundle as a client-side script.
+- `--public, -p <CLIENT>` allows you to specify a path a custom assets directory, that will be served at the root (`/`) of the Function. (Default: `public`)
+
+Examples:
+
+```bash
+lagon deploy ./index.ts
+lagon deploy ./server.tsx --client App.tsx --public ./assets
+```
+
+### `lagon undeploy`
+
+<Callout type="error">
+  Un-deploying a Function deletes permanently all of its Deployments, statistics and logs. You will prompted to confirm before continuing.
+</Callout>
+
+Un-deploy completely a Function. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
+
+- `<FILE>` path to a file containing the Function to undeploy.
+
+Example:
+
+```bash
+lagon undeploy ./index.ts
+````
+
+### `lagon dev`
+
+Launch a local dev server, using the same Runtime as when deployed to the Cloud.
+
+This command accept the same arguments and options as `lagon deploy` and `lagon build`. It can also accept two more options to configure the server hostname and port:
+
+- `--hostname <HOSTNAME>` allows you to specify a custom hostname the start the server on. (Default: `127.0.0.1`)
+- `--port <PORT>` allows you to specify a custom port the start the server on. (Default: `1234`)
+
+<Callout type="warning">
+  Although the `dev` command uses the exact same Runtime as when deployed, the local HTTP server itself doesn't have the same optimizations. As such, you shouldn't run a production environment on it, or run any kind of load tests/benchmarks.
+</Callout>
+
+Examples:
+
+```bash
+lagon dev ./index.ts --port 56565
+lagon dev ./server.tsx --client App.tsx --public ./assets
+```
+
+### `lagon build`
+
+For debugging purposes, you can build a Function and see its output without deploying it. Under the hood, `lagon build` does the exact same steps as `lagon deploy`, but skip the deployment part and instead writes the output to a local `.lagon` folder.
+
+This command accept the same arguments and options as `lagon deploy` and `lagon build`.
+
+Examples:
+
+```bash
+lagon build ./server.tsx --client App.tsx --public ./assets
+ls .lagon/ # server.js, App.js, assets/
+```
+
+## Self-hosting configuration
+
+If you are [self-hosting](/self-hosted/installation) Lagon, you will need to update the default site URL to the one used by your installation. To do so, find the configuration file located in `~/.lagon/config.json`:
+
+```json
+{
+  "token": "**************",
+  "site_url":"https://dash.lagon.app" // Replace this field
+}
+```
+
+Replace the `site_url` field by the one configured during the installation. To verify if it's working correctly, login to your installation using `lagon login`.
+

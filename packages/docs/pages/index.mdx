@@ -1,1 +1,34 @@
-Introduction
+import { Callout } from 'nextra-theme-docs'
+
+Lagon is a free Open Source Runtime and SaaS that make it easy to deploy TypeScript and JavaScript Serverless Functions at the Edge, using V8 Isolates. It's also self-hostable.
+
+<Callout type="warning">
+  Lagon is still in heavy development. Do not use for production usages.
+</Callout>
+
+Current status:
+
+- **Dev**
+- ~Alpha~
+- ~Beta~
+- ~General Availability~
+
+## Planned features
+
+- JavaScript Runtime based on V8 Isolates with Web APIs
+- Deploy APIs, SSR(ed) websites, Webhooks endpoints, Cron jobs...
+- CLI to manage Functions and run them locally
+- Playground in the website
+- Deploy at the Edge using the Cloud SaaS, or self-host it
+
+## Roadmap
+
+Lagon is a fairly recent project. It is still in heavy development, so expect breaking changes and buggy features.
+
+[See the roadmap on GitHub](https://github.com/orgs/lagonapp/projects/1)
+
+## How it works
+
+Lagon uses V8 Isolates, which are sandboxed environments used to run plain JavaScript. That means each Function memory is isolated from each other and from the host. They are used behind the scene by [Node.js](https://nodejs.org/), [Electron](https://www.electronjs.org/), [Deno](https://deno.land/) (and [Deno Deploy](https://deno.com/deploy)), [Cloudflare Workers](https://workers.cloudflare.com/) and more.
+
+V8 Isolates are very fast to start (faster than starting a whole Node.js process) and such allows to have a very low latency coupled with almost free cold-starts.
