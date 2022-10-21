@@ -3,7 +3,7 @@ use std::io::{self, Error, ErrorKind};
 use dialoguer::{Confirm, Password};
 use serde::{Deserialize, Serialize};
 
-use crate::utils::{debug, get_site_url, info, input, print_progress, success, Config, TrpcClient};
+use crate::utils::{debug, info, input, print_progress, success, Config, TrpcClient};
 
 #[derive(Deserialize, Debug)]
 struct CliResponse {
@@ -31,7 +31,7 @@ pub async fn login() -> io::Result<()> {
     println!();
 
     let end_progress = print_progress("Opening browser...");
-    let url = get_site_url() + "/cli";
+    let url = config.site_url.clone() + "/cli";
     webbrowser::open(&url).unwrap();
     end_progress();
 

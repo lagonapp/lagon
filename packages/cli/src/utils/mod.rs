@@ -13,16 +13,6 @@ pub use console::*;
 pub use deployments::*;
 pub use trpc::*;
 
-#[cfg(debug_assertions)]
-pub fn get_site_url() -> String {
-    "http://localhost:3000".to_string()
-}
-
-#[cfg(not(debug_assertions))]
-pub fn get_site_url() -> String {
-    "https://dash.lagon.app".to_string()
-}
-
 pub fn validate_code_file(file: &Path) -> io::Result<()> {
     if !file.exists() || !file.is_file() {
         return Err(Error::new(
