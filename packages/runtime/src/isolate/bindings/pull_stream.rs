@@ -12,10 +12,8 @@ pub fn pull_stream_binding(
 
     if done.is_false() {
         let chunk = unsafe { v8::Local::<v8::Uint8Array>::cast(args.get(1)) };
-        let buf = chunk.buffer(scope).unwrap();
-
-        let buf: &[u8] =
-            unsafe { std::slice::from_raw_parts(buf.data() as *mut u8, chunk.byte_length()) };
+        let mut buf = vec![0; chunk.byte_length()];
+        chunk.copy_contents(&mut buf);
 
         state.stream_sender.send(StreamResult::Data(buf)).unwrap();
     } else {

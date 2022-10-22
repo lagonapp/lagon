@@ -73,7 +73,7 @@ async fn handle_request(
         }
     };
 
-    let (tx, rx) = flume::bounded(1);
+    let (tx, rx) = flume::unbounded();
 
     pool.spawn_pinned_by_idx(
         move || {
@@ -159,19 +159,18 @@ async fn handle_request(
 
     match result {
         RunResult::Stream(stream_result) => {
-            let (mut sender, body) = Body::channel();
+            let (stream_tx, stream_rx) = flume::unbounded::<Result<Bytes, std::io::Error>>();
+            let body = Body::wrap_stream(stream_rx.into_stream());
 
             let (response_tx, response_rx) = flume::bounded(1);
-            let mut received_response = false;
 
             match stream_result {
                 StreamResult::Start(response) => {
                     response_tx.send_async(response).await.unwrap();
-                    received_response = true;
                 }
                 StreamResult::Data(bytes) => {
                     let bytes = Bytes::from(bytes);
-                    sender.send_data(bytes).await.unwrap();
+                    stream_tx.send_async(Ok(bytes)).await.unwrap();
                 }
                 StreamResult::Done => panic!("Got a stream done without data"),
             }
@@ -181,21 +180,12 @@ async fn handle_request(
                     match stream_result {
                         StreamResult::Start(response) => {
                             response_tx.send_async(response).await.unwrap();
-                            received_response = true;
                         }
                         StreamResult::Data(bytes) => {
                             let bytes = Bytes::from(bytes);
-                            sender.send_data(bytes).await.unwrap();
+                            stream_tx.send_async(Ok(bytes)).await.unwrap();
                         }
-                        StreamResult::Done => {
-                            // Dropping the sender will end the body streaming,
-                            // and we only want to drop it when the Response
-                            // has been constructed
-                            if received_response {
-                                drop(sender);
-                                break;
-                            }
-                        }
+                        _ => {}
                     }
                 }
             });

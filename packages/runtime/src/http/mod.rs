@@ -20,7 +20,7 @@ pub trait FromV8: Sized {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StreamResult {
     Start(Response),
-    Data(&'static [u8]),
+    Data(Vec<u8>),
     Done,
 }
 
