@@ -15,6 +15,7 @@ use v8::PromiseState;
 use crate::{
     http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult},
     runtime::get_runtime_code,
+    utils::v8_string,
 };
 
 use self::bindings::{BindingResult, PromiseResult};
@@ -395,6 +396,10 @@ impl Isolate {
                     PromiseResult::Response(response) => {
                         let response = response.into_v8(scope);
                         promise.resolve(scope, response.into());
+                    }
+                    PromiseResult::Error(error) => {
+                        let error = v8_string(scope, &error).unwrap();
+                        promise.reject(scope, error.into());
                     }
                 };
             }

@@ -102,6 +102,28 @@ async fn request_method() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn request_method_fallback() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
+    const body = await fetch('http://localhost:5555/request-method', {
+        method: 'UNKNOWN'
+    }).then(res => res.text());
+
+    return new Response(body);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("GET"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn request_headers() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -218,5 +240,56 @@ async fn response_status() {
     assert_eq!(
         rx.recv_async().await.unwrap(),
         RunResult::Response(Response::from("Moved: 302"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn throw_invalid_url() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
+    const response = await fetch('doesnotexist');
+    const body = await response.text();
+
+    return new Response(body);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error(
+            "Uncaught Error: client requires absolute-form URIs, at:\n    throw new Error(error);"
+                .into()
+        )
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn throw_invalid_header() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
+    const response = await fetch('http://localhost:5555/', {
+        headers: {
+            'foo': 'bar\\r\\n'
+        }
+    });
+    const body = await response.text();
+
+    return new Response(body);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error(
+            "Uncaught Error: failed to parse header value, at:\n    throw new Error(error);".into()
+        )
     );
 }
