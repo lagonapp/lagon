@@ -85,16 +85,21 @@ export async function fetch(resource: string, options?: RequestInit) {
     headers = new Map(Object.entries(options.headers));
   }
 
-  const response = await Lagon.fetch({
-    method: options?.method || 'GET',
-    url: resource,
-    body: options?.body,
-    headers,
-  });
+  try {
+    const response = await Lagon.fetch({
+      method: options?.method || 'GET',
+      url: resource,
+      body: options?.body,
+      headers,
+    });
 
-  return new Response(response.body, {
-    // url: response.options.url,
-    headers: response.headers,
-    status: response.status,
-  });
+    return new Response(response.body, {
+      // url: response.options.url,
+      headers: response.headers,
+      status: response.status,
+    });
+  } catch (error) {
+    // error is always a string
+    throw new Error(error as string);
+  }
 }

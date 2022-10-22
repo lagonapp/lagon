@@ -147,8 +147,10 @@ impl FromV8 for Request {
     }
 }
 
-impl From<&Request> for http::request::Builder {
-    fn from(request: &Request) -> Self {
+impl TryFrom<&Request> for http::request::Builder {
+    type Error = Box<dyn std::error::Error>;
+
+    fn try_from(request: &Request) -> Result<Self, Self::Error> {
         let mut builder = HyperRequest::builder()
             .uri(&request.url)
             .method::<&str>(request.method.into());
@@ -157,14 +159,11 @@ impl From<&Request> for http::request::Builder {
 
         if let Some(headers) = &request.headers {
             for (key, value) in headers {
-                builder_headers.insert(
-                    HeaderName::from_str(key).unwrap(),
-                    HeaderValue::from_str(value).unwrap(),
-                );
+                builder_headers.insert(HeaderName::from_str(key)?, HeaderValue::from_str(value)?);
             }
         }
 
-        builder
+        Ok(builder)
     }
 }
 

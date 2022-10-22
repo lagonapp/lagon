@@ -15,6 +15,7 @@ pub struct BindingResult {
 
 pub enum PromiseResult {
     Response(Response),
+    Error(String),
 }
 
 pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {

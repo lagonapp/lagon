@@ -24,13 +24,36 @@ pub fn fetch_binding(
     let id = state.js_promises.len() + 1;
 
     let future = async move {
-        let hyper_request = Builder::from(&request);
-        let hyper_request = hyper_request.body(Body::from(request.body)).unwrap();
+        let maybe_hyper_request = Builder::try_from(&request);
+
+        if let Err(error) = &maybe_hyper_request {
+            return BindingResult {
+                id,
+                result: PromiseResult::Error(error.to_string()),
+            };
+        }
+
+        let maybe_hyper_request = maybe_hyper_request.unwrap().body(Body::from(request.body));
+
+        if let Err(error) = &maybe_hyper_request {
+            return BindingResult {
+                id,
+                result: PromiseResult::Error(error.to_string()),
+            };
+        }
 
         let client = Client::builder().build::<_, Body>(HttpsConnector::new());
 
-        let hyper_response = client.request(hyper_request).await.unwrap();
-        let response = Response::from_hyper(hyper_response).await;
+        let maybe_hyper_response = client.request(maybe_hyper_request.unwrap()).await;
+
+        if let Err(error) = &maybe_hyper_response {
+            return BindingResult {
+                id,
+                result: PromiseResult::Error(error.to_string()),
+            };
+        }
+
+        let response = Response::from_hyper(maybe_hyper_response.unwrap()).await;
 
         BindingResult {
             id,
