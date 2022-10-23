@@ -1,4 +1,4 @@
-import { TextDecoder } from './encoding';
+import { TextDecoder, TextEncoder } from './encoding';
 import { Headers } from './fetch';
 import { parseMultipart } from './parseMultipart';
 
@@ -10,19 +10,20 @@ export interface ResponseInit {
 }
 
 const DECODER = new TextDecoder();
+const ENCODER = new TextEncoder();
 
-const isIterable = (value: unknown): value is Iterable<number> =>
+const isIterable = (value: unknown): value is ArrayBuffer =>
   typeof value !== 'string' && Symbol.iterator in Object(value);
 
 export class Response {
-  body: string | Iterable<number>;
+  body: string | ArrayBuffer;
   headers: Headers;
   ok: boolean;
   status: number;
   statusText: string;
   url: string;
 
-  constructor(body: string | Iterable<number>, options?: ResponseInit) {
+  constructor(body: string | ArrayBuffer, options?: ResponseInit) {
     this.body = body;
 
     if (options?.headers) {
@@ -60,5 +61,13 @@ export class Response {
 
   async formData(): Promise<Record<string, string>> {
     return parseMultipart(this.headers, await this.text());
+  }
+
+  async arrayBuffer(): Promise<ArrayBuffer> {
+    if (isIterable(this.body)) {
+      return this.body;
+    }
+
+    return ENCODER.encode(this.body);
   }
 }
