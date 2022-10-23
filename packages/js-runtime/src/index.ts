@@ -35,7 +35,7 @@ declare global {
       body?: string;
       url: string;
     }) => Promise<{
-      body: string;
+      body: Uint8Array;
       status: number;
       headers?: Record<string, string>;
     }>;

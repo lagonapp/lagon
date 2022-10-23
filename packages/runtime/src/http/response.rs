@@ -43,8 +43,11 @@ impl IntoV8 for Response {
         let response = v8::Object::new(scope);
 
         let body_key = v8_string(scope, "body").unwrap();
-        let body_value = v8::String::new(scope, std::str::from_utf8(&self.body).unwrap()).unwrap();
-        let body_value = v8::Local::new(scope, body_value);
+        let buf = self.body.to_vec();
+        let backing_store = v8::ArrayBuffer::new_backing_store_from_boxed_slice(buf.into());
+        let backing_store_shared = backing_store.make_shared();
+        let ab = v8::ArrayBuffer::with_backing_store(scope, &backing_store_shared);
+        let body_value = v8::Uint8Array::new(scope, ab, 0, self.body.len()).unwrap();
         response.set(scope, body_key.into(), body_value.into());
 
         let status_key = v8_string(scope, "status").unwrap();

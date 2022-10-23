@@ -68,6 +68,7 @@ fn esbuild(file: &PathBuf) -> io::Result<FileCursor> {
         .arg("--format=esm")
         .arg("--target=es2020")
         .arg("--platform=browser")
+        .arg("--loader:.wasm=binary")
         .output()?;
 
     // TODO: check status code

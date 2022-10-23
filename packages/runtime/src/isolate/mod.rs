@@ -351,8 +351,10 @@ impl Isolate {
 
     fn poll_v8(&mut self) {
         let isolate_state = Isolate::state(&self.isolate);
-        let isolate_state = isolate_state.borrow();
-        let global = isolate_state.global.0.clone();
+        let global = {
+            let isolate_state = isolate_state.borrow();
+            isolate_state.global.0.clone()
+        };
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
 
         while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), scope, false) {}
@@ -385,8 +387,10 @@ impl Isolate {
         }
 
         if let Some(promises) = promises {
-            let isolate_state = isolate_state.borrow();
-            let global = isolate_state.global.0.clone();
+            let global = {
+                let isolate_state = isolate_state.borrow();
+                isolate_state.global.0.clone()
+            };
             let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
 
             for (result, promise) in promises {

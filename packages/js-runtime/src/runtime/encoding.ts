@@ -68,7 +68,7 @@ export class TextEncoder {
 export class TextDecoder {
   encoding = 'utf-8';
 
-  decode(buffer: Iterable<number>): string {
+  decode(buffer: ArrayBuffer): string {
     const bytes = new Uint8Array(buffer);
     let pos = 0;
     const len = bytes.length;
