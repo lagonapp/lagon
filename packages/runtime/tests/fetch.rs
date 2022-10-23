@@ -244,6 +244,62 @@ async fn response_status() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn response_json() {
+    setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/"))
+            .respond_with(status_code(200).body(r#"{"hello":"world"}"#)),
+    );
+    let url = server.url("/");
+
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
+        "export async function handler() {{
+    const response = await fetch('{url}');
+    const body = await response.json();
+
+    return new Response(`${{typeof body}} ${{JSON.stringify(body)}}`);
+}}"
+    )));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from(r#"object {"hello":"world"}"#))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn response_array_buffer() {
+    setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/"))
+            .respond_with(status_code(200).body("Hello, World")),
+    );
+    let url = server.url("/");
+
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
+        "export async function handler() {{
+    const response = await fetch('{url}');
+    const body = await response.arrayBuffer();
+
+    return new Response(JSON.stringify(body));
+}}"
+    )));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from(
+            r#"{"0":72,"1":101,"2":108,"3":108,"4":111,"5":44,"6":32,"7":87,"8":111,"9":114,"10":108,"11":100}"#
+        ))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn throw_invalid_url() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
