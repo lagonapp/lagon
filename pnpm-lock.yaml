@@ -144,10 +144,12 @@ importers:
   examples/satori:
     specifiers:
       '@lagon/types': workspace:0.0.1
+      react: 18.1.0
       satori: ^0.0.41
       yoga-wasm-web: ^0.1.2
     dependencies:
       '@lagon/types': link:../../packages/types
+      react: 18.1.0
       satori: 0.0.41
       yoga-wasm-web: 0.1.2
 
