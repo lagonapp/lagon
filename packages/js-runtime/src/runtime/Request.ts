@@ -1,16 +1,15 @@
 import { Headers } from './fetch';
-import { parseMultipart } from './parseMultipart';
 
 export interface RequestInit {
   method?: string;
   headers?: Headers | Record<string, string>;
-  body?: string;
+  body?: string | ArrayBuffer;
 }
 
 export class Request {
   method: string;
   headers: Headers;
-  body?: string;
+  body: string | ArrayBuffer;
   url: string;
 
   constructor(input: string, options?: RequestInit) {
@@ -26,19 +25,35 @@ export class Request {
       this.headers = new Headers();
     }
 
-    this.body = options?.body;
+    this.body = options?.body || '';
     this.url = input;
   }
 
   async text(): Promise<string> {
+    if (globalThis.__lagon__.isIterable(this.body)) {
+      return globalThis.__lagon__.TEXT_DECODER.decode(this.body);
+    }
+
     return this.body || '';
   }
 
   async json<T>(): Promise<T> {
-    return JSON.parse(this.body || '{}');
+    const body = await this.text();
+
+    return JSON.parse(body);
   }
 
   async formData(): Promise<Record<string, string>> {
-    return parseMultipart(this.headers, this.body);
+    const body = await this.text();
+
+    return globalThis.__lagon__.parseMultipart(this.headers, body);
+  }
+
+  async arrayBuffer(): Promise<ArrayBuffer> {
+    if (globalThis.__lagon__.isIterable(this.body)) {
+      return this.body;
+    }
+
+    return globalThis.__lagon__.TEXT_ENCODER.encode(this.body);
   }
 }

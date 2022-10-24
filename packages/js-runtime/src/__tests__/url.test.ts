@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { URL, URLSearchParams } from '../runtime/URL';
+import '../runtime/core';
 
 describe('URLSearchParams', () => {
   describe('instanciate', () => {

@@ -1,6 +1,4 @@
-import { TextDecoder, TextEncoder } from './encoding';
 import { Headers } from './fetch';
-import { parseMultipart } from './parseMultipart';
 
 export interface ResponseInit {
   status?: number;
@@ -8,12 +6,6 @@ export interface ResponseInit {
   headers?: Headers | Record<string, string>;
   url?: string;
 }
-
-const DECODER = new TextDecoder();
-const ENCODER = new TextEncoder();
-
-const isIterable = (value: unknown): value is ArrayBuffer =>
-  typeof value !== 'string' && Symbol.iterator in Object(value);
 
 export class Response {
   body: string | ArrayBuffer;
@@ -48,26 +40,30 @@ export class Response {
   }
 
   async text(): Promise<string> {
-    if (isIterable(this.body)) {
-      return DECODER.decode(this.body);
+    if (globalThis.__lagon__.isIterable(this.body)) {
+      return globalThis.__lagon__.TEXT_DECODER.decode(this.body);
     }
 
     return this.body;
   }
 
   async json<T>(): Promise<T> {
-    return JSON.parse(await this.text());
+    const body = await this.text();
+
+    return JSON.parse(body);
   }
 
   async formData(): Promise<Record<string, string>> {
-    return parseMultipart(this.headers, await this.text());
+    const body = await this.text();
+
+    return globalThis.__lagon__.parseMultipart(this.headers, body);
   }
 
   async arrayBuffer(): Promise<ArrayBuffer> {
-    if (isIterable(this.body)) {
+    if (globalThis.__lagon__.isIterable(this.body)) {
       return this.body;
     }
 
-    return ENCODER.encode(this.body);
+    return globalThis.__lagon__.TEXT_ENCODER.encode(this.body);
   }
 }

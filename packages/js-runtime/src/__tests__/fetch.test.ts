@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll, vi, beforeEach, afterEach } 
 import { createServer } from 'node:http';
 import { fetch, Headers } from '../runtime/fetch';
 import { Response } from '../runtime/Response';
+import '../runtime/core';
 
 const server = createServer((request, response) => {
   if (request.url === '/json') {

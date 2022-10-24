@@ -1,19 +1,21 @@
+/* eslint-disable no-var */
+import './runtime/core';
+import './runtime/console';
+import './runtime/process';
+
 export * from './runtime/base64';
 export * from './runtime/encoding';
 export * from './runtime/Request';
 export * from './runtime/Response';
 export * from './runtime/URL';
-export * from './runtime/parseMultipart';
 export * from './runtime/fetch';
 export * from './runtime/streams';
 
-import './runtime/console';
-import './runtime/process';
-
-import { TextDecoder } from './runtime/encoding';
+import { TextDecoder, TextEncoder } from './runtime/encoding';
 import { Request } from './runtime/Request';
 import { Response } from './runtime/Response';
 import { ReadableStream } from './runtime/streams';
+import { Headers } from './runtime/fetch';
 
 // Declare the global functions and variables available
 // on the runtime, that are injected from the Rust code.
@@ -21,7 +23,6 @@ import { ReadableStream } from './runtime/streams';
 // NOTE: we use `var` to that we can refer to these variables
 // using `globalThis.VARIABLE`.
 declare global {
-  // eslint-disable-next-line no-var
   var Lagon: {
     log: (message: string) => void;
     fetch: ({
@@ -41,7 +42,12 @@ declare global {
     }>;
     pullStream: (done: boolean, chunk?: Uint8Array) => void;
   };
-  // eslint-disable-next-line no-var
+  var __lagon__: {
+    isIterable: (value: unknown) => value is ArrayBuffer;
+    parseMultipart: (headers: Headers, body?: string) => Record<string, string>;
+    TEXT_ENCODER: TextEncoder;
+    TEXT_DECODER: TextDecoder;
+  };
   var handler: (request: Request) => Promise<Response>;
 }
 
