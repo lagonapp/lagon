@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import '../runtime/console';
+import '../runtime/core';
 
 beforeEach(() => {
   globalThis.Lagon = {

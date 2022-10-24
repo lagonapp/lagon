@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { atob, btoa } from '../runtime/base64';
+import '../runtime/core';
 
 describe('base64', () => {
   it('should encode with atob', async () => {

@@ -85,11 +85,21 @@ export async function fetch(resource: string, options?: RequestInit) {
     headers = new Map(Object.entries(options.headers));
   }
 
+  let body: string | undefined;
+
+  if (options?.body) {
+    if (globalThis.__lagon__.isIterable(options.body)) {
+      body = globalThis.__lagon__.TEXT_DECODER.decode(options.body);
+    } else {
+      body = options.body;
+    }
+  }
+
   try {
     const response = await Lagon.fetch({
       method: options?.method || 'GET',
       url: resource,
-      body: options?.body,
+      body,
       headers,
     });
 
