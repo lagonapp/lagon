@@ -1,5 +1,11 @@
 # @lagon/js-runtime
 
+## 0.1.4
+
+### Patch Changes
+
+- [#213](https://github.com/lagonapp/lagon/pull/213) [`0ee60b8`](https://github.com/lagonapp/lagon/commit/0ee60b859b06613b6e28e495e4dff69b0d12e05d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Make streaming APIs global
+
 ## 0.1.3
 
 ### Patch Changes
