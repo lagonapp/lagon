@@ -2,6 +2,7 @@
   "name": "@lagon/cli",
   "version": "0.3.1",
   "description": "CLI for Lagon",
+  "type": "module",
   "files": [
     "npm"
   ],
@@ -11,10 +12,13 @@
   "scripts": {
     "build": "cargo build",
     "lint": "cargo clippy -- -Dwarnings --no-deps",
-    "postinstall": "node npm/install.js",
-    "preuninstall": "node npm/uninstall.js"
+    "postinstall": "node npm/install.js"
   },
   "dependencies": {
-    "binary-install": "^1.0.6"
+    "binary-install": "^1.0.6",
+    "update-notifier": "^6.0.2"
+  },
+  "devDependencies": {
+    "@types/update-notifier": "^6.0.1"
   }
 }

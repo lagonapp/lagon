@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
 try {
-  const getBinary = require('./getBinary');
-  getBinary().install();
+  import('./getBinary.js').then(({ getBinary }) => {
+    getBinary().install();
+  });
 } catch (error) {
   console.error(error);
 }

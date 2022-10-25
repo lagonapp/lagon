@@ -1,17 +1,28 @@
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
+use serde::Deserialize;
 
 use crate::utils::error;
 
 mod commands;
 mod utils;
 
+static PACKAGE_JSON: &str = include_str!("../package.json");
+
+#[derive(Deserialize)]
+struct PackageJson {
+    version: String,
+}
+
 #[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None, arg_required_else_help = true)]
+#[command(author, about, long_about = None, arg_required_else_help = true)]
 struct Cli {
     #[clap(subcommand)]
     command: Option<Commands>,
+    /// Print version information
+    #[clap(short, long)]
+    version: bool,
 }
 
 #[derive(Subcommand, Debug)]
@@ -102,6 +113,13 @@ async fn main() {
             } => commands::build(file, client, public_dir),
         } {
             println!("{}", error(&err.to_string()));
+        }
+    } else {
+        match serde_json::from_str(PACKAGE_JSON) {
+            Ok(PackageJson { version }) => {
+                println!("{}", version);
+            }
+            _ => println!("{}", error("Couldn't extract version from package.json")),
         }
     }
 }
