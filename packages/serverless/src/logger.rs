@@ -16,26 +16,21 @@ impl SimpleLogger {
         let (tx, rx) = flume::unbounded();
 
         // Axiom is optional
-        if let Ok(axiom_org_id) = dotenv::var("AXIOM_ORG_ID") {
-            let axiom_token = dotenv::var("AXIOM_TOKEN").expect("AXIOM_TOKEN must be set");
-
-            let axiom_client = Client::builder()
-                .with_org_id(axiom_org_id)
-                .with_token(axiom_token)
-                .build()
-                .expect("Failed to create Axiom client");
-
-            tokio::spawn(async move {
-                // TODO: batch values
-                let value = rx.recv().unwrap();
-                axiom_client
-                    .datasets
-                    .ingest("serverless", vec![value])
-                    .await
-                    .unwrap();
-            });
-        } else {
-            warn!("Axiom is not configured. Set AXIOM_ORG_ID to enable Axiom logging");
+        match Client::new() {
+            Ok(axiom_client) => {
+                tokio::spawn(async move {
+                    // TODO: batch values
+                    let value = rx.recv().unwrap();
+                    axiom_client
+                        .datasets
+                        .ingest("serverless", vec![value])
+                        .await
+                        .unwrap();
+                });
+            }
+            Err(e) => {
+                warn!("Axiom is not configured: {}", e);
+            }
         }
 
         Self { tx }
