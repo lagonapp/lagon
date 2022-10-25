@@ -1,5 +1,17 @@
 # @lagon/cli
 
+## 0.3.2
+
+### Patch Changes
+
+- [#204](https://github.com/lagonapp/lagon/pull/204) [`f95dbe4`](https://github.com/lagonapp/lagon/commit/f95dbe41212f020a2fafe2ba072ae137cce67ff8) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix subsequent requests when streaming response
+
+* [#212](https://github.com/lagonapp/lagon/pull/212) [`5fe9e73`](https://github.com/lagonapp/lagon/commit/5fe9e73bc115e46b74135de269dae43243594124) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Notify for new release
+
+- [#202](https://github.com/lagonapp/lagon/pull/202) [`b7ee4db`](https://github.com/lagonapp/lagon/commit/b7ee4db186c1aaa824168c85c2f0174b27123024) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Open the configured URL on login
+
+* [#212](https://github.com/lagonapp/lagon/pull/212) [`5fe9e73`](https://github.com/lagonapp/lagon/commit/5fe9e73bc115e46b74135de269dae43243594124) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Show correct version with --version
+
 ## 0.3.1
 
 ### Patch Changes

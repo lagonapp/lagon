@@ -1,5 +1,13 @@
 # @lagon/runtime
 
+## 0.1.5
+
+### Patch Changes
+
+- [#205](https://github.com/lagonapp/lagon/pull/205) [`8c01399`](https://github.com/lagonapp/lagon/commit/8c013995536fca105703e8a937c8040798196e6f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Handle fetch errors
+
+* [#206](https://github.com/lagonapp/lagon/pull/206) [`71d72f5`](https://github.com/lagonapp/lagon/commit/71d72f54b8a3ee0bf986e7e563eff3ef9bfef360) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `arrayBuffer()` method to `Response`
+
 ## 0.1.4
 
 ### Patch Changes

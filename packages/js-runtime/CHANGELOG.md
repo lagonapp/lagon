@@ -1,5 +1,15 @@
 # @lagon/js-runtime
 
+## 0.1.3
+
+### Patch Changes
+
+- [#207](https://github.com/lagonapp/lagon/pull/207) [`fed1446`](https://github.com/lagonapp/lagon/commit/fed1446326217aa8a6a50bf2a88b0a965986ac37) Thanks [@QuiiBz](https://github.com/QuiiBz)! - printf-like formatting for console.\*
+
+* [#210](https://github.com/lagonapp/lagon/pull/210) [`763ac50`](https://github.com/lagonapp/lagon/commit/763ac5061c47cef18b27ad56239bbfb3da7c12bf) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add core for Lagon globally shared utilities
+
+- [#206](https://github.com/lagonapp/lagon/pull/206) [`71d72f5`](https://github.com/lagonapp/lagon/commit/71d72f54b8a3ee0bf986e7e563eff3ef9bfef360) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `arrayBuffer()` method to `Response`
+
 ## 0.1.2
 
 ### Patch Changes
