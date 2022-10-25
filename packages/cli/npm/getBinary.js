@@ -1,5 +1,6 @@
-const { Binary } = require('binary-install');
-const os = require('node:os');
+import { createRequire } from 'node:module';
+import { Binary } from 'binary-install';
+import os from 'node:os';
 
 function getPlatform() {
   const type = os.type();
@@ -36,16 +37,16 @@ function getPlatform() {
   throw new Error(`Unsupported platform: ${type} ${arch}`);
 }
 
-function getBinary() {
+export function getBinary() {
   // Prevent exiting with code 1
   process.exit = () => { };
 
   const { platform, name } = getPlatform();
-  const { name: packageName, version } = require('../package.json');
+  const customRequire = createRequire(import.meta.url);
+
+  const { name: packageName, version } = customRequire('../package.json');
 
   const url = `https://github.com/lagonapp/lagon/releases/download/${packageName}@${version}/${platform}.tar.gz`;
 
   return new Binary(name, url);
 }
-
-module.exports = getBinary;
