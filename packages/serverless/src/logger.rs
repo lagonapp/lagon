@@ -19,11 +19,9 @@ impl SimpleLogger {
         match Client::new() {
             Ok(axiom_client) => {
                 tokio::spawn(async move {
-                    // TODO: batch values
-                    let value = rx.recv().unwrap();
                     axiom_client
                         .datasets
-                        .ingest("serverless", vec![value])
+                        .ingest_stream("serverless", rx.into_stream())
                         .await
                         .unwrap();
                 });
@@ -51,7 +49,7 @@ impl Log for SimpleLogger {
                 self.tx
                     .send(json!({
                         "region": dotenv::var("LAGON_REGION").expect("LAGON_REGION must be set"),
-                        "timestamp": Local::now().to_rfc3339(),
+                        "_time": Local::now().to_rfc3339(),
                         "level": record.level().to_string(),
                         "message": record.args().to_string(),
                     }))
