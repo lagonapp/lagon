@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Once};
 
+// use httptest::{matchers::*, responders::*, Expectation, Server};
 use hyper::body::Bytes;
 use lagon_runtime::{
     http::{Request, Response, RunResult, StreamResult},
@@ -138,6 +139,50 @@ async fn streaming_with_correct_response() {
             status: 201,
             headers: Some(headers),
         }))
+    );
+    assert!(rx.recv_async().await.is_err());
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn sync_streaming_start_pull() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
+        "export function handler() {{
+    return new Response(
+        new ReadableStream({{
+            start(controller) {{
+                controller.enqueue(new TextEncoder().encode('Loading...'));
+            }},
+            pull(controller) {{
+                controller.enqueue(new TextEncoder().encode('Hello'));
+                controller.close();
+            }},
+        }}),
+    );
+}}"
+    )));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Data(vec![
+            76, 111, 97, 100, 105, 110, 103, 46, 46, 46
+        ]))
+    );
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111]))
+    );
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Done)
+    );
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response::from(
+            "[object ReadableStream]"
+        )))
     );
     assert!(rx.recv_async().await.is_err());
 }
