@@ -53,7 +53,7 @@ async fn sync_streaming() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn sync_streaming_multiple() {
+async fn queue_multiple() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
@@ -98,7 +98,7 @@ async fn sync_streaming_multiple() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn streaming_with_correct_response() {
+async fn custom_response() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
@@ -144,23 +144,24 @@ async fn streaming_with_correct_response() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn sync_streaming_start_pull() {
+async fn start_and_pull() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export function handler() {{
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
     return new Response(
-        new ReadableStream({{
-            start(controller) {{
+        new ReadableStream({
+            start(controller) {
                 controller.enqueue(new TextEncoder().encode('Loading...'));
-            }},
-            pull(controller) {{
+            },
+            pull(controller) {
                 controller.enqueue(new TextEncoder().encode('Hello'));
                 controller.close();
-            }},
-        }}),
+            },
+        }),
     );
-}}"
-    )));
+}"
+        .into(),
+    ));
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
