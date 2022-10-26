@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Once};
 
-// use httptest::{matchers::*, responders::*, Expectation, Server};
+use httptest::{matchers::*, responders::*, Expectation, Server};
 use hyper::body::Bytes;
 use lagon_runtime::{
     http::{Request, Response, RunResult, StreamResult},
@@ -184,6 +184,63 @@ async fn start_and_pull() {
         RunResult::Stream(StreamResult::Start(Response::from(
             "[object ReadableStream]"
         )))
+    );
+    assert!(rx.recv_async().await.is_err());
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn response_before_write() {
+    setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/"))
+            .respond_with(status_code(200).body("Hello")),
+    );
+    let url = server.url("/");
+
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
+        "export function handler() {{
+    const transformStream = new TransformStream({{
+        start(controller) {{
+            controller.enqueue(new TextEncoder().encode('Loading...'));
+        }}
+    }})
+
+    const writeableStream = transformStream.writable;
+    const readableStream = transformStream.readable;
+
+    const writer = writeableStream.getWriter();
+
+    fetch('{url}').then(res => res.text().then(text => {{
+        writer.write(new TextEncoder().encode(text));
+        writer.close();
+    }}))
+
+    return new Response(readableStream);
+}}"
+    )));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Data(vec![
+            76, 111, 97, 100, 105, 110, 103, 46, 46, 46
+        ]))
+    );
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response::from(
+            "[object ReadableStream]"
+        )))
+    );
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111]))
+    );
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Done)
     );
     assert!(rx.recv_async().await.is_err());
 }
