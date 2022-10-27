@@ -27,7 +27,7 @@ impl SimpleLogger {
                 });
             }
             Err(e) => {
-                warn!("Axiom is not configured: {}", e);
+                println!("Axiom is not configured: {}", e);
             }
         }
 
