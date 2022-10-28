@@ -35,6 +35,29 @@ extern "C" fn heap_limit_callback(
     current_heap_limit * 2
 }
 
+// We don't allow imports at all, so we return None and throw an error
+// so it can be catched later. As the error message suggests, all code
+// should be bundled into a single file.
+fn resolve_module_callback<'a>(
+    context: v8::Local<'a, v8::Context>,
+    _: v8::Local<'a, v8::String>,
+    _: v8::Local<'a, v8::FixedArray>,
+    _: v8::Local<'a, v8::Module>,
+) -> Option<v8::Local<'a, v8::Module>> {
+    let scope = &mut unsafe { v8::CallbackScope::new(context) };
+
+    let message = v8::String::new(
+        scope,
+        "Can't import modules, everything should be bundled in a single file",
+    )
+    .unwrap();
+
+    let exception = v8::Exception::error(scope, message);
+    scope.throw_exception(exception);
+
+    None
+}
+
 #[derive(Debug, PartialEq)]
 enum ExecutionResult {
     WillRun,
@@ -204,7 +227,7 @@ impl Isolate {
         s.clone()
     }
 
-    pub fn evaluate(&mut self, request: Request) {
+    pub fn evaluate(&mut self, request: Request) -> Option<String> {
         let thread_safe_handle = self.isolate.thread_safe_handle();
         let isolate_state = Isolate::state(&self.isolate);
 
@@ -221,14 +244,7 @@ impl Isolate {
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if self.handler.is_none() && self.compilation_error.is_none() {
-            let code = match get_runtime_code(try_catch, &self.options) {
-                Some(code) => code,
-                None => {
-                    self.compilation_error = Some("Failed to get runtime code".to_string());
-                    return;
-                }
-            };
-
+            let code = get_runtime_code(try_catch, &self.options);
             let resource_name = v8::String::new(try_catch, "isolate.js").unwrap();
             let source_map_url = v8::String::new(try_catch, "").unwrap();
 
@@ -250,11 +266,14 @@ impl Isolate {
 
             match v8::script_compiler::compile_module(try_catch, source) {
                 Some(module) => {
-                    // TODO: disable imports
-                    module
-                        .instantiate_module(try_catch, |_a, _b, _c, _d| None)
-                        .unwrap();
-                    module.evaluate(try_catch).unwrap();
+                    if module
+                        .instantiate_module(try_catch, resolve_module_callback)
+                        .is_none()
+                    {
+                        return Some(handle_error(try_catch).as_error());
+                    }
+
+                    module.evaluate(try_catch)?;
 
                     let namespace = module.get_module_namespace();
                     let namespace = v8::Local::<v8::Object>::try_from(namespace).unwrap();
@@ -266,14 +285,7 @@ impl Isolate {
 
                     self.handler = Some(handler);
                 }
-                None => {
-                    match handle_error(try_catch) {
-                        RunResult::Error(error) => self.compilation_error = Some(error),
-                        _ => self.compilation_error = Some("Unkown error".into()),
-                    };
-
-                    return;
-                }
+                None => return Some(handle_error(try_catch).as_error()),
             };
         }
 
@@ -347,6 +359,8 @@ impl Isolate {
                 }
             }
         };
+
+        None
     }
 
     fn poll_v8(&mut self) {
@@ -507,14 +521,28 @@ impl Isolate {
         poll_fn(|cx| self.poll_event_loop(cx, tx)).await;
     }
 
-    pub async fn run(&mut self, request: Request, tx: flume::Sender<RunResult>) {
-        self.evaluate(request);
-
-        // Don't run the event loop if we have a compilation error,
-        // and return it directly in that case
+    fn check_for_compilation_error(&self, tx: &flume::Sender<RunResult>) -> bool {
         if let Some(compilation_error) = &self.compilation_error {
             tx.send(RunResult::Error(compilation_error.to_string()))
                 .unwrap();
+
+            return true;
+        }
+
+        false
+    }
+
+    pub async fn run(&mut self, request: Request, tx: flume::Sender<RunResult>) {
+        // We might have a compilation error from the initial evaluate call
+        if self.check_for_compilation_error(&tx) {
+            return;
+        }
+
+        self.compilation_error = self.evaluate(request);
+
+        // We can also have a compilation error when calling this function
+        // for the first time
+        if self.check_for_compilation_error(&tx) {
             return;
         }
 

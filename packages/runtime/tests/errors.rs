@@ -55,6 +55,29 @@ async fn compilation_error() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn import_errors() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "import test from 'test';
+
+export function handler() {
+    return new Response('hello world');
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error(
+            "Uncaught Error: Can't import modules, everything should be bundled in a single file, at:\n"
+                .into()
+        ),
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn timeout_reached() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(

@@ -45,7 +45,7 @@ impl Runtime {
 pub fn get_runtime_code<'a>(
     scope: &mut v8::HandleScope<'a>,
     options: &IsolateOptions,
-) -> Option<v8::Local<'a, v8::String>> {
+) -> v8::Local<'a, v8::String> {
     let IsolateOptions {
         code,
         environment_variables,
@@ -69,4 +69,5 @@ pub fn get_runtime_code<'a>(
 {code}"
         ),
     )
+    .unwrap()
 }
