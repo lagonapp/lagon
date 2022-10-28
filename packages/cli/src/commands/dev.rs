@@ -3,6 +3,7 @@ use colored::Colorize;
 use envfile::EnvFile;
 use hyper::body::Bytes;
 use hyper::http::response::Builder;
+use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::{Request, Response, RunResult, StreamResult};
@@ -41,6 +42,7 @@ fn parse_environment_variables(env: Option<PathBuf>) -> io::Result<HashMap<Strin
 // threads to manage.
 async fn handle_request(
     req: HyperRequest<Body>,
+    ip: String,
     content: Arc<Mutex<(FileCursor, HashMap<String, FileCursor>)>>,
     environment_variables: HashMap<String, String>,
 ) -> Result<HyperResponse<Body>, Infallible> {
@@ -87,7 +89,8 @@ async fn handle_request(
 
         tx.send_async(RunResult::Response(response)).await.unwrap();
     } else {
-        let request = Request::from_hyper(req).await;
+        let mut request = Request::from_hyper(req).await;
+        request.add_header("X-Forwarded-For".into(), ip);
 
         let mut isolate = Isolate::new(
             IsolateOptions::new(String::from_utf8(index.get_ref().to_vec()).unwrap())
@@ -193,13 +196,21 @@ pub async fn dev(
     let server_content = content.clone();
     let environment_variables = parse_environment_variables(env)?;
 
-    let server = Server::bind(&addr).serve(make_service_fn(move |_conn| {
+    let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let content = server_content.clone();
         let environment_variables = environment_variables.clone();
 
+        let addr = conn.remote_addr();
+        let ip = addr.ip().to_string();
+
         async move {
             Ok::<_, Infallible>(service_fn(move |req| {
-                handle_request(req, content.clone(), environment_variables.clone())
+                handle_request(
+                    req,
+                    ip.clone(),
+                    content.clone(),
+                    environment_variables.clone(),
+                )
             }))
         }
     }));
