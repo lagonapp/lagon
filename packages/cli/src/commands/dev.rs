@@ -1,5 +1,6 @@
 use chrono::offset::Local;
 use colored::Colorize;
+use envfile::EnvFile;
 use hyper::body::Bytes;
 use hyper::http::response::Builder;
 use hyper::service::{make_service_fn, service_fn};
@@ -21,12 +22,27 @@ use crate::utils::{
     bundle_function, info, input, success, validate_code_file, validate_public_dir, FileCursor,
 };
 
+fn parse_environment_variables(env: Option<PathBuf>) -> io::Result<HashMap<String, String>> {
+    let mut environment_variables = HashMap::new();
+
+    if let Some(path) = env {
+        let envfile = EnvFile::new(path)?;
+
+        for (key, value) in envfile.store {
+            environment_variables.insert(key, value);
+        }
+    }
+
+    Ok(environment_variables)
+}
+
 // This function is similar to packages/serverless/src/main.rs,
 // expect that we don't have multiple deployments and such multiple
 // threads to manage.
 async fn handle_request(
     req: HyperRequest<Body>,
     content: Arc<Mutex<(FileCursor, HashMap<String, FileCursor>)>>,
+    environment_variables: HashMap<String, String>,
 ) -> Result<HyperResponse<Body>, Infallible> {
     let mut url = req.uri().to_string();
 
@@ -73,9 +89,10 @@ async fn handle_request(
     } else {
         let request = Request::from_hyper(req).await;
 
-        let mut isolate = Isolate::new(IsolateOptions::new(
-            String::from_utf8(index.get_ref().to_vec()).unwrap(),
-        ));
+        let mut isolate = Isolate::new(
+            IsolateOptions::new(String::from_utf8(index.get_ref().to_vec()).unwrap())
+                .with_environment_variables(environment_variables),
+        );
 
         isolate.run(request, tx).await;
     }
@@ -147,6 +164,7 @@ pub async fn dev(
     public_dir: Option<PathBuf>,
     port: Option<u16>,
     hostname: Option<String>,
+    env: Option<PathBuf>,
 ) -> io::Result<()> {
     validate_code_file(&file)?;
 
@@ -173,15 +191,18 @@ pub async fn dev(
     .unwrap();
 
     let server_content = content.clone();
+    let environment_variables = parse_environment_variables(env)?;
 
-    let server =
-        Server::bind(&addr).serve(make_service_fn(move |_conn| {
-            let content = server_content.clone();
+    let server = Server::bind(&addr).serve(make_service_fn(move |_conn| {
+        let content = server_content.clone();
+        let environment_variables = environment_variables.clone();
 
-            async move {
-                Ok::<_, Infallible>(service_fn(move |req| handle_request(req, content.clone())))
-            }
-        }));
+        async move {
+            Ok::<_, Infallible>(service_fn(move |req| {
+                handle_request(req, content.clone(), environment_variables.clone())
+            }))
+        }
+    }));
 
     let (tx, rx) = std::sync::mpsc::channel();
     let mut watcher = RecommendedWatcher::new(
