@@ -33,3 +33,13 @@ pub enum RunResult {
     Error(String),
     NotFound,
 }
+
+impl RunResult {
+    pub fn as_error(self) -> String {
+        if let RunResult::Error(error) = self {
+            return error;
+        }
+
+        panic!("RunResult is not an Error");
+    }
+}
