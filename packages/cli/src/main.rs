@@ -69,6 +69,9 @@ enum Commands {
         /// Hostname to start dev server on
         #[clap(long)]
         hostname: Option<String>,
+        /// Path to a env file to parse
+        #[clap(short, long, value_parser)]
+        env: Option<PathBuf>,
     },
     /// Build a Function without deploying it
     Build {
@@ -105,7 +108,8 @@ async fn main() {
                 public_dir,
                 port,
                 hostname,
-            } => commands::dev(file, client, public_dir, port, hostname).await,
+                env,
+            } => commands::dev(file, client, public_dir, port, hostname, env).await,
             Commands::Build {
                 file,
                 client,
