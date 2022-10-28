@@ -2,13 +2,13 @@ use axiom_rs::Client;
 use chrono::prelude::Local;
 use flume::Sender;
 use serde_json::{json, Value};
+use std::sync::{Arc, RwLock};
 
 use log::{
-    set_boxed_logger, set_max_level, warn, Level, LevelFilter, Log, Metadata, Record,
-    SetLoggerError,
+    set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,
 };
 struct SimpleLogger {
-    tx: Sender<Value>,
+    tx: Arc<RwLock<Option<Sender<Value>>>>,
 }
 
 impl SimpleLogger {
@@ -31,7 +31,9 @@ impl SimpleLogger {
             }
         }
 
-        Self { tx }
+        Self {
+            tx: Arc::new(RwLock::new(Some(tx))),
+        }
     }
 }
 
@@ -45,24 +47,36 @@ impl Log for SimpleLogger {
             println!("{} - {} - {}", Local::now(), record.level(), record.args());
 
             // Axiom is optional, so tx can have no listeners
-            if !self.tx.is_disconnected() {
-                self.tx
-                    .send(json!({
+            let tx = self.tx.read().expect("Tx lock is poisoned");
+            if let Some(tx) = &*tx {
+                if !tx.is_disconnected() {
+                    tx.send(json!({
                         "region": dotenv::var("LAGON_REGION").expect("LAGON_REGION must be set"),
                         "_time": Local::now().to_rfc3339(),
                         "level": record.level().to_string(),
                         "message": record.args().to_string(),
                     }))
                     .unwrap_or(())
+                }
             }
         }
     }
 
     fn flush(&self) {
-        warn!("Flushing not implemented");
+        let mut tx = self.tx.write().expect("Tx lock is poisoned");
+        tx.take();
     }
 }
 
-pub fn init_logger() -> Result<(), SetLoggerError> {
-    set_boxed_logger(Box::new(SimpleLogger::new())).map(|()| set_max_level(LevelFilter::Info))
+pub struct FlushGuard {}
+
+impl Drop for FlushGuard {
+    fn drop(&mut self) {
+        log::logger().flush()
+    }
+}
+
+pub fn init_logger() -> Result<FlushGuard, SetLoggerError> {
+    set_boxed_logger(Box::new(SimpleLogger::new())).map(|()| set_max_level(LevelFilter::Info))?;
+    Ok(FlushGuard {})
 }

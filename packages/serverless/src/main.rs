@@ -219,7 +219,7 @@ async fn handle_request(
 #[tokio::main]
 async fn main() {
     dotenv::dotenv().expect("Failed to load .env file");
-    init_logger().expect("Failed to init logger");
+    let _flush_guard = init_logger().expect("Failed to init logger");
 
     let runtime = Runtime::new(RuntimeOptions::default());
     let addr = SocketAddr::from(([0, 0, 0, 0], 4000));
