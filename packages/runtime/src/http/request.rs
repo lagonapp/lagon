@@ -200,4 +200,10 @@ impl Request {
             url,
         }
     }
+
+    pub fn add_header(&mut self, key: String, value: String) {
+        if let Some(ref mut headers) = self.headers {
+            headers.insert(key, value);
+        }
+    }
 }

@@ -1,6 +1,8 @@
 use deployments::Deployment;
 use hyper::body::Bytes;
+use hyper::header::HOST;
 use hyper::http::response::Builder;
+use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::{Request, RunResult, StreamResult};
@@ -35,12 +37,14 @@ mod logger;
 lazy_static! {
     static ref ISOLATES: RwLock<HashMap<usize, HashMap<String, Isolate>>> =
         RwLock::new(HashMap::new());
+    static ref X_FORWARDED_FOR: String = String::from("X-Forwarded-For");
 }
 
 const POOL_SIZE: usize = 8;
 
 async fn handle_request(
     req: HyperRequest<Body>,
+    ip: String,
     pool: LocalPoolHandle,
     deployments: Arc<RwLock<HashMap<String, Deployment>>>,
     thread_ids: Arc<RwLock<HashMap<String, usize>>>,
@@ -49,14 +53,13 @@ async fn handle_request(
     // Remove the leading '/' from the url
     url.remove(0);
 
-    let request = Request::from_hyper(req).await;
-    let hostname = request
-        .headers
-        .as_ref()
+    let hostname = req
+        .headers()
+        .get(HOST)
         .unwrap()
-        .get("host")
+        .to_str()
         .unwrap()
-        .clone();
+        .to_string();
 
     let thread_ids_reader = thread_ids.read().await;
 
@@ -88,7 +91,8 @@ async fn handle_request(
                         ];
 
                         increment_counter!("lagon_requests", &labels);
-                        counter!("lagon_bytes_in", request.len() as u64, &labels);
+                        // TODO: find the right request bytes length
+                        // counter!("lagon_bytes_in", request.len() as u64, &labels);
 
                         if let Some(asset) = deployment.assets.iter().find(|asset| *asset == &url) {
                             let run_result = match handle_asset(deployment, asset) {
@@ -105,6 +109,9 @@ async fn handle_request(
 
                             tx.send_async(run_result).await.unwrap();
                         } else {
+                            let mut request = Request::from_hyper(req).await;
+                            request.add_header(X_FORWARDED_FOR.to_string(), ip);
+
                             // Only acquire the lock when we are sure we have a
                             // deployment and that the isolate should be called.
                             // TODO: read() then write() if not present
@@ -256,14 +263,23 @@ async fn main() {
     let pool = LocalPoolHandle::new(POOL_SIZE);
     let thread_ids = Arc::new(RwLock::new(HashMap::new()));
 
-    let server = Server::bind(&addr).serve(make_service_fn(move |_conn| {
+    let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let deployments = deployments.clone();
         let pool = pool.clone();
         let thread_ids = thread_ids.clone();
 
+        let addr = conn.remote_addr();
+        let ip = addr.ip().to_string();
+
         async move {
             Ok::<_, Infallible>(service_fn(move |req| {
-                handle_request(req, pool.clone(), deployments.clone(), thread_ids.clone())
+                handle_request(
+                    req,
+                    ip.clone(),
+                    pool.clone(),
+                    deployments.clone(),
+                    thread_ids.clone(),
+                )
             }))
         }
     }));
