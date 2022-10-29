@@ -68,7 +68,7 @@ impl Log for SimpleLogger {
     }
 }
 
-pub struct FlushGuard {}
+pub struct FlushGuard;
 
 impl Drop for FlushGuard {
     fn drop(&mut self) {
@@ -78,5 +78,5 @@ impl Drop for FlushGuard {
 
 pub fn init_logger() -> Result<FlushGuard, SetLoggerError> {
     set_boxed_logger(Box::new(SimpleLogger::new())).map(|()| set_max_level(LevelFilter::Info))?;
-    Ok(FlushGuard {})
+    Ok(FlushGuard)
 }
