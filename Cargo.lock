@@ -127,9 +127,9 @@ dependencies = [
 
 [[package]]
 name = "axiom-rs"
-version = "0.5.0"
+version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b6626ba177a8fe68b3a1c3be1c7011eecfd82fe306b65a52054d0cd9d0873f1"
+checksum = "f6f23438d5a370b25fdd40449ba1f5d93319f59171f1007dc674a2cfc44b4e25"
 dependencies = [
  "backoff",
  "bytes",
@@ -144,6 +144,7 @@ dependencies = [
  "serde_qs",
  "thiserror",
  "tokio",
+ "tokio-stream",
  "tracing",
  "url",
 ]
