@@ -17,7 +17,6 @@ pub fn fetch_binding(
     let request = Request::from_v8(scope, request.into()).unwrap();
 
     let promise = v8::PromiseResolver::new(scope).unwrap();
-    let promise = v8::Local::new(scope, promise);
 
     let state = Isolate::state(scope);
     let mut state = state.borrow_mut();

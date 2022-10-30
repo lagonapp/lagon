@@ -1,6 +1,6 @@
 use v8::V8;
 
-use crate::isolate::IsolateOptions;
+use crate::{isolate::IsolateOptions, utils::v8_string};
 
 #[repr(C, align(16))]
 struct IcuData([u8; 10454784]);
@@ -61,7 +61,7 @@ pub fn get_runtime_code<'a>(
         None => "".to_string(),
     };
 
-    v8::String::new(
+    v8_string(
         scope,
         &format!(
             r"{JS_RUNTIME}
@@ -69,5 +69,4 @@ pub fn get_runtime_code<'a>(
 {code}"
         ),
     )
-    .unwrap()
 }

@@ -55,16 +55,15 @@ pub fn extract_v8_headers_object(
     Ok(None)
 }
 
-pub fn v8_string<'a>(scope: &mut v8::HandleScope<'a>, value: &str) -> v8::Local<'a, v8::String> {
-    let value = v8::String::new(scope, value).unwrap();
-
-    v8::Local::new(scope, value)
+pub fn v8_string<'a>(
+    scope: &mut v8::HandleScope<'a, ()>,
+    value: &str,
+) -> v8::Local<'a, v8::String> {
+    v8::String::new(scope, value).unwrap()
 }
 
 pub fn v8_integer<'a>(scope: &mut v8::HandleScope<'a>, value: i32) -> v8::Local<'a, v8::Integer> {
-    let value = v8::Integer::new(scope, value);
-
-    v8::Local::new(scope, value)
+    v8::Integer::new(scope, value)
 }
 
 pub fn v8_uint8array<'a>(
@@ -77,9 +76,7 @@ pub fn v8_uint8array<'a>(
     let backing_store_shared = backing_store.make_shared();
     let ab = v8::ArrayBuffer::with_backing_store(scope, &backing_store_shared);
 
-    let value = v8::Uint8Array::new(scope, ab, 0, len).unwrap();
-
-    v8::Local::new(scope, value)
+    v8::Uint8Array::new(scope, ab, 0, len).unwrap()
 }
 
 pub fn v8_headers_object<'a>(

@@ -46,11 +46,10 @@ fn resolve_module_callback<'a>(
 ) -> Option<v8::Local<'a, v8::Module>> {
     let scope = &mut unsafe { v8::CallbackScope::new(context) };
 
-    let message = v8::String::new(
+    let message = v8_string(
         scope,
         "Can't import modules, everything should be bundled in a single file",
-    )
-    .unwrap();
+    );
 
     let exception = v8::Exception::error(scope, message);
     scope.throw_exception(exception);
@@ -245,8 +244,8 @@ impl Isolate {
 
         if self.handler.is_none() && self.compilation_error.is_none() {
             let code = get_runtime_code(try_catch, &self.options);
-            let resource_name = v8::String::new(try_catch, "isolate.js").unwrap();
-            let source_map_url = v8::String::new(try_catch, "").unwrap();
+            let resource_name = v8_string(try_catch, "isolate.js");
+            let source_map_url = v8_string(try_catch, "");
 
             let source = v8::script_compiler::Source::new(
                 code,
@@ -278,8 +277,8 @@ impl Isolate {
                     let namespace = module.get_module_namespace();
                     let namespace = v8::Local::<v8::Object>::try_from(namespace).unwrap();
 
-                    let handler = v8::String::new(try_catch, "masterHandler").unwrap();
-                    let handler = namespace.get(try_catch, handler.into()).unwrap();
+                    let handler_key = v8_string(try_catch, "masterHandler");
+                    let handler = namespace.get(try_catch, handler_key.into()).unwrap();
                     let handler = v8::Local::<v8::Function>::try_from(handler).unwrap();
                     let handler = v8::Global::new(try_catch, handler);
 
