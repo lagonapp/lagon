@@ -1,3 +1,5 @@
+use anyhow::Result;
+
 mod method;
 mod request;
 mod response;
@@ -14,7 +16,7 @@ pub trait FromV8: Sized {
     fn from_v8<'a>(
         scope: &mut v8::HandleScope<'a>,
         object: v8::Local<'a, v8::Value>,
-    ) -> Option<Self>;
+    ) -> Result<Self>;
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
