@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use hyper::{
     body::{self, Bytes},
     header::HeaderName,
@@ -7,7 +7,10 @@ use hyper::{
 };
 use std::{collections::HashMap, str::FromStr};
 
-use crate::utils::{extract_v8_string, v8_headers_object, v8_string, v8_uint8array};
+use crate::utils::{
+    extract_v8_headers_object, extract_v8_integer, extract_v8_string, v8_headers_object, v8_string,
+    v8_uint8array,
+};
 use crate::{
     http::{FromV8, IntoV8},
     utils::v8_integer,
@@ -74,53 +77,40 @@ impl FromV8 for Response {
     ) -> Result<Self> {
         let response = response.to_object(scope).unwrap();
 
+        let body;
         let body_key = v8_string(scope, "body");
-        let body = response.get(scope, body_key.into()).unwrap();
-        let body = extract_v8_string(body, scope)?;
 
-        let headers_key = v8_string(scope, "headers");
-        let headers_object = response
-            .get(scope, headers_key.into())
-            .unwrap()
-            .to_object(scope)
-            .unwrap();
-        let headers_map = headers_object.get(scope, headers_key.into()).unwrap();
-        let headers_map = unsafe { v8::Local::<v8::Map>::cast(headers_map) };
-
-        let mut headers = None;
-
-        if headers_map.size() > 0 {
-            let mut final_headers = HashMap::new();
-
-            let headers_keys = headers_map.as_array(scope);
-
-            for mut index in 0..headers_keys.length() {
-                if index % 2 != 0 {
-                    continue;
-                }
-
-                let key = headers_keys
-                    .get_index(scope, index)
-                    .unwrap()
-                    .to_rust_string_lossy(scope);
-                index += 1;
-                let value = headers_keys
-                    .get_index(scope, index)
-                    .unwrap()
-                    .to_rust_string_lossy(scope);
-
-                final_headers.insert(key, value);
-            }
-
-            headers = Some(final_headers);
+        if let Some(body_value) = response.get(scope, body_key.into()) {
+            body = extract_v8_string(body_value, scope)?;
+        } else {
+            return Err(anyhow!("Could not find body"));
         }
 
+        let mut headers = None;
+        let headers_key = v8_string(scope, "headers");
+
+        if let Some(headers_object) = response.get(scope, headers_key.into()) {
+            if let Some(headers_object) = headers_object.to_object(scope) {
+                if let Some(headers_value) = headers_object.get(scope, headers_key.into()) {
+                    if !headers_value.is_null_or_undefined() {
+                        headers = extract_v8_headers_object(headers_value, scope)?;
+                    }
+                } else {
+                    return Err(anyhow!("Could not find headers object"));
+                }
+            } else {
+                return Err(anyhow!("Could not find headers object"));
+            }
+        }
+
+        let status;
         let status_key = v8_string(scope, "status");
-        let status = response
-            .get(scope, status_key.into())
-            .unwrap()
-            .integer_value(scope)
-            .unwrap() as u16;
+
+        if let Some(status_value) = response.get(scope, status_key.into()) {
+            status = extract_v8_integer(status_value, scope)? as u16;
+        } else {
+            return Err(anyhow!("Could not find status"));
+        }
 
         Ok(Self {
             headers,

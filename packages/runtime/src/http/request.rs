@@ -7,7 +7,7 @@ use hyper::{
 };
 use std::{collections::HashMap, str::FromStr};
 
-use crate::utils::{extract_v8_string, v8_headers_object, v8_string};
+use crate::utils::{extract_v8_headers_object, extract_v8_string, v8_headers_object, v8_string};
 
 use super::{FromV8, IntoV8, Method};
 
@@ -86,35 +86,9 @@ impl FromV8 for Request {
         let mut headers = None;
         let headers_key = v8_string(scope, "headers");
 
-        if let Some(headers_map) = response.get(scope, headers_key.into()) {
-            if !headers_map.is_null_or_undefined() {
-                let headers_map = unsafe { v8::Local::<v8::Map>::cast(headers_map) };
-
-                if headers_map.size() > 0 {
-                    let mut final_headers = HashMap::new();
-
-                    let headers_keys = headers_map.as_array(scope);
-
-                    for mut index in 0..headers_keys.length() {
-                        if index % 2 != 0 {
-                            continue;
-                        }
-
-                        let key = headers_keys
-                            .get_index(scope, index)
-                            .unwrap()
-                            .to_rust_string_lossy(scope);
-                        index += 1;
-                        let value = headers_keys
-                            .get_index(scope, index)
-                            .unwrap()
-                            .to_rust_string_lossy(scope);
-
-                        final_headers.insert(key, value);
-                    }
-
-                    headers = Some(final_headers);
-                }
+        if let Some(headers_value) = response.get(scope, headers_key.into()) {
+            if !headers_value.is_null_or_undefined() {
+                headers = extract_v8_headers_object(headers_value, scope)?;
             }
         }
 

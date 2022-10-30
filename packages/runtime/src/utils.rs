@@ -1,16 +1,58 @@
 use std::collections::HashMap;
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Result};
 
 pub fn extract_v8_string(
     value: v8::Local<v8::Value>,
     scope: &mut v8::HandleScope,
-) -> anyhow::Result<String> {
+) -> Result<String> {
     if let Some(value) = value.to_string(scope) {
         return Ok(value.to_rust_string_lossy(scope));
     }
 
     Err(anyhow!("Value is not a string"))
+}
+
+pub fn extract_v8_integer(value: v8::Local<v8::Value>, scope: &mut v8::HandleScope) -> Result<i64> {
+    if let Some(value) = value.to_integer(scope) {
+        return Ok(value.value());
+    }
+
+    Err(anyhow!("Value is not a string"))
+}
+
+pub fn extract_v8_headers_object(
+    value: v8::Local<v8::Value>,
+    scope: &mut v8::HandleScope,
+) -> Result<Option<HashMap<String, String>>> {
+    let map = unsafe { v8::Local::<v8::Map>::cast(value) };
+
+    if map.size() > 0 {
+        let mut headers = HashMap::new();
+        let headers_keys = map.as_array(scope);
+
+        for mut index in 0..headers_keys.length() {
+            if index % 2 != 0 {
+                continue;
+            }
+
+            let key = headers_keys
+                .get_index(scope, index)
+                .unwrap()
+                .to_rust_string_lossy(scope);
+            index += 1;
+            let value = headers_keys
+                .get_index(scope, index)
+                .unwrap()
+                .to_rust_string_lossy(scope);
+
+            headers.insert(key, value);
+        }
+
+        return Ok(Some(headers));
+    }
+
+    Ok(None)
 }
 
 pub fn v8_string<'a>(scope: &mut v8::HandleScope<'a>, value: &str) -> v8::Local<'a, v8::String> {
