@@ -416,7 +416,7 @@ impl Isolate {
                         promise.resolve(scope, response.into());
                     }
                     PromiseResult::Error(error) => {
-                        let error = v8_string(scope, &error).unwrap();
+                        let error = v8_string(scope, &error);
                         promise.reject(scope, error.into());
                     }
                 };
@@ -476,8 +476,8 @@ impl Isolate {
                     let response = promise.result(try_catch);
 
                     let run_result = match Response::from_v8(try_catch, response) {
-                        Some(response) => RunResult::Response(response),
-                        None => handle_error(try_catch),
+                        Ok(response) => RunResult::Response(response),
+                        Err(error) => RunResult::Error(error.to_string()),
                     };
 
                     if let RunResult::Response(ref response) = run_result {

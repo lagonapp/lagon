@@ -1,3 +1,4 @@
+use anyhow::Result;
 use hyper::{
     body::{self, Bytes},
     header::HeaderName,
@@ -6,8 +7,11 @@ use hyper::{
 };
 use std::{collections::HashMap, str::FromStr};
 
-use crate::http::{FromV8, IntoV8};
-use crate::utils::{extract_v8_string, v8_string};
+use crate::utils::{extract_v8_string, v8_headers_object, v8_string, v8_uint8array};
+use crate::{
+    http::{FromV8, IntoV8},
+    utils::v8_integer,
+};
 
 static READABLE_STREAM_STR: &[u8] = b"[object ReadableStream]";
 
@@ -42,33 +46,20 @@ impl IntoV8 for Response {
     fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
         let response = v8::Object::new(scope);
 
-        let body_key = v8_string(scope, "body").unwrap();
-        let buf = self.body.to_vec();
-        let backing_store = v8::ArrayBuffer::new_backing_store_from_boxed_slice(buf.into());
-        let backing_store_shared = backing_store.make_shared();
-        let ab = v8::ArrayBuffer::with_backing_store(scope, &backing_store_shared);
-        let body_value = v8::Uint8Array::new(scope, ab, 0, self.body.len()).unwrap();
+        let body_key = v8_string(scope, "body");
+        let body_value = v8_uint8array(scope, self.body.to_vec());
         response.set(scope, body_key.into(), body_value.into());
 
-        let status_key = v8_string(scope, "status").unwrap();
-        let status_value = v8::Integer::new(scope, self.status.into());
-        let status_value = v8::Local::new(scope, status_value);
+        let status_key = v8_string(scope, "status");
+        let status_value = v8_integer(scope, self.status.into());
         response.set(scope, status_key.into(), status_value.into());
 
-        let headers_key = v8_string(scope, "headers").unwrap();
-        let request_headers = v8::Object::new(scope);
+        let headers_key = v8_string(scope, "headers");
 
         if let Some(headers) = self.headers {
-            for (key, value) in headers.iter() {
-                let key = v8::String::new(scope, key).unwrap();
-                let key = v8::Local::new(scope, key);
-                let value = v8::String::new(scope, value).unwrap();
-                let value = v8::Local::new(scope, value);
-                request_headers.set(scope, key.into(), value.into());
-            }
-
+            let headers_value = v8_headers_object(scope, headers);
             response
-                .set(scope, headers_key.into(), request_headers.into())
+                .set(scope, headers_key.into(), headers_value.into())
                 .unwrap();
         }
 
@@ -80,16 +71,20 @@ impl FromV8 for Response {
     fn from_v8<'a>(
         scope: &mut v8::HandleScope<'a>,
         response: v8::Local<'a, v8::Value>,
-    ) -> Option<Self> {
-        let response = response.to_object(scope)?;
+    ) -> Result<Self> {
+        let response = response.to_object(scope).unwrap();
 
-        let body_key = v8_string(scope, "body")?;
-        let body = response.get(scope, body_key.into())?;
+        let body_key = v8_string(scope, "body");
+        let body = response.get(scope, body_key.into()).unwrap();
         let body = extract_v8_string(body, scope)?;
 
-        let headers_key = v8_string(scope, "headers")?;
-        let headers_object = response.get(scope, headers_key.into())?.to_object(scope)?;
-        let headers_map = headers_object.get(scope, headers_key.into())?;
+        let headers_key = v8_string(scope, "headers");
+        let headers_object = response
+            .get(scope, headers_key.into())
+            .unwrap()
+            .to_object(scope)
+            .unwrap();
+        let headers_map = headers_object.get(scope, headers_key.into()).unwrap();
         let headers_map = unsafe { v8::Local::<v8::Map>::cast(headers_map) };
 
         let mut headers = None;
@@ -105,11 +100,13 @@ impl FromV8 for Response {
                 }
 
                 let key = headers_keys
-                    .get_index(scope, index)?
+                    .get_index(scope, index)
+                    .unwrap()
                     .to_rust_string_lossy(scope);
                 index += 1;
                 let value = headers_keys
-                    .get_index(scope, index)?
+                    .get_index(scope, index)
+                    .unwrap()
                     .to_rust_string_lossy(scope);
 
                 final_headers.insert(key, value);
@@ -118,12 +115,14 @@ impl FromV8 for Response {
             headers = Some(final_headers);
         }
 
-        let status_key = v8_string(scope, "status")?;
+        let status_key = v8_string(scope, "status");
         let status = response
-            .get(scope, status_key.into())?
-            .integer_value(scope)? as u16;
+            .get(scope, status_key.into())
+            .unwrap()
+            .integer_value(scope)
+            .unwrap() as u16;
 
-        Some(Self {
+        Ok(Self {
             headers,
             body: Bytes::from(body),
             status,

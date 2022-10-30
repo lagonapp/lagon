@@ -10,6 +10,7 @@ futures = "0.3.24"
 hyper = { version = "0.14", features = ["client", "http1", "http2", "tcp"] }
 hyper-tls = { version = "0.5.0", features = ["vendored"] }
 flume = "0.10.14"
+anyhow = "1.0.66"
 
 [dev-dependencies]
 httptest = "0.15.4"

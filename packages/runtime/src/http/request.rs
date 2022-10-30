@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use hyper::{
     body::{self, Bytes},
     header::HeaderName,
@@ -6,7 +7,7 @@ use hyper::{
 };
 use std::{collections::HashMap, str::FromStr};
 
-use crate::utils::{extract_v8_string, v8_string};
+use crate::utils::{extract_v8_string, v8_headers_object, v8_string};
 
 use super::{FromV8, IntoV8, Method};
 
@@ -33,44 +34,32 @@ impl IntoV8 for Request {
     fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
         let request = v8::Object::new(scope);
 
-        let input_key = v8_string(scope, "input").unwrap();
-        let input_value = v8::String::new(scope, &self.url).unwrap();
-        let input_value = v8::Local::new(scope, input_value);
+        let input_key = v8_string(scope, "input");
+        let input_value = v8_string(scope, &self.url);
         request
             .set(scope, input_key.into(), input_value.into())
             .unwrap();
 
-        let method_key = v8_string(scope, "method").unwrap();
-        let method_value = v8::String::new(scope, self.method.into()).unwrap();
-        let method_value = v8::Local::new(scope, method_value);
+        let method_key = v8_string(scope, "method");
+        let method_value = v8_string(scope, self.method.into());
         request
             .set(scope, method_key.into(), method_value.into())
             .unwrap();
 
         if !self.body.is_empty() {
-            let body_key = v8_string(scope, "body").unwrap();
-            let body_value =
-                v8::String::new(scope, &String::from_utf8(self.body.to_vec()).unwrap()).unwrap();
-            let body_value = v8::Local::new(scope, body_value);
+            let body_key = v8_string(scope, "body");
+            let body_value = v8_string(scope, &String::from_utf8(self.body.to_vec()).unwrap());
             request
                 .set(scope, body_key.into(), body_value.into())
                 .unwrap();
         }
 
-        let headers_key = v8_string(scope, "headers").unwrap();
-        let request_headers = v8::Object::new(scope);
+        let headers_key = v8_string(scope, "headers");
 
         if let Some(headers) = self.headers {
-            for (key, value) in headers.iter() {
-                let key = v8::String::new(scope, key).unwrap();
-                let key = v8::Local::new(scope, key);
-                let value = v8::String::new(scope, value).unwrap();
-                let value = v8::Local::new(scope, value);
-                request_headers.set(scope, key.into(), value.into());
-            }
-
+            let headers_value = v8_headers_object(scope, headers);
             request
-                .set(scope, headers_key.into(), request_headers.into())
+                .set(scope, headers_key.into(), headers_value.into())
                 .unwrap();
         }
 
@@ -82,11 +71,11 @@ impl FromV8 for Request {
     fn from_v8<'a>(
         scope: &mut v8::HandleScope<'a>,
         request: v8::Local<'a, v8::Value>,
-    ) -> Option<Self> {
-        let response = request.to_object(scope)?;
+    ) -> Result<Self> {
+        let response = request.to_object(scope).unwrap();
 
         let mut body = Bytes::new();
-        let body_key = v8_string(scope, "body")?;
+        let body_key = v8_string(scope, "body");
 
         if let Some(body_value) = response.get(scope, body_key.into()) {
             if !body_value.is_null_or_undefined() {
@@ -95,7 +84,7 @@ impl FromV8 for Request {
         }
 
         let mut headers = None;
-        let headers_key = v8_string(scope, "headers")?;
+        let headers_key = v8_string(scope, "headers");
 
         if let Some(headers_map) = response.get(scope, headers_key.into()) {
             if !headers_map.is_null_or_undefined() {
@@ -112,11 +101,13 @@ impl FromV8 for Request {
                         }
 
                         let key = headers_keys
-                            .get_index(scope, index)?
+                            .get_index(scope, index)
+                            .unwrap()
                             .to_rust_string_lossy(scope);
                         index += 1;
                         let value = headers_keys
-                            .get_index(scope, index)?
+                            .get_index(scope, index)
+                            .unwrap()
                             .to_rust_string_lossy(scope);
 
                         final_headers.insert(key, value);
@@ -128,17 +119,22 @@ impl FromV8 for Request {
         }
 
         let mut method = Method::GET;
-        let method_key = v8_string(scope, "method")?;
+        let method_key = v8_string(scope, "method");
 
         if let Some(method_value) = response.get(scope, method_key.into()) {
             method = Method::from(extract_v8_string(method_value, scope)?.as_str());
         }
 
-        let url_key = v8_string(scope, "url")?;
-        let url = response.get(scope, url_key.into())?;
-        let url = extract_v8_string(url, scope)?;
+        let url;
+        let url_key = v8_string(scope, "url");
 
-        Some(Self {
+        if let Some(url_value) = response.get(scope, url_key.into()) {
+            url = extract_v8_string(url_value, scope)?;
+        } else {
+            return Err(anyhow!("Could not find url"));
+        }
+
+        Ok(Self {
             headers,
             method,
             body,
