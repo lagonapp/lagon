@@ -7,6 +7,7 @@ import './runtime/streams';
 import './runtime/abort';
 import './runtime/global/console';
 import './runtime/global/process';
+import './runtime/global/crypto';
 import './runtime/http/URLSearchParams';
 import './runtime/http/URL';
 import './runtime/http/Headers';
@@ -39,6 +40,21 @@ declare global {
       headers?: Record<string, string>;
     }>;
     pullStream: (done: boolean, chunk?: Uint8Array) => void;
+    uuid: () => string;
+    randomValues: <
+      T extends
+        | Int8Array
+        | Uint8Array
+        | Uint8ClampedArray
+        | Int16Array
+        | Uint16Array
+        | Int32Array
+        | Uint32Array
+        | BigInt64Array
+        | BigUint64Array,
+    >(
+      typedArray: T,
+    ) => T;
   };
   var __lagon__: {
     isIterable: (value: unknown) => value is ArrayBuffer;
