@@ -1,16 +1,14 @@
-use self::uuid::uuid_binding;
 use console::console_binding;
+use crypto::{random_values_binding, uuid_binding};
 use fetch::fetch_binding;
 use pull_stream::pull_stream_binding;
-use random_values::random_values_binding;
 
 use crate::{http::Response, utils::v8_string};
 
 mod console;
+mod crypto;
 mod fetch;
 mod pull_stream;
-mod random_values;
-mod uuid;
 
 pub struct BindingResult {
     pub id: usize,
