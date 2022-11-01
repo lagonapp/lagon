@@ -94,13 +94,15 @@ pub struct IsolateStatistics {
     pub memory_usage: usize,
 }
 
-#[derive(Debug)]
+// #[derive(Debug)]
 pub struct IsolateOptions {
     pub code: String,
     pub environment_variables: Option<HashMap<String, String>>,
-    pub memory: usize, // in MB (MegaBytes)
+    pub memory: usize,  // in MB (MegaBytes)
     pub timeout: usize, // in ms (MilliSeconds)
-                       // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
+    pub id: Option<String>,
+    pub on_drop: Option<Box<dyn Fn(Option<String>)>>,
+    // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
 }
 
 impl IsolateOptions {
@@ -110,6 +112,8 @@ impl IsolateOptions {
             environment_variables: None,
             timeout: 50,
             memory: 128,
+            id: None,
+            on_drop: None,
             // snapshot_blob: None,
         }
     }
@@ -129,6 +133,16 @@ impl IsolateOptions {
 
     pub fn with_memory(mut self, memory: usize) -> Self {
         self.memory = memory;
+        self
+    }
+
+    pub fn with_id(mut self, id: String) -> Self {
+        self.id = Some(id);
+        self
+    }
+
+    pub fn with_on_drop_callback(mut self, on_drop: Box<dyn Fn(Option<String>)>) -> Self {
+        self.on_drop = Some(on_drop);
         self
     }
 }
@@ -546,6 +560,18 @@ impl Isolate {
         }
 
         self.run_event_loop(&tx).await;
+    }
+}
+
+impl Drop for Isolate {
+    fn drop(&mut self) {
+        if !self.isolate.is_execution_terminating() {
+            self.isolate.terminate_execution();
+        }
+
+        if let Some(on_drop) = &self.options.on_drop {
+            on_drop(self.options.id.clone());
+        }
     }
 }
 
