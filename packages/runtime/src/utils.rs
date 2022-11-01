@@ -94,3 +94,7 @@ pub fn v8_headers_object<'a>(
 
     headers
 }
+
+pub fn v8_boolean<'a>(scope: &mut v8::HandleScope<'a>, value: bool) -> v8::Local<'a, v8::Boolean> {
+    v8::Boolean::new(scope, value)
+}

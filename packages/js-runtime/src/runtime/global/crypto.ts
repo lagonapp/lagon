@@ -69,10 +69,35 @@ type SignVerifyAlgorithm =
       name: 'HMAC';
     };
 
+// type ImportAlgorithm =
+//   | {
+//       name: 'RSASSA-PKCS1-v1_5' | 'RSA-PSS' | 'RSA-OAEP';
+//       hash: 'SHA-256' | 'SHA-384' | 'SHA-512';
+//     }
+//   | {
+//       name: 'ECDSA' | 'ECDH';
+//       namedCurve: 'P-256' | 'P-384' | 'P-521';
+//     }
+//   | {
+//       name: 'HMAC';
+//       hash: 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512';
+//       length?: number;
+//     }
+//   | 'AES-CTR'
+//   | 'AES-CBC'
+//   | 'AES-GCM'
+//   | 'AES-KW'
+//   | {
+//       name: 'AES-CTR' | 'AES-CBC' | 'AES-GCM' | 'AES-KW';
+//     }
+//   | 'PBKDF2'
+//   | 'HKDF';
+
 type AlgorithmName = GenAlgorithm['name'];
 
 type KeyUsage = 'encrypt' | 'decrypt' | 'sign' | 'verify' | 'deriveKey' | 'deriveBits' | 'wrapKey' | 'unwrapKey';
 type CryptoKeyType = 'secret' | 'private' | 'public';
+type ImportFormat = 'raw' | 'pkcs8' | 'spki' | 'jwk';
 
 const SYMMETRIC_ALGORITHMS: AlgorithmName[] = ['HMAC', 'AES-CBC', 'AES-CTR', 'AES-GCM', 'AES-KW'];
 
@@ -110,7 +135,7 @@ class CryptoSubtle {
   }
 
   async sign(algorithm: SignVerifyAlgorithm, key: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> {
-    return data;
+    return Lagon.sign(algorithm, key, data);
   }
 
   async verify(
@@ -119,7 +144,7 @@ class CryptoSubtle {
     signature: ArrayBuffer,
     data: ArrayBuffer,
   ): Promise<boolean> {
-    return false;
+    return Lagon.verify(algorithm, key, signature, data);
   }
 
   async digest(algorithm: 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512', data: ArrayBuffer): Promise<ArrayBuffer> {
@@ -139,6 +164,16 @@ class CryptoSubtle {
         new CryptoKey('public', extractable, algorithm, keyUsages),
       );
     }
+  }
+
+  async importKey(
+    format: ImportFormat,
+    keyData: ArrayBuffer,
+    algorithm: GenAlgorithm,
+    extractable: boolean,
+    keyUsages: KeyUsage[],
+  ): Promise<CryptoKey> {
+    return new CryptoKey('secret', extractable, algorithm, keyUsages);
   }
 }
 

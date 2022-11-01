@@ -55,6 +55,8 @@ declare global {
     >(
       typedArray: T,
     ) => T;
+    sign: (algorithm, key, data) => Promise<ArrayBuffer>;
+    verify: (algorithm, key, signature, data) => Promise<boolean>;
   };
   var __lagon__: {
     isIterable: (value: unknown) => value is ArrayBuffer;

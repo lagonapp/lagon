@@ -18,7 +18,7 @@ use v8::PromiseState;
 use crate::{
     http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult},
     runtime::get_runtime_code,
-    utils::v8_string,
+    utils::{v8_boolean, v8_string, v8_uint8array},
 };
 
 use self::bindings::{BindingResult, PromiseResult};
@@ -393,6 +393,14 @@ impl<T: Clone> Isolate<T> {
                     PromiseResult::Response(response) => {
                         let response = response.into_v8(scope);
                         promise.resolve(scope, response.into());
+                    }
+                    PromiseResult::ArrayBuffer(bytes) => {
+                        let array = v8_uint8array(scope, bytes);
+                        promise.resolve(scope, array.into());
+                    }
+                    PromiseResult::Boolean(boolean) => {
+                        let boolean = v8_boolean(scope, boolean);
+                        promise.resolve(scope, boolean.into());
                     }
                     PromiseResult::Error(error) => {
                         let error = v8_string(scope, &error);

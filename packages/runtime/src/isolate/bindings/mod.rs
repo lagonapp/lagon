@@ -1,5 +1,5 @@
 use console::console_binding;
-use crypto::{random_values_binding, uuid_binding};
+use crypto::{random_values_binding, sign_binding, uuid_binding, verify_binding};
 use fetch::fetch_binding;
 use pull_stream::pull_stream_binding;
 
@@ -17,6 +17,8 @@ pub struct BindingResult {
 
 pub enum PromiseResult {
     Response(Response),
+    ArrayBuffer(Vec<u8>),
+    Boolean(bool),
     Error(String),
 }
 
@@ -48,6 +50,16 @@ pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
     lagon_object.set(
         v8_string(scope, "randomValues").into(),
         v8::FunctionTemplate::new(scope, random_values_binding).into(),
+    );
+
+    lagon_object.set(
+        v8_string(scope, "sign").into(),
+        v8::FunctionTemplate::new(scope, sign_binding).into(),
+    );
+
+    lagon_object.set(
+        v8_string(scope, "verify").into(),
+        v8::FunctionTemplate::new(scope, verify_binding).into(),
     );
 
     global.set(v8_string(scope, "Lagon").into(), lagon_object.into());

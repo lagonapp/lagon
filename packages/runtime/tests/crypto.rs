@@ -54,3 +54,39 @@ async fn crypto_get_random_values() {
         RunResult::Response(Response::from("true"))
     );
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn crypto_sign() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign'],
+    );
+
+    const signed = await crypto.subtle.sign({
+        name: 'HMAC',
+        hash: 'SHA-256',
+    }, key, new TextEncoder().encode('Hello'));
+
+    const verified = await crypto.subtle.verify({
+        name: 'HMAC',
+        hash: 'SHA-256',
+    }, key, signed, new TextEncoder().encode('Hello'));
+
+    return new Response(verified);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("true"))
+    );
+}
