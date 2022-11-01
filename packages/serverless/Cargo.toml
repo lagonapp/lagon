@@ -21,3 +21,4 @@ axiom-rs = "0.6.0"
 chrono = "0.4.22"
 lazy_static = "1.4.0"
 rand = { version = "0.8.5", features = ["std_rng"] }
+lru_time_cache = "0.11.11"

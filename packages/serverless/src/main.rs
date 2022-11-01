@@ -9,7 +9,8 @@ use lagon_runtime::http::{Request, RunResult, StreamResult};
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use lazy_static::lazy_static;
-use log::error;
+use log::{error, info};
+use lru_time_cache::LruCache;
 use metrics::increment_counter;
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
@@ -22,6 +23,7 @@ use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::sync::Arc;
+use std::time::Duration;
 use tokio::sync::RwLock;
 use tokio_util::task::LocalPoolHandle;
 
@@ -35,9 +37,15 @@ mod deployments;
 mod logger;
 
 lazy_static! {
-    static ref ISOLATES: RwLock<HashMap<usize, HashMap<String, Isolate>>> =
+    static ref ISOLATES: RwLock<HashMap<usize, LruCache<String, Isolate>>> =
         RwLock::new(HashMap::new());
     static ref X_FORWARDED_FOR: String = String::from("X-Forwarded-For");
+    static ref ISOLATES_CACHE_SECONDS: Duration = Duration::from_secs(
+        dotenv::var("LAGON_ISOLATES_CACHE_SECONDS")
+            .expect("LAGON_ISOLATES_CACHE_SECONDS must be set")
+            .parse()
+            .expect("Failed to parse LAGON_ISOLATES_CACHE_SECONDS")
+    );
 }
 
 const POOL_SIZE: usize = 8;
@@ -116,10 +124,12 @@ async fn handle_request(
                             // deployment and that the isolate should be called.
                             // TODO: read() then write() if not present
                             let mut isolates = ISOLATES.write().await;
-                            let thread_isolates =
-                                isolates.entry(thread_id).or_insert_with(HashMap::new);
+                            let thread_isolates = isolates.entry(thread_id).or_insert_with(|| {
+                                LruCache::with_expiry_duration(*ISOLATES_CACHE_SECONDS)
+                            });
 
                             let isolate = thread_isolates.entry(hostname).or_insert_with(|| {
+                                info!("Creating new isolate: {} ", deployment.id);
                                 // TODO: handle read error
                                 let code = get_deployment_code(deployment).unwrap();
                                 let options = IsolateOptions::new(code)
@@ -127,7 +137,11 @@ async fn handle_request(
                                         deployment.environment_variables.clone(),
                                     )
                                     .with_memory(deployment.memory)
-                                    .with_timeout(deployment.timeout);
+                                    .with_timeout(deployment.timeout)
+                                    .with_id(deployment.id.clone())
+                                    .with_on_drop_callback(Box::new(|id| {
+                                        info!("Dropping isolate: {}", id.unwrap());
+                                    }));
 
                                 Isolate::new(options)
                             });
