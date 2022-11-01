@@ -49,6 +49,9 @@ lazy_static! {
 }
 
 const POOL_SIZE: usize = 8;
+const PAGE_404: &str = include_str!("../public/404.html");
+const PAGE_502: &str = include_str!("../public/502.html");
+const PAGE_500: &str = include_str!("../public/500.html");
 
 async fn handle_request(
     req: HyperRequest<Body>,
@@ -224,15 +227,17 @@ async fn handle_request(
 
             Ok(hyper_response)
         }
-        RunResult::Error(error) => Ok(HyperResponse::builder()
-            .status(500)
-            .body(error.into())
+        RunResult::Timeout | RunResult::MemoryLimit => Ok(HyperResponse::builder()
+            .status(502)
+            .body(PAGE_502.into())
             .unwrap()),
-        RunResult::Timeout => Ok(HyperResponse::new("Timeouted".into())),
-        RunResult::MemoryLimit => Ok(HyperResponse::new("MemoryLimited".into())),
+        RunResult::Error(_) => Ok(HyperResponse::builder()
+            .status(500)
+            .body(PAGE_500.into())
+            .unwrap()),
         RunResult::NotFound => Ok(HyperResponse::builder()
             .status(404)
-            .body("Deployment not found".into())
+            .body(PAGE_404.into())
             .unwrap()),
     }
 }
