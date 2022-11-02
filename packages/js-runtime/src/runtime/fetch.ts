@@ -19,6 +19,7 @@ export class Headers {
   }
 
   private addValue(name: string, value: string) {
+    name = name.toLowerCase();
     const values = this.headers.get(name);
 
     if (values) {
@@ -29,10 +30,12 @@ export class Headers {
   }
 
   append(name: string, value: string) {
+    name = name.toLowerCase();
     this.addValue(name, value);
   }
 
   delete(name: string) {
+    name = name.toLowerCase();
     this.headers.delete(name);
   }
 
@@ -45,10 +48,12 @@ export class Headers {
   }
 
   get(name: string): string | undefined {
+    name = name.toLowerCase();
     return this.headers.get(name)?.[0];
   }
 
   has(name: string): boolean {
+    name = name.toLowerCase();
     return this.headers.has(name);
   }
 
@@ -57,6 +62,7 @@ export class Headers {
   }
 
   set(name: string, value: string) {
+    name = name.toLowerCase();
     this.headers.set(name, [value]);
   }
 
