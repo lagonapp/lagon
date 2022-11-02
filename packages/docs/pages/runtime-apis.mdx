@@ -1,1 +1,118 @@
-Work in progress...
+import { Callout } from 'nextra-theme-docs'
+
+The following APIs are the same as the Web APIS you already know. Additionally, we follow the [WinterCG](https://wintercg.org/) conventions.
+
+## Handler
+
+The only required code to make your Function runnable is to export a `handler` function, that accepts a [`Request`](#request) and returns a [`Response`](#response) (or a promise returning a Response):
+
+```typescript
+export function handler(request: Request): Response {
+  return new Response('Hello World!')
+}
+```
+
+Starting from this simple code, you can do whatever you whish, using the Web APIs you already know.
+
+## Global objects
+
+### `console`
+
+Similar to the the standard `console` object on the browser and on Node.js, expect that it only supports the following methods:
+
+- `log`
+- `info`
+- `debug`
+- `warn`
+- `error`
+
+You can log multiple objects, and use string substitution. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/console#outputting_text_to_the_console).
+
+### `process`
+
+The only usage of `process` is to get [environment variables](/cloud/environment-variables) via `process.env`.
+
+Example:
+
+```typescript
+export function handler(request: Request): Response {
+  return new Response(`My secret is: ${process.env.SECRET}`)
+}
+```
+
+### `TextEncoder`
+
+The standard `TextEncoder` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder).
+
+### `TextDecoder`
+
+The standard `TextDecoder` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder).
+
+### Fetch
+
+<Callout type="info">
+  Looking for the `fetch()` method? [Jump to fetch()](#fetch-1).
+</Callout>
+
+#### `Request`
+
+The standard `Request` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Request).
+
+#### `Response`
+
+The standard `Response` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Response).
+
+**Streaming**:
+You can pass a [`ReadableStream`](#readablestream) object as the `body` of a `Response` to stream the response as more data becomes available. Often, you won't need to implement the logic yourself as it is implemented by the frameworks and libraries you use.
+
+#### `URL`
+
+The standard `URL` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/URL).
+
+<Callout type="warning">
+  This URL implementation only supports URLs with a scheme.
+</Callout>
+
+#### `URLSearchParams`
+
+The standard `URLSearchParams` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams).
+
+#### `Headers`
+
+The standard `Headers` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Headers).
+
+### Streams
+
+#### `ReadableStream`
+
+The standard `ReadableStream` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream).
+
+#### `ReadableStreamDefaultReader`
+
+The standard `ReadableStreamDefaultReader` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader).
+
+#### `WritableStream`
+
+The standard `WritableStream` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/WritableStream).
+
+#### `WritableStreamDefaultWriter`
+
+The standard `WritableStreamDefaultWriter` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter).
+
+#### `TransformStream`
+
+The standard `TransformStream` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/TransformStream).
+
+## Global methods
+
+### `fetch()`
+
+The standard `fetch` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/fetch).
+
+### `atob()`
+
+The standard `atob` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/atob).
+
+### `btoa()`
+
+The standard `btoa` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/btoa).
