@@ -20,7 +20,7 @@ We recommend to install the CLI globally, using the package manager of your choi
 # NPM
 npm install --global @lagon/cli
 # Yarn
-npm global add @lagon/cli
+yarn global add @lagon/cli
 # PNPM
 pnpm install --global @lagon/cli
 ```
@@ -69,7 +69,7 @@ lagon deploy ./server.tsx --client App.tsx --public ./assets
 ### `lagon undeploy`
 
 <Callout type="error">
-  Un-deploying a Function deletes permanently all of its Deployments, statistics and logs. You will prompted to confirm before continuing.
+  Un-deploying a Function deletes permanently all of its Deployments, statistics and logs. You will be prompted to confirm before continuing.
 </Callout>
 
 Un-deploy completely a Function. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
@@ -86,10 +86,11 @@ lagon undeploy ./index.ts
 
 Launch a local dev server, using the same Runtime as when deployed to the Cloud.
 
-This command accept the same arguments and options as `lagon deploy` and `lagon build`. It can also accept two more options to configure the server hostname and port:
+This command accept the same arguments and options as `lagon deploy` and `lagon build`. It can also accept the following options:
 
 - `--hostname <HOSTNAME>` allows you to specify a custom hostname the start the server on. (Default: `127.0.0.1`)
 - `--port <PORT>` allows you to specify a custom port the start the server on. (Default: `1234`)
+- `--env <PATH>` allows you to specify an environment file (typically `.env`) to use to inject environment variables.
 
 <Callout type="warning">
   Although the `dev` command uses the exact same Runtime as when deployed, the local HTTP server itself doesn't have the same optimizations. As such, you shouldn't run a production environment on it, or run any kind of load tests/benchmarks.
