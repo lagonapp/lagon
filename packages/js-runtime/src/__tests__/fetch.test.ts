@@ -47,8 +47,8 @@ describe('Headers', () => {
     it('should instanciate with init as object', () => {
       const headers = new Headers({ 'Content-Type': 'image/jpeg', 'X-My-Custom-Header': 'Zeke are cool' });
       expect(Array.from(headers.entries())).toEqual([
-        ['Content-Type', 'image/jpeg'],
-        ['X-My-Custom-Header', 'Zeke are cool'],
+        ['content-type', 'image/jpeg'],
+        ['x-my-custom-header', 'Zeke are cool'],
       ]);
     });
 
@@ -65,24 +65,24 @@ describe('Headers', () => {
   it('should append', () => {
     const headers = new Headers();
     headers.append('a', 'b');
-    headers.append('c', 'd');
+    headers.append('C', 'd');
     expect(headers.get('a')).toEqual('b');
     expect(headers.get('c')).toEqual('d');
   });
 
   it('should delete', () => {
     const headers = new Headers({
-      a: 'b',
+      A: 'b',
       c: 'd',
     });
     headers.delete('a');
-    expect(headers.get('a')).toBeUndefined();
+    expect(headers.get('A')).toBeUndefined();
   });
 
   it('should return entries', () => {
     const headers = new Headers({
       a: 'b',
-      c: 'd',
+      C: 'd',
     });
     expect(Array.from(headers.entries())).toEqual([
       ['a', 'b'],
@@ -103,7 +103,7 @@ describe('Headers', () => {
   it('should has', () => {
     const headers = new Headers({
       a: 'b',
-      c: 'd',
+      C: 'd',
     });
     expect(headers.has('a')).toBeTruthy();
     expect(headers.has('c')).toBeTruthy();
@@ -113,7 +113,7 @@ describe('Headers', () => {
   it('should return keys', () => {
     const headers = new Headers({
       a: 'b',
-      c: 'd',
+      C: 'd',
     });
     expect(Array.from(headers.keys())).toEqual(['a', 'c']);
   });
@@ -122,7 +122,7 @@ describe('Headers', () => {
     it('should set without init', () => {
       const headers = new Headers();
       headers.set('a', 'b');
-      headers.set('c', 'd');
+      headers.set('C', 'd');
       expect(headers.get('a')).toEqual('b');
       expect(headers.get('c')).toEqual('d');
     });
@@ -130,12 +130,14 @@ describe('Headers', () => {
     it('should set with init', () => {
       const headers = new Headers({
         a: 'b',
-        c: 'd',
+        C: 'd',
       });
       headers.set('a', 'e');
-      headers.set('c', 'f');
+      headers.set('B', 'f');
+      headers.set('c', 'g');
       expect(headers.get('a')).toEqual('e');
-      expect(headers.get('c')).toEqual('f');
+      expect(headers.get('b')).toEqual('f');
+      expect(headers.get('C')).toEqual('g');
     });
   });
 
