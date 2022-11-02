@@ -1,5 +1,11 @@
 # @lagon/js-runtime
 
+## 0.1.5
+
+### Patch Changes
+
+- [#227](https://github.com/lagonapp/lagon/pull/227) [`bcf8530`](https://github.com/lagonapp/lagon/commit/bcf8530ed1ecd88103861e5304f937c01ca0fcf7) Thanks [@cyco130](https://github.com/cyco130)! - Make Headers class case insensitive
+
 ## 0.1.4
 
 ### Patch Changes
