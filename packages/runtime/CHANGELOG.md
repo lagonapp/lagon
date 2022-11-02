@@ -1,5 +1,13 @@
 # @lagon/runtime
 
+## 0.1.6
+
+### Patch Changes
+
+- [#217](https://github.com/lagonapp/lagon/pull/217) [`67290b8`](https://github.com/lagonapp/lagon/commit/67290b812b1b20a473c02e8f07cd802a846b5ddd) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Throw an error when importing modules
+
+* [#223](https://github.com/lagonapp/lagon/pull/223) [`5e803dc`](https://github.com/lagonapp/lagon/commit/5e803dce3488ddf0fb80715cececf63dda773d1e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add on_drop callback and properly handle isolate termination
+
 ## 0.1.5
 
 ### Patch Changes

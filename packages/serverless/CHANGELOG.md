@@ -1,5 +1,17 @@
 # @lagon/serverless
 
+## 0.1.7
+
+### Patch Changes
+
+- [#216](https://github.com/lagonapp/lagon/pull/216) [`b5d47cb`](https://github.com/lagonapp/lagon/commit/b5d47cb30e7741c4f27adb8fbbf4c6cca6966021) Thanks [@bahlo](https://github.com/bahlo)! - Fix Axiom logger
+
+* [#224](https://github.com/lagonapp/lagon/pull/224) [`0d2cd1a`](https://github.com/lagonapp/lagon/commit/0d2cd1a291c1815f28fd24d09222df5b2447c9d4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve 500/400 pages with proper HTML/CSS
+
+- [#223](https://github.com/lagonapp/lagon/pull/223) [`5e803dc`](https://github.com/lagonapp/lagon/commit/5e803dce3488ddf0fb80715cececf63dda773d1e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add configurable LRU time cache for isolates
+
+* [#220](https://github.com/lagonapp/lagon/pull/220) [`4d368dc`](https://github.com/lagonapp/lagon/commit/4d368dc22bcbb311eb31aeb1947490ac311590c9) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Forward client IP through X-Forwarded-For header
+
 ## 0.1.6
 
 ### Patch Changes

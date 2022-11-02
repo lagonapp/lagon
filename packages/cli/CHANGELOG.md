@@ -1,5 +1,13 @@
 # @lagon/cli
 
+## 0.3.4
+
+### Patch Changes
+
+- [#219](https://github.com/lagonapp/lagon/pull/219) [`b271c2a`](https://github.com/lagonapp/lagon/commit/b271c2ad4adea50a97ef143748b20b9210d0baf9) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add env option to dev command
+
+* [#220](https://github.com/lagonapp/lagon/pull/220) [`4d368dc`](https://github.com/lagonapp/lagon/commit/4d368dc22bcbb311eb31aeb1947490ac311590c9) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Forward client IP through X-Forwarded-For header
+
 ## 0.3.3
 
 ### Patch Changes
