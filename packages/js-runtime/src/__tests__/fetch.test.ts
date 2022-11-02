@@ -199,3 +199,28 @@ describe('fetch', () => {
     });
   });
 });
+
+describe('Response', () => {
+  it('should instanciate without arguments', async () => {
+    const response = new Response();
+    expect(await response.text()).toEqual('');
+  });
+
+  it('should instanciate with text body', () => {
+    const response = new Response('Hello');
+    expect(response).toBeDefined();
+  });
+
+  it('should instanciate with init', async () => {
+    const response = new Response('Hello', {
+      status: 404,
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+    });
+    expect(response).toBeDefined();
+    expect(response.status).toEqual(404);
+    expect(response.headers.get('Content-Type')).toEqual('text/plain');
+    expect(await response.text()).toEqual('Hello');
+  });
+});
