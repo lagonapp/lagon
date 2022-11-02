@@ -190,8 +190,8 @@ async fn return_headers() {
     ));
 
     let mut headers = HashMap::new();
-    headers.insert("Content-Type".into(), "text/html".into());
-    headers.insert("X-Test".into(), "test".into());
+    headers.insert("content-type".into(), "text/html".into());
+    headers.insert("x-test".into(), "test".into());
 
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
@@ -222,8 +222,8 @@ async fn return_headers_from_headers_api() {
     ));
 
     let mut headers = HashMap::new();
-    headers.insert("Content-Type".into(), "text/html".into());
-    headers.insert("X-Test".into(), "test".into());
+    headers.insert("content-type".into(), "text/html".into());
+    headers.insert("x-test".into(), "test".into());
 
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
