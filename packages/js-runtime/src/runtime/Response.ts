@@ -8,14 +8,14 @@ export interface ResponseInit {
 }
 
 export class Response {
-  body: string | ArrayBuffer;
+  body: string | ArrayBuffer | null;
   headers: Headers;
   ok: boolean;
   status: number;
   statusText: string;
   url: string;
 
-  constructor(body: string | ArrayBuffer, options?: ResponseInit) {
+  constructor(body: string | ArrayBuffer | null = null, options?: ResponseInit) {
     this.body = body;
 
     if (options?.headers) {
@@ -44,7 +44,7 @@ export class Response {
       return globalThis.__lagon__.TEXT_DECODER.decode(this.body);
     }
 
-    return this.body;
+    return this.body || '';
   }
 
   async json<T>(): Promise<T> {
@@ -64,6 +64,6 @@ export class Response {
       return this.body;
     }
 
-    return globalThis.__lagon__.TEXT_ENCODER.encode(this.body);
+    return this.body ? globalThis.__lagon__.TEXT_ENCODER.encode(this.body) : new ArrayBuffer(0);
   }
 }
