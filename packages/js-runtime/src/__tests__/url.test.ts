@@ -194,6 +194,17 @@ describe('URL', () => {
     it('should return the origin for blob', () => {
       expect(new URL('blob:https://mozilla.org:443/').origin).toEqual('https://mozilla.org');
     });
+
+    it('should strip default port', () => {
+      expect(new URL('https://mozilla.org:443/index.html?foo=bar&bar=foo#boo').port).toEqual('');
+      expect(new URL('https://mozilla.org:443/index.html?foo=bar&bar=foo#boo').origin).toEqual('https://mozilla.org');
+    });
+
+    it('should include non-default port in origin', () => {
+      expect(new URL('http://mozilla.org:1234/index.html?foo=bar&bar=foo#boo').origin).toEqual(
+        'http://mozilla.org:1234',
+      );
+    });
   });
 
   describe('password', () => {
