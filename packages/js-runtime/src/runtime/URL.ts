@@ -1,3 +1,12 @@
+// From https://url.spec.whatwg.org/#url-miscellaneous
+const DEFAULT_PORTS: Record<string, string> = {
+  'ftp:': '21',
+  'http:': '80',
+  'https:': '443',
+  'ws:': '80',
+  'wss:': '443',
+};
+
 export class URLSearchParams {
   private params: Map<string, string[]> = new Map();
 
@@ -141,13 +150,17 @@ export class URL {
       this.hostname = hostname;
       this.href = href;
 
+      this.port = port === DEFAULT_PORTS[protocol] ? '' : port;
+
       if (['http:', 'https:'].includes(protocol) || ['blob:', 'file:'].includes(origin)) {
         this.origin = protocol + '//' + hostname;
+        if (this.port) {
+          this.origin += ':' + this.port;
+        }
       }
 
       this.password = password;
       this.pathname = pathname === '' ? '/' : pathname;
-      this.port = port;
       this.protocol = protocol;
       this.search = search;
       this.searchParams = new URLSearchParams(search);
