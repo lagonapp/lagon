@@ -1,4 +1,5 @@
-use hyper::{body, client::HttpConnector, http::Result, Body, Client, Method, Request};
+use anyhow::{anyhow, Result};
+use hyper::{body, client::HttpConnector, Body, Client, Method, Request};
 use hyper_tls::HttpsConnector;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
@@ -12,6 +13,16 @@ pub struct TrpcResponse<T> {
 #[derive(Deserialize, Debug)]
 pub struct TrpcResult<T> {
     pub data: T,
+}
+
+#[derive(Deserialize)]
+pub struct TrpcError {
+    message: String,
+}
+
+#[derive(Deserialize)]
+pub struct TrpcErrorResult {
+    error: TrpcError,
 }
 
 pub struct TrpcClient<'a> {
@@ -32,7 +43,7 @@ impl<'a> TrpcClient<'a> {
         body: Option<T>,
     ) -> Result<TrpcResponse<R>> {
         let body = match body {
-            Some(body) => Body::from(serde_json::to_string(&body).unwrap()),
+            Some(body) => Body::from(serde_json::to_string(&body)?),
             None => Body::empty(),
         };
 
@@ -43,13 +54,17 @@ impl<'a> TrpcClient<'a> {
             .header("x-lagon-token", self.config.token.as_ref().unwrap())
             .body(body)?;
 
-        let response = self.client.request(request).await.unwrap();
-        let body = body::to_bytes(response.into_body()).await.unwrap();
-        let body = String::from_utf8(body.to_vec()).unwrap();
+        let response = self.client.request(request).await?;
+        let body = body::to_bytes(response.into_body()).await?;
+        let body = String::from_utf8(body.to_vec())?;
 
-        let response = serde_json::from_str::<TrpcResponse<R>>(&body).unwrap();
-
-        Ok(response)
+        match serde_json::from_str::<TrpcResponse<R>>(&body) {
+            Ok(response) => Ok(response),
+            Err(_) => match serde_json::from_str::<TrpcErrorResult>(&body) {
+                Ok(TrpcErrorResult { error }) => Err(anyhow!("Error from API: {}", error.message)),
+                Err(_) => Err(anyhow!("Could not parse error from response: {}", body)),
+            },
+        }
     }
 
     pub async fn mutation<T: Serialize, R: DeserializeOwned>(
@@ -57,7 +72,7 @@ impl<'a> TrpcClient<'a> {
         key: &str,
         body: T,
     ) -> Result<TrpcResponse<R>> {
-        let body = serde_json::to_string(&body).unwrap();
+        let body = serde_json::to_string(&body)?;
 
         let request = Request::builder()
             .method(Method::POST)
@@ -66,12 +81,16 @@ impl<'a> TrpcClient<'a> {
             .header("x-lagon-token", self.config.token.as_ref().unwrap())
             .body(Body::from(body))?;
 
-        let response = self.client.request(request).await.unwrap();
-        let body = body::to_bytes(response.into_body()).await.unwrap();
-        let body = String::from_utf8(body.to_vec()).unwrap();
+        let response = self.client.request(request).await?;
+        let body = body::to_bytes(response.into_body()).await?;
+        let body = String::from_utf8(body.to_vec())?;
 
-        let response = serde_json::from_str::<TrpcResponse<R>>(&body).unwrap();
-
-        Ok(response)
+        match serde_json::from_str::<TrpcResponse<R>>(&body) {
+            Ok(response) => Ok(response),
+            Err(_) => match serde_json::from_str::<TrpcErrorResult>(&body) {
+                Ok(TrpcErrorResult { error }) => Err(anyhow!("Error from API: {}", error.message)),
+                Err(_) => Err(anyhow!("Could not parse error from response: {}", body)),
+            },
+        }
     }
 }

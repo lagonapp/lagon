@@ -1,6 +1,6 @@
+use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::io;
 use std::path::PathBuf;
 
 #[cfg(debug_assertions)]
@@ -24,7 +24,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new() -> io::Result<Self> {
+    pub fn new() -> Result<Self> {
         let path = get_config_path();
 
         if !path.exists() {
@@ -46,10 +46,11 @@ impl Config {
         Ok(config)
     }
 
-    pub fn save(&self) -> io::Result<()> {
+    pub fn save(&self) -> Result<()> {
         let path = get_config_path();
 
-        fs::write(path, serde_json::to_string(&self)?)
+        fs::write(path, serde_json::to_string(&self)?)?;
+        Ok(())
     }
 
     pub fn set_token(&mut self, token: Option<String>) {

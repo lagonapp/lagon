@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Error, Result};
 use chrono::offset::Local;
 use colored::Colorize;
 use envfile::EnvFile;
@@ -88,7 +88,9 @@ async fn handle_request(
             body: Bytes::from(asset.1.get_ref().to_vec()),
         };
 
-        tx.send_async(RunResult::Response(response)).await.unwrap();
+        tx.send_async(RunResult::Response(response))
+            .await
+            .unwrap_or(());
     } else {
         let maybe_request = Request::from_hyper(req).await;
 
@@ -105,14 +107,14 @@ async fn handle_request(
         request.add_header("X-Forwarded-For".into(), ip);
 
         let mut isolate = Isolate::new(
-            IsolateOptions::new(String::from_utf8(index.get_ref().to_vec()).unwrap())
+            IsolateOptions::new(String::from_utf8(index.get_ref().to_vec())?)
                 .with_environment_variables(environment_variables),
         );
 
         isolate.run(request, tx).await;
     }
 
-    let result = rx.recv_async().await.unwrap();
+    let result = rx.recv_async().await?;
 
     match result {
         RunResult::Stream(stream_result) => {
@@ -123,11 +125,11 @@ async fn handle_request(
 
             match stream_result {
                 StreamResult::Start(response) => {
-                    response_tx.send_async(response).await.unwrap();
+                    response_tx.send_async(response).await.unwrap_or(());
                 }
                 StreamResult::Data(bytes) => {
                     let bytes = Bytes::from(bytes);
-                    stream_tx.send_async(Ok(bytes)).await.unwrap();
+                    stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                 }
                 StreamResult::Done => panic!("Got a stream done without data"),
             }
@@ -136,18 +138,18 @@ async fn handle_request(
                 while let Ok(RunResult::Stream(stream_result)) = rx.recv_async().await {
                     match stream_result {
                         StreamResult::Start(response) => {
-                            response_tx.send_async(response).await.unwrap();
+                            response_tx.send_async(response).await.unwrap_or(());
                         }
                         StreamResult::Data(bytes) => {
                             let bytes = Bytes::from(bytes);
-                            stream_tx.send_async(Ok(bytes)).await.unwrap();
+                            stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                         }
                         _ => {}
                     }
                 }
             });
 
-            let response = response_rx.recv_async().await.unwrap();
+            let response = response_rx.recv_async().await?;
             let hyper_response = Builder::try_from(&response)?.body(body)?;
 
             Ok(hyper_response)
@@ -157,16 +159,12 @@ async fn handle_request(
 
             Ok(hyper_response)
         }
-        RunResult::Error(error) => Ok(HyperResponse::builder()
-            .status(500)
-            .body(error.into())
-            .unwrap()),
+        RunResult::Error(error) => Ok(HyperResponse::builder().status(500).body(error.into())?),
         RunResult::Timeout => Ok(HyperResponse::new("Timeouted".into())),
         RunResult::MemoryLimit => Ok(HyperResponse::new("MemoryLimited".into())),
         RunResult::NotFound => Ok(HyperResponse::builder()
             .status(404)
-            .body("Deployment not found".into())
-            .unwrap()),
+            .body("Deployment not found".into())?),
     }
 }
 
@@ -177,7 +175,7 @@ pub async fn dev(
     port: Option<u16>,
     hostname: Option<String>,
     env: Option<PathBuf>,
-) -> io::Result<()> {
+) -> Result<()> {
     validate_code_file(&file)?;
 
     let client = match client {
@@ -199,8 +197,7 @@ pub async fn dev(
         hostname.unwrap_or_else(|| "127.0.0.1".into()),
         port.unwrap_or(1234)
     )
-    .parse()
-    .unwrap();
+    .parse()?;
 
     let server_content = content.clone();
     let environment_variables = parse_environment_variables(env)?;
@@ -228,14 +225,11 @@ pub async fn dev(
     let mut watcher = RecommendedWatcher::new(
         tx,
         Config::default().with_poll_interval(Duration::from_secs(1)),
-    )
-    .unwrap();
+    )?;
 
     let path = fs::canonicalize(&file)?;
 
-    watcher
-        .watch(path.parent().unwrap(), RecursiveMode::Recursive)
-        .unwrap();
+    watcher.watch(path.parent().unwrap(), RecursiveMode::Recursive)?;
 
     let watcher_content = content.clone();
 
@@ -252,7 +246,7 @@ pub async fn dev(
             *content.lock().await = (index, assets);
         }
 
-        Ok::<(), io::Error>(())
+        Ok::<(), Error>(())
     });
 
     println!();
@@ -261,7 +255,7 @@ pub async fn dev(
     println!(" {} http://{}", "➤".black(), format!("{}", addr).blue());
     println!();
 
-    server.await.unwrap();
+    server.await?;
     runtime.dispose();
 
     Ok(())

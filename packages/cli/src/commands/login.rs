@@ -1,5 +1,4 @@
-use std::io::{self, Error, ErrorKind};
-
+use anyhow::{anyhow, Result};
 use dialoguer::{Confirm, Password};
 use serde::{Deserialize, Serialize};
 
@@ -15,7 +14,7 @@ struct CliRequest {
     code: String,
 }
 
-pub async fn login() -> io::Result<()> {
+pub async fn login() -> Result<()> {
     let mut config = Config::new()?;
 
     if config.token.is_some()
@@ -25,14 +24,14 @@ pub async fn login() -> io::Result<()> {
             ))
             .interact()?
     {
-        return Err(Error::new(ErrorKind::Other, "Login aborted."));
+        return Err(anyhow!("Login aborted."));
     }
 
     println!();
 
     let end_progress = print_progress("Opening browser...");
     let url = config.site_url.clone() + "/cli";
-    webbrowser::open(&url).unwrap();
+    webbrowser::open(&url)?;
     end_progress();
 
     println!();
@@ -67,6 +66,6 @@ pub async fn login() -> io::Result<()> {
 
             Ok(())
         }
-        Err(_) => Err(Error::new(ErrorKind::Other, "Failed to log in.")),
+        Err(_) => Err(anyhow!("Failed to log in.")),
     }
 }

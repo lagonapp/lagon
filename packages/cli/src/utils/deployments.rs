@@ -1,9 +1,10 @@
+use anyhow::{anyhow, Result};
 use colored::Colorize;
 use hyper::{Body, Method, Request};
 use std::{
     collections::HashMap,
     fs,
-    io::{self, Cursor, Error, ErrorKind},
+    io::Cursor,
     path::{Path, PathBuf},
     process::Command,
 };
@@ -24,7 +25,7 @@ pub struct DeploymentConfig {
     pub organization_id: String,
 }
 
-pub fn get_function_config() -> io::Result<Option<DeploymentConfig>> {
+pub fn get_function_config() -> Result<Option<DeploymentConfig>> {
     let path = Path::new(".lagon/config.json");
 
     if !path.exists() {
@@ -37,7 +38,7 @@ pub fn get_function_config() -> io::Result<Option<DeploymentConfig>> {
     Ok(Some(config))
 }
 
-pub fn write_function_config(config: DeploymentConfig) -> io::Result<()> {
+pub fn write_function_config(config: DeploymentConfig) -> Result<()> {
     let path = Path::new(".lagon/config.json");
 
     if !path.exists() {
@@ -45,23 +46,22 @@ pub fn write_function_config(config: DeploymentConfig) -> io::Result<()> {
     }
 
     let content = serde_json::to_string(&config)?;
-    fs::write(path, content)
+    fs::write(path, content)?;
+    Ok(())
 }
 
-pub fn delete_function_config() -> io::Result<()> {
+pub fn delete_function_config() -> Result<()> {
     let path = Path::new(".lagon/config.json");
 
     if !path.exists() {
-        return Err(Error::new(
-            ErrorKind::Other,
-            "No configuration found in this directory.",
-        ));
+        return Err(anyhow!("No configuration found in this directory.",));
     }
 
-    fs::remove_file(path)
+    fs::remove_file(path)?;
+    Ok(())
 }
 
-fn esbuild(file: &PathBuf) -> io::Result<FileCursor> {
+fn esbuild(file: &PathBuf) -> Result<FileCursor> {
     let result = Command::new("esbuild")
         .arg(file)
         .arg("--bundle")
@@ -78,13 +78,10 @@ fn esbuild(file: &PathBuf) -> io::Result<FileCursor> {
         return Ok(Cursor::new(output));
     }
 
-    Err(Error::new(
-        ErrorKind::Other,
-        format!(
-            "Unexpected status code {}:\n\n{}",
-            result.status.code().unwrap_or(0),
-            String::from_utf8(result.stderr).unwrap_or_else(|_| "Unknown error.".to_string())
-        ),
+    Err(anyhow!(
+        "Unexpected status code {}:\n\n{}",
+        result.status.code().unwrap_or(0),
+        String::from_utf8(result.stderr).unwrap_or_else(|_| "Unknown error.".to_string())
     ))
 }
 
@@ -92,10 +89,9 @@ pub fn bundle_function(
     index: &PathBuf,
     client: &Option<PathBuf>,
     public_dir: &PathBuf,
-) -> io::Result<(FileCursor, HashMap<String, FileCursor>)> {
+) -> Result<(FileCursor, HashMap<String, FileCursor>)> {
     if Command::new("esbuild").arg("--version").output().is_err() {
-        return Err(Error::new(
-            ErrorKind::Other,
+        return Err(anyhow!(
             "esbuild is not installed. Please install it with `npm install -g esbuild`",
         ));
     }
@@ -189,7 +185,7 @@ pub async fn create_deployment(
     client: &Option<PathBuf>,
     public_dir: &PathBuf,
     config: &Config,
-) -> io::Result<()> {
+) -> Result<()> {
     let (index, assets) = bundle_function(file, client, public_dir)?;
 
     let end_progress = print_progress("Creating deployment...");
@@ -203,8 +199,7 @@ pub async fn create_deployment(
                 assets: assets.keys().cloned().collect(),
             },
         )
-        .await
-        .unwrap();
+        .await?;
 
     end_progress();
 
@@ -219,10 +214,9 @@ pub async fn create_deployment(
     let request = Request::builder()
         .method(Method::PUT)
         .uri(code_url)
-        .body(Body::from(index.into_inner()))
-        .unwrap();
+        .body(Body::from(index.into_inner()))?;
 
-    trpc_client.client.request(request).await.unwrap();
+    trpc_client.client.request(request).await?;
 
     // TODO upload in parallel
     for (asset, url) in assets_urls {
@@ -233,10 +227,9 @@ pub async fn create_deployment(
         let request = Request::builder()
             .method(Method::PUT)
             .uri(url)
-            .body(Body::from(asset.clone().into_inner()))
-            .unwrap();
+            .body(Body::from(asset.clone().into_inner()))?;
 
-        trpc_client.client.request(request).await.unwrap();
+        trpc_client.client.request(request).await?;
     }
 
     end_progress();
@@ -249,8 +242,7 @@ pub async fn create_deployment(
                 deployment_id,
             },
         )
-        .await
-        .unwrap();
+        .await?;
 
     println!();
     println!("{}", success("Function deployed!"));

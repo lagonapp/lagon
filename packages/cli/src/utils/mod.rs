@@ -3,22 +3,17 @@ mod console;
 mod deployments;
 mod trpc;
 
-use std::{
-    io::{self, Error, ErrorKind},
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
+use anyhow::{anyhow, Result};
 pub use config::*;
 pub use console::*;
 pub use deployments::*;
 pub use trpc::*;
 
-pub fn validate_code_file(file: &Path) -> io::Result<()> {
+pub fn validate_code_file(file: &Path) -> Result<()> {
     if !file.exists() || !file.is_file() {
-        return Err(Error::new(
-            ErrorKind::Other,
-            format!("{} is not a file", file.to_str().unwrap()),
-        ));
+        return Err(anyhow!("{} is not a file", file.to_str().unwrap()));
     }
 
     match file.extension() {
@@ -32,22 +27,19 @@ pub fn validate_code_file(file: &Path) -> io::Result<()> {
 
             match validate {
                 true => Ok(()),
-                false => Err(Error::new(ErrorKind::Other, format!("Extension {} is not supported (should be one of .js, .jsx, .ts, .tsx, .mjs, .cjs)", ext.to_str().unwrap()))),
+                false => Err(anyhow!("Extension {} is not supported (should be one of .js, .jsx, .ts, .tsx, .mjs, .cjs)", ext.to_str().unwrap())),
             }
         }
-        None => Err(Error::new(
-            ErrorKind::Other,
-            "No extension found for the given file.",
-        )),
+        None => Err(anyhow!("No extension found for the given file.",)),
     }
 }
 
-pub fn validate_public_dir(public_dir: Option<PathBuf>) -> io::Result<PathBuf> {
+pub fn validate_public_dir(public_dir: Option<PathBuf>) -> Result<PathBuf> {
     if let Some(dir) = public_dir {
         if !dir.is_dir() {
-            return Err(Error::new(
-                ErrorKind::Other,
-                format!("Public directory {} does not exist.", dir.to_str().unwrap()),
+            return Err(anyhow!(
+                "Public directory {} does not exist.",
+                dir.to_str().unwrap()
             ));
         }
 

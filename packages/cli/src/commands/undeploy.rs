@@ -1,7 +1,5 @@
-use std::{
-    io::{self, Error, ErrorKind},
-    path::PathBuf,
-};
+use anyhow::{anyhow, Result};
+use std::path::PathBuf;
 
 use dialoguer::Confirm;
 use serde::{Deserialize, Serialize};
@@ -20,55 +18,45 @@ struct DeleteFunctionRequest {
 #[derive(Deserialize, Debug)]
 struct DeleteFunctionResponse {}
 
-pub async fn undeploy(file: PathBuf) -> io::Result<()> {
+pub async fn undeploy(file: PathBuf) -> Result<()> {
     let config = Config::new()?;
 
     if config.token.is_none() {
-        return Err(Error::new(
-            ErrorKind::Other,
+        return Err(anyhow!(
             "You are not logged in. Please login with `lagon login`",
         ));
     }
 
     validate_code_file(&file)?;
 
-    let function_config = get_function_config()?;
+    match get_function_config()? {
+        None => Err(anyhow!("No configuration found in this directory.")),
+        Some(function_config) => match Confirm::new()
+            .with_prompt(info(
+                "Are you sure you want to completely delete this Function?",
+            ))
+            .interact()?
+        {
+            true => {
+                let end_progress = print_progress("Deleting Function...");
+                TrpcClient::new(&config)
+                    .mutation::<DeleteFunctionRequest, DeleteFunctionResponse>(
+                        "functionDelete",
+                        DeleteFunctionRequest {
+                            function_id: function_config.function_id,
+                        },
+                    )
+                    .await?;
+                end_progress();
 
-    if function_config.is_none() {
-        return Err(Error::new(
-            ErrorKind::Other,
-            "No configuration found in this directory.",
-        ));
-    }
+                delete_function_config()?;
 
-    let function_config = function_config.unwrap();
+                println!();
+                println!("{}", success("Function deleted."));
 
-    match Confirm::new()
-        .with_prompt(info(
-            "Are you sure you want to completely delete this Function?",
-        ))
-        .interact()?
-    {
-        true => {
-            let end_progress = print_progress("Deleting Function...");
-            TrpcClient::new(&config)
-                .mutation::<DeleteFunctionRequest, DeleteFunctionResponse>(
-                    "functionDelete",
-                    DeleteFunctionRequest {
-                        function_id: function_config.function_id,
-                    },
-                )
-                .await
-                .unwrap();
-            end_progress();
-
-            delete_function_config()?;
-
-            println!();
-            println!("{}", success("Function deleted."));
-
-            Ok(())
-        }
-        false => Err(Error::new(ErrorKind::Other, "Deletion aborted.")),
+                Ok(())
+            }
+            false => Err(anyhow!("Deletion aborted.")),
+        },
     }
 }
