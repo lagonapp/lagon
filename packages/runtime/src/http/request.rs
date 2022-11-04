@@ -30,6 +30,8 @@ impl Default for Request {
     }
 }
 
+// NOTE:
+// We can safely use unwrap here because set only return Just(true) or Empty(), so if it should never fail
 impl IntoV8 for Request {
     fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
         let request = v8::Object::new(scope);
@@ -72,12 +74,15 @@ impl FromV8 for Request {
         scope: &mut v8::HandleScope<'a>,
         request: v8::Local<'a, v8::Value>,
     ) -> Result<Self> {
-        let response = request.to_object(scope).unwrap();
+        let request = match request.to_object(scope) {
+            Some(request) => request,
+            None => return Err(anyhow!("Request is not an object")),
+        };
 
         let mut body = Bytes::new();
         let body_key = v8_string(scope, "body");
 
-        if let Some(body_value) = response.get(scope, body_key.into()) {
+        if let Some(body_value) = request.get(scope, body_key.into()) {
             if !body_value.is_null_or_undefined() {
                 body = Bytes::from(extract_v8_string(body_value, scope)?);
             }
@@ -86,7 +91,7 @@ impl FromV8 for Request {
         let mut headers = None;
         let headers_key = v8_string(scope, "headers");
 
-        if let Some(headers_value) = response.get(scope, headers_key.into()) {
+        if let Some(headers_value) = request.get(scope, headers_key.into()) {
             if !headers_value.is_null_or_undefined() {
                 headers = extract_v8_headers_object(headers_value, scope)?;
             }
@@ -95,14 +100,14 @@ impl FromV8 for Request {
         let mut method = Method::GET;
         let method_key = v8_string(scope, "method");
 
-        if let Some(method_value) = response.get(scope, method_key.into()) {
+        if let Some(method_value) = request.get(scope, method_key.into()) {
             method = Method::from(extract_v8_string(method_value, scope)?.as_str());
         }
 
         let url;
         let url_key = v8_string(scope, "url");
 
-        if let Some(url_value) = response.get(scope, url_key.into()) {
+        if let Some(url_value) = request.get(scope, url_key.into()) {
             url = extract_v8_string(url_value, scope)?;
         } else {
             return Err(anyhow!("Could not find url"));
@@ -118,14 +123,17 @@ impl FromV8 for Request {
 }
 
 impl TryFrom<&Request> for http::request::Builder {
-    type Error = Box<dyn std::error::Error>;
+    type Error = anyhow::Error;
 
     fn try_from(request: &Request) -> Result<Self, Self::Error> {
         let mut builder = HyperRequest::builder()
             .uri(&request.url)
             .method::<&str>(request.method.into());
 
-        let builder_headers = builder.headers_mut().unwrap();
+        let builder_headers = match builder.headers_mut() {
+            Some(headers) => headers,
+            None => return Err(anyhow!("Invalid headers").into()),
+        };
 
         if let Some(headers) = &request.headers {
             for (key, value) in headers {
@@ -143,7 +151,7 @@ impl Request {
         self.body.len()
     }
 
-    pub async fn from_hyper(request: HyperRequest<Body>) -> Self {
+    pub async fn from_hyper(request: HyperRequest<Body>) -> Result<Self> {
         let mut headers = HashMap::new();
 
         for (key, value) in request.headers().iter() {
@@ -157,9 +165,9 @@ impl Request {
             .unwrap_or_default();
         let url = format!("http://{}{}", host, request.uri().to_string().as_str());
 
-        let body = body::to_bytes(request.into_body()).await.unwrap();
+        let body = body::to_bytes(request.into_body()).await?;
 
-        Request {
+        Ok(Request {
             headers: if !headers.is_empty() {
                 Some(headers)
             } else {
@@ -168,7 +176,7 @@ impl Request {
             method,
             body,
             url,
-        }
+        })
     }
 
     pub fn add_header(&mut self, key: String, value: String) {

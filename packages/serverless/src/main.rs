@@ -1,3 +1,4 @@
+use anyhow::Result;
 use deployments::Deployment;
 use hyper::body::Bytes;
 use hyper::header::HOST;
@@ -59,18 +60,12 @@ async fn handle_request(
     pool: LocalPoolHandle,
     deployments: Arc<RwLock<HashMap<String, Deployment>>>,
     thread_ids: Arc<RwLock<HashMap<String, usize>>>,
-) -> Result<HyperResponse<Body>, Infallible> {
+) -> Result<HyperResponse<Body>> {
     let mut url = req.uri().to_string();
     // Remove the leading '/' from the url
     url.remove(0);
 
-    let hostname = req
-        .headers()
-        .get(HOST)
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .to_string();
+    let hostname = req.headers().get(HOST).unwrap().to_str()?.to_string();
 
     let thread_ids_reader = thread_ids.read().await;
 
@@ -118,9 +113,27 @@ async fn handle_request(
                                 }
                             };
 
-                            tx.send_async(run_result).await.unwrap();
+                            tx.send_async(run_result).await.unwrap_or(());
                         } else {
-                            let mut request = Request::from_hyper(req).await;
+                            let maybe_request = Request::from_hyper(req).await;
+
+                            if let Err(error) = maybe_request {
+                                error!(
+                                    "Error while parsing request ({}): {}",
+                                    deployment.id, error
+                                );
+
+                                tx.send_async(RunResult::Error(
+                                    "Error while parsing request".into(),
+                                ))
+                                .await
+                                .unwrap_or(());
+
+                                return;
+                            }
+
+                            // Now it's safe to unwrap() since we checked for errors above
+                            let mut request = maybe_request.unwrap();
                             request.add_header(X_FORWARDED_FOR.to_string(), ip);
 
                             // Only acquire the lock when we are sure we have a
@@ -171,7 +184,7 @@ async fn handle_request(
                         }
                     }
                     None => {
-                        tx.send_async(RunResult::NotFound).await.unwrap();
+                        tx.send_async(RunResult::NotFound).await.unwrap_or(());
                     }
                 }
             }
@@ -179,7 +192,7 @@ async fn handle_request(
         thread_id,
     );
 
-    let result = rx.recv_async().await.unwrap();
+    let result = rx.recv_async().await?;
 
     match result {
         RunResult::Stream(stream_result) => {
@@ -190,11 +203,11 @@ async fn handle_request(
 
             match stream_result {
                 StreamResult::Start(response) => {
-                    response_tx.send_async(response).await.unwrap();
+                    response_tx.send_async(response).await.unwrap_or(());
                 }
                 StreamResult::Data(bytes) => {
                     let bytes = Bytes::from(bytes);
-                    stream_tx.send_async(Ok(bytes)).await.unwrap();
+                    stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                 }
                 StreamResult::Done => panic!("Got a stream done without data"),
             }
@@ -203,27 +216,24 @@ async fn handle_request(
                 while let Ok(RunResult::Stream(stream_result)) = rx.recv_async().await {
                     match stream_result {
                         StreamResult::Start(response) => {
-                            response_tx.send_async(response).await.unwrap();
+                            response_tx.send_async(response).await.unwrap_or(());
                         }
                         StreamResult::Data(bytes) => {
                             let bytes = Bytes::from(bytes);
-                            stream_tx.send_async(Ok(bytes)).await.unwrap();
+                            stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                         }
                         _ => {}
                     }
                 }
             });
 
-            let response = response_rx.recv_async().await.unwrap();
-
-            let hyper_response = Builder::from(&response);
-            let hyper_response = hyper_response.body(body).unwrap();
+            let response = response_rx.recv_async().await?;
+            let hyper_response = Builder::try_from(&response)?.body(body)?;
 
             Ok(hyper_response)
         }
         RunResult::Response(response) => {
-            let hyper_response = Builder::from(&response);
-            let hyper_response = hyper_response.body(response.body.into()).unwrap();
+            let hyper_response = Builder::try_from(&response)?.body(response.body.into())?;
 
             Ok(hyper_response)
         }

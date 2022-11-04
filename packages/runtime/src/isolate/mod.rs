@@ -173,6 +173,10 @@ pub struct Isolate {
 unsafe impl Send for Isolate {}
 unsafe impl Sync for Isolate {}
 
+// NOTE
+// All tx.send(...) can return an Err due to many reason, e.g the thread panicked
+// or the connection closed on the other side, meaning the channel is now closed.
+// That's why we use .unwrap_or(()) to silently discard any error.
 impl Isolate {
     pub fn new(options: IsolateOptions) -> Self {
         let memory_mb = options.memory * 1024 * 1024;
@@ -449,7 +453,7 @@ impl Isolate {
                 self.stream_status = StreamStatus::Done;
             }
 
-            tx.send(RunResult::Stream(stream_result)).unwrap();
+            tx.send(RunResult::Stream(stream_result)).unwrap_or(());
         }
     }
 
@@ -473,7 +477,7 @@ impl Isolate {
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if let Some(TerminationResult { run_result }) = state.termination_result.as_ref() {
-            tx.send(run_result.clone()).unwrap();
+            tx.send(run_result.clone()).unwrap_or(());
             return Poll::Ready(());
         }
 
@@ -497,7 +501,7 @@ impl Isolate {
                         if response.is_streamed() {
                             if !self.stream_response_sent {
                                 tx.send(RunResult::Stream(StreamResult::Start(response.clone())))
-                                    .unwrap();
+                                    .unwrap_or(());
                             }
 
                             self.stream_response_sent = true;
@@ -510,7 +514,7 @@ impl Isolate {
                         }
                     }
 
-                    tx.send(run_result).unwrap();
+                    tx.send(run_result).unwrap_or(());
                     return Poll::Ready(());
                 }
                 PromiseState::Rejected => {
@@ -519,7 +523,7 @@ impl Isolate {
                     tx.send(RunResult::Error(get_exception_message(
                         try_catch, exception,
                     )))
-                    .unwrap();
+                    .unwrap_or(());
                     return Poll::Ready(());
                 }
                 PromiseState::Pending => {}
@@ -537,7 +541,7 @@ impl Isolate {
     fn check_for_compilation_error(&self, tx: &flume::Sender<RunResult>) -> bool {
         if let Some(compilation_error) = &self.compilation_error {
             tx.send(RunResult::Error(compilation_error.to_string()))
-                .unwrap();
+                .unwrap_or(());
 
             return true;
         }
@@ -590,7 +594,9 @@ fn get_exception_message(
 }
 
 fn handle_error(scope: &mut v8::TryCatch<v8::HandleScope>) -> RunResult {
-    let exception = scope.exception().unwrap();
+    if let Some(exception) = scope.exception() {
+        return RunResult::Error(get_exception_message(scope, exception));
+    }
 
-    RunResult::Error(get_exception_message(scope, exception))
+    RunResult::Error("Unknown error".into())
 }

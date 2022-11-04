@@ -15,8 +15,11 @@ pub fn pull_stream_binding(
         let mut buf = vec![0; chunk.byte_length()];
         chunk.copy_contents(&mut buf);
 
-        state.stream_sender.send(StreamResult::Data(buf)).unwrap();
+        state
+            .stream_sender
+            .send(StreamResult::Data(buf))
+            .unwrap_or(());
     } else {
-        state.stream_sender.send(StreamResult::Done).unwrap();
+        state.stream_sender.send(StreamResult::Done).unwrap_or(());
     }
 }

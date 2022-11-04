@@ -1,3 +1,4 @@
+use anyhow::Result;
 use chrono::offset::Local;
 use colored::Colorize;
 use envfile::EnvFile;
@@ -45,7 +46,7 @@ async fn handle_request(
     ip: String,
     content: Arc<Mutex<(FileCursor, HashMap<String, FileCursor>)>>,
     environment_variables: HashMap<String, String>,
-) -> Result<HyperResponse<Body>, Infallible> {
+) -> Result<HyperResponse<Body>> {
     let mut url = req.uri().to_string();
 
     println!(
@@ -89,7 +90,18 @@ async fn handle_request(
 
         tx.send_async(RunResult::Response(response)).await.unwrap();
     } else {
-        let mut request = Request::from_hyper(req).await;
+        let maybe_request = Request::from_hyper(req).await;
+
+        if let Err(ref error) = maybe_request {
+            println!("Error while parsing request: {}", error);
+
+            tx.send_async(RunResult::Error("Error while parsing request".into()))
+                .await
+                .unwrap_or(());
+        }
+
+        // Now it's safe to unwrap() since we checked for errors above
+        let mut request = maybe_request.unwrap();
         request.add_header("X-Forwarded-For".into(), ip);
 
         let mut isolate = Isolate::new(
@@ -136,15 +148,12 @@ async fn handle_request(
             });
 
             let response = response_rx.recv_async().await.unwrap();
-
-            let hyper_response = Builder::from(&response);
-            let hyper_response = hyper_response.body(body).unwrap();
+            let hyper_response = Builder::try_from(&response)?.body(body)?;
 
             Ok(hyper_response)
         }
         RunResult::Response(response) => {
-            let hyper_response = Builder::from(&response);
-            let hyper_response = hyper_response.body(response.body.into()).unwrap();
+            let hyper_response = Builder::try_from(&response)?.body(response.body.into())?;
 
             Ok(hyper_response)
         }
