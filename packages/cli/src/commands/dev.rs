@@ -15,16 +15,16 @@ use std::collections::HashMap;
 use std::convert::Infallible;
 use std::fs;
 use std::path::Path;
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
-use std::{io, path::PathBuf};
 use tokio::sync::Mutex;
 
 use crate::utils::{
     bundle_function, info, input, success, validate_code_file, validate_public_dir, FileCursor,
 };
 
-fn parse_environment_variables(env: Option<PathBuf>) -> io::Result<HashMap<String, String>> {
+fn parse_environment_variables(env: Option<PathBuf>) -> Result<HashMap<String, String>> {
     let mut environment_variables = HashMap::new();
 
     if let Some(path) = env {
