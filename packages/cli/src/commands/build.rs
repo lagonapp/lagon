@@ -1,14 +1,12 @@
-use std::{fs, io, path::PathBuf};
+use std::{fs, path::PathBuf};
+
+use anyhow::Result;
 
 use crate::utils::{
     bundle_function, debug, print_progress, success, validate_code_file, validate_public_dir,
 };
 
-pub fn build(
-    file: PathBuf,
-    client: Option<PathBuf>,
-    public_dir: Option<PathBuf>,
-) -> io::Result<()> {
+pub fn build(file: PathBuf, client: Option<PathBuf>, public_dir: Option<PathBuf>) -> Result<()> {
     validate_code_file(&file)?;
 
     let client = match client {

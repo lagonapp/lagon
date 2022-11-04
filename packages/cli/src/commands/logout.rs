@@ -1,14 +1,14 @@
-use std::io::{self, Error, ErrorKind};
+use anyhow::{anyhow, Result};
 
 use dialoguer::Confirm;
 
 use crate::utils::{info, success, Config};
 
-pub fn logout() -> io::Result<()> {
+pub fn logout() -> Result<()> {
     let mut config = Config::new()?;
 
     if config.token.is_none() {
-        return Err(Error::new(ErrorKind::Other, "You are not logged in."));
+        return Err(anyhow!("You are not logged in."));
     }
 
     match Confirm::new()
@@ -24,6 +24,6 @@ pub fn logout() -> io::Result<()> {
 
             Ok(())
         }
-        false => Err(Error::new(ErrorKind::Other, "Logout aborted.")),
+        false => Err(anyhow!("Logout aborted.")),
     }
 }
