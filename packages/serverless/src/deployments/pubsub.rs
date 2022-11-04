@@ -1,5 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
+use anyhow::Result;
 use log::error;
 use s3::Bucket;
 use serde_json::Value;
@@ -10,23 +11,23 @@ use super::{download_deployment, filesystem::rm_deployment, Deployment};
 pub fn listen_pub_sub(
     bucket: Bucket,
     deployments: Arc<RwLock<HashMap<String, Deployment>>>,
-) -> JoinHandle<()> {
+) -> JoinHandle<Result<()>> {
     tokio::spawn(async move {
         let url = dotenv::var("REDIS_URL").expect("REDIS_URL must be set");
-        let client = redis::Client::open(url).unwrap();
-        let mut conn = client.get_connection().unwrap();
+        let client = redis::Client::open(url)?;
+        let mut conn = client.get_connection()?;
         let mut pub_sub = conn.as_pubsub();
 
-        pub_sub.subscribe("deploy").unwrap();
-        pub_sub.subscribe("undeploy").unwrap();
+        pub_sub.subscribe("deploy")?;
+        pub_sub.subscribe("undeploy")?;
         // TODO: current, domains
 
         loop {
-            let msg = pub_sub.get_message().unwrap();
+            let msg = pub_sub.get_message()?;
             let channel = msg.get_channel_name();
-            let payload: String = msg.get_payload().unwrap();
+            let payload: String = msg.get_payload()?;
 
-            let value: Value = serde_json::from_str(&payload).unwrap();
+            let value: Value = serde_json::from_str(&payload)?;
 
             let deployment = Deployment {
                 id: value["deploymentId"].as_str().unwrap().to_string(),

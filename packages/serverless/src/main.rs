@@ -65,7 +65,10 @@ async fn handle_request(
     // Remove the leading '/' from the url
     url.remove(0);
 
-    let hostname = req.headers().get(HOST).unwrap().to_str()?.to_string();
+    let hostname = match req.headers().get(HOST) {
+        Some(hostname) => hostname.to_str()?.to_string(),
+        None => return Ok(Builder::new().status(404).body(PAGE_404.into())?),
+    };
 
     let thread_ids_reader = thread_ids.read().await;
 
@@ -237,23 +240,16 @@ async fn handle_request(
 
             Ok(hyper_response)
         }
-        RunResult::Timeout | RunResult::MemoryLimit => Ok(HyperResponse::builder()
-            .status(502)
-            .body(PAGE_502.into())
-            .unwrap()),
-        RunResult::Error(_) => Ok(HyperResponse::builder()
-            .status(500)
-            .body(PAGE_500.into())
-            .unwrap()),
-        RunResult::NotFound => Ok(HyperResponse::builder()
-            .status(404)
-            .body(PAGE_404.into())
-            .unwrap()),
+        RunResult::Timeout | RunResult::MemoryLimit => {
+            Ok(HyperResponse::builder().status(502).body(PAGE_502.into())?)
+        }
+        RunResult::Error(_) => Ok(HyperResponse::builder().status(500).body(PAGE_500.into())?),
+        RunResult::NotFound => Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?),
     }
 }
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()> {
     dotenv::dotenv().expect("Failed to load .env file");
     let _flush_guard = init_logger().expect("Failed to init logger");
 
@@ -270,23 +266,22 @@ async fn main() {
     let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
         SslOpts::default().with_danger_accept_invalid_certs(true),
     ));
-    let pool = Pool::new(opts).unwrap();
-    let conn = pool.get_conn().unwrap();
+    let pool = Pool::new(opts)?;
+    let conn = pool.get_conn()?;
 
     let bucket_name = dotenv::var("S3_BUCKET").expect("S3_BUCKET must be set");
-    let region = "eu-west-3".parse().unwrap();
+    let region = "eu-west-3".parse()?;
     let credentials = Credentials::new(
         Some(&dotenv::var("S3_ACCESS_KEY_ID").expect("S3_ACCESS_KEY_ID must be set")),
         Some(&dotenv::var("S3_SECRET_ACCESS_KEY").expect("S3_SECRET_ACCESS_KEY must be set")),
         None,
         None,
         None,
-    )
-    .unwrap();
+    )?;
 
-    let bucket = Bucket::new(&bucket_name, region, credentials).unwrap();
+    let bucket = Bucket::new(&bucket_name, region, credentials)?;
 
-    let deployments = get_deployments(conn, bucket.clone()).await;
+    let deployments = get_deployments(conn, bucket.clone()).await?;
     let redis = listen_pub_sub(bucket.clone(), deployments.clone());
 
     let pool = LocalPoolHandle::new(POOL_SIZE);
@@ -324,4 +319,6 @@ async fn main() {
     }
 
     runtime.dispose();
+
+    Ok(())
 }

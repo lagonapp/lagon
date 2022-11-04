@@ -1,10 +1,11 @@
 use std::{
     collections::{HashMap, HashSet},
-    fs, io,
+    fs,
     path::Path,
     sync::Arc,
 };
 
+use anyhow::{anyhow, Result};
 use log::{error, info};
 use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
@@ -57,7 +58,7 @@ impl Deployment {
 pub async fn get_deployments(
     mut conn: PooledConn,
     bucket: Bucket,
-) -> Arc<RwLock<HashMap<String, Deployment>>> {
+) -> Result<Arc<RwLock<HashMap<String, Deployment>>>> {
     let deployments = Arc::new(RwLock::new(HashMap::new()));
 
     let mut deployments_list: HashMap<String, Deployment> = HashMap::new();
@@ -124,8 +125,7 @@ pub async fn get_deployments(
                     timeout,
                 });
         },
-    )
-    .unwrap();
+    )?;
 
     let deployments_list: Vec<Deployment> = deployments_list.values().cloned().collect();
 
@@ -158,16 +158,15 @@ pub async fn get_deployments(
         }
     }
 
-    deployments
+    Ok(deployments)
 }
 
-async fn delete_old_deployments(deployments: &[Deployment]) -> io::Result<()> {
+async fn delete_old_deployments(deployments: &[Deployment]) -> Result<()> {
     info!("Deleting old deployments");
     let local_deployments_files = fs::read_dir(Path::new("deployments"))?;
 
     for local_deployment_file in local_deployments_files {
-        let local_deployment_file = local_deployment_file.unwrap();
-        let local_deployment_file_name = local_deployment_file
+        let local_deployment_file_name = local_deployment_file?
             .file_name()
             .into_string()
             .unwrap_or_else(|_| "".into());
@@ -191,28 +190,27 @@ async fn delete_old_deployments(deployments: &[Deployment]) -> io::Result<()> {
     Ok(())
 }
 
-pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> io::Result<()> {
+pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> Result<()> {
     match bucket.get_object(deployment.id.clone() + ".js").await {
         Ok(object) => {
             write_deployment(&deployment.id, object.bytes())?;
 
             if !deployment.assets.is_empty() {
                 for asset in &deployment.assets {
-                    let object = bucket
+                    match bucket
                         .get_object(deployment.id.clone() + "/" + asset.as_str())
-                        .await;
-
-                    if let Err(error) = object {
-                        return Err(io::Error::new(io::ErrorKind::Other, error));
-                    }
-
-                    let object = object.unwrap();
-                    write_deployment_asset(&deployment.id, asset, object.bytes())?;
+                        .await
+                    {
+                        Ok(object) => {
+                            write_deployment_asset(&deployment.id, asset, object.bytes())?
+                        }
+                        Err(error) => return Err(anyhow!(error)),
+                    };
                 }
             }
 
             Ok(())
         }
-        Err(error) => Err(io::Error::new(io::ErrorKind::Other, error)),
+        Err(error) => Err(anyhow!(error)),
     }
 }
