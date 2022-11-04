@@ -5,10 +5,7 @@ on:
       - main
     tags:
       - '@lagon/cli@*'
-  pull_request:
-    paths:
-      - packages/cli/**
-      - packages/runtime/**
+  workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
