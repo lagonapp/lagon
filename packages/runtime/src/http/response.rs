@@ -45,17 +45,23 @@ impl From<&str> for Response {
     }
 }
 
+// NOTE:
+// We can safely use unwrap here because set only return Just(true) or Empty(), so if it should never fail
 impl IntoV8 for Response {
     fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
         let response = v8::Object::new(scope);
 
         let body_key = v8_string(scope, "body");
         let body_value = v8_uint8array(scope, self.body.to_vec());
-        response.set(scope, body_key.into(), body_value.into());
+        response
+            .set(scope, body_key.into(), body_value.into())
+            .unwrap();
 
         let status_key = v8_string(scope, "status");
         let status_value = v8_integer(scope, self.status.into());
-        response.set(scope, status_key.into(), status_value.into());
+        response
+            .set(scope, status_key.into(), status_value.into())
+            .unwrap();
 
         let headers_key = v8_string(scope, "headers");
 
@@ -75,7 +81,10 @@ impl FromV8 for Response {
         scope: &mut v8::HandleScope<'a>,
         response: v8::Local<'a, v8::Value>,
     ) -> Result<Self> {
-        let response = response.to_object(scope).unwrap();
+        let response = match response.to_object(scope) {
+            Some(response) => response,
+            None => return Err(anyhow!("Response is not an object")),
+        };
 
         let body;
         let body_key = v8_string(scope, "body");
@@ -120,22 +129,24 @@ impl FromV8 for Response {
     }
 }
 
-impl From<&Response> for http::response::Builder {
-    fn from(response: &Response) -> Self {
+impl TryFrom<&Response> for http::response::Builder {
+    type Error = anyhow::Error;
+
+    fn try_from(response: &Response) -> Result<Self, Self::Error> {
         let mut builder = HyperResponse::builder().status(response.status);
 
-        let builder_headers = builder.headers_mut().unwrap();
+        let builder_headers = match builder.headers_mut() {
+            Some(headers) => headers,
+            None => return Err(anyhow!("Invalid headers")),
+        };
 
         if let Some(headers) = &response.headers {
             for (key, value) in headers {
-                builder_headers.insert(
-                    HeaderName::from_str(key).unwrap(),
-                    HeaderValue::from_str(value).unwrap(),
-                );
+                builder_headers.insert(HeaderName::from_str(key)?, HeaderValue::from_str(value)?);
             }
         }
 
-        builder
+        Ok(builder)
     }
 }
 
@@ -149,7 +160,7 @@ impl Response {
         self.body == READABLE_STREAM_STR
     }
 
-    pub async fn from_hyper(response: HyperResponse<Body>) -> Self {
+    pub async fn from_hyper(response: HyperResponse<Body>) -> Result<Self> {
         let mut headers = HashMap::new();
 
         for (key, value) in response.headers().iter() {
@@ -157,10 +168,9 @@ impl Response {
         }
 
         let status = response.status().as_u16();
+        let body = body::to_bytes(response.into_body()).await?;
 
-        let body = body::to_bytes(response.into_body()).await.unwrap();
-
-        Response {
+        Ok(Response {
             status,
             headers: if !headers.is_empty() {
                 Some(headers)
@@ -168,6 +178,6 @@ impl Response {
                 None
             },
             body,
-        }
+        })
     }
 }

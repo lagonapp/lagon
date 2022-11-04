@@ -18,7 +18,7 @@ pub fn extract_v8_integer(value: v8::Local<v8::Value>, scope: &mut v8::HandleSco
         return Ok(value.value());
     }
 
-    Err(anyhow!("Value is not a string"))
+    Err(anyhow!("Value is not an integer"))
 }
 
 pub fn extract_v8_headers_object(
