@@ -132,7 +132,7 @@ impl TryFrom<&Request> for http::request::Builder {
 
         let builder_headers = match builder.headers_mut() {
             Some(headers) => headers,
-            None => return Err(anyhow!("Invalid headers").into()),
+            None => return Err(anyhow!("Invalid headers")),
         };
 
         if let Some(headers) = &request.headers {
