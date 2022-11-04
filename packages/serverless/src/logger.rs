@@ -19,16 +19,16 @@ impl SimpleLogger {
         match Client::new() {
             Ok(axiom_client) => {
                 tokio::spawn(async move {
-                    axiom_client
+                    if let Err(error) = axiom_client
                         .datasets
                         .ingest_stream("serverless", rx.into_stream())
                         .await
-                        .unwrap();
+                    {
+                        eprintln!("Error ingesting into Axiom: {}", error);
+                    }
                 });
             }
-            Err(e) => {
-                println!("Axiom is not configured: {}", e);
-            }
+            Err(error) => println!("Axiom is not configured: {}", error),
         }
 
         Self {

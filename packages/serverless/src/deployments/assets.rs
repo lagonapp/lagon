@@ -1,12 +1,13 @@
-use std::{collections::HashMap, env, fs, io, path::Path};
+use std::{collections::HashMap, env, fs, path::Path};
 
+use anyhow::Result;
 use hyper::body::Bytes;
 use lagon_runtime::http::Response;
 
 use super::Deployment;
 
-pub fn handle_asset(deployment: &Deployment, asset: &String) -> io::Result<Response> {
-    let path = Path::new(env::current_dir().unwrap().as_path())
+pub fn handle_asset(deployment: &Deployment, asset: &String) -> Result<Response> {
+    let path = Path::new(env::current_dir()?.as_path())
         .join("deployments")
         .join(deployment.id.clone())
         .join(asset);

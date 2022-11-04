@@ -1,12 +1,13 @@
 use std::io::Write;
 use std::path::PathBuf;
-use std::{env, fs, io, path::Path};
+use std::{env, fs, path::Path};
 
+use anyhow::Result;
 use log::info;
 
 use super::Deployment;
 
-pub fn create_deployments_folder() -> io::Result<()> {
+pub fn create_deployments_folder() -> Result<()> {
     let path = Path::new("deployments");
 
     if !path.exists() {
@@ -23,8 +24,8 @@ pub fn has_deployment_code(deployment: &Deployment) -> bool {
     path.exists()
 }
 
-pub fn get_deployment_code(deployment: &Deployment) -> io::Result<String> {
-    let path = Path::new(env::current_dir().unwrap().as_path())
+pub fn get_deployment_code(deployment: &Deployment) -> Result<String> {
+    let path = Path::new(env::current_dir()?.as_path())
         .join("deployments")
         .join(deployment.id.clone() + ".js");
     let code = fs::read_to_string(path)?;
@@ -32,7 +33,7 @@ pub fn get_deployment_code(deployment: &Deployment) -> io::Result<String> {
     Ok(code)
 }
 
-pub fn write_deployment(deployment_id: &str, buf: &[u8]) -> io::Result<()> {
+pub fn write_deployment(deployment_id: &str, buf: &[u8]) -> Result<()> {
     let mut file =
         fs::File::create(Path::new("deployments").join(deployment_id.to_owned() + ".js"))?;
 
@@ -42,7 +43,7 @@ pub fn write_deployment(deployment_id: &str, buf: &[u8]) -> io::Result<()> {
     Ok(())
 }
 
-pub fn write_deployment_asset(deployment_id: &str, asset: &str, buf: &[u8]) -> io::Result<()> {
+pub fn write_deployment_asset(deployment_id: &str, asset: &str, buf: &[u8]) -> Result<()> {
     let asset = asset.replace("public/", "");
     let asset = asset.as_str();
 
@@ -60,7 +61,7 @@ pub fn write_deployment_asset(deployment_id: &str, asset: &str, buf: &[u8]) -> i
     Ok(())
 }
 
-pub fn rm_deployment(deployment_id: &str) -> io::Result<()> {
+pub fn rm_deployment(deployment_id: &str) -> Result<()> {
     fs::remove_file(Path::new("deployments").join(deployment_id.to_owned() + ".js"))?;
 
     // It's possible that the folder doesn't exists if the deployment has no assets
