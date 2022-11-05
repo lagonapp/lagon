@@ -163,7 +163,7 @@ export const deploymentsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input }) => {
-        return setCurrentDeployment(input.functionId, input.deploymentId);
+        await setCurrentDeployment(input.functionId, input.deploymentId);
       }),
     deploymentDelete: t.procedure
       .input(
@@ -204,7 +204,7 @@ export const deploymentsRouter = (t: T) =>
           });
         }
 
-        return removeDeployment(
+        await removeDeployment(
           {
             ...func,
             domains: func.domains.map(({ domain }) => domain),

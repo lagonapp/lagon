@@ -66,14 +66,7 @@ export async function removeDeployment(
     env: { key: string; value: string }[];
   },
   deploymentId: string,
-): Promise<{
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isProduction: boolean;
-  assets: string[];
-  functionId: string;
-}> {
+) {
   await Promise.all([
     prisma.asset.deleteMany({
       where: {
@@ -147,11 +140,6 @@ export async function removeDeployment(
       assets: deployment.assets.map(({ name }) => name),
     }),
   );
-
-  return {
-    ...deployment,
-    assets: deployment.assets.map(({ name }) => name),
-  };
 }
 
 export async function removeCurrentDeployment(functionId: string): Promise<{
@@ -186,17 +174,7 @@ export async function removeCurrentDeployment(functionId: string): Promise<{
   });
 }
 
-export async function setCurrentDeployment(
-  functionId: string,
-  newDeploymentId: string,
-): Promise<{
-  id: string;
-  functionName: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isProduction: boolean;
-  assets: string[];
-}> {
+export async function setCurrentDeployment(functionId: string, newDeploymentId: string) {
   const func = await prisma.function.findFirst({
     where: {
       id: functionId,
@@ -263,12 +241,6 @@ export async function setCurrentDeployment(
       assets: deployment.assets.map(({ name }) => name),
     }),
   );
-
-  return {
-    ...deployment,
-    functionName: func.name,
-    assets: deployment.assets.map(({ name }) => name),
-  };
 }
 
 export async function updateDomains(

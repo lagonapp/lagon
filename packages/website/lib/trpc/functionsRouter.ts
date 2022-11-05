@@ -21,33 +21,11 @@ export const functionsRouter = (t: T) =>
         },
         select: {
           id: true,
-          createdAt: true,
           updatedAt: true,
           name: true,
           domains: {
             select: {
               domain: true,
-            },
-          },
-          memory: true,
-          timeout: true,
-          env: {
-            select: {
-              key: true,
-              value: true,
-            },
-          },
-          cron: true,
-          cronRegion: true,
-          deployments: {
-            select: {
-              id: true,
-              triggerer: true,
-              commit: true,
-              isCurrent: true,
-              assets: true,
-              createdAt: true,
-              updatedAt: true,
             },
           },
         },
@@ -75,36 +53,30 @@ export const functionsRouter = (t: T) =>
           },
           select: {
             id: true,
-            createdAt: true,
             updatedAt: true,
+            createdAt: true,
             name: true,
-            domains: {
-              select: {
-                domain: true,
-              },
-            },
-            memory: true,
             timeout: true,
+            cron: true,
+            cronRegion: true,
             env: {
               select: {
                 key: true,
                 value: true,
               },
             },
-            cron: true,
-            cronRegion: true,
+            domains: {
+              select: {
+                domain: true,
+              },
+            },
             deployments: {
               select: {
                 id: true,
-                triggerer: true,
-                commit: true,
-                isCurrent: true,
-                assets: true,
                 createdAt: true,
-                updatedAt: true,
-              },
-              orderBy: {
-                createdAt: 'desc',
+                isProduction: true,
+                commit: true,
+                triggerer: true,
               },
             },
           },
@@ -164,7 +136,7 @@ export const functionsRouter = (t: T) =>
         const deployment = await prisma.deployment.findFirst({
           where: {
             functionId: input.functionId,
-            isCurrent: true,
+            isProduction: true,
           },
           select: {
             id: true,
@@ -221,24 +193,6 @@ export const functionsRouter = (t: T) =>
           },
           select: {
             id: true,
-            createdAt: true,
-            updatedAt: true,
-            name: true,
-            domains: {
-              select: {
-                domain: true,
-              },
-            },
-            memory: true,
-            timeout: true,
-            env: {
-              select: {
-                key: true,
-                value: true,
-              },
-            },
-            cron: true,
-            cronRegion: true,
           },
         });
       }),
@@ -333,7 +287,7 @@ export const functionsRouter = (t: T) =>
                 id: true,
                 triggerer: true,
                 commit: true,
-                isCurrent: true,
+                isProduction: true,
                 assets: true,
                 createdAt: true,
                 updatedAt: true,
@@ -346,7 +300,7 @@ export const functionsRouter = (t: T) =>
         const newDomains = func.domains.map(({ domain }) => domain);
 
         if (currentDomains !== newDomains) {
-          const deployment = func.deployments.find(deployment => deployment.isCurrent)!;
+          const deployment = func.deployments.find(deployment => deployment.isProduction)!;
 
           await updateDomains(
             {
@@ -360,8 +314,6 @@ export const functionsRouter = (t: T) =>
             currentDomains,
           );
         }
-
-        return func;
       }),
     functionDelete: t.procedure
       .input(
@@ -399,7 +351,7 @@ export const functionsRouter = (t: T) =>
                 id: true,
                 triggerer: true,
                 commit: true,
-                isCurrent: true,
+                isProduction: true,
                 assets: true,
                 createdAt: true,
                 updatedAt: true,
@@ -415,7 +367,5 @@ export const functionsRouter = (t: T) =>
         }
 
         await removeFunction(func);
-
-        return func;
       }),
   });

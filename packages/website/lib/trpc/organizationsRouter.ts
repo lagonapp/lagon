@@ -17,11 +17,7 @@ export const organizationsRouter = (t: T) =>
         },
         select: {
           id: true,
-          createdAt: true,
-          updatedAt: true,
           name: true,
-          description: true,
-          ownerId: true,
         },
       });
     }),
@@ -41,11 +37,6 @@ export const organizationsRouter = (t: T) =>
           },
           select: {
             id: true,
-            createdAt: true,
-            updatedAt: true,
-            name: true,
-            description: true,
-            ownerId: true,
           },
         });
 
@@ -57,8 +48,6 @@ export const organizationsRouter = (t: T) =>
             currentOrganizationId: organization.id,
           },
         });
-
-        return organization;
       }),
     organizationUpdate: t.procedure
       .input(
@@ -69,7 +58,7 @@ export const organizationsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input }) => {
-        return prisma.organization.update({
+        await prisma.organization.update({
           where: {
             id: input.organizationId,
           },
@@ -77,13 +66,7 @@ export const organizationsRouter = (t: T) =>
             name: input.name,
             description: input.description,
           },
-          select: {
-            id: true,
-            createdAt: true,
-            updatedAt: true,
-            name: true,
-            description: true,
-          },
+          select: null,
         });
       }),
     organizationsDelete: t.procedure
@@ -157,8 +140,6 @@ export const organizationsRouter = (t: T) =>
             currentOrganizationId: leftOrganization?.id,
           },
         });
-
-        return { ok: true };
       }),
     organizationSetCurrent: t.procedure
       .input(
@@ -173,20 +154,6 @@ export const organizationsRouter = (t: T) =>
           },
           data: {
             currentOrganizationId: input.organizationId,
-          },
-        });
-
-        return prisma.organization.findFirst({
-          where: {
-            id: input.organizationId,
-          },
-          select: {
-            id: true,
-            createdAt: true,
-            updatedAt: true,
-            name: true,
-            description: true,
-            ownerId: true,
           },
         });
       }),
