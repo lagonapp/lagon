@@ -13,7 +13,6 @@ export const tokensRouter = (t: T) =>
         select: {
           id: true,
           createdAt: true,
-          updatedAt: true,
         },
         orderBy: {
           createdAt: 'desc',
@@ -114,7 +113,7 @@ export const tokensRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input }) => {
-        return prisma.token.delete({
+        await prisma.token.delete({
           where: {
             id: input.tokenId,
           },

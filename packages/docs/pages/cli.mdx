@@ -1,11 +1,13 @@
-import { Callout, Collapse } from 'nextra-theme-docs'
+import { Callout, Collapse } from 'nextra-theme-docs';
 
 The easiest way to deploy and manage Functions is through our [Command-line interface](https://en.wikipedia.org/wiki/Command-line_interface).
 
 ## Installation
 
 <Callout type="warning">
-  The CLI is not stable yet, so you might encounter bugs. Please [open an issue](https://github.com/lagonapp/lagon/issues/new?assignees=&labels=bug&template=bug_report.md&title=) if it's the case.
+  The CLI is not stable yet, so you might encounter bugs. Please [open an
+  issue](https://github.com/lagonapp/lagon/issues/new?assignees=&labels=bug&template=bug_report.md&title=) if it's the
+  case.
 </Callout>
 
 Lagon CLI is available for the following operating systems:
@@ -26,9 +28,9 @@ pnpm install --global @lagon/cli
 ```
 
 <Callout type="info">
-  You will also be able to install it through [Cargo](https://doc.rust-lang.org/stable/cargo/) - Rust's package manager - soon.
+  You will also be able to install it through [Cargo](https://doc.rust-lang.org/stable/cargo/) - Rust's package manager
+  - soon.
 </Callout>
-
 
 ## Usage
 
@@ -50,14 +52,15 @@ To proceed, run `lagon logout` and follow the instructions.
 
 Create a new Function or a new Deployment for the given files. Make sure you are [logged in](#lagon-login) before proceeding. If you are executing the command for the first time:
 
-1) You will be prompted to select an Organization
-2) You will be able to link to an existing Function, or create a new one by specifying a name
+1. You will be prompted to select an Organization
+2. You will be able to link to an existing Function, or create a new one by specifying a name
 
 If you then want to trigger a new Deployment, re-run the same command. This command accept the following arguments and options:
 
 - `<FILE>` is the only required argument. It should be the path to a file containing and exporting a Function.
 - `--client, -c <CLIENT>` allows you to specify a path to an additional file to bundle as a client-side script.
 - `--public, -p <CLIENT>` allows you to specify a path a custom assets directory, that will be served at the root (`/`) of the Function. (Default: `public`)
+- `--production, --prod` allows you to deploy the Function in production mode. (Default: `false`)
 
 Examples:
 
@@ -69,7 +72,8 @@ lagon deploy ./server.tsx --client App.tsx --public ./assets
 ### `lagon undeploy`
 
 <Callout type="error">
-  Un-deploying a Function deletes permanently all of its Deployments, statistics and logs. You will be prompted to confirm before continuing.
+  Un-deploying a Function deletes permanently all of its Deployments, statistics and logs. You will be prompted to
+  confirm before continuing.
 </Callout>
 
 Un-deploy completely a Function. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
@@ -80,7 +84,7 @@ Example:
 
 ```bash
 lagon undeploy ./index.ts
-````
+```
 
 ### `lagon dev`
 
@@ -93,7 +97,9 @@ This command accept the same arguments and options as `lagon deploy` and `lagon 
 - `--env <PATH>` allows you to specify an environment file (typically `.env`) to use to inject environment variables.
 
 <Callout type="warning">
-  Although the `dev` command uses the exact same Runtime as when deployed, the local HTTP server itself doesn't have the same optimizations. As such, you shouldn't run a production environment on it, or run any kind of load tests/benchmarks.
+  Although the `dev` command uses the exact same Runtime as when deployed, the local HTTP server itself doesn't have the
+  same optimizations. As such, you shouldn't run a production environment on it, or run any kind of load
+  tests/benchmarks.
 </Callout>
 
 Examples:
@@ -123,9 +129,8 @@ If you are [self-hosting](/self-hosted/installation) Lagon, you will need to upd
 ```json
 {
   "token": "**************",
-  "site_url":"https://dash.lagon.app" // Replace this field
+  "site_url": "https://dash.lagon.app" // Replace this field
 }
 ```
 
 Replace the `site_url` field by the one configured during the installation. To verify if it's working correctly, login to your installation using `lagon login`.
-

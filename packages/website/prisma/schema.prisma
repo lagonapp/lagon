@@ -1,11 +1,11 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider             = "mysql"
+  url                  = env("DATABASE_URL")
   referentialIntegrity = "prisma"
 }
 
@@ -78,19 +78,19 @@ model Function {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name    String        @unique
-  domains Domain[]
-  memory  Int
-  timeout Int
-  cron    String?
-  cronRegion String @default("EU-WEST-3")
-  env     EnvVariable[]
+  name       String        @unique
+  domains    Domain[]
+  memory     Int
+  timeout    Int
+  cron       String?
+  cronRegion String        @default("EU-WEST-3")
+  env        EnvVariable[]
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String
 
   deployments Deployment[]
-  logs Log[]
+  logs        Log[]
 }
 
 model Domain {
@@ -121,8 +121,8 @@ model Deployment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  isCurrent Boolean
-  assets    Asset[]
+  isProduction Boolean @default(false)
+  assets       Asset[]
 
   function   Function @relation(fields: [functionId], references: [id])
   functionId String
@@ -165,16 +165,16 @@ enum LogLevel {
 }
 
 model Log {
-  id     String   @id @default(cuid())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  function Function @relation(fields: [functionId], references: [id])
+  function   Function @relation(fields: [functionId], references: [id])
   functionId String
 
-  deployment Deployment @relation(fields: [deploymentId], references: [id])
+  deployment   Deployment @relation(fields: [deploymentId], references: [id])
   deploymentId String
 
-  level LogLevel
+  level   LogLevel
   message String
 }

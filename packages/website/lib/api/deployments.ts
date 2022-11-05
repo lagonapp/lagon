@@ -23,12 +23,12 @@ export async function createDeployment(
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  isCurrent: boolean;
+  isProduction: boolean;
   functionId: string;
 }> {
   return prisma.deployment.create({
     data: {
-      isCurrent: false,
+      isProduction: false,
       assets: {
         createMany: {
           data: assets.map(name => ({
@@ -43,7 +43,7 @@ export async function createDeployment(
       id: true,
       createdAt: true,
       updatedAt: true,
-      isCurrent: true,
+      isProduction: true,
       assets: {
         select: {
           name: true,
@@ -66,14 +66,7 @@ export async function removeDeployment(
     env: { key: string; value: string }[];
   },
   deploymentId: string,
-): Promise<{
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isCurrent: boolean;
-  assets: string[];
-  functionId: string;
-}> {
+) {
   await Promise.all([
     prisma.asset.deleteMany({
       where: {
@@ -96,7 +89,7 @@ export async function removeDeployment(
       createdAt: true,
       updatedAt: true,
       functionId: true,
-      isCurrent: true,
+      isProduction: true,
       assets: {
         select: {
           name: true,
@@ -143,24 +136,19 @@ export async function removeDeployment(
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
-      isCurrent: deployment.isCurrent,
+      isProduction: deployment.isProduction,
       assets: deployment.assets.map(({ name }) => name),
     }),
   );
-
-  return {
-    ...deployment,
-    assets: deployment.assets.map(({ name }) => name),
-  };
 }
 
-export async function removeCurrentDeployment(functionId: string): Promise<{
+export async function unpromoteProductionDeployment(functionId: string): Promise<{
   id: string;
 }> {
   const currentDeployment = await prisma.deployment.findFirst({
     where: {
       functionId,
-      isCurrent: true,
+      isProduction: true,
     },
     select: {
       id: true,
@@ -175,7 +163,7 @@ export async function removeCurrentDeployment(functionId: string): Promise<{
 
   return prisma.deployment.update({
     data: {
-      isCurrent: false,
+      isProduction: false,
     },
     where: {
       id: currentDeployment.id,
@@ -186,17 +174,7 @@ export async function removeCurrentDeployment(functionId: string): Promise<{
   });
 }
 
-export async function setCurrentDeployment(
-  functionId: string,
-  newDeploymentId: string,
-): Promise<{
-  id: string;
-  functionName: string;
-  createdAt: Date;
-  updatedAt: Date;
-  isCurrent: boolean;
-  assets: string[];
-}> {
+export async function promoteProductionDeployment(functionId: string, newDeploymentId: string) {
   const func = await prisma.function.findFirst({
     where: {
       id: functionId,
@@ -224,11 +202,11 @@ export async function setCurrentDeployment(
     });
   }
 
-  const previousDeployment = await removeCurrentDeployment(func.id);
+  const previousDeployment = await unpromoteProductionDeployment(func.id);
 
   const deployment = await prisma.deployment.update({
     data: {
-      isCurrent: true,
+      isProduction: true,
     },
     where: {
       id: newDeploymentId,
@@ -237,7 +215,7 @@ export async function setCurrentDeployment(
       id: true,
       createdAt: true,
       updatedAt: true,
-      isCurrent: true,
+      isProduction: true,
       assets: {
         select: {
           name: true,
@@ -247,28 +225,22 @@ export async function setCurrentDeployment(
   });
 
   await redis.publish(
-    'current',
+    'promote',
     JSON.stringify({
       previousDeploymentId: previousDeployment.id,
       functionId: func.id,
       functionName: func.name,
       deploymentId: newDeploymentId,
-      domains: func.domains,
+      domains: func.domains.map(({ domain }) => domain),
       memory: func.memory,
       timeout: func.timeout,
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
-      isCurrent: true,
+      isProduction: true,
       assets: deployment.assets.map(({ name }) => name),
     }),
   );
-
-  return {
-    ...deployment,
-    functionName: func.name,
-    assets: deployment.assets.map(({ name }) => name),
-  };
 }
 
 export async function updateDomains(
@@ -282,11 +254,28 @@ export async function updateDomains(
     cronRegion: string;
     env: { key: string; value: string }[];
   },
-  deployment: { id: string; isCurrent: boolean; assets: string[] },
+  deployment: { id: string; isProduction: boolean; assets: string[] },
   oldDomains: string[],
 ) {
   await redis.publish(
-    'domains',
+    'undeploy',
+    JSON.stringify({
+      functionId: func.id,
+      functionName: func.name,
+      deploymentId: deployment.id,
+      domains: oldDomains,
+      memory: func.memory,
+      timeout: func.timeout,
+      cron: func.cron,
+      cronRegion: func.cronRegion,
+      env: envStringToObject(func.env),
+      isProduction: deployment.isProduction,
+      assets: deployment.assets,
+    }),
+  );
+
+  await redis.publish(
+    'deploy',
     JSON.stringify({
       functionId: func.id,
       functionName: func.name,
@@ -297,9 +286,8 @@ export async function updateDomains(
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
-      isCurrent: deployment.isCurrent,
+      isProduction: deployment.isProduction,
       assets: deployment.assets,
-      oldDomains,
     }),
   );
 }

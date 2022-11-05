@@ -5,7 +5,7 @@ import Card from 'lib/components/Card';
 import EmptyState from 'lib/components/EmptyState';
 import Link from 'lib/components/Link';
 import Text from 'lib/components/Text';
-import { getCurrentDomain, getFullCurrentDomain } from 'lib/utils';
+import { getCurrentDomain, getFullCurrentDomain, getFullDomain } from 'lib/utils';
 import Dialog from 'lib/components/Dialog';
 import { RefreshIcon } from '@heroicons/react/outline';
 import { trpc } from 'lib/trpc';
@@ -22,7 +22,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
   const { scopedT } = useI18n();
   const t = scopedT('functions.deployments');
   const deleteDeployment = trpc.deploymentDelete.useMutation();
-  const currentDeployment = trpc.deploymentCurrent.useMutation();
+  const promoteDeployment = trpc.deploymentPromote.useMutation();
 
   const removeDeplomyent = useCallback(
     async (deployment: { id: string }) => {
@@ -37,17 +37,17 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
     [func?.id, deleteDeployment, refetch, t],
   );
 
-  const rollbackDeployment = useCallback(
+  const promoteDeploymentHandler = useCallback(
     async (deployment: { id: string }) => {
-      await currentDeployment.mutateAsync({
+      await promoteDeployment.mutateAsync({
         functionId: func?.id || '',
         deploymentId: deployment.id,
       });
 
       await refetch();
-      toast.success(t('rollback.success'));
+      toast.success(t('promote.success'));
     },
-    [func?.id, currentDeployment, refetch, t],
+    [func?.id, promoteDeployment, refetch, t],
   );
 
   return (
@@ -70,15 +70,24 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
         return (
           <Card key={deployment.id}>
             <div className="relative flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0 md:items-center">
-              {deployment.isCurrent ? (
+              {deployment.isProduction ? (
                 <span className="absolute -top-5 -left-5 text-xs bg-blue-500 text-white px-1 rounded">
-                  {t('list.current')}
+                  {t('list.production')}
                 </span>
               ) : null}
               <div className="md:w-1/3">
                 <Link href={getFullCurrentDomain({ name: deployment.id })} target="_blank">
                   {getCurrentDomain({ name: deployment.id })}
                 </Link>
+                {deployment.isProduction ? (
+                  <>
+                    {func.domains.map(domain => (
+                      <Link key={domain} href={getFullDomain(domain)} target="_blank">
+                        {domain}
+                      </Link>
+                    ))}
+                  </>
+                ) : null}
                 <Text size="sm">
                   {date.toLocaleString('en-US', {
                     minute: 'numeric',
@@ -96,21 +105,21 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                 </Text>
               </div>
               <div className="flex gap-2 md:justify-end md:w-1/3">
-                {!deployment.isCurrent ? (
+                {!deployment.isProduction ? (
                   <>
                     <Dialog
-                      title={t('rollback.modal.title')}
-                      description={t('rollback.modal.description')}
+                      title={t('promote.modal.title')}
+                      description={t('promote.modal.description')}
                       disclosure={
                         <Button leftIcon={<RefreshIcon className="w-4 h-4" />} disabled={deleteDeployment.isLoading}>
-                          {t('rollback')}
+                          {t('promote')}
                         </Button>
                       }
                     >
                       <Dialog.Buttons>
                         <Dialog.Cancel />
-                        <Dialog.Action onClick={() => rollbackDeployment(deployment)}>
-                          {t('rollback.modal.submit')}
+                        <Dialog.Action onClick={() => promoteDeploymentHandler(deployment)}>
+                          {t('promote.modal.submit')}
                         </Dialog.Action>
                       </Dialog.Buttons>
                     </Dialog>

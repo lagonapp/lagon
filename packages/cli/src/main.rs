@@ -42,9 +42,9 @@ enum Commands {
         /// Path to the public directory to serve assets from
         #[clap(short, long, value_parser)]
         public_dir: Option<PathBuf>,
-        /// Force the creation of a new Function
-        #[clap(short, long)]
-        force: bool,
+        /// Deploy as a production deployment
+        #[clap(visible_alias = "production", long)]
+        prod: bool,
     },
     /// Undeploy an existing Function
     Undeploy {
@@ -99,8 +99,8 @@ async fn main() {
                 file,
                 client,
                 public_dir,
-                force,
-            } => commands::deploy(file, client, public_dir, force).await,
+                prod,
+            } => commands::deploy(file, client, public_dir, prod).await,
             Commands::Undeploy { file } => commands::undeploy(file).await,
             Commands::Dev {
                 file,

@@ -57,7 +57,7 @@ pub async fn deploy(
     file: PathBuf,
     client: Option<PathBuf>,
     public_dir: Option<PathBuf>,
-    _force: bool,
+    prod: bool,
 ) -> Result<()> {
     let config = Config::new()?;
 
@@ -112,8 +112,15 @@ pub async fn deploy(
                         organization_id: organization.id.clone(),
                     })?;
 
-                    create_deployment(function.id.clone(), &file, &client, &public_dir, &config)
-                        .await?;
+                    create_deployment(
+                        function.id.clone(),
+                        &file,
+                        &client,
+                        &public_dir,
+                        &config,
+                        prod,
+                    )
+                    .await?;
                 }
                 false => {
                     let name = Input::<String>::new()
@@ -149,6 +156,7 @@ pub async fn deploy(
                         &client,
                         &public_dir,
                         &config,
+                        prod,
                     )
                     .await?;
                 }
@@ -163,6 +171,7 @@ pub async fn deploy(
                 &client,
                 &public_dir,
                 &config,
+                prod,
             )
             .await
         }

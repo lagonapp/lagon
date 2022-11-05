@@ -38,7 +38,7 @@ mod deployments;
 mod logger;
 
 lazy_static! {
-    static ref ISOLATES: RwLock<HashMap<usize, LruCache<String, Isolate>>> =
+    pub static ref ISOLATES: RwLock<HashMap<usize, LruCache<String, Isolate>>> =
         RwLock::new(HashMap::new());
     static ref X_FORWARDED_FOR: String = String::from("X-Forwarded-For");
     static ref ISOLATES_CACHE_SECONDS: Duration = Duration::from_secs(

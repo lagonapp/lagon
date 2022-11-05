@@ -1,12 +1,17 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { TRPCError } from '@trpc/server';
-import { createDeployment, removeCurrentDeployment, removeDeployment, setCurrentDeployment } from 'lib/api/deployments';
+import {
+  createDeployment,
+  unpromoteProductionDeployment,
+  removeDeployment,
+  promoteProductionDeployment,
+} from 'lib/api/deployments';
 import prisma from 'lib/prisma';
 import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import redis from 'lib/redis';
-import { envStringToObject } from 'lib/utils';
+import { envStringToObject, getFullCurrentDomain } from 'lib/utils';
 import s3 from 'lib/s3';
 
 export const deploymentsRouter = (t: T) =>
@@ -88,13 +93,23 @@ export const deploymentsRouter = (t: T) =>
         z.object({
           functionId: z.string(),
           deploymentId: z.string(),
+          isProduction: z.boolean(),
         }),
       )
       .mutation(async ({ input }) => {
-        try {
-          await removeCurrentDeployment(input.functionId);
-        } catch {
-          // this is the first deployment
+        const hasProductionDeployment = await prisma.deployment.findFirst({
+          where: {
+            functionId: input.functionId,
+            isProduction: true,
+          },
+        });
+
+        if (input.isProduction) {
+          try {
+            await unpromoteProductionDeployment(input.functionId);
+          } catch {
+            // this is the first deployment
+          }
         }
 
         const [func, deployment] = await Promise.all([
@@ -118,11 +133,11 @@ export const deploymentsRouter = (t: T) =>
               id: input.deploymentId,
             },
             data: {
-              isCurrent: true,
+              isProduction: hasProductionDeployment ? input.isProduction : true,
             },
             select: {
               id: true,
-              isCurrent: true,
+              isProduction: true,
               assets: true,
             },
           }),
@@ -146,16 +161,18 @@ export const deploymentsRouter = (t: T) =>
             cron: func.cron,
             cronRegion: func.cronRegion,
             env: envStringToObject(func.env),
-            isCurrent: deployment.isCurrent,
+            isProduction: deployment.isProduction,
             assets: deployment.assets.map(({ name }) => name),
           }),
         );
 
         return {
-          functionName: func.name,
+          url: getFullCurrentDomain({
+            name: deployment.isProduction ? func.name : deployment.id,
+          }),
         };
       }),
-    deploymentCurrent: t.procedure
+    deploymentPromote: t.procedure
       .input(
         z.object({
           functionId: z.string(),
@@ -163,7 +180,7 @@ export const deploymentsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input }) => {
-        return setCurrentDeployment(input.functionId, input.deploymentId);
+        await promoteProductionDeployment(input.functionId, input.deploymentId);
       }),
     deploymentDelete: t.procedure
       .input(
@@ -204,7 +221,7 @@ export const deploymentsRouter = (t: T) =>
           });
         }
 
-        return removeDeployment(
+        await removeDeployment(
           {
             ...func,
             domains: func.domains.map(({ domain }) => domain),

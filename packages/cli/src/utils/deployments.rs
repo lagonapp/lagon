@@ -171,12 +171,12 @@ struct CreateDeploymentResponse {
 struct DeployDeploymentRequest {
     function_id: String,
     deployment_id: String,
+    is_production: bool,
 }
 
 #[derive(Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
 struct DeployDeploymentResponse {
-    function_name: String,
+    url: String,
 }
 
 pub async fn create_deployment(
@@ -185,6 +185,7 @@ pub async fn create_deployment(
     client: &Option<PathBuf>,
     public_dir: &PathBuf,
     config: &Config,
+    prod: bool,
 ) -> Result<()> {
     let (index, assets) = bundle_function(file, client, public_dir)?;
 
@@ -240,6 +241,7 @@ pub async fn create_deployment(
             DeployDeploymentRequest {
                 function_id,
                 deployment_id,
+                is_production: prod,
             },
         )
         .await?;
@@ -247,11 +249,7 @@ pub async fn create_deployment(
     println!();
     println!("{}", success("Function deployed!"));
     println!();
-    println!(
-        " {} https://{}.lagon.app",
-        "➤".black(),
-        response.result.data.function_name.blue()
-    );
+    println!(" {} {}", "➤".black(), response.result.data.url.blue());
     println!();
 
     Ok(())

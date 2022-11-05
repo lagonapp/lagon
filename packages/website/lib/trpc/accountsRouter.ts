@@ -12,7 +12,7 @@ export const accountsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        return prisma.user.update({
+        await prisma.user.update({
           where: {
             id: ctx.session.user.id,
           },
@@ -20,11 +20,7 @@ export const accountsRouter = (t: T) =>
             name: input.name,
             email: input.email,
           },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+          select: null,
         });
       }),
   });

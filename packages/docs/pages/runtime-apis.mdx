@@ -1,4 +1,4 @@
-import { Callout } from 'nextra-theme-docs'
+import { Callout } from 'nextra-theme-docs';
 
 The following APIs are the same as the Web APIS you already know. Additionally, we follow the [WinterCG](https://wintercg.org/) conventions.
 
@@ -8,7 +8,7 @@ The only required code to make your Function runnable is to export a `handler` f
 
 ```typescript
 export function handler(request: Request): Response {
-  return new Response('Hello World!')
+  return new Response('Hello World!');
 }
 ```
 
@@ -36,7 +36,7 @@ Example:
 
 ```typescript
 export function handler(request: Request): Response {
-  return new Response(`My secret is: ${process.env.SECRET}`)
+  return new Response(`My secret is: ${process.env.SECRET}`);
 }
 ```
 
@@ -50,9 +50,7 @@ The standard `TextDecoder` object. [See the documentation on MDN](https://develo
 
 ### Fetch
 
-<Callout type="info">
-  Looking for the `fetch()` method? [Jump to fetch()](#fetch-1).
-</Callout>
+<Callout type="info">Looking for the `fetch()` method? [Jump to fetch()](#fetch-1).</Callout>
 
 #### `Request`
 
@@ -69,9 +67,7 @@ You can pass a [`ReadableStream`](#readablestream) object as the `body` of a `Re
 
 The standard `URL` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/URL).
 
-<Callout type="warning">
-  This URL implementation only supports URLs with a scheme.
-</Callout>
+<Callout type="warning">This URL implementation only supports URLs with a scheme.</Callout>
 
 #### `URLSearchParams`
 
