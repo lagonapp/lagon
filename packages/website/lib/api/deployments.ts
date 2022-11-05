@@ -23,12 +23,12 @@ export async function createDeployment(
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  isCurrent: boolean;
+  isProduction: boolean;
   functionId: string;
 }> {
   return prisma.deployment.create({
     data: {
-      isCurrent: false,
+      isProduction: false,
       assets: {
         createMany: {
           data: assets.map(name => ({
@@ -43,7 +43,7 @@ export async function createDeployment(
       id: true,
       createdAt: true,
       updatedAt: true,
-      isCurrent: true,
+      isProduction: true,
       assets: {
         select: {
           name: true,
@@ -70,7 +70,7 @@ export async function removeDeployment(
   id: string;
   createdAt: Date;
   updatedAt: Date;
-  isCurrent: boolean;
+  isProduction: boolean;
   assets: string[];
   functionId: string;
 }> {
@@ -96,7 +96,7 @@ export async function removeDeployment(
       createdAt: true,
       updatedAt: true,
       functionId: true,
-      isCurrent: true,
+      isProduction: true,
       assets: {
         select: {
           name: true,
@@ -143,7 +143,7 @@ export async function removeDeployment(
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
-      isCurrent: deployment.isCurrent,
+      isProduction: deployment.isProduction,
       assets: deployment.assets.map(({ name }) => name),
     }),
   );
@@ -160,7 +160,7 @@ export async function removeCurrentDeployment(functionId: string): Promise<{
   const currentDeployment = await prisma.deployment.findFirst({
     where: {
       functionId,
-      isCurrent: true,
+      isProduction: true,
     },
     select: {
       id: true,
@@ -175,7 +175,7 @@ export async function removeCurrentDeployment(functionId: string): Promise<{
 
   return prisma.deployment.update({
     data: {
-      isCurrent: false,
+      isProduction: false,
     },
     where: {
       id: currentDeployment.id,
@@ -194,7 +194,7 @@ export async function setCurrentDeployment(
   functionName: string;
   createdAt: Date;
   updatedAt: Date;
-  isCurrent: boolean;
+  isProduction: boolean;
   assets: string[];
 }> {
   const func = await prisma.function.findFirst({
@@ -228,7 +228,7 @@ export async function setCurrentDeployment(
 
   const deployment = await prisma.deployment.update({
     data: {
-      isCurrent: true,
+      isProduction: true,
     },
     where: {
       id: newDeploymentId,
@@ -237,7 +237,7 @@ export async function setCurrentDeployment(
       id: true,
       createdAt: true,
       updatedAt: true,
-      isCurrent: true,
+      isProduction: true,
       assets: {
         select: {
           name: true,
@@ -259,7 +259,7 @@ export async function setCurrentDeployment(
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
-      isCurrent: true,
+      isProduction: true,
       assets: deployment.assets.map(({ name }) => name),
     }),
   );
@@ -282,7 +282,7 @@ export async function updateDomains(
     cronRegion: string;
     env: { key: string; value: string }[];
   },
-  deployment: { id: string; isCurrent: boolean; assets: string[] },
+  deployment: { id: string; isProduction: boolean; assets: string[] },
   oldDomains: string[],
 ) {
   await redis.publish(
@@ -297,7 +297,7 @@ export async function updateDomains(
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
-      isCurrent: deployment.isCurrent,
+      isProduction: deployment.isProduction,
       assets: deployment.assets,
       oldDomains,
     }),

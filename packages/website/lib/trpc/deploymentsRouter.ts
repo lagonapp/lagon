@@ -118,11 +118,11 @@ export const deploymentsRouter = (t: T) =>
               id: input.deploymentId,
             },
             data: {
-              isCurrent: true,
+              isProduction: true,
             },
             select: {
               id: true,
-              isCurrent: true,
+              isProduction: true,
               assets: true,
             },
           }),
@@ -146,7 +146,7 @@ export const deploymentsRouter = (t: T) =>
             cron: func.cron,
             cronRegion: func.cronRegion,
             env: envStringToObject(func.env),
-            isCurrent: deployment.isCurrent,
+            isProduction: deployment.isProduction,
             assets: deployment.assets.map(({ name }) => name),
           }),
         );

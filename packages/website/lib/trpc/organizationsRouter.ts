@@ -122,7 +122,7 @@ export const organizationsRouter = (t: T) =>
                 id: true,
                 triggerer: true,
                 commit: true,
-                isCurrent: true,
+                isProduction: true,
                 assets: true,
                 createdAt: true,
                 updatedAt: true,

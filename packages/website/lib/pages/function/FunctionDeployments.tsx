@@ -70,7 +70,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
         return (
           <Card key={deployment.id}>
             <div className="relative flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0 md:items-center">
-              {deployment.isCurrent ? (
+              {deployment.isProduction ? (
                 <span className="absolute -top-5 -left-5 text-xs bg-blue-500 text-white px-1 rounded">
                   {t('list.current')}
                 </span>
@@ -96,7 +96,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                 </Text>
               </div>
               <div className="flex gap-2 md:justify-end md:w-1/3">
-                {!deployment.isCurrent ? (
+                {!deployment.isProduction ? (
                   <>
                     <Dialog
                       title={t('rollback.modal.title')}
