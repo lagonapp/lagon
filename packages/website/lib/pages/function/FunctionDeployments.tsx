@@ -5,7 +5,7 @@ import Card from 'lib/components/Card';
 import EmptyState from 'lib/components/EmptyState';
 import Link from 'lib/components/Link';
 import Text from 'lib/components/Text';
-import { getCurrentDomain, getFullCurrentDomain } from 'lib/utils';
+import { getCurrentDomain, getFullCurrentDomain, getFullDomain } from 'lib/utils';
 import Dialog from 'lib/components/Dialog';
 import { RefreshIcon } from '@heroicons/react/outline';
 import { trpc } from 'lib/trpc';
@@ -82,7 +82,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                 {deployment.isProduction ? (
                   <>
                     {func.domains.map(domain => (
-                      <Link key={domain} href={domain} target="_blank">
+                      <Link key={domain} href={getFullDomain(domain)} target="_blank">
                         {domain}
                       </Link>
                     ))}
