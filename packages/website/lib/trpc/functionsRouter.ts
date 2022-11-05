@@ -78,6 +78,9 @@ export const functionsRouter = (t: T) =>
                 commit: true,
                 triggerer: true,
               },
+              orderBy: {
+                createdAt: 'desc',
+              },
             },
           },
         });

@@ -126,7 +126,7 @@ export default defineLocale({
   'functions.deployments.empty.title': 'Aucun Déploiment trouvé',
   'functions.deployments.empty.description': 'Créez votre premier Déploiment depuis le Playground ou la CLI.',
   'functions.deployments.empty.action': 'Aller au Playground',
-  'functions.deployments.list.current': 'Déploiment actuel',
+  'functions.deployments.list.production': 'Déploiment de production',
   'functions.deployments.list.noCommit': 'Aucun commit lié',
   'functions.deployments.list.by': 'Par :',
   'functions.deployments.rollback': 'Rollback',

@@ -12,6 +12,7 @@ import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from '@tanstack/react-query';
 import { useI18n } from 'locales';
+import FunctionLinks from 'lib/components/FunctionLinks';
 
 type FunctionDeploymentsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -72,13 +73,22 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
             <div className="relative flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0 md:items-center">
               {deployment.isProduction ? (
                 <span className="absolute -top-5 -left-5 text-xs bg-blue-500 text-white px-1 rounded">
-                  {t('list.current')}
+                  {t('list.production')}
                 </span>
               ) : null}
               <div className="md:w-1/3">
                 <Link href={getFullCurrentDomain({ name: deployment.id })} target="_blank">
                   {getCurrentDomain({ name: deployment.id })}
                 </Link>
+                {deployment.isProduction ? (
+                  <>
+                    {func.domains.map(domain => (
+                      <Link key={domain} href={domain} target="_blank">
+                        {domain}
+                      </Link>
+                    ))}
+                  </>
+                ) : null}
                 <Text size="sm">
                   {date.toLocaleString('en-US', {
                     minute: 'numeric',

@@ -6,7 +6,7 @@ import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import redis from 'lib/redis';
-import { envStringToObject } from 'lib/utils';
+import { envStringToObject, getFullCurrentDomain } from 'lib/utils';
 import s3 from 'lib/s3';
 
 export const deploymentsRouter = (t: T) =>
@@ -88,13 +88,16 @@ export const deploymentsRouter = (t: T) =>
         z.object({
           functionId: z.string(),
           deploymentId: z.string(),
+          isProduction: z.boolean(),
         }),
       )
       .mutation(async ({ input }) => {
-        try {
-          await removeCurrentDeployment(input.functionId);
-        } catch {
-          // this is the first deployment
+        if (input.isProduction) {
+          try {
+            await removeCurrentDeployment(input.functionId);
+          } catch {
+            // this is the first deployment
+          }
         }
 
         const [func, deployment] = await Promise.all([
@@ -118,7 +121,7 @@ export const deploymentsRouter = (t: T) =>
               id: input.deploymentId,
             },
             data: {
-              isProduction: true,
+              isProduction: input.isProduction,
             },
             select: {
               id: true,
@@ -152,7 +155,9 @@ export const deploymentsRouter = (t: T) =>
         );
 
         return {
-          functionName: func.name,
+          url: getFullCurrentDomain({
+            name: input.isProduction ? func.name : deployment.id,
+          }),
         };
       }),
     deploymentCurrent: t.procedure

@@ -122,7 +122,7 @@ export default {
   'functions.deployments.empty.title': 'No Deployments found',
   'functions.deployments.empty.description': 'Create your first Deployment from the Playground or with the CLI.',
   'functions.deployments.empty.action': 'Go to Playground',
-  'functions.deployments.list.current': 'Current deployment',
+  'functions.deployments.list.production': 'Production Deployment',
   'functions.deployments.list.noCommit': 'No commit linked',
   'functions.deployments.list.by': 'By:',
   'functions.deployments.rollback': 'Rollback',
