@@ -258,7 +258,24 @@ export async function updateDomains(
   oldDomains: string[],
 ) {
   await redis.publish(
-    'domains',
+    'undeploy',
+    JSON.stringify({
+      functionId: func.id,
+      functionName: func.name,
+      deploymentId: deployment.id,
+      domains: oldDomains,
+      memory: func.memory,
+      timeout: func.timeout,
+      cron: func.cron,
+      cronRegion: func.cronRegion,
+      env: envStringToObject(func.env),
+      isProduction: deployment.isProduction,
+      assets: deployment.assets,
+    }),
+  );
+
+  await redis.publish(
+    'deploy',
     JSON.stringify({
       functionId: func.id,
       functionName: func.name,
@@ -271,7 +288,6 @@ export async function updateDomains(
       env: envStringToObject(func.env),
       isProduction: deployment.isProduction,
       assets: deployment.assets,
-      oldDomains,
     }),
   );
 }

@@ -34,7 +34,6 @@ pub fn listen_pub_sub(
         pub_sub.subscribe("deploy")?;
         pub_sub.subscribe("undeploy")?;
         pub_sub.subscribe("promote")?;
-        // TODO: domains
 
         loop {
             let msg = pub_sub.get_message()?;
