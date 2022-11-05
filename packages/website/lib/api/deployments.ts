@@ -225,13 +225,13 @@ export async function promoteProductionDeployment(functionId: string, newDeploym
   });
 
   await redis.publish(
-    'current',
+    'promote',
     JSON.stringify({
       previousDeploymentId: previousDeployment.id,
       functionId: func.id,
       functionName: func.name,
       deploymentId: newDeploymentId,
-      domains: func.domains,
+      domains: func.domains.map(({ domain }) => domain),
       memory: func.memory,
       timeout: func.timeout,
       cron: func.cron,

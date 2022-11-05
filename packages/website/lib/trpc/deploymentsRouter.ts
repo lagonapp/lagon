@@ -97,6 +97,13 @@ export const deploymentsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input }) => {
+        const hasProductionDeployment = await prisma.deployment.findFirst({
+          where: {
+            functionId: input.functionId,
+            isProduction: true,
+          },
+        });
+
         if (input.isProduction) {
           try {
             await unpromoteProductionDeployment(input.functionId);
@@ -126,7 +133,7 @@ export const deploymentsRouter = (t: T) =>
               id: input.deploymentId,
             },
             data: {
-              isProduction: input.isProduction,
+              isProduction: hasProductionDeployment ? input.isProduction : true,
             },
             select: {
               id: true,
@@ -161,7 +168,7 @@ export const deploymentsRouter = (t: T) =>
 
         return {
           url: getFullCurrentDomain({
-            name: input.isProduction ? func.name : deployment.id,
+            name: deployment.isProduction ? func.name : deployment.id,
           }),
         };
       }),
