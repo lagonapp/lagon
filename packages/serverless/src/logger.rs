@@ -5,10 +5,13 @@ use serde_json::{json, Value};
 use std::sync::{Arc, RwLock};
 
 use log::{
-    set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,
+    as_debug, kv::source::as_map, set_boxed_logger, set_max_level, Level, LevelFilter, Log,
+    Metadata, Record, SetLoggerError,
 };
+
 struct SimpleLogger {
     tx: Arc<RwLock<Option<Sender<Value>>>>,
+    region: String,
 }
 
 impl SimpleLogger {
@@ -33,6 +36,7 @@ impl SimpleLogger {
 
         Self {
             tx: Arc::new(RwLock::new(Some(tx))),
+            region: dotenv::var("LAGON_REGION").expect("LAGON_REGION must be set"),
         }
     }
 }
@@ -44,17 +48,27 @@ impl Log for SimpleLogger {
 
     fn log(&self, record: &Record) {
         if self.enabled(record.metadata()) {
-            println!("{} - {} - {}", Local::now(), record.level(), record.args());
+            let metadata = as_map(record.key_values());
+
+            println!(
+                "{} - {} - {} - {}",
+                Local::now(),
+                record.level(),
+                record.args(),
+                as_debug!(metadata),
+            );
 
             // Axiom is optional, so tx can have no listeners
             let tx = self.tx.read().expect("Tx lock is poisoned");
+
             if let Some(tx) = &*tx {
                 if !tx.is_disconnected() {
                     tx.send(json!({
-                        "region": dotenv::var("LAGON_REGION").expect("LAGON_REGION must be set"),
+                        "region": self.region,
                         "_time": Local::now().to_rfc3339(),
                         "level": record.level().to_string(),
                         "message": record.args().to_string(),
+                        "metadata": metadata,
                     }))
                     .unwrap_or(())
                 }

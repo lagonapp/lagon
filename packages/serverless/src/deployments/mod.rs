@@ -152,9 +152,9 @@ pub async fn get_deployments(
         for deployment in deployments_list {
             if !has_deployment_code(&deployment) {
                 if let Err(error) = download_deployment(&deployment, &bucket).await {
-                    error!(
-                        "Failed to download deployment ({}): {:?}",
-                        deployment.id, error
+                    error!(deployment = deployment.id;
+                        "Failed to download deployment: {:?}",
+                        error
                     );
                 }
             }

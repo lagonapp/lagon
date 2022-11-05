@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use anyhow::Result;
-use log::error;
+use log::{error, warn};
 use s3::Bucket;
 use serde_json::Value;
 use tokio::{sync::RwLock, task::JoinHandle};
@@ -82,10 +82,10 @@ pub fn listen_pub_sub(
 
                             clear_deployments_cache(&domains).await;
                         }
-                        Err(err) => {
+                        Err(error) => {
                             error!(
-                                "Failed to download deployment ({}): {:?}",
-                                deployment.id, err
+                                deployment = deployment.id;
+                                "Failed to download deployment: {}", error
                             );
                         }
                     };
@@ -102,8 +102,8 @@ pub fn listen_pub_sub(
 
                             clear_deployments_cache(&domains).await;
                         }
-                        Err(err) => {
-                            error!("Failed to delete deployment ({}): {:?}", deployment.id, err);
+                        Err(error) => {
+                            error!(deployment = deployment.id; "Failed to delete deployment: {}", error);
                         }
                     };
                 }
@@ -132,7 +132,7 @@ pub fn listen_pub_sub(
 
                     clear_deployments_cache(&domains).await;
                 }
-                _ => error!("Unknown channel: {}", channel),
+                _ => warn!("Unknown channel: {}", channel),
             };
         }
     })
