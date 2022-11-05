@@ -12,7 +12,6 @@ import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from '@tanstack/react-query';
 import { useI18n } from 'locales';
-import FunctionLinks from 'lib/components/FunctionLinks';
 
 type FunctionDeploymentsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -23,7 +22,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
   const { scopedT } = useI18n();
   const t = scopedT('functions.deployments');
   const deleteDeployment = trpc.deploymentDelete.useMutation();
-  const currentDeployment = trpc.deploymentCurrent.useMutation();
+  const promoteDeployment = trpc.deploymentPromote.useMutation();
 
   const removeDeplomyent = useCallback(
     async (deployment: { id: string }) => {
@@ -38,17 +37,17 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
     [func?.id, deleteDeployment, refetch, t],
   );
 
-  const rollbackDeployment = useCallback(
+  const promoteDeploymentHandler = useCallback(
     async (deployment: { id: string }) => {
-      await currentDeployment.mutateAsync({
+      await promoteDeployment.mutateAsync({
         functionId: func?.id || '',
         deploymentId: deployment.id,
       });
 
       await refetch();
-      toast.success(t('rollback.success'));
+      toast.success(t('promote.success'));
     },
-    [func?.id, currentDeployment, refetch, t],
+    [func?.id, promoteDeployment, refetch, t],
   );
 
   return (
@@ -109,18 +108,18 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                 {!deployment.isProduction ? (
                   <>
                     <Dialog
-                      title={t('rollback.modal.title')}
-                      description={t('rollback.modal.description')}
+                      title={t('promote.modal.title')}
+                      description={t('promote.modal.description')}
                       disclosure={
                         <Button leftIcon={<RefreshIcon className="w-4 h-4" />} disabled={deleteDeployment.isLoading}>
-                          {t('rollback')}
+                          {t('promote')}
                         </Button>
                       }
                     >
                       <Dialog.Buttons>
                         <Dialog.Cancel />
-                        <Dialog.Action onClick={() => rollbackDeployment(deployment)}>
-                          {t('rollback.modal.submit')}
+                        <Dialog.Action onClick={() => promoteDeploymentHandler(deployment)}>
+                          {t('promote.modal.submit')}
                         </Dialog.Action>
                       </Dialog.Buttons>
                     </Dialog>

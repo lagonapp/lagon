@@ -1,6 +1,11 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { TRPCError } from '@trpc/server';
-import { createDeployment, removeCurrentDeployment, removeDeployment, setCurrentDeployment } from 'lib/api/deployments';
+import {
+  createDeployment,
+  unpromoteProductionDeployment,
+  removeDeployment,
+  promoteProductionDeployment,
+} from 'lib/api/deployments';
 import prisma from 'lib/prisma';
 import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
@@ -94,7 +99,7 @@ export const deploymentsRouter = (t: T) =>
       .mutation(async ({ input }) => {
         if (input.isProduction) {
           try {
-            await removeCurrentDeployment(input.functionId);
+            await unpromoteProductionDeployment(input.functionId);
           } catch {
             // this is the first deployment
           }
@@ -160,7 +165,7 @@ export const deploymentsRouter = (t: T) =>
           }),
         };
       }),
-    deploymentCurrent: t.procedure
+    deploymentPromote: t.procedure
       .input(
         z.object({
           functionId: z.string(),
@@ -168,7 +173,7 @@ export const deploymentsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input }) => {
-        await setCurrentDeployment(input.functionId, input.deploymentId);
+        await promoteProductionDeployment(input.functionId, input.deploymentId);
       }),
     deploymentDelete: t.procedure
       .input(

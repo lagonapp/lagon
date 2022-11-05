@@ -142,7 +142,7 @@ export async function removeDeployment(
   );
 }
 
-export async function removeCurrentDeployment(functionId: string): Promise<{
+export async function unpromoteProductionDeployment(functionId: string): Promise<{
   id: string;
 }> {
   const currentDeployment = await prisma.deployment.findFirst({
@@ -174,7 +174,7 @@ export async function removeCurrentDeployment(functionId: string): Promise<{
   });
 }
 
-export async function setCurrentDeployment(functionId: string, newDeploymentId: string) {
+export async function promoteProductionDeployment(functionId: string, newDeploymentId: string) {
   const func = await prisma.function.findFirst({
     where: {
       id: functionId,
@@ -202,7 +202,7 @@ export async function setCurrentDeployment(functionId: string, newDeploymentId: 
     });
   }
 
-  const previousDeployment = await removeCurrentDeployment(func.id);
+  const previousDeployment = await unpromoteProductionDeployment(func.id);
 
   const deployment = await prisma.deployment.update({
     data: {
