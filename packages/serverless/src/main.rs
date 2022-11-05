@@ -10,7 +10,7 @@ use lagon_runtime::http::{Request, RunResult, StreamResult};
 use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use lazy_static::lazy_static;
-use log::{error, info};
+use log::{as_debug, error, info, warn};
 use lru_time_cache::LruCache;
 use metrics::increment_counter;
 use metrics_exporter_prometheus::PrometheusBuilder;
@@ -67,7 +67,11 @@ async fn handle_request(
 
     let hostname = match req.headers().get(HOST) {
         Some(hostname) => hostname.to_str()?.to_string(),
-        None => return Ok(Builder::new().status(404).body(PAGE_404.into())?),
+        None => {
+            warn!(request = as_debug!(req); "No hostname found in request");
+
+            return Ok(Builder::new().status(404).body(PAGE_404.into())?);
+        }
     };
 
     let thread_ids_reader = thread_ids.read().await;
@@ -107,10 +111,7 @@ async fn handle_request(
                             let run_result = match handle_asset(deployment, asset) {
                                 Ok(response) => RunResult::Response(response),
                                 Err(error) => {
-                                    error!(
-                                        "Error while handing asset ({}, {}): {}",
-                                        asset, deployment.id, error
-                                    );
+                                    error!(deployment = &deployment.id, asset = asset; "Error while handing asset: {}", error);
 
                                     RunResult::Error("Could not retrieve asset.".into())
                                 }
@@ -121,10 +122,7 @@ async fn handle_request(
                             let maybe_request = Request::from_hyper(req).await;
 
                             if let Err(error) = maybe_request {
-                                error!(
-                                    "Error while parsing request ({}): {}",
-                                    deployment.id, error
-                                );
+                                error!(deployment = &deployment.id; "Error while parsing request: {}", error);
 
                                 tx.send_async(RunResult::Error(
                                     "Error while parsing request".into(),
@@ -148,7 +146,8 @@ async fn handle_request(
                             });
 
                             let isolate = thread_isolates.entry(hostname).or_insert_with(|| {
-                                info!("Creating new isolate: {} ", deployment.id);
+                                info!(deployment = deployment.id; "Creating new isolate");
+
                                 // TODO: handle read error
                                 let code = get_deployment_code(deployment).unwrap();
                                 let options = IsolateOptions::new(code)
@@ -159,7 +158,7 @@ async fn handle_request(
                                     .with_timeout(deployment.timeout)
                                     .with_id(deployment.id.clone())
                                     .with_on_drop_callback(Box::new(|id| {
-                                        info!("Dropping isolate: {}", id.unwrap());
+                                        info!(deployment = &id.unwrap(); "Dropping isolate");
                                     }));
 
                                 Isolate::new(options)

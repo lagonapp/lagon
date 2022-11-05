@@ -1,3 +1,4 @@
+use std::fs::File;
 use std::io::Write;
 use std::path::PathBuf;
 use std::{env, fs, path::Path};
@@ -34,11 +35,10 @@ pub fn get_deployment_code(deployment: &Deployment) -> Result<String> {
 }
 
 pub fn write_deployment(deployment_id: &str, buf: &[u8]) -> Result<()> {
-    let mut file =
-        fs::File::create(Path::new("deployments").join(deployment_id.to_owned() + ".js"))?;
+    let mut file = File::create(Path::new("deployments").join(deployment_id.to_owned() + ".js"))?;
 
     file.write_all(buf)?;
-    info!("Wrote deployment: {}", deployment_id);
+    info!(deployment = deployment_id; "Wrote deployment");
 
     Ok(())
 }
@@ -53,10 +53,10 @@ pub fn write_deployment_asset(deployment_id: &str, asset: &str, buf: &[u8]) -> R
     fs::create_dir_all(dir)?;
 
     let mut file =
-        fs::File::create(Path::new("deployments").join(deployment_id.to_owned() + "/" + asset))?;
+        File::create(Path::new("deployments").join(deployment_id.to_owned() + "/" + asset))?;
 
     file.write_all(buf)?;
-    info!("Wrote deployment ({}) asset: {}", deployment_id, asset);
+    info!(deployment = deployment_id, asset = asset; "Wrote deployment asset");
 
     Ok(())
 }
@@ -66,7 +66,7 @@ pub fn rm_deployment(deployment_id: &str) -> Result<()> {
 
     // It's possible that the folder doesn't exists if the deployment has no assets
     fs::remove_dir_all(Path::new("deployments").join(deployment_id)).unwrap_or(());
-    info!("Deleted deployment: {}", deployment_id);
+    info!(deployment = deployment_id; "Deleted deployment");
 
     Ok(())
 }
