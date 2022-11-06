@@ -1,4 +1,4 @@
-use crate::{http::StreamResult, isolate::Isolate};
+use crate::{http::StreamResult, isolate::Isolate, utils::extract_v8_uint8array};
 
 pub fn pull_stream_binding(
     scope: &mut v8::HandleScope,
@@ -11,9 +11,7 @@ pub fn pull_stream_binding(
     let done = args.get(0).to_boolean(scope);
 
     if done.is_false() {
-        let chunk = unsafe { v8::Local::<v8::Uint8Array>::cast(args.get(1)) };
-        let mut buf = vec![0; chunk.byte_length()];
-        chunk.copy_contents(&mut buf);
+        let buf = extract_v8_uint8array(args.get(1)).unwrap();
 
         state
             .stream_sender

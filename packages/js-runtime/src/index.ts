@@ -53,6 +53,7 @@ declare global {
       signature: BufferSource,
       data: BufferSource,
     ) => Promise<boolean>;
+    getKeyValue: () => ArrayBuffer;
   };
   var __lagon__: {
     isIterable: (value: unknown) => value is ArrayBuffer;

@@ -1,5 +1,7 @@
 use console::console_binding;
-use crypto::{random_values_binding, sign_binding, uuid_binding, verify_binding};
+use crypto::{
+    get_key_value_binding, random_values_binding, sign_binding, uuid_binding, verify_binding,
+};
 use fetch::fetch_binding;
 use pull_stream::pull_stream_binding;
 
@@ -60,6 +62,11 @@ pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
     lagon_object.set(
         v8_string(scope, "verify").into(),
         v8::FunctionTemplate::new(scope, verify_binding).into(),
+    );
+
+    lagon_object.set(
+        v8_string(scope, "getKeyValue").into(),
+        v8::FunctionTemplate::new(scope, get_key_value_binding).into(),
     );
 
     global.set(v8_string(scope, "Lagon").into(), lagon_object.into());

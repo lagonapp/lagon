@@ -11,6 +11,9 @@
     readonly type: KeyType;
     readonly usages: KeyUsage[];
 
+    // Store the randomly generate key value here
+    readonly keyValue: ArrayBuffer;
+
     // Trick to make TypeScript happy, CryptoKey constructor is normally empty
     // but we need to construct it at some point.
     constructor(algorithm?: KeyAlgorithm, extractable?: boolean, type?: KeyType, usages?: KeyUsage[]) {
@@ -18,6 +21,8 @@
       this.extractable = extractable!;
       this.type = type!;
       this.usages = usages!;
+
+      this.keyValue = Lagon.getKeyValue();
     }
   };
 
