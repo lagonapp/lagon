@@ -41,22 +41,18 @@ declare global {
     }>;
     pullStream: (done: boolean, chunk?: Uint8Array) => void;
     uuid: () => string;
-    randomValues: <
-      T extends
-        | Int8Array
-        | Uint8Array
-        | Uint8ClampedArray
-        | Int16Array
-        | Uint16Array
-        | Int32Array
-        | Uint32Array
-        | BigInt64Array
-        | BigUint64Array,
-    >(
-      typedArray: T,
-    ) => T;
-    sign: (algorithm, key, data) => Promise<ArrayBuffer>;
-    verify: (algorithm, key, signature, data) => Promise<boolean>;
+    randomValues: <T extends ArrayBufferView | null>(array: T) => T;
+    sign: (
+      algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams,
+      key: CryptoKey,
+      data: BufferSource,
+    ) => Promise<ArrayBuffer>;
+    verify: (
+      algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams,
+      key: CryptoKey,
+      signature: BufferSource,
+      data: BufferSource,
+    ) => Promise<boolean>;
   };
   var __lagon__: {
     isIterable: (value: unknown) => value is ArrayBuffer;

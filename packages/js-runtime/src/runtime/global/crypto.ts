@@ -1,184 +1,175 @@
-const getRandomValues = <
-  T extends
-    | Int8Array
-    | Uint8Array
-    | Uint8ClampedArray
-    | Int16Array
-    | Uint16Array
-    | Int32Array
-    | Uint32Array
-    | BigInt64Array
-    | BigUint64Array,
->(
-  typedArray: T,
-) => Lagon.randomValues(typedArray);
+/* eslint-disable @typescript-eslint/no-unused-vars */
+(globalThis => {
+  const getRandomValues = <T extends ArrayBufferView | null>(array: T): T => Lagon.randomValues(array);
+  const randomUUID = () => Lagon.uuid();
 
-const randomUUID = () => Lagon.uuid();
+  const SYMMETRIC_ALGORITHMS = ['HMAC', 'AES-CBC', 'AES-CTR', 'AES-GCM', 'AES-KW'];
 
-type EncryptDecryptoAlgorithm =
-  | {
-      name: 'RSA-OAEP';
-      label?: ArrayBuffer;
+  globalThis.CryptoKey = class {
+    readonly algorithm: KeyAlgorithm;
+    readonly extractable: boolean;
+    readonly type: KeyType;
+    readonly usages: KeyUsage[];
+
+    // Trick to make TypeScript happy, CryptoKey constructor is normally empty
+    // but we need to construct it at some point.
+    constructor(algorithm?: KeyAlgorithm, extractable?: boolean, type?: KeyType, usages?: KeyUsage[]) {
+      this.algorithm = algorithm!;
+      this.extractable = extractable!;
+      this.type = type!;
+      this.usages = usages!;
     }
-  | {
-      name: 'AES-CBC' | 'AES-CGM';
-      iv: ArrayBuffer;
+  };
+
+  class CryptoSubtle {
+    async decrypt(
+      algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams,
+      key: CryptoKey,
+      data: BufferSource,
+    ): Promise<ArrayBuffer> {
+      throw new Error('Not implemented');
     }
-  | {
-      name: 'AES-CTR';
-      counter: ArrayBuffer;
-      length: number;
-    };
 
-type GenAlgorithm =
-  | {
-      name: 'HMAC';
-      hash: 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512';
-      length?: number;
+    async deriveBits(
+      algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
+      baseKey: CryptoKey,
+      length: number,
+    ): Promise<ArrayBuffer> {
+      throw new Error('Not implemented');
     }
-  | {
-      name: 'ECDSA' | 'ECDH';
-      namedCurve: 'P-256' | 'P-384' | 'P-521';
+
+    async deriveKey(
+      algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
+      baseKey: CryptoKey,
+      derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params,
+      extractable: boolean,
+      keyUsages: Iterable<KeyUsage>,
+    ): Promise<CryptoKey> {
+      throw new Error('Not implemented');
     }
-  | {
-      name: 'RSASSA-PKCS1-v1_5' | 'RSA-PSS' | 'RSA-OAEP';
-      modulusLength: number;
-      publicExponent: Uint8Array;
-      hash: 'SHA-256' | 'SHA-384' | 'SHA-512';
+
+    async digest(algorithm: AlgorithmIdentifier, data: BufferSource): Promise<ArrayBuffer> {
+      throw new Error('Not implemented');
     }
-  | {
-      name: 'AES-CBC' | 'AES-CTR' | 'AES-GCM' | 'AES-KW';
-      length: number;
-    };
 
-type SignVerifyAlgorithm =
-  | 'RSASSA-PKCS1-v1_5'
-  | {
-      name: 'RSASSA-PKCS1-v1_5';
+    async encrypt(
+      algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams,
+      key: CryptoKey,
+      data: BufferSource,
+    ): Promise<ArrayBuffer> {
+      throw new Error('Not implemented');
     }
-  | {
-      name: 'RSA-PSS';
-      saltLength: number;
+
+    async exportKey(format: 'jwk', key: CryptoKey): Promise<JsonWebKey>;
+    async exportKey(format: Exclude<KeyFormat, 'jwk'>, key: CryptoKey): Promise<ArrayBuffer>;
+    async exportKey(format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey> {
+      throw new Error('Not implemented');
     }
-  | {
-      name: 'ECDSA';
-      hash: 'SHA-256' | 'SHA-384' | 'SHA-512';
+
+    async generateKey(
+      algorithm: RsaHashedKeyGenParams | EcKeyGenParams,
+      extractable: boolean,
+      keyUsages: ReadonlyArray<KeyUsage>,
+    ): Promise<CryptoKeyPair>;
+    async generateKey(
+      algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params,
+      extractable: boolean,
+      keyUsages: ReadonlyArray<KeyUsage>,
+    ): Promise<CryptoKey>;
+    async generateKey(
+      algorithm: AlgorithmIdentifier,
+      extractable: boolean,
+      keyUsages: Iterable<KeyUsage>,
+    ): Promise<CryptoKeyPair | CryptoKey> {
+      let isSymmetric;
+
+      if (typeof algorithm === 'string') {
+        isSymmetric = SYMMETRIC_ALGORITHMS.includes(algorithm);
+      } else {
+        isSymmetric = SYMMETRIC_ALGORITHMS.includes(algorithm.name);
+      }
+
+      if (isSymmetric) {
+        return new CryptoKey(algorithm, extractable, 'secret', keyUsages);
+      } else {
+        return {
+          privateKey: new CryptoKey(algorithm, extractable, 'private', keyUsages),
+          publicKey: new CryptoKey(algorithm, extractable, 'public', keyUsages),
+        };
+      }
     }
-  | 'HMAC'
-  | {
-      name: 'HMAC';
-    };
 
-// type ImportAlgorithm =
-//   | {
-//       name: 'RSASSA-PKCS1-v1_5' | 'RSA-PSS' | 'RSA-OAEP';
-//       hash: 'SHA-256' | 'SHA-384' | 'SHA-512';
-//     }
-//   | {
-//       name: 'ECDSA' | 'ECDH';
-//       namedCurve: 'P-256' | 'P-384' | 'P-521';
-//     }
-//   | {
-//       name: 'HMAC';
-//       hash: 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512';
-//       length?: number;
-//     }
-//   | 'AES-CTR'
-//   | 'AES-CBC'
-//   | 'AES-GCM'
-//   | 'AES-KW'
-//   | {
-//       name: 'AES-CTR' | 'AES-CBC' | 'AES-GCM' | 'AES-KW';
-//     }
-//   | 'PBKDF2'
-//   | 'HKDF';
+    async importKey(
+      format: 'jwk',
+      keyData: JsonWebKey,
+      algorithm: AlgorithmIdentifier | RsaHashedImportParams | EcKeyImportParams | HmacImportParams | AesKeyAlgorithm,
+      extractable: boolean,
+      keyUsages: ReadonlyArray<KeyUsage>,
+    ): Promise<CryptoKey>;
+    async importKey(
+      format: Exclude<KeyFormat, 'jwk'>,
+      keyData: BufferSource,
+      algorithm: AlgorithmIdentifier | RsaHashedImportParams | EcKeyImportParams | HmacImportParams | AesKeyAlgorithm,
+      extractable: boolean,
+      keyUsages: Iterable<KeyUsage>,
+    ): Promise<CryptoKey>;
+    async importKey(
+      format: KeyFormat,
+      keyData: JsonWebKey | BufferSource,
+      algorithm: AlgorithmIdentifier | RsaHashedImportParams | EcKeyImportParams | HmacImportParams | AesKeyAlgorithm,
+      extractable: boolean,
+      keyUsages: ReadonlyArray<KeyUsage> | Iterable<KeyUsage>,
+    ): Promise<CryptoKey> {
+      return new CryptoKey(algorithm, extractable, 'secret', keyUsages);
+    }
 
-type AlgorithmName = GenAlgorithm['name'];
+    async sign(
+      algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams,
+      key: CryptoKey,
+      data: BufferSource,
+    ): Promise<ArrayBuffer> {
+      return Lagon.sign(algorithm, key, data);
+    }
 
-type KeyUsage = 'encrypt' | 'decrypt' | 'sign' | 'verify' | 'deriveKey' | 'deriveBits' | 'wrapKey' | 'unwrapKey';
-type CryptoKeyType = 'secret' | 'private' | 'public';
-type ImportFormat = 'raw' | 'pkcs8' | 'spki' | 'jwk';
+    async unwrapKey(
+      format: KeyFormat,
+      wrappedKey: BufferSource,
+      unwrappingKey: CryptoKey,
+      unwrapAlgorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams,
+      unwrappedKeyAlgorithm:
+        | AlgorithmIdentifier
+        | RsaHashedImportParams
+        | EcKeyImportParams
+        | HmacImportParams
+        | AesKeyAlgorithm,
+      extractable: boolean,
+      keyUsages: Iterable<KeyUsage>,
+    ): Promise<CryptoKey> {
+      throw new Error('Not implemented');
+    }
 
-const SYMMETRIC_ALGORITHMS: AlgorithmName[] = ['HMAC', 'AES-CBC', 'AES-CTR', 'AES-GCM', 'AES-KW'];
+    async verify(
+      algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams,
+      key: CryptoKey,
+      signature: BufferSource,
+      data: BufferSource,
+    ): Promise<boolean> {
+      return Lagon.verify(algorithm, key, signature, data);
+    }
 
-class CryptoKey {
-  type: CryptoKeyType;
-  extractable: boolean;
-  algorithm: GenAlgorithm;
-  usages: KeyUsage[];
-
-  constructor(type: CryptoKeyType, extractable: boolean, algorithm: GenAlgorithm, usages: KeyUsage[]) {
-    this.type = type;
-    this.extractable = extractable;
-    this.algorithm = algorithm;
-    this.usages = usages;
-  }
-}
-
-class CryptoKeyPair {
-  privateKey: CryptoKey;
-  publicKey: CryptoKey;
-
-  constructor(privateKey: CryptoKey, publicKey: CryptoKey) {
-    this.privateKey = privateKey;
-    this.publicKey = publicKey;
-  }
-}
-
-class CryptoSubtle {
-  async encrypt(algorithm: EncryptDecryptoAlgorithm, key: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> {
-    return data;
-  }
-
-  async decrypt(algorithm: EncryptDecryptoAlgorithm, key: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> {
-    return data;
-  }
-
-  async sign(algorithm: SignVerifyAlgorithm, key: CryptoKey, data: ArrayBuffer): Promise<ArrayBuffer> {
-    return Lagon.sign(algorithm, key, data);
-  }
-
-  async verify(
-    algorithm: SignVerifyAlgorithm,
-    key: CryptoKey,
-    signature: ArrayBuffer,
-    data: ArrayBuffer,
-  ): Promise<boolean> {
-    return Lagon.verify(algorithm, key, signature, data);
-  }
-
-  async digest(algorithm: 'SHA-1' | 'SHA-256' | 'SHA-384' | 'SHA-512', data: ArrayBuffer): Promise<ArrayBuffer> {
-    return data;
-  }
-
-  async generateKey(
-    algorithm: GenAlgorithm,
-    extractable: boolean,
-    keyUsages: KeyUsage[],
-  ): Promise<CryptoKey | CryptoKeyPair> {
-    if (SYMMETRIC_ALGORITHMS.includes(algorithm.name)) {
-      return new CryptoKey('secret', extractable, algorithm, keyUsages);
-    } else {
-      return new CryptoKeyPair(
-        new CryptoKey('private', extractable, algorithm, keyUsages),
-        new CryptoKey('public', extractable, algorithm, keyUsages),
-      );
+    async wrapKey(
+      format: KeyFormat,
+      key: CryptoKey,
+      wrappingKey: CryptoKey,
+      wrapAlgorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams,
+    ): Promise<ArrayBuffer> {
+      throw new Error('Not implemented');
     }
   }
 
-  async importKey(
-    format: ImportFormat,
-    keyData: ArrayBuffer,
-    algorithm: GenAlgorithm,
-    extractable: boolean,
-    keyUsages: KeyUsage[],
-  ): Promise<CryptoKey> {
-    return new CryptoKey('secret', extractable, algorithm, keyUsages);
-  }
-}
-
-export const crypto = {
-  getRandomValues,
-  randomUUID,
-  subtle: new CryptoSubtle(),
-};
+  globalThis.crypto = {
+    getRandomValues,
+    randomUUID,
+    subtle: new CryptoSubtle(),
+  };
+})(globalThis);

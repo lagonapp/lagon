@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { crypto } from '../runtime/crypto';
-import '../runtime/core';
+import '../';
 
 describe('randomUUID', () => {
   beforeEach(() => {
