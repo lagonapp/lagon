@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use ring::hmac::{self, Algorithm};
 
-use crate::utils::{extract_v8_string, v8_string};
+use crate::utils::{extract_v8_string, extract_v8_uint8array, v8_string};
 
 pub fn extract_algorithm_object(
     scope: &mut v8::HandleScope,
@@ -24,6 +24,22 @@ pub fn extract_algorithm_object(
     }
 
     Err(anyhow!("Algorithm not supported"))
+}
+
+pub fn extract_cryptokey_key_value(
+    scope: &mut v8::HandleScope,
+    value: v8::Local<v8::Value>,
+) -> Result<Vec<u8>> {
+    if let Some(key) = value.to_object(scope) {
+        let value_key = v8_string(scope, "keyValue");
+
+        return match key.get(scope, value_key.into()) {
+            Some(value) => Ok(extract_v8_uint8array(value)?),
+            None => Err(anyhow!("CryptoKey keyValue not found")),
+        };
+    }
+
+    Err(anyhow!("CryptoKey not supported"))
 }
 
 pub fn get_algorithm(name: &str, hash: &str) -> Option<Algorithm> {

@@ -56,7 +56,97 @@ async fn crypto_get_random_values() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn crypto_key_value() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
+    const { keyValue } = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign'],
+    );
+
+    return new Response(`${typeof keyValue} ${keyValue.length}`);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("object 85"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn crypto_unique_key_value() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
+    const { keyValue: first } = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign'],
+    );
+    const { keyValue: second } = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign'],
+    );
+
+    return new Response(first == second);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("false"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn crypto_sign() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign'],
+    );
+
+    const signed = await crypto.subtle.sign({
+        name: 'HMAC',
+        hash: 'SHA-256',
+    }, key, new TextEncoder().encode('Hello'));
+
+    return new Response(`${signed instanceof Uint8Array} ${signed.length}`);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("true 32"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn crypto_verify() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
