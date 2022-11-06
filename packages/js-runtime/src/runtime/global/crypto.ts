@@ -90,10 +90,13 @@
       }
 
       if (isSymmetric) {
+        // @ts-expect-error CryptoKey constructor is empty, but we know our implementation is not
         return new CryptoKey(algorithm, extractable, 'secret', keyUsages);
       } else {
         return {
+          // @ts-expect-error CryptoKey constructor is empty, but we know our implementation is not
           privateKey: new CryptoKey(algorithm, extractable, 'private', keyUsages),
+          // @ts-expect-error CryptoKey constructor is empty, but we know our implementation is not
           publicKey: new CryptoKey(algorithm, extractable, 'public', keyUsages),
         };
       }
@@ -120,6 +123,7 @@
       extractable: boolean,
       keyUsages: ReadonlyArray<KeyUsage> | Iterable<KeyUsage>,
     ): Promise<CryptoKey> {
+      // @ts-expect-error CryptoKey constructor is empty, but we know our implementation is not
       return new CryptoKey(algorithm, extractable, 'secret', keyUsages);
     }
 
