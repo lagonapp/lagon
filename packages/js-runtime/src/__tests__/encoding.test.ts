@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { TextEncoder, TextDecoder } from '../runtime/encoding';
-import '../runtime/core';
+import '../';
 
 describe('encoding', () => {
   it('should encode', async () => {

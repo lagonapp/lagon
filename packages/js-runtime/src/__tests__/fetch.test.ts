@@ -1,8 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll, vi, beforeEach, afterEach } from 'vitest';
 import { createServer } from 'node:http';
-import { fetch, Headers } from '../runtime/fetch';
-import { Response } from '../runtime/Response';
-import '../runtime/core';
+import '../';
 
 const server = createServer((request, response) => {
   if (request.url === '/json') {
@@ -77,7 +75,7 @@ describe('Headers', () => {
       c: 'd',
     });
     headers.delete('a');
-    expect(headers.get('A')).toBeUndefined();
+    expect(headers.get('A')).toBeNull();
   });
 
   it('should return entries', () => {
@@ -98,7 +96,7 @@ describe('Headers', () => {
     });
     expect(headers.get('a')).toEqual('b');
     expect(headers.get('c')).toEqual('d');
-    expect(headers.get('e')).toBeUndefined();
+    expect(headers.get('e')).toBeNull();
   });
 
   it('should has', () => {
@@ -170,9 +168,8 @@ describe('fetch', () => {
       status: 200,
     });
 
-    const response = await fetch('https://google.com');
+    await fetch('https://google.com');
 
-    expect(response).toEqual(new Response('Hello'));
     expect(globalThis.Lagon.fetch).toHaveBeenCalledWith({
       method: 'GET',
       url: 'https://google.com',
@@ -186,12 +183,11 @@ describe('fetch', () => {
       status: 200,
     });
 
-    const response = await fetch('https://google.com', {
+    await fetch('https://google.com', {
       method: 'POST',
       body: 'A body',
     });
 
-    expect(response).toEqual(new Response('Hello'));
     expect(globalThis.Lagon.fetch).toHaveBeenCalledWith({
       method: 'POST',
       url: 'https://google.com',

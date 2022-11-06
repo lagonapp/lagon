@@ -21,6 +21,11 @@
       if (globalThis.__lagon__.isIterable(init.body)) {
         body = globalThis.__lagon__.TEXT_DECODER.decode(init.body);
       } else {
+        if (typeof init.body !== 'string') {
+          // TODO: Support other body types
+          throw new Error('Body must be a string or an iterable');
+        }
+
         body = init.body;
       }
     }
@@ -28,7 +33,7 @@
     try {
       const response = await Lagon.fetch({
         method: init?.method || 'GET',
-        url: input,
+        url: input.toString(),
         body,
         headers,
       });

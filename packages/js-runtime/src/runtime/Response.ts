@@ -1,6 +1,7 @@
+import { Body } from './body';
+
 (globalThis => {
-  globalThis.Response = class {
-    body: string | ArrayBuffer | null;
+  globalThis.Response = class extends Body {
     headers: Headers;
     ok: boolean;
     status: number;
@@ -13,56 +14,28 @@
     bodyUsed: any;
     blob: any;
 
-    constructor(body: string | ArrayBuffer | null = null, options?: ResponseInit) {
-      this.body = body;
+    constructor(body?: BodyInit | null, init?: ResponseInit) {
+      super(body);
 
-      if (options?.headers) {
-        if (options.headers instanceof Headers) {
-          this.headers = options.headers;
+      if (init?.headers) {
+        if (init.headers instanceof Headers) {
+          this.headers = init.headers;
         } else {
-          this.headers = new Headers(options.headers);
+          this.headers = new Headers(init.headers);
         }
       } else {
         this.headers = new Headers();
       }
 
-      if (options?.status) {
-        this.ok = options.status >= 200 && options.status < 300;
+      if (init?.status) {
+        this.ok = init.status >= 200 && init.status < 300;
       } else {
         this.ok = true;
       }
 
-      this.status = options?.status || 200;
-      this.statusText = options?.statusText || 'OK';
-      this.url = options?.url || '';
-    }
-
-    async text(): Promise<string> {
-      if (globalThis.__lagon__.isIterable(this.body)) {
-        return globalThis.__lagon__.TEXT_DECODER.decode(this.body);
-      }
-
-      return this.body || '';
-    }
-
-    async json<T>(): Promise<T> {
-      const body = await this.text();
-
-      return JSON.parse(body);
-    }
-
-    async formData(): Promise<Record<string, string>> {
-      const body = await this.text();
-
-      return globalThis.__lagon__.parseMultipart(this.headers, body);
-    }
-
-    async arrayBuffer(): Promise<ArrayBuffer> {
-      if (globalThis.__lagon__.isIterable(this.body)) {
-        return this.body;
-      }
-
-      return this.body ? globalThis.__lagon__.TEXT_ENCODER.encode(this.body) : new ArrayBuffer(0);
+      this.status = init?.status || 200;
+      this.statusText = init?.statusText || 'OK';
+      this.url = init?.url || '';
     }
 
     static error(): Response {

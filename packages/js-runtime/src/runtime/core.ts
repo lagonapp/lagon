@@ -1,5 +1,3 @@
-import { Headers } from './fetch';
-
 (globalThis => {
   const isIterable = (value: unknown): value is ArrayBuffer =>
     typeof value !== 'string' && Symbol.iterator in Object(value);
@@ -12,7 +10,7 @@ import { Headers } from './fetch';
     const contentTypeHeader = headers.get('content-type');
     let boundary: string | undefined;
 
-    const getBoundary = (header: string | undefined) => header?.split(';')?.[1]?.split('=')?.[1];
+    const getBoundary = (header: string | null) => header?.split(';')?.[1]?.split('=')?.[1];
 
     if (Array.isArray(contentTypeHeader)) {
       contentTypeHeader.forEach(header => {

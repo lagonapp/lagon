@@ -2,7 +2,7 @@
   globalThis.Headers = class {
     private headers: Map<string, string[]> = new Map();
 
-    constructor(init?: Record<string, string> | string[][]) {
+    constructor(init?: HeadersInit) {
       if (init) {
         if (Array.isArray(init)) {
           init.forEach(([key, value]) => {
@@ -45,9 +45,9 @@
       }
     }
 
-    get(name: string): string | undefined {
+    get(name: string): string | null {
       name = name.toLowerCase();
-      return this.headers.get(name)?.[0];
+      return this.headers.get(name)?.[0] || null;
     }
 
     has(name: string): boolean {
@@ -69,6 +69,12 @@
         for (const value of values) {
           yield value;
         }
+      }
+    }
+
+    forEach(callbackfn: (value: string, key: string, parent: Headers) => void, thisArg?: any) {
+      for (const [key, value] of this.entries()) {
+        callbackfn.call(thisArg, value, key, this);
       }
     }
   };

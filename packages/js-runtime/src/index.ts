@@ -54,7 +54,8 @@ export async function masterHandler(request: { input: string } & Request): Promi
 
   const response = await handler(handlerRequest);
 
-  if (response.body instanceof ReadableStream) {
+  // @ts-expect-error isStream is not part of the spec in Response
+  if (response.body && response.isStream) {
     const reader = response.body.getReader();
 
     new ReadableStream({
@@ -74,8 +75,9 @@ export async function masterHandler(request: { input: string } & Request): Promi
         push();
       },
     });
-  } else if (response.body instanceof Uint8Array) {
-    response.body = new TextDecoder().decode(response.body);
+  } else {
+    // @ts-expect-error we reassign body even if it's readonly
+    response.body = await response.text();
   }
 
   return response;
