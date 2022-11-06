@@ -1,5 +1,13 @@
 # @lagon/website
 
+## 0.0.7
+
+### Patch Changes
+
+- [#241](https://github.com/lagonapp/lagon/pull/241) [`74b3fb6`](https://github.com/lagonapp/lagon/commit/74b3fb6797d2b25ece2bd953cadbfd74b7ba2691) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix typo for "Déploiement" in french
+
+* [#238](https://github.com/lagonapp/lagon/pull/238) [`045977c`](https://github.com/lagonapp/lagon/commit/045977cb200281d68c9a834573ca43ff300f9f73) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add production/preview deployments
+
 ## 0.0.6
 
 ### Patch Changes

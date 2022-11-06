@@ -1,5 +1,15 @@
 # @lagon/js-runtime
 
+## 0.1.6
+
+### Patch Changes
+
+- [#231](https://github.com/lagonapp/lagon/pull/231) [`b823e5a`](https://github.com/lagonapp/lagon/commit/b823e5a68919e1386af92c6a4edc80b0c1e1e17a) Thanks [@cyco130](https://github.com/cyco130)! - URL class now includes non-default port in its origin property
+
+* [#228](https://github.com/lagonapp/lagon/pull/228) [`9274c0a`](https://github.com/lagonapp/lagon/commit/9274c0a06e3948e3bd494d4b1d9e8ec81600f153) Thanks [@cyco130](https://github.com/cyco130)! - Allow null and undefined as the first argument of the Response constructor
+
+- [#240](https://github.com/lagonapp/lagon/pull/240) [`8727bc6`](https://github.com/lagonapp/lagon/commit/8727bc64b98f280eb54e4d94ea1c309c13663b59) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use types from WebWorker API
+
 ## 0.1.5
 
 ### Patch Changes

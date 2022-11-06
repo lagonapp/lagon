@@ -1,5 +1,13 @@
 # @lagon/cli
 
+## 0.3.5
+
+### Patch Changes
+
+- [#238](https://github.com/lagonapp/lagon/pull/238) [`045977c`](https://github.com/lagonapp/lagon/commit/045977cb200281d68c9a834573ca43ff300f9f73) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add --prod option to `lagon deploy`
+
+* [#236](https://github.com/lagonapp/lagon/pull/236) [`6b44882`](https://github.com/lagonapp/lagon/commit/6b448821f525d4039f97607f31f133e44d227902) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Properly handle tRPC errors
+
 ## 0.3.4
 
 ### Patch Changes
