@@ -1,3 +1,7 @@
+interface CryptoKey {
+  readonly keyValue: ArrayBuffer;
+}
+
 /* eslint-disable @typescript-eslint/no-unused-vars */
 (globalThis => {
   const getRandomValues = <T extends ArrayBufferView | null>(array: T): T => Lagon.randomValues(array);
@@ -26,7 +30,7 @@
     }
   };
 
-  class CryptoSubtle {
+  class SubtleCrypto {
     async decrypt(
       algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams,
       key: CryptoKey,
@@ -68,7 +72,16 @@
     async exportKey(format: 'jwk', key: CryptoKey): Promise<JsonWebKey>;
     async exportKey(format: Exclude<KeyFormat, 'jwk'>, key: CryptoKey): Promise<ArrayBuffer>;
     async exportKey(format: KeyFormat, key: CryptoKey): Promise<ArrayBuffer | JsonWebKey> {
-      throw new Error('Not implemented');
+      if (!key.extractable) {
+        throw new TypeError('Key is not extractable');
+      }
+
+      // TODO
+      if (format === 'jwk') {
+        throw new Error('jwk format is not supported');
+      }
+
+      return key.keyValue;
     }
 
     async generateKey(
@@ -179,6 +192,6 @@
   globalThis.crypto = {
     getRandomValues,
     randomUUID,
-    subtle: new CryptoSubtle(),
+    subtle: new SubtleCrypto(),
   };
 })(globalThis);
