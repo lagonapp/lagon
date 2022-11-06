@@ -21,7 +21,7 @@ import { Body } from './body';
     blob: any;
 
     constructor(input: RequestInfo | URL, init?: RequestInit) {
-      super(init?.body || null);
+      super(init?.body);
 
       this.method = init?.method || 'GET';
 

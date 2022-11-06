@@ -1,4 +1,3 @@
-/* eslint-disable no-var */
 import {
   ReadableStream,
   ReadableStreamBYOBReader,
@@ -15,7 +14,6 @@ import {
   // @ts-expect-error type slightly differs
   globalThis.ReadableStreamDefaultReader = ReadableStreamDefaultReader;
   globalThis.TransformStream = TransformStream;
-  // @ts-expect-error type slightly differs
   globalThis.WritableStream = WritableStream;
   // @ts-expect-error type slightly differs
   globalThis.WritableStreamDefaultWriter = WritableStreamDefaultWriter;

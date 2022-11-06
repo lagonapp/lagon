@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": ["ES2022", "WebWorker"],
+    "lib": ["ES2022", "WebWorker", "Webworker.Iterable"],
     "types": [], // Exclude node types
     "module": "ESNext",
     "moduleResolution": "Node",

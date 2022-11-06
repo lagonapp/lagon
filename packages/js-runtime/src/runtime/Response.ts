@@ -35,6 +35,8 @@ import { Body } from './body';
 
       this.status = init?.status || 200;
       this.statusText = init?.statusText || 'OK';
+      // TODO: investigate
+      // @ts-expect-error ResponseInit doesn't have url
       this.url = init?.url || '';
     }
 

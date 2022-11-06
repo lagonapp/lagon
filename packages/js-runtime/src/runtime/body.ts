@@ -5,7 +5,7 @@ export class Body {
   // responses when the body is a stream.
   isStream: boolean;
 
-  constructor(body: string | ArrayBuffer | ReadableStream | null = null) {
+  constructor(body: string | ArrayBuffer | ArrayBufferView | FormData | ReadableStream | Blob | null = null) {
     if (body !== null) {
       if (body instanceof ReadableStream) {
         this.body = body;

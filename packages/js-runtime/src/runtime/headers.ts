@@ -77,5 +77,9 @@
         callbackfn.call(thisArg, value, key, this);
       }
     }
+
+    [Symbol.iterator](): IterableIterator<[string, string]> {
+      return this.entries();
+    }
   };
 })(globalThis);

@@ -7,7 +7,6 @@
     if (isHeadersObject(init?.headers)) {
       headers = new Map();
 
-      // @ts-expect-error entries() is only available in web workers
       for (const [key, value] of (init?.headers as Headers).entries()) {
         headers.set(key, value);
       }
