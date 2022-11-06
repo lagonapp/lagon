@@ -1,5 +1,15 @@
 # @lagon/serverless
 
+## 0.1.8
+
+### Patch Changes
+
+- [#239](https://github.com/lagonapp/lagon/pull/239) [`241305a`](https://github.com/lagonapp/lagon/commit/241305a80725856c7e437650f0b9a2d17b4e9e42) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add more context to logs
+
+* [#238](https://github.com/lagonapp/lagon/pull/238) [`045977c`](https://github.com/lagonapp/lagon/commit/045977cb200281d68c9a834573ca43ff300f9f73) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add production/preview deployments
+
+- [#237](https://github.com/lagonapp/lagon/pull/237) [`747774b`](https://github.com/lagonapp/lagon/commit/747774b5bbf763fcb44de4834c3ac8c3dcd2604c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve error handling
+
 ## 0.1.7
 
 ### Patch Changes
