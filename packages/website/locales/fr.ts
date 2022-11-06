@@ -104,7 +104,7 @@ export default defineLocale({
 
   'function.nav.playground': 'Playground',
   'function.nav.overview': 'Aperçu',
-  'function.nav.deployments': 'Déploiments',
+  'function.nav.deployments': 'Déploiements',
   'function.nav.logs': 'Logs',
   'function.nav.settings': 'Paramètres',
 
@@ -123,22 +123,23 @@ export default defineLocale({
   'functions.overview.network.label.inBytes': 'Octets IN',
   'functions.overview.network.label.outBytes': 'Octets OUT',
 
-  'functions.deployments.empty.title': 'Aucun Déploiment trouvé',
-  'functions.deployments.empty.description': 'Créez votre premier Déploiment depuis le Playground ou la CLI.',
+  'functions.deployments.empty.title': 'Aucun Déploiement trouvé',
+  'functions.deployments.empty.description': 'Créez votre premier Déploiement depuis le Playground ou la CLI.',
   'functions.deployments.empty.action': 'Aller au Playground',
-  'functions.deployments.list.production': 'Déploiment de production',
+  'functions.deployments.list.production': 'Déploiement de production',
   'functions.deployments.list.noCommit': 'Aucun commit lié',
   'functions.deployments.list.by': 'Par :',
   'functions.deployments.promote': 'Promouvoir en Production',
-  'functions.deployments.promote.modal.title': 'Promouvoir le Déploiment en Production',
-  'functions.deployments.promote.modal.description': 'Etes-vous sûr de vouloir promovoir ce Déploiment en Production ?',
+  'functions.deployments.promote.modal.title': 'Promouvoir le Déploiement en Production',
+  'functions.deployments.promote.modal.description':
+    'Etes-vous sûr de vouloir promovoir ce Déploiement en Production ?',
   'functions.deployments.promote.modal.submit': 'Promouvoir en Production',
   'functions.deployments.promote.success': 'Le déploiment a été promu en Production.',
   'functions.deployments.delete': 'Supprimer',
-  'functions.deployments.delete.modal.title': 'Supprimer un Déploiment',
-  'functions.deployments.delete.modal.description': 'Etes-vous sûr de vouloir supprimer ce Déploiment ?',
+  'functions.deployments.delete.modal.title': 'Supprimer un Déploiement',
+  'functions.deployments.delete.modal.description': 'Etes-vous sûr de vouloir supprimer ce Déploiement ?',
   'functions.deployments.delete.modal.submit': 'Supprimer',
-  'functions.deployments.delete.success': 'Le Déploiment a été supprimé.',
+  'functions.deployments.delete.success': 'Le Déploiement a été supprimé.',
 
   'functions.logs.title': 'Logs & Erreurs',
   'functions.logs.logLevel': 'Niveau de log :',
@@ -177,7 +178,7 @@ export default defineLocale({
   'functions.settings.env.success': "Les Variables d'Environement de la Fonction ont été mis à jour.",
   'functions.settings.delete.title': 'Supprimer',
   'functions.settings.delete.description':
-    'Supprimer complètement cette Fonction, ces Déploiments et Logs. Cette action est irréversible',
+    'Supprimer complètement cette Fonction, ces Déploiements et Logs. Cette action est irréversible',
   'functions.settings.delete.submit': 'Supprimer',
   'functions.settings.delete.modal.title': 'Supprimer une Fonction',
   'functions.settings.delete.modal.description':
