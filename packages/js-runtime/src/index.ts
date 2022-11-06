@@ -1,21 +1,15 @@
 /* eslint-disable no-var */
+import './runtime/encoding';
 import './runtime/core';
 import './runtime/console';
 import './runtime/process';
-
-export * from './runtime/base64';
-export * from './runtime/encoding';
-export * from './runtime/Request';
-export * from './runtime/Response';
-export * from './runtime/URL';
-export * from './runtime/fetch';
-export * from './runtime/streams';
-
-import { TextDecoder, TextEncoder } from './runtime/encoding';
-import { Request } from './runtime/Request';
-import { Response } from './runtime/Response';
-import { ReadableStream } from './runtime/streams';
-import { Headers } from './runtime/fetch';
+import './runtime/URL';
+import './runtime/streams';
+import './runtime/base64';
+import './runtime/headers';
+import './runtime/Response';
+import './runtime/Request';
+import './runtime/fetch';
 
 // Declare the global functions and variables available
 // on the runtime, that are injected from the Rust code.

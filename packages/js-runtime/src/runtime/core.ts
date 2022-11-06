@@ -1,4 +1,3 @@
-import { TextDecoder, TextEncoder } from './encoding';
 import { Headers } from './fetch';
 
 (globalThis => {

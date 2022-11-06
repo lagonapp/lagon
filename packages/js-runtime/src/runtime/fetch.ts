@@ -1,121 +1,46 @@
-import { RequestInit } from './Request';
-import { Response } from './Response';
+(globalThis => {
+  const isHeadersObject = (headers?: HeadersInit): headers is Headers => !!headers && 'entries' in headers;
 
-export class Headers {
-  private headers: Map<string, string[]> = new Map();
+  globalThis.fetch = async (input, init) => {
+    let headers: Map<string, string> | undefined = undefined;
 
-  constructor(init?: Record<string, string> | string[][]) {
-    if (init) {
-      if (Array.isArray(init)) {
-        init.forEach(([key, value]) => {
-          this.addValue(key, value);
-        });
+    if (isHeadersObject(init?.headers)) {
+      headers = new Map();
+
+      // @ts-expect-error entries() is only available in web workers
+      for (const [key, value] of (init?.headers as Headers).entries()) {
+        headers.set(key, value);
+      }
+    } else if (init?.headers) {
+      headers = new Map(Object.entries(init.headers));
+    }
+
+    let body: string | undefined;
+
+    if (init?.body) {
+      if (globalThis.__lagon__.isIterable(init.body)) {
+        body = globalThis.__lagon__.TEXT_DECODER.decode(init.body);
       } else {
-        Object.entries(init).forEach(([key, value]) => {
-          this.addValue(key, value);
-        });
+        body = init.body;
       }
     }
-  }
 
-  private addValue(name: string, value: string) {
-    name = name.toLowerCase();
-    const values = this.headers.get(name);
+    try {
+      const response = await Lagon.fetch({
+        method: init?.method || 'GET',
+        url: input,
+        body,
+        headers,
+      });
 
-    if (values) {
-      values.push(value);
-    } else {
-      this.headers.set(name, [value]);
+      return new Response(response.body, {
+        // url: response.init.url,
+        headers: response.headers,
+        status: response.status,
+      });
+    } catch (error) {
+      // error is always a string
+      throw new Error(error as string);
     }
-  }
-
-  append(name: string, value: string) {
-    name = name.toLowerCase();
-    this.addValue(name, value);
-  }
-
-  delete(name: string) {
-    name = name.toLowerCase();
-    this.headers.delete(name);
-  }
-
-  *entries(): IterableIterator<[string, string]> {
-    for (const [key, values] of this.headers) {
-      for (const value of values) {
-        yield [key, value];
-      }
-    }
-  }
-
-  get(name: string): string | undefined {
-    name = name.toLowerCase();
-    return this.headers.get(name)?.[0];
-  }
-
-  has(name: string): boolean {
-    name = name.toLowerCase();
-    return this.headers.has(name);
-  }
-
-  keys(): IterableIterator<string> {
-    return this.headers.keys();
-  }
-
-  set(name: string, value: string) {
-    name = name.toLowerCase();
-    this.headers.set(name, [value]);
-  }
-
-  *values(): IterableIterator<string> {
-    for (const [, values] of this.headers) {
-      for (const value of values) {
-        yield value;
-      }
-    }
-  }
-}
-
-const isHeadersObject = (headers: Record<string, string> | Headers | undefined): headers is Headers =>
-  !!headers && 'entries' in headers;
-
-export async function fetch(resource: string, options?: RequestInit) {
-  let headers: Map<string, string> | undefined = undefined;
-
-  if (isHeadersObject(options?.headers)) {
-    headers = new Map();
-
-    for (const [key, value] of (options?.headers as Headers).entries()) {
-      headers.set(key, value);
-    }
-  } else if (options?.headers) {
-    headers = new Map(Object.entries(options.headers));
-  }
-
-  let body: string | undefined;
-
-  if (options?.body) {
-    if (globalThis.__lagon__.isIterable(options.body)) {
-      body = globalThis.__lagon__.TEXT_DECODER.decode(options.body);
-    } else {
-      body = options.body;
-    }
-  }
-
-  try {
-    const response = await Lagon.fetch({
-      method: options?.method || 'GET',
-      url: resource,
-      body,
-      headers,
-    });
-
-    return new Response(response.body, {
-      // url: response.options.url,
-      headers: response.headers,
-      status: response.status,
-    });
-  } catch (error) {
-    // error is always a string
-    throw new Error(error as string);
-  }
-}
+  };
+})(globalThis);

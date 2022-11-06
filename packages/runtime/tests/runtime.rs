@@ -305,3 +305,39 @@ async fn console_log() {
         RunResult::Response(Response::default())
     );
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn atob() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    return new Response(atob('SGVsbG8='));
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn btoa() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    return new Response(btoa('Hello'));
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("SGVsbG8="))
+    );
+}

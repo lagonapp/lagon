@@ -1,25 +1,22 @@
 /* eslint-disable no-var */
 import {
-  ReadableStream as RS,
-  ReadableStreamBYOBReader as RSBYOBR,
-  ReadableStreamDefaultReader as RSDR,
-  TransformStream as TS,
-  WritableStream as WS,
-  WritableStreamDefaultWriter as WSDW,
-} from 'web-streams-polyfill';
-
-var ReadableStream = RS;
-var ReadableStreamBYOBReader = RSBYOBR;
-var ReadableStreamDefaultReader = RSDR;
-var TransformStream = TS;
-var WritableStream = WS;
-var WritableStreamDefaultWriter = WSDW;
-
-export {
   ReadableStream,
   ReadableStreamBYOBReader,
   ReadableStreamDefaultReader,
   TransformStream,
   WritableStream,
   WritableStreamDefaultWriter,
-};
+} from 'web-streams-polyfill';
+
+(globalThis => {
+  globalThis.ReadableStream = ReadableStream;
+  // @ts-expect-error type slightly differs
+  globalThis.ReadableStreamBYOBReader = ReadableStreamBYOBReader;
+  // @ts-expect-error type slightly differs
+  globalThis.ReadableStreamDefaultReader = ReadableStreamDefaultReader;
+  globalThis.TransformStream = TransformStream;
+  // @ts-expect-error type slightly differs
+  globalThis.WritableStream = WritableStream;
+  // @ts-expect-error type slightly differs
+  globalThis.WritableStreamDefaultWriter = WritableStreamDefaultWriter;
+})(globalThis);

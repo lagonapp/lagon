@@ -76,7 +76,7 @@
   const types = ['log', 'info', 'debug', 'error', 'warn'] as const;
 
   types.forEach(type => {
-    globalThis.console[type] = (input: unknown, ...args: unknown[]) => {
+    globalThis.console[type] = (input, ...args) => {
       Lagon.log(`[${type}] ${format(input, ...args)}`);
     };
   });
