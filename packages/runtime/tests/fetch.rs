@@ -297,7 +297,7 @@ async fn response_array_buffer() {
     const response = await fetch('{url}');
     const body = await response.arrayBuffer();
 
-    return new Response(JSON.stringify(body));
+    return new Response(body);
 }}"
     )));
     let (tx, rx) = flume::unbounded();
@@ -305,9 +305,7 @@ async fn response_array_buffer() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from(
-            r#"{"0":72,"1":101,"2":108,"3":108,"4":111,"5":44,"6":32,"7":87,"8":111,"9":114,"10":108,"11":100}"#
-        ))
+        RunResult::Response(Response::from("Hello, World"))
     );
 }
 
@@ -329,7 +327,7 @@ async fn throw_invalid_url() {
     assert_eq!(
         rx.recv_async().await.unwrap(),
         RunResult::Error(
-            "Uncaught Error: client requires absolute-form URIs, at:\n    throw new Error(error);"
+            "Uncaught Error: client requires absolute-form URIs, at:\n      throw new Error(error);"
                 .into()
         )
     );
@@ -357,7 +355,8 @@ async fn throw_invalid_header() {
     assert_eq!(
         rx.recv_async().await.unwrap(),
         RunResult::Error(
-            "Uncaught Error: failed to parse header value, at:\n    throw new Error(error);".into()
+            "Uncaught Error: failed to parse header value, at:\n      throw new Error(error);"
+                .into()
         )
     );
 }

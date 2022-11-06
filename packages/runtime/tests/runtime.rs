@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Once};
 
 use hyper::body::Bytes;
 use lagon_runtime::{
-    http::{Method, Request, Response, RunResult},
+    http::{Method, Request, Response, RunResult, StreamResult},
     isolate::{Isolate, IsolateOptions},
     runtime::{Runtime, RuntimeOptions},
 };
@@ -82,7 +82,13 @@ async fn get_body() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello world"))
+        RunResult::Stream(StreamResult::Data(vec![
+            72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100
+        ]))
+    );
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Done)
     );
 }
 
@@ -303,5 +309,41 @@ async fn console_log() {
     assert_eq!(
         rx.recv_async().await.unwrap(),
         RunResult::Response(Response::default())
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn atob() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    return new Response(atob('SGVsbG8='));
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn btoa() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    return new Response(btoa('Hello'));
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("SGVsbG8="))
     );
 }

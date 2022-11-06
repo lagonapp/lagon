@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { URL, URLSearchParams } from '../runtime/URL';
-import '../runtime/core';
+import '../';
 
 describe('URLSearchParams', () => {
   describe('instanciate', () => {
@@ -64,7 +63,7 @@ describe('URLSearchParams', () => {
     const params = new URLSearchParams('a=b&c=d');
     expect(params.get('a')).toEqual('b');
     expect(params.get('c')).toEqual('d');
-    expect(params.get('e')).toBeUndefined();
+    expect(params.get('e')).toBeNull();
   });
 
   it('should getAll', () => {

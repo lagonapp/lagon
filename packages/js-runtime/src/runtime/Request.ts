@@ -1,59 +1,41 @@
-import { Headers } from './fetch';
+import { Body } from './body';
 
-export interface RequestInit {
-  method?: string;
-  headers?: Headers | Record<string, string>;
-  body?: string | ArrayBuffer;
-}
+(globalThis => {
+  globalThis.Request = class extends Body {
+    method: string;
+    headers: Headers;
+    url: string;
+    // TODO
+    cache: any;
+    credentials: any;
+    destination: any;
+    integrity: any;
+    keepalive: any;
+    mode: any;
+    redirect: any;
+    referrer: any;
+    referrerPolicy: any;
+    signal: any;
+    clone: any;
+    bodyUsed: any;
+    blob: any;
 
-export class Request {
-  method: string;
-  headers: Headers;
-  body: string | ArrayBuffer;
-  url: string;
+    constructor(input: RequestInfo | URL, init?: RequestInit) {
+      super(init?.body);
 
-  constructor(input: string, options?: RequestInit) {
-    this.method = options?.method || 'GET';
+      this.method = init?.method || 'GET';
 
-    if (options?.headers) {
-      if (options.headers instanceof Headers) {
-        this.headers = options.headers;
+      if (init?.headers) {
+        if (init.headers instanceof Headers) {
+          this.headers = init.headers;
+        } else {
+          this.headers = new Headers(init.headers);
+        }
       } else {
-        this.headers = new Headers(options.headers);
+        this.headers = new Headers();
       }
-    } else {
-      this.headers = new Headers();
+
+      this.url = input.toString();
     }
-
-    this.body = options?.body || '';
-    this.url = input;
-  }
-
-  async text(): Promise<string> {
-    if (globalThis.__lagon__.isIterable(this.body)) {
-      return globalThis.__lagon__.TEXT_DECODER.decode(this.body);
-    }
-
-    return this.body || '';
-  }
-
-  async json<T>(): Promise<T> {
-    const body = await this.text();
-
-    return JSON.parse(body);
-  }
-
-  async formData(): Promise<Record<string, string>> {
-    const body = await this.text();
-
-    return globalThis.__lagon__.parseMultipart(this.headers, body);
-  }
-
-  async arrayBuffer(): Promise<ArrayBuffer> {
-    if (globalThis.__lagon__.isIterable(this.body)) {
-      return this.body;
-    }
-
-    return globalThis.__lagon__.TEXT_ENCODER.encode(this.body);
-  }
-}
+  };
+})(globalThis);

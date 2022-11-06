@@ -9,10 +9,6 @@ interface Options {
   hostname?: string;
 }
 
-const SHIM = `globalThis.process = {
-	argv: [],
-};`;
-
 export function getAdapter(args?: Options): AstroAdapter {
   return {
     name: '@lagon/astro',
@@ -71,9 +67,6 @@ export default function createIntegration(args?: Options): AstroIntegration {
           format: 'esm',
           bundle: true,
           external: ['@astrojs/markdown-remark'],
-          banner: {
-            js: SHIM,
-          },
         });
 
         // Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.

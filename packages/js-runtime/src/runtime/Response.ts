@@ -1,69 +1,53 @@
-import { Headers } from './fetch';
+import { Body } from './body';
 
-export interface ResponseInit {
-  status?: number;
-  statusText?: string;
-  headers?: Headers | Record<string, string>;
-  url?: string;
-}
+(globalThis => {
+  globalThis.Response = class extends Body {
+    headers: Headers;
+    ok: boolean;
+    status: number;
+    statusText: string;
+    url: string;
+    // TODO
+    redirected: any;
+    type: any;
+    clone: any;
+    bodyUsed: any;
+    blob: any;
 
-export class Response {
-  body: string | ArrayBuffer | null;
-  headers: Headers;
-  ok: boolean;
-  status: number;
-  statusText: string;
-  url: string;
+    constructor(body?: BodyInit | null, init?: ResponseInit) {
+      super(body);
 
-  constructor(body: string | ArrayBuffer | null = null, options?: ResponseInit) {
-    this.body = body;
-
-    if (options?.headers) {
-      if (options.headers instanceof Headers) {
-        this.headers = options.headers;
+      if (init?.headers) {
+        if (init.headers instanceof Headers) {
+          this.headers = init.headers;
+        } else {
+          this.headers = new Headers(init.headers);
+        }
       } else {
-        this.headers = new Headers(options.headers);
+        this.headers = new Headers();
       }
-    } else {
-      this.headers = new Headers();
+
+      if (init?.status) {
+        this.ok = init.status >= 200 && init.status < 300;
+      } else {
+        this.ok = true;
+      }
+
+      this.status = init?.status || 200;
+      this.statusText = init?.statusText || 'OK';
+      // TODO: investigate
+      // @ts-expect-error ResponseInit doesn't have url
+      this.url = init?.url || '';
     }
 
-    if (options?.status) {
-      this.ok = options.status >= 200 && options.status < 300;
-    } else {
-      this.ok = true;
+    static error(): Response {
+      // TODO
+      throw new Error('Not implemented');
     }
 
-    this.status = options?.status || 200;
-    this.statusText = options?.statusText || 'OK';
-    this.url = options?.url || '';
-  }
-
-  async text(): Promise<string> {
-    if (globalThis.__lagon__.isIterable(this.body)) {
-      return globalThis.__lagon__.TEXT_DECODER.decode(this.body);
+    static redirect(url: string | URL, status?: number): Response {
+      // TODO
+      throw new Error('Not implemented');
     }
-
-    return this.body || '';
-  }
-
-  async json<T>(): Promise<T> {
-    const body = await this.text();
-
-    return JSON.parse(body);
-  }
-
-  async formData(): Promise<Record<string, string>> {
-    const body = await this.text();
-
-    return globalThis.__lagon__.parseMultipart(this.headers, body);
-  }
-
-  async arrayBuffer(): Promise<ArrayBuffer> {
-    if (globalThis.__lagon__.isIterable(this.body)) {
-      return this.body;
-    }
-
-    return this.body ? globalThis.__lagon__.TEXT_ENCODER.encode(this.body) : new ArrayBuffer(0);
-  }
-}
+  };
+})(globalThis);
