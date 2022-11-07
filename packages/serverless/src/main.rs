@@ -62,9 +62,10 @@ async fn handle_request(
     deployments: Arc<RwLock<HashMap<String, Deployment>>>,
     thread_ids: Arc<RwLock<HashMap<String, usize>>>,
 ) -> Result<HyperResponse<Body>> {
-    let mut url = req.uri().to_string();
+    let url = req.uri().path();
     // Remove the leading '/' from the url
-    url.remove(0);
+    let url = &url[1..];
+    let url = url.to_string();
 
     let hostname = match req.headers().get(HOST) {
         Some(hostname) => hostname.to_str()?.to_string(),
@@ -279,10 +280,10 @@ async fn main() -> Result<()> {
     let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
-    #[cfg(not(debug_assertions))]
-    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
-        SslOpts::default().with_danger_accept_invalid_certs(true),
-    ));
+    // #[cfg(not(debug_assertions))]
+    // let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
+    //     SslOpts::default().with_danger_accept_invalid_certs(true),
+    // ));
     let pool = Pool::new(opts)?;
     let conn = pool.get_conn()?;
 
