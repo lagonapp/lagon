@@ -250,10 +250,10 @@ importers:
       '@storybook/react': ^6.5.9
       '@storybook/testing-library': ^0.0.13
       '@tanstack/react-query': ^4.6.1
-      '@trpc/client': 10.0.0-proxy-beta.8
-      '@trpc/next': 10.0.0-proxy-beta.8
-      '@trpc/react': 10.0.0-proxy-beta.8
-      '@trpc/server': 10.0.0-proxy-beta.8
+      '@trpc/client': 10.0.0-rc.7
+      '@trpc/next': 10.0.0-rc.7
+      '@trpc/react-query': 10.0.0-rc.7
+      '@trpc/server': 10.0.0-rc.7
       '@types/formidable': ^2.0.5
       '@types/react': ^18.0.9
       autoprefixer: ^10.4.7
@@ -294,10 +294,10 @@ importers:
       '@scaleway/use-random-name': 0.2.4_react@18.1.0
       '@sentry/nextjs': 7.5.0_next@13.0.2+react@18.1.0
       '@tanstack/react-query': 4.6.1_ef5jwxihqo6n7gxfmzogljlgcm
-      '@trpc/client': 10.0.0-proxy-beta.8_cdx7h2ttezqb2726q3auebavzi
-      '@trpc/next': 10.0.0-proxy-beta.8_x2xfftdp56h3rriqklrefw4pjm
-      '@trpc/react': 10.0.0-proxy-beta.8_4p2hrvejxi3duu7g4pu56bb6lm
-      '@trpc/server': 10.0.0-proxy-beta.8
+      '@trpc/client': 10.0.0-rc.7_@trpc+server@10.0.0-rc.7
+      '@trpc/next': 10.0.0-rc.7_i7rwkhuvmfuumehaqxnjip2hjy
+      '@trpc/react-query': 10.0.0-rc.7_hinslyxzdkamnjrmjsswngmayq
+      '@trpc/server': 10.0.0-rc.7
       chart.js: 3.8.0
       final-form: 4.20.7
       formidable: 2.0.1
@@ -5940,54 +5940,53 @@ packages:
       '@testing-library/dom': 8.14.0
     dev: true
 
-  /@trpc/client/10.0.0-proxy-beta.8_cdx7h2ttezqb2726q3auebavzi:
-    resolution: {integrity: sha512-MDdftts73y/e7l9rF4mT8tH8xZjnBdOESCsF4Xs6PP9F8CA8XMEQH5qbftrKKQqKan/fQbi2dEZuhrdjljfGJg==}
+  /@trpc/client/10.0.0-rc.7_@trpc+server@10.0.0-rc.7:
+    resolution: {integrity: sha512-J13OZZF/7qfUb88LIn6eJbLnka/8O+MVEJcIXvvQuYM+WCmVGSV7RVxmkLulJ+nwCLOXf0oDcPr63Xebdo92hA==}
     peerDependencies:
-      '@trpc/server': 10.0.0-proxy-beta.8
+      '@trpc/server': 10.0.0-rc.7
     dependencies:
-      '@trpc/server': 10.0.0-proxy-beta.8
+      '@trpc/server': 10.0.0-rc.7
     dev: false
 
-  /@trpc/next/10.0.0-proxy-beta.8_x2xfftdp56h3rriqklrefw4pjm:
-    resolution: {integrity: sha512-N3g2vGB/zrTNc7/oNCgE+W4hk3bqLBWBHGzuUXGVgtn8wI+acsrpU1bPrmzG9SrMzCDc2/E1Rb/kLcgaB8udNQ==}
+  /@trpc/next/10.0.0-rc.7_i7rwkhuvmfuumehaqxnjip2hjy:
+    resolution: {integrity: sha512-5RwmgSKz/D+X1aR34+wXb4knouQw+fQlJDI2flnzel76LIGuKFV3axJP/YYKWXY+nlPzANhVyPGpuk0PR07IZQ==}
     peerDependencies:
       '@tanstack/react-query': ^4.3.8
-      '@trpc/client': 10.0.0-proxy-beta.8
-      '@trpc/react': 10.0.0-proxy-beta.8
-      '@trpc/server': 10.0.0-proxy-beta.8
+      '@trpc/client': 10.0.0-rc.7
+      '@trpc/react-query': ^10.0.0-proxy-beta.21
+      '@trpc/server': 10.0.0-rc.7
       next: '*'
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
     dependencies:
-      '@swc/helpers': 0.4.11
       '@tanstack/react-query': 4.6.1_ef5jwxihqo6n7gxfmzogljlgcm
-      '@trpc/client': 10.0.0-proxy-beta.8_cdx7h2ttezqb2726q3auebavzi
-      '@trpc/react': 10.0.0-proxy-beta.8_4p2hrvejxi3duu7g4pu56bb6lm
-      '@trpc/server': 10.0.0-proxy-beta.8
+      '@trpc/client': 10.0.0-rc.7_@trpc+server@10.0.0-rc.7
+      '@trpc/react-query': 10.0.0-rc.7_hinslyxzdkamnjrmjsswngmayq
+      '@trpc/server': 10.0.0-rc.7
       next: 13.0.2_yz5u6557yqtbarbugy7nmayfrq
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
       react-ssr-prepass: 1.5.0_react@18.1.0
     dev: false
 
-  /@trpc/react/10.0.0-proxy-beta.8_4p2hrvejxi3duu7g4pu56bb6lm:
-    resolution: {integrity: sha512-YE0/T6ej5kTFCn4n6YMXXvMmKAR0TZcAD9tVmzWxGEYlmhqrR9a8b9N6aCh67v91MHMSi8g/kcR1mmdyXZQFAw==}
+  /@trpc/react-query/10.0.0-rc.7_hinslyxzdkamnjrmjsswngmayq:
+    resolution: {integrity: sha512-nwz94j8HeTSJ5BLk/2HZmN2JPkVajAwNeiBAdnB30bX+zoFm2j61EtdspQRuzmuqId7EDaTlAvSU+s/CLcLtUg==}
     peerDependencies:
       '@tanstack/react-query': ^4.3.8
-      '@trpc/client': 10.0.0-proxy-beta.8
-      '@trpc/server': 10.0.0-proxy-beta.8
+      '@trpc/client': 10.0.0-rc.7
+      '@trpc/server': 10.0.0-rc.7
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
     dependencies:
       '@tanstack/react-query': 4.6.1_ef5jwxihqo6n7gxfmzogljlgcm
-      '@trpc/client': 10.0.0-proxy-beta.8_cdx7h2ttezqb2726q3auebavzi
-      '@trpc/server': 10.0.0-proxy-beta.8
+      '@trpc/client': 10.0.0-rc.7_@trpc+server@10.0.0-rc.7
+      '@trpc/server': 10.0.0-rc.7
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
     dev: false
 
-  /@trpc/server/10.0.0-proxy-beta.8:
-    resolution: {integrity: sha512-JSKA9f+nV5Mu3Yczbm3iWfu1S94Yj/xM6pjp/P0kCdtyKBm9qqoMsxpx6Qf6LISGKNYA/uV2LdFln2Xdw4T8Lg==}
+  /@trpc/server/10.0.0-rc.7:
+    resolution: {integrity: sha512-XbQCVRJLppHkGRVLZ5hSi1UXTsXx8f4tNwChil6neUVsr7hEvqrTG1HgNYWq/JG6FA0sxps/IVxzuegsY8LryA==}
     dev: false
 
   /@types/acorn/4.0.6:
@@ -9656,7 +9655,7 @@ packages:
       eslint-plugin-jsx-a11y: 6.6.0_eslint@8.19.0
       eslint-plugin-react: 7.30.1_eslint@8.19.0
       eslint-plugin-react-hooks: 4.6.0_eslint@8.19.0
-      next: 13.0.2_ef5jwxihqo6n7gxfmzogljlgcm
+      next: 13.0.2_yz5u6557yqtbarbugy7nmayfrq
       typescript: 4.7.4
     transitivePeerDependencies:
       - eslint-import-resolver-webpack
@@ -13900,6 +13899,7 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
+    dev: false
 
   /next/13.0.2_yz5u6557yqtbarbugy7nmayfrq:
     resolution: {integrity: sha512-uQ5z5e4D9mOe8+upy6bQdYYjo/kk1v3jMW87kTy2TgAyAsEO+CkwRnMgyZ4JoHEnhPZLHwh7dk0XymRNLe1gFw==}
@@ -13944,7 +13944,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
-    dev: false
 
   /nextra-theme-docs/2.0.0-beta.29_2mgcgz5qhsdxw4fgpqzqeafmkq:
     resolution: {integrity: sha512-2oGsuOv7sMxnsYPM6+qI7F0Rcq9cMTtClwa8MeOdn0FCtMjhxJjfeLxpDvXrELkVNOU9/Bg1SFHxHTLpt0/Xjw==}
@@ -17139,7 +17138,6 @@ packages:
       '@babel/core': 7.18.6
       client-only: 0.0.1
       react: 18.1.0
-    dev: false
 
   /styled-jsx/5.1.0_react@18.1.0:
     resolution: {integrity: sha512-/iHaRJt9U7T+5tp6TRelLnqBqiaIT0HsO0+vgyj8hK2KUk7aejFqRrumqPUlAqDwAj8IbS/1hk3IhBAAK/FCUQ==}
@@ -17156,6 +17154,7 @@ packages:
     dependencies:
       client-only: 0.0.1
       react: 18.1.0
+    dev: false
 
   /sucrase/3.23.0:
     resolution: {integrity: sha512-xgC1xboStzGhCnRywlBf/DLmkC+SkdAKqrNCDsxGrzM0phR5oUxoFKiQNrsc2D8wDdAm03iLbSZqjHDddo3IzQ==}
