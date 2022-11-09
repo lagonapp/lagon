@@ -2,7 +2,6 @@ import { Body } from './body';
 
 (globalThis => {
   globalThis.Response = class extends Body {
-    headers: Headers;
     ok: boolean;
     status: number;
     statusText: string;
@@ -15,17 +14,19 @@ import { Body } from './body';
     blob: any;
 
     constructor(body?: BodyInit | null, init?: ResponseInit) {
-      super(body);
+      let headers: Headers;
 
       if (init?.headers) {
         if (init.headers instanceof Headers) {
-          this.headers = init.headers;
+          headers = init.headers;
         } else {
-          this.headers = new Headers(init.headers);
+          headers = new Headers(init.headers);
         }
       } else {
-        this.headers = new Headers();
+        headers = new Headers();
       }
+
+      super(body, headers);
 
       if (init?.status) {
         this.ok = init.status >= 200 && init.status < 300;

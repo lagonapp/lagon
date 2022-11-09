@@ -7,6 +7,7 @@ import './runtime/URL';
 import './runtime/streams';
 import './runtime/base64';
 import './runtime/headers';
+import './runtime/FormData';
 import './runtime/Response';
 import './runtime/Request';
 import './runtime/fetch';
@@ -38,7 +39,7 @@ declare global {
   };
   var __lagon__: {
     isIterable: (value: unknown) => value is ArrayBuffer;
-    parseMultipart: (headers: Headers, body?: string) => Record<string, string>;
+    parseMultipart: (headers: Headers, body?: string) => FormData;
     TEXT_ENCODER: TextEncoder;
     TEXT_DECODER: TextDecoder;
   };
