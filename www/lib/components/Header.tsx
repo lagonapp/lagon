@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { HTMLAttributeAnchorTarget, ReactNode } from 'react';
 import { DiscordIcon, GitHubIcon } from './Icons';
@@ -26,10 +27,7 @@ const Header = () => {
   return (
     <header className="flex items-center justify-between max-w-4xl mx-auto mt-6 px-6 flex-col gap-2 md:flex-row md:gap-0">
       <Link href="/">
-        <a>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img width="122" height="32" className="h-8" src="/logo-white.png" alt="Lagon logo" />
-        </a>
+        <Image width="122" height="32" className="h-8" src="/logo-white.png" alt="Lagon logo" />
       </Link>
       <div className="flex gap-8">
         <HeaderLink href="#" soon>

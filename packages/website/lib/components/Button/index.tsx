@@ -60,16 +60,15 @@ const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonProps>(
 
     if (href) {
       return (
-        <Link href={href}>
-          <a
-            ref={ref as MutableRefObject<HTMLAnchorElement>}
-            aria-disabled={disabled}
-            className={`${styles} select-none flex gap-2 items-center whitespace-nowrap shadow-sm`}
-          >
-            {leftIcon}
-            {children}
-            {rightIcon}
-          </a>
+        <Link
+          href={href}
+          ref={ref as MutableRefObject<HTMLAnchorElement>}
+          aria-disabled={disabled}
+          className={`${styles} select-none flex gap-2 items-center whitespace-nowrap shadow-sm`}
+        >
+          {leftIcon}
+          {children}
+          {rightIcon}
         </Link>
       );
     }

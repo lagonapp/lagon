@@ -3,6 +3,12 @@ import Header from '../lib/components/Header';
 import Globe from '../lib/components/Globe';
 import useSystemTheme from '../lib/hooks/useSystemTheme';
 import { DiscordIcon } from '../lib/components/Icons';
+import { Poppins } from '@next/font/google';
+
+const poppins = Poppins({
+  weight: '600',
+  subsets: ['latin'],
+});
 
 const Home = () => {
   const theme = useSystemTheme();
@@ -19,10 +25,7 @@ const Home = () => {
       </Head>
       <Header />
       <div className="flex flex-col gap-8 items-center text-center mt-[8vh] md:mt-[26vh] max-w-2xl mx-auto px-6">
-        <h1
-          className="text-white text-5xl font-bold leading-[46px] animate-fade z-10"
-          style={{ fontFamily: 'Poppins' }}
-        >
+        <h1 className={`text-white text-5xl leading-[46px] animate-fade z-10 ${poppins.className}`}>
           Deploy Serverless Functions at the&nbsp;
           <span className="bg-clip-text text-transparent bg-gradient-to-br from-blue-500 to-purple-500">Edge</span>
         </h1>

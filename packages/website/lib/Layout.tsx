@@ -24,6 +24,7 @@ import { reloadSession } from './utils';
 import useTheme from './hooks/useTheme';
 import { useChangeLocale, useI18n } from 'locales';
 import { useQueryClient } from '@tanstack/react-query';
+import Image from 'next/image';
 
 type HeaderLinkProps = {
   href: string;
@@ -38,10 +39,11 @@ const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
   );
 
   return (
-    <Link href={href}>
-      <a className={`${styles} select-none transition text-md hover:text-stone-800 dark:hover:text-stone-200`}>
-        {children}
-      </a>
+    <Link
+      href={href}
+      className={`${styles} select-none transition text-md hover:text-stone-800 dark:hover:text-stone-200`}
+    >
+      {children}
     </Link>
   );
 };
@@ -115,14 +117,12 @@ const Layout = ({ title, children }: LayoutProps) => {
             <div className="flex justify-between mx-auto px-4 md:max-w-4xl">
               <div className="flex gap-6 items-center">
                 <Link href="/">
-                  <a>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`/icon-${theme === 'Dark' ? 'white' : 'black'}.png`}
-                      alt="Lagon logo"
-                      className="h-6 w-6"
-                    />
-                  </a>
+                  <Image
+                    src={`/icon-${theme === 'Dark' ? 'white' : 'black'}.png`}
+                    alt="Lagon logo"
+                    width="24"
+                    height="24"
+                  />
                 </Link>
                 <HeaderLink href="/" selected={asPath === '/' || asPath.startsWith('/functions')}>
                   {t('header.functions')}
