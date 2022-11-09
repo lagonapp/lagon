@@ -1,15 +1,20 @@
 export class Body {
   readonly body: ReadableStream<Uint8Array> | null;
   bodyUsed: boolean;
+  headers: Headers;
   // isStream is not part of the spec, but required to only stream
   // responses when the body is a stream.
   isStream: boolean;
 
-  constructor(body: string | ArrayBuffer | ArrayBufferView | FormData | ReadableStream | Blob | null = null) {
+  constructor(
+    body: string | ArrayBuffer | ArrayBufferView | FormData | ReadableStream | Blob | null = null,
+    headers: Headers,
+  ) {
     if (body !== null) {
       if (body instanceof ReadableStream) {
         this.body = body;
         this.bodyUsed = false;
+        this.headers = headers;
         this.isStream = true;
         return;
       }
@@ -30,8 +35,9 @@ export class Body {
       this.body = null;
     }
 
-    this.isStream = false;
     this.bodyUsed = false;
+    this.headers = headers;
+    this.isStream = false;
   }
 
   async arrayBuffer(): Promise<ArrayBuffer> {
@@ -43,7 +49,9 @@ export class Body {
   }
 
   async formData(): Promise<FormData> {
-    throw new Error('Not implemented');
+    const body = await this.text();
+
+    return globalThis.__lagon__.parseMultipart(this.headers, body);
   }
 
   async json<T>(): Promise<T> {

@@ -2,9 +2,11 @@
   const isIterable = (value: unknown): value is ArrayBuffer =>
     typeof value !== 'string' && Symbol.iterator in Object(value);
 
-  const parseMultipart = (headers: Headers, body?: string) => {
+  const parseMultipart = (headers: Headers, body?: string): FormData => {
+    const formData = new FormData();
+
     if (!body) {
-      return {};
+      return formData;
     }
 
     const contentTypeHeader = headers.get('content-type');
@@ -23,24 +25,22 @@
     }
 
     if (!boundary) {
-      return {};
+      return formData;
     }
-
-    const result: Record<string, string> = {};
 
     for (const part of body.split(boundary)) {
       if (part?.includes('Content-Disposition')) {
-        const content = part.split('name="')?.[1].split('"\\r\\n\\r\\n');
+        const content = part.split('; name="')?.[1].split('\n\n');
 
         if (content) {
           const [name, value] = content;
 
-          result[name] = value.replace('\\r\\n\\r\\n--', '');
+          formData.append(name.split('"')[0], value.replace('\n--', ''));
         }
       }
     }
 
-    return result;
+    return formData;
   };
 
   const TEXT_ENCODER = new TextEncoder();

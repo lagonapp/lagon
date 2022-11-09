@@ -3,7 +3,6 @@ import { Body } from './body';
 (globalThis => {
   globalThis.Request = class extends Body {
     method: string;
-    headers: Headers;
     url: string;
     // TODO
     cache: any;
@@ -21,20 +20,21 @@ import { Body } from './body';
     blob: any;
 
     constructor(input: RequestInfo | URL, init?: RequestInit) {
-      super(init?.body);
-
-      this.method = init?.method || 'GET';
+      let headers: Headers;
 
       if (init?.headers) {
         if (init.headers instanceof Headers) {
-          this.headers = init.headers;
+          headers = init.headers;
         } else {
-          this.headers = new Headers(init.headers);
+          headers = new Headers(init.headers);
         }
       } else {
-        this.headers = new Headers();
+        headers = new Headers();
       }
 
+      super(init?.body, headers);
+
+      this.method = init?.method || 'GET';
       this.url = input.toString();
     }
   };
