@@ -6,12 +6,8 @@ import { Body } from './body';
     status: number;
     statusText: string;
     url: string;
-    // TODO
-    redirected: any;
-    type: any;
-    clone: any;
-    bodyUsed: any;
-    blob: any;
+    type: ResponseType;
+    redirected: boolean;
 
     constructor(body?: BodyInit | null, init?: ResponseInit) {
       let headers: Headers;
@@ -39,16 +35,44 @@ import { Body } from './body';
       // TODO: investigate
       // @ts-expect-error ResponseInit doesn't have url
       this.url = init?.url || '';
+      this.type = 'basic';
+      this.redirected = false;
+    }
+
+    clone(): Response {
+      return new Response(this.body, {
+        status: this.status,
+        statusText: this.statusText,
+        headers: this.headers,
+      });
     }
 
     static error(): Response {
-      // TODO
-      throw new Error('Not implemented');
+      return {
+        ...new Response(),
+        type: 'error',
+      };
     }
 
     static redirect(url: string | URL, status?: number): Response {
-      // TODO
-      throw new Error('Not implemented');
+      const response = {
+        ...new Response(null, {
+          status,
+        }),
+        url: url.toString(),
+      };
+
+      return response;
+    }
+
+    static json(data?: BodyInit | null, init?: ResponseInit): Response {
+      return new Response(data, {
+        ...init,
+        headers: {
+          ...init?.headers,
+          'Content-Type': 'application/json',
+        },
+      });
     }
   };
 })(globalThis);
