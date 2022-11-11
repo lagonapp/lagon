@@ -38,7 +38,7 @@ mod deployments;
 mod logger;
 
 lazy_static! {
-    pub static ref ISOLATES: RwLock<HashMap<usize, LruCache<String, Isolate>>> =
+    pub static ref ISOLATES: RwLock<HashMap<usize, LruCache<String, Isolate<(String, String)>>>> =
         RwLock::new(HashMap::new());
     static ref X_FORWARDED_FOR: String = String::from("X-Forwarded-For");
     static ref ISOLATES_CACHE_SECONDS: Duration = Duration::from_secs(
@@ -158,13 +158,16 @@ async fn handle_request(
                                     )
                                     .with_memory(deployment.memory)
                                     .with_timeout(deployment.timeout)
-                                    .with_id(deployment.id.clone())
-                                    .with_on_drop_callback(Box::new(|id| {
-                                        info!(deployment = &id.unwrap(); "Dropping isolate");
+                                    .with_metadata((deployment.id.clone(), deployment.function_id.clone()))
+                                    .with_on_drop_callback(Box::new(|metadata| {
+                                        info!(deployment = metadata.unwrap().0; "Dropping isolate");
                                     }))
-                                    .with_on_statistics_callback(Box::new(|id, statistics| {
+                                    .with_on_statistics_callback(Box::new(|metadata, statistics| {
+                                        let metadata = metadata.unwrap();
+
                                         let labels = [
-                                            ("deployment", id.unwrap()),
+                                            ("deployment", metadata.0),
+                                            ("function", metadata.1),
                                         ];
 
                                         histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);

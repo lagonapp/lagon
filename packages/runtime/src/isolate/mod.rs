@@ -30,7 +30,7 @@ extern "C" fn heap_limit_callback(
     current_heap_limit: usize,
     _initial_heap_limit: usize,
 ) -> usize {
-    let isolate = unsafe { &mut *(data as *mut Isolate) };
+    let isolate = unsafe { &mut *(data as *mut Isolate<()>) };
 
     isolate.heap_limit_reached();
     // Avoid OOM killer by increasing the limit, since we kill
@@ -78,28 +78,28 @@ pub struct IsolateStatistics {
     pub memory_usage: usize,
 }
 
-type OnIsolateDropCallback = Box<dyn Fn(Option<String>)>;
-type OnIsolateStatisticsCallback = Box<dyn Fn(Option<String>, IsolateStatistics)>;
+type OnIsolateDropCallback<T> = Box<dyn Fn(Option<T>)>;
+type OnIsolateStatisticsCallback<T> = Box<dyn Fn(Option<T>, IsolateStatistics)>;
 
-pub struct IsolateOptions {
+pub struct IsolateOptions<T: Clone> {
     pub code: String,
     pub environment_variables: Option<HashMap<String, String>>,
     pub memory: usize,  // in MB (MegaBytes)
     pub timeout: usize, // in ms (MilliSeconds)
-    pub id: Option<String>,
-    pub on_drop: Option<OnIsolateDropCallback>,
-    pub on_statistics: Option<OnIsolateStatisticsCallback>,
+    pub metadata: Option<T>,
+    pub on_drop: Option<OnIsolateDropCallback<T>>,
+    pub on_statistics: Option<OnIsolateStatisticsCallback<T>>,
     // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
 }
 
-impl IsolateOptions {
+impl<T: Clone> IsolateOptions<T> {
     pub fn new(code: String) -> Self {
         Self {
             code,
             environment_variables: None,
             timeout: 50,
             memory: 128,
-            id: None,
+            metadata: None,
             on_drop: None,
             on_statistics: None,
             // snapshot_blob: None,
@@ -124,19 +124,19 @@ impl IsolateOptions {
         self
     }
 
-    pub fn with_id(mut self, id: String) -> Self {
-        self.id = Some(id);
+    pub fn with_metadata(mut self, metadata: T) -> Self {
+        self.metadata = Some(metadata);
         self
     }
 
-    pub fn with_on_drop_callback(mut self, on_drop: OnIsolateDropCallback) -> Self {
+    pub fn with_on_drop_callback(mut self, on_drop: OnIsolateDropCallback<T>) -> Self {
         self.on_drop = Some(on_drop);
         self
     }
 
     pub fn with_on_statistics_callback(
         mut self,
-        on_statistics: OnIsolateStatisticsCallback,
+        on_statistics: OnIsolateStatisticsCallback<T>,
     ) -> Self {
         self.on_statistics = Some(on_statistics);
         self
@@ -156,8 +156,8 @@ impl StreamStatus {
     }
 }
 
-pub struct Isolate {
-    options: IsolateOptions,
+pub struct Isolate<T: Clone> {
+    options: IsolateOptions<T>,
     isolate: v8::OwnedIsolate,
     handler: Option<v8::Global<v8::Function>>,
     compilation_error: Option<String>,
@@ -168,15 +168,15 @@ pub struct Isolate {
     termination_rx: Option<flume::Receiver<RunResult>>,
 }
 
-unsafe impl Send for Isolate {}
-unsafe impl Sync for Isolate {}
+unsafe impl<T: Clone> Send for Isolate<T> {}
+unsafe impl<T: Clone> Sync for Isolate<T> {}
 
 // NOTE
 // All tx.send(...) can return an Err due to many reason, e.g the thread panicked
 // or the connection closed on the other side, meaning the channel is now closed.
 // That's why we use .unwrap_or(()) to silently discard any error.
-impl Isolate {
-    pub fn new(options: IsolateOptions) -> Self {
+impl<T: Clone> Isolate<T> {
+    pub fn new(options: IsolateOptions<T>) -> Self {
         let memory_mb = options.memory * 1024 * 1024;
 
         let params = v8::CreateParams::default().heap_limits(0, memory_mb);
@@ -243,7 +243,7 @@ impl Isolate {
     }
 
     pub fn evaluate(&mut self, request: Request) -> Option<String> {
-        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = Isolate::<T>::state(&self.isolate);
 
         // Reset the stream status after each `run()`
         self.stream_status = StreamStatus::None;
@@ -337,7 +337,7 @@ impl Isolate {
     }
 
     fn poll_v8(&mut self) {
-        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = Isolate::<T>::state(&self.isolate);
         let global = {
             let isolate_state = isolate_state.borrow();
             isolate_state.global.0.clone()
@@ -349,7 +349,7 @@ impl Isolate {
     }
 
     fn resolve_promises(&mut self, cx: &mut Context) {
-        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = Isolate::<T>::state(&self.isolate);
         let mut promises = None;
 
         {
@@ -431,7 +431,7 @@ impl Isolate {
             return Poll::Ready(());
         }
 
-        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = Isolate::<T>::state(&self.isolate);
         let state = isolate_state.borrow();
         let global = state.global.0.clone();
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
@@ -549,7 +549,7 @@ impl Isolate {
         request_ended.store(true, Ordering::SeqCst);
 
         if let Some(on_isolate_statistics) = &self.options.on_statistics {
-            let isolate_state = Isolate::state(&self.isolate);
+            let isolate_state = Isolate::<T>::state(&self.isolate);
             let state = isolate_state.borrow();
             let global = state.global.0.clone();
             let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
@@ -562,19 +562,19 @@ impl Isolate {
                 memory_usage: heap_statistics.used_heap_size(),
             };
 
-            on_isolate_statistics(self.options.id.clone(), statistics);
+            on_isolate_statistics(self.options.metadata.clone(), statistics);
         }
     }
 }
 
-impl Drop for Isolate {
+impl<T: Clone> Drop for Isolate<T> {
     fn drop(&mut self) {
         if !self.isolate.is_execution_terminating() {
             self.isolate.terminate_execution();
         }
 
         if let Some(on_drop) = &self.options.on_drop {
-            on_drop(self.options.id.clone());
+            on_drop(self.options.metadata.clone());
         }
     }
 }

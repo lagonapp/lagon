@@ -18,7 +18,7 @@ fn setup() {
 #[tokio::test(flavor = "multi_thread")]
 async fn handler_reject() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
         "export function handler() {
     throw new Error('Rejected');
 }"
@@ -36,7 +36,7 @@ async fn handler_reject() {
 #[tokio::test(flavor = "multi_thread")]
 async fn compilation_error() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
         "export function handler() {
     this syntax is invalid
 }"
@@ -57,7 +57,7 @@ async fn compilation_error() {
 #[tokio::test(flavor = "multi_thread")]
 async fn import_errors() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
         "import test from 'test';
 
 export function handler() {
@@ -80,7 +80,7 @@ export function handler() {
 #[tokio::test(flavor = "multi_thread")]
 async fn execution_timeout_reached() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
         "export function handler() {
     while(true) {}
     return new Response('Should not be reached');
@@ -96,7 +96,7 @@ async fn execution_timeout_reached() {
 #[tokio::test(flavor = "multi_thread")]
 async fn init_timeout_reached() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
         "while(true) {}
 export function handler() {
     return new Response('Should not be reached');
@@ -112,7 +112,7 @@ export function handler() {
 #[tokio::test(flavor = "multi_thread")]
 async fn memory_reached() {
     setup();
-    let mut isolate = Isolate::new(
+    let mut isolate = Isolate::<()>::new(
         IsolateOptions::new(
             "export function handler() {
     const storage = [];

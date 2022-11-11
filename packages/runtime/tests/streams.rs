@@ -19,7 +19,7 @@ fn setup() {
 #[tokio::test(flavor = "multi_thread")]
 async fn sync_streaming() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
         "export function handler() {
     return new Response(
         new ReadableStream({
@@ -55,7 +55,7 @@ async fn sync_streaming() {
 #[tokio::test(flavor = "multi_thread")]
 async fn queue_multiple() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
         "export function handler() {
     let count = 0;
     return new Response(
@@ -100,7 +100,7 @@ async fn queue_multiple() {
 #[tokio::test(flavor = "multi_thread")]
 async fn custom_response() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
         "export function handler() {
     return new Response(
         new ReadableStream({
@@ -146,7 +146,7 @@ async fn custom_response() {
 #[tokio::test(flavor = "multi_thread")]
 async fn start_and_pull() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
         "export function handler() {
     return new Response(
         new ReadableStream({
@@ -198,7 +198,7 @@ async fn response_before_write() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
         "export function handler() {{
     const transformStream = new TransformStream({{
         start(controller) {{
