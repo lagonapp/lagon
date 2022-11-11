@@ -1,4 +1,5 @@
 ---
+'@lagon/docs': patch
 '@lagon/js-runtime': patch
 ---
 
