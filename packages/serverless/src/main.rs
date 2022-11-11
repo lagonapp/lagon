@@ -12,7 +12,7 @@ use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use lazy_static::lazy_static;
 use log::{as_debug, error, info, warn};
 use lru_time_cache::LruCache;
-use metrics::increment_counter;
+use metrics::{counter, histogram, increment_counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
 #[cfg(not(debug_assertions))]
@@ -98,14 +98,12 @@ async fn handle_request(
 
                 match deployments.get(&hostname) {
                     Some(deployment) => {
-                        let labels = vec![
+                        let labels = [
                             ("deployment", deployment.id.clone()),
                             ("function", deployment.function_id.clone()),
                         ];
 
                         increment_counter!("lagon_requests", &labels);
-                        // TODO: find the right request bytes length
-                        // counter!("lagon_bytes_in", request.len() as u64, &labels);
 
                         if let Some(asset) = deployment.assets.iter().find(|asset| *asset == &url) {
                             let run_result = match handle_asset(deployment, asset) {
@@ -119,22 +117,22 @@ async fn handle_request(
 
                             tx.send_async(run_result).await.unwrap_or(());
                         } else {
-                            let maybe_request = Request::from_hyper(req).await;
+                            let mut request = match Request::from_hyper(req).await {
+                                Ok(request) => request,
+                                Err(error) => {
+                                    error!(deployment = &deployment.id; "Error while parsing request: {}", error);
 
-                            if let Err(error) = maybe_request {
-                                error!(deployment = &deployment.id; "Error while parsing request: {}", error);
+                                    tx.send_async(RunResult::Error(
+                                        "Error while parsing request".into(),
+                                    ))
+                                    .await
+                                    .unwrap_or(());
 
-                                tx.send_async(RunResult::Error(
-                                    "Error while parsing request".into(),
-                                ))
-                                .await
-                                .unwrap_or(());
+                                    return;
+                                }
+                            };
 
-                                return;
-                            }
-
-                            // Now it's safe to unwrap() since we checked for errors above
-                            let mut request = maybe_request.unwrap();
+                            counter!("lagon_bytes_in", request.len() as u64, &labels);
                             request.add_header(X_FORWARDED_FOR.to_string(), ip);
 
                             // Only acquire the lock when we are sure we have a
@@ -149,7 +147,11 @@ async fn handle_request(
                                 info!(deployment = deployment.id; "Creating new isolate");
 
                                 // TODO: handle read error
-                                let code = get_deployment_code(deployment).unwrap();
+                                let code = get_deployment_code(deployment).unwrap_or_else(|error| {
+                                    error!(deployment = deployment.id; "Error while getting deployment code: {}", error);
+
+                                    "".into()
+                                });
                                 let options = IsolateOptions::new(code)
                                     .with_environment_variables(
                                         deployment.environment_variables.clone(),
@@ -159,30 +161,24 @@ async fn handle_request(
                                     .with_id(deployment.id.clone())
                                     .with_on_drop_callback(Box::new(|id| {
                                         info!(deployment = &id.unwrap(); "Dropping isolate");
+                                    }))
+                                    .with_on_statistics_callback(Box::new(|id, statistics| {
+                                        let labels = [
+                                            ("deployment", id.unwrap()),
+                                        ];
+
+                                        histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
+                                        histogram!(
+                                            "lagon_isolate_memory_usage",
+                                            statistics.memory_usage as f64,
+                                            &labels
+                                        );
                                     }));
 
                                 Isolate::new(options)
                             });
 
                             isolate.run(request, tx.clone()).await;
-
-                            // TODO: handle stats
-                            // if let Some(statistics) = maybe_statistics {
-                            //     histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
-                            //     histogram!(
-                            //         "lagon_isolate_memory_usage",
-                            //         statistics.memory_usage as f64,
-                            //         &labels
-                            //     );
-                            // }
-                            //
-                            // if let RunResult::Response(response) = &run_result {
-                            //     counter!("lagon_bytes_out", response.len() as u64, &labels);
-                            // }
-                            //
-                            // if run_result != RunResult::Stream {
-                            //     tx.send_async(run_result).await.unwrap();
-                            // }
                         }
                     }
                     None => {

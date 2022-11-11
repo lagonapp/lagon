@@ -68,23 +68,12 @@ enum ExecutionResult {
 struct Global(v8::Global<v8::Context>);
 
 #[derive(Debug)]
-struct HandlerResult {
-    promise: v8::Global<v8::Promise>,
-    _statistics: IsolateStatistics,
-}
-
-#[derive(Debug)]
-struct TerminationResult {
-    run_result: RunResult,
-}
-
-#[derive(Debug)]
 struct IsolateState {
     global: Global,
     promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
     js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
-    handler_result: Option<HandlerResult>,
-    termination_result: Option<TerminationResult>,
+    handler_result: Option<v8::Global<v8::Promise>>,
+    termination_result: Option<RunResult>,
     stream_sender: flume::Sender<StreamResult>,
 }
 
@@ -94,14 +83,17 @@ pub struct IsolateStatistics {
     pub memory_usage: usize,
 }
 
-// #[derive(Debug)]
+type OnIsolateDropCallback = Box<dyn Fn(Option<String>)>;
+type OnIsolateStatisticsCallback = Box<dyn Fn(Option<String>, IsolateStatistics)>;
+
 pub struct IsolateOptions {
     pub code: String,
     pub environment_variables: Option<HashMap<String, String>>,
     pub memory: usize,  // in MB (MegaBytes)
     pub timeout: usize, // in ms (MilliSeconds)
     pub id: Option<String>,
-    pub on_drop: Option<Box<dyn Fn(Option<String>)>>,
+    pub on_drop: Option<OnIsolateDropCallback>,
+    pub on_statistics: Option<OnIsolateStatisticsCallback>,
     // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
 }
 
@@ -114,6 +106,7 @@ impl IsolateOptions {
             memory: 128,
             id: None,
             on_drop: None,
+            on_statistics: None,
             // snapshot_blob: None,
         }
     }
@@ -141,8 +134,16 @@ impl IsolateOptions {
         self
     }
 
-    pub fn with_on_drop_callback(mut self, on_drop: Box<dyn Fn(Option<String>)>) -> Self {
+    pub fn with_on_drop_callback(mut self, on_drop: OnIsolateDropCallback) -> Self {
         self.on_drop = Some(on_drop);
+        self
+    }
+
+    pub fn with_on_statistics_callback(
+        mut self,
+        on_statistics: OnIsolateStatisticsCallback,
+    ) -> Self {
+        self.on_statistics = Some(on_statistics);
         self
     }
 }
@@ -168,6 +169,7 @@ pub struct Isolate {
     stream_receiver: flume::Receiver<StreamResult>,
     stream_status: StreamStatus,
     stream_response_sent: bool,
+    start_time: Option<Instant>,
 }
 
 unsafe impl Send for Isolate {}
@@ -215,6 +217,7 @@ impl Isolate {
             stream_receiver,
             stream_status: StreamStatus::None,
             stream_response_sent: false,
+            start_time: None,
         };
 
         let isolate_ptr = &mut this as *mut _ as *mut std::ffi::c_void;
@@ -228,9 +231,7 @@ impl Isolate {
         let isolate_state = Isolate::state(&self.isolate);
         let mut state = isolate_state.borrow_mut();
 
-        state.termination_result = Some(TerminationResult {
-            run_result: RunResult::MemoryLimit,
-        });
+        state.termination_result = Some(RunResult::MemoryLimit);
 
         if !self.isolate.is_execution_terminating() {
             self.isolate.terminate_execution();
@@ -251,6 +252,7 @@ impl Isolate {
         // Reset the stream status after each `run()`
         self.stream_status = StreamStatus::None;
         self.stream_response_sent = false;
+        self.start_time = Some(Instant::now());
 
         let global = {
             let state = isolate_state.borrow();
@@ -349,18 +351,15 @@ impl Isolate {
                     .expect("Handler did not return a promise");
                 let promise = v8::Global::new(try_catch, promise);
 
-                let mut heap_statistics = v8::HeapStatistics::default();
-                try_catch.get_heap_statistics(&mut heap_statistics);
+                // let mut heap_statistics = v8::HeapStatistics::default();
+                // try_catch.get_heap_statistics(&mut heap_statistics);
 
-                let statistics = IsolateStatistics {
-                    cpu_time: now.elapsed(),
-                    memory_usage: heap_statistics.used_heap_size(),
-                };
+                // let statistics = IsolateStatistics {
+                //     cpu_time: now.elapsed(),
+                //     memory_usage: heap_statistics.used_heap_size(),
+                // };
 
-                isolate_state.borrow_mut().handler_result = Some(HandlerResult {
-                    promise,
-                    _statistics: statistics,
-                });
+                isolate_state.borrow_mut().handler_result = Some(promise);
             }
             None => {
                 // Only overide termination_result if it hasn't been set before,
@@ -371,8 +370,7 @@ impl Isolate {
                         _ => handle_error(try_catch),
                     };
 
-                    isolate_state.borrow_mut().termination_result =
-                        Some(TerminationResult { run_result });
+                    isolate_state.borrow_mut().termination_result = Some(run_result);
                 }
             }
         };
@@ -476,16 +474,12 @@ impl Isolate {
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
         let try_catch = &mut v8::TryCatch::new(scope);
 
-        if let Some(TerminationResult { run_result }) = state.termination_result.as_ref() {
+        if let Some(run_result) = state.termination_result.as_ref() {
             tx.send(run_result.clone()).unwrap_or(());
             return Poll::Ready(());
         }
 
-        if let Some(HandlerResult {
-            promise,
-            _statistics,
-        }) = state.handler_result.as_ref()
-        {
+        if let Some(promise) = state.handler_result.as_ref() {
             let promise = promise.open(try_catch);
 
             match promise.state() {
@@ -564,6 +558,24 @@ impl Isolate {
         }
 
         self.run_event_loop(&tx).await;
+
+        if let Some(on_isolate_statistics) = &self.options.on_statistics {
+            let isolate_state = Isolate::state(&self.isolate);
+            let state = isolate_state.borrow();
+            let global = state.global.0.clone();
+            let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
+
+            let mut heap_statistics = v8::HeapStatistics::default();
+            scope.get_heap_statistics(&mut heap_statistics);
+
+            let statistics = IsolateStatistics {
+                // unwrapping start_time is safe since it's set as Some above inside `evaluate()`
+                cpu_time: self.start_time.unwrap().elapsed(),
+                memory_usage: heap_statistics.used_heap_size(),
+            };
+
+            on_isolate_statistics(self.options.id.clone(), statistics);
+        }
     }
 }
 
