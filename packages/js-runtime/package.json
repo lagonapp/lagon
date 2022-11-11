@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "abortcontroller-polyfill": "^1.7.5",
     "web-streams-polyfill": "^3.2.1"
   }
 }

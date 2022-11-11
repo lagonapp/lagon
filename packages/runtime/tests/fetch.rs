@@ -1,4 +1,4 @@
-use std::{sync::Once, time::Duration};
+use std::sync::Once;
 
 use httptest::{matchers::*, responders::*, Expectation, Server};
 use lagon_runtime::{
@@ -358,5 +358,40 @@ async fn throw_invalid_header() {
             "Uncaught Error: failed to parse header value, at:\n      throw new Error(error);"
                 .into()
         )
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+#[ignore]
+async fn abort_signal() {
+    setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/"))
+            .respond_with(status_code(200).body("Hello, World")),
+    );
+    let url = server.url("/");
+
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+        "export async function handler() {{
+    const controller = new AbortController();
+    const signal = controller.signal;
+
+    const promise = fetch('{url}', {{
+        signal,
+    }}).then(res => res.text()).catch(() => 'aborted');
+
+    controller.abort();
+    const body = await promise;
+
+    return new Response(body);
+}}"
+    )));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("aborted"))
     );
 }

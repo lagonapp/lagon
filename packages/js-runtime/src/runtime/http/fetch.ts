@@ -30,6 +30,8 @@
     }
 
     try {
+      // TODO: Lagon.fetch should take the init?.signal AbortSignal
+      // and throw if an event is received
       const response = await Lagon.fetch({
         method: init?.method || 'GET',
         url: input.toString(),
