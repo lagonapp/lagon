@@ -166,6 +166,7 @@ pub struct Isolate<T: Clone> {
     stream_response_sent: bool,
     termination_tx: Option<flume::Sender<RunResult>>,
     termination_rx: Option<flume::Receiver<RunResult>>,
+    running_promises: Arc<AtomicBool>,
 }
 
 unsafe impl<T: Clone> Send for Isolate<T> {}
@@ -214,6 +215,7 @@ impl<T: Clone> Isolate<T> {
             stream_response_sent: false,
             termination_tx: None,
             termination_rx: None,
+            running_promises: Arc::new(AtomicBool::new(false)),
         };
 
         let isolate_ptr = &mut this as *mut _ as *mut std::ffi::c_void;
@@ -360,6 +362,8 @@ impl<T: Clone> Isolate<T> {
             }
 
             if !isolate_state.promises.is_empty() {
+                self.running_promises.store(true, Ordering::SeqCst);
+
                 while let Poll::Ready(Some(BindingResult { id, result })) =
                     isolate_state.promises.poll_next_unpin(cx)
                 {
@@ -370,6 +374,8 @@ impl<T: Clone> Isolate<T> {
 
                     promises.as_mut().unwrap().push((result, promise));
                 }
+
+                self.running_promises.store(false, Ordering::SeqCst);
             }
         }
 
@@ -510,7 +516,7 @@ impl<T: Clone> Isolate<T> {
         let thread_safe_handle = self.isolate.thread_safe_handle();
 
         let now = Instant::now();
-        let timeout = Duration::from_millis(self.options.timeout as u64);
+        let mut timeout = Duration::from_millis(self.options.timeout as u64);
         let (termination_tx, termination_rx) = flume::bounded(1);
 
         self.termination_tx = Some(termination_tx.clone());
@@ -518,14 +524,33 @@ impl<T: Clone> Isolate<T> {
 
         let request_ended = Arc::new(AtomicBool::new(false));
         let request_ended_handle = request_ended.clone();
+        let running_promises_handle = self.running_promises.clone();
 
         spawn(async move {
+            let mut paused_timer = None;
+
             loop {
                 if request_ended_handle.load(Ordering::SeqCst) {
                     break;
                 }
 
-                // TODO: don't include Rust promises duration
+                // While we are running promises, we don't want to increment the
+                // execution time. The first time we notice that we are running
+                // promises, we save the current time, and when done, we add
+                // this elasped time to the timeout duration guard.
+                if running_promises_handle.load(Ordering::SeqCst) {
+                    if paused_timer.is_none() {
+                        paused_timer = Some(Instant::now());
+                    }
+
+                    tokio::time::sleep(Duration::from_millis(1)).await;
+
+                    continue;
+                } else if let Some(timer) = paused_timer {
+                    paused_timer = None;
+                    timeout += timer.elapsed();
+                }
+
                 if now.elapsed() >= timeout {
                     if !thread_safe_handle.is_execution_terminating() {
                         thread_safe_handle.terminate_execution();

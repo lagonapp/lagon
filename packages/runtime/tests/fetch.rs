@@ -1,4 +1,4 @@
-use std::sync::Once;
+use std::{sync::Once, time::Duration};
 
 use httptest::{matchers::*, responders::*, Expectation, Server};
 use lagon_runtime::{

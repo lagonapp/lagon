@@ -37,9 +37,10 @@ use crate::logger::init_logger;
 mod deployments;
 mod logger;
 
+type ThreadIsolates = LruCache<String, Isolate<(String, String)>>;
+
 lazy_static! {
-    pub static ref ISOLATES: RwLock<HashMap<usize, LruCache<String, Isolate<(String, String)>>>> =
-        RwLock::new(HashMap::new());
+    pub static ref ISOLATES: RwLock<HashMap<usize, ThreadIsolates>> = RwLock::new(HashMap::new());
     static ref X_FORWARDED_FOR: String = String::from("X-Forwarded-For");
     static ref ISOLATES_CACHE_SECONDS: Duration = Duration::from_secs(
         dotenv::var("LAGON_ISOLATES_CACHE_SECONDS")
