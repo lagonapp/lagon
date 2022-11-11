@@ -3,7 +3,10 @@ use std::{
     collections::HashMap,
     pin::Pin,
     rc::Rc,
-    sync::{Arc, RwLock},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
     task::{Context, Poll},
     time::{Duration, Instant},
 };
@@ -57,13 +60,6 @@ fn resolve_module_callback<'a>(
     None
 }
 
-#[derive(Debug, PartialEq)]
-enum ExecutionResult {
-    WillRun,
-    Run,
-    TimeoutReached,
-}
-
 #[derive(Debug, Clone)]
 struct Global(v8::Global<v8::Context>);
 
@@ -73,7 +69,6 @@ struct IsolateState {
     promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
     js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
     handler_result: Option<v8::Global<v8::Promise>>,
-    termination_result: Option<RunResult>,
     stream_sender: flume::Sender<StreamResult>,
 }
 
@@ -169,7 +164,8 @@ pub struct Isolate {
     stream_receiver: flume::Receiver<StreamResult>,
     stream_status: StreamStatus,
     stream_response_sent: bool,
-    start_time: Option<Instant>,
+    termination_tx: Option<flume::Sender<RunResult>>,
+    termination_rx: Option<flume::Receiver<RunResult>>,
 }
 
 unsafe impl Send for Isolate {}
@@ -202,7 +198,6 @@ impl Isolate {
                 promises: FuturesUnordered::new(),
                 js_promises: HashMap::new(),
                 handler_result: None,
-                termination_result: None,
                 stream_sender,
             }
         };
@@ -217,7 +212,8 @@ impl Isolate {
             stream_receiver,
             stream_status: StreamStatus::None,
             stream_response_sent: false,
-            start_time: None,
+            termination_tx: None,
+            termination_rx: None,
         };
 
         let isolate_ptr = &mut this as *mut _ as *mut std::ffi::c_void;
@@ -228,10 +224,11 @@ impl Isolate {
     }
 
     fn heap_limit_reached(&mut self) {
-        let isolate_state = Isolate::state(&self.isolate);
-        let mut state = isolate_state.borrow_mut();
-
-        state.termination_result = Some(RunResult::MemoryLimit);
+        self.termination_tx
+            .as_ref()
+            .unwrap()
+            .send(RunResult::MemoryLimit)
+            .unwrap_or(());
 
         if !self.isolate.is_execution_terminating() {
             self.isolate.terminate_execution();
@@ -246,13 +243,11 @@ impl Isolate {
     }
 
     pub fn evaluate(&mut self, request: Request) -> Option<String> {
-        let thread_safe_handle = self.isolate.thread_safe_handle();
         let isolate_state = Isolate::state(&self.isolate);
 
         // Reset the stream status after each `run()`
         self.stream_status = StreamStatus::None;
         self.stream_response_sent = false;
-        self.start_time = Some(Instant::now());
 
         let global = {
             let state = isolate_state.borrow();
@@ -316,61 +311,24 @@ impl Isolate {
         let global = global.open(try_catch);
         let global = global.global(try_catch);
 
-        let execution_result = Arc::new(RwLock::new(ExecutionResult::WillRun));
-
-        let execution_result_handle = execution_result.clone();
-
-        let now = Instant::now();
-        let timeout = Duration::from_millis(self.options.timeout as u64);
-
-        spawn(async move {
-            loop {
-                // // If execution is already done, don't force termination
-                if *execution_result_handle.read().unwrap() == ExecutionResult::Run {
-                    break;
-                }
-
-                if now.elapsed() >= timeout {
-                    let mut terminated_handle = execution_result_handle.write().unwrap();
-                    *terminated_handle = ExecutionResult::TimeoutReached;
-
-                    if !thread_safe_handle.is_execution_terminating() {
-                        thread_safe_handle.terminate_execution();
-                    }
-
-                    break;
-                }
-            }
-        });
-
         match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(response) => {
-                *execution_result.write().unwrap() = ExecutionResult::Run;
-
                 let promise = v8::Local::<v8::Promise>::try_from(response)
                     .expect("Handler did not return a promise");
                 let promise = v8::Global::new(try_catch, promise);
 
-                // let mut heap_statistics = v8::HeapStatistics::default();
-                // try_catch.get_heap_statistics(&mut heap_statistics);
-
-                // let statistics = IsolateStatistics {
-                //     cpu_time: now.elapsed(),
-                //     memory_usage: heap_statistics.used_heap_size(),
-                // };
-
                 isolate_state.borrow_mut().handler_result = Some(promise);
             }
             None => {
-                // Only overide termination_result if it hasn't been set before,
-                // e.g due to heap limit.
-                if isolate_state.borrow().termination_result.is_none() {
-                    let run_result = match *execution_result.read().unwrap() {
-                        ExecutionResult::TimeoutReached => RunResult::Timeout,
-                        _ => handle_error(try_catch),
-                    };
+                // We might have already sent a termination result, e.g if timeout was reached
+                if self.termination_tx.as_ref().unwrap().is_empty() {
+                    let run_result = handle_error(try_catch);
 
-                    isolate_state.borrow_mut().termination_result = Some(run_result);
+                    self.termination_tx
+                        .as_ref()
+                        .unwrap()
+                        .send(run_result)
+                        .unwrap_or(());
                 }
             }
         };
@@ -468,16 +426,16 @@ impl Isolate {
             return Poll::Pending;
         }
 
+        if let Ok(run_result) = self.termination_rx.as_ref().unwrap().try_recv() {
+            tx.send(run_result).unwrap_or(());
+            return Poll::Ready(());
+        }
+
         let isolate_state = Isolate::state(&self.isolate);
         let state = isolate_state.borrow();
         let global = state.global.0.clone();
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
         let try_catch = &mut v8::TryCatch::new(scope);
-
-        if let Some(run_result) = state.termination_result.as_ref() {
-            tx.send(run_result.clone()).unwrap_or(());
-            return Poll::Ready(());
-        }
 
         if let Some(promise) = state.handler_result.as_ref() {
             let promise = promise.open(try_catch);
@@ -549,6 +507,36 @@ impl Isolate {
             return;
         }
 
+        let thread_safe_handle = self.isolate.thread_safe_handle();
+
+        let now = Instant::now();
+        let timeout = Duration::from_millis(self.options.timeout as u64);
+        let (termination_tx, termination_rx) = flume::bounded(1);
+
+        self.termination_tx = Some(termination_tx.clone());
+        self.termination_rx = Some(termination_rx);
+
+        let request_ended = Arc::new(AtomicBool::new(false));
+        let request_ended_handle = request_ended.clone();
+
+        spawn(async move {
+            loop {
+                if request_ended_handle.load(Ordering::SeqCst) {
+                    break;
+                }
+
+                // TODO: don't include Rust promises duration
+                if now.elapsed() >= timeout {
+                    if !thread_safe_handle.is_execution_terminating() {
+                        thread_safe_handle.terminate_execution();
+                        termination_tx.send(RunResult::Timeout).unwrap_or(());
+                    }
+
+                    break;
+                }
+            }
+        });
+
         self.compilation_error = self.evaluate(request);
 
         // We can also have a compilation error when calling this function
@@ -558,6 +546,7 @@ impl Isolate {
         }
 
         self.run_event_loop(&tx).await;
+        request_ended.store(true, Ordering::SeqCst);
 
         if let Some(on_isolate_statistics) = &self.options.on_statistics {
             let isolate_state = Isolate::state(&self.isolate);
@@ -569,8 +558,7 @@ impl Isolate {
             scope.get_heap_statistics(&mut heap_statistics);
 
             let statistics = IsolateStatistics {
-                // unwrapping start_time is safe since it's set as Some above inside `evaluate()`
-                cpu_time: self.start_time.unwrap().elapsed(),
+                cpu_time: now.elapsed(),
                 memory_usage: heap_statistics.used_heap_size(),
             };
 

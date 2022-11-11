@@ -78,11 +78,27 @@ export function handler() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn timeout_reached() {
+async fn execution_timeout_reached() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     while(true) {}
+    return new Response('Should not be reached');
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn init_timeout_reached() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "while(true) {}
+export function handler() {
     return new Response('Should not be reached');
 }"
         .into(),
