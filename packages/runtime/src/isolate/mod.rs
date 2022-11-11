@@ -3,7 +3,10 @@ use std::{
     collections::HashMap,
     pin::Pin,
     rc::Rc,
-    sync::{Arc, RwLock},
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
     task::{Context, Poll},
     time::{Duration, Instant},
 };
@@ -27,7 +30,7 @@ extern "C" fn heap_limit_callback(
     current_heap_limit: usize,
     _initial_heap_limit: usize,
 ) -> usize {
-    let isolate = unsafe { &mut *(data as *mut Isolate) };
+    let isolate = unsafe { &mut *(data as *mut Isolate<()>) };
 
     isolate.heap_limit_reached();
     // Avoid OOM killer by increasing the limit, since we kill
@@ -57,34 +60,15 @@ fn resolve_module_callback<'a>(
     None
 }
 
-#[derive(Debug, PartialEq)]
-enum ExecutionResult {
-    WillRun,
-    Run,
-    TimeoutReached,
-}
-
 #[derive(Debug, Clone)]
 struct Global(v8::Global<v8::Context>);
-
-#[derive(Debug)]
-struct HandlerResult {
-    promise: v8::Global<v8::Promise>,
-    _statistics: IsolateStatistics,
-}
-
-#[derive(Debug)]
-struct TerminationResult {
-    run_result: RunResult,
-}
 
 #[derive(Debug)]
 struct IsolateState {
     global: Global,
     promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
     js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
-    handler_result: Option<HandlerResult>,
-    termination_result: Option<TerminationResult>,
+    handler_result: Option<v8::Global<v8::Promise>>,
     stream_sender: flume::Sender<StreamResult>,
 }
 
@@ -94,26 +78,30 @@ pub struct IsolateStatistics {
     pub memory_usage: usize,
 }
 
-// #[derive(Debug)]
-pub struct IsolateOptions {
+type OnIsolateDropCallback<T> = Box<dyn Fn(Option<T>)>;
+type OnIsolateStatisticsCallback<T> = Box<dyn Fn(Option<T>, IsolateStatistics)>;
+
+pub struct IsolateOptions<T: Clone> {
     pub code: String,
     pub environment_variables: Option<HashMap<String, String>>,
     pub memory: usize,  // in MB (MegaBytes)
     pub timeout: usize, // in ms (MilliSeconds)
-    pub id: Option<String>,
-    pub on_drop: Option<Box<dyn Fn(Option<String>)>>,
+    pub metadata: Option<T>,
+    pub on_drop: Option<OnIsolateDropCallback<T>>,
+    pub on_statistics: Option<OnIsolateStatisticsCallback<T>>,
     // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
 }
 
-impl IsolateOptions {
+impl<T: Clone> IsolateOptions<T> {
     pub fn new(code: String) -> Self {
         Self {
             code,
             environment_variables: None,
             timeout: 50,
             memory: 128,
-            id: None,
+            metadata: None,
             on_drop: None,
+            on_statistics: None,
             // snapshot_blob: None,
         }
     }
@@ -136,13 +124,21 @@ impl IsolateOptions {
         self
     }
 
-    pub fn with_id(mut self, id: String) -> Self {
-        self.id = Some(id);
+    pub fn with_metadata(mut self, metadata: T) -> Self {
+        self.metadata = Some(metadata);
         self
     }
 
-    pub fn with_on_drop_callback(mut self, on_drop: Box<dyn Fn(Option<String>)>) -> Self {
+    pub fn with_on_drop_callback(mut self, on_drop: OnIsolateDropCallback<T>) -> Self {
         self.on_drop = Some(on_drop);
+        self
+    }
+
+    pub fn with_on_statistics_callback(
+        mut self,
+        on_statistics: OnIsolateStatisticsCallback<T>,
+    ) -> Self {
+        self.on_statistics = Some(on_statistics);
         self
     }
 }
@@ -160,25 +156,28 @@ impl StreamStatus {
     }
 }
 
-pub struct Isolate {
-    options: IsolateOptions,
+pub struct Isolate<T: Clone> {
+    options: IsolateOptions<T>,
     isolate: v8::OwnedIsolate,
     handler: Option<v8::Global<v8::Function>>,
     compilation_error: Option<String>,
     stream_receiver: flume::Receiver<StreamResult>,
     stream_status: StreamStatus,
     stream_response_sent: bool,
+    termination_tx: Option<flume::Sender<RunResult>>,
+    termination_rx: Option<flume::Receiver<RunResult>>,
+    running_promises: Arc<AtomicBool>,
 }
 
-unsafe impl Send for Isolate {}
-unsafe impl Sync for Isolate {}
+unsafe impl<T: Clone> Send for Isolate<T> {}
+unsafe impl<T: Clone> Sync for Isolate<T> {}
 
 // NOTE
 // All tx.send(...) can return an Err due to many reason, e.g the thread panicked
 // or the connection closed on the other side, meaning the channel is now closed.
 // That's why we use .unwrap_or(()) to silently discard any error.
-impl Isolate {
-    pub fn new(options: IsolateOptions) -> Self {
+impl<T: Clone> Isolate<T> {
+    pub fn new(options: IsolateOptions<T>) -> Self {
         let memory_mb = options.memory * 1024 * 1024;
 
         let params = v8::CreateParams::default().heap_limits(0, memory_mb);
@@ -200,7 +199,6 @@ impl Isolate {
                 promises: FuturesUnordered::new(),
                 js_promises: HashMap::new(),
                 handler_result: None,
-                termination_result: None,
                 stream_sender,
             }
         };
@@ -215,6 +213,9 @@ impl Isolate {
             stream_receiver,
             stream_status: StreamStatus::None,
             stream_response_sent: false,
+            termination_tx: None,
+            termination_rx: None,
+            running_promises: Arc::new(AtomicBool::new(false)),
         };
 
         let isolate_ptr = &mut this as *mut _ as *mut std::ffi::c_void;
@@ -225,12 +226,11 @@ impl Isolate {
     }
 
     fn heap_limit_reached(&mut self) {
-        let isolate_state = Isolate::state(&self.isolate);
-        let mut state = isolate_state.borrow_mut();
-
-        state.termination_result = Some(TerminationResult {
-            run_result: RunResult::MemoryLimit,
-        });
+        self.termination_tx
+            .as_ref()
+            .unwrap()
+            .send(RunResult::MemoryLimit)
+            .unwrap_or(());
 
         if !self.isolate.is_execution_terminating() {
             self.isolate.terminate_execution();
@@ -245,8 +245,7 @@ impl Isolate {
     }
 
     pub fn evaluate(&mut self, request: Request) -> Option<String> {
-        let thread_safe_handle = self.isolate.thread_safe_handle();
-        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = Isolate::<T>::state(&self.isolate);
 
         // Reset the stream status after each `run()`
         self.stream_status = StreamStatus::None;
@@ -314,65 +313,24 @@ impl Isolate {
         let global = global.open(try_catch);
         let global = global.global(try_catch);
 
-        let execution_result = Arc::new(RwLock::new(ExecutionResult::WillRun));
-
-        let execution_result_handle = execution_result.clone();
-
-        let now = Instant::now();
-        let timeout = Duration::from_millis(self.options.timeout as u64);
-
-        spawn(async move {
-            loop {
-                // // If execution is already done, don't force termination
-                if *execution_result_handle.read().unwrap() == ExecutionResult::Run {
-                    break;
-                }
-
-                if now.elapsed() >= timeout {
-                    let mut terminated_handle = execution_result_handle.write().unwrap();
-                    *terminated_handle = ExecutionResult::TimeoutReached;
-
-                    if !thread_safe_handle.is_execution_terminating() {
-                        thread_safe_handle.terminate_execution();
-                    }
-
-                    break;
-                }
-            }
-        });
-
         match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(response) => {
-                *execution_result.write().unwrap() = ExecutionResult::Run;
-
                 let promise = v8::Local::<v8::Promise>::try_from(response)
                     .expect("Handler did not return a promise");
                 let promise = v8::Global::new(try_catch, promise);
 
-                let mut heap_statistics = v8::HeapStatistics::default();
-                try_catch.get_heap_statistics(&mut heap_statistics);
-
-                let statistics = IsolateStatistics {
-                    cpu_time: now.elapsed(),
-                    memory_usage: heap_statistics.used_heap_size(),
-                };
-
-                isolate_state.borrow_mut().handler_result = Some(HandlerResult {
-                    promise,
-                    _statistics: statistics,
-                });
+                isolate_state.borrow_mut().handler_result = Some(promise);
             }
             None => {
-                // Only overide termination_result if it hasn't been set before,
-                // e.g due to heap limit.
-                if isolate_state.borrow().termination_result.is_none() {
-                    let run_result = match *execution_result.read().unwrap() {
-                        ExecutionResult::TimeoutReached => RunResult::Timeout,
-                        _ => handle_error(try_catch),
-                    };
+                // We might have already sent a termination result, e.g if timeout was reached
+                if self.termination_tx.as_ref().unwrap().is_empty() {
+                    let run_result = handle_error(try_catch);
 
-                    isolate_state.borrow_mut().termination_result =
-                        Some(TerminationResult { run_result });
+                    self.termination_tx
+                        .as_ref()
+                        .unwrap()
+                        .send(run_result)
+                        .unwrap_or(());
                 }
             }
         };
@@ -381,7 +339,7 @@ impl Isolate {
     }
 
     fn poll_v8(&mut self) {
-        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = Isolate::<T>::state(&self.isolate);
         let global = {
             let isolate_state = isolate_state.borrow();
             isolate_state.global.0.clone()
@@ -393,7 +351,7 @@ impl Isolate {
     }
 
     fn resolve_promises(&mut self, cx: &mut Context) {
-        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = Isolate::<T>::state(&self.isolate);
         let mut promises = None;
 
         {
@@ -404,6 +362,8 @@ impl Isolate {
             }
 
             if !isolate_state.promises.is_empty() {
+                self.running_promises.store(true, Ordering::SeqCst);
+
                 while let Poll::Ready(Some(BindingResult { id, result })) =
                     isolate_state.promises.poll_next_unpin(cx)
                 {
@@ -414,6 +374,8 @@ impl Isolate {
 
                     promises.as_mut().unwrap().push((result, promise));
                 }
+
+                self.running_promises.store(false, Ordering::SeqCst);
             }
         }
 
@@ -470,22 +432,18 @@ impl Isolate {
             return Poll::Pending;
         }
 
-        let isolate_state = Isolate::state(&self.isolate);
+        if let Ok(run_result) = self.termination_rx.as_ref().unwrap().try_recv() {
+            tx.send(run_result).unwrap_or(());
+            return Poll::Ready(());
+        }
+
+        let isolate_state = Isolate::<T>::state(&self.isolate);
         let state = isolate_state.borrow();
         let global = state.global.0.clone();
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
         let try_catch = &mut v8::TryCatch::new(scope);
 
-        if let Some(TerminationResult { run_result }) = state.termination_result.as_ref() {
-            tx.send(run_result.clone()).unwrap_or(());
-            return Poll::Ready(());
-        }
-
-        if let Some(HandlerResult {
-            promise,
-            _statistics,
-        }) = state.handler_result.as_ref()
-        {
+        if let Some(promise) = state.handler_result.as_ref() {
             let promise = promise.open(try_catch);
 
             match promise.state() {
@@ -555,6 +513,55 @@ impl Isolate {
             return;
         }
 
+        let thread_safe_handle = self.isolate.thread_safe_handle();
+
+        let now = Instant::now();
+        let mut timeout = Duration::from_millis(self.options.timeout as u64);
+        let (termination_tx, termination_rx) = flume::bounded(1);
+
+        self.termination_tx = Some(termination_tx.clone());
+        self.termination_rx = Some(termination_rx);
+
+        let request_ended = Arc::new(AtomicBool::new(false));
+        let request_ended_handle = request_ended.clone();
+        let running_promises_handle = self.running_promises.clone();
+
+        spawn(async move {
+            let mut paused_timer = None;
+
+            loop {
+                if request_ended_handle.load(Ordering::SeqCst) {
+                    break;
+                }
+
+                // While we are running promises, we don't want to increment the
+                // execution time. The first time we notice that we are running
+                // promises, we save the current time, and when done, we add
+                // this elasped time to the timeout duration guard.
+                if running_promises_handle.load(Ordering::SeqCst) {
+                    if paused_timer.is_none() {
+                        paused_timer = Some(Instant::now());
+                    }
+
+                    tokio::time::sleep(Duration::from_millis(1)).await;
+
+                    continue;
+                } else if let Some(timer) = paused_timer {
+                    paused_timer = None;
+                    timeout += timer.elapsed();
+                }
+
+                if now.elapsed() >= timeout {
+                    if !thread_safe_handle.is_execution_terminating() {
+                        thread_safe_handle.terminate_execution();
+                        termination_tx.send(RunResult::Timeout).unwrap_or(());
+                    }
+
+                    break;
+                }
+            }
+        });
+
         self.compilation_error = self.evaluate(request);
 
         // We can also have a compilation error when calling this function
@@ -564,17 +571,35 @@ impl Isolate {
         }
 
         self.run_event_loop(&tx).await;
+        request_ended.store(true, Ordering::SeqCst);
+
+        if let Some(on_isolate_statistics) = &self.options.on_statistics {
+            let isolate_state = Isolate::<T>::state(&self.isolate);
+            let state = isolate_state.borrow();
+            let global = state.global.0.clone();
+            let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
+
+            let mut heap_statistics = v8::HeapStatistics::default();
+            scope.get_heap_statistics(&mut heap_statistics);
+
+            let statistics = IsolateStatistics {
+                cpu_time: now.elapsed(),
+                memory_usage: heap_statistics.used_heap_size(),
+            };
+
+            on_isolate_statistics(self.options.metadata.clone(), statistics);
+        }
     }
 }
 
-impl Drop for Isolate {
+impl<T: Clone> Drop for Isolate<T> {
     fn drop(&mut self) {
         if !self.isolate.is_execution_terminating() {
             self.isolate.terminate_execution();
         }
 
         if let Some(on_drop) = &self.options.on_drop {
-            on_drop(self.options.id.clone());
+            on_drop(self.options.metadata.clone());
         }
     }
 }

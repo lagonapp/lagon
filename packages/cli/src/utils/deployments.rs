@@ -127,12 +127,12 @@ pub fn bundle_function(
         );
         let end_progress = print_progress(&msg);
 
-        for file in WalkDir::new(&public_dir) {
+        for file in WalkDir::new(public_dir) {
             let file = file?;
             let path = file.path();
 
             if path.is_file() {
-                let diff = diff_paths(path, &public_dir)
+                let diff = diff_paths(path, public_dir)
                     .unwrap()
                     .to_str()
                     .unwrap()

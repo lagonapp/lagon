@@ -42,9 +42,9 @@ impl Runtime {
     }
 }
 
-pub fn get_runtime_code<'a>(
+pub fn get_runtime_code<'a, T: Clone>(
     scope: &mut v8::HandleScope<'a>,
-    options: &IsolateOptions,
+    options: &IsolateOptions<T>,
 ) -> v8::Local<'a, v8::String> {
     let IsolateOptions {
         code,

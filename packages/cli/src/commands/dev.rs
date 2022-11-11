@@ -92,26 +92,25 @@ async fn handle_request(
             .await
             .unwrap_or(());
     } else {
-        let maybe_request = Request::from_hyper(req).await;
+        match Request::from_hyper(req).await {
+            Ok(mut request) => {
+                request.add_header("X-Forwarded-For".into(), ip);
 
-        if let Err(ref error) = maybe_request {
-            println!("Error while parsing request: {}", error);
+                let mut isolate = Isolate::<()>::new(
+                    IsolateOptions::new(String::from_utf8(index.get_ref().to_vec())?)
+                        .with_environment_variables(environment_variables),
+                );
 
-            tx.send_async(RunResult::Error("Error while parsing request".into()))
-                .await
-                .unwrap_or(());
-        }
+                isolate.run(request, tx).await;
+            }
+            Err(error) => {
+                println!("Error while parsing request: {}", error);
 
-        // Now it's safe to unwrap() since we checked for errors above
-        let mut request = maybe_request.unwrap();
-        request.add_header("X-Forwarded-For".into(), ip);
-
-        let mut isolate = Isolate::new(
-            IsolateOptions::new(String::from_utf8(index.get_ref().to_vec())?)
-                .with_environment_variables(environment_variables),
-        );
-
-        isolate.run(request, tx).await;
+                tx.send_async(RunResult::Error("Error while parsing request".into()))
+                    .await
+                    .unwrap_or(());
+            }
+        };
     }
 
     let result = rx.recv_async().await?;
