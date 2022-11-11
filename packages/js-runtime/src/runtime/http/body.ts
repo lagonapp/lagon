@@ -1,4 +1,4 @@
-export class Body {
+export class RequestResponseBody {
   readonly body: ReadableStream<Uint8Array> | null;
   bodyUsed: boolean;
   headers: Headers;

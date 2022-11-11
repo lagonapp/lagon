@@ -1,7 +1,7 @@
-import { Body } from './body';
+import { RequestResponseBody } from './body';
 
 (globalThis => {
-  globalThis.Response = class extends Body {
+  globalThis.Response = class extends RequestResponseBody {
     ok: boolean;
     status: number;
     statusText: string;

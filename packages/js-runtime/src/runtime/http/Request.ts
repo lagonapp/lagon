@@ -1,7 +1,7 @@
-import { Body } from './body';
+import { RequestResponseBody } from './body';
 
 (globalThis => {
-  globalThis.Request = class extends Body {
+  globalThis.Request = class extends RequestResponseBody {
     readonly method: string;
     readonly url: string;
     readonly cache: RequestCache;
