@@ -26,6 +26,25 @@ pub fn extract_algorithm_object(
     Err(anyhow!("Algorithm not supported"))
 }
 
+pub fn extract_algorithm_object_or_string(
+    scope: &mut v8::HandleScope,
+    value: v8::Local<v8::Value>,
+) -> Result<String> {
+    if value.is_string() {
+        return extract_v8_string(value, scope);
+    } else if let Some(algorithm) = value.to_object(scope) {
+        let name_key = v8_string(scope, "name");
+        let name = match algorithm.get(scope, name_key.into()) {
+            Some(name) => extract_v8_string(name, scope)?,
+            None => return Err(anyhow!("Algorithm name not found")),
+        };
+
+        return Ok(name);
+    }
+
+    Err(anyhow!("Algorithm not supported"))
+}
+
 pub fn extract_cryptokey_key_value(
     scope: &mut v8::HandleScope,
     value: v8::Local<v8::Value>,

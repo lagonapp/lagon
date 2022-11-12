@@ -54,6 +54,7 @@ declare global {
       data: BufferSource,
     ) => Promise<boolean>;
     getKeyValue: () => ArrayBuffer;
+    digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
   };
   var __lagon__: {
     isIterable: (value: unknown) => value is ArrayBuffer;

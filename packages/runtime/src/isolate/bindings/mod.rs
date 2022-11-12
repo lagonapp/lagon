@@ -7,6 +7,8 @@ use pull_stream::pull_stream_binding;
 
 use crate::{http::Response, utils::v8_string};
 
+use self::crypto::digest_binding;
+
 mod console;
 mod crypto;
 mod fetch;
@@ -67,6 +69,11 @@ pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
     lagon_object.set(
         v8_string(scope, "getKeyValue").into(),
         v8::FunctionTemplate::new(scope, get_key_value_binding).into(),
+    );
+
+    lagon_object.set(
+        v8_string(scope, "digest").into(),
+        v8::FunctionTemplate::new(scope, digest_binding).into(),
     );
 
     global.set(v8_string(scope, "Lagon").into(), lagon_object.into());

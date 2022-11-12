@@ -58,7 +58,7 @@ interface CryptoKey {
     }
 
     async digest(algorithm: AlgorithmIdentifier, data: BufferSource): Promise<ArrayBuffer> {
-      throw new Error('Not implemented');
+      return Lagon.digest(algorithm, data);
     }
 
     async encrypt(
