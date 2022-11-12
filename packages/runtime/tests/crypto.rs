@@ -77,7 +77,7 @@ async fn crypto_key_value() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("object 85"))
+        RunResult::Response(Response::from("object 36"))
     );
 }
 

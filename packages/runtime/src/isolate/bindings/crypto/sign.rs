@@ -1,12 +1,15 @@
 use crate::{
-    crypto::{extract_algorithm_object, extract_cryptokey_key_value, get_algorithm},
+    crypto::{
+        extract_algorithm_object, extract_cryptokey_key_value, get_algorithm, Algorithm,
+        HmacSha256, HmacSha384, HmacSha512,
+    },
     isolate::{
         bindings::{BindingResult, PromiseResult},
         Isolate,
     },
     utils::{extract_v8_uint8array, v8_string},
 };
-use ring::hmac;
+use hmac::Mac;
 
 pub fn sign_binding(
     scope: &mut v8::HandleScope,
@@ -57,13 +60,27 @@ pub fn sign_binding(
             }
         };
 
-        let key = hmac::Key::new(algorithm, &key_value);
-        let tag = hmac::sign(&key, &data);
-        let tag = tag.as_ref();
+        let result = match algorithm {
+            Algorithm::HmacSha256 => {
+                let mut mac = HmacSha256::new_from_slice(&key_value).unwrap();
+                mac.update(&data);
+                mac.finalize().into_bytes().to_vec()
+            }
+            Algorithm::HmacSha384 => {
+                let mut mac = HmacSha384::new_from_slice(&key_value).unwrap();
+                mac.update(&data);
+                mac.finalize().into_bytes().to_vec()
+            }
+            Algorithm::HmacSha512 => {
+                let mut mac = HmacSha512::new_from_slice(&key_value).unwrap();
+                mac.update(&data);
+                mac.finalize().into_bytes().to_vec()
+            }
+        };
 
         BindingResult {
             id,
-            result: PromiseResult::ArrayBuffer(tag.to_vec()),
+            result: PromiseResult::ArrayBuffer(result),
         }
     };
 

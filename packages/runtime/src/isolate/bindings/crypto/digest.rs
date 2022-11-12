@@ -1,3 +1,5 @@
+use sha2::{Digest, Sha256, Sha384, Sha512};
+
 use crate::{
     crypto::extract_algorithm_object_or_string,
     isolate::{
@@ -6,7 +8,6 @@ use crate::{
     },
     utils::{extract_v8_uint8array, v8_string},
 };
-use ring::digest;
 
 pub fn digest_binding(
     scope: &mut v8::HandleScope,
@@ -42,11 +43,22 @@ pub fn digest_binding(
     };
 
     let future = async move {
-        let algorithm = match name.as_str() {
-            "SHA-1" => &digest::SHA1_FOR_LEGACY_USE_ONLY,
-            "SHA-256" => &digest::SHA256,
-            "SHA-384" => &digest::SHA384,
-            "SHA-512" => &digest::SHA512,
+        let result = match name.as_str() {
+            "SHA-256" => {
+                let mut hasher = Sha256::new();
+                hasher.update(data);
+                hasher.finalize().to_vec()
+            }
+            "SHA-384" => {
+                let mut hasher = Sha384::new();
+                hasher.update(data);
+                hasher.finalize().to_vec()
+            }
+            "SHA-512" => {
+                let mut hasher = Sha512::new();
+                hasher.update(data);
+                hasher.finalize().to_vec()
+            }
             _ => {
                 return BindingResult {
                     id,
@@ -55,11 +67,9 @@ pub fn digest_binding(
             }
         };
 
-        let digest = digest::digest(algorithm, &data);
-
         BindingResult {
             id,
-            result: PromiseResult::ArrayBuffer(digest.as_ref().to_vec()),
+            result: PromiseResult::ArrayBuffer(result),
         }
     };
 

@@ -1,7 +1,18 @@
 use anyhow::{anyhow, Result};
-use ring::hmac::{self, Algorithm};
+use hmac::Hmac;
+use sha2::{Sha256, Sha384, Sha512};
 
 use crate::utils::{extract_v8_string, extract_v8_uint8array, v8_string};
+
+pub type HmacSha256 = Hmac<Sha256>;
+pub type HmacSha384 = Hmac<Sha384>;
+pub type HmacSha512 = Hmac<Sha512>;
+
+pub enum Algorithm {
+    HmacSha256,
+    HmacSha384,
+    HmacSha512,
+}
 
 pub fn extract_algorithm_object(
     scope: &mut v8::HandleScope,
@@ -64,9 +75,9 @@ pub fn extract_cryptokey_key_value(
 pub fn get_algorithm(name: &str, hash: &str) -> Option<Algorithm> {
     match name {
         "HMAC" => match hash {
-            "SHA-256" => Some(hmac::HMAC_SHA256),
-            "SHA-384" => Some(hmac::HMAC_SHA384),
-            "SHA-512" => Some(hmac::HMAC_SHA512),
+            "SHA-256" => Some(Algorithm::HmacSha256),
+            "SHA-384" => Some(Algorithm::HmacSha384),
+            "SHA-512" => Some(Algorithm::HmacSha512),
             _ => None,
         },
         _ => None,

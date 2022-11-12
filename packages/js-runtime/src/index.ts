@@ -53,7 +53,6 @@ declare global {
       signature: BufferSource,
       data: BufferSource,
     ) => Promise<boolean>;
-    getKeyValue: () => ArrayBuffer;
     digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
   };
   var __lagon__: {

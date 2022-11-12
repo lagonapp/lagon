@@ -1,12 +1,15 @@
 use crate::{
-    crypto::{extract_algorithm_object, extract_cryptokey_key_value, get_algorithm},
+    crypto::{
+        extract_algorithm_object, extract_cryptokey_key_value, get_algorithm, Algorithm,
+        HmacSha256, HmacSha384,
+    },
     isolate::{
         bindings::{BindingResult, PromiseResult},
         Isolate,
     },
     utils::{extract_v8_uint8array, v8_string},
 };
-use ring::hmac;
+use hmac::Mac;
 
 pub fn verify_binding(
     scope: &mut v8::HandleScope,
@@ -70,8 +73,23 @@ pub fn verify_binding(
             }
         };
 
-        let key = hmac::Key::new(algorithm, &key_value);
-        let result = hmac::verify(&key, &data, &signature).is_ok();
+        let result = match algorithm {
+            Algorithm::HmacSha256 => {
+                let mut mac = HmacSha256::new_from_slice(&key_value).unwrap();
+                mac.update(&data);
+                mac.verify_slice(&signature).is_ok()
+            }
+            Algorithm::HmacSha384 => {
+                let mut mac = HmacSha384::new_from_slice(&key_value).unwrap();
+                mac.update(&data);
+                mac.verify_slice(&signature).is_ok()
+            }
+            Algorithm::HmacSha512 => {
+                let mut mac = HmacSha256::new_from_slice(&key_value).unwrap();
+                mac.update(&data);
+                mac.verify_slice(&signature).is_ok()
+            }
+        };
 
         BindingResult {
             id,

@@ -26,7 +26,7 @@ interface CryptoKey {
       this.type = type!;
       this.usages = usages!;
 
-      this.keyValue = Lagon.getKeyValue();
+      this.keyValue = globalThis.__lagon__.TEXT_ENCODER.encode(Lagon.uuid());
     }
   };
 
