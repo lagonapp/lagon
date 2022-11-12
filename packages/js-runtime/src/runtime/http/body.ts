@@ -78,10 +78,10 @@ export class RequestResponseBody {
             return resolve(result);
           }
 
-          if (typeof value === 'string') {
-            result += value;
-          } else {
+          if (globalThis.__lagon__.isIterable(value)) {
             result += globalThis.__lagon__.TEXT_DECODER.decode(value);
+          } else {
+            result += value;
           }
 
           pull();

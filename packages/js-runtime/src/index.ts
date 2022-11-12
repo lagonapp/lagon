@@ -7,6 +7,7 @@ import './runtime/streams';
 import './runtime/abort';
 import './runtime/global/console';
 import './runtime/global/process';
+import './runtime/global/crypto';
 import './runtime/http/URLSearchParams';
 import './runtime/http/URL';
 import './runtime/http/Headers';
@@ -39,6 +40,31 @@ declare global {
       headers?: Record<string, string>;
     }>;
     pullStream: (done: boolean, chunk?: Uint8Array) => void;
+    uuid: () => string;
+    randomValues: <T extends ArrayBufferView | null>(array: T) => T;
+    sign: (
+      algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams,
+      key: CryptoKey,
+      data: BufferSource,
+    ) => Promise<ArrayBuffer>;
+    verify: (
+      algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams,
+      key: CryptoKey,
+      signature: BufferSource,
+      data: BufferSource,
+    ) => Promise<boolean>;
+    getKeyValue: () => ArrayBuffer;
+    digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
+    encrypt: (
+      algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams,
+      key: CryptoKey,
+      data: BufferSource,
+    ) => Promise<ArrayBuffer>;
+    decrypt: (
+      algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams,
+      key: CryptoKey,
+      data: BufferSource,
+    ) => Promise<ArrayBuffer>;
   };
   var __lagon__: {
     isIterable: (value: unknown) => value is ArrayBuffer;

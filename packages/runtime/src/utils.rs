@@ -55,6 +55,14 @@ pub fn extract_v8_headers_object(
     Ok(None)
 }
 
+pub fn extract_v8_uint8array(value: v8::Local<v8::Value>) -> Result<Vec<u8>> {
+    let chunk = unsafe { v8::Local::<v8::Uint8Array>::cast(value) };
+    let mut buf = vec![0; chunk.byte_length()];
+    chunk.copy_contents(&mut buf);
+
+    Ok(buf)
+}
+
 pub fn v8_string<'a>(
     scope: &mut v8::HandleScope<'a, ()>,
     value: &str,
@@ -93,4 +101,8 @@ pub fn v8_headers_object<'a>(
     }
 
     headers
+}
+
+pub fn v8_boolean<'a>(scope: &mut v8::HandleScope<'a>, value: bool) -> v8::Local<'a, v8::Boolean> {
+    v8::Boolean::new(scope, value)
 }

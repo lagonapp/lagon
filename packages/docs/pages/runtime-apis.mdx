@@ -28,6 +28,8 @@ Similar to the the standard `console` object on the browser and on Node.js, expe
 
 You can log multiple objects, and use string substitution. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/console#outputting_text_to_the_console).
 
+---
+
 ### `process`
 
 The only usage of `process` is to get [environment variables](/cloud/environment-variables) via `process.env`.
@@ -39,6 +41,39 @@ export function handler(request: Request): Response {
   return new Response(`My secret is: ${process.env.SECRET}`);
 }
 ```
+
+---
+
+### `crypto`
+
+The standard `crypto` object.
+
+#### `crypto.randomUUID()`
+
+The standard `randomUUID()` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID).
+
+#### `crypto.getRandomValues()`
+
+The standard `getRandomValues()` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues).
+
+#### `crypto.subtle`
+
+The standard `CryptoSubtle` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto).
+
+<Callout type="info">
+  The following table summarizes the supported algorithms on each method:
+
+|         | `sign()`, `verify()` | `encrypt()`, `decrypt()` | `digest()` | `deriveBits()`, `deriveKey()` | `wrapKey()`, `unwrapKey()` |
+| ------- | -------------------- | ------------------------ | ---------- | ----------------------------- | -------------------------- |
+| HMAC    | ✅                   |                          |            |                               |                            |
+| SHA-256 |                      |                          | ✅         |                               |                            |
+| SHA-384 |                      |                          | ✅         |                               |                            |
+| SHA-512 |                      |                          | ✅         |                               |                            |
+| AES-GCM |                      | ✅                       |            |                               | ✅                         |
+
+</Callout>
+
+---
 
 ### `TextEncoder`
 
@@ -55,6 +90,8 @@ The standard `AbortController` object. [See the documentation on MDN](https://de
 ### `AbortSignal`
 
 The standard `AbortSignal` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal).
+
+---
 
 ### Fetch
 
@@ -84,6 +121,8 @@ The standard `URLSearchParams` object. [See the documentation on MDN](https://de
 #### `Headers`
 
 The standard `Headers` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Headers).
+
+---
 
 ### Streams
 
