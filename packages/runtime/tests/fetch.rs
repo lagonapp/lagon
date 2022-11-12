@@ -362,7 +362,6 @@ async fn throw_invalid_header() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-#[ignore]
 async fn abort_signal() {
     setup();
     let server = Server::run();
@@ -379,7 +378,7 @@ async fn abort_signal() {
 
     const promise = fetch('{url}', {{
         signal,
-    }}).then(res => res.text()).catch(() => 'aborted');
+    }}).then(res => res.text()).catch(error => error.message);
 
     controller.abort();
     const body = await promise;
@@ -392,6 +391,6 @@ async fn abort_signal() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("aborted"))
+        RunResult::Response(Response::from("Aborted"))
     );
 }
