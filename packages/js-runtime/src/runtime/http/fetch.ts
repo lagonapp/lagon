@@ -29,7 +29,15 @@
       }
     }
 
+    const checkAborted = () => {
+      if (init?.signal?.aborted) {
+        throw new Error('Aborted');
+      }
+    };
+
     try {
+      checkAborted();
+
       const response = await Lagon.fetch({
         method: init?.method || 'GET',
         url: input.toString(),
@@ -37,14 +45,19 @@
         headers,
       });
 
+      checkAborted();
+
       return new Response(response.body, {
         // url: response.init.url,
         headers: response.headers,
         status: response.status,
       });
     } catch (error) {
-      // error is always a string
-      throw new Error(error as string);
+      if (typeof error === 'string') {
+        throw new Error(error);
+      }
+
+      throw error;
     }
   };
 })(globalThis);

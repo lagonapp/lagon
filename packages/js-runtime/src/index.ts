@@ -4,6 +4,7 @@ import './runtime/encoding/TextDecoder';
 import './runtime/encoding/base64';
 import './runtime/core';
 import './runtime/streams';
+import './runtime/abort';
 import './runtime/global/console';
 import './runtime/global/process';
 import './runtime/http/URLSearchParams';

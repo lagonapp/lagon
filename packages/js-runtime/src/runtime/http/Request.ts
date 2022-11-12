@@ -13,8 +13,7 @@ import { RequestResponseBody } from './body';
     readonly redirect: RequestRedirect;
     readonly referrer: string;
     readonly referrerPolicy: ReferrerPolicy;
-    // TODO
-    readonly signal: any;
+    readonly signal: AbortSignal;
 
     constructor(input: RequestInfo | URL, init?: RequestInit) {
       let headers: Headers;
@@ -42,7 +41,7 @@ import { RequestResponseBody } from './body';
       this.redirect = init?.redirect || 'follow';
       this.referrer = init?.referrer || '';
       this.referrerPolicy = init?.referrerPolicy || '';
-      // this.signal = init?.signal || new AbortSignal();
+      this.signal = init?.signal || new AbortSignal();
     }
 
     clone(): Request {
