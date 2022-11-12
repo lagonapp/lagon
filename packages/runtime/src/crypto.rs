@@ -8,16 +8,21 @@ pub type HmacSha256 = Hmac<Sha256>;
 pub type HmacSha384 = Hmac<Sha384>;
 pub type HmacSha512 = Hmac<Sha512>;
 
+pub enum Sha {
+    Sha256,
+    Sha384,
+    Sha512,
+}
+
 pub enum Algorithm {
-    HmacSha256,
-    HmacSha384,
-    HmacSha512,
+    Hmac(Sha),
+    AesGcm(Vec<u8>),
 }
 
 pub fn extract_algorithm_object(
     scope: &mut v8::HandleScope,
     value: v8::Local<v8::Value>,
-) -> Result<(String, String)> {
+) -> Result<Algorithm> {
     if let Some(algorithm) = value.to_object(scope) {
         let name_key = v8_string(scope, "name");
         let name = match algorithm.get(scope, name_key.into()) {
@@ -25,13 +30,27 @@ pub fn extract_algorithm_object(
             None => return Err(anyhow!("Algorithm name not found")),
         };
 
-        let hash_key = v8_string(scope, "hash");
-        let hash = match algorithm.get(scope, hash_key.into()) {
-            Some(hash) => extract_v8_string(hash, scope)?,
-            None => return Err(anyhow!("Algorithm hash not found")),
-        };
+        if name == "HMAC" {
+            let hash_key = v8_string(scope, "hash");
+            let hash = match algorithm.get(scope, hash_key.into()) {
+                Some(hash) => extract_v8_string(hash, scope)?,
+                None => return Err(anyhow!("Algorithm hash not found")),
+            };
 
-        return Ok((name, hash));
+            let sha = get_sha(&hash)?;
+
+            return Ok(Algorithm::Hmac(sha));
+        }
+
+        if name == "AES-GCM" {
+            let iv_key = v8_string(scope, "iv");
+            let iv = match algorithm.get(scope, iv_key.into()) {
+                Some(iv) => extract_v8_uint8array(iv)?,
+                None => return Err(anyhow!("Algorithm iv not found")),
+            };
+
+            return Ok(Algorithm::AesGcm(iv));
+        }
     }
 
     Err(anyhow!("Algorithm not supported"))
@@ -72,14 +91,11 @@ pub fn extract_cryptokey_key_value(
     Err(anyhow!("CryptoKey not supported"))
 }
 
-pub fn get_algorithm(name: &str, hash: &str) -> Option<Algorithm> {
-    match name {
-        "HMAC" => match hash {
-            "SHA-256" => Some(Algorithm::HmacSha256),
-            "SHA-384" => Some(Algorithm::HmacSha384),
-            "SHA-512" => Some(Algorithm::HmacSha512),
-            _ => None,
-        },
-        _ => None,
+pub fn get_sha(hash: &str) -> Result<Sha> {
+    match hash {
+        "SHA-256" => Ok(Sha::Sha256),
+        "SHA-384" => Ok(Sha::Sha384),
+        "SHA-512" => Ok(Sha::Sha512),
+        _ => Err(anyhow!("hash not found")),
     }
 }

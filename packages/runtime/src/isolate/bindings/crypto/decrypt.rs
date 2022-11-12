@@ -1,30 +1,24 @@
 use crate::{
-    crypto::{
-        extract_algorithm_object, extract_cryptokey_key_value, Algorithm, HmacSha256, HmacSha384,
-        Sha,
-    },
+    crypto::{extract_algorithm_object, extract_cryptokey_key_value, Algorithm},
     isolate::{
         bindings::{BindingResult, PromiseResult},
         Isolate,
     },
     utils::{extract_v8_uint8array, v8_string},
 };
-use hmac::Mac;
+use aes_gcm::{aead::Aead, Aes256Gcm};
+use aes_gcm::{KeyInit, Nonce};
 
-pub fn verify_binding(
+pub fn decrypt_binding(
     scope: &mut v8::HandleScope,
     args: v8::FunctionCallbackArguments,
     mut retval: v8::ReturnValue,
 ) {
     let promise = v8::PromiseResolver::new(scope).unwrap();
-    retval.set(promise.into());
 
     let state = Isolate::<()>::state(scope);
     let mut state = state.borrow_mut();
     let id = state.js_promises.len() + 1;
-
-    let global_promise = v8::Global::new(scope, promise);
-    state.js_promises.insert(id, global_promise);
 
     let algorithm = match extract_algorithm_object(scope, args.get(0)) {
         Ok(value) => value,
@@ -44,16 +38,7 @@ pub fn verify_binding(
         }
     };
 
-    let signature = match extract_v8_uint8array(args.get(2)) {
-        Ok(value) => value,
-        Err(_) => {
-            let error = v8_string(scope, "Signature must be an Uint8Array");
-            promise.reject(scope, error.into());
-            return;
-        }
-    };
-
-    let data = match extract_v8_uint8array(args.get(3)) {
+    let data = match extract_v8_uint8array(args.get(2)) {
         Ok(value) => value,
         Err(_) => {
             let error = v8_string(scope, "Data must be an Uint8Array");
@@ -64,23 +49,11 @@ pub fn verify_binding(
 
     let future = async move {
         let result = match algorithm {
-            Algorithm::Hmac(sha) => match sha {
-                Sha::Sha256 => {
-                    let mut mac = HmacSha256::new_from_slice(&key_value).unwrap();
-                    mac.update(&data);
-                    mac.verify_slice(&signature).is_ok()
-                }
-                Sha::Sha384 => {
-                    let mut mac = HmacSha384::new_from_slice(&key_value).unwrap();
-                    mac.update(&data);
-                    mac.verify_slice(&signature).is_ok()
-                }
-                Sha::Sha512 => {
-                    let mut mac = HmacSha256::new_from_slice(&key_value).unwrap();
-                    mac.update(&data);
-                    mac.verify_slice(&signature).is_ok()
-                }
-            },
+            Algorithm::AesGcm(iv) => {
+                let cipher = Aes256Gcm::new_from_slice(&key_value).unwrap();
+                let nonce = Nonce::from_slice(&iv);
+                cipher.decrypt(nonce, data.as_ref()).unwrap()
+            }
             _ => {
                 return BindingResult {
                     id,
@@ -91,9 +64,14 @@ pub fn verify_binding(
 
         BindingResult {
             id,
-            result: PromiseResult::Boolean(result),
+            result: PromiseResult::ArrayBuffer(result),
         }
     };
 
     state.promises.push(Box::pin(future));
+
+    let global_promise = v8::Global::new(scope, promise);
+    state.js_promises.insert(id, global_promise);
+
+    retval.set(promise.into());
 }

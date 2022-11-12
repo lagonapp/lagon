@@ -1,11 +1,11 @@
 use console::console_binding;
-use crypto::{random_values_binding, sign_binding, uuid_binding, verify_binding};
+use crypto::{encrypt_binding, random_values_binding, sign_binding, uuid_binding, verify_binding};
 use fetch::fetch_binding;
 use pull_stream::pull_stream_binding;
 
 use crate::{http::Response, utils::v8_string};
 
-use self::crypto::digest_binding;
+use self::crypto::{decrypt_binding, digest_binding, get_key_value_binding};
 
 mod console;
 mod crypto;
@@ -65,8 +65,23 @@ pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
     );
 
     lagon_object.set(
+        v8_string(scope, "getKeyValue").into(),
+        v8::FunctionTemplate::new(scope, get_key_value_binding).into(),
+    );
+
+    lagon_object.set(
         v8_string(scope, "digest").into(),
         v8::FunctionTemplate::new(scope, digest_binding).into(),
+    );
+
+    lagon_object.set(
+        v8_string(scope, "encrypt").into(),
+        v8::FunctionTemplate::new(scope, encrypt_binding).into(),
+    );
+
+    lagon_object.set(
+        v8_string(scope, "decrypt").into(),
+        v8::FunctionTemplate::new(scope, decrypt_binding).into(),
     );
 
     global.set(v8_string(scope, "Lagon").into(), lagon_object.into());

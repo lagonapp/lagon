@@ -53,7 +53,18 @@ declare global {
       signature: BufferSource,
       data: BufferSource,
     ) => Promise<boolean>;
+    getKeyValue: () => ArrayBuffer;
     digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
+    encrypt: (
+      algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams,
+      key: CryptoKey,
+      data: BufferSource,
+    ) => Promise<ArrayBuffer>;
+    decrypt: (
+      algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams,
+      key: CryptoKey,
+      data: BufferSource,
+    ) => Promise<ArrayBuffer>;
   };
   var __lagon__: {
     isIterable: (value: unknown) => value is ArrayBuffer;

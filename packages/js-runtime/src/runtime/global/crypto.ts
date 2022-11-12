@@ -26,7 +26,7 @@ interface CryptoKey {
       this.type = type!;
       this.usages = usages!;
 
-      this.keyValue = globalThis.__lagon__.TEXT_ENCODER.encode(Lagon.uuid());
+      this.keyValue = Lagon.getKeyValue();
     }
   };
 
@@ -36,7 +36,7 @@ interface CryptoKey {
       key: CryptoKey,
       data: BufferSource,
     ): Promise<ArrayBuffer> {
-      throw new Error('Not implemented');
+      return Lagon.decrypt(algorithm, key, data);
     }
 
     async deriveBits(
@@ -66,7 +66,7 @@ interface CryptoKey {
       key: CryptoKey,
       data: BufferSource,
     ): Promise<ArrayBuffer> {
-      throw new Error('Not implemented');
+      return Lagon.encrypt(algorithm, key, data);
     }
 
     async exportKey(format: 'jwk', key: CryptoKey): Promise<JsonWebKey>;

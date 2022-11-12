@@ -77,7 +77,7 @@ async fn crypto_key_value() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("object 36"))
+        RunResult::Response(Response::from("object 32"))
     );
 }
 
@@ -218,5 +218,77 @@ async fn crypto_digest_object() {
     assert_eq!(
         rx.recv_async().await.unwrap(),
         RunResult::Response(Response::from("32"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn crypto_encrypt() {
+    setup();
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'AES-GCM' },
+        false,
+        ['sign'],
+    );
+
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        new TextEncoder().encode('hello, world'),
+    );
+
+    return new Response(`${ciphertext instanceof Uint8Array} ${ciphertext.length}`);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("true 28"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn crypto_decrypt() {
+    setup();
+    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'AES-GCM' },
+        false,
+        ['sign'],
+    );
+
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        new TextEncoder().encode('hello, world'),
+    );
+
+    const text = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv },
+        key,
+        ciphertext,
+    );
+
+    return new Response(text);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("hello, world"))
     );
 }
