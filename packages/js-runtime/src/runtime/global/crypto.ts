@@ -167,7 +167,15 @@ interface CryptoKey {
       extractable: boolean,
       keyUsages: Iterable<KeyUsage>,
     ): Promise<CryptoKey> {
-      throw new Error('Not implemented');
+      const content = await this.decrypt(unwrapAlgorithm, unwrappingKey, wrappedKey);
+
+      return this.importKey(
+        format as Exclude<KeyFormat, 'jwk'>,
+        content,
+        unwrappedKeyAlgorithm,
+        extractable,
+        keyUsages,
+      );
     }
 
     async verify(
@@ -185,7 +193,9 @@ interface CryptoKey {
       wrappingKey: CryptoKey,
       wrapAlgorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams,
     ): Promise<ArrayBuffer> {
-      throw new Error('Not implemented');
+      const content = await this.exportKey(format as Exclude<KeyFormat, 'jwk'>, key);
+
+      return this.encrypt(wrapAlgorithm, wrappingKey, content);
     }
   }
 
