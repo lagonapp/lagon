@@ -41,7 +41,7 @@ async fn crypto_get_random_values() {
         "export function handler() {
     const typedArray = new Uint8Array([0, 8, 2]);
     const result = crypto.getRandomValues(typedArray);
-    return new Response(result == typedArray);
+    return new Response(`${result == typedArray} ${typedArray.length} ${result.length}`);
 }"
         .into(),
     ));
@@ -50,8 +50,7 @@ async fn crypto_get_random_values() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        // TODO: should be updated to return false when getRandomValues is complete
-        RunResult::Response(Response::from("true"))
+        RunResult::Response(Response::from("false 3 3"))
     );
 }
 
