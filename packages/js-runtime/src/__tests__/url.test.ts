@@ -135,6 +135,13 @@ describe('URL', () => {
     it('should return the hash', () => {
       expect(new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/href#Examples').hash).toEqual('#Examples');
     });
+
+    it('should set the hash', () => {
+      const url = new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/href#Examples');
+      url.hash = '#Examples2';
+      expect(url.hash).toEqual('#Examples2');
+      expect(url.href).toEqual('https://developer.mozilla.org/en-US/docs/Web/API/URL/href#Examples2');
+    });
   });
 
   describe('host', () => {
@@ -155,6 +162,20 @@ describe('URL', () => {
         'developer.mozilla.org:4097',
       );
     });
+
+    it('should set the host', () => {
+      const url = new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/host');
+      url.host = 'developer.mozilla.org:4097';
+      expect(url.host).toEqual('developer.mozilla.org:4097');
+      expect(url.href).toEqual('https://developer.mozilla.org:4097/en-US/docs/Web/API/URL/host');
+    });
+
+    it('should update the host when setting the port', () => {
+      const url = new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/host');
+      url.port = '4097';
+      expect(url.host).toEqual('developer.mozilla.org:4097');
+      expect(url.href).toEqual('https://developer.mozilla.org:4097/en-US/docs/Web/API/URL/host');
+    });
   });
 
   describe('hostname', () => {
@@ -163,6 +184,20 @@ describe('URL', () => {
         'developer.mozilla.org',
       );
     });
+
+    it('should set the hostname', () => {
+      const url = new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/hostname');
+      url.hostname = 'developer.mozilla.org';
+      expect(url.hostname).toEqual('developer.mozilla.org');
+      expect(url.href).toEqual('https://developer.mozilla.org/en-US/docs/Web/API/URL/hostname');
+    });
+
+    it('should update the hostname when setting the host', () => {
+      const url = new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/hostname');
+      url.host = 'www.mozilla.org:4097';
+      expect(url.hostname).toEqual('www.mozilla.org');
+      expect(url.href).toEqual('https://www.mozilla.org:4097/en-US/docs/Web/API/URL/hostname');
+    });
   });
 
   describe('href', () => {
@@ -170,6 +205,12 @@ describe('URL', () => {
       expect(new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/href').href).toEqual(
         'https://developer.mozilla.org/en-US/docs/Web/API/URL/href',
       );
+    });
+
+    it('should set the href', () => {
+      const url = new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/href');
+      url.href = 'https://developer.mozilla.org/en-US/docs/Web/API/URL';
+      expect(url.href).toEqual('https://developer.mozilla.org/en-US/docs/Web/API/URL');
     });
   });
 
@@ -212,6 +253,13 @@ describe('URL', () => {
         new URL('https://anonymous:flabada@developer.mozilla.org/en-US/docs/Web/API/URL/password').password,
       ).toEqual('flabada');
     });
+
+    it('should set the password', () => {
+      const url = new URL('https://anonymous:flabada@developer.mozilla.org/en-US/docs/Web/API/URL/password');
+      url.password = 'foo';
+      expect(url.password).toEqual('foo');
+      expect(url.href).toEqual('https://anonymous:foo@developer.mozilla.org/en-US/docs/Web/API/URL/password');
+    });
   });
 
   describe('pathname', () => {
@@ -220,11 +268,25 @@ describe('URL', () => {
         '/en-US/docs/Web/API/URL/pathname',
       );
     });
+
+    it('should set the pathname', () => {
+      const url = new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/pathname?q=value');
+      url.pathname = '/en-US/docs/Web/API/URL';
+      expect(url.pathname).toEqual('/en-US/docs/Web/API/URL');
+      expect(url.href).toEqual('https://developer.mozilla.org/en-US/docs/Web/API/URL?q=value');
+    });
   });
 
   describe('port', () => {
     it('should return the port', () => {
       expect(new URL('https://mydomain.com:80/svn/Repos/').port).toEqual('80');
+    });
+
+    it('should set the port', () => {
+      const url = new URL('https://mydomain.com:80/svn/Repos/');
+      url.port = '8080';
+      expect(url.port).toEqual('8080');
+      expect(url.href).toEqual('https://mydomain.com:8080/svn/Repos/');
     });
   });
 
@@ -232,11 +294,25 @@ describe('URL', () => {
     it('should return the protocol', () => {
       expect(new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/protocol').protocol).toEqual('https:');
     });
+
+    it('should set the protocol', () => {
+      const url = new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/protocol');
+      url.protocol = 'http:';
+      expect(url.protocol).toEqual('http:');
+      expect(url.href).toEqual('http://developer.mozilla.org/en-US/docs/Web/API/URL/protocol');
+    });
   });
 
   describe('search', () => {
     it('should return the search', () => {
       expect(new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/search?q=123').search).toEqual('?q=123');
+    });
+
+    it('should set the search', () => {
+      const url = new URL('https://developer.mozilla.org/en-US/docs/Web/API/URL/search?q=123');
+      url.search = '?q=456';
+      expect(url.search).toEqual('?q=456');
+      expect(url.href).toEqual('https://developer.mozilla.org/en-US/docs/Web/API/URL/search?q=456');
     });
   });
 
@@ -246,6 +322,27 @@ describe('URL', () => {
       expect(searchParams?.get('name')).toEqual('Jonathan Smith');
       expect(searchParams?.get('age')).toEqual('18');
     });
+
+    it('should set the searchParams', () => {
+      const url = new URL('https://example.com/?name=Jonathan%20Smith&age=18');
+      url.searchParams.set('name', 'John');
+      expect(url.search).toEqual('?name=John&age=18');
+      expect(url.href).toEqual('https://example.com/?name=John&age=18');
+    });
+
+    it('should update the searchParams when the search is updated', () => {
+      const url = new URL('https://example.com/?name=Jonathan%20Smith&age=18');
+      url.search = '?name=John';
+      expect(url.searchParams.get('name')).toEqual('John');
+      expect(url.href).toEqual('https://example.com/?name=John');
+    });
+
+    it('should return the same searchParams instance', () => {
+      const url = new URL('https://example.com/?name=Jonathan%20Smith&age=18');
+      const searchParams = url.searchParams;
+      url.search = '?name=John';
+      expect(url.searchParams).toBe(searchParams);
+    });
   });
 
   describe('username', () => {
@@ -253,6 +350,13 @@ describe('URL', () => {
       expect(
         new URL('https://anonymous:flabada@developer.mozilla.org/en-US/docs/Web/API/URL/username').username,
       ).toEqual('anonymous');
+    });
+
+    it('should set the username', () => {
+      const url = new URL('https://anonymous:flabada@developer.mozilla.org/en-US/docs/Web/API/URL/password');
+      url.username = 'foo';
+      expect(url.username).toEqual('foo');
+      expect(url.href).toEqual('https://foo:flabada@developer.mozilla.org/en-US/docs/Web/API/URL/password');
     });
   });
 });
