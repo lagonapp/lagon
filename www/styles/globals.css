@@ -3,5 +3,27 @@
 @tailwind utilities;
 
 body {
-  @apply bg-neutral-900
+  overflow-x: hidden;
+}
+
+.bg-radial-gradient-white {
+  background-image: radial-gradient(circle at center, #FFFFFF, rgba(255, 255, 255, 0.75))
+}
+
+.bg-gradient-tertiary-button {
+  background: linear-gradient(#050211, #050211) padding-box, radial-gradient(circle at 20% 0%, rgb(135, 157, 188), rgb(31, 32, 47) 40%) border-box;
+}
+
+.bg-gradient-secondary-button {
+  background: linear-gradient(#050211, #050211) padding-box, radial-gradient(circle at 20% 0%, rgb(199, 225, 253), #449aff 40%) border-box;
+}
+
+.bg-gradient-primary-button {
+  background: linear-gradient(to bottom, #449aff 50%, #446dff) padding-box, radial-gradient(circle at 20% 0%, rgb(199, 225, 253), #449aff 40%) border-box;
+}
+
+.bg-gradient-tertiary-button:hover,
+.bg-gradient-secondary-button:hover,
+.bg-gradient-primary-button:hover {
+  background-position: 60px 0;
 }
