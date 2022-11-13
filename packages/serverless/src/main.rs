@@ -104,9 +104,9 @@ async fn handle_request(
                             ("function", deployment.function_id.clone()),
                         ];
 
-                        increment_counter!("lagon_requests", &labels);
-
-                        if let Some(asset) = deployment.assets.iter().find(|asset| *asset == &url) {
+                        if let Some(asset) = deployment.assets.iter().find(|asset| {
+                            asset.replace(".html", "") == url || asset.replace("/index.html", "") == url
+                        }) {
                             let run_result = match handle_asset(deployment, asset) {
                                 Ok(response) => RunResult::Response(response),
                                 Err(error) => {
@@ -118,6 +118,8 @@ async fn handle_request(
 
                             tx.send_async(run_result).await.unwrap_or(());
                         } else {
+                            increment_counter!("lagon_requests", &labels);
+
                             let mut request = match Request::from_hyper(req).await {
                                 Ok(request) => request,
                                 Err(error) => {
