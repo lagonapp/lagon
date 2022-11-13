@@ -62,7 +62,9 @@ async fn handle_request(
     let (tx, rx) = flume::unbounded();
     let (index, assets) = content.lock().await.to_owned();
 
-    if let Some(asset) = assets.iter().find(|asset| *asset.0 == url) {
+    if let Some(asset) = assets.iter().find(|asset| {
+        asset.0.replace(".html", "") == url || asset.0.replace("/index.html", "") == url
+    }) {
         println!("              {}", input("Asset found"));
 
         let extension = Path::new(asset.0).extension().unwrap().to_str().unwrap();
