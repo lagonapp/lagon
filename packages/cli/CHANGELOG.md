@@ -1,5 +1,11 @@
 # @lagon/cli
 
+## 0.3.6
+
+### Patch Changes
+
+- [#252](https://github.com/lagonapp/lagon/pull/252) [`745ad8d`](https://github.com/lagonapp/lagon/commit/745ad8d65a7ee40b874bfdf28a236aa9bee548a0) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support .html and index.html for static file paths
+
 ## 0.3.5
 
 ### Patch Changes
