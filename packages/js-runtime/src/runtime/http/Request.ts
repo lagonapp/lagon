@@ -13,22 +13,13 @@ import { RequestResponseBody } from './body';
     readonly redirect: RequestRedirect;
     readonly referrer: string;
     readonly referrerPolicy: ReferrerPolicy;
-    readonly signal: AbortSignal;
+
+    private readonly init?: RequestInit;
 
     constructor(input: RequestInfo | URL, init?: RequestInit) {
-      let headers: Headers;
+      super(init?.body, init?.headers);
 
-      if (init?.headers) {
-        if (init.headers instanceof Headers) {
-          headers = init.headers;
-        } else {
-          headers = new Headers(init.headers);
-        }
-      } else {
-        headers = new Headers();
-      }
-
-      super(init?.body, headers);
+      this.init = init;
 
       this.method = init?.method || 'GET';
       this.url = input.toString();
@@ -41,7 +32,10 @@ import { RequestResponseBody } from './body';
       this.redirect = init?.redirect || 'follow';
       this.referrer = init?.referrer || '';
       this.referrerPolicy = init?.referrerPolicy || '';
-      this.signal = init?.signal || new AbortSignal();
+    }
+
+    get signal(): AbortSignal {
+      return this.init?.signal || new AbortSignal();
     }
 
     clone(): Request {

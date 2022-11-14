@@ -73,6 +73,10 @@ declare global {
     TEXT_DECODER: TextDecoder;
   };
   var handler: (request: Request) => Promise<Response>;
+
+  interface Response {
+    readonly isStream: boolean;
+  }
 }
 
 export async function masterHandler(request: { input: string } & Request): Promise<Response> {
@@ -84,7 +88,6 @@ export async function masterHandler(request: { input: string } & Request): Promi
 
   const response = await handler(handlerRequest);
 
-  // @ts-expect-error isStream is not part of the spec in Response
   if (response.body && response.isStream) {
     const reader = response.body.getReader();
 
