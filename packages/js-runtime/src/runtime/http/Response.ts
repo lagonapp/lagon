@@ -10,19 +10,7 @@ import { RequestResponseBody } from './body';
     redirected: boolean;
 
     constructor(body?: BodyInit | null, init?: ResponseInit) {
-      let headers: Headers;
-
-      if (init?.headers) {
-        if (init.headers instanceof Headers) {
-          headers = init.headers;
-        } else {
-          headers = new Headers(init.headers);
-        }
-      } else {
-        headers = new Headers();
-      }
-
-      super(body, headers);
+      super(body, init?.headers);
 
       if (init?.status) {
         this.ok = init.status >= 200 && init.status < 300;
