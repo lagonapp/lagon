@@ -6,6 +6,7 @@ const style = cva('', {
     size: {
       h1: 'text-5xl font-semibold',
       h2: 'text-4xl font-semibold',
+      h3: 'text-2xl font-semibold',
       p: 'text-[#7F92AF] text-base',
       span: '',
     },
