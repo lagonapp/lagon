@@ -74,7 +74,7 @@ macro_rules! async_binding {
     };
 }
 
-pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
+pub fn bind<'a>(scope: &mut v8::HandleScope<'a, ()>) -> v8::Local<'a, v8::Context> {
     let global = v8::ObjectTemplate::new(scope);
 
     let lagon_object = v8::ObjectTemplate::new(scope);
@@ -105,6 +105,5 @@ pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
 
     global.set(v8_string(scope, "Lagon").into(), lagon_object.into());
 
-    let context = v8::Context::new_from_template(scope, global);
-    v8::Global::new(scope, context)
+    v8::Context::new_from_template(scope, global)
 }

@@ -67,6 +67,15 @@ pub fn get_runtime_code<'a>(
         None => "".to_string(),
     };
 
+    //     if options.snapshot_blob.is_some() {
+    //         v8_string(
+    //             scope,
+    //             &format!(
+    //                 r"{environment_variables}
+    // {code}"
+    //             ),
+    //         )
+    //     } else {
     v8_string(
         scope,
         &format!(
@@ -75,4 +84,5 @@ pub fn get_runtime_code<'a>(
 {code}"
         ),
     )
+    // }
 }

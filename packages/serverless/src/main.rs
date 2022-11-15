@@ -43,6 +43,7 @@ lazy_static! {
     static ref X_FORWARDED_FOR: String = String::from("X-Forwarded-For");
 }
 
+const SNAPSHOT_BLOB: &[u8] = include_bytes!("../snapshot.bin");
 const POOL_SIZE: usize = 8;
 const PAGE_404: &str = include_str!("../public/404.html");
 const PAGE_502: &str = include_str!("../public/502.html");
@@ -181,7 +182,8 @@ async fn handle_request(
                                     statistics.memory_usage as f64,
                                     &labels
                                 );
-                            }));
+                            }))
+                            .with_snapshot_blob(SNAPSHOT_BLOB);
 
                         Isolate::new(options)
                     });
