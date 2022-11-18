@@ -1,4 +1,5 @@
 use anyhow::Result;
+use deployments::cache::run_cache_clear_task;
 use deployments::Deployment;
 use hyper::body::Bytes;
 use hyper::header::HOST;
@@ -11,7 +12,6 @@ use lagon_runtime::isolate::{Isolate, IsolateOptions};
 use lagon_runtime::runtime::{Runtime, RuntimeOptions};
 use lazy_static::lazy_static;
 use log::{as_debug, error, info, warn};
-use lru_time_cache::LruCache;
 use metrics::{counter, histogram, increment_counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
@@ -24,7 +24,7 @@ use std::collections::HashMap;
 use std::convert::Infallible;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::Instant;
 use tokio::sync::RwLock;
 use tokio_util::task::LocalPoolHandle;
 
@@ -37,17 +37,11 @@ use crate::logger::init_logger;
 mod deployments;
 mod logger;
 
-type ThreadIsolates = LruCache<String, Isolate<(String, String)>>;
+type ThreadIsolates = HashMap<String, Isolate<(String, String)>>;
 
 lazy_static! {
     pub static ref ISOLATES: RwLock<HashMap<usize, ThreadIsolates>> = RwLock::new(HashMap::new());
     static ref X_FORWARDED_FOR: String = String::from("X-Forwarded-For");
-    static ref ISOLATES_CACHE_SECONDS: Duration = Duration::from_secs(
-        dotenv::var("LAGON_ISOLATES_CACHE_SECONDS")
-            .expect("LAGON_ISOLATES_CACHE_SECONDS must be set")
-            .parse()
-            .expect("Failed to parse LAGON_ISOLATES_CACHE_SECONDS")
-    );
 }
 
 const POOL_SIZE: usize = 8;
@@ -61,6 +55,7 @@ async fn handle_request(
     pool: LocalPoolHandle,
     deployments: Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
     thread_ids: Arc<RwLock<HashMap<String, usize>>>,
+    last_requests: Arc<RwLock<HashMap<String, Instant>>>,
 ) -> Result<HyperResponse<Body>> {
     let url = req.uri().path();
     // Remove the leading '/' from the url
@@ -126,6 +121,7 @@ async fn handle_request(
 
                     tx.send_async(run_result).await.unwrap_or(());
                 } else {
+                    last_requests.write().await.insert(hostname.clone(), Instant::now());
                     increment_counter!("lagon_requests", &labels);
 
                     let mut request = match Request::from_hyper(req).await {
@@ -150,9 +146,7 @@ async fn handle_request(
                     // deployment and that the isolate should be called.
                     // TODO: read() then write() if not present
                     let mut isolates = ISOLATES.write().await;
-                    let thread_isolates = isolates.entry(thread_id).or_insert_with(|| {
-                        LruCache::with_expiry_duration(*ISOLATES_CACHE_SECONDS)
-                    });
+                    let thread_isolates = isolates.entry(thread_id).or_insert_with(HashMap::new);
 
                     let isolate = thread_isolates.entry(hostname).or_insert_with(|| {
                         info!(deployment = deployment.id; "Creating new isolate");
@@ -301,6 +295,8 @@ async fn main() -> Result<()> {
 
     let deployments = get_deployments(conn, bucket.clone()).await?;
     let redis = listen_pub_sub(bucket.clone(), Arc::clone(&deployments));
+    let last_requests = Arc::new(RwLock::new(HashMap::new()));
+    run_cache_clear_task(Arc::clone(&last_requests));
 
     let pool = LocalPoolHandle::new(POOL_SIZE);
     let thread_ids = Arc::new(RwLock::new(HashMap::new()));
@@ -309,6 +305,7 @@ async fn main() -> Result<()> {
         let deployments = Arc::clone(&deployments);
         let pool = pool.clone();
         let thread_ids = Arc::clone(&thread_ids);
+        let last_requests = Arc::clone(&last_requests);
 
         let addr = conn.remote_addr();
         let ip = addr.ip().to_string();
@@ -321,6 +318,7 @@ async fn main() -> Result<()> {
                     pool.clone(),
                     Arc::clone(&deployments),
                     Arc::clone(&thread_ids),
+                    Arc::clone(&last_requests),
                 )
             }))
         }

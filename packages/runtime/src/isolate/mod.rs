@@ -225,6 +225,10 @@ impl<T: Clone> Isolate<T> {
         this
     }
 
+    pub fn get_metadata(&self) -> Option<T> {
+        self.options.metadata.clone()
+    }
+
     fn heap_limit_reached(&mut self) {
         self.termination_tx
             .as_ref()
@@ -244,7 +248,7 @@ impl<T: Clone> Isolate<T> {
         s.clone()
     }
 
-    pub fn evaluate(&mut self, request: Request) -> Option<String> {
+    fn evaluate(&mut self, request: Request) -> Option<String> {
         let isolate_state = Isolate::<T>::state(&self.isolate);
 
         // Reset the stream status after each `run()`
