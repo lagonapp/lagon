@@ -60,7 +60,7 @@ export class RequestResponseBody {
       this.headersCache = new Headers();
     }
 
-    return this.headers;
+    return this.headersCache;
   }
 
   async arrayBuffer(): Promise<ArrayBuffer> {

@@ -51,22 +51,22 @@ impl IntoV8 for Response {
     fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
         let response = v8::Object::new(scope);
 
-        let body_key = v8_string(scope, "body");
+        let body_key = v8_string(scope, "b");
         let body_value = v8_uint8array(scope, self.body.to_vec());
         response
             .set(scope, body_key.into(), body_value.into())
             .unwrap();
 
-        let status_key = v8_string(scope, "status");
+        let status_key = v8_string(scope, "s");
         let status_value = v8_integer(scope, self.status.into());
         response
             .set(scope, status_key.into(), status_value.into())
             .unwrap();
 
-        let headers_key = v8_string(scope, "headers");
-
         if let Some(headers) = self.headers {
             let headers_value = v8_headers_object(scope, headers);
+            let headers_key = v8_string(scope, "h");
+
             response
                 .set(scope, headers_key.into(), headers_value.into())
                 .unwrap();
@@ -87,7 +87,7 @@ impl FromV8 for Response {
         };
 
         let body;
-        let body_key = v8_string(scope, "body");
+        let body_key = v8_string(scope, "b");
 
         if let Some(body_value) = response.get(scope, body_key.into()) {
             body = extract_v8_string(body_value, scope)?;
@@ -96,7 +96,7 @@ impl FromV8 for Response {
         }
 
         let mut headers = None;
-        let headers_key = v8_string(scope, "headers");
+        let headers_key = v8_string(scope, "h");
 
         if let Some(headers_object) = response.get(scope, headers_key.into()) {
             if let Some(headers_object) = headers_object.to_object(scope) {
@@ -113,7 +113,7 @@ impl FromV8 for Response {
         }
 
         let status;
-        let status_key = v8_string(scope, "status");
+        let status_key = v8_string(scope, "s");
 
         if let Some(status_value) = response.get(scope, status_key.into()) {
             status = extract_v8_integer(status_value, scope)? as u16;

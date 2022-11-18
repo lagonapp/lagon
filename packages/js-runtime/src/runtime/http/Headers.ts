@@ -1,6 +1,6 @@
 (globalThis => {
   globalThis.Headers = class {
-    private headers: Map<string, string[]> = new Map();
+    private readonly h: Map<string, string[]> = new Map();
 
     constructor(init?: HeadersInit) {
       if (init) {
@@ -18,12 +18,12 @@
 
     private addValue(name: string, value: string) {
       name = name.toLowerCase();
-      const values = this.headers.get(name);
+      const values = this.h.get(name);
 
       if (values) {
         values.push(value);
       } else {
-        this.headers.set(name, [value]);
+        this.h.set(name, [value]);
       }
     }
 
@@ -34,11 +34,11 @@
 
     delete(name: string) {
       name = name.toLowerCase();
-      this.headers.delete(name);
+      this.h.delete(name);
     }
 
     *entries(): IterableIterator<[string, string]> {
-      for (const [key, values] of this.headers) {
+      for (const [key, values] of this.h) {
         for (const value of values) {
           yield [key, value];
         }
@@ -47,25 +47,25 @@
 
     get(name: string): string | null {
       name = name.toLowerCase();
-      return this.headers.get(name)?.[0] || null;
+      return this.h.get(name)?.[0] || null;
     }
 
     has(name: string): boolean {
       name = name.toLowerCase();
-      return this.headers.has(name);
+      return this.h.has(name);
     }
 
     keys(): IterableIterator<string> {
-      return this.headers.keys();
+      return this.h.keys();
     }
 
     set(name: string, value: string) {
       name = name.toLowerCase();
-      this.headers.set(name, [value]);
+      this.h.set(name, [value]);
     }
 
     *values(): IterableIterator<string> {
-      for (const [, values] of this.headers) {
+      for (const [, values] of this.h) {
         for (const value of values) {
           yield value;
         }

@@ -24,20 +24,10 @@ import './runtime/http/fetch';
 declare global {
   var Lagon: {
     log: (message: string) => void;
-    fetch: ({
-      headers,
-      method,
-      body,
-      url,
-    }: {
-      headers?: Map<string, string>;
-      method: string;
-      body?: string;
-      url: string;
-    }) => Promise<{
-      body: Uint8Array;
-      status: number;
-      headers?: Record<string, string>;
+    fetch: ({ h, m, b, u }: { h?: Map<string, string>; m: string; b?: string; u: string }) => Promise<{
+      b: Uint8Array;
+      s: number;
+      h?: Record<string, string>;
     }>;
     pullStream: (done: boolean, chunk?: Uint8Array) => void;
     uuid: () => string;
@@ -79,11 +69,20 @@ declare global {
   }
 }
 
-export async function masterHandler(request: { input: string } & Request): Promise<Response> {
-  const handlerRequest = new Request(request.input, {
-    method: request.method,
-    headers: request.headers,
-    body: request.body,
+export async function masterHandler(request: {
+  i: string;
+  m: RequestInit['method'];
+  h: RequestInit['headers'];
+  b: RequestInit['body'];
+}): Promise<{
+  b: string;
+  h: ResponseInit['headers'];
+  s: ResponseInit['status'];
+}> {
+  const handlerRequest = new Request(request.i, {
+    method: request.m,
+    headers: request.h,
+    body: request.b,
   });
 
   const response = await handler(handlerRequest);
@@ -113,5 +112,9 @@ export async function masterHandler(request: { input: string } & Request): Promi
     response.body = await response.text();
   }
 
-  return response;
+  return {
+    b: response.body as unknown as string,
+    h: response.headers,
+    s: response.status,
+  };
 }
