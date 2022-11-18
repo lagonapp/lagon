@@ -59,12 +59,13 @@ async fn handle_request(
     req: HyperRequest<Body>,
     ip: String,
     pool: LocalPoolHandle,
-    deployments: Arc<RwLock<HashMap<String, Deployment>>>,
+    deployments: Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
     thread_ids: Arc<RwLock<HashMap<String, usize>>>,
 ) -> Result<HyperResponse<Body>> {
-    let mut url = req.uri().to_string();
+    let url = req.uri().path();
     // Remove the leading '/' from the url
-    url.remove(0);
+    let url = &url[1..];
+    let url = url.to_owned();
 
     let hostname = match req.headers().get(HOST) {
         Some(hostname) => hostname.to_str()?.to_string(),
@@ -77,7 +78,7 @@ async fn handle_request(
 
     let deployments = deployments.read().await;
     let deployment = match deployments.get(&hostname) {
-        Some(deployment) => deployment.clone(),
+        Some(deployment) => Arc::clone(deployment),
         None => {
             warn!(request = as_debug!(req); "No deployment found for hostname");
 
@@ -85,7 +86,7 @@ async fn handle_request(
         }
     };
 
-    let deployment_id = deployment.id.clone();
+    let deployment_id = &Arc::clone(&deployment).id;
     let thread_ids_reader = thread_ids.read().await;
 
     let thread_id = match thread_ids_reader.get(&hostname) {
@@ -279,10 +280,10 @@ async fn main() -> Result<()> {
     let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
-    #[cfg(not(debug_assertions))]
-    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
-        SslOpts::default().with_danger_accept_invalid_certs(true),
-    ));
+    // #[cfg(not(debug_assertions))]
+    // let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
+    //     SslOpts::default().with_danger_accept_invalid_certs(true),
+    // ));
     let pool = Pool::new(opts)?;
     let conn = pool.get_conn()?;
 
@@ -299,15 +300,15 @@ async fn main() -> Result<()> {
     let bucket = Bucket::new(&bucket_name, region, credentials)?;
 
     let deployments = get_deployments(conn, bucket.clone()).await?;
-    let redis = listen_pub_sub(bucket.clone(), deployments.clone());
+    let redis = listen_pub_sub(bucket.clone(), Arc::clone(&deployments));
 
     let pool = LocalPoolHandle::new(POOL_SIZE);
     let thread_ids = Arc::new(RwLock::new(HashMap::new()));
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
-        let deployments = deployments.clone();
+        let deployments = Arc::clone(&deployments);
         let pool = pool.clone();
-        let thread_ids = thread_ids.clone();
+        let thread_ids = Arc::clone(&thread_ids);
 
         let addr = conn.remote_addr();
         let ip = addr.ip().to_string();
@@ -318,8 +319,8 @@ async fn main() -> Result<()> {
                     req,
                     ip.clone(),
                     pool.clone(),
-                    deployments.clone(),
-                    thread_ids.clone(),
+                    Arc::clone(&deployments),
+                    Arc::clone(&thread_ids),
                 )
             }))
         }

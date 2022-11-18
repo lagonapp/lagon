@@ -9,7 +9,7 @@ use super::Deployment;
 pub fn handle_asset(deployment: &Deployment, asset: &String) -> Result<Response> {
     let path = Path::new(env::current_dir()?.as_path())
         .join("deployments")
-        .join(deployment.id.clone())
+        .join(&deployment.id)
         .join(asset);
     let body = fs::read(path)?;
 

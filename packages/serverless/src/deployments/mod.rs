@@ -62,7 +62,7 @@ impl Deployment {
 pub async fn get_deployments(
     mut conn: PooledConn,
     bucket: Bucket,
-) -> Result<Arc<RwLock<HashMap<String, Deployment>>>> {
+) -> Result<Arc<RwLock<HashMap<String, Arc<Deployment>>>>> {
     let deployments = Arc::new(RwLock::new(HashMap::new()));
 
     let mut deployments_list: HashMap<String, Deployment> = HashMap::new();
@@ -160,7 +160,7 @@ pub async fn get_deployments(
             }
 
             for domain in deployment.get_domains() {
-                deployments.insert(domain, deployment.clone());
+                deployments.insert(domain, Arc::new(deployment.clone()));
             }
         }
     }
