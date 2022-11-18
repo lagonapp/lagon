@@ -36,29 +36,28 @@ impl IntoV8 for Request {
     fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
         let request = v8::Object::new(scope);
 
-        let input_key = v8_string(scope, "input");
+        let input_key = v8_string(scope, "i");
         let input_value = v8_string(scope, &self.url);
         request
             .set(scope, input_key.into(), input_value.into())
             .unwrap();
 
-        let method_key = v8_string(scope, "method");
+        let method_key = v8_string(scope, "m");
         let method_value = v8_string(scope, self.method.into());
         request
             .set(scope, method_key.into(), method_value.into())
             .unwrap();
 
         if !self.body.is_empty() {
-            let body_key = v8_string(scope, "body");
+            let body_key = v8_string(scope, "b");
             let body_value = v8_string(scope, &String::from_utf8(self.body.to_vec()).unwrap());
             request
                 .set(scope, body_key.into(), body_value.into())
                 .unwrap();
         }
 
-        let headers_key = v8_string(scope, "headers");
-
         if let Some(headers) = self.headers {
+            let headers_key = v8_string(scope, "h");
             let headers_value = v8_headers_object(scope, headers);
             request
                 .set(scope, headers_key.into(), headers_value.into())
@@ -80,7 +79,7 @@ impl FromV8 for Request {
         };
 
         let mut body = Bytes::new();
-        let body_key = v8_string(scope, "body");
+        let body_key = v8_string(scope, "b");
 
         if let Some(body_value) = request.get(scope, body_key.into()) {
             if !body_value.is_null_or_undefined() {
@@ -89,7 +88,7 @@ impl FromV8 for Request {
         }
 
         let mut headers = None;
-        let headers_key = v8_string(scope, "headers");
+        let headers_key = v8_string(scope, "h");
 
         if let Some(headers_value) = request.get(scope, headers_key.into()) {
             if !headers_value.is_null_or_undefined() {
@@ -98,14 +97,14 @@ impl FromV8 for Request {
         }
 
         let mut method = Method::GET;
-        let method_key = v8_string(scope, "method");
+        let method_key = v8_string(scope, "m");
 
         if let Some(method_value) = request.get(scope, method_key.into()) {
             method = Method::from(extract_v8_string(method_value, scope)?.as_str());
         }
 
         let url;
-        let url_key = v8_string(scope, "url");
+        let url_key = v8_string(scope, "u");
 
         if let Some(url_value) = request.get(scope, url_key.into()) {
             url = extract_v8_string(url_value, scope)?;

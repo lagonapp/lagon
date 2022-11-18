@@ -39,18 +39,18 @@
       checkAborted();
 
       const response = await Lagon.fetch({
-        method: init?.method || 'GET',
-        url: input.toString(),
-        body,
-        headers,
+        m: init?.method || 'GET',
+        u: input.toString(),
+        b: body,
+        h: headers,
       });
 
       checkAborted();
 
-      return new Response(response.body, {
+      return new Response(response.b, {
         // url: response.init.url,
-        headers: response.headers,
-        status: response.status,
+        headers: response.h,
+        status: response.s,
       });
     } catch (error) {
       if (typeof error === 'string') {
