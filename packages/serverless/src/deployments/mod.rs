@@ -18,6 +18,7 @@ use self::filesystem::{
 };
 
 pub mod assets;
+pub mod cache;
 pub mod filesystem;
 pub mod pubsub;
 
