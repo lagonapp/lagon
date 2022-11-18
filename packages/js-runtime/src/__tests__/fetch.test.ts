@@ -164,23 +164,23 @@ describe('fetch', () => {
   it('should call Lagon.fetch', async () => {
     // @ts-expect-error Lagon is not defined
     globalThis.Lagon.fetch.mockReturnValueOnce({
-      body: 'Hello',
-      status: 200,
+      b: 'Hello',
+      s: 200,
     });
 
     await fetch('https://google.com');
 
     expect(globalThis.Lagon.fetch).toHaveBeenCalledWith({
-      method: 'GET',
-      url: 'https://google.com',
+      m: 'GET',
+      u: 'https://google.com',
     });
   });
 
   it('should call Lagon.fetch with options', async () => {
     // @ts-expect-error Lagon is not defined
     globalThis.Lagon.fetch.mockReturnValueOnce({
-      body: 'Hello',
-      status: 200,
+      b: 'Hello',
+      s: 200,
     });
 
     await fetch('https://google.com', {
@@ -189,9 +189,9 @@ describe('fetch', () => {
     });
 
     expect(globalThis.Lagon.fetch).toHaveBeenCalledWith({
-      method: 'POST',
-      url: 'https://google.com',
-      body: 'A body',
+      m: 'POST',
+      u: 'https://google.com',
+      b: 'A body',
     });
   });
 });
