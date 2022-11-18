@@ -35,8 +35,6 @@ pub fn run_cache_clear_task(last_requests: Arc<RwLock<HashMap<String, Instant>>>
                 }
             }
 
-            // drop(last_requests);
-
             if isolates_to_clear.is_empty() {
                 continue;
             }
