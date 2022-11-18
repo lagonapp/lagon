@@ -23,7 +23,7 @@ async fn clear_deployments_cache(domains: &Vec<String>) {
 
 pub fn listen_pub_sub(
     bucket: Bucket,
-    deployments: Arc<RwLock<HashMap<String, Deployment>>>,
+    deployments: Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
 ) -> JoinHandle<Result<()>> {
     tokio::spawn(async move {
         let url = dotenv::var("REDIS_URL").expect("REDIS_URL must be set");
@@ -77,7 +77,7 @@ pub fn listen_pub_sub(
                             let domains = deployment.get_domains();
 
                             for domain in &domains {
-                                deployments.insert(domain.clone(), deployment.clone());
+                                deployments.insert(domain.clone(), Arc::new(deployment.clone()));
                             }
 
                             clear_deployments_cache(&domains).await;
@@ -112,7 +112,7 @@ pub fn listen_pub_sub(
                     let mut deployments = deployments.write().await;
 
                     if let Some(deployment) = deployments.get(previous_id) {
-                        let mut unpromoted_deployment = deployment.clone();
+                        let mut unpromoted_deployment = deployment.as_ref().clone();
                         unpromoted_deployment.is_production = false;
 
                         for domain in deployment.get_domains() {
@@ -120,14 +120,14 @@ pub fn listen_pub_sub(
                         }
 
                         for domain in unpromoted_deployment.get_domains() {
-                            deployments.insert(domain, unpromoted_deployment.clone());
+                            deployments.insert(domain, Arc::new(unpromoted_deployment.clone()));
                         }
                     }
 
                     let domains = deployment.get_domains();
 
                     for domain in &domains {
-                        deployments.insert(domain.clone(), deployment.clone());
+                        deployments.insert(domain.clone(), Arc::new(deployment.clone()));
                     }
 
                     clear_deployments_cache(&domains).await;
