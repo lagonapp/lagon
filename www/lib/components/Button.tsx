@@ -1,5 +1,5 @@
 import { cva, VariantProps } from 'class-variance-authority';
-import { ReactNode } from 'react';
+import { MouseEventHandler, ReactNode } from 'react';
 
 const style = cva(' text-base leading-5 px-3 py-2 rounded-lg border border-transparent transition-all duration-300', {
   variants: {
@@ -14,12 +14,13 @@ const style = cva(' text-base leading-5 px-3 py-2 rounded-lg border border-trans
 type ButtonProps = {
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
+  onClick?: MouseEventHandler;
   children: ReactNode;
 } & VariantProps<typeof style>;
 
-export const Button = ({ leftIcon, rightIcon, children, ...props }: ButtonProps) => {
+export const Button = ({ leftIcon, rightIcon, onClick, children, ...props }: ButtonProps) => {
   return (
-    <button type="button" className={style(props)}>
+    <button type="button" onClick={onClick} className={style(props)}>
       {leftIcon}
       {children}
       {rightIcon}

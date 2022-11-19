@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@heroicons/react": "^1.0.6",
+    "@heroicons/react": "^2.0.13",
     "@next/font": "13.1.4",
     "@vercel/analytics": "0.1.8",
     "class-variance-authority": "^0.3.0",

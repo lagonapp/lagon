@@ -1,6 +1,6 @@
 import { Inter } from '@next/font/google';
 import { Button } from '../lib/components/Button';
-import { Code } from '../lib/components/Code';
+import { FunctionCode } from '../lib/components/Code';
 import { Text } from '../lib/components/Text';
 import { Header } from '../lib/components/Header';
 import useSystemTheme from '../lib/hooks/useSystemTheme';
@@ -357,15 +357,20 @@ const Home = () => {
               </defs>
             </svg>
             <div className="border-l border-dashed border-[#86B6FF] h-12 mt-36" />
-            <Code>
+            <FunctionCode>
               export function <span className="text-blue-1">handler</span>(request:&nbsp;
               <span className="text-purple">Request</span>) &#123;
               <br />
+              &nbsp;&nbsp;const ip = request.headers.get(<span className="text-green">&apos;X-Forwarded-For&apos;</span>
+              )
+              <br />
               &nbsp;&nbsp;return new <span className="text-purple">Response</span>(
-              <span className="text-green">“Hello, World!”</span>)
+              <span className="text-green">`Your IP is: </span>
+              {'${ip}'}
+              <span className="text-green">`</span>)
               <br />
               &#125;
-            </Code>
+            </FunctionCode>
           </section>
           <section className="flex flex-col gap-16">
             <div className="p-[1px] rounded-3xl bg-gradient-to-br from-green via-purple to-[#0D2A54]">
