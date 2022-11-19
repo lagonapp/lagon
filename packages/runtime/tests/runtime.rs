@@ -285,7 +285,7 @@ async fn return_uint8array() {
 #[tokio::test(flavor = "multi_thread")]
 async fn console_log() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::<(String, String)>::new(IsolateOptions::new(
         "export function handler() {
     const types = ['log', 'info', 'debug', 'error', 'warn'];
 
