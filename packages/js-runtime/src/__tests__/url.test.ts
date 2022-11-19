@@ -243,7 +243,7 @@ describe('URL', () => {
   describe('searchParams', () => {
     it('should return the searchParams', () => {
       const { searchParams } = new URL('https://example.com/?name=Jonathan%20Smith&age=18');
-      expect(searchParams?.get('name')).toEqual('Jonathan%20Smith');
+      expect(searchParams?.get('name')).toEqual('Jonathan Smith');
       expect(searchParams?.get('age')).toEqual('18');
     });
   });
