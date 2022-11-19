@@ -27,3 +27,24 @@ body {
 .bg-gradient-primary-button:hover {
   background-position: 60px 0;
 }
+
+
+@keyframes line-bottom-left {
+  0% {
+    transform: rotate(45deg) translateY(0);
+    /* height: 0; */
+  }
+
+  10% {
+    /* height: var(--height); */
+  }
+
+  90% {
+    /* height: var(--height); */
+  }
+
+  100% {
+    transform: rotate(45deg) translateY(200%);
+    /* height: 0; */
+  }
+}

@@ -1,4 +1,5 @@
-import { ReactNode, useEffect, useRef } from 'react';
+import { ReactNode } from 'react';
+import { AnimatedLine } from './AnimatedLine';
 
 type CardProps = {
   className?: string;
@@ -7,34 +8,6 @@ type CardProps = {
 };
 
 export const Card = ({ className, lineAnimation, children }: CardProps) => {
-  const line = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (lineAnimation && line.current) {
-      line.current.style.top = Math.random() * 50 + '%';
-      line.current.style.left = Math.random() * 50 + '%';
-
-      const interval = setInterval(() => {
-        if (line.current) {
-          const top = Number(line.current.style.top.replace('%', ''));
-          const left = Number(line.current.style.left.replace('%', ''));
-
-          if (top >= 100 || left >= 100) {
-            line.current.style.top = Math.random() * 50 + '%';
-            line.current.style.left = Math.random() * 50 + '%';
-          } else {
-            line.current.style.top = top + 1 + '%';
-            line.current.style.left = left - 1 + '%';
-          }
-        }
-      }, 50);
-
-      return () => {
-        clearInterval(interval);
-      };
-    }
-  }, [lineAnimation, line]);
-
   return (
     <div
       className="p-[1px] rounded-2xl relative"
@@ -46,13 +19,7 @@ export const Card = ({ className, lineAnimation, children }: CardProps) => {
       >
         {children}
       </div>
-      {lineAnimation ? (
-        <div
-          ref={line}
-          className="absolute transform rotate-45 w-[1px] h-32"
-          style={{ backgroundImage: 'linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.2))' }}
-        />
-      ) : null}
+      {lineAnimation ? <AnimatedLine size="small" /> : null}
     </div>
   );
 };
