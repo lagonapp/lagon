@@ -1,19 +1,5 @@
-import Link from 'next/link';
-import { ReactNode } from 'react';
 import { Button } from './Button';
-
-type HeaderLinkProps = {
-  href: string;
-  children: ReactNode;
-};
-
-const HeaderLink = ({ href, children }: HeaderLinkProps) => {
-  return (
-    <Link href={href} className="text-grey text-base p-3 hover:text-white transition">
-      {children}
-    </Link>
-  );
-};
+import { Text } from './Text';
 
 export const Header = () => {
   return (
@@ -37,11 +23,19 @@ export const Header = () => {
           </clipPath>
         </defs>
       </svg>
-      <div className="flex gap-4">
-        <HeaderLink href="#">Features</HeaderLink>
-        <HeaderLink href="#">Docs</HeaderLink>
-        <HeaderLink href="#">Pricing</HeaderLink>
-        <HeaderLink href="#">Community</HeaderLink>
+      <div className="flex gap-12">
+        <Text size="a" href="#">
+          Features
+        </Text>
+        <Text size="a" href="#">
+          Docs
+        </Text>
+        <Text size="a" href="#">
+          Pricing
+        </Text>
+        <Text size="a" href="#">
+          Community
+        </Text>
       </div>
       <div className="flex gap-4">
         <Button variant="tertiary">Get started</Button>

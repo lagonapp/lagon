@@ -1,5 +1,6 @@
 import { cva, VariantProps } from 'class-variance-authority';
-import { ReactNode } from 'react';
+import Link from 'next/link';
+import { HTMLAttributeAnchorTarget, ReactNode } from 'react';
 
 const style = cva('', {
   variants: {
@@ -8,10 +9,12 @@ const style = cva('', {
       h2: 'text-4xl font-semibold',
       h3: 'text-2xl font-semibold',
       p: 'text-[#7F92AF] text-base',
+      a: 'text-[#7F92AF] text-base hover:text-white transition',
       span: '',
     },
     variant: {
       default: 'text-white',
+      bold: '!text-white font-semibold',
       radialGradientWhite: 'text-transparent bg-clip-text bg-radial-gradient-white',
     },
   },
@@ -22,8 +25,18 @@ const style = cva('', {
 
 type TextProps = {
   children: ReactNode;
+  href?: string;
+  target?: HTMLAttributeAnchorTarget;
 } & VariantProps<typeof style>;
 
-export const Text = ({ size: Tag = 'p', children, ...props }: TextProps) => {
+export const Text = ({ size: Tag = 'p', href, target, children, ...props }: TextProps) => {
+  if (Tag === 'a') {
+    return (
+      <Link href={href || ''} target={target} className={style({ size: Tag, ...props })}>
+        {children}
+      </Link>
+    );
+  }
+
   return <Tag className={style({ size: Tag, ...props })}>{children}</Tag>;
 };
