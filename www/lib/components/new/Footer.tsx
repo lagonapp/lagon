@@ -18,9 +18,9 @@ const FooterSection = ({ title, children }: FooterSectionProps) => {
 
 export const Footer = () => {
   return (
-    <footer className="container mx-auto flex justify-between py-16 mt-48">
+    <footer className="container mx-auto flex justify-between py-16 px-8 mt-48">
       <div className="flex flex-col justify-between">
-        <Image src="/logo-white.png" width="80" height="24" alt="Lagon Logo" />
+        <Image src="/logo-small-white.png" width="80" height="24" alt="Lagon Logo" />
         <Text>Copyright © {new Date().getFullYear()} Lagon</Text>
       </div>
       <div>Copyright</div>
