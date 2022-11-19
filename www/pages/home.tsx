@@ -5,6 +5,7 @@ import { Text } from '../lib/components/new/Text';
 import { Header } from '../lib/components/new/Header';
 import { useEffect, useRef } from 'react';
 import { Card } from '../lib/components/new/Card';
+import { Footer } from '../lib/components/new/Footer';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -1358,7 +1359,7 @@ const Home = () => {
           </Card>
         </section>
       </main>
-      <footer></footer>
+      <Footer />
     </div>
   );
 };
