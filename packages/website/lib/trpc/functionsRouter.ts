@@ -11,6 +11,12 @@ import {
 } from 'lib/constants';
 import { TRPCError } from '@trpc/server';
 import { T } from 'pages/api/trpc/[trpc]';
+import Client, { datasets } from '@axiomhq/axiom-node';
+
+const axiomClient = new Client({
+  orgId: process.env.AXIOM_ORG_ID,
+  token: process.env.AXIOM_TOKEN,
+});
 
 export const functionsRouter = (t: T) =>
   t.router({
@@ -105,29 +111,43 @@ export const functionsRouter = (t: T) =>
         }),
       )
       .query(async ({ input }) => {
-        return prisma.log.findMany({
-          where: {
-            functionId: input.functionId,
-            createdAt: {
-              gte: new Date(
-                new Date().getTime() -
-                  (input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 30 days' ? 30 : 7) *
-                    24 *
-                    60 *
-                    60 *
-                    1000,
-              ),
+        const logs = await axiomClient.datasets.queryLegacy('serverless', {
+          startTime: new Date(
+            new Date().getTime() -
+              (input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 30 days' ? 30 : 7) *
+                24 *
+                60 *
+                60 *
+                1000,
+          ).toISOString(),
+          endTime: new Date(Date.now()).toISOString(),
+          resolution: 'auto',
+          filter: {
+            field: 'metadata.source',
+            op: datasets.FilterOp.Equal,
+            value: 'console',
+            children: [
+              {
+                field: 'metadata.function',
+                op: datasets.FilterOp.Equal,
+                value: input.functionId,
+              },
+            ],
+          },
+          order: [
+            {
+              field: '_time',
+              desc: true,
             },
-          },
-          select: {
-            createdAt: true,
-            level: true,
-            message: true,
-          },
-          orderBy: {
-            createdAt: 'desc',
-          },
+          ],
         });
+
+        return (
+          (logs.matches?.map(({ _time, data }) => ({
+            ...data,
+            time: _time,
+          })) as { time: string; level: string; message: string }[]) || []
+        );
       }),
     functionCode: t.procedure
       .input(

@@ -23,7 +23,7 @@ import './runtime/http/fetch';
 // using `globalThis.VARIABLE`.
 declare global {
   var Lagon: {
-    log: (message: string) => void;
+    log: (level: string, message: string) => void;
     fetch: ({ h, m, b, u }: { h?: Map<string, string>; m: string; b?: string; u: string }) => Promise<{
       b: Uint8Array;
       s: number;

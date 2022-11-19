@@ -13,6 +13,7 @@ flume = "0.10.14"
 anyhow = "1.0.66"
 uuid = { version = "1.2.1", features = ["v4", "fast-rng"] }
 rand = "0.8.5"
+log = { version = "0.4.17", features = ["std", "kv_unstable"] }
 # Cryptography
 hmac = "0.12.1"
 sha2 = "0.10.6"

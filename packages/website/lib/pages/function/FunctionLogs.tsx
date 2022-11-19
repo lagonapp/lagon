@@ -27,17 +27,15 @@ const Content = ({ func, logLevel, timeframe }: ContentProps) => {
   if (logs?.length === 0) {
     return <EmptyState title={t('empty.title')} description={t('empty.description')} />;
   }
+  console.log(logs);
 
   return (
     <div className="flex flex-col">
-      {logs?.map(({ createdAt, level, message }, index) => {
-        const finalDate = new Date(createdAt);
-        finalDate.setHours(finalDate.getHours() - finalDate.getTimezoneOffset() / 60);
-
+      {logs?.map(({ time, level, message }, index) => {
         return (
           <LogLine
-            key={`${createdAt}-${index}`}
-            date={finalDate}
+            key={`${time}-${index}`}
+            date={new Date(time)}
             level={level.toLowerCase() as LogLevel}
             message={message}
           />
