@@ -67,18 +67,11 @@ export async function removeDeployment(
   },
   deploymentId: string,
 ) {
-  await Promise.all([
-    prisma.asset.deleteMany({
-      where: {
-        deploymentId,
-      },
-    }),
-    prisma.log.deleteMany({
-      where: {
-        deploymentId,
-      },
-    }),
-  ]);
+  await prisma.asset.deleteMany({
+    where: {
+      deploymentId,
+    },
+  });
 
   const deployment = await prisma.deployment.delete({
     where: {
@@ -321,18 +314,11 @@ export async function removeFunction(func: {
   );
 
   await Promise.all(deleteDeployments);
-  await Promise.all([
-    prisma.log.deleteMany({
-      where: {
-        functionId: func.id,
-      },
-    }),
-    prisma.domain.deleteMany({
-      where: {
-        functionId: func.id,
-      },
-    }),
-  ]);
+  await prisma.domain.deleteMany({
+    where: {
+      functionId: func.id,
+    },
+  });
 
   await prisma.function.delete({
     where: {
