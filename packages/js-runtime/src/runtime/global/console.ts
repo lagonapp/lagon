@@ -77,7 +77,7 @@
 
   types.forEach(type => {
     globalThis.console[type] = (input, ...args) => {
-      Lagon.log(`[${type}] ${format(input, ...args)}`);
+      Lagon.log(type, format(input, ...args));
     };
   });
 })(globalThis);

@@ -64,12 +64,13 @@ fn resolve_module_callback<'a>(
 struct Global(v8::Global<v8::Context>);
 
 #[derive(Debug)]
-struct IsolateState {
+struct IsolateState<T: Clone> {
     global: Global,
     promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
     js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
     handler_result: Option<v8::Global<v8::Promise>>,
     stream_sender: flume::Sender<StreamResult>,
+    metadata: Option<T>,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -176,7 +177,7 @@ unsafe impl<T: Clone> Sync for Isolate<T> {}
 // All tx.send(...) can return an Err due to many reason, e.g the thread panicked
 // or the connection closed on the other side, meaning the channel is now closed.
 // That's why we use .unwrap_or(()) to silently discard any error.
-impl<T: Clone> Isolate<T> {
+impl<T: Clone + 'static> Isolate<T> {
     pub fn new(options: IsolateOptions<T>) -> Self {
         let memory_mb = options.memory * 1024 * 1024;
 
@@ -190,7 +191,7 @@ impl<T: Clone> Isolate<T> {
         let mut isolate = v8::Isolate::new(params);
         let (stream_sender, stream_receiver) = flume::unbounded();
 
-        let state = {
+        let state: IsolateState<T> = {
             let isolate_scope = &mut v8::HandleScope::new(&mut isolate);
             let global = bindings::bind(isolate_scope);
 
@@ -200,6 +201,7 @@ impl<T: Clone> Isolate<T> {
                 js_promises: HashMap::new(),
                 handler_result: None,
                 stream_sender,
+                metadata: options.metadata.clone(),
             }
         };
 
@@ -243,8 +245,8 @@ impl<T: Clone> Isolate<T> {
         // TODO: add callback for serverless to log killed process?
     }
 
-    pub(self) fn state(isolate: &v8::Isolate) -> Rc<RefCell<IsolateState>> {
-        let s = isolate.get_slot::<Rc<RefCell<IsolateState>>>().unwrap();
+    pub(self) fn state(isolate: &v8::Isolate) -> Rc<RefCell<IsolateState<T>>> {
+        let s = isolate.get_slot::<Rc<RefCell<IsolateState<T>>>>().unwrap();
         s.clone()
     }
 

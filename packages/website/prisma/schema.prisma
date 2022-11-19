@@ -90,7 +90,6 @@ model Function {
   organizationId String
 
   deployments Deployment[]
-  logs        Log[]
 }
 
 model Domain {
@@ -129,8 +128,6 @@ model Deployment {
 
   triggerer String  @default("Lagon")
   commit    String?
-
-  logs Log[]
 }
 
 model Asset {
@@ -154,27 +151,4 @@ model Token {
 
   user   User   @relation(fields: [userId], references: [id])
   userId String
-}
-
-enum LogLevel {
-  LOG
-  ERROR
-  INFO
-  WARN
-  DEBUG
-}
-
-model Log {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  function   Function @relation(fields: [functionId], references: [id])
-  functionId String
-
-  deployment   Deployment @relation(fields: [deploymentId], references: [id])
-  deploymentId String
-
-  level   LogLevel
-  message String
 }
