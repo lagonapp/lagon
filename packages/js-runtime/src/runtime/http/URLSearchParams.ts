@@ -11,7 +11,7 @@
             .forEach(entry => {
               const [key, value] = entry.split('=');
 
-              this.addValue(key, value);
+              this.addValue(key, decodeURIComponent(value));
             });
         } else if (typeof init === 'object') {
           if (Array.isArray(init)) {

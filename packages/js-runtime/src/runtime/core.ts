@@ -1,4 +1,8 @@
 (globalThis => {
+  const MULTIPART_FORMDATA_CONTENTYPE = 'multipart/form-data';
+  const CONTENT_DISPOSITION = 'Content-Disposition';
+  const APPLICATION_X_WWW_FORM_URLENCODED = 'application/x-www-form-urlencoded';
+
   const isIterable = (value: unknown): value is ArrayBuffer =>
     typeof value !== 'string' && Symbol.iterator in Object(value);
 
@@ -10,37 +14,50 @@
     }
 
     const contentTypeHeader = headers.get('content-type');
-    let boundary: string | undefined;
 
-    const getBoundary = (header: string | null) => header?.split(';')?.[1]?.split('=')?.[1];
+    if (contentTypeHeader === APPLICATION_X_WWW_FORM_URLENCODED) {
+      const params = new URLSearchParams(body);
 
-    if (Array.isArray(contentTypeHeader)) {
-      contentTypeHeader.forEach(header => {
-        if (!boundary) {
-          boundary = getBoundary(header);
-        }
-      });
-    } else {
-      boundary = getBoundary(contentTypeHeader);
-    }
+      for (const [key, value] of params) {
+        formData.append(key, value);
+      }
 
-    if (!boundary) {
       return formData;
-    }
+    } else if (contentTypeHeader?.startsWith(MULTIPART_FORMDATA_CONTENTYPE)) {
+      let boundary: string | undefined;
 
-    for (const part of body.split(boundary)) {
-      if (part?.includes('Content-Disposition')) {
-        const content = part.split('; name="')?.[1].split('\n\n');
+      const getBoundary = (header: string | null) => header?.split(';')?.[1]?.split('=')?.[1];
 
-        if (content) {
-          const [name, value] = content;
+      if (Array.isArray(contentTypeHeader)) {
+        contentTypeHeader.forEach(header => {
+          if (!boundary) {
+            boundary = getBoundary(header);
+          }
+        });
+      } else {
+        boundary = getBoundary(contentTypeHeader);
+      }
 
-          formData.append(name.split('"')[0], value.replace('\n--', ''));
+      if (!boundary) {
+        return formData;
+      }
+
+      for (const part of body.split(boundary)) {
+        if (part?.includes(CONTENT_DISPOSITION)) {
+          const content = part.split('; name="')?.[1].split('\n\n');
+
+          if (content) {
+            const [name, value] = content;
+
+            formData.append(name.split('"')[0], value.replace('\n--', ''));
+          }
         }
       }
-    }
 
-    return formData;
+      return formData;
+    } else {
+      throw new Error(`Unsupported content type: ${contentTypeHeader}`);
+    }
   };
 
   const TEXT_ENCODER = new TextEncoder();

@@ -90,7 +90,30 @@ describe('FormData', () => {
     expect(Array.from(fields.values())).toEqual(['b', 'd']);
   });
 
-  describe('Parse', () => {
+  describe('application/x-www-form-urlencoded', () => {
+    it('should parse FormData', async () => {
+      const fields = await new Response('hello=world', {
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+      }).formData();
+
+      expect(fields.get('hello')).toEqual('world');
+    });
+
+    it('should parse multiple fields', async () => {
+      const fields = await new Response('username=john&password=Pa%24%24w0rd', {
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+      }).formData();
+
+      expect(fields.get('username')).toEqual('john');
+      expect(fields.get('password')).toEqual('Pa$$w0rd');
+    });
+  });
+
+  describe('multipart/form-data', () => {
     it('should parse FormData', async () => {
       const fields = await new Response(
         `-----------------------------9051914041544843365972754266
@@ -165,5 +188,11 @@ aωb
       expect(fields.get('file1')).toEqual('Content of a.txt.');
       expect(fields.get('file2')).toEqual('<!DOCTYPE html><title>Content of a.html.</title>');
     });
+  });
+
+  it('should throw with unsupported content-type', async () => {
+    await expect(() =>
+      new Response('unknown', { headers: { 'content-type': 'unknown' } }).formData(),
+    ).rejects.toThrowError('Unsupported content type: unknown');
   });
 });
