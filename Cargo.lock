@@ -1347,6 +1347,7 @@ dependencies = [
  "hyper-tls",
  "indicatif",
  "lagon-runtime",
+ "log",
  "mime",
  "notify",
  "pathdiff",
