@@ -129,9 +129,9 @@ async fn handle_request(
             Ok(mut request) => {
                 request.add_header("X-Forwarded-For".into(), ip);
 
-                let mut isolate = Isolate::<(String, String)>::new(
+                let mut isolate = Isolate::new(
                     IsolateOptions::new(String::from_utf8(index.get_ref().to_vec())?)
-                        .with_metadata((String::from(""), String::from("")))
+                        .with_metadata(Some((String::from(""), String::from(""))))
                         .with_environment_variables(environment_variables),
                 );
 

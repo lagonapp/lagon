@@ -19,7 +19,7 @@ pub fn verify_binding(
     let promise = v8::PromiseResolver::new(scope).unwrap();
     retval.set(promise.into());
 
-    let state = Isolate::<()>::state(scope);
+    let state = Isolate::state(scope);
     let mut state = state.borrow_mut();
     let id = state.js_promises.len() + 1;
 

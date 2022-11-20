@@ -117,8 +117,8 @@ export function handler() {{
     )
     .replace("self.", "globalThis.");
 
-    let mut isolate = Isolate::<(String, String)>::new(
-        IsolateOptions::new(code).with_metadata((String::from(""), String::from(""))),
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(code).with_metadata(Some((String::from(""), String::from("")))),
     );
 
     let (tx, rx) = flume::unbounded();

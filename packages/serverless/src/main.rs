@@ -37,10 +37,9 @@ use crate::logger::init_logger;
 mod deployments;
 mod logger;
 
-type ThreadIsolates = HashMap<String, Isolate<(String, String)>>;
-
 lazy_static! {
-    pub static ref ISOLATES: RwLock<HashMap<usize, ThreadIsolates>> = RwLock::new(HashMap::new());
+    pub static ref ISOLATES: RwLock<HashMap<usize, HashMap<String, Isolate>>> =
+        RwLock::new(HashMap::new());
     static ref X_FORWARDED_FOR: String = String::from("X-Forwarded-For");
 }
 
@@ -163,7 +162,7 @@ async fn handle_request(
                             )
                             .with_memory(deployment.memory)
                             .with_timeout(deployment.timeout)
-                            .with_metadata((deployment.id.clone(), deployment.function_id.clone()))
+                            .with_metadata(Some((deployment.id.clone(), deployment.function_id.clone())))
                             .with_on_drop_callback(Box::new(|metadata| {
                                 info!(deployment = metadata.unwrap().0; "Dropping isolate");
                             }))
