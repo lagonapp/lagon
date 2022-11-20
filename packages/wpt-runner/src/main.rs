@@ -50,32 +50,25 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-const SKIP_TESTS: [&str; 25] = [
+const SKIP_TESTS: [&str; 18] = [
     // headers
     "headers-no-cors.any.js",
     "header-values.any.js",
     "header-values-normalize.any.js",
     // request
-    "request-consume-empty.any.js",
     "request-cache-default-conditional.any.js",
     "request-cache-no-cache.any.js",
-    "request-init-002.any.js",
-    "request-bad-port.any.js",
     "request-cache-no-store.any.js",
     "request-cache-force-cache.any.js",
     "request-cache-default.any.js",
-    "request/request-error.any.js",
     "request-cache-only-if-cached.any.js",
-    "request-consume.any.js",
     "request-cache-reload.any.js",
+    "request-bad-port.any.js",
+    "request/request-error.any.js",
     // response
-    "response-consume-stream.any.js",
-    "response-consume-empty.any.js",
     "json.any.js",
-    "response-init-002.any.js",
     "response-clone.any.js",
     // url
-    "historical.any.js",
     "idlharness.any.js",
     "url-setters.any.js",
     "url-constructor.any.js",
@@ -102,12 +95,19 @@ async fn run_test(path: &Path) {
         .replace("debug: false", "debug: true");
 
     let code = format!(
-        "export function handler() {{
+        "globalThis.GLOBAL = {{
+    isWorker: () => false,
+    isShadowRealm: () => false,
+    isWindow: () => false,
+}}
+
+export function handler() {{
     {testharness}
     {code}
     return new Response()
 }}"
-    );
+    )
+    .replace("self.", "globalThis.");
 
     let mut isolate = Isolate::<(String, String)>::new(
         IsolateOptions::new(code).with_metadata((String::from(""), String::from(""))),
