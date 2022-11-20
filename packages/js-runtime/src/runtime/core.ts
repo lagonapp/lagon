@@ -68,7 +68,5 @@
     parseMultipart,
     TEXT_ENCODER,
     TEXT_DECODER,
-    deployment: '',
-    function: '',
   };
 })(globalThis);
