@@ -10,3 +10,4 @@ lagon-runtime = { path = "../runtime" }
 flume = "0.10.14"
 log = { version = "0.4.17", features = ["std", "kv_unstable"] }
 colored = "2.0.0"
+lazy_static = "1.4.0"

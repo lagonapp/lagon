@@ -1409,6 +1409,7 @@ dependencies = [
  "colored",
  "flume",
  "lagon-runtime",
+ "lazy_static",
  "log",
  "tokio",
 ]

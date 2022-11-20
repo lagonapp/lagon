@@ -1,8 +1,9 @@
 use colored::*;
+use lazy_static::lazy_static;
 use log::{
     set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,
 };
-use std::{fs, path::Path, process::exit};
+use std::{env, fs, path::Path, process::exit, sync::Mutex};
 
 use lagon_runtime::{
     http::{Request, RunResult},
@@ -11,6 +12,10 @@ use lagon_runtime::{
 };
 
 const TESTHARNESS: &str = include_str!("../../../tools/wpt/resources/testharness.js");
+
+lazy_static! {
+    static ref RESULT: Mutex<(usize, usize, usize)> = Mutex::new((0, 0, 0));
+}
 
 struct SimpleLogger;
 
@@ -24,10 +29,14 @@ impl Log for SimpleLogger {
             let content = record.args().to_string();
 
             if content.starts_with("TEST DONE 0") {
+                RESULT.lock().unwrap().1 += 1;
                 println!("{}", content.green());
             } else if content.starts_with("TEST DONE 1") {
+                RESULT.lock().unwrap().2 += 1;
                 println!("{}", content.red());
-            } else if !content.starts_with("TEST START") {
+            } else if content.starts_with("TEST START") {
+                RESULT.lock().unwrap().0 += 1;
+            } else {
                 println!("{}", content.black());
             }
         }
@@ -41,11 +50,30 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-const SKIP_TESTS: [&str; 8] = [
+const SKIP_TESTS: [&str; 25] = [
     // headers
     "headers-no-cors.any.js",
     "header-values.any.js",
     "header-values-normalize.any.js",
+    // request
+    "request-consume-empty.any.js",
+    "request-cache-default-conditional.any.js",
+    "request-cache-no-cache.any.js",
+    "request-init-002.any.js",
+    "request-bad-port.any.js",
+    "request-cache-no-store.any.js",
+    "request-cache-force-cache.any.js",
+    "request-cache-default.any.js",
+    "request/request-error.any.js",
+    "request-cache-only-if-cached.any.js",
+    "request-consume.any.js",
+    "request-cache-reload.any.js",
+    // response
+    "response-consume-stream.any.js",
+    "response-consume-empty.any.js",
+    "json.any.js",
+    "response-init-002.any.js",
+    "response-clone.any.js",
     // url
     "historical.any.js",
     "idlharness.any.js",
@@ -107,9 +135,30 @@ async fn main() {
     let runtime = Runtime::new(RuntimeOptions::default());
     init_logger().expect("Failed to initialize logger");
 
-    test_directory(Path::new("../../tools/wpt/fetch/api/headers")).await;
-    test_directory(Path::new("../../tools/wpt/fetch/api/body")).await;
-    test_directory(Path::new("../../tools/wpt/url")).await;
+    if let Some(path) = env::args().nth(1) {
+        let path = Path::new(&path);
+
+        if path.is_dir() {
+            test_directory(path).await;
+        } else {
+            run_test(path).await;
+        }
+    } else {
+        test_directory(Path::new("../../tools/wpt/fetch/api/headers")).await;
+        test_directory(Path::new("../../tools/wpt/fetch/api/body")).await;
+        test_directory(Path::new("../../tools/wpt/fetch/api/request")).await;
+        test_directory(Path::new("../../tools/wpt/fetch/api/response")).await;
+        test_directory(Path::new("../../tools/wpt/url")).await;
+    }
+
+    let result = RESULT.lock().unwrap();
+    println!();
+    println!(
+        "{} tests, {} passed, {} failed",
+        result.0,
+        result.1.to_string().green(),
+        result.2.to_string().red()
+    );
 
     runtime.dispose();
 }
