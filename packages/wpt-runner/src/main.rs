@@ -54,11 +54,7 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-const SKIP_TESTS: [&str; 22] = [
-    // headers
-    "headers-no-cors.any.js",
-    "header-values.any.js",
-    "header-values-normalize.any.js",
+const SKIP_TESTS: [&str; 15] = [
     // request
     "request-cache-default-conditional.any.js",
     "request-cache-no-cache.any.js",
@@ -69,14 +65,9 @@ const SKIP_TESTS: [&str; 22] = [
     "request-cache-reload.any.js",
     "request-bad-port.any.js",
     "request/request-error.any.js",
-    // response
-    "json.any.js",
-    "response-clone.any.js",
     // url
     "idlharness.any.js",
     "url-setters.any.js",
-    "url-constructor.any.js",
-    "url-origin.any.js",
     // encoding
     "textdecoder-fatal-single-byte.any.js",
     "unsupported-encodings.any.js",
