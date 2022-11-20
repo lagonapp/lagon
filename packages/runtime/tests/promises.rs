@@ -21,7 +21,7 @@ fn setup() {
 #[tokio::test(flavor = "multi_thread")]
 async fn execute_async_handler() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     return new Response('Async handler');
 }"
@@ -54,7 +54,7 @@ async fn execute_promise() {
     });
 
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const body = await fetch('http://localhost:5556').then((res) => res.text());
     return new Response(body);

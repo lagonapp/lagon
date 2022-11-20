@@ -30,7 +30,7 @@ extern "C" fn heap_limit_callback(
     current_heap_limit: usize,
     _initial_heap_limit: usize,
 ) -> usize {
-    let isolate = unsafe { &mut *(data as *mut Isolate<()>) };
+    let isolate = unsafe { &mut *(data as *mut Isolate) };
 
     isolate.heap_limit_reached();
     // Avoid OOM killer by increasing the limit, since we kill
@@ -64,13 +64,13 @@ fn resolve_module_callback<'a>(
 struct Global(v8::Global<v8::Context>);
 
 #[derive(Debug)]
-struct IsolateState<T: Clone> {
+struct IsolateState {
     global: Global,
     promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
     js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
     handler_result: Option<v8::Global<v8::Promise>>,
     stream_sender: flume::Sender<StreamResult>,
-    metadata: Option<T>,
+    metadata: Metadata,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -79,21 +79,22 @@ pub struct IsolateStatistics {
     pub memory_usage: usize,
 }
 
-type OnIsolateDropCallback<T> = Box<dyn Fn(Option<T>)>;
-type OnIsolateStatisticsCallback<T> = Box<dyn Fn(Option<T>, IsolateStatistics)>;
+pub type Metadata = Option<(String, String)>;
+type OnIsolateDropCallback = Box<dyn Fn(Metadata)>;
+type OnIsolateStatisticsCallback = Box<dyn Fn(Metadata, IsolateStatistics)>;
 
-pub struct IsolateOptions<T: Clone> {
+pub struct IsolateOptions {
     pub code: String,
     pub environment_variables: Option<HashMap<String, String>>,
     pub memory: usize,  // in MB (MegaBytes)
     pub timeout: usize, // in ms (MilliSeconds)
-    pub metadata: Option<T>,
-    pub on_drop: Option<OnIsolateDropCallback<T>>,
-    pub on_statistics: Option<OnIsolateStatisticsCallback<T>>,
+    pub metadata: Metadata,
+    pub on_drop: Option<OnIsolateDropCallback>,
+    pub on_statistics: Option<OnIsolateStatisticsCallback>,
     // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
 }
 
-impl<T: Clone> IsolateOptions<T> {
+impl IsolateOptions {
     pub fn new(code: String) -> Self {
         Self {
             code,
@@ -125,19 +126,19 @@ impl<T: Clone> IsolateOptions<T> {
         self
     }
 
-    pub fn with_metadata(mut self, metadata: T) -> Self {
-        self.metadata = Some(metadata);
+    pub fn with_metadata(mut self, metadata: Metadata) -> Self {
+        self.metadata = metadata;
         self
     }
 
-    pub fn with_on_drop_callback(mut self, on_drop: OnIsolateDropCallback<T>) -> Self {
+    pub fn with_on_drop_callback(mut self, on_drop: OnIsolateDropCallback) -> Self {
         self.on_drop = Some(on_drop);
         self
     }
 
     pub fn with_on_statistics_callback(
         mut self,
-        on_statistics: OnIsolateStatisticsCallback<T>,
+        on_statistics: OnIsolateStatisticsCallback,
     ) -> Self {
         self.on_statistics = Some(on_statistics);
         self
@@ -157,8 +158,8 @@ impl StreamStatus {
     }
 }
 
-pub struct Isolate<T: Clone> {
-    options: IsolateOptions<T>,
+pub struct Isolate {
+    options: IsolateOptions,
     isolate: v8::OwnedIsolate,
     handler: Option<v8::Global<v8::Function>>,
     compilation_error: Option<String>,
@@ -170,15 +171,15 @@ pub struct Isolate<T: Clone> {
     running_promises: Arc<AtomicBool>,
 }
 
-unsafe impl<T: Clone> Send for Isolate<T> {}
-unsafe impl<T: Clone> Sync for Isolate<T> {}
+unsafe impl Send for Isolate {}
+unsafe impl Sync for Isolate {}
 
 // NOTE
 // All tx.send(...) can return an Err due to many reason, e.g the thread panicked
 // or the connection closed on the other side, meaning the channel is now closed.
 // That's why we use .unwrap_or(()) to silently discard any error.
-impl<T: Clone + 'static> Isolate<T> {
-    pub fn new(options: IsolateOptions<T>) -> Self {
+impl Isolate {
+    pub fn new(options: IsolateOptions) -> Self {
         let memory_mb = options.memory * 1024 * 1024;
 
         let params = v8::CreateParams::default().heap_limits(0, memory_mb);
@@ -191,7 +192,7 @@ impl<T: Clone + 'static> Isolate<T> {
         let mut isolate = v8::Isolate::new(params);
         let (stream_sender, stream_receiver) = flume::unbounded();
 
-        let state: IsolateState<T> = {
+        let state: IsolateState = {
             let isolate_scope = &mut v8::HandleScope::new(&mut isolate);
             let global = bindings::bind(isolate_scope);
 
@@ -227,7 +228,7 @@ impl<T: Clone + 'static> Isolate<T> {
         this
     }
 
-    pub fn get_metadata(&self) -> Option<T> {
+    pub fn get_metadata(&self) -> Metadata {
         self.options.metadata.clone()
     }
 
@@ -245,13 +246,13 @@ impl<T: Clone + 'static> Isolate<T> {
         // TODO: add callback for serverless to log killed process?
     }
 
-    pub(self) fn state(isolate: &v8::Isolate) -> Rc<RefCell<IsolateState<T>>> {
-        let s = isolate.get_slot::<Rc<RefCell<IsolateState<T>>>>().unwrap();
+    pub(self) fn state(isolate: &v8::Isolate) -> Rc<RefCell<IsolateState>> {
+        let s = isolate.get_slot::<Rc<RefCell<IsolateState>>>().unwrap();
         s.clone()
     }
 
     fn evaluate(&mut self, request: Request) -> Option<String> {
-        let isolate_state = Isolate::<T>::state(&self.isolate);
+        let isolate_state = Isolate::state(&self.isolate);
 
         // Reset the stream status after each `run()`
         self.stream_status = StreamStatus::None;
@@ -345,7 +346,7 @@ impl<T: Clone + 'static> Isolate<T> {
     }
 
     fn poll_v8(&mut self) {
-        let isolate_state = Isolate::<T>::state(&self.isolate);
+        let isolate_state = Isolate::state(&self.isolate);
         let global = {
             let isolate_state = isolate_state.borrow();
             isolate_state.global.0.clone()
@@ -357,7 +358,7 @@ impl<T: Clone + 'static> Isolate<T> {
     }
 
     fn resolve_promises(&mut self, cx: &mut Context) {
-        let isolate_state = Isolate::<T>::state(&self.isolate);
+        let isolate_state = Isolate::state(&self.isolate);
         let mut promises = None;
 
         {
@@ -451,7 +452,7 @@ impl<T: Clone + 'static> Isolate<T> {
             return Poll::Ready(());
         }
 
-        let isolate_state = Isolate::<T>::state(&self.isolate);
+        let isolate_state = Isolate::state(&self.isolate);
         let state = isolate_state.borrow();
         let global = state.global.0.clone();
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
@@ -588,7 +589,7 @@ impl<T: Clone + 'static> Isolate<T> {
         request_ended.store(true, Ordering::SeqCst);
 
         if let Some(on_isolate_statistics) = &self.options.on_statistics {
-            let isolate_state = Isolate::<T>::state(&self.isolate);
+            let isolate_state = Isolate::state(&self.isolate);
             let state = isolate_state.borrow();
             let global = state.global.0.clone();
             let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
@@ -606,7 +607,7 @@ impl<T: Clone + 'static> Isolate<T> {
     }
 }
 
-impl<T: Clone> Drop for Isolate<T> {
+impl Drop for Isolate {
     fn drop(&mut self) {
         if !self.isolate.is_execution_terminating() {
             self.isolate.terminate_execution();

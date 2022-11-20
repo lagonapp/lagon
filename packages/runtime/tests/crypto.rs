@@ -17,7 +17,7 @@ fn setup() {
 #[tokio::test(flavor = "multi_thread")]
 async fn crypto_random_uuid() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     const uuid = crypto.randomUUID();
     const secondUuid = crypto.randomUUID();
@@ -37,7 +37,7 @@ async fn crypto_random_uuid() {
 #[tokio::test(flavor = "multi_thread")]
 async fn crypto_get_random_values() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     const typedArray = new Uint8Array([0, 8, 2]);
     const result = crypto.getRandomValues(typedArray);
@@ -57,7 +57,7 @@ async fn crypto_get_random_values() {
 #[tokio::test(flavor = "multi_thread")]
 async fn crypto_key_value() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const { keyValue } = await crypto.subtle.importKey(
         'raw',
@@ -83,7 +83,7 @@ async fn crypto_key_value() {
 #[tokio::test(flavor = "multi_thread")]
 async fn crypto_unique_key_value() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const { keyValue: first } = await crypto.subtle.importKey(
         'raw',
@@ -116,7 +116,7 @@ async fn crypto_unique_key_value() {
 #[tokio::test(flavor = "multi_thread")]
 async fn crypto_sign() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const key = await crypto.subtle.importKey(
         'raw',
@@ -147,7 +147,7 @@ async fn crypto_sign() {
 #[tokio::test(flavor = "multi_thread")]
 async fn crypto_verify() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const key = await crypto.subtle.importKey(
         'raw',
@@ -183,7 +183,7 @@ async fn crypto_verify() {
 #[tokio::test(flavor = "multi_thread")]
 async fn crypto_digest_string() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('hello, world'));
 
@@ -203,7 +203,7 @@ async fn crypto_digest_string() {
 #[tokio::test(flavor = "multi_thread")]
 async fn crypto_digest_object() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const digest = await crypto.subtle.digest({ name: 'SHA-256' }, new TextEncoder().encode('hello, world'));
 
@@ -223,7 +223,7 @@ async fn crypto_digest_object() {
 #[tokio::test(flavor = "multi_thread")]
 async fn crypto_encrypt() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const key = await crypto.subtle.importKey(
         'raw',
@@ -256,7 +256,7 @@ async fn crypto_encrypt() {
 #[tokio::test(flavor = "multi_thread")]
 async fn crypto_decrypt() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const key = await crypto.subtle.importKey(
         'raw',

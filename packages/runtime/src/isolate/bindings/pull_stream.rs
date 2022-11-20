@@ -5,7 +5,7 @@ pub fn pull_stream_binding(
     args: v8::FunctionCallbackArguments,
     mut _retval: v8::ReturnValue,
 ) {
-    let isolate_state = Isolate::<()>::state(scope);
+    let isolate_state = Isolate::state(scope);
     let state = isolate_state.borrow();
 
     let done = args.get(0).to_boolean(scope);

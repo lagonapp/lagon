@@ -1,8 +1,9 @@
-name: Release
+name: web-platform-tests
 on:
   push:
     branches:
       - main
+  pull_request:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -10,9 +11,12 @@ env:
   TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 jobs:
-  release:
-    name: Release
+  wpt:
+    name: web-platform-tests
     runs-on: ubuntu-20.04
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -36,12 +40,7 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Create release
-        uses: changesets/action@v1
-        with:
-          commit: 'ci: release'
-          title: 'ci: release'
-          publish: pnpm release
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Build runtime
+        run: pnpm turbo build --filter=@lagon/js-runtime
+      - name: Run wpt-runner
+        run: cd packages/wpt-runner && cargo run

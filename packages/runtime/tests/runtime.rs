@@ -18,7 +18,7 @@ fn setup() {
 #[tokio::test]
 async fn execute_function() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     return new Response('Hello world');
 }"
@@ -36,7 +36,7 @@ async fn execute_function() {
 #[tokio::test]
 async fn environment_variables() {
     setup();
-    let mut isolate = Isolate::<()>::new(
+    let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
     return new Response(process.env.TEST);
@@ -61,7 +61,7 @@ async fn environment_variables() {
 #[tokio::test]
 async fn get_body() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
     return new Response(request.body);
 }"
@@ -89,7 +89,7 @@ async fn get_body() {
 #[tokio::test]
 async fn get_input() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
     return new Response(request.url);
 }"
@@ -117,7 +117,7 @@ async fn get_input() {
 #[tokio::test]
 async fn get_method() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
     return new Response(request.method);
 }"
@@ -145,7 +145,7 @@ async fn get_method() {
 #[tokio::test]
 async fn get_headers() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler(request) {
     return new Response(request.headers.get('x-auth'));
 }"
@@ -177,7 +177,7 @@ async fn get_headers() {
 #[tokio::test]
 async fn return_headers() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     return new Response('Hello world', {
         headers: {
@@ -209,7 +209,7 @@ async fn return_headers() {
 #[tokio::test]
 async fn return_headers_from_headers_api() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     return new Response('Hello world', {
         headers: new Headers({
@@ -241,7 +241,7 @@ async fn return_headers_from_headers_api() {
 #[tokio::test]
 async fn return_status() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     return new Response('Moved permanently', {
         status: 302,
@@ -265,7 +265,7 @@ async fn return_status() {
 #[tokio::test]
 async fn return_uint8array() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     // TextEncoder#encode returns a Uint8Array
     const body = new TextEncoder().encode('Hello world');
@@ -285,7 +285,7 @@ async fn return_uint8array() {
 #[tokio::test(flavor = "multi_thread")]
 async fn console_log() {
     setup();
-    let mut isolate = Isolate::<(String, String)>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     const types = ['log', 'info', 'debug', 'error', 'warn'];
 
@@ -309,7 +309,7 @@ async fn console_log() {
 #[tokio::test(flavor = "multi_thread")]
 async fn atob() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     return new Response(atob('SGVsbG8='));
 }"
@@ -327,7 +327,7 @@ async fn atob() {
 #[tokio::test(flavor = "multi_thread")]
 async fn btoa() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     return new Response(btoa('Hello'));
 }"

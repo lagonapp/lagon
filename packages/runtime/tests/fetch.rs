@@ -25,7 +25,7 @@ async fn basic_fetch() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}').then(res => res.text());
     return new Response(body);
@@ -50,7 +50,7 @@ async fn request_method() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'POST'
@@ -78,7 +78,7 @@ async fn request_method_fallback() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'UNKNOWN'
@@ -109,7 +109,7 @@ async fn request_headers() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}', {{
         headers: {{
@@ -142,7 +142,7 @@ async fn request_headers_class() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}', {{
         headers: new Headers({{
@@ -175,7 +175,7 @@ async fn request_body() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'POST',
@@ -204,7 +204,7 @@ async fn response_headers() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
         "export async function handler() {{
     const response = await fetch('{url}');
     const body = [];
@@ -238,7 +238,7 @@ async fn response_status() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
         "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.text();
@@ -265,7 +265,7 @@ async fn response_json() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
         "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.json();
@@ -292,7 +292,7 @@ async fn response_array_buffer() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
         "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.arrayBuffer();
@@ -312,7 +312,7 @@ async fn response_array_buffer() {
 #[tokio::test(flavor = "multi_thread")]
 async fn throw_invalid_url() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const response = await fetch('doesnotexist');
     const body = await response.text();
@@ -336,7 +336,7 @@ async fn throw_invalid_url() {
 #[tokio::test(flavor = "multi_thread")]
 async fn throw_invalid_header() {
     setup();
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(
+    let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const response = await fetch('http://localhost:5555/', {
         headers: {
@@ -371,7 +371,7 @@ async fn abort_signal() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::<()>::new(IsolateOptions::new(format!(
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
         "export async function handler() {{
     const controller = new AbortController();
     const signal = controller.signal;

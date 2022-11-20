@@ -211,9 +211,11 @@ importers:
   packages/js-runtime:
     specifiers:
       abortcontroller-polyfill: ^1.7.5
+      blob-polyfill: ^7.0.20220408
       web-streams-polyfill: ^3.2.1
     dependencies:
       abortcontroller-polyfill: 1.7.5
+      blob-polyfill: 7.0.20220408
       web-streams-polyfill: 3.2.1
 
   packages/runtime:
@@ -7599,6 +7601,10 @@ packages:
       inherits: 2.0.4
       readable-stream: 3.6.0
     dev: true
+
+  /blob-polyfill/7.0.20220408:
+    resolution: {integrity: sha512-oD8Ydw+5lNoqq+en24iuPt1QixdPpe/nUF8azTHnviCZYu9zUC+TwdzIp5orpblJosNlgNbVmmAb//c6d6ImUQ==}
+    dev: false
 
   /bluebird/3.7.2:
     resolution: {integrity: sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==}

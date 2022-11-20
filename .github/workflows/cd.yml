@@ -41,7 +41,9 @@ jobs:
             input: lagon-cli.exe
             output: lagon.exe
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
       - uses: actions/cache@v3
         with:
           path: |

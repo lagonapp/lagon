@@ -18,7 +18,7 @@ pub fn sign_binding(
 ) {
     let promise = v8::PromiseResolver::new(scope).unwrap();
 
-    let state = Isolate::<()>::state(scope);
+    let state = Isolate::state(scope);
     let mut state = state.borrow_mut();
     let id = state.js_promises.len() + 1;
 

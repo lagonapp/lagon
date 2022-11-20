@@ -1,0 +1,10 @@
+{
+  "name": "@lagon/wpt-runner",
+  "version": "0.1.0",
+  "description": "web-platform-tests runner for Lagon Runtime",
+  "private": true,
+  "scripts": {
+    "build": "cargo build",
+    "lint": "cargo clippy -- -Dwarnings --no-deps"
+  }
+}
