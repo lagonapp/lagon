@@ -24,6 +24,37 @@ use crate::utils::{
     bundle_function, info, input, success, validate_code_file, validate_public_dir, FileCursor,
 };
 
+use log::{
+    set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,
+};
+
+struct SimpleLogger;
+
+impl Log for SimpleLogger {
+    fn enabled(&self, metadata: &Metadata) -> bool {
+        metadata.level() <= Level::Info
+    }
+
+    fn log(&self, record: &Record) {
+        if self.enabled(record.metadata()) {
+            let level = match record.level() {
+                Level::Error => "ERROR".red(),
+                Level::Warn => "WARN".yellow(),
+                _ => "INFO".blue(),
+            };
+
+            println!("{} {}", level, record.args());
+        }
+    }
+
+    fn flush(&self) {}
+}
+
+fn init_logger() -> Result<(), SetLoggerError> {
+    set_boxed_logger(Box::new(SimpleLogger)).map(|()| set_max_level(LevelFilter::Info))?;
+    Ok(())
+}
+
 fn parse_environment_variables(env: Option<PathBuf>) -> Result<HashMap<String, String>> {
     let mut environment_variables = HashMap::new();
 
@@ -98,8 +129,9 @@ async fn handle_request(
             Ok(mut request) => {
                 request.add_header("X-Forwarded-For".into(), ip);
 
-                let mut isolate = Isolate::<()>::new(
+                let mut isolate = Isolate::<(String, String)>::new(
                     IsolateOptions::new(String::from_utf8(index.get_ref().to_vec())?)
+                        .with_metadata((String::from(""), String::from("")))
                         .with_environment_variables(environment_variables),
                 );
 
@@ -256,6 +288,7 @@ pub async fn dev(
     println!(" {} http://{}", "➤".black(), format!("{}", addr).blue());
     println!();
 
+    init_logger()?;
     server.await?;
     runtime.dispose();
 
