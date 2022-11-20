@@ -9,7 +9,7 @@
     <br />
     <br />
     <a align="center" href="https://discord.lagon.app" alt="Discord"><img src="https://img.shields.io/discord/996005154753093713" /></a>
-    <a href="https://github.com/lagonapp/lagon/actions/workflows/wpt.yml" alt="web-platform-test"><img src="https://wpt.lagon.app" /></a>
+    <a href="https://github.com/lagonapp/lagon/actions/workflows/wpt.yml" alt="web-platform-tests"><img src="https://wpt.lagon.app" /></a>
     <br />
     <br />
     Open Source • TypeScript • Web APIs
