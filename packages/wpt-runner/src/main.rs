@@ -11,10 +11,14 @@ use lagon_runtime::{
     runtime::{Runtime, RuntimeOptions},
 };
 
-const TESTHARNESS: &str = include_str!("../../../tools/wpt/resources/testharness.js");
+const ENCODING_TABLE: &str = include_str!("../../../tools/wpt/encoding/resources/encodings.js");
 
 lazy_static! {
     static ref RESULT: Mutex<(usize, usize, usize)> = Mutex::new((0, 0, 0));
+    static ref TEST_HARNESS: String = include_str!("../../../tools/wpt/resources/testharness.js")
+        .to_owned()
+        .replace("})(self);", "})(globalThis);")
+        .replace("debug: false", "debug: true");
 }
 
 struct SimpleLogger;
@@ -50,7 +54,7 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-const SKIP_TESTS: [&str; 18] = [
+const SKIP_TESTS: [&str; 22] = [
     // headers
     "headers-no-cors.any.js",
     "header-values.any.js",
@@ -73,6 +77,11 @@ const SKIP_TESTS: [&str; 18] = [
     "url-setters.any.js",
     "url-constructor.any.js",
     "url-origin.any.js",
+    // encoding
+    "textdecoder-fatal-single-byte.any.js",
+    "unsupported-encodings.any.js",
+    "api-invalid-label.any.js",
+    "replacement-encodings.any.js",
 ];
 
 async fn run_test(path: &Path) {
@@ -90,9 +99,6 @@ async fn run_test(path: &Path) {
     println!("{} {}", "Running".blue(), display);
 
     let code = fs::read_to_string(path).expect("Failed to read file");
-    let testharness = TESTHARNESS
-        .replace("})(self);", "})(globalThis);")
-        .replace("debug: false", "debug: true");
 
     let code = format!(
         "globalThis.GLOBAL = {{
@@ -102,10 +108,12 @@ async fn run_test(path: &Path) {
 }}
 
 export function handler() {{
-    {testharness}
+    {}
+    {ENCODING_TABLE}
     {code}
     return new Response()
-}}"
+}}",
+        TEST_HARNESS.as_str()
     )
     .replace("self.", "globalThis.");
 
@@ -149,6 +157,10 @@ async fn main() {
         test_directory(Path::new("../../tools/wpt/fetch/api/request")).await;
         test_directory(Path::new("../../tools/wpt/fetch/api/response")).await;
         test_directory(Path::new("../../tools/wpt/url")).await;
+        // TODO
+        // Enable when CompressionStream/DecompressionStream are implemented
+        // test_directory(Path::new("../../tools/wpt/compression")).await;
+        test_directory(Path::new("../../tools/wpt/encoding")).await;
     }
 
     let result = RESULT.lock().unwrap();
