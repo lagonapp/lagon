@@ -1,0 +1,3 @@
+[submodule "tools/wpt"]
+	path = tools/wpt
+	url = git@github.com:web-platform-tests/wpt.git

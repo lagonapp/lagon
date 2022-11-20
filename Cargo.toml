@@ -3,4 +3,5 @@ members = [
   "packages/runtime",
   "packages/serverless",
   "packages/cli",
+  "packages/wpt-runner",
 ]
