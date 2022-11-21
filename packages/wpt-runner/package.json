@@ -4,6 +4,7 @@
   "description": "web-platform-tests runner for Lagon Runtime",
   "private": true,
   "scripts": {
+    "start": "cargo run > current-results.md",
     "build": "cargo build",
     "lint": "cargo clippy -- -Dwarnings --no-deps"
   }
