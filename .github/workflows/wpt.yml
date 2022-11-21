@@ -43,4 +43,7 @@ jobs:
       - name: Build runtime
         run: pnpm turbo build --filter=@lagon/js-runtime
       - name: Run wpt-runner
-        run: cd packages/wpt-runner && cargo run
+        run: cd packages/wpt-runner && pnpm start
+      - name: Check if results have changed
+        run: git diff --exit-code
+
