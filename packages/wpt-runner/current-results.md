@@ -8,8 +8,8 @@ TEST DONE 0 Headers has entries method
 TEST DONE 0 Headers has keys method
 TEST DONE 0 Headers has values method
 Running ../../tools/wpt/fetch/api/headers/headers-errors.any.js
-TEST DONE 1 Create headers giving an array having one string as init argument
-TEST DONE 1 Create headers giving an array having three strings as init argument
+TEST DONE 0 Create headers giving an array having one string as init argument
+TEST DONE 0 Create headers giving an array having three strings as init argument
 TEST DONE 1 Create headers giving bad header name as init argument
 TEST DONE 1 Create headers giving bad header value as init argument
 TEST DONE 1 Check headers get with an invalid name invalidĀ
@@ -38,7 +38,7 @@ TEST DONE 1 Loading data…
 Running ../../tools/wpt/fetch/api/headers/headers-record.any.js
 TEST DONE 0 Passing nothing to Headers constructor
 TEST DONE 0 Passing undefined to Headers constructor
-TEST DONE 1 Passing null to Headers constructor
+TEST DONE 0 Passing null to Headers constructor
 TEST DONE 1 Basic operation with one property
 TEST DONE 1 Basic operation with one property and a proto
 TEST DONE 1 Correct operation ordering with two properties
@@ -56,12 +56,12 @@ TEST DONE 1 XMLHttpRequest with value x%0Dx needs to throw
 TEST DONE 1 XMLHttpRequest with all valid values
 TEST DONE 1 fetch() with value x%00x needs to throw
 Running ../../tools/wpt/fetch/api/headers/headers-combine.any.js
-TEST DONE 1 Create headers using same name for different values
+TEST DONE 0 Create headers using same name for different values
 TEST DONE 0 Check delete and has methods when using same name for different values
 TEST DONE 0 Check set methods when called with already used name
-TEST DONE 1 Check append methods when called with already used name
-TEST DONE 1 Iterate combined values
-TEST DONE 1 Iterate combined values in sorted order
+TEST DONE 0 Check append methods when called with already used name
+TEST DONE 0 Iterate combined values
+TEST DONE 0 Iterate combined values in sorted order
 Running ../../tools/wpt/fetch/api/headers/headers-casing.any.js
 TEST DONE 0 Create headers, names use characters with different case
 TEST DONE 0 Check append method, names use characters with different case
@@ -108,22 +108,22 @@ Running ../../tools/wpt/fetch/api/headers/headers-basic.any.js
 TEST DONE 0 Create headers from no parameter
 TEST DONE 0 Create headers from undefined parameter
 TEST DONE 0 Create headers from empty object
-TEST DONE 1 Create headers with null should throw
-TEST DONE 1 Create headers with 1 should throw
-TEST DONE 1 Create headers with sequence
-TEST DONE 1 Create headers with record
-TEST DONE 1 Create headers with existing headers
+TEST DONE 0 Create headers with null should throw
+TEST DONE 0 Create headers with 1 should throw
+TEST DONE 0 Create headers with sequence
+TEST DONE 0 Create headers with record
+TEST DONE 0 Create headers with existing headers
 TEST DONE 1 Create headers with existing headers with custom iterator
-TEST DONE 1 Check append method
-TEST DONE 1 Check set method
+TEST DONE 0 Check append method
+TEST DONE 0 Check set method
 TEST DONE 0 Check has method
 TEST DONE 0 Check delete method
-TEST DONE 1 Check get method
+TEST DONE 0 Check get method
 TEST DONE 1 Check keys method
 TEST DONE 1 Check values method
 TEST DONE 1 Check entries method
-TEST DONE 1 Check Symbol.iterator method
-TEST DONE 1 Check forEach method
+TEST DONE 0 Check Symbol.iterator method
+TEST DONE 0 Check forEach method
 TEST DONE 1 Iteration skips elements removed while iterating
 TEST DONE 1 Removing elements already iterated over causes an element to be skipped during iteration
 TEST DONE 1 Appending a value pair during iteration causes it to be reached during iteration
@@ -1616,4 +1616,4 @@ TEST DONE 1 TextDecoder decode() with explicit undefined
 TEST DONE 1 TextDecoder decode() with undefined and undefined
 TEST DONE 1 TextDecoder decode() with undefined and options
 
-1527 tests, 230 passed, 1291 failed
+1527 tests, 247 passed, 1274 failed

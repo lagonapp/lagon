@@ -3,12 +3,31 @@
     private readonly h: Map<string, string[]> = new Map();
 
     constructor(init?: HeadersInit) {
+      if (init === null) {
+        throw new TypeError('HeadersInit must not be null');
+      }
+
       if (init) {
         if (Array.isArray(init)) {
-          init.forEach(([key, value]) => {
-            this.addValue(key, value);
+          init.forEach(entry => {
+            if (entry.length !== 2) {
+              throw new TypeError('HeadersInit must be an array of 2-tuples');
+            }
+
+            this.addValue(entry[0], entry[1]);
           });
         } else {
+          if (init instanceof Headers) {
+            // @ts-expect-error `h` doesn't exists in the type definition of Headers
+            this.h = init.h;
+
+            return;
+          }
+
+          if (typeof init !== 'object') {
+            throw new TypeError('HeadersInit must be an object or an array of 2-tuples');
+          }
+
           Object.entries(init).forEach(([key, value]) => {
             this.addValue(key, value);
           });
@@ -18,6 +37,7 @@
 
     private addValue(name: string, value: string) {
       name = name.toLowerCase();
+      value = String(value);
       const values = this.h.get(name);
 
       if (values) {
@@ -38,16 +58,16 @@
     }
 
     *entries(): IterableIterator<[string, string]> {
-      for (const [key, values] of this.h) {
-        for (const value of values) {
-          yield [key, value];
-        }
+      const sorted = [...this.h.entries()].sort(([a], [b]) => a.localeCompare(b));
+
+      for (const [key, values] of sorted) {
+        yield [key, values.join(', ')];
       }
     }
 
     get(name: string): string | null {
       name = name.toLowerCase();
-      return this.h.get(name)?.[0] || null;
+      return this.h.get(name)?.join(', ') || null;
     }
 
     has(name: string): boolean {
@@ -61,6 +81,7 @@
 
     set(name: string, value: string) {
       name = name.toLowerCase();
+      value = String(value);
       this.h.set(name, [value]);
     }
 
