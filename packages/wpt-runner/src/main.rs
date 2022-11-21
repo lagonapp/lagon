@@ -3,7 +3,12 @@ use lazy_static::lazy_static;
 use log::{
     set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,
 };
-use std::{env, fs, path::Path, process::exit, sync::Mutex};
+use std::{
+    env, fs,
+    path::{Path, PathBuf},
+    process::exit,
+    sync::Mutex,
+};
 
 use lagon_runtime::{
     http::{Request, RunResult},
@@ -103,7 +108,7 @@ async fn run_test(path: &Path) {
         return;
     }
 
-    if SKIP_TESTS.iter().any(|&s| display.contains(s)) {
+    if SKIP_TESTS.iter().any(|&s| display.ends_with(s)) {
         println!("{} {}", "Skipping".yellow(), display);
         return;
     }
@@ -144,9 +149,14 @@ export function handler() {{
 }
 
 async fn test_directory(path: &Path) {
-    for path in fs::read_dir(path).expect("Failed to read dir") {
-        let path = path.unwrap().path();
+    let mut paths = fs::read_dir(path)
+        .expect("Failed to read dir")
+        .map(|r| r.unwrap().path())
+        .collect::<Vec<PathBuf>>();
 
+    paths.sort();
+
+    for path in paths {
         run_test(&path).await;
     }
 }
