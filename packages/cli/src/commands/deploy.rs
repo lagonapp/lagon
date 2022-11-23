@@ -78,7 +78,7 @@ pub async fn deploy(
     };
 
     let public_dir = validate_public_dir(public_dir)?;
-    match get_function_config()? {
+    match get_function_config(&file)? {
         None => {
             println!("{}", debug("No deployment config found..."));
             println!();
@@ -107,10 +107,13 @@ pub async fn deploy(
                         .interact()?;
                     let function = &response.result.data[index];
 
-                    write_function_config(DeploymentConfig {
-                        function_id: function.id.clone(),
-                        organization_id: organization.id.clone(),
-                    })?;
+                    write_function_config(
+                        &file,
+                        DeploymentConfig {
+                            function_id: function.id.clone(),
+                            organization_id: organization.id.clone(),
+                        },
+                    )?;
 
                     create_deployment(
                         function.id.clone(),
@@ -145,10 +148,13 @@ pub async fn deploy(
 
                     end_progress();
 
-                    write_function_config(DeploymentConfig {
-                        function_id: response.result.data.id.clone(),
-                        organization_id: organization.id.clone(),
-                    })?;
+                    write_function_config(
+                        &file,
+                        DeploymentConfig {
+                            function_id: response.result.data.id.clone(),
+                            organization_id: organization.id.clone(),
+                        },
+                    )?;
 
                     create_deployment(
                         response.result.data.id,

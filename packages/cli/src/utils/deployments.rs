@@ -25,8 +25,12 @@ pub struct DeploymentConfig {
     pub organization_id: String,
 }
 
-pub fn get_function_config() -> Result<Option<DeploymentConfig>> {
-    let path = Path::new(".lagon/config.json");
+pub fn get_function_config(file: &Path) -> Result<Option<DeploymentConfig>> {
+    let path = format!(
+        ".lagon/{}.json",
+        file.file_name().unwrap().to_str().unwrap()
+    );
+    let path = Path::new(&path);
 
     if !path.exists() {
         return Ok(None);
@@ -38,8 +42,12 @@ pub fn get_function_config() -> Result<Option<DeploymentConfig>> {
     Ok(Some(config))
 }
 
-pub fn write_function_config(config: DeploymentConfig) -> Result<()> {
-    let path = Path::new(".lagon/config.json");
+pub fn write_function_config(file: &Path, config: DeploymentConfig) -> Result<()> {
+    let path = format!(
+        ".lagon/{}.json",
+        file.file_name().unwrap().to_str().unwrap()
+    );
+    let path = Path::new(&path);
 
     if !path.exists() {
         fs::create_dir_all(".lagon")?;
@@ -50,8 +58,12 @@ pub fn write_function_config(config: DeploymentConfig) -> Result<()> {
     Ok(())
 }
 
-pub fn delete_function_config() -> Result<()> {
-    let path = Path::new(".lagon/config.json");
+pub fn delete_function_config(file: &Path) -> Result<()> {
+    let path = format!(
+        ".lagon/{}.json",
+        file.file_name().unwrap().to_str().unwrap()
+    );
+    let path = Path::new(&path);
 
     if !path.exists() {
         return Err(anyhow!("No configuration found in this directory.",));
