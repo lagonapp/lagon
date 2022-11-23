@@ -49,6 +49,8 @@ enum Commands {
     /// Undeploy an existing Function
     Undeploy {
         /// Path to the file to undeploy
+    /// Delete an existing Function
+    Rm {
         #[clap(value_parser)]
         file: PathBuf,
     },
@@ -101,7 +103,7 @@ async fn main() {
                 public_dir,
                 prod,
             } => commands::deploy(file, client, public_dir, prod).await,
-            Commands::Undeploy { file } => commands::undeploy(file).await,
+            Commands::Rm { file } => commands::rm(file).await,
             Commands::Dev {
                 file,
                 client,
