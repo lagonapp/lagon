@@ -33,7 +33,7 @@ enum Commands {
     Logout,
     /// Deploy a new or existing Function
     Deploy {
-        /// Path to the file to deploy
+        /// Path to the file containing the Function
         #[clap(value_parser)]
         file: PathBuf,
         /// Path to a client-side script
@@ -48,12 +48,13 @@ enum Commands {
     },
     /// Delete an existing Function
     Rm {
+        /// Path to the file containing the Function
         #[clap(value_parser)]
         file: PathBuf,
     },
     /// Start a local dev server to test a Functon
     Dev {
-        /// Path to the file to run
+        /// Path to the file containing the Function
         #[clap(value_parser)]
         file: PathBuf,
         /// Path to a client-side script
@@ -74,7 +75,7 @@ enum Commands {
     },
     /// Build a Function without deploying it
     Build {
-        /// Path to the file to build
+        /// Path to the file containing the Function
         #[clap(value_parser)]
         file: PathBuf,
         /// Path to a client-side script

@@ -29,7 +29,7 @@ pub async fn rm(file: PathBuf) -> Result<()> {
 
     validate_code_file(&file)?;
 
-    match get_function_config()? {
+    match get_function_config(&file)? {
         None => Err(anyhow!("No configuration found for this file.")),
         Some(function_config) => match Confirm::new()
             .with_prompt(info(
@@ -49,7 +49,7 @@ pub async fn rm(file: PathBuf) -> Result<()> {
                     .await?;
                 end_progress();
 
-                delete_function_config()?;
+                delete_function_config(&file)?;
 
                 println!();
                 println!("{}", success("Function deleted."));
