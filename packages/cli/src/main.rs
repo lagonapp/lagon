@@ -46,9 +46,6 @@ enum Commands {
         #[clap(visible_alias = "production", long)]
         prod: bool,
     },
-    /// Undeploy an existing Function
-    Undeploy {
-        /// Path to the file to undeploy
     /// Delete an existing Function
     Rm {
         #[clap(value_parser)]
