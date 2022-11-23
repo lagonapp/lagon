@@ -18,7 +18,7 @@ struct DeleteFunctionRequest {
 #[derive(Deserialize, Debug)]
 struct DeleteFunctionResponse {}
 
-pub async fn undeploy(file: PathBuf) -> Result<()> {
+pub async fn rm(file: PathBuf) -> Result<()> {
     let config = Config::new()?;
 
     if config.token.is_none() {
@@ -30,7 +30,7 @@ pub async fn undeploy(file: PathBuf) -> Result<()> {
     validate_code_file(&file)?;
 
     match get_function_config()? {
-        None => Err(anyhow!("No configuration found in this directory.")),
+        None => Err(anyhow!("No configuration found for this file.")),
         Some(function_config) => match Confirm::new()
             .with_prompt(info(
                 "Are you sure you want to completely delete this Function?",
