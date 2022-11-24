@@ -8,11 +8,12 @@ use std::{
         Arc,
     },
     task::{Context, Poll},
+    thread::sleep,
     time::{Duration, Instant},
 };
 
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
-use tokio::spawn;
+use tokio::task::spawn_blocking;
 use v8::PromiseState;
 
 use crate::{
@@ -24,6 +25,8 @@ use crate::{
 use self::bindings::{BindingResult, PromiseResult};
 
 mod bindings;
+
+const TIMEOUT_LOOP_DELAY: Duration = Duration::from_millis(1);
 
 extern "C" fn heap_limit_callback(
     data: *mut std::ffi::c_void,
@@ -531,6 +534,8 @@ impl Isolate {
         let thread_safe_handle = self.isolate.thread_safe_handle();
 
         let now = Instant::now();
+        // TODO: timeout should be increased when executing this function for the
+        // first time, because script parsing may take a long time.
         let mut timeout = Duration::from_millis(self.options.timeout as u64);
         let (termination_tx, termination_rx) = flume::bounded(1);
 
@@ -541,7 +546,7 @@ impl Isolate {
         let request_ended_handle = request_ended.clone();
         let running_promises_handle = self.running_promises.clone();
 
-        spawn(async move {
+        spawn_blocking(move || {
             let mut paused_timer = None;
 
             loop {
@@ -558,7 +563,7 @@ impl Isolate {
                         paused_timer = Some(Instant::now());
                     }
 
-                    tokio::time::sleep(Duration::from_millis(1)).await;
+                    sleep(TIMEOUT_LOOP_DELAY);
 
                     continue;
                 } else if let Some(timer) = paused_timer {
