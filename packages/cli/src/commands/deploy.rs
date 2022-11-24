@@ -13,9 +13,9 @@ use crate::utils::{
 };
 
 #[derive(Deserialize, Debug)]
-struct Organization {
-    name: String,
-    id: String,
+pub struct Organization {
+    pub name: String,
+    pub id: String,
 }
 
 impl Display for Organization {
@@ -24,7 +24,7 @@ impl Display for Organization {
     }
 }
 
-type OrganizationsResponse = Vec<Organization>;
+pub type OrganizationsResponse = Vec<Organization>;
 
 #[derive(Serialize, Debug)]
 struct CreateFunctionRequest {
@@ -40,9 +40,9 @@ struct CreateFunctionResponse {
 }
 
 #[derive(Deserialize, Debug)]
-struct Function {
-    id: String,
-    name: String,
+pub struct Function {
+    pub id: String,
+    pub name: String,
 }
 
 impl Display for Function {
@@ -51,7 +51,7 @@ impl Display for Function {
     }
 }
 
-type FunctionsResponse = Vec<Function>;
+pub type FunctionsResponse = Vec<Function>;
 
 pub async fn deploy(
     file: PathBuf,

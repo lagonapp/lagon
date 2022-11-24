@@ -85,6 +85,12 @@ enum Commands {
         #[clap(short, long, value_parser)]
         public_dir: Option<PathBuf>,
     },
+    /// Link a local Function file to an already deployed Function
+    Link {
+        /// Path to the file containing the Function
+        #[clap(value_parser)]
+        file: PathBuf,
+    },
 }
 
 #[tokio::main]
@@ -115,6 +121,7 @@ async fn main() {
                 client,
                 public_dir,
             } => commands::build(file, client, public_dir),
+            Commands::Link { file } => commands::link(file).await,
         } {
             println!("{}", error(&err.to_string()));
         }
