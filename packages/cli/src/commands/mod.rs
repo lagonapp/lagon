@@ -1,6 +1,7 @@
 mod build;
 mod deploy;
 mod dev;
+mod link;
 mod login;
 mod logout;
 mod rm;
@@ -8,6 +9,7 @@ mod rm;
 pub use build::build;
 pub use deploy::deploy;
 pub use dev::dev;
+pub use link::link;
 pub use login::login;
 pub use logout::logout;
 pub use rm::rm;
