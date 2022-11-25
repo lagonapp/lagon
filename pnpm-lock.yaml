@@ -208,7 +208,7 @@ importers:
       babel-loader: ^8.2.5
       chart.js: ^3.8.0
       eslint: ^8.16.0
-      eslint-config-next: 12.3.3
+      eslint-config-next: 12.3.4
       eslint-plugin-storybook: ^0.5.12
       final-form: ^4.20.7
       formidable: ^2.0.1
@@ -278,7 +278,7 @@ importers:
       autoprefixer: 10.4.7_postcss@8.4.14
       babel-loader: 8.2.5_@babel+core@7.18.6
       eslint: 8.19.0
-      eslint-config-next: 12.3.3_4x5o4skxv6sl53vpwefgt23khm
+      eslint-config-next: 12.3.4_4x5o4skxv6sl53vpwefgt23khm
       eslint-plugin-storybook: 0.5.13_4x5o4skxv6sl53vpwefgt23khm
       postcss: 8.4.14
       prisma: 3.15.2
@@ -294,7 +294,7 @@ importers:
       '@vercel/analytics': ^0.1.3
       autoprefixer: ^10.4.7
       eslint: ^8.16.0
-      eslint-config-next: 12.3.3
+      eslint-config-next: 12.3.4
       next: '12'
       nextra: 2.0.0-beta.42
       nextra-theme-docs: 2.0.0-beta.42
@@ -316,7 +316,7 @@ importers:
       '@types/react-dom': 18.0.6
       autoprefixer: 10.4.7_postcss@8.4.14
       eslint: 8.19.0
-      eslint-config-next: 12.3.3_4x5o4skxv6sl53vpwefgt23khm
+      eslint-config-next: 12.3.4_4x5o4skxv6sl53vpwefgt23khm
       postcss: 8.4.14
       tailwindcss: 3.1.4_postcss@8.4.14
       typescript: 4.7.4
@@ -356,7 +356,7 @@ importers:
       autoprefixer: ^10.4.7
       cobe: ^0.5.0
       eslint: ^8.16.0
-      eslint-config-next: 12.3.3
+      eslint-config-next: 12.3.4
       next: 13.0.5
       postcss: ^8.4.14
       posthog-js: ^1.30.0
@@ -380,7 +380,7 @@ importers:
       '@types/react-dom': 18.0.6
       autoprefixer: 10.4.7_postcss@8.4.14
       eslint: 8.19.0
-      eslint-config-next: 12.3.3_4x5o4skxv6sl53vpwefgt23khm
+      eslint-config-next: 12.3.4_4x5o4skxv6sl53vpwefgt23khm
       postcss: 8.4.14
       tailwindcss: 3.1.4_postcss@8.4.14
       typescript: 4.7.4
@@ -3588,8 +3588,8 @@ packages:
     resolution: {integrity: sha512-F3KLtiDrUslAZhTYTh8Zk5ZaavbYwLUn3NYPBnOjAXU8hWm0QVGVzKIOuURQ098ofRU4e9oglf3Sj9pFx5nI5w==}
     dev: false
 
-  /@next/eslint-plugin-next/12.3.3:
-    resolution: {integrity: sha512-s1mPMhhmwc+B97lQ2xzLLEdn3TR6ietc8Z1zLhAEd5Vujqx+Ks7E8Qr8V93I/qTs21WY66zvs1SXKYLvOHbQVw==}
+  /@next/eslint-plugin-next/12.3.4:
+    resolution: {integrity: sha512-BFwj8ykJY+zc1/jWANsDprDIu2MgwPOIKxNVnrKvPs+f5TPegrVnem8uScND+1veT4B7F6VeqgaNLFW1Hzl9Og==}
     dependencies:
       glob: 7.1.7
     dev: true
@@ -7095,17 +7095,6 @@ packages:
     resolution: {integrity: sha512-PCVAQswWemu6UdxsDFFX/+gVeYqKAod3D3UVm91jHwynguOwAvYPhx8nNlM++NqRcK6CxxpUafjmhIdKiHibqg==}
     dev: true
 
-  /array-includes/3.1.5:
-    resolution: {integrity: sha512-iSDYZMMyTPkiFasVqfuAQnWAYcvO/SeBSCGKePoEthjp4LEMTe4uLc7b025o4jAZpHhihh8xPo99TNWUWWkGDQ==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      call-bind: 1.0.2
-      define-properties: 1.1.4
-      es-abstract: 1.20.1
-      get-intrinsic: 1.1.2
-      is-string: 1.0.7
-    dev: true
-
   /array-includes/3.1.6:
     resolution: {integrity: sha512-sgTbLvL6cNnw24FnbaDyjmvddQ2ML8arZsgaJhoABMoplz/4QRhtrYS+alr1BUM1Bwp6dhx8vVCBSLG+StwOFw==}
     engines: {node: '>= 0.4'}
@@ -7149,7 +7138,7 @@ packages:
     dependencies:
       call-bind: 1.0.2
       define-properties: 1.1.4
-      es-abstract: 1.20.1
+      es-abstract: 1.20.4
       es-shim-unscopables: 1.0.0
     dev: true
 
@@ -9413,35 +9402,6 @@ packages:
       stackframe: 1.3.4
     dev: true
 
-  /es-abstract/1.20.1:
-    resolution: {integrity: sha512-WEm2oBhfoI2sImeM4OF2zE2V3BYdSF+KnSi9Sidz51fQHd7+JuF8Xgcj9/0o+OWeIeIS/MiuNnlruQrJf16GQA==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      call-bind: 1.0.2
-      es-to-primitive: 1.2.1
-      function-bind: 1.1.1
-      function.prototype.name: 1.1.5
-      get-intrinsic: 1.1.3
-      get-symbol-description: 1.0.0
-      has: 1.0.3
-      has-property-descriptors: 1.0.0
-      has-symbols: 1.0.3
-      internal-slot: 1.0.3
-      is-callable: 1.2.4
-      is-negative-zero: 2.0.2
-      is-regex: 1.1.4
-      is-shared-array-buffer: 1.0.2
-      is-string: 1.0.7
-      is-weakref: 1.0.2
-      object-inspect: 1.12.2
-      object-keys: 1.1.1
-      object.assign: 4.1.2
-      regexp.prototype.flags: 1.4.3
-      string.prototype.trimend: 1.0.5
-      string.prototype.trimstart: 1.0.5
-      unbox-primitive: 1.0.2
-    dev: true
-
   /es-abstract/1.20.4:
     resolution: {integrity: sha512-0UtvRN79eMe2L+UNEF1BwRe364sj/DXhQ/k5FmivgoSdpM90b8Jc0mDzKMGo7QS0BVbOP/bTwBKNnDc9rNzaPA==}
     engines: {node: '>= 0.4'}
@@ -9747,8 +9707,8 @@ packages:
       source-map: 0.6.1
     dev: true
 
-  /eslint-config-next/12.3.3_4x5o4skxv6sl53vpwefgt23khm:
-    resolution: {integrity: sha512-ZqovaLqMlWQh9yVbqJ2gvOLk6acAZX4vRkORFsiI5lv9oJDDBbDDeTPG2KmpZ3K+l/wJ+xo6bm4FN90j94snhw==}
+  /eslint-config-next/12.3.4_4x5o4skxv6sl53vpwefgt23khm:
+    resolution: {integrity: sha512-WuT3gvgi7Bwz00AOmKGhOeqnyA5P29Cdyr0iVjLyfDbk+FANQKcOjFUTZIdyYfe5Tq1x4TGcmoe4CwctGvFjHQ==}
     peerDependencies:
       eslint: ^7.23.0 || ^8.0.0
       typescript: '>=3.3.1'
@@ -9756,7 +9716,7 @@ packages:
       typescript:
         optional: true
     dependencies:
-      '@next/eslint-plugin-next': 12.3.3
+      '@next/eslint-plugin-next': 12.3.4
       '@rushstack/eslint-patch': 1.1.4
       '@typescript-eslint/parser': 5.30.5_4x5o4skxv6sl53vpwefgt23khm
       eslint: 8.19.0
@@ -9846,7 +9806,7 @@ packages:
         optional: true
     dependencies:
       '@typescript-eslint/parser': 5.30.5_4x5o4skxv6sl53vpwefgt23khm
-      array-includes: 3.1.5
+      array-includes: 3.1.6
       array.prototype.flat: 1.3.0
       debug: 2.6.9
       doctrine: 2.1.0
@@ -9857,7 +9817,7 @@ packages:
       is-core-module: 2.9.0
       is-glob: 4.0.3
       minimatch: 3.1.2
-      object.values: 1.1.5
+      object.values: 1.1.6
       resolve: 1.22.1
       tsconfig-paths: 3.14.1
     transitivePeerDependencies:
@@ -9874,7 +9834,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.18.6
       aria-query: 4.2.2
-      array-includes: 3.1.5
+      array-includes: 3.1.6
       ast-types-flow: 0.0.7
       axe-core: 4.4.2
       axobject-query: 2.2.0
@@ -11925,11 +11885,6 @@ packages:
     resolution: {integrity: sha512-i2R6zNFDwgEHJyQUtJEk0XFi1i0dPFn/oqjK3/vPCcDeJvW5NQ83V8QbicfF1SupOaB0h8ntgBC2YiE7dfyctQ==}
     engines: {node: '>=4'}
 
-  /is-callable/1.2.4:
-    resolution: {integrity: sha512-nsuwtxZfMX67Oryl9LCQ+upnC0Z0BgpwntpS89m1H/TLF0zNfzfLMV/9Wa/6MZsj0acpEjAO0KF1xT6ZdLl95w==}
-    engines: {node: '>= 0.4'}
-    dev: true
-
   /is-callable/1.2.7:
     resolution: {integrity: sha512-1BC0BVFhS/p0qtw6enp8e+8OD0UrK0oFLztSjNzhcKA3WDuJxxAPXzPuPtKkjEY9UUoEWlX/8fgKeu2S8i9JTA==}
     engines: {node: '>= 0.4'}
@@ -12551,7 +12506,7 @@ packages:
     engines: {node: '>=4.0'}
     dependencies:
       array-includes: 3.1.6
-      object.assign: 4.1.2
+      object.assign: 4.1.4
     dev: true
 
   /junk/3.1.0:
@@ -14394,16 +14349,6 @@ packages:
       isobject: 3.0.1
     dev: true
 
-  /object.assign/4.1.2:
-    resolution: {integrity: sha512-ixT2L5THXsApyiUPYKmW+2EHpXXe5Ii3M+f4e+aJFAHao5amFRW6J0OO6c/LU8Be47utCx2GL89hxGB6XSmKuQ==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      call-bind: 1.0.2
-      define-properties: 1.1.4
-      has-symbols: 1.0.3
-      object-keys: 1.1.1
-    dev: true
-
   /object.assign/4.1.4:
     resolution: {integrity: sha512-1mxKf0e58bvyjSCtKYY4sRe9itRk3PJpquJOjeIkz885CczcI4IvJJDLPS72oowuSh+pBxUFROpX+TU++hxhZQ==}
     engines: {node: '>= 0.4'}
@@ -14454,15 +14399,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       isobject: 3.0.1
-    dev: true
-
-  /object.values/1.1.5:
-    resolution: {integrity: sha512-QUZRW0ilQ3PnPpbNtgdNV1PDbEqLIiSFB3l+EnGtBQ/8SUTLj1PZwtQHABZtLgwpJZTSZhuGLOGk57Drx2IvYg==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      call-bind: 1.0.2
-      define-properties: 1.1.4
-      es-abstract: 1.20.1
     dev: true
 
   /object.values/1.1.6:
