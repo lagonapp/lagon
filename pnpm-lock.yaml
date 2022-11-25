@@ -217,7 +217,7 @@ importers:
       chart.js: ^3.8.0
       eslint: ^8.16.0
       eslint-config-next: 12.3.4
-      eslint-plugin-storybook: ^0.5.12
+      eslint-plugin-storybook: ^0.6.0
       final-form: ^4.20.7
       formidable: ^2.0.1
       monaco-editor: ^0.33.0
@@ -287,7 +287,7 @@ importers:
       babel-loader: 8.2.5_@babel+core@7.18.6
       eslint: 8.19.0
       eslint-config-next: 12.3.4_4x5o4skxv6sl53vpwefgt23khm
-      eslint-plugin-storybook: 0.5.13_4x5o4skxv6sl53vpwefgt23khm
+      eslint-plugin-storybook: 0.6.7_4x5o4skxv6sl53vpwefgt23khm
       postcss: 8.4.14
       prisma: 3.15.2
       tailwindcss: 3.1.4_postcss@8.4.14
@@ -9906,8 +9906,8 @@ packages:
       string.prototype.matchall: 4.0.8
     dev: true
 
-  /eslint-plugin-storybook/0.5.13_4x5o4skxv6sl53vpwefgt23khm:
-    resolution: {integrity: sha512-82x3FH1VAi68Awu1VEjn/hLkzFZsOP8ItcC5/uGF9WszIrj6n7Q3MZD57oE26k3aKwuPfFtAPnSjFnaBkBab+g==}
+  /eslint-plugin-storybook/0.6.7_4x5o4skxv6sl53vpwefgt23khm:
+    resolution: {integrity: sha512-lcUsB+3PesKWXwwEHGSTCijKWDXuQ4ITVbnsSDMXRCR/cjGtHZIEcy2pp/Eh7nfWA/GZrDPpK97DsTWEzyN6Bw==}
     engines: {node: 12.x || 14.x || >= 16}
     peerDependencies:
       eslint: '>=6'
@@ -9916,6 +9916,7 @@ packages:
       '@typescript-eslint/experimental-utils': 5.30.5_4x5o4skxv6sl53vpwefgt23khm
       eslint: 8.19.0
       requireindex: 1.2.0
+      ts-dedent: 2.2.0
     transitivePeerDependencies:
       - supports-color
       - typescript
