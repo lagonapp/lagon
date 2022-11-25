@@ -10,7 +10,7 @@ dialoguer = "0.10.2"
 indicatif = "0.17.2"
 colored = "2.0.0"
 dirs = "4.0.0"
-webbrowser = "0.8.0"
+webbrowser = "0.8.2"
 tokio = { version = "1", features = ["full"] }
 hyper = { version = "0.14", features = ["client", "server", "http1", "http2", "runtime", "stream"] }
 mime = "0.3.16"
