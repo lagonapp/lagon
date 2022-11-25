@@ -30,8 +30,9 @@ pub struct Deployment {
     pub domains: HashSet<String>,
     pub assets: HashSet<String>,
     pub environment_variables: HashMap<String, String>,
-    pub memory: usize,  // in MB (MegaBytes)
-    pub timeout: usize, // in ms (MilliSeconds)
+    pub memory: usize,          // in MB (MegaBytes)
+    pub timeout: usize,         // in ms (MilliSeconds)
+    pub startup_timeout: usize, // in ms (MilliSeconds)
     pub is_production: bool,
 }
 
@@ -77,6 +78,7 @@ pub async fn get_deployments(
             Function.name,
             Function.memory,
             Function.timeout,
+            Function.startupTimeout,
             Domain.domain,
             Asset.name
         FROM
@@ -88,11 +90,22 @@ pub async fn get_deployments(
         LEFT JOIN Asset
             ON Deployment.id = Asset.deploymentId
     ",
-        |(id, is_production, function_id, function_name, memory, timeout, domain, asset): (
+        |(
+            id,
+            is_production,
+            function_id,
+            function_name,
+            memory,
+            timeout,
+            startup_timeout,
+            domain,
+            asset,
+        ): (
             String,
             bool,
             String,
             String,
+            usize,
             usize,
             usize,
             Option<String>,
@@ -130,6 +143,7 @@ pub async fn get_deployments(
                     environment_variables: HashMap::new(),
                     memory,
                     timeout,
+                    startup_timeout,
                     is_production,
                 });
         },

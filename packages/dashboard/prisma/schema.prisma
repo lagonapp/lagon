@@ -78,13 +78,14 @@ model Function {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  name       String        @unique
-  domains    Domain[]
-  memory     Int
-  timeout    Int
-  cron       String?
-  cronRegion String        @default("EU-WEST-3")
-  env        EnvVariable[]
+  name           String        @unique
+  domains        Domain[]
+  memory         Int
+  timeout        Int
+  startupTimeout Int           @default(200)
+  cron           String?
+  cronRegion     String        @default("EU-WEST-3")
+  env            EnvVariable[]
 
   organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String

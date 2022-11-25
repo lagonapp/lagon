@@ -61,6 +61,7 @@ export async function removeDeployment(
     domains: string[];
     memory: number;
     timeout: number;
+    startupTimeout: number;
     cron: string | null;
     cronRegion: string;
     env: { key: string; value: string }[];
@@ -126,6 +127,7 @@ export async function removeDeployment(
       domains: func.domains,
       memory: func.memory,
       timeout: func.timeout,
+      startupTimeout: func.startupTimeout,
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
@@ -178,6 +180,7 @@ export async function promoteProductionDeployment(functionId: string, newDeploym
       domains: true,
       memory: true,
       timeout: true,
+      startupTimeout: true,
       cron: true,
       cronRegion: true,
       env: {
@@ -227,6 +230,7 @@ export async function promoteProductionDeployment(functionId: string, newDeploym
       domains: func.domains.map(({ domain }) => domain),
       memory: func.memory,
       timeout: func.timeout,
+      startupTimeout: func.startupTimeout,
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
@@ -243,6 +247,7 @@ export async function updateDomains(
     domains: string[];
     memory: number;
     timeout: number;
+    startupTimeout: number;
     cron: string | null;
     cronRegion: string;
     env: { key: string; value: string }[];
@@ -259,6 +264,7 @@ export async function updateDomains(
       domains: oldDomains,
       memory: func.memory,
       timeout: func.timeout,
+      startupTimeout: func.startupTimeout,
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
@@ -276,6 +282,7 @@ export async function updateDomains(
       domains: func.domains,
       memory: func.memory,
       timeout: func.timeout,
+      startupTimeout: func.startupTimeout,
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
@@ -295,6 +302,7 @@ export async function removeFunction(func: {
   }[];
   memory: number;
   timeout: number;
+  startupTimeout: number;
   cron: string | null;
   cronRegion: string;
   env: {
