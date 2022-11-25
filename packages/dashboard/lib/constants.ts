@@ -7,6 +7,7 @@ export const FUNCTION_NAME_MAX_LENGTH = 20;
 
 export const FUNCTION_DEFAULT_MEMORY = 128; // 128MB
 export const FUNCTION_DEFAULT_TIMEOUT = 50; // 50ms
+export const FUNCTION_DEFAULT_STARTUP_TIMEOUT = 200; // 200ms
 export const REGIONS = {
   'EU-WEST-3': 'eu-west-3 (Paris)',
 };

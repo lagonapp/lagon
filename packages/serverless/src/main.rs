@@ -162,6 +162,7 @@ async fn handle_request(
                             )
                             .with_memory(deployment.memory)
                             .with_timeout(deployment.timeout)
+                            .with_startup_timeout(deployment.startup_timeout)
                             .with_metadata(Some((deployment.id.clone(), deployment.function_id.clone())))
                             .with_on_drop_callback(Box::new(|metadata| {
                                 info!(deployment = metadata.unwrap().0; "Dropping isolate");

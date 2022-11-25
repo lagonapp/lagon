@@ -89,8 +89,9 @@ type OnIsolateStatisticsCallback = Box<dyn Fn(Metadata, IsolateStatistics)>;
 pub struct IsolateOptions {
     pub code: String,
     pub environment_variables: Option<HashMap<String, String>>,
-    pub memory: usize,  // in MB (MegaBytes)
-    pub timeout: usize, // in ms (MilliSeconds)
+    pub memory: usize,          // in MB (MegaBytes)
+    pub timeout: usize,         // in ms (MilliSeconds)
+    pub startup_timeout: usize, // is ms (MilliSeconds)
     pub metadata: Metadata,
     pub on_drop: Option<OnIsolateDropCallback>,
     pub on_statistics: Option<OnIsolateStatisticsCallback>,
@@ -103,6 +104,7 @@ impl IsolateOptions {
             code,
             environment_variables: None,
             timeout: 50,
+            startup_timeout: 200,
             memory: 128,
             metadata: None,
             on_drop: None,
@@ -121,6 +123,11 @@ impl IsolateOptions {
 
     pub fn with_timeout(mut self, timeout: usize) -> Self {
         self.timeout = timeout;
+        self
+    }
+
+    pub fn with_startup_timeout(mut self, startup_timeout: usize) -> Self {
+        self.startup_timeout = startup_timeout;
         self
     }
 
@@ -534,9 +541,12 @@ impl Isolate {
         let thread_safe_handle = self.isolate.thread_safe_handle();
 
         let now = Instant::now();
-        // TODO: timeout should be increased when executing this function for the
-        // first time, because script parsing may take a long time.
-        let mut timeout = Duration::from_millis(self.options.timeout as u64);
+        // Script parsing may take a long time, so we use the startup_timeout
+        // when the isolate has not been used yet.
+        let mut timeout = match self.handler.is_none() && self.compilation_error.is_none() {
+            true => Duration::from_millis(self.options.startup_timeout as u64),
+            false => Duration::from_millis(self.options.timeout as u64),
+        };
         let (termination_tx, termination_rx) = flume::bounded(1);
 
         self.termination_tx = Some(termination_tx.clone());

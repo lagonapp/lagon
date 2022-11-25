@@ -123,6 +123,7 @@ export const deploymentsRouter = (t: T) =>
               domains: true,
               memory: true,
               timeout: true,
+              startupTimeout: true,
               cron: true,
               cronRegion: true,
               env: true,
@@ -158,6 +159,7 @@ export const deploymentsRouter = (t: T) =>
             domains: func.domains.map(({ domain }) => domain),
             memory: func.memory,
             timeout: func.timeout,
+            startupTimeout: func.startupTimeout,
             cron: func.cron,
             cronRegion: func.cronRegion,
             env: envStringToObject(func.env),
@@ -204,6 +206,7 @@ export const deploymentsRouter = (t: T) =>
             },
             memory: true,
             timeout: true,
+            startupTimeout: true,
             cron: true,
             cronRegion: true,
             env: {

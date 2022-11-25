@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import prisma from 'lib/prisma';
-// import { t } from 'pages/api/trpc/[trpc]';
 import { LOG_LEVELS, TIMEFRAMES } from 'lib/types';
 import { getDeploymentCode, removeFunction, updateDomains } from 'lib/api/deployments';
 import {
   FUNCTION_DEFAULT_MEMORY,
+  FUNCTION_DEFAULT_STARTUP_TIMEOUT,
   FUNCTION_DEFAULT_TIMEOUT,
   FUNCTION_NAME_MAX_LENGTH,
   FUNCTION_NAME_MIN_LENGTH,
@@ -204,6 +204,7 @@ export const functionsRouter = (t: T) =>
             },
             memory: FUNCTION_DEFAULT_MEMORY,
             timeout: FUNCTION_DEFAULT_TIMEOUT,
+            startupTimeout: FUNCTION_DEFAULT_STARTUP_TIMEOUT,
             env: {
               createMany: {
                 data: input.env.map(({ key, value }) => ({
@@ -297,6 +298,7 @@ export const functionsRouter = (t: T) =>
             },
             memory: true,
             timeout: true,
+            startupTimeout: true,
             cron: true,
             cronRegion: true,
             env: {
@@ -361,6 +363,7 @@ export const functionsRouter = (t: T) =>
             },
             memory: true,
             timeout: true,
+            startupTimeout: true,
             cron: true,
             cronRegion: true,
             env: {

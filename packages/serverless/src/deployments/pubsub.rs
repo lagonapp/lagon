@@ -66,6 +66,7 @@ pub fn listen_pub_sub(
                     .collect::<HashMap<_, _>>(),
                 memory: value["memory"].as_u64().unwrap() as usize,
                 timeout: value["timeout"].as_u64().unwrap() as usize,
+                startup_timeout: value["startupTimeout"].as_u64().unwrap() as usize,
                 is_production: value["isProduction"].as_bool().unwrap(),
             };
 
