@@ -7,7 +7,7 @@ edition = "2021"
 lagon-runtime = { path = "../runtime" }
 clap = { version = "4.0.27", features = ["derive"] }
 dialoguer = "0.10.2"
-indicatif = "0.17.1"
+indicatif = "0.17.2"
 colored = "2.0.0"
 dirs = "4.0.0"
 webbrowser = "0.8.0"
