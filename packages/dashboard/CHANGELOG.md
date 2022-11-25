@@ -1,4 +1,4 @@
-# @lagon/website
+# @lagon/dashboard
 
 ## 0.0.7
 

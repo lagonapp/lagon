@@ -1,5 +1,5 @@
 {
-  "name": "@lagon/website",
+  "name": "@lagon/dashboard",
   "version": "0.0.7",
   "private": true,
   "scripts": {
