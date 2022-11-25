@@ -44,7 +44,7 @@ Current status:
 - **[cli](./packages/cli)** CLI to manage Functions
 - **[docs](./packages/docs)** Documentation website
 - **[serverless](./packages/serverless)** HTTP entrypoint for Functions, using the Runtime and exporting metrics
-- **[website](./packages/website)** Dashboard and API
+- **[dashboard](./packages/dashboard)** Dashboard and API
 - **[www](./www)** Public website
 
 ## Planned features

@@ -33,7 +33,7 @@ And if you want to contribute on the Dashboard / Runtime:
 
 3. Run the local docker-compose: `docker-compose up -d`
 
-### Dashboard website
+### Dashboard
 
 The first step is to copy the `.env.example` file and rename it to `.env`. You will need to fill the following environment variables:
 
@@ -47,7 +47,7 @@ GITHUB_CLIENT_ID= # Create a new Github OAuth app: https://github.com/settings/
 GITHUB_CLIENT_SECRET=
 ```
 
-Then, navigate to `packages/website` and run `pnpm prisma migrate dev` to generate the database tables. You can now start the website using `pnpm dev`.
+Then, navigate to `packages/dashboard` and run `pnpm prisma migrate dev` to generate the database tables. You can now start the dashboard using `pnpm dev`.
 
 ### Runtime
 
