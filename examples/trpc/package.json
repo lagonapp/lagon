@@ -1,0 +1,9 @@
+{
+  "name": "@lagon/example-trpc",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "@lagon/types": "workspace:0.0.1",
+    "@trpc/server": "10.0.0"
+  }
+}
