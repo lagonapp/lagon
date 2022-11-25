@@ -153,6 +153,14 @@ importers:
       satori: 0.0.41
       yoga-wasm-web: 0.1.2
 
+  examples/trpc:
+    specifiers:
+      '@lagon/types': workspace:0.0.1
+      '@trpc/server': 10.0.0
+    dependencies:
+      '@lagon/types': link:../../packages/types
+      '@trpc/server': 10.0.0
+
   packages/astro:
     specifiers:
       astro: 1.0.0-rc.7
