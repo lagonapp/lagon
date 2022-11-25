@@ -10,7 +10,7 @@ const config: DocsThemeConfig = {
     key: 'dev',
     text: 'Warning! This documentation is heavily in Work-in-Progress and subject to changes.',
   },
-  titleSuffix: ' – Lagon',
+  getNextSeoProps: () => ({ titleTemplate: '%s – Lagon' }),
   darkMode: true,
   footer: {
     text: `${new Date().getFullYear()} © Lagon.`,
