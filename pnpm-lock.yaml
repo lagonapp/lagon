@@ -183,7 +183,7 @@ importers:
       eslint: ^8.16.0
       eslint-config-next: 12.1.6
       next: '12'
-      nextra: 2.0.0-beta.29
+      nextra: 2.0.0-beta.42
       nextra-theme-docs: 2.0.0-beta.29
       postcss: ^8.4.14
       react: 18.2.0
@@ -193,7 +193,7 @@ importers:
     dependencies:
       '@vercel/analytics': 0.1.3_react@18.2.0
       next: 12.3.3_biqbaboplfbrettd7655fr4n2y
-      nextra: 2.0.0-beta.29_axequwibc5yadwk55bo7ehxsoe
+      nextra: 2.0.0-beta.42_axequwibc5yadwk55bo7ehxsoe
       nextra-theme-docs: 2.0.0-beta.29_axequwibc5yadwk55bo7ehxsoe
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -343,6 +343,9 @@ importers:
       tsconfig-paths-webpack-plugin: 3.5.2
       typescript: 4.7.4
 
+  packages/wpt-runner:
+    specifiers: {}
+
   www:
     specifiers:
       '@next/font': ^13.0.2
@@ -439,7 +442,7 @@ packages:
       shiki: 0.10.1
       unified: 10.1.2
       unist-util-map: 3.1.1
-      unist-util-visit: 4.1.0
+      unist-util-visit: 4.1.1
       vfile: 5.3.4
     transitivePeerDependencies:
       - supports-color
@@ -6046,13 +6049,13 @@ packages:
     resolution: {integrity: sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==}
     dependencies:
       '@types/eslint': 8.4.5
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
     dev: true
 
   /@types/eslint/8.4.5:
     resolution: {integrity: sha512-dhsC09y1gpJWnK+Ff4SGvCuSnk9DaU0BJZSzOwa6GVSg65XtTugLBITDAAzRU5duGBoXBHpdR/9jHGxJjNflJQ==}
     dependencies:
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
       '@types/json-schema': 7.0.11
     dev: true
 
@@ -7589,6 +7592,7 @@ packages:
 
   /bindings/1.5.0:
     resolution: {integrity: sha512-p2q/t/mhvuOj/UeLlV6566GD/guowlr0hHxClI0W9m7MWYkL1F0hLo+0Aexs9HSPCtR1SXQ0TD3MMKrXZajbiQ==}
+    requiresBuild: true
     dependencies:
       file-uri-to-path: 1.0.0
     dev: true
@@ -10418,6 +10422,7 @@ packages:
 
   /file-uri-to-path/1.0.0:
     resolution: {integrity: sha512-0Zt+s3L7Vf1biwWZ29aARiVYLx7iMGnEUl9x33fbB/j3jR81u/O2LbqK+Bm1CDSNDKVtJ/YjwY7TUd5SkeLQLw==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -13797,6 +13802,7 @@ packages:
 
   /nan/2.16.0:
     resolution: {integrity: sha512-UdAqHyFngu7TfQKsCBgAA6pWDkT8MAO7d0jyOecVhN5354xbLqdn8mV9Tat9gepAupm0bt2DbeaSC8vS52MuFA==}
+    requiresBuild: true
     dev: true
     optional: true
 
@@ -14048,8 +14054,8 @@ packages:
       scroll-into-view-if-needed: 2.2.29
     dev: false
 
-  /nextra/2.0.0-beta.29_axequwibc5yadwk55bo7ehxsoe:
-    resolution: {integrity: sha512-UjsaoMNsJRG0fbzqgoLDXgvJwcSJxwPr+ojBBjJsaZ6fu5+cwbCx8wXazA0y5sSxGw75fG6D1I7rS6pflHctuQ==}
+  /nextra/2.0.0-beta.42_axequwibc5yadwk55bo7ehxsoe:
+    resolution: {integrity: sha512-9YYL9hViKMt7gxzoqBODosqaJ8hutZo/Ahc9yfcGVXrf34gSqp44aKbJVEH/sWrkvRvR/+oz1n3u7OdvMae7DA==}
     peerDependencies:
       next: '>=9.5.3'
       react: '>=16.13.1'
@@ -16159,7 +16165,7 @@ packages:
     dependencies:
       retext: 8.1.0
       retext-smartypants: 5.2.0
-      unist-util-visit: 4.1.0
+      unist-util-visit: 4.1.1
     dev: true
 
   /remark-squeeze-paragraphs/4.0.0:
@@ -18149,13 +18155,6 @@ packages:
       unist-util-is: 5.1.1
     dev: false
 
-  /unist-util-visit-parents/5.1.0:
-    resolution: {integrity: sha512-y+QVLcY5eR/YVpqDsLf/xh9R3Q2Y4HxkZTp7ViLDU6WtJCEcPmRzW1gpdWDCDIqIlhuPDXOgttqPlykrHYDekg==}
-    dependencies:
-      '@types/unist': 2.0.6
-      unist-util-is: 5.1.1
-    dev: true
-
   /unist-util-visit-parents/5.1.1:
     resolution: {integrity: sha512-gks4baapT/kNRaWxuGkl5BIhoanZo7sC/cUT/JToSRNL1dYoXRFl75d++NkjYk4TAu2uv2Px+l8guMajogeuiw==}
     dependencies:
@@ -18182,7 +18181,7 @@ packages:
     dependencies:
       '@types/unist': 2.0.6
       unist-util-is: 5.1.1
-      unist-util-visit-parents: 5.1.0
+      unist-util-visit-parents: 5.1.1
     dev: true
 
   /unist-util-visit/4.1.1:
