@@ -1,6 +1,66 @@
+import { useEffect, useRef, useState } from 'react';
 import { Text } from '../Text';
 
+const TERMINAL: { text: string; write?: boolean }[] = [
+  {
+    text: '$ lagon deploy ./index.ts',
+    write: true,
+  },
+  {
+    text: '\nDeploying Function...',
+  },
+  {
+    text: 'Done!\n\n',
+  },
+  {
+    text: '$ curl https://test.lagon.app',
+    write: true,
+  },
+  {
+    text: 'Hello World!',
+  },
+];
+
 export const ExplainSection = () => {
+  const [step, setStep] = useState(0);
+  const [text, setText] = useState('');
+  const textIndex = useRef(0);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
+    if (step === TERMINAL.length) {
+      timeout = setTimeout(() => {
+        setText('');
+        setStep(0);
+      }, 2000);
+
+      return;
+    }
+
+    const { text: newText, write } = TERMINAL[step];
+
+    timeout = setTimeout(
+      () => {
+        if (write) {
+          setText(`${text}${newText[textIndex.current]}`);
+          textIndex.current += 1;
+
+          if (textIndex.current === newText.length) {
+            setStep(step + 1);
+            textIndex.current = 0;
+          }
+        } else {
+          setText(`${text}\n${newText}`);
+          setStep(step + 1);
+        }
+      },
+      write ? 60 : 1000,
+    );
+
+    return () => clearTimeout(timeout);
+  }, [step, text]);
+
   return (
     <section className="flex flex-col gap-16">
       <div className="p-[1px] rounded-3xl bg-gradient-to-br from-green via-purple to-[#0D2A54]">
@@ -676,7 +736,7 @@ export const ExplainSection = () => {
                 <span className="w-4 h-4 bg-lime-500 rounded-full" />
               </div>
               <pre className="p-4">
-                <code className="font-mono text-sm text-grey">lagon deploy</code>
+                <code className="font-mono text-sm text-grey">{text}</code>
               </pre>
             </div>
             <Text size="h2">Deploy in seconds</Text>
