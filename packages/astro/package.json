@@ -16,7 +16,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "esbuild": "^0.14.41"
+    "esbuild": "^0.15.0"
   },
   "devDependencies": {
     "astro": "1.6.10"
