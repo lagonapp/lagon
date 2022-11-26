@@ -1,5 +1,11 @@
 # @lagon/docs
 
+## 0.0.5
+
+### Patch Changes
+
+- [#300](https://github.com/lagonapp/lagon/pull/300) [`314012b`](https://github.com/lagonapp/lagon/commit/314012be1079505cc99ec4024818dfa6e65a85e1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Complete docs for the new CLI commands
+
 ## 0.0.4
 
 ### Patch Changes

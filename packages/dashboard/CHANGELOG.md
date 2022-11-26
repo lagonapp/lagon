@@ -1,5 +1,11 @@
 # @lagon/dashboard
 
+## 0.0.8
+
+### Patch Changes
+
+- [#295](https://github.com/lagonapp/lagon/pull/295) [`6e98d1b`](https://github.com/lagonapp/lagon/commit/6e98d1b435e46e85dc74c1161fc7c7041910c73d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `startupTimeout` to functions that is higher than `timeout`
+
 ## 0.0.7
 
 ### Patch Changes

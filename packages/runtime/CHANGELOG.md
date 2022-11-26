@@ -1,5 +1,13 @@
 # @lagon/runtime
 
+## 0.1.8
+
+### Patch Changes
+
+- [#295](https://github.com/lagonapp/lagon/pull/295) [`6e98d1b`](https://github.com/lagonapp/lagon/commit/6e98d1b435e46e85dc74c1161fc7c7041910c73d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `startupTimeout` to functions that is higher than `timeout`
+
+* [#263](https://github.com/lagonapp/lagon/pull/263) [`6db8e71`](https://github.com/lagonapp/lagon/commit/6db8e71d8ce51983d39cba87cf3401040fe5ec39) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use shorter keys for Request/Response
+
 ## 0.1.7
 
 ### Patch Changes

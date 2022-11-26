@@ -1,5 +1,19 @@
 # @lagon/serverless
 
+## 0.1.10
+
+### Patch Changes
+
+- [#257](https://github.com/lagonapp/lagon/pull/257) [`2a185ef`](https://github.com/lagonapp/lagon/commit/2a185efa8395e770129025c2f8c973b4711c0c19) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add logs for response types
+
+* [#261](https://github.com/lagonapp/lagon/pull/261) [`fee60e4`](https://github.com/lagonapp/lagon/commit/fee60e4641c39eac5b89ebe5a24b398070e5d291) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve performances by avoiding expensive clones
+
+- [#295](https://github.com/lagonapp/lagon/pull/295) [`6e98d1b`](https://github.com/lagonapp/lagon/commit/6e98d1b435e46e85dc74c1161fc7c7041910c73d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `startupTimeout` to functions that is higher than `timeout`
+
+* [#264](https://github.com/lagonapp/lagon/pull/264) [`e970b9d`](https://github.com/lagonapp/lagon/commit/e970b9d09aecc7d173e5f1056a7c0bee854ce93a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Properly clear isolates cache after the configured seconds and no requests
+
+- [#276](https://github.com/lagonapp/lagon/pull/276) [`6dca4fd`](https://github.com/lagonapp/lagon/commit/6dca4fd0d4157693115a1420a4a405a14486a87d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix functions timeout
+
 ## 0.1.9
 
 ### Patch Changes
