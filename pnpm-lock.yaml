@@ -232,7 +232,7 @@ importers:
       react-hot-toast: ^2.2.0
       redis: ^4.1.0
       tailwindcss: ^3.0.24
-      tsconfig-paths-webpack-plugin: ^3.5.2
+      tsconfig-paths-webpack-plugin: ^4.0.0
       typescript: ^4.6.4
       zod: ^3.17.3
     dependencies:
@@ -287,7 +287,7 @@ importers:
       postcss: 8.4.14
       prisma: 3.15.2
       tailwindcss: 3.1.4_postcss@8.4.14
-      tsconfig-paths-webpack-plugin: 3.5.2
+      tsconfig-paths-webpack-plugin: 4.0.0
       typescript: 4.7.4
 
   packages/docs:
@@ -8444,8 +8444,8 @@ packages:
       ora: 6.1.2
       path-browserify: 1.0.1
       path-to-regexp: 6.2.1
-      postcss: 8.4.14
-      postcss-load-config: 3.1.4_postcss@8.4.14
+      postcss: 8.4.19
+      postcss-load-config: 3.1.4_postcss@8.4.19
       preferred-pm: 3.0.3
       prompts: 2.4.2
       recast: 0.20.5
@@ -16450,6 +16450,23 @@ packages:
       yaml: 1.10.2
     dev: true
 
+  /postcss-load-config/3.1.4_postcss@8.4.19:
+    resolution: {integrity: sha512-6DiM4E7v4coTE4uzA8U//WhtPwyhiim3eyjEMFCnUpzbrkK9wJHgKDT2mR+HbtSrd/NubVaYTOpSpjUl8NQeRg==}
+    engines: {node: '>= 10'}
+    peerDependencies:
+      postcss: '>=8.0.9'
+      ts-node: '>=9.0.0'
+    peerDependenciesMeta:
+      postcss:
+        optional: true
+      ts-node:
+        optional: true
+    dependencies:
+      lilconfig: 2.0.5
+      postcss: 8.4.19
+      yaml: 1.10.2
+    dev: true
+
   /postcss-loader/4.3.0_gzaxsinx64nntyd3vmdqwl7coe:
     resolution: {integrity: sha512-M/dSoIiNDOo8Rk0mUqoj4kpGq91gcxCfb9PoyZVdZ76/AuhxylHDYZblNE8o+EQ9AMSASeMFEKxZf5aU6wlx1Q==}
     engines: {node: '>= 10.13.0'}
@@ -19217,12 +19234,13 @@ packages:
       typescript: 4.7.4
     dev: true
 
-  /tsconfig-paths-webpack-plugin/3.5.2:
-    resolution: {integrity: sha512-EhnfjHbzm5IYI9YPNVIxx1moxMI4bpHD2e0zTXeDNQcwjjRaGepP7IhTHJkyDBG0CAOoxRfe7jCG630Ou+C6Pw==}
+  /tsconfig-paths-webpack-plugin/4.0.0:
+    resolution: {integrity: sha512-fw/7265mIWukrSHd0i+wSwx64kYUSAKPfxRDksjKIYTxSAp9W9/xcZVBF4Kl0eqQd5eBpAQ/oQrc5RyM/0c1GQ==}
+    engines: {node: '>=10.13.0'}
     dependencies:
       chalk: 4.1.2
       enhanced-resolve: 5.10.0
-      tsconfig-paths: 3.14.1
+      tsconfig-paths: 4.0.0
     dev: true
 
   /tsconfig-paths/3.14.1:
