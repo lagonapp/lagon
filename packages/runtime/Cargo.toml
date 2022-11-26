@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-v8 = "0.56.0"
+v8 = "0.56.1"
 tokio = { version = "1", features = ["full"] }
 futures = "0.3.25"
 hyper = { version = "0.14", features = ["client", "http1", "http2", "tcp"] }
