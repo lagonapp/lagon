@@ -100,12 +100,10 @@ pub async fn deploy(
                     let response = trpc_client
                         .query::<(), FunctionsResponse>("functionsList", None)
                         .await?;
+                    let functions = response.result.data;
 
-                    let index = Select::new()
-                        .items(&response.result.data)
-                        .default(0)
-                        .interact()?;
-                    let function = &response.result.data[index];
+                    let index = Select::new().items(&functions).default(0).interact()?;
+                    let function = &functions[index];
 
                     write_function_config(
                         &file,
@@ -145,26 +143,20 @@ pub async fn deploy(
                             },
                         )
                         .await?;
+                    let function = response.result.data;
 
                     end_progress();
 
                     write_function_config(
                         &file,
                         DeploymentConfig {
-                            function_id: response.result.data.id.clone(),
+                            function_id: function.id.clone(),
                             organization_id: organization.id.clone(),
                         },
                     )?;
 
-                    create_deployment(
-                        response.result.data.id,
-                        &file,
-                        &client,
-                        &public_dir,
-                        &config,
-                        prod,
-                    )
-                    .await?;
+                    create_deployment(function.id, &file, &client, &public_dir, &config, prod)
+                        .await?;
                 }
             };
 

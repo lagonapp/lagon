@@ -91,6 +91,28 @@ enum Commands {
         #[clap(value_parser)]
         file: PathBuf,
     },
+    /// List all the Deployments for a Function
+    Ls {
+        /// Path to the file containing the Function
+        #[clap(value_parser)]
+        file: PathBuf,
+    },
+    /// Undeploy the given Deployment
+    Undeploy {
+        /// Path to the file containing the Function
+        #[clap(value_parser)]
+        file: PathBuf,
+        /// ID of the Deployment to undeploy
+        deployment_id: String,
+    },
+    /// Promote the given preview Deployment to production
+    Promote {
+        /// Path to the file containing the Function
+        #[clap(value_parser)]
+        file: PathBuf,
+        /// ID of the Deployment to promote
+        deployment_id: String,
+    },
 }
 
 #[tokio::main]
@@ -122,6 +144,15 @@ async fn main() {
                 public_dir,
             } => commands::build(file, client, public_dir),
             Commands::Link { file } => commands::link(file).await,
+            Commands::Ls { file } => commands::ls(file).await,
+            Commands::Undeploy {
+                file,
+                deployment_id,
+            } => commands::undeploy(file, deployment_id).await,
+            Commands::Promote {
+                file,
+                deployment_id,
+            } => commands::promote(file, deployment_id).await,
         } {
             println!("{}", error(&err.to_string()));
         }
