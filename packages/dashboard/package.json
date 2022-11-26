@@ -60,7 +60,7 @@
     "@types/react": "^18.0.9",
     "autoprefixer": "^10.4.7",
     "eslint": "^8.16.0",
-    "eslint-config-next": "12.3.4",
+    "eslint-config-next": "13.0.3",
     "eslint-plugin-storybook": "^0.6.0",
     "postcss": "^8.4.14",
     "prisma": "^4.0.0",
