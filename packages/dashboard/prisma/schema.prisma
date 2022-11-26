@@ -22,8 +22,7 @@ model Account {
   scope             String?
   id_token          String? @db.Text
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -45,111 +44,92 @@ model Session {
 }
 
 model User {
-  id               String    @id @default(cuid())
-  name             String?
-  email            String?   @unique
-  emailVerified    DateTime?
-  image            String?
-  accounts         Account[]
-  sessions         Session[]
-  verificationCode String?
-
+  id                    String         @id @default(cuid())
+  name                  String?
+  email                 String?        @unique
+  emailVerified         DateTime?
+  image                 String?
+  verificationCode      String?
   currentOrganizationId String?
+  accounts              Account[]
+  sessions              Session[]
   organizations         Organization[]
   tokens                Token[]
 }
 
 model Organization {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id          String     @id @default(cuid())
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
   name        String
   description String?
-
-  owner   User   @relation(fields: [ownerId], references: [id])
-  ownerId String
-
-  functions Function[]
+  ownerId     String
+  owner       User       @relation(fields: [ownerId], references: [id])
+  functions   Function[]
 }
 
 model Function {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
+  id             String        @id @default(cuid())
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
   name           String        @unique
-  domains        Domain[]
   memory         Int
   timeout        Int
-  startupTimeout Int           @default(200)
   cron           String?
-  cronRegion     String        @default("EU-WEST-3")
-  env            EnvVariable[]
-
-  organization   Organization @relation(fields: [organizationId], references: [id])
   organizationId String
-
-  deployments Deployment[]
+  cronRegion     String        @default("EU-WEST-3")
+  startupTimeout Int           @default(200)
+  organization   Organization  @relation(fields: [organizationId], references: [id])
+  domains        Domain[]
+  env            EnvVariable[]
+  deployments    Deployment[]
 }
 
 model Domain {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  domain String @unique
-
-  function   Function @relation(fields: [functionId], references: [id])
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  domain     String   @unique
   functionId String
+  function   Function @relation(fields: [functionId], references: [id])
 }
 
 model EnvVariable {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  key   String
-  value String
-
-  function   Function @relation(fields: [functionId], references: [id])
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  key        String
+  value      String
   functionId String
+  function   Function @relation(fields: [functionId], references: [id])
 }
 
 model Deployment {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  isProduction Boolean @default(false)
+  id           String   @id @default(cuid())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  functionId   String
+  triggerer    String   @default("Lagon")
+  commit       String?
+  isProduction Boolean  @default(false)
+  function     Function @relation(fields: [functionId], references: [id])
   assets       Asset[]
-
-  function   Function @relation(fields: [functionId], references: [id])
-  functionId String
-
-  triggerer String  @default("Lagon")
-  commit    String?
 }
 
 model Asset {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  name String
-  // TODO: sha
-
-  deployment   Deployment @relation(fields: [deploymentId], references: [id])
+  id           String     @id @default(cuid())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  name         String
   deploymentId String
+  deployment   Deployment @relation(fields: [deploymentId], references: [id])
 }
 
 model Token {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  value String
-
-  user   User   @relation(fields: [userId], references: [id])
-  userId String
+  value     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
 }
