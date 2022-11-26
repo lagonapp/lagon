@@ -7,7 +7,7 @@ import Link from 'lib/components/Link';
 import Text from 'lib/components/Text';
 import { getCurrentDomain, getFullCurrentDomain, getFullDomain } from 'lib/utils';
 import Dialog from 'lib/components/Dialog';
-import { RefreshIcon } from '@heroicons/react/outline';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from '@tanstack/react-query';
@@ -111,7 +111,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                       title={t('promote.modal.title')}
                       description={t('promote.modal.description')}
                       disclosure={
-                        <Button leftIcon={<RefreshIcon className="w-4 h-4" />} disabled={deleteDeployment.isLoading}>
+                        <Button leftIcon={<ArrowPathIcon className="w-4 h-4" />} disabled={deleteDeployment.isLoading}>
                           {t('promote')}
                         </Button>
                       }
