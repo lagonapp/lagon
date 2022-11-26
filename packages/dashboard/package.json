@@ -17,7 +17,7 @@
     "@aws-sdk/s3-request-presigner": "^3.186.0",
     "@axiomhq/axiom-node": "^0.10.0",
     "@headlessui/react": "^1.6.4",
-    "@heroicons/react": "^1.0.6",
+    "@heroicons/react": "^2.0.0",
     "@monaco-editor/react": "^4.4.5",
     "@next-auth/prisma-adapter": "^1.0.3",
     "@prisma/client": "^4.0.0",

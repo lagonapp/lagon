@@ -9,7 +9,7 @@ import Playground from 'lib/components/Playground';
 import useFunction from 'lib/hooks/useFunction';
 import { getFullCurrentDomain } from 'lib/utils';
 import Text from 'lib/components/Text';
-import { PlayIcon, RefreshIcon } from '@heroicons/react/outline';
+import { PlayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import useFunctionCode from 'lib/hooks/useFunctionCode';
 import { useI18n } from 'locales';
 
@@ -85,7 +85,7 @@ const PlaygroundPage = () => {
           </div>
         </Form>
         <div className="w-[50vw] border-l border-l-stone-200 dark:border-l-stone-700 px-2 flex items-center gap-4">
-          <Button onClick={reloadIframe} leftIcon={<RefreshIcon className="w-4 h-4" />}>
+          <Button onClick={reloadIframe} leftIcon={<ArrowPathIcon className="w-4 h-4" />}>
             {t('reload')}
           </Button>
           {func ? <FunctionLinks func={func} /> : null}

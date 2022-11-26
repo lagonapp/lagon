@@ -1,4 +1,4 @@
-import { TrashIcon, UserAddIcon } from '@heroicons/react/outline';
+import { TrashIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 import Menu from '.';
 import Divider from 'lib/components/Divider';
@@ -24,7 +24,7 @@ export const WithIcons: ComponentStory<typeof Menu> = () => (
     <Menu>
       <Menu.Button>Trigger</Menu.Button>
       <Menu.Items>
-        <Menu.Item icon={<UserAddIcon className="w-4 h-4" />}>Menu item</Menu.Item>
+        <Menu.Item icon={<UserPlusIcon className="w-4 h-4" />}>Menu item</Menu.Item>
         <Menu.Item icon={<TrashIcon className="w-4 h-4" />}>Menu item</Menu.Item>
       </Menu.Items>
     </Menu>
