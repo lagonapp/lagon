@@ -6,14 +6,14 @@ import Button from 'lib/components/Button';
 import {
   ChevronDownIcon,
   CogIcon,
-  DesktopComputerIcon,
-  LogoutIcon,
+  ComputerDesktopIcon,
+  ArrowLeftOnRectangleIcon,
   MoonIcon,
   PlusIcon,
   SunIcon,
-  TranslateIcon,
+  LanguageIcon,
   UserIcon,
-} from '@heroicons/react/outline';
+} from '@heroicons/react/24//outline';
 import Menu from 'lib/components/Menu';
 import Divider from 'lib/components/Divider';
 import Head from 'next/head';
@@ -166,7 +166,7 @@ const Layout = ({ title, children }: LayoutProps) => {
                           {t('header.menu.theme.dark')}
                         </Menu.Item>
                         <Menu.Item
-                          icon={<DesktopComputerIcon className="w-4 h-4" />}
+                          icon={<ComputerDesktopIcon className="w-4 h-4" />}
                           disabled={savedTheme === 'System'}
                           onClick={() => updateTheme('System')}
                         >
@@ -180,7 +180,7 @@ const Layout = ({ title, children }: LayoutProps) => {
                     </Menu.Item>
                     <Menu>
                       <Menu.Button>
-                        <Menu.Item icon={<TranslateIcon className="w-4 h-4" />}>
+                        <Menu.Item icon={<LanguageIcon className="w-4 h-4" />}>
                           {t('header.menu.language', {
                             locale: locale as string,
                           })}
@@ -195,7 +195,7 @@ const Layout = ({ title, children }: LayoutProps) => {
                         </Menu.Item>
                       </Menu.Items>
                     </Menu>
-                    <Menu.Item icon={<LogoutIcon className="w-4 h-4" />} onClick={() => signOut()}>
+                    <Menu.Item icon={<ArrowLeftOnRectangleIcon className="w-4 h-4" />} onClick={() => signOut()}>
                       {t('header.menu.signOut')}
                     </Menu.Item>
                   </Menu.Items>

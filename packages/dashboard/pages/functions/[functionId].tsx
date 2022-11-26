@@ -6,7 +6,7 @@ import FunctionSettings from 'lib/pages/function/FunctionSettings';
 import FunctionDeployments from 'lib/pages/function/FunctionDeployments';
 import FunctionLogs from 'lib/pages/function/FunctionLogs';
 import Button from 'lib/components/Button';
-import { PlayIcon } from '@heroicons/react/outline';
+import { PlayIcon } from '@heroicons/react/24/outline';
 import Head from 'next/head';
 import LayoutTitle from 'lib/components/LayoutTitle';
 import FunctionLinks from 'lib/components/FunctionLinks';

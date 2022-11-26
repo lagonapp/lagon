@@ -1,4 +1,4 @@
-import { ChevronDownIcon } from '@heroicons/react/outline';
+import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/router';
 import { useCallback, useEffect, useState } from 'react';
 import Button from 'lib/components/Button';

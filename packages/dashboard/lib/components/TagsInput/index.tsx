@@ -1,4 +1,4 @@
-import { XIcon } from '@heroicons/react/outline';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 import { FieldValidator } from 'final-form';
 import useTailwind from 'lib/hooks/useTailwind';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -57,7 +57,7 @@ const TagsInput = ({ name, placeholder, disabled, validator }: TagsInputProps) =
                   }}
                   className="text-stone-600 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
                 >
-                  <XIcon className="w-3 h-3" />
+                  <XMarkIcon className="w-3 h-3" />
                 </button>
               </span>
             ))}
