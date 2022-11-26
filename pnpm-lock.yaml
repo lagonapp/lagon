@@ -223,7 +223,7 @@ importers:
       monaco-editor: ^0.33.0
       next: 13.0.5
       next-auth: ^4.12.2
-      next-international: ^0.2.0
+      next-international: ^0.3.0
       node-fetch: ^3.2.10
       postcss: ^8.4.14
       prisma: ^3.15.2
@@ -261,7 +261,7 @@ importers:
       monaco-editor: 0.33.0
       next: 13.0.5_beenoklgwfttvph5dgxj7na7aq
       next-auth: 4.12.2_7iuvftg57tblwyxclfkwku5xo4
-      next-international: 0.2.0_next@13.0.5+react@18.2.0
+      next-international: 0.3.6_next@13.0.5+react@18.2.0
       node-fetch: 3.2.10
       react: 18.2.0
       react-chartjs-2: 4.2.0_yw232gbma4xqgfjmup6t23g3w4
@@ -12255,8 +12255,8 @@ packages:
       side-channel: 1.0.4
     dev: true
 
-  /international-types/0.2.0:
-    resolution: {integrity: sha512-hql29tOHWAEZshdmNrjkenZ07XeYxag5Jtsn/x1ftmyl+df85ZgQvaieb+Gv4+ISFrU8vQgBs15b4EKJar/f1g==}
+  /international-types/0.3.6:
+    resolution: {integrity: sha512-gTBCQBNq0L2qGA4VRWZR3mJaHlfhgG/htdSEu/o0hzR6belYGBlPR7OfayoV+47ApmxUdxkIqlT4MdfaNQ971Q==}
     dev: false
 
   /interpret/2.2.0:
@@ -14387,13 +14387,13 @@ packages:
       uuid: 8.3.2
     dev: false
 
-  /next-international/0.2.0_next@13.0.5+react@18.2.0:
-    resolution: {integrity: sha512-qinr51O3C1aW4KB20rN8GYZpCc1KAr0f0jDFyGSqtJ0U1bALjzTQl8tEmtdHU/d8Q2FyiiNGO1m3Nn23cKwJjw==}
+  /next-international/0.3.6_next@13.0.5+react@18.2.0:
+    resolution: {integrity: sha512-W9WM3Zz0ZaiLNCKWs+OYQ06dwA7yUcujhMVlgZtVzUjGLJT6kvnUjiMMQNMmwbjbjsoLyMEUa+Zzoi3a8D/82A==}
     peerDependencies:
       next: ^12.0.0 || ^11.0.0
       react: ^18.0.0 || ^17.0.0
     dependencies:
-      international-types: 0.2.0
+      international-types: 0.3.6
       next: 13.0.5_beenoklgwfttvph5dgxj7na7aq
       react: 18.2.0
     dev: false
