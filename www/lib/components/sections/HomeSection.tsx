@@ -38,7 +38,7 @@ export const HomeSection = () => {
         viewBox="0 0 964 936"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="absolute transform translate-y-[-21%] pointer-events-none"
+        className="absolute transform translate-y-[-20%] pointer-events-none"
       >
         <g filter="url(#filter0_d_207_2)">
           <circle cx="480.405" cy="450" r="367.5" stroke="url(#paint0_linear_207_2)" shapeRendering="crispEdges" />
@@ -298,21 +298,23 @@ export const HomeSection = () => {
           </radialGradient>
         </defs>
       </svg>
-      <div className="border-l border-dashed border-[#86B6FF] h-12 mt-36" />
-      <FunctionCode>
-        export function <span className="text-blue-1">handler</span>(request:&nbsp;
-        <span className="text-purple">Request</span>) &#123;
-        <br />
-        &nbsp;&nbsp;const ip = request.headers.get(<span className="text-green">&apos;X-Forwarded-For&apos;</span>
-        )
-        <br />
-        &nbsp;&nbsp;return new <span className="text-purple">Response</span>(
-        <span className="text-green">`Your IP is: </span>
-        {'${ip}'}
-        <span className="text-green">`</span>)
-        <br />
-        &#125;
-      </FunctionCode>
+      <div className="border-l border-dashed border-[#86B6FF] h-12 mt-44" />
+      <div className="-mt-8">
+        <FunctionCode>
+          export function <span className="text-blue-1">handler</span>(request:&nbsp;
+          <span className="text-purple">Request</span>) &#123;
+          <br />
+          &nbsp;&nbsp;const ip = request.headers.get(<span className="text-green">&apos;X-Forwarded-For&apos;</span>
+          )
+          <br />
+          &nbsp;&nbsp;return new <span className="text-purple">Response</span>(
+          <span className="text-green">`Your IP is: </span>
+          {'${ip}'}
+          <span className="text-green">`</span>)
+          <br />
+          &#125;
+        </FunctionCode>
+      </div>
     </section>
   );
 };
