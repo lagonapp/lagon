@@ -60,7 +60,7 @@
     "@types/formidable": "^2.0.5",
     "@types/react": "^18.0.9",
     "autoprefixer": "^10.4.7",
-    "babel-loader": "^8.2.5",
+    "babel-loader": "^9.0.0",
     "eslint": "^8.16.0",
     "eslint-config-next": "12.3.4",
     "eslint-plugin-storybook": "^0.6.0",
