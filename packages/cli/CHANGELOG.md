@@ -1,5 +1,21 @@
 # @lagon/cli
 
+## 0.4.0
+
+### Minor Changes
+
+- [#273](https://github.com/lagonapp/lagon/pull/273) [`c146417`](https://github.com/lagonapp/lagon/commit/c146417246e0ea8da4d83f35fac65611b755c0b7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Rename `lagon undeploy` to `lagon rm`
+
+* [#300](https://github.com/lagonapp/lagon/pull/300) [`314012b`](https://github.com/lagonapp/lagon/commit/314012be1079505cc99ec4024818dfa6e65a85e1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `lagon ls`, `lagon undeploy` & `lagon promote` commands
+
+- [#275](https://github.com/lagonapp/lagon/pull/275) [`54b0714`](https://github.com/lagonapp/lagon/commit/54b07148a084d6daaa5ee2e2e06f4d32d242cb88) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `lagon link` command
+
+### Patch Changes
+
+- [#267](https://github.com/lagonapp/lagon/pull/267) [`99ad5b4`](https://github.com/lagonapp/lagon/commit/99ad5b48ce0c308e90b66cdd3c1c47403a79c855) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve console.\* logs with `lagon dev`
+
+* [#274](https://github.com/lagonapp/lagon/pull/274) [`58bb4d9`](https://github.com/lagonapp/lagon/commit/58bb4d9e3a001dc18d6d20b53f7dc1c3acfcc8b4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow having multiple Functions in a folder
+
 ## 0.3.6
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # @lagon/js-runtime
 
+## 0.1.8
+
+### Patch Changes
+
+- [#266](https://github.com/lagonapp/lagon/pull/266) [`7154b8f`](https://github.com/lagonapp/lagon/commit/7154b8f9a5370d8bb345c0ebb14441745228f553) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add support for application/x-www-form-urlencoded in Request/Response formData()
+
+* [#270](https://github.com/lagonapp/lagon/pull/270) [`98bcfa4`](https://github.com/lagonapp/lagon/commit/98bcfa4723382db1abd2d4b14aee201cd3cfd298) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Blob polyfill
+
 ## 0.1.7
 
 ### Patch Changes
