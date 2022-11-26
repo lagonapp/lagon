@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 use hyper::{body, client::HttpConnector, Body, Client, Method, Request};
 use hyper_tls::HttpsConnector;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use urlencoding::encode;
 
 use super::Config;
 
@@ -42,17 +43,22 @@ impl<'a> TrpcClient<'a> {
         key: &str,
         body: Option<T>,
     ) -> Result<TrpcResponse<R>> {
-        let body = match body {
-            Some(body) => Body::from(serde_json::to_string(&body)?),
-            None => Body::empty(),
+        let input = match body {
+            Some(body) => format!("?input={}", encode(&serde_json::to_string(&body)?)),
+            None => String::new(),
         };
 
         let request = Request::builder()
             .method(Method::GET)
-            .uri(self.config.site_url.clone() + "/api/trpc/" + key)
+            .uri(format!(
+                "{}/api/trpc/{}{}",
+                self.config.site_url.clone(),
+                key,
+                input,
+            ))
             .header("content-type", "application/json")
             .header("x-lagon-token", self.config.token.as_ref().unwrap())
-            .body(body)?;
+            .body(Body::empty())?;
 
         let response = self.client.request(request).await?;
         let body = body::to_bytes(response.into_body()).await?;
@@ -76,7 +82,7 @@ impl<'a> TrpcClient<'a> {
 
         let request = Request::builder()
             .method(Method::POST)
-            .uri(self.config.site_url.clone() + "/api/trpc/" + key)
+            .uri(format!("{}/api/trpc/{}", self.config.site_url.clone(), key))
             .header("content-type", "application/json")
             .header("x-lagon-token", self.config.token.as_ref().unwrap())
             .body(Body::from(body))?;

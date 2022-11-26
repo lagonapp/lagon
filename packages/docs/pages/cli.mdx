@@ -69,21 +69,58 @@ lagon deploy ./index.ts
 lagon deploy ./server.tsx --client App.tsx --public ./assets
 ```
 
+### `lagon ls`
+
+List all the Deployments of the given Function. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
+
+- `<FILE>` path to a file containing the Function to list deployments of.
+
+Example:
+
+```bash
+lagon ls ./index.ts
+```
+
+### `lagon promote`
+
+Promote the given Deployment to production. Make sure you are [logged in](#lagon-login) before proceeding. This command accept the following arguments:
+
+- `<FILE>` path to a file containing the Function to promote a Deployment from.
+- `<DEPLOYMENT_ID>` the ID of the Deployment to prmote.
+
+Example:
+
+```bash
+lagon promote ./index.ts claxnlc230738q5pa7iximskm
+```
+
 ### `lagon undeploy`
 
+Un-deploy a Deployment. Make sure you are [logged in](#lagon-login) before proceeding. This command accept the following arguments:
+
+- `<FILE>` path to a file containing the Function to undeploy a Deployment from.
+- `<DEPLOYMENT_ID>` the ID of the Deployment to undeploy.
+
+Example:
+
+```bash
+lagon undeploy ./index.ts claxnlc230738q5pa7iximskm
+```
+
+### `lagon rm`
+
 <Callout type="error">
-  Un-deploying a Function deletes permanently all of its Deployments, statistics and logs. You will be prompted to
-  confirm before continuing.
+  Deleting a Function also deletes permanently all of its Deployments, statistics and logs.
 </Callout>
 
-Un-deploy completely a Function. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
+Delete completely a Function. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
 
 - `<FILE>` path to a file containing the Function to undeploy.
 
 Example:
 
 ```bash
-lagon undeploy ./index.ts
+lagon rm ./index.ts
 ```
 
 ### `lagon dev`
@@ -134,3 +171,15 @@ If you are [self-hosting](/self-hosted/installation) Lagon, you will need to upd
 ```
 
 Replace the `site_url` field by the one configured during the installation. To verify if it's working correctly, login to your installation using `lagon login`.
+
+### `lagon link`
+
+Link a local Function to a deployed one, without triggering a new Deployment. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
+
+- `<FILE>` path to a file containing the Function to list deployments of.
+
+Example:
+
+```bash
+lagon link ./index.ts
+```

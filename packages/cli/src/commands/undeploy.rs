@@ -1,21 +1,21 @@
 use anyhow::{anyhow, Result};
+use dialoguer::Confirm;
 use std::path::PathBuf;
 
-use dialoguer::Confirm;
 use serde::Serialize;
 
 use crate::utils::{
-    delete_function_config, get_function_config, info, print_progress, success, validate_code_file,
-    Config, TrpcClient,
+    get_function_config, info, print_progress, success, validate_code_file, Config, TrpcClient,
 };
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-struct DeleteFunctionRequest {
+struct DeleteDeploymentRequest {
     function_id: String,
+    deployment_id: String,
 }
 
-pub async fn rm(file: PathBuf) -> Result<()> {
+pub async fn undeploy(file: PathBuf, deployment_id: String) -> Result<()> {
     let config = Config::new()?;
 
     if config.token.is_none() {
@@ -29,27 +29,24 @@ pub async fn rm(file: PathBuf) -> Result<()> {
     match get_function_config(&file)? {
         None => Err(anyhow!("No configuration found for this file.")),
         Some(function_config) => match Confirm::new()
-            .with_prompt(info(
-                "Are you sure you want to completely delete this Function?",
-            ))
+            .with_prompt(info("Are you sure you want to delete this Deployment?"))
             .interact()?
         {
             true => {
-                let end_progress = print_progress("Deleting Function...");
+                let end_progress = print_progress("Deleting Deployment...");
                 TrpcClient::new(&config)
-                    .mutation::<DeleteFunctionRequest, ()>(
-                        "functionDelete",
-                        DeleteFunctionRequest {
+                    .mutation::<DeleteDeploymentRequest, ()>(
+                        "deploymentDelete",
+                        DeleteDeploymentRequest {
                             function_id: function_config.function_id,
+                            deployment_id,
                         },
                     )
                     .await?;
                 end_progress();
 
-                delete_function_config(&file)?;
-
                 println!();
-                println!("{}", success("Function deleted."));
+                println!("{}", success("Deployment deleted."));
 
                 Ok(())
             }

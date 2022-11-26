@@ -1,21 +1,21 @@
 use anyhow::{anyhow, Result};
+use dialoguer::Confirm;
 use std::path::PathBuf;
 
-use dialoguer::Confirm;
 use serde::Serialize;
 
 use crate::utils::{
-    delete_function_config, get_function_config, info, print_progress, success, validate_code_file,
-    Config, TrpcClient,
+    get_function_config, info, print_progress, success, validate_code_file, Config, TrpcClient,
 };
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-struct DeleteFunctionRequest {
+struct PromoteDeploymentRequest {
     function_id: String,
+    deployment_id: String,
 }
 
-pub async fn rm(file: PathBuf) -> Result<()> {
+pub async fn promote(file: PathBuf, deployment_id: String) -> Result<()> {
     let config = Config::new()?;
 
     if config.token.is_none() {
@@ -30,30 +30,29 @@ pub async fn rm(file: PathBuf) -> Result<()> {
         None => Err(anyhow!("No configuration found for this file.")),
         Some(function_config) => match Confirm::new()
             .with_prompt(info(
-                "Are you sure you want to completely delete this Function?",
+                "Are you sure you want to promote this Deployment to production?",
             ))
             .interact()?
         {
             true => {
-                let end_progress = print_progress("Deleting Function...");
+                let end_progress = print_progress("Promoting Deployment...");
                 TrpcClient::new(&config)
-                    .mutation::<DeleteFunctionRequest, ()>(
-                        "functionDelete",
-                        DeleteFunctionRequest {
+                    .mutation::<PromoteDeploymentRequest, ()>(
+                        "deploymentPromote",
+                        PromoteDeploymentRequest {
                             function_id: function_config.function_id,
+                            deployment_id,
                         },
                     )
                     .await?;
                 end_progress();
 
-                delete_function_config(&file)?;
-
                 println!();
-                println!("{}", success("Function deleted."));
+                println!("{}", success("Deployment promoted to production!"));
 
                 Ok(())
             }
-            false => Err(anyhow!("Deletion aborted.")),
+            false => Err(anyhow!("Promotion aborted.")),
         },
     }
 }

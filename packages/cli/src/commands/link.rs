@@ -39,12 +39,10 @@ pub async fn link(file: PathBuf) -> Result<()> {
             let response = trpc_client
                 .query::<(), FunctionsResponse>("functionsList", None)
                 .await?;
+            let functions = response.result.data;
 
-            let index = Select::new()
-                .items(&response.result.data)
-                .default(0)
-                .interact()?;
-            let function = &response.result.data[index];
+            let index = Select::new().items(&functions).default(0).interact()?;
+            let function = &functions[index];
 
             write_function_config(
                 &file,
