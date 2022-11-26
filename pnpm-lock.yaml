@@ -220,7 +220,7 @@ importers:
       eslint-plugin-storybook: ^0.6.0
       final-form: ^4.20.7
       formidable: ^2.0.1
-      monaco-editor: ^0.33.0
+      monaco-editor: ^0.34.0
       next: 13.0.5
       next-auth: ^4.12.2
       next-international: ^0.3.0
@@ -243,7 +243,7 @@ importers:
       '@axiomhq/axiom-node': 0.10.0
       '@headlessui/react': 1.7.2_biqbaboplfbrettd7655fr4n2y
       '@heroicons/react': 1.0.6_react@18.2.0
-      '@monaco-editor/react': 4.4.5_jywyd5ymizla4bkdnod6po6m6y
+      '@monaco-editor/react': 4.4.5_6vrjaj6ridxbohi43n7zt4gn7q
       '@next-auth/prisma-adapter': 1.0.3_uxqkpgmj52djk6c2xqm5mrt7ja
       '@prisma/client': 3.15.2_prisma@3.15.2
       '@radix-ui/react-alert-dialog': 0.1.7_twyhzqqpkwvvgrmyeapdo6i4my
@@ -258,7 +258,7 @@ importers:
       chart.js: 3.8.0
       final-form: 4.20.7
       formidable: 2.0.1
-      monaco-editor: 0.33.0
+      monaco-editor: 0.34.1
       next: 13.0.5_beenoklgwfttvph5dgxj7na7aq
       next-auth: 4.12.2_7iuvftg57tblwyxclfkwku5xo4
       next-international: 0.3.6_next@13.0.5+react@18.2.0
@@ -3530,24 +3530,24 @@ packages:
     resolution: {integrity: sha512-H1rQc1ZOHANWBvPcW+JpGwr+juXSxM8Q8YCkm3GhZd8REu1fHR3z99CErO1p9pkcfcxZnMdIZdIsXkOHY0NilA==}
     dev: true
 
-  /@monaco-editor/loader/1.3.2_monaco-editor@0.33.0:
+  /@monaco-editor/loader/1.3.2_monaco-editor@0.34.1:
     resolution: {integrity: sha512-BTDbpHl3e47r3AAtpfVFTlAi7WXv4UQ/xZmz8atKl4q7epQV5e7+JbigFDViWF71VBi4IIBdcWP57Hj+OWuc9g==}
     peerDependencies:
       monaco-editor: '>= 0.21.0 < 1'
     dependencies:
-      monaco-editor: 0.33.0
+      monaco-editor: 0.34.1
       state-local: 1.0.7
     dev: false
 
-  /@monaco-editor/react/4.4.5_jywyd5ymizla4bkdnod6po6m6y:
+  /@monaco-editor/react/4.4.5_6vrjaj6ridxbohi43n7zt4gn7q:
     resolution: {integrity: sha512-IImtzU7sRc66OOaQVCG+5PFHkSWnnhrUWGBuH6zNmH2h0YgmAhcjHZQc/6MY9JWEbUtVF1WPBMJ9u1XuFbRrVA==}
     peerDependencies:
       monaco-editor: '>= 0.25.0 < 1'
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      '@monaco-editor/loader': 1.3.2_monaco-editor@0.33.0
-      monaco-editor: 0.33.0
+      '@monaco-editor/loader': 1.3.2_monaco-editor@0.34.1
+      monaco-editor: 0.34.1
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -14251,8 +14251,8 @@ packages:
     engines: {node: '>=12.0.0'}
     dev: true
 
-  /monaco-editor/0.33.0:
-    resolution: {integrity: sha512-VcRWPSLIUEgQJQIE0pVT8FcGBIgFoxz7jtqctE+IiCxWugD0DwgyQBcZBhdSrdMC84eumoqMZsGl2GTreOzwqw==}
+  /monaco-editor/0.34.1:
+    resolution: {integrity: sha512-FKc80TyiMaruhJKKPz5SpJPIjL+dflGvz4CpuThaPMc94AyN7SeC9HQ8hrvaxX7EyHdJcUY5i4D0gNyJj1vSZQ==}
     dev: false
 
   /move-concurrently/1.0.1:

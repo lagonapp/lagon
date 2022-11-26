@@ -33,7 +33,7 @@
     "chart.js": "^3.8.0",
     "final-form": "^4.20.7",
     "formidable": "^2.0.1",
-    "monaco-editor": "^0.33.0",
+    "monaco-editor": "^0.34.0",
     "next": "13.0.5",
     "next-auth": "^4.12.2",
     "next-international": "^0.3.0",
