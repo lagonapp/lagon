@@ -59,6 +59,29 @@ impl Deployment {
 
         domains
     }
+
+    pub async fn download(&self, bucket: &Bucket) -> Result<()> {
+        match bucket.get_object(self.id.clone() + ".js").await {
+            Ok(object) => {
+                write_deployment(&self.id, object.bytes())?;
+
+                if !self.assets.is_empty() {
+                    for asset in &self.assets {
+                        match bucket
+                            .get_object(self.id.clone() + "/" + asset.as_str())
+                            .await
+                        {
+                            Ok(object) => write_deployment_asset(&self.id, asset, object.bytes())?,
+                            Err(error) => return Err(anyhow!(error)),
+                        };
+                    }
+                }
+
+                Ok(())
+            }
+            Err(error) => Err(anyhow!(error)),
+        }
+    }
 }
 
 pub async fn get_deployments(
@@ -166,11 +189,9 @@ pub async fn get_deployments(
 
         for deployment in deployments_list {
             if !has_deployment_code(&deployment) {
-                if let Err(error) = download_deployment(&deployment, &bucket).await {
-                    error!(deployment = deployment.id;
-                        "Failed to download deployment: {:?}",
-                        error
-                    );
+                if let Err(error) = deployment.download(&bucket).await {
+                    error!("Failed to download deployment {}: {}", deployment.id, error);
+                    continue;
                 }
             }
 
@@ -210,29 +231,4 @@ async fn delete_old_deployments(deployments: &[Deployment]) -> Result<()> {
     info!("Old deployments deleted");
 
     Ok(())
-}
-
-pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> Result<()> {
-    match bucket.get_object(deployment.id.clone() + ".js").await {
-        Ok(object) => {
-            write_deployment(&deployment.id, object.bytes())?;
-
-            if !deployment.assets.is_empty() {
-                for asset in &deployment.assets {
-                    match bucket
-                        .get_object(deployment.id.clone() + "/" + asset.as_str())
-                        .await
-                    {
-                        Ok(object) => {
-                            write_deployment_asset(&deployment.id, asset, object.bytes())?
-                        }
-                        Err(error) => return Err(anyhow!(error)),
-                    };
-                }
-            }
-
-            Ok(())
-        }
-        Err(error) => Err(anyhow!(error)),
-    }
 }

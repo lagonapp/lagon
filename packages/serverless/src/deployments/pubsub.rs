@@ -8,7 +8,7 @@ use tokio::{sync::RwLock, task::JoinHandle};
 
 use crate::ISOLATES;
 
-use super::{download_deployment, filesystem::rm_deployment, Deployment};
+use super::{filesystem::rm_deployment, Deployment};
 
 async fn clear_deployments_cache(domains: &Vec<String>) {
     let mut isolates = ISOLATES.write().await;
@@ -72,7 +72,7 @@ pub fn listen_pub_sub(
 
             match channel {
                 "deploy" => {
-                    match download_deployment(&deployment, &bucket).await {
+                    match deployment.download(&bucket).await {
                         Ok(_) => {
                             let mut deployments = deployments.write().await;
                             let domains = deployment.get_domains();
