@@ -248,9 +248,9 @@ checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
 
 [[package]]
 name = "bitvec"
-version = "0.22.3"
+version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5237f00a8c86130a0cc317830e558b966dd7850d48a953d998c813f01a41b527"
+checksum = "1bc2832c24239b0141d5674bb9174f9d68a8b5b3f2753311927c172ca46f7e9c"
 dependencies = [
  "funty",
  "radium",
@@ -872,9 +872,9 @@ dependencies = [
 
 [[package]]
 name = "funty"
-version = "1.2.0"
+version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1847abb9cb65d566acd5942e94aea9c8f547ad02c98e1649326fc0e8910b8b1e"
+checksum = "e6d5a32815ae3f33302d95fdcb2ce17862f8c65363dcfd29360480ba1001fc9c"
 
 [[package]]
 name = "futures"
@@ -1387,7 +1387,7 @@ dependencies = [
  "rand",
  "sha2",
  "tokio",
- "uuid 1.2.2",
+ "uuid",
  "v8",
 ]
 
@@ -1568,9 +1568,9 @@ dependencies = [
 
 [[package]]
 name = "lru"
-version = "0.7.8"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e999beba7b6e8345721bd280141ed958096a2e4abdf74f67ff4ce49b4b54e47a"
+checksum = "b6e8aaa3f231bb4bd57b84b2d5dc3ae7f350265df8aa96492e0bc394a1571909"
 dependencies = [
  "hashbrown",
 ]
@@ -1733,9 +1733,9 @@ dependencies = [
 
 [[package]]
 name = "mysql"
-version = "22.2.0"
+version = "23.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9d8136c78f78cda5c1a4eee4ce555281b71e3e6db715817bc50e186e623b36f"
+checksum = "f084752e065cc4731849b34b687afb83211f085eb3c34c578a7028d3a157dca6"
 dependencies = [
  "bufstream",
  "bytes",
@@ -1759,9 +1759,9 @@ dependencies = [
 
 [[package]]
 name = "mysql_common"
-version = "0.28.2"
+version = "0.29.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4140827f2d12750de1e8755442577e4292a835f26ff2f659f0a380d1d71020b0"
+checksum = "522f2f30f72de409fc04f88df25a031f98cfc5c398a94e0b892cabb33a1464cb"
 dependencies = [
  "base64",
  "bigdecimal",
@@ -1791,7 +1791,7 @@ dependencies = [
  "subprocess",
  "thiserror",
  "time 0.3.14",
- "uuid 0.8.2",
+ "uuid",
 ]
 
 [[package]]
@@ -2221,9 +2221,9 @@ dependencies = [
 
 [[package]]
 name = "radium"
-version = "0.6.2"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "643f8f41a8ebc4c5dc4515c82bb8abd397b527fc20fd681b7c011c2aee5d44fb"
+checksum = "dc33ff2d4973d518d823d61aa239014831e521c75da58e3df4840d3f47749d09"
 
 [[package]]
 name = "rand"
@@ -3056,12 +3056,6 @@ checksum = "e8db7427f936968176eaa7cdf81b7f98b980b18495ec28f1b5791ac3bfe3eea9"
 
 [[package]]
 name = "uuid"
-version = "0.8.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc5cf98d8186244414c848017f0e2676b3fcb46807f6668a97dfe67359a3c4b7"
-
-[[package]]
-name = "uuid"
 version = "1.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "422ee0de9031b5b948b97a8fc04e3aa35230001a722ddd27943e0be31564ce4c"
@@ -3398,9 +3392,9 @@ dependencies = [
 
 [[package]]
 name = "wyz"
-version = "0.4.0"
+version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "129e027ad65ce1453680623c3fb5163cbf7107bfe1aa32257e7d0e63f9ced188"
+checksum = "05f360fc0b24296329c78fda852a1e9ae82de9cf7b27dae4b7f62f118f77b9ed"
 dependencies = [
  "tap",
 ]
