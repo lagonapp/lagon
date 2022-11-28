@@ -102,5 +102,11 @@ export type AppRouter = typeof router;
 export default trpcNext.createNextApiHandler({
   router,
   createContext,
-  onError: ({ error }) => Sentry.captureException(error),
+  onError: ({ error }) => {
+    console.error(error);
+
+    if (error.code === 'INTERNAL_SERVER_ERROR') {
+      Sentry.captureException(error);
+    }
+  },
 });
