@@ -23,7 +23,6 @@ impl SimpleLogger {
             Ok(axiom_client) => {
                 tokio::spawn(async move {
                     if let Err(error) = axiom_client
-                        .datasets
                         .ingest_stream("serverless", rx.into_stream())
                         .await
                     {
