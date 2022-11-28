@@ -168,9 +168,9 @@ dependencies = [
 
 [[package]]
 name = "axiom-rs"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f6f23438d5a370b25fdd40449ba1f5d93319f59171f1007dc674a2cfc44b4e25"
+checksum = "06f1364927171c5c95c3f1746725798eb26b5fe59f14e26437a5cbd1815563d3"
 dependencies = [
  "backoff",
  "bytes",
