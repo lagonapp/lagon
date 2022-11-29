@@ -12,7 +12,7 @@ use std::{
 };
 
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
-use v8::PromiseState;
+use v8::{MapFnTo, PromiseState};
 
 use crate::{
     http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult},
@@ -203,13 +203,25 @@ impl Isolate {
         let memory_mb = options.memory * 1024 * 1024;
         let mut params = v8::CreateParams::default().heap_limits(0, memory_mb);
 
-        if let Some(snapshot_blob) = options.snapshot_blob {
-            params = params.snapshot_blob(snapshot_blob);
-        }
+        let references = vec![v8::ExternalReference {
+            function: bindings::console::console_binding.map_fn_to(),
+        }];
+
+        let refs = v8::ExternalReferences::new(&references);
+        std::mem::forget(references);
+        let refs: &'static v8::ExternalReferences = Box::leak(Box::new(refs));
 
         let mut isolate = match options.dry_run {
-            true => v8::Isolate::snapshot_creator(None),
-            false => v8::Isolate::new(params),
+            true => v8::Isolate::snapshot_creator(Some(refs)),
+            false => {
+                params = params.external_references(&**refs);
+
+                if let Some(snapshot_blob) = options.snapshot_blob {
+                    params = params.snapshot_blob(snapshot_blob);
+                }
+
+                v8::Isolate::new(params)
+            }
         };
 
         let (stream_sender, stream_receiver) = flume::unbounded();
@@ -218,12 +230,12 @@ impl Isolate {
             let isolate_scope = &mut v8::HandleScope::new(&mut isolate);
 
             let global = if options.dry_run {
-                let context = v8::Context::new(isolate_scope);
+                let context = bindings::bind(isolate_scope);
                 let global = v8::Global::new(isolate_scope, context);
                 isolate_scope.set_default_context(context);
                 global
             } else {
-                let context = bindings::bind(isolate_scope);
+                let context = v8::Context::new(isolate_scope);
                 v8::Global::new(isolate_scope, context)
             };
 
@@ -333,11 +345,10 @@ impl Isolate {
                     module.evaluate(try_catch)?;
 
                     if !self.options.dry_run {
-                        let namespace = module.get_module_namespace();
-                        let namespace = v8::Local::<v8::Object>::try_from(namespace).unwrap();
-
+                        let global = global.open(try_catch);
+                        let global = global.global(try_catch);
                         let handler_key = v8_string(try_catch, "masterHandler");
-                        let handler = namespace.get(try_catch, handler_key.into()).unwrap();
+                        let handler = global.get(try_catch, handler_key.into()).unwrap();
                         let handler = v8::Local::<v8::Function>::try_from(handler).unwrap();
                         let handler = v8::Global::new(try_catch, handler);
 

@@ -1383,10 +1383,12 @@ dependencies = [
  "httptest",
  "hyper",
  "hyper-tls",
+ "lazy_static",
  "log",
  "rand",
  "sha2",
  "tokio",
+ "tokio-util",
  "uuid",
  "v8",
 ]
@@ -3066,9 +3068,9 @@ dependencies = [
 
 [[package]]
 name = "v8"
-version = "0.56.1"
+version = "0.58.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f7591a2478046263bc28ec09c70f4a43a5ac33b60f4480a29e2dde1ba4335c24"
+checksum = "8e9b88668afedf6ec9f8f6d30b446f622498da2ef0b3991a52e10f0ea8c6cc09"
 dependencies = [
  "bitflags",
  "fslock",

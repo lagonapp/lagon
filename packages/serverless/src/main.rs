@@ -185,7 +185,7 @@ async fn handle_request(
                             }))
                             .with_snapshot_blob(SNAPSHOT_BLOB);
 
-                        Isolate::new(options)
+                         Isolate::new(options)
                     });
 
                     isolate.run(request, tx.clone()).await;

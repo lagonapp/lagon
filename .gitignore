@@ -12,3 +12,4 @@ packages/serverless/deployments/
 .DS_Store
 .env
 tsconfig.tsbuildinfo
+snapshot.bin

@@ -67,22 +67,32 @@ pub fn get_runtime_code<'a>(
         None => "".to_string(),
     };
 
-    //     if options.snapshot_blob.is_some() {
-    //         v8_string(
-    //             scope,
-    //             &format!(
-    //                 r"{environment_variables}
-    // {code}"
-    //             ),
-    //         )
-    //     } else {
-    v8_string(
-        scope,
-        &format!(
-            r"{JS_RUNTIME}
+    if options.snapshot_blob.is_some() {
+        // If we have a snapshot, only return the isolate's code
+        // and the environment variables
+        v8_string(
+            scope,
+            &format!(
+                r"{environment_variables}
+{code}
+globalThis.handler = handler"
+            ),
+        )
+    } else if options.dry_run {
+        // If we are currently making a snapshot, only return
+        // the js runtime code
+        v8_string(scope, JS_RUNTIME)
+    } else {
+        // Else, that means we don't care about snapshots at all
+        // and we can return all the code
+        v8_string(
+            scope,
+            &format!(
+                r"{JS_RUNTIME}
 {environment_variables}
-{code}"
-        ),
-    )
-    // }
+{code}
+globalThis.handler = handler"
+            ),
+        )
+    }
 }

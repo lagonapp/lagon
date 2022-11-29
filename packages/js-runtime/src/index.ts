@@ -63,6 +63,16 @@ declare global {
     TEXT_ENCODER: TextEncoder;
     TEXT_DECODER: TextDecoder;
   };
+  var masterHandler: (request: {
+    i: string;
+    m: RequestInit['method'];
+    h: RequestInit['headers'];
+    b: RequestInit['body'];
+  }) => Promise<{
+    b: string;
+    h: ResponseInit['headers'];
+    s: ResponseInit['status'];
+  }>;
   var handler: (request: Request) => Promise<Response>;
 
   interface Response {
@@ -70,16 +80,7 @@ declare global {
   }
 }
 
-export async function masterHandler(request: {
-  i: string;
-  m: RequestInit['method'];
-  h: RequestInit['headers'];
-  b: RequestInit['body'];
-}): Promise<{
-  b: string;
-  h: ResponseInit['headers'];
-  s: ResponseInit['status'];
-}> {
+globalThis.masterHandler = async request => {
   const handlerRequest = new Request(request.i, {
     method: request.m,
     headers: request.h,
@@ -118,4 +119,4 @@ export async function masterHandler(request: {
     h: response.headers,
     s: response.status,
   };
-}
+};

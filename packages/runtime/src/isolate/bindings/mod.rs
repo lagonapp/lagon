@@ -13,7 +13,7 @@ use crate::{
     utils::v8_string,
 };
 
-mod console;
+pub mod console;
 mod crypto;
 mod fetch;
 mod pull_stream;
@@ -76,32 +76,31 @@ macro_rules! async_binding {
 
 pub fn bind<'a>(scope: &mut v8::HandleScope<'a, ()>) -> v8::Local<'a, v8::Context> {
     let global = v8::ObjectTemplate::new(scope);
-
     let lagon_object = v8::ObjectTemplate::new(scope);
 
     binding!(scope, lagon_object, "log", console_binding);
-    async_binding!(scope, lagon_object, "fetch", fetch_init, fetch_binding);
-    binding!(scope, lagon_object, "pullStream", pull_stream_binding);
-    binding!(scope, lagon_object, "uuid", uuid_binding);
-    binding!(scope, lagon_object, "randomValues", random_values_binding);
-    async_binding!(scope, lagon_object, "sign", sign_init, sign_binding);
-    async_binding!(scope, lagon_object, "verify", verify_init, verify_binding);
-    binding!(scope, lagon_object, "getKeyValue", get_key_value_binding);
-    async_binding!(scope, lagon_object, "digest", digest_init, digest_binding);
-    async_binding!(
-        scope,
-        lagon_object,
-        "encrypt",
-        encrypt_init,
-        encrypt_binding
-    );
-    async_binding!(
-        scope,
-        lagon_object,
-        "decrypt",
-        decrypt_init,
-        decrypt_binding
-    );
+    // async_binding!(scope, lagon_object, "fetch", fetch_init, fetch_binding);
+    // binding!(scope, lagon_object, "pullStream", pull_stream_binding);
+    // binding!(scope, lagon_object, "uuid", uuid_binding);
+    // binding!(scope, lagon_object, "randomValues", random_values_binding);
+    // async_binding!(scope, lagon_object, "sign", sign_init, sign_binding);
+    // async_binding!(scope, lagon_object, "verify", verify_init, verify_binding);
+    // binding!(scope, lagon_object, "getKeyValue", get_key_value_binding);
+    // async_binding!(scope, lagon_object, "digest", digest_init, digest_binding);
+    // async_binding!(
+    //     scope,
+    //     lagon_object,
+    //     "encrypt",
+    //     encrypt_init,
+    //     encrypt_binding
+    // );
+    // async_binding!(
+    //     scope,
+    //     lagon_object,
+    //     "decrypt",
+    //     decrypt_init,
+    //     decrypt_binding
+    // );
 
     global.set(v8_string(scope, "Lagon").into(), lagon_object.into());
 
