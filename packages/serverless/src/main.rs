@@ -64,7 +64,7 @@ async fn handle_request(
     let hostname = match req.headers().get(HOST) {
         Some(hostname) => hostname.to_str()?.to_string(),
         None => {
-            warn!(request = as_debug!(req); "No hostname found in request");
+            warn!(request = as_debug!(req), ip = ip; "No hostname found in request");
 
             return Ok(Builder::new().status(404).body(PAGE_404.into())?);
         }
@@ -74,7 +74,7 @@ async fn handle_request(
     let deployment = match deployments.get(&hostname) {
         Some(deployment) => Arc::clone(deployment),
         None => {
-            warn!(request = as_debug!(req); "No deployment found for hostname");
+            warn!(request = as_debug!(req), ip = ip; "No deployment found for hostname");
 
             return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
         }

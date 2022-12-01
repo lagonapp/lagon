@@ -56,7 +56,6 @@ pub fn write_deployment_asset(deployment_id: &str, asset: &str, buf: &[u8]) -> R
         File::create(Path::new("deployments").join(deployment_id.to_owned() + "/" + asset))?;
 
     file.write_all(buf)?;
-    info!(deployment = deployment_id, asset = asset; "Wrote deployment asset");
 
     Ok(())
 }
