@@ -8,17 +8,15 @@ use std::{
         Arc,
     },
     task::{Context, Poll},
-    thread::sleep,
     time::{Duration, Instant},
 };
 
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
-use tokio::task::spawn_blocking;
 use v8::PromiseState;
 
 use crate::{
     http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult},
-    runtime::get_runtime_code,
+    runtime::{get_runtime_code, POOL},
     utils::{v8_boolean, v8_string, v8_uint8array},
 };
 
@@ -556,7 +554,7 @@ impl Isolate {
         let request_ended_handle = request_ended.clone();
         let running_promises_handle = self.running_promises.clone();
 
-        spawn_blocking(move || {
+        POOL.spawn_pinned(move || async move {
             let mut paused_timer = None;
 
             loop {
@@ -573,7 +571,7 @@ impl Isolate {
                         paused_timer = Some(Instant::now());
                     }
 
-                    sleep(TIMEOUT_LOOP_DELAY);
+                    tokio::time::sleep(TIMEOUT_LOOP_DELAY).await;
 
                     continue;
                 } else if let Some(timer) = paused_timer {

@@ -1,3 +1,5 @@
+use lazy_static::lazy_static;
+use tokio_util::task::LocalPoolHandle;
 use v8::V8;
 
 use crate::{isolate::IsolateOptions, utils::v8_string};
@@ -7,6 +9,10 @@ struct IcuData([u8; 10454784]);
 
 static JS_RUNTIME: &str = include_str!("../../runtime.js");
 static ICU_DATA: IcuData = IcuData(*include_bytes!("../../icudtl.dat"));
+
+lazy_static! {
+    pub static ref POOL: LocalPoolHandle = LocalPoolHandle::new(1);
+}
 
 #[derive(Default)]
 pub struct RuntimeOptions {

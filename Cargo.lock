@@ -1383,10 +1383,12 @@ dependencies = [
  "httptest",
  "hyper",
  "hyper-tls",
+ "lazy_static",
  "log",
  "rand",
  "sha2",
  "tokio",
+ "tokio-util",
  "uuid",
  "v8",
 ]
