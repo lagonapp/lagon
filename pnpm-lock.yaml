@@ -163,12 +163,12 @@ importers:
 
   packages/astro:
     specifiers:
-      astro: 1.6.10
+      astro: 1.6.12
       esbuild: ^0.15.0
     dependencies:
       esbuild: 0.15.15
     devDependencies:
-      astro: 1.6.10
+      astro: 1.6.12
 
   packages/cli:
     specifiers:
@@ -8368,8 +8368,8 @@ packages:
       - ts-node
     dev: true
 
-  /astro/1.6.10:
-    resolution: {integrity: sha512-W/ZGROkCKsDicpiXB82n8EkY6I0/12wdXS80NGaBdIUR1jZZxdN+0YMmdz+C2kYbjlo45KUsXpC/Tej+5KQYSQ==}
+  /astro/1.6.12:
+    resolution: {integrity: sha512-Pa1BfD/w2B/1bi6UXyvwbSnKnZqBglWgw8vjuEP+YJ8tb63g2yAn4mOy2Fh/Z5jn6fV1mkA2HS2TN2ZpTgagdg==}
     engines: {node: ^14.18.0 || >=16.12.0, npm: '>=6.14.0'}
     hasBin: true
     dependencies:
