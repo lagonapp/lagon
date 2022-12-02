@@ -203,9 +203,23 @@ impl Isolate {
         let memory_mb = options.memory * 1024 * 1024;
         let mut params = v8::CreateParams::default().heap_limits(0, memory_mb);
 
-        let references = vec![v8::ExternalReference {
-            function: bindings::console::console_binding.map_fn_to(),
-        }];
+        let references = vec![
+            v8::ExternalReference {
+                function: bindings::console::console_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::pull_stream::pull_stream_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::crypto::uuid_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::crypto::random_values_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::crypto::get_key_value_binding.map_fn_to(),
+            },
+        ];
 
         let refs = v8::ExternalReferences::new(&references);
         std::mem::forget(references);
@@ -230,12 +244,15 @@ impl Isolate {
             let isolate_scope = &mut v8::HandleScope::new(&mut isolate);
 
             let global = if options.dry_run {
-                let context = bindings::bind(isolate_scope);
+                let context = bindings::bind(isolate_scope, bindings::BindStrategy::Sync);
                 let global = v8::Global::new(isolate_scope, context);
                 isolate_scope.set_default_context(context);
                 global
+            } else if options.snapshot_blob.is_some() {
+                let context = bindings::bind(isolate_scope, bindings::BindStrategy::Async);
+                v8::Global::new(isolate_scope, context)
             } else {
-                let context = v8::Context::new(isolate_scope);
+                let context = bindings::bind(isolate_scope, bindings::BindStrategy::All);
                 v8::Global::new(isolate_scope, context)
             };
 

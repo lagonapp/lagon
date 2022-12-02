@@ -81,6 +81,10 @@ declare global {
 }
 
 globalThis.masterHandler = async request => {
+  if (typeof handler !== 'function') {
+    throw new Error('No handler function defined');
+  }
+
   const handlerRequest = new Request(request.i, {
     method: request.m,
     headers: request.h,

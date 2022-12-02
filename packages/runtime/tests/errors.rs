@@ -16,6 +16,32 @@ fn setup() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn handler_not_exists() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new("".into()));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: No handler function defined, at:\n    throw new Error(\"No handler function defined\");".into())
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn handler_not_function() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new("export const handler = 'hello'".into()));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: No handler function defined, at:\n    throw new Error(\"No handler function defined\");".into())
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn handler_reject() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
