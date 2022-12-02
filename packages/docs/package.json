@@ -13,7 +13,7 @@
     "@vercel/analytics": "^0.1.3",
     "next": "12",
     "nextra": "2.0.0-beta.42",
-    "nextra-theme-docs": "2.0.0-beta.42",
+    "nextra-theme-docs": "2.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },

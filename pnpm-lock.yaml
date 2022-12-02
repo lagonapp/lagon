@@ -301,7 +301,7 @@ importers:
       eslint-config-next: 12.3.4
       next: '12'
       nextra: 2.0.0-beta.42
-      nextra-theme-docs: 2.0.0-beta.42
+      nextra-theme-docs: 2.0.0
       postcss: ^8.4.14
       react: 18.2.0
       react-dom: 18.2.0
@@ -311,7 +311,7 @@ importers:
       '@vercel/analytics': 0.1.3_react@18.2.0
       next: 12.3.4_biqbaboplfbrettd7655fr4n2y
       nextra: 2.0.0-beta.42_bhgafntz2ozm43l35i5qtimxry
-      nextra-theme-docs: 2.0.0-beta.42_bhgafntz2ozm43l35i5qtimxry
+      nextra-theme-docs: 2.0.0_bhgafntz2ozm43l35i5qtimxry
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
@@ -4410,8 +4410,8 @@ packages:
       react: 18.2.0
     dev: true
 
-  /@mdx-js/react/2.1.3_react@18.2.0:
-    resolution: {integrity: sha512-11n4lTvvRyxq3OYbWJwEYM+7q6PE0GxKbk0AwYIIQmrRkxDeljIsjDQkKOgdr/orgRRbYy5zi+iERdnwe01CHQ==}
+  /@mdx-js/react/2.1.5_react@18.2.0:
+    resolution: {integrity: sha512-3Az1I6SAWA9R38rYjz5rXBrGKeZhq96CSSyQtqY+maPj8stBsoUH5pNcmIixuGkufYsh8F5+ka2CVPo2fycWZw==}
     peerDependencies:
       react: '>=16'
     dependencies:
@@ -15562,15 +15562,15 @@ packages:
       - babel-plugin-macros
     dev: false
 
-  /nextra-theme-docs/2.0.0-beta.42_bhgafntz2ozm43l35i5qtimxry:
-    resolution: {integrity: sha512-hv25wP80eQ/Y+H/Four7pZVJXKCWcwUbci1snFFk08p0N+ZB8ed7EmpjAUGQn4e36EeCbaj/FLh5oWWFexUXSg==}
+  /nextra-theme-docs/2.0.0_bhgafntz2ozm43l35i5qtimxry:
+    resolution: {integrity: sha512-Bkzbx4I/q4MlhGE9/wkI+xGKQFjwE/M3hcCZY1O6vOXkKWSOZ9L7BNq77iPBOzxqdrdN3fVPh0HYMKaR9O4xHA==}
     peerDependencies:
       next: '>=9.5.3'
       react: '>=16.13.1'
       react-dom: '>=16.13.1'
     dependencies:
       '@headlessui/react': 1.7.2_biqbaboplfbrettd7655fr4n2y
-      '@mdx-js/react': 2.1.3_react@18.2.0
+      '@mdx-js/react': 2.1.5_react@18.2.0
       '@popperjs/core': 2.11.6
       '@reach/skip-nav': 0.17.0_biqbaboplfbrettd7655fr4n2y
       clsx: 1.2.1
