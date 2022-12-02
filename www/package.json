@@ -10,8 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@next/font": "^13.0.2",
-    "@vercel/analytics": "^0.1.3",
+    "@next/font": "13.0.5",
+    "@vercel/analytics": "0.1.5",
     "cobe": "^0.6.0",
     "next": "13.0.5",
     "posthog-js": "^1.30.0",
