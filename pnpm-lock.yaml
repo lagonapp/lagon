@@ -205,10 +205,10 @@ importers:
       '@storybook/react': ^6.5.9
       '@storybook/testing-library': ^0.0.13
       '@tanstack/react-query': ^4.6.1
-      '@trpc/client': 10.1.0
-      '@trpc/next': 10.1.0
-      '@trpc/react-query': 10.1.0
-      '@trpc/server': 10.1.0
+      '@trpc/client': 10.2.0
+      '@trpc/next': 10.2.0
+      '@trpc/react-query': 10.2.0
+      '@trpc/server': 10.2.0
       '@types/formidable': ^2.0.5
       '@types/react': ^18.0.9
       autoprefixer: ^10.4.7
@@ -249,10 +249,10 @@ importers:
       '@scaleway/use-random-name': 0.2.4_react@18.2.0
       '@sentry/nextjs': 7.5.0_next@13.0.5+react@18.2.0
       '@tanstack/react-query': 4.6.1_biqbaboplfbrettd7655fr4n2y
-      '@trpc/client': 10.1.0_@trpc+server@10.1.0
-      '@trpc/next': 10.1.0_vmnhexbw25adhst44gadyjs22i
-      '@trpc/react-query': 10.1.0_3zqatyrw5upbgjrktkiqvzx7ti
-      '@trpc/server': 10.1.0
+      '@trpc/client': 10.2.0_@trpc+server@10.2.0
+      '@trpc/next': 10.2.0_7oxw6kzxqsczimhkypkmmukmtu
+      '@trpc/react-query': 10.2.0_7qfgc2ymfuinj5ujkg4ashqzjy
+      '@trpc/server': 10.2.0
       chart.js: 3.8.0
       final-form: 4.20.7
       formidable: 2.0.1
@@ -6932,47 +6932,47 @@ packages:
       '@testing-library/dom': 8.14.0
     dev: true
 
-  /@trpc/client/10.1.0_@trpc+server@10.1.0:
-    resolution: {integrity: sha512-E7L9l2OTa5lIdM0NYvQLJf/GLapskfiVLv0Jv7t6GVxEOFd+O4THWsWQgJVUUAz9iq805iMNkY3uqSvf4GJaWg==}
+  /@trpc/client/10.2.0_@trpc+server@10.2.0:
+    resolution: {integrity: sha512-Mehf6euqMzAak+Umay1LKol9nC716yBjHNqrF6blWY/n2hwSICrLXQwveNaHK7qjKXJ86b4aDW39KR02WCQP4A==}
     peerDependencies:
-      '@trpc/server': 10.1.0
+      '@trpc/server': 10.2.0
     dependencies:
-      '@trpc/server': 10.1.0
+      '@trpc/server': 10.2.0
     dev: false
 
-  /@trpc/next/10.1.0_vmnhexbw25adhst44gadyjs22i:
-    resolution: {integrity: sha512-bJ3zMbrSO+udhMi/8KZ1JY5VpXsucTOat08LdU5MPXzMFEQ+d0QehoM4PoZirO39batZfM0rmbCJ8w6P5hLCow==}
+  /@trpc/next/10.2.0_7oxw6kzxqsczimhkypkmmukmtu:
+    resolution: {integrity: sha512-1zbZb9Xd6nYVZfgb6zNA6fLzZ5CWZjd7KYSUIWY0Bh7cVjDAmAtIj2wC3wcXWI7UsKntLIpvUB4XMEsFK/RxiQ==}
     peerDependencies:
       '@tanstack/react-query': ^4.3.8
-      '@trpc/client': 10.1.0
+      '@trpc/client': 10.2.0
       '@trpc/react-query': ^10.0.0-proxy-beta.21
-      '@trpc/server': 10.1.0
+      '@trpc/server': 10.2.0
       next: '*'
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
     dependencies:
       '@tanstack/react-query': 4.6.1_biqbaboplfbrettd7655fr4n2y
-      '@trpc/client': 10.1.0_@trpc+server@10.1.0
-      '@trpc/react-query': 10.1.0_3zqatyrw5upbgjrktkiqvzx7ti
-      '@trpc/server': 10.1.0
+      '@trpc/client': 10.2.0_@trpc+server@10.2.0
+      '@trpc/react-query': 10.2.0_7qfgc2ymfuinj5ujkg4ashqzjy
+      '@trpc/server': 10.2.0
       next: 13.0.5_biqbaboplfbrettd7655fr4n2y
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-ssr-prepass: 1.5.0_react@18.2.0
     dev: false
 
-  /@trpc/react-query/10.1.0_3zqatyrw5upbgjrktkiqvzx7ti:
-    resolution: {integrity: sha512-Xjx3m73CDuBNrpAOF6scUQedYyp4LIxthwmdjw8Y+iR193XNwFTH+C8TZn5qOLVw9u/FM5YchAJjPPgUJyXBBQ==}
+  /@trpc/react-query/10.2.0_7qfgc2ymfuinj5ujkg4ashqzjy:
+    resolution: {integrity: sha512-OH1T1VztPp9qG66cvxPd/Sr9pPsDn+nFmgWtpJmoiTgZJ2DnUPsdi9DVkXdaE9M2OwdoXhFqwboclPzaUAD22g==}
     peerDependencies:
       '@tanstack/react-query': ^4.3.8
-      '@trpc/client': 10.1.0
-      '@trpc/server': 10.1.0
+      '@trpc/client': 10.2.0
+      '@trpc/server': 10.2.0
       react: '>=16.8.0'
       react-dom: '>=16.8.0'
     dependencies:
       '@tanstack/react-query': 4.6.1_biqbaboplfbrettd7655fr4n2y
-      '@trpc/client': 10.1.0_@trpc+server@10.1.0
-      '@trpc/server': 10.1.0
+      '@trpc/client': 10.2.0_@trpc+server@10.2.0
+      '@trpc/server': 10.2.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false
@@ -6981,8 +6981,8 @@ packages:
     resolution: {integrity: sha512-PnSlKM3WtguEb1hryekuVlR00QOR8nbFKuZbuLbzfkLju+xOB+F3NplWW5YMVBywWdJKasX/inQDKur2SHyPfg==}
     dev: false
 
-  /@trpc/server/10.1.0:
-    resolution: {integrity: sha512-UiRZPApLruhi1UKukTNsB9igFBEhEA0aMxy86Xp1OvbzuY00yoFcvDUYsBdBjp9mzIHR3yNjqrlfS/RNpPhZEw==}
+  /@trpc/server/10.2.0:
+    resolution: {integrity: sha512-WGOA2bk6JOnOywUu1gkAgwqnxZ5g+vNkL9EpCGLgKYwwMcjAwgNRgYzLPsDsR1XL48wmdYOzfWzJ0G575+g/jA==}
     dev: false
 
   /@types/acorn/4.0.6:
