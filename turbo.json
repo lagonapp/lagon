@@ -22,7 +22,8 @@
       "outputs": [
         "dist/**",
         ".next/**",
-        "target/debug/**"
+        "target/debug/**",
+        "storybook-static"
       ]
     }
   }

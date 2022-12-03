@@ -2,7 +2,7 @@ import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ReactNode, Suspense, useCallback, useMemo } from 'react';
-import Button from 'lib/components/Button';
+import { Button, Menu, Divider, EmptyState } from '@lagon/ui';
 import {
   ChevronDownIcon,
   CogIcon,
@@ -14,11 +14,8 @@ import {
   LanguageIcon,
   UserIcon,
 } from '@heroicons/react/24//outline';
-import Menu from 'lib/components/Menu';
-import Divider from 'lib/components/Divider';
 import Head from 'next/head';
 import useOrganizations from './hooks/useOrganizations';
-import EmptyState from './components/EmptyState';
 import { trpc } from './trpc';
 import { reloadSession } from './utils';
 import useTheme from './hooks/useTheme';

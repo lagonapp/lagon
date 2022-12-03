@@ -1,8 +1,7 @@
 import { Suspense } from 'react';
-import Skeleton from 'lib/components/Skeleton';
 import FunctionsList from 'lib/pages/functions/FunctionsList';
 import LayoutTitle from 'lib/components/LayoutTitle';
-import Button from 'lib/components/Button';
+import { Button, Skeleton } from '@lagon/ui';
 import { trpc } from 'lib/trpc';
 import useRandomName from '@scaleway/use-random-name';
 import { useRouter } from 'next/router';

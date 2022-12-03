@@ -1,11 +1,8 @@
 import { useRouter } from 'next/router';
 import { useCallback } from 'react';
-import Card from 'lib/components/Card';
-import Dot from 'lib/components/Dot';
 import FunctionLinks from 'lib/components/FunctionLinks';
-import Text from 'lib/components/Text';
 import useFunctions from 'lib/hooks/useFunctions';
-import EmptyState from 'lib/components/EmptyState';
+import { Card, Dot, Text, EmptyState } from '@lagon/ui';
 import { useI18n } from 'locales';
 
 const FunctionsList = () => {

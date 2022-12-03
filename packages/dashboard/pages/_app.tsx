@@ -1,7 +1,7 @@
 import { AppProps } from 'next/app';
 import { SessionProvider } from 'next-auth/react';
 import AuthGuard from 'lib/components/AuthGuard';
-import 'styles/globals.css';
+import '@lagon/ui/src/styles/globals.css';
 import { Toaster } from 'react-hot-toast';
 import Layout from 'lib/Layout';
 import { I18nProvider } from 'locales';
