@@ -1,10 +1,10 @@
 name: CD
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - '@lagon/cli@*'
+  workflow_run:
+    workflows:
+      - Release
+    types:
+      - completed
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
