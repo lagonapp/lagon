@@ -10,10 +10,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@next/font": "13.0.5",
+    "@next/font": "13.0.6",
     "@vercel/analytics": "0.1.5",
     "cobe": "^0.6.0",
-    "next": "13.0.5",
+    "next": "13.0.6",
     "posthog-js": "^1.30.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -25,7 +25,7 @@
     "@types/react-dom": "^18.0.5",
     "autoprefixer": "^10.4.7",
     "eslint": "^8.16.0",
-    "eslint-config-next": "13.0.5",
+    "eslint-config-next": "13.0.6",
     "postcss": "^8.4.14",
     "tailwindcss": "^3.0.24",
     "typescript": "^4.6.4"
