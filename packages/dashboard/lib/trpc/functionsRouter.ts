@@ -339,6 +339,8 @@ export const functionsRouter = (t: T) =>
             currentDomains,
           );
         }
+
+        return { ok: true };
       }),
     functionDelete: t.procedure
       .input(
@@ -393,5 +395,7 @@ export const functionsRouter = (t: T) =>
         }
 
         await removeFunction(func);
+
+        return { ok: true };
       }),
   });

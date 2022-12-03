@@ -22,5 +22,7 @@ export const accountsRouter = (t: T) =>
           },
           select: null,
         });
+
+        return { ok: true };
       }),
   });

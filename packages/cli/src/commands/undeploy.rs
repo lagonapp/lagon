@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use dialoguer::Confirm;
 use std::path::PathBuf;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::utils::{
     get_function_config, info, print_progress, success, validate_code_file, Config, TrpcClient,
@@ -13,6 +13,12 @@ use crate::utils::{
 struct DeleteDeploymentRequest {
     function_id: String,
     deployment_id: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct DeleteDeploymentResponse {
+    #[allow(dead_code)]
+    ok: bool,
 }
 
 pub async fn undeploy(file: PathBuf, deployment_id: String) -> Result<()> {
@@ -35,7 +41,7 @@ pub async fn undeploy(file: PathBuf, deployment_id: String) -> Result<()> {
             true => {
                 let end_progress = print_progress("Deleting Deployment...");
                 TrpcClient::new(&config)
-                    .mutation::<DeleteDeploymentRequest, ()>(
+                    .mutation::<DeleteDeploymentRequest, DeleteDeploymentResponse>(
                         "deploymentDelete",
                         DeleteDeploymentRequest {
                             function_id: function_config.function_id,

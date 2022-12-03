@@ -48,6 +48,8 @@ export const organizationsRouter = (t: T) =>
             currentOrganizationId: organization.id,
           },
         });
+
+        return { ok: true };
       }),
     organizationUpdate: t.procedure
       .input(
@@ -68,6 +70,8 @@ export const organizationsRouter = (t: T) =>
           },
           select: null,
         });
+
+        return { ok: true };
       }),
     organizationsDelete: t.procedure
       .input(
@@ -141,6 +145,8 @@ export const organizationsRouter = (t: T) =>
             currentOrganizationId: leftOrganization?.id,
           },
         });
+
+        return { ok: true };
       }),
     organizationSetCurrent: t.procedure
       .input(
@@ -157,5 +163,7 @@ export const organizationsRouter = (t: T) =>
             currentOrganizationId: input.organizationId,
           },
         });
+
+        return { ok: true };
       }),
   });
