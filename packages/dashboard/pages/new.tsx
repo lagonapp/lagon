@@ -1,9 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
-import Button from 'lib/components/Button';
-import Form from 'lib/components/Form';
-import Input from 'lib/components/Input';
-import Text from 'lib/components/Text';
-import Textarea from 'lib/components/Textarea';
+import { Button, Form, Input, Text, Textarea } from '@lagon/ui';
 import {
   ORGANIZATION_DESCRIPTION_MAX_LENGTH,
   ORGANIZATION_NAME_MAX_LENGTH,

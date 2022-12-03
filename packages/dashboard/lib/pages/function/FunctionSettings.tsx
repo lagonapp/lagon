@@ -1,12 +1,7 @@
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import Button from 'lib/components/Button';
-import Card from 'lib/components/Card';
-import Form from 'lib/components/Form';
-import Input from 'lib/components/Input';
-import Text from 'lib/components/Text';
+import { Button, Card, Form, Input, Text, TagsInput, Dialog, Menu } from '@lagon/ui';
 import { getCurrentDomain } from 'lib/utils';
-import TagsInput from 'lib/components/TagsInput';
 import {
   composeValidators,
   cronValidator,
@@ -16,13 +11,11 @@ import {
   minLengthValidator,
   requiredValidator,
 } from 'lib/form/validators';
-import Dialog from 'lib/components/Dialog';
 import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH, Regions, REGIONS } from 'lib/constants';
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from '@tanstack/react-query';
 import { useI18n } from 'locales';
-import Menu from 'lib/components/Menu';
 
 type FunctionSettingsProps = {
   func: ReturnType<typeof useFunction>['data'];

@@ -1,4 +1,4 @@
-import Text from 'lib/components/Text';
+import { Text } from '@lagon/ui';
 import useVerificationCode from 'lib/hooks/useVerificationCode';
 import toast from 'react-hot-toast';
 import LayoutTitle from 'lib/components/LayoutTitle';

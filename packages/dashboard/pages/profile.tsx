@@ -1,11 +1,5 @@
-import Button from 'lib/components/Button';
-import Card from 'lib/components/Card';
-import Dialog from 'lib/components/Dialog';
-import Divider from 'lib/components/Divider';
-import Form from 'lib/components/Form';
-import Input from 'lib/components/Input';
 import LayoutTitle from 'lib/components/LayoutTitle';
-import Text from 'lib/components/Text';
+import { Button, Card, Dialog, Divider, Form, Input, Text } from '@lagon/ui';
 import { requiredValidator } from 'lib/form/validators';
 import useTokens from 'lib/hooks/useTokens';
 import { trpc } from 'lib/trpc';

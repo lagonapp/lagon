@@ -1,11 +1,10 @@
 import { useRouter } from 'next/router';
-import Nav from 'lib/components/Nav';
 import useFunction from 'lib/hooks/useFunction';
 import FunctionOverview from 'lib/pages/function/FunctionOverview';
 import FunctionSettings from 'lib/pages/function/FunctionSettings';
 import FunctionDeployments from 'lib/pages/function/FunctionDeployments';
 import FunctionLogs from 'lib/pages/function/FunctionLogs';
-import Button from 'lib/components/Button';
+import { Button, Nav } from '@lagon/ui';
 import { PlayIcon } from '@heroicons/react/24/outline';
 import Head from 'next/head';
 import LayoutTitle from 'lib/components/LayoutTitle';

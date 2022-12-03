@@ -1,17 +1,13 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/router';
 import { Suspense, useEffect, useState } from 'react';
-import Button from 'lib/components/Button';
-import Card from 'lib/components/Card';
-import Divider from 'lib/components/Divider';
-import EmptyState from 'lib/components/EmptyState';
-import LogLine from 'lib/components/LogLine';
-import Menu from 'lib/components/Menu';
-import Skeleton from 'lib/components/Skeleton';
+import { Button, Card, Divider, EmptyState, LogLine, Menu, Skeleton, LOG_LEVELS } from '@lagon/ui';
 import useFunctionLogs from 'lib/hooks/useFunctionLogs';
-import { LogLevel, LOG_LEVELS, Timeframe, TIMEFRAMES } from 'lib/types';
+import { Timeframe, TIMEFRAMES } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
 import { useI18n } from 'locales';
+
+type LogLevel = typeof LOG_LEVELS[number];
 
 type ContentProps = {
   func: ReturnType<typeof useFunction>['data'];

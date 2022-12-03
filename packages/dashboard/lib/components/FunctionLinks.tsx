@@ -1,5 +1,5 @@
 import { getCurrentDomain, getFullCurrentDomain, getFullDomain } from 'lib/utils';
-import Link from 'lib/components/Link';
+import { Link } from '@lagon/ui';
 
 type FunctionLinksProps = {
   func?: {

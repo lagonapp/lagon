@@ -1,13 +1,8 @@
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
-import Button from 'lib/components/Button';
-import Card from 'lib/components/Card';
-import Form from 'lib/components/Form';
-import Input from 'lib/components/Input';
 import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
-import Dialog from 'lib/components/Dialog';
 import { useRouter } from 'next/router';
-import Textarea from 'lib/components/Textarea';
+import { Button, Card, Form, Input, Dialog, Textarea } from '@lagon/ui';
 import {
   ORGANIZATION_DESCRIPTION_MAX_LENGTH,
   ORGANIZATION_NAME_MAX_LENGTH,

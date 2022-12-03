@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma from 'lib/prisma';
-import { LOG_LEVELS, TIMEFRAMES } from 'lib/types';
+import { TIMEFRAMES } from 'lib/types';
 import { getDeploymentCode, removeFunction, updateDomains } from 'lib/api/deployments';
 import {
   FUNCTION_DEFAULT_MEMORY,
@@ -9,6 +9,7 @@ import {
   FUNCTION_NAME_MAX_LENGTH,
   FUNCTION_NAME_MIN_LENGTH,
 } from 'lib/constants';
+import { LOG_LEVELS } from '@lagon/ui';
 import { TRPCError } from '@trpc/server';
 import { T } from 'pages/api/trpc/[trpc]';
 import Client, { datasets } from '@axiomhq/axiom-node';

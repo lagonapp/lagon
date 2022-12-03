@@ -1,8 +1,6 @@
 import { signIn, useSession } from 'next-auth/react';
 import { ReactElement } from 'react';
-import Button from './Button';
-import Card from './Card';
-import Text from './Text';
+import { Button, Card, Text } from '@lagon/ui';
 
 type AuthGuardProps = {
   children: ReactElement;
