@@ -6,6 +6,11 @@ body {
   overflow-x: hidden;
 }
 
+*::selection {
+  background-color: #A449FF;
+  color: #fff;
+}
+
 .bg-radial-gradient-white {
   background-image: radial-gradient(circle at center, #FFFFFF, rgba(255, 255, 255, 0.75))
 }
