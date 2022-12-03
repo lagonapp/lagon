@@ -7,6 +7,7 @@ ssl/
 target/
 packages/serverless/deployments/
 .vercel/
+storybook-static/
 
 .eslintcache
 .DS_Store
