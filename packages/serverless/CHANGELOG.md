@@ -1,5 +1,13 @@
 # @lagon/serverless
 
+## 0.1.11
+
+### Patch Changes
+
+- [#335](https://github.com/lagonapp/lagon/pull/335) [`e10aabe`](https://github.com/lagonapp/lagon/commit/e10aabee456fa54892507f9b4407b66faee450d3) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve performances by not spawning a thread on each request
+
+* [#329](https://github.com/lagonapp/lagon/pull/329) [`e24d381`](https://github.com/lagonapp/lagon/commit/e24d3811ef6b54d8c343edc26697713bdd4b2985) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve logs
+
 ## 0.1.10
 
 ### Patch Changes

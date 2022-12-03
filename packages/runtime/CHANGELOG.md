@@ -1,5 +1,11 @@
 # @lagon/runtime
 
+## 0.1.9
+
+### Patch Changes
+
+- [#320](https://github.com/lagonapp/lagon/pull/320) [`f866de4`](https://github.com/lagonapp/lagon/commit/f866de4351f7b62389777c03267d1207e6b4d36b) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use macros for Rust <-> JS bindings
+
 ## 0.1.8
 
 ### Patch Changes
