@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { REGIONS } from '../../constants';
 import { Text } from '../Text';
 
 const TERMINAL: { text: string; write?: boolean }[] = [
@@ -55,7 +56,7 @@ export const ExplainSection = () => {
           setStep(step + 1);
         }
       },
-      write ? 60 : 1000,
+      write ? 40 : 500,
     );
 
     return () => clearTimeout(timeout);
@@ -63,23 +64,28 @@ export const ExplainSection = () => {
 
   return (
     <section className="flex flex-col gap-16">
-      <div className="p-[1px] rounded-3xl bg-gradient-to-br from-green via-purple to-[#0D2A54]">
+      <div
+        className="p-[1px] rounded-3xl"
+        style={{
+          background: 'linear-gradient(to bottom right, #44FFB0, #5A7ACB, #A449FF, #0D2A54)',
+        }}
+      >
         <div
-          className="bg-dark rounded-3xl flex justify-between items-center"
-          style={{ backgroundImage: 'linear-gradient(to bottom right, rgb(14, 45, 43), rgb(7, 3, 17))' }}
+          className="rounded-3xl flex justify-between items-center"
+          style={{ backgroundImage: 'linear-gradient(to bottom, rgba(5, 2, 17, 0.8), rgb(5, 2, 17))' }}
         >
           <div className="ml-16 flex flex-col gap-4">
             <Text size="h2">
               Run TypeScript and
               <br />
-              JavaScript at the Edge
+              JavaScript in {REGIONS} regions
             </Text>
-            <Text>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque sit
+            <Text paragraph>
+              Your Functions are replicated at the Edge in a growing list of
               <br />
-              varius in ut sit varius rhoncus. Purus viverra at faucibus donec
+              {REGIONS} regions, so your users always get a fast response anywhere
               <br />
-              placerat amet, tempus.
+              in the world.
             </Text>
           </div>
           <svg width="567" height="374" viewBox="0 0 567 374" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -723,34 +729,33 @@ export const ExplainSection = () => {
           </svg>
         </div>
       </div>
-      <div className="flex gap-16">
+      <div className="flex flex-col xl:flex-row gap-16">
         <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1">
           <div className="bg-dark rounded-3xl flex flex-col gap-4 p-16">
             <div
-              style={{ borderColor: 'rgb(37, 32, 46)' }}
-              className="border-t border-l border-r rounded-t-2xl bg-gradient-to-b from-dark-gray to-dark h-80"
+              className="p-[1px] rounded-t-2xl"
+              style={{ background: 'linear-gradient(rgb(37, 32, 46), rgba(37, 32, 46, 0)' }}
             >
-              <div style={{ borderColor: 'rgb(37, 32, 46)' }} className="p-4 flex gap-2 border-b">
-                <span className="w-4 h-4 bg-red-500 rounded-full" />
-                <span className="w-4 h-4 bg-yellow-500 rounded-full" />
-                <span className="w-4 h-4 bg-lime-500 rounded-full" />
+              <div className="rounded-t-2xl bg-gradient-to-b from-dark-gray to-dark h-80">
+                <div style={{ borderColor: 'rgb(37, 32, 46)' }} className="p-4 flex gap-2 border-b">
+                  <span className="w-4 h-4 bg-red-500 rounded-full" />
+                  <span className="w-4 h-4 bg-yellow-500 rounded-full" />
+                  <span className="w-4 h-4 bg-lime-500 rounded-full" />
+                </div>
+                <pre className="p-4">
+                  <code className="font-mono text-sm text-grey">{text}</code>
+                </pre>
               </div>
-              <pre className="p-4">
-                <code className="font-mono text-sm text-grey">{text}</code>
-              </pre>
             </div>
             <Text size="h2">Deploy in seconds</Text>
-            <Text>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              <br />
-              Neque sit varius in ut sit varius rhoncus. Purus viverra
-              <br />
-              at faucibus donec placerat amet, tempus.
+            <Text paragraph>
+              Using the Command-line Interface (CLI), the Playground on the Dashboard, or the GitHub Action, your
+              Deployments are live all around the world in a few seconds.
             </Text>
           </div>
         </div>
         <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1">
-          <div className="bg-dark rounded-3xl flex flex-col gap-4 p-16">
+          <div className="bg-dark rounded-3xl flex flex-col gap-4 p-16 h-full">
             <svg viewBox="0 0 581 373" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-80">
               <rect width="581" height="373" fill="url(#paint0_radial_388_140)" fillOpacity="0.05" />
               <rect x="156.5" y="119.5" width="251" height="122" rx="22.5" fill="url(#paint1_linear_388_140)" />
@@ -988,11 +993,8 @@ export const ExplainSection = () => {
             </svg>
             <Text size="h2">(Almost) no cold start</Text>
             <Text>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              <br />
-              Neque sit varius in ut sit varius rhoncus. Purus viverra
-              <br />
-              at faucibus donec placerat amet, tempus.
+              Using the V8 engine from Chromium, your Functions starts almost instantly in single-digit milliseconds,
+              and stays warm for subsequent requests.
             </Text>
           </div>
         </div>

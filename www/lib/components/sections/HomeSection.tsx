@@ -1,3 +1,4 @@
+import { REGIONS } from '../../constants';
 import { Button } from '../Button';
 import { FunctionCode } from '../Code';
 import { Text } from '../Text';
@@ -21,11 +22,11 @@ export const HomeSection = () => {
           </span>
         </Text>
         <Text>
-          Lagon is an <span className="text-white">open-source</span> platform that
+          Lagon is an open-source runtime and platform
           <br />
-          allows you to run TypeScript and JavaScript
+          that allows developers to run JavaScript in
           <br />
-          close to your users.
+          {REGIONS} regions all around the world.
         </Text>
       </div>
       <div className="flex gap-4">

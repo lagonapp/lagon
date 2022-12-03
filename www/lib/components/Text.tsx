@@ -17,6 +17,9 @@ const style = cva('', {
       bold: '!text-white font-semibold',
       radialGradientWhite: 'text-transparent bg-clip-text bg-radial-gradient-white',
     },
+    paragraph: {
+      true: 'leading-relaxed',
+    },
   },
   defaultVariants: {
     variant: 'default',
