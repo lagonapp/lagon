@@ -1,5 +1,11 @@
 # @lagon/cli
 
+## 0.4.1
+
+### Patch Changes
+
+- [#340](https://github.com/lagonapp/lagon/pull/340) [`75eac5d`](https://github.com/lagonapp/lagon/commit/75eac5d096a08d91334b8bc7fb345cd9a8de4ff4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix some commands returning an error due to wrong parsing
+
 ## 0.4.0
 
 ### Minor Changes

@@ -1,5 +1,13 @@
 # @lagon/dashboard
 
+## 0.0.9
+
+### Patch Changes
+
+- [#340](https://github.com/lagonapp/lagon/pull/340) [`75eac5d`](https://github.com/lagonapp/lagon/commit/75eac5d096a08d91334b8bc7fb345cd9a8de4ff4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow promoting deployments for functions without a production deployment
+
+* [#323](https://github.com/lagonapp/lagon/pull/323) [`dd3d74a`](https://github.com/lagonapp/lagon/commit/dd3d74af202840ec101f131fbf9916fef9e0a182) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Log tRPC errors to console + clean code
+
 ## 0.0.8
 
 ### Patch Changes
