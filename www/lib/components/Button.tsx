@@ -1,13 +1,20 @@
 import { cva, VariantProps } from 'class-variance-authority';
 import { MouseEventHandler, ReactNode } from 'react';
 
-const style = cva(' text-base leading-5 px-3 py-2 rounded-lg border border-transparent transition-all duration-300', {
+const style = cva(' text-base leading-5 rounded-lg border border-transparent transition-all duration-300', {
   variants: {
     variant: {
       primary: 'bg-gradient-primary-button text-dark',
       secondary: 'bg-gradient-secondary-button text-white',
       tertiary: 'bg-gradient-tertiary-button text-grey',
     },
+    size: {
+      md: 'px-3 py-2',
+      lg: 'px-4 py-3',
+    },
+  },
+  defaultVariants: {
+    size: 'md',
   },
 });
 

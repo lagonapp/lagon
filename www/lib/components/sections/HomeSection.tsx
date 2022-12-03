@@ -29,8 +29,12 @@ export const HomeSection = () => {
         </Text>
       </div>
       <div className="flex gap-4">
-        <Button variant="primary">Deploy now!</Button>
-        <Button variant="secondary">Discover</Button>
+        <Button variant="primary" size="lg">
+          Deploy now!
+        </Button>
+        <Button variant="secondary" size="lg">
+          Discover
+        </Button>
       </div>
       <svg
         width="964"
