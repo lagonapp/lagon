@@ -30,16 +30,17 @@ type TextProps = {
   children: ReactNode;
   href?: string;
   target?: HTMLAttributeAnchorTarget;
+  className?: string;
 } & VariantProps<typeof style>;
 
-export const Text = ({ size: Tag = 'p', href, target, children, ...props }: TextProps) => {
+export const Text = ({ size: Tag = 'p', href, target, children, className, ...props }: TextProps) => {
   if (Tag === 'a') {
     return (
-      <Link href={href || ''} target={target} className={style({ size: Tag, ...props })}>
+      <Link href={href || ''} target={target} className={`${style({ size: Tag, ...props })} ${className}`}>
         {children}
       </Link>
     );
   }
 
-  return <Tag className={style({ size: Tag, ...props })}>{children}</Tag>;
+  return <Tag className={`${style({ size: Tag, ...props })} ${className}`}>{children}</Tag>;
 };

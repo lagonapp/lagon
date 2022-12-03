@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatedLine } from '../AnimatedLine';
 import { Badge } from '../Badge';
+import { Star } from '../Star';
 import { Text } from '../Text';
 
 const CATEGORIES = ['websites', 'apps', 'cron jobs', 'webhooks'];
@@ -24,7 +25,18 @@ export const FeaturesSection = () => {
 
   return (
     <section className="flex flex-col items-center gap-16 relative">
-      <Text size="h2">
+      <div
+        className="absolute -top-32 h-[400px] w-full z-0"
+        style={{ background: 'radial-gradient(closest-side, rgb(12, 17, 36), transparent)' }}
+      >
+        {[...Array(20)].map((_, i) => (
+          <Star key={i} />
+        ))}
+        {[...Array(3)].map((_, i) => (
+          <AnimatedLine size="large" key={i} />
+        ))}
+      </div>
+      <Text size="h2" className="z-10">
         Build faster&nbsp;
         <span className="text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple">
           {CATEGORIES[index]}
@@ -52,8 +64,6 @@ export const FeaturesSection = () => {
           <Badge>Automatic HTTPS</Badge>
         </div>
       </div>
-      <AnimatedLine size="large" />
-      <AnimatedLine size="large" />
     </section>
   );
 };

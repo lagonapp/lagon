@@ -20,8 +20,8 @@ const Home = () => {
   useEffect(() => {
     const listener = (event: MouseEvent) => {
       if (ball.current) {
-        ball.current.style.left = `${event.clientX}px`;
-        ball.current.style.top = `${event.clientY}px`;
+        ball.current.style.left = `${event.pageX}px`;
+        ball.current.style.top = `${event.pageY}px`;
       }
     };
 

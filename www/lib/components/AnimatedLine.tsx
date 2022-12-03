@@ -9,16 +9,16 @@ export const AnimatedLine = ({ size }: AnimatedLineProps) => {
 
   useEffect(() => {
     if (line.current) {
-      const delay = (Math.random() * 2 + 2) * 1000;
+      const delay = (Math.random() * 3 + 3) * 1000;
 
-      line.current.style.top = Math.random() * 100 + '%';
+      line.current.style.top = Math.random() * 50 + '%';
       line.current.style.left = Math.random() * 100 + '%';
-      line.current.style.animation = `line-bottom-left ${delay}ms ease-in infinite`;
+      line.current.style.animation = `line-bottom-left ${delay}ms ease-in-out infinite`;
 
       const interval = setInterval(() => {
         if (line.current) {
-          //   line.current.style.top = Math.random() * 50 + '%';
-          //   line.current.style.left = Math.random() * 100 + '%';
+          line.current.style.top = Math.random() * 100 + '%';
+          line.current.style.left = Math.random() * 100 + '%';
         }
       }, delay);
 
@@ -32,7 +32,7 @@ export const AnimatedLine = ({ size }: AnimatedLineProps) => {
     return (
       <div
         ref={line}
-        className="absolute transform rotate-45 w-[1px] h-32"
+        className="absolute transform rotate-45 w-[1px] h-32 opacity-0"
         style={{ backgroundImage: 'linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.2))' }}
       />
     );
@@ -41,7 +41,7 @@ export const AnimatedLine = ({ size }: AnimatedLineProps) => {
   return (
     <div
       ref={line}
-      className="absolute transform rotate-45 w-[2px] h-40"
+      className="absolute transform rotate-45 w-[2px] h-40 opacity-0"
       style={{ backgroundImage: 'linear-gradient(to bottom, transparent, #449AFF)' }}
     />
   );

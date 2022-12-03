@@ -33,23 +33,32 @@ body {
   background-position: 60px 0;
 }
 
-
 @keyframes line-bottom-left {
   0% {
     transform: rotate(45deg) translateY(0);
-    /* height: 0; */
+    opacity: 0;
   }
 
-  10% {
-    /* height: var(--height); */
+  20% {
+    opacity: 1;
   }
 
   90% {
-    /* height: var(--height); */
+    opacity: 0;
   }
 
   100% {
     transform: rotate(45deg) translateY(200%);
-    /* height: 0; */
+    opacity: 0;
+  }
+}
+
+@keyframes star {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
   }
 }
