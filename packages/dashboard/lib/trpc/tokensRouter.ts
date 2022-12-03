@@ -118,5 +118,7 @@ export const tokensRouter = (t: T) =>
             id: input.tokenId,
           },
         });
+
+        return { ok: true };
       }),
   });

@@ -105,11 +105,7 @@ export const deploymentsRouter = (t: T) =>
         });
 
         if (input.isProduction) {
-          try {
-            await unpromoteProductionDeployment(input.functionId);
-          } catch {
-            // this is the first deployment
-          }
+          await unpromoteProductionDeployment(input.functionId);
         }
 
         const [func, deployment] = await Promise.all([
@@ -183,6 +179,8 @@ export const deploymentsRouter = (t: T) =>
       )
       .mutation(async ({ input }) => {
         await promoteProductionDeployment(input.functionId, input.deploymentId);
+
+        return { ok: true };
       }),
     deploymentDelete: t.procedure
       .input(
@@ -231,5 +229,7 @@ export const deploymentsRouter = (t: T) =>
           },
           input.deploymentId,
         );
+
+        return { ok: true };
       }),
   });

@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use std::path::PathBuf;
 
 use dialoguer::Confirm;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::utils::{
     delete_function_config, get_function_config, info, print_progress, success, validate_code_file,
@@ -13,6 +13,12 @@ use crate::utils::{
 #[serde(rename_all = "camelCase")]
 struct DeleteFunctionRequest {
     function_id: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct DeleteFunctionResponse {
+    #[allow(dead_code)]
+    ok: bool,
 }
 
 pub async fn rm(file: PathBuf) -> Result<()> {
@@ -37,7 +43,7 @@ pub async fn rm(file: PathBuf) -> Result<()> {
             true => {
                 let end_progress = print_progress("Deleting Function...");
                 TrpcClient::new(&config)
-                    .mutation::<DeleteFunctionRequest, ()>(
+                    .mutation::<DeleteFunctionRequest, DeleteFunctionResponse>(
                         "functionDelete",
                         DeleteFunctionRequest {
                             function_id: function_config.function_id,

@@ -38,11 +38,11 @@ impl<'a> TrpcClient<'a> {
         Self { client, config }
     }
 
-    pub async fn query<T: Serialize, R: DeserializeOwned>(
-        &self,
-        key: &str,
-        body: Option<T>,
-    ) -> Result<TrpcResponse<R>> {
+    pub async fn query<T, R>(&self, key: &str, body: Option<T>) -> Result<TrpcResponse<R>>
+    where
+        T: Serialize,
+        R: DeserializeOwned,
+    {
         let input = match body {
             Some(body) => format!("?input={}", encode(&serde_json::to_string(&body)?)),
             None => String::new(),
@@ -73,11 +73,11 @@ impl<'a> TrpcClient<'a> {
         }
     }
 
-    pub async fn mutation<T: Serialize, R: DeserializeOwned>(
-        &self,
-        key: &str,
-        body: T,
-    ) -> Result<TrpcResponse<R>> {
+    pub async fn mutation<T, R>(&self, key: &str, body: T) -> Result<TrpcResponse<R>>
+    where
+        T: Serialize,
+        R: DeserializeOwned,
+    {
         let body = serde_json::to_string(&body)?;
 
         let request = Request::builder()

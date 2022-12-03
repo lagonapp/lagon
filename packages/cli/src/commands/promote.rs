@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use dialoguer::Confirm;
 use std::path::PathBuf;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::utils::{
     get_function_config, info, print_progress, success, validate_code_file, Config, TrpcClient,
@@ -13,6 +13,12 @@ use crate::utils::{
 struct PromoteDeploymentRequest {
     function_id: String,
     deployment_id: String,
+}
+
+#[derive(Deserialize, Debug)]
+struct PromoteDeploymentResponse {
+    #[allow(dead_code)]
+    ok: bool,
 }
 
 pub async fn promote(file: PathBuf, deployment_id: String) -> Result<()> {
@@ -37,7 +43,7 @@ pub async fn promote(file: PathBuf, deployment_id: String) -> Result<()> {
             true => {
                 let end_progress = print_progress("Promoting Deployment...");
                 TrpcClient::new(&config)
-                    .mutation::<PromoteDeploymentRequest, ()>(
+                    .mutation::<PromoteDeploymentRequest, PromoteDeploymentResponse>(
                         "deploymentPromote",
                         PromoteDeploymentRequest {
                             function_id: function_config.function_id,

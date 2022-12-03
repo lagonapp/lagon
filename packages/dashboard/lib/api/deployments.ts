@@ -137,9 +137,12 @@ export async function removeDeployment(
   );
 }
 
-export async function unpromoteProductionDeployment(functionId: string): Promise<{
-  id: string;
-}> {
+export async function unpromoteProductionDeployment(functionId: string): Promise<
+  | {
+      id: string;
+    }
+  | undefined
+> {
   const currentDeployment = await prisma.deployment.findFirst({
     where: {
       functionId,
@@ -151,9 +154,7 @@ export async function unpromoteProductionDeployment(functionId: string): Promise
   });
 
   if (!currentDeployment) {
-    throw new TRPCError({
-      code: 'NOT_FOUND',
-    });
+    return undefined;
   }
 
   return prisma.deployment.update({
@@ -223,7 +224,7 @@ export async function promoteProductionDeployment(functionId: string, newDeploym
   await redis.publish(
     'promote',
     JSON.stringify({
-      previousDeploymentId: previousDeployment.id,
+      previousDeploymentId: previousDeployment?.id || '',
       functionId: func.id,
       functionName: func.name,
       deploymentId: newDeploymentId,
