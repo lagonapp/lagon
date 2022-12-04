@@ -357,6 +357,7 @@ importers:
       react-dom: 18.2.0
       react-final-form: ^6.5.9
       react-hot-toast: ^2.2.0
+      storybook-addon-next-router: ^4.0.1
       tailwindcss: ^3.0.24
       typescript: ^4.6.4
     devDependencies:
@@ -384,6 +385,7 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       react-final-form: 6.5.9_b76tjmhm4bpbaoui6lan2hu4pm
       react-hot-toast: 2.2.0_biqbaboplfbrettd7655fr4n2y
+      storybook-addon-next-router: 4.0.1_vfzfwymrpai7mkkvcdhulfks3e
       tailwindcss: 3.1.4_postcss@8.4.19
       typescript: 4.7.4
 
@@ -18578,6 +18580,24 @@ packages:
 
   /store2/2.13.2:
     resolution: {integrity: sha512-CMtO2Uneg3SAz/d6fZ/6qbqqQHi2ynq6/KzMD/26gTkiEShCcpqFfTHgOxsE0egAq6SX3FmN4CeSqn8BzXQkJg==}
+    dev: true
+
+  /storybook-addon-next-router/4.0.1_vfzfwymrpai7mkkvcdhulfks3e:
+    resolution: {integrity: sha512-YwJIfRb6mRcs31F/oSP6/zZOHvM2FXfy04CD0kj4/P2pHCJqeTcQmmNQX/jjkFM5uDoUnMGjtUoMdieN3KNi8A==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      '@storybook/addon-actions': ^6.0.0
+      '@storybook/addons': ^6.0.0
+      '@storybook/client-api': ^6.0.0
+      next: ^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@storybook/addon-actions': 6.5.9_biqbaboplfbrettd7655fr4n2y
+      next: 13.0.6_biqbaboplfbrettd7655fr4n2y
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      tslib: 2.4.0
     dev: true
 
   /stream-browserify/2.0.2:
