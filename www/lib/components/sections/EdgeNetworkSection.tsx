@@ -1,64 +1,68 @@
 import { REGIONS } from '../../constants';
 import { Button } from '../Button';
 import { Text } from '../Text';
+import { Tooltip } from '../Tooltip';
 
 type CityPointProps = {
+  name: string;
   top: number;
   left: number;
 };
 
-const CityPoint = ({ top, left }: CityPointProps) => {
+const CityPoint = ({ name, top, left }: CityPointProps) => {
   return (
     <div className="absolute" style={{ top: `${top}px`, left: `${left}px` }}>
-      <div className="w-2 h-2 rounded-full bg-gradient-to-b from-blue-1 to-[#1B76FF]" />
-      <div className="w-[2px] h-1 rounded-full bg-grey ml-[3px] mt-[1px]" />
+      <Tooltip content={name}>
+        <div className="w-2 h-2 rounded-full bg-gradient-to-b from-blue-1 to-[#1B76FF]" />
+        <div className="w-[2px] h-1 rounded-full bg-grey ml-[3px] mt-[1px]" />
+      </Tooltip>
     </div>
   );
 };
 
 const CITY_POINTS: CityPointProps[] = [
-  // Paris,
   {
+    name: '🇫🇷 Paris',
     top: 162,
     left: 571,
   },
-  // London,
   {
+    name: '🇬🇧 London',
     top: 146,
     left: 560,
   },
-  // Frankfurt
   {
+    name: '🇩🇪 Frankfurt',
     top: 151,
     left: 593,
   },
-  // Warsaw
   {
+    name: '🇵🇱 Warsaw',
     top: 144,
     left: 630,
   },
-  // Australia
   {
+    name: '🇦🇺 Sydney',
     top: 468,
     left: 1063,
   },
-  // Singapore
   {
+    name: '🇸🇬 Singapore',
     top: 342,
     left: 903,
   },
-  // Montreal
   {
+    name: '🇨🇦 Montreal',
     top: 173,
     left: 317,
   },
-  // Washington
   {
+    name: '🇺🇸 Washington',
     top: 201,
     left: 299,
   },
-  // Seattle
   {
+    name: '🇺🇸 Seattle',
     top: 170,
     left: 156,
   },

@@ -6,7 +6,7 @@ const style = cva('', {
   variants: {
     size: {
       h1: 'text-5xl font-semibold',
-      h2: 'text-[40px] font-semibold',
+      h2: 'text-[40px] leading-10 font-semibold',
       h3: 'text-2xl font-semibold',
       p: 'text-[#7F92AF] text-base',
       a: 'text-[#7F92AF] text-base hover:text-white transition',
