@@ -31,7 +31,7 @@
     "@trpc/next": "10.4.0",
     "@trpc/react-query": "10.4.0",
     "@trpc/server": "10.4.0",
-    "chart.js": "^3.8.0",
+    "chart.js": "^4.0.0",
     "final-form": "^4.20.7",
     "formidable": "^2.0.1",
     "monaco-editor": "^0.34.0",

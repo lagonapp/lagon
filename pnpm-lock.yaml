@@ -204,7 +204,7 @@ importers:
       '@types/formidable': ^2.0.5
       '@types/react': ^18.0.9
       autoprefixer: ^10.4.7
-      chart.js: ^3.8.0
+      chart.js: ^4.0.0
       eslint: ^8.16.0
       eslint-config-next: 13.0.6
       eslint-plugin-storybook: ^0.6.0
@@ -246,7 +246,7 @@ importers:
       '@trpc/next': 10.4.0_vkzr5hhdjq3n3tprwwypfeng5u
       '@trpc/react-query': 10.4.0_rq6tsvqk75z62sokslz2gjaj34
       '@trpc/server': 10.4.0
-      chart.js: 3.8.0
+      chart.js: 4.0.1
       final-form: 4.20.7
       formidable: 2.0.1
       monaco-editor: 0.34.1
@@ -255,7 +255,7 @@ importers:
       next-international: 0.3.6_next@13.0.6+react@18.2.0
       node-fetch: 3.2.10
       react: 18.2.0
-      react-chartjs-2: 4.2.0_yw232gbma4xqgfjmup6t23g3w4
+      react-chartjs-2: 4.2.0_mdhqntb7qznawtkbfweh7f2mzm
       react-dom: 18.2.0_react@18.2.0
       react-final-form: 6.5.9_b76tjmhm4bpbaoui6lan2hu4pm
       react-hot-toast: 2.2.0_biqbaboplfbrettd7655fr4n2y
@@ -348,7 +348,7 @@ importers:
       '@storybook/testing-library': ^0.0.13
       '@types/react': ^18.0.9
       autoprefixer: ^10.4.7
-      chart.js: ^3.8.0
+      chart.js: ^4.0.0
       final-form: ^4.20.7
       next: 13.0.6
       postcss: ^8.4.14
@@ -376,12 +376,12 @@ importers:
       '@storybook/testing-library': 0.0.13_biqbaboplfbrettd7655fr4n2y
       '@types/react': 18.0.14
       autoprefixer: 10.4.7_postcss@8.4.19
-      chart.js: 3.8.0
+      chart.js: 4.0.1
       final-form: 4.20.7
       next: 13.0.6_biqbaboplfbrettd7655fr4n2y
       postcss: 8.4.19
       react: 18.2.0
-      react-chartjs-2: 4.2.0_yw232gbma4xqgfjmup6t23g3w4
+      react-chartjs-2: 4.2.0_mdhqntb7qznawtkbfweh7f2mzm
       react-dom: 18.2.0_react@18.2.0
       react-final-form: 6.5.9_b76tjmhm4bpbaoui6lan2hu4pm
       react-hot-toast: 2.2.0_biqbaboplfbrettd7655fr4n2y
@@ -9484,8 +9484,9 @@ packages:
     resolution: {integrity: sha512-mT8iDcrh03qDGRRmoA2hmBJnxpllMR+0/0qlzjqZES6NdiWDcZkCNAk4rPFZ9Q85r27unkiNNg8ZOiwZXBHwcA==}
     dev: true
 
-  /chart.js/3.8.0:
-    resolution: {integrity: sha512-cr8xhrXjLIXVLOBZPkBZVF6NDeiVIrPLHcMhnON7UufudL+CNeRrD+wpYanswlm8NpudMdrt3CHoLMQMxJhHRg==}
+  /chart.js/4.0.1:
+    resolution: {integrity: sha512-5/8/9eBivwBZK81mKvmIwTb2Pmw4D/5h1RK9fBWZLLZ8mCJ+kfYNmV9rMrGoa5Hgy2/wVDBMLSUDudul2/9ihA==}
+    engines: {pnpm: ^7.0.0}
 
   /check-error/1.0.2:
     resolution: {integrity: sha512-BrgHpW9NURQgzoNyjfq0Wu6VFO6D7IZEmJNdtgNqpzGG8RuNFHt2jQxWlAs4HMe119chBnv+34syEZtc6IhLtA==}
@@ -17125,13 +17126,13 @@ packages:
       strip-json-comments: 2.0.1
     dev: false
 
-  /react-chartjs-2/4.2.0_yw232gbma4xqgfjmup6t23g3w4:
+  /react-chartjs-2/4.2.0_mdhqntb7qznawtkbfweh7f2mzm:
     resolution: {integrity: sha512-9Vm9Sg9XAKiR579/FnBkesofjW9goaaFLfS7XlGTzUJlWFZGSE6A/pBI6+i/bP3pobKZoFcWJdFnjShytToqXw==}
     peerDependencies:
       chart.js: ^3.5.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      chart.js: 3.8.0
+      chart.js: 4.0.1
       react: 18.2.0
 
   /react-docgen-typescript/2.2.2_typescript@4.7.4:
