@@ -22,12 +22,13 @@ type ButtonProps = {
   leftIcon?: ReactNode;
   rightIcon?: ReactNode;
   onClick?: MouseEventHandler;
+  className?: string;
   children: ReactNode;
 } & VariantProps<typeof style>;
 
-export const Button = ({ leftIcon, rightIcon, onClick, children, ...props }: ButtonProps) => {
+export const Button = ({ leftIcon, rightIcon, onClick, className, children, ...props }: ButtonProps) => {
   return (
-    <button type="button" onClick={onClick} className={style(props)}>
+    <button type="button" onClick={onClick} className={`${style(props)} ${className}`}>
       {leftIcon}
       {children}
       {rightIcon}
