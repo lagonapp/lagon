@@ -333,7 +333,6 @@ importers:
 
   packages/ui:
     specifiers:
-      '@headlessui/react': ^1.6.4
       '@heroicons/react': ^2.0.0
       '@radix-ui/react-alert-dialog': ^1.0.0
       '@radix-ui/react-dropdown-menu': ^2.0.1
@@ -361,7 +360,6 @@ importers:
       tailwindcss: ^3.0.24
       typescript: ^4.6.4
     devDependencies:
-      '@headlessui/react': 1.7.2_biqbaboplfbrettd7655fr4n2y
       '@heroicons/react': 2.0.13_react@18.2.0
       '@radix-ui/react-alert-dialog': 1.0.2_twyhzqqpkwvvgrmyeapdo6i4my
       '@radix-ui/react-dropdown-menu': 2.0.1_twyhzqqpkwvvgrmyeapdo6i4my
@@ -4263,6 +4261,7 @@ packages:
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
+    dev: false
 
   /@heroicons/react/2.0.13_react@18.2.0:
     resolution: {integrity: sha512-iSN5XwmagrnirWlYEWNPdCDj9aRYVD/lnK3JlsC9/+fqGF80k8C7rl+1HCvBX0dBoagKqOFBs6fMhJJ1hOg1EQ==}
