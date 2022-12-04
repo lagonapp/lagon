@@ -17,7 +17,7 @@ export const HomeSection = () => {
           Deploy Serverless
           <br />
           Functions at the&nbsp;
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple italic">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple">
             Edge
           </span>
         </Text>
