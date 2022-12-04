@@ -54,7 +54,7 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
             event.preventDefault();
             router.push(href);
           }}
-          className={`active:bg-stone-100 active:dark:bg-stone-800 ${
+          className={`focus:bg-stone-100 focus:dark:bg-stone-800 ${
             disabled ? 'cursor-not-allowed opacity-50' : ''
           } select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
         >
@@ -70,7 +70,7 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
       <button
         type="button"
         onClick={onClick}
-        className={`active:bg-stone-100 active:dark:bg-stone-800' ${
+        className={`focus:bg-stone-100 focus:dark:bg-stone-800' ${
           disabled ? 'cursor-not-allowed opacity-50' : ''
         } select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
       >
