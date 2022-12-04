@@ -74,21 +74,21 @@ export const ExplainSection = () => {
           className="rounded-3xl flex justify-between items-center"
           style={{ backgroundImage: 'linear-gradient(to bottom, rgba(5, 2, 17, 0.8), rgb(5, 2, 17))' }}
         >
-          <div className="ml-16 flex flex-col gap-4">
-            <Text size="h2">
-              Run TypeScript and
-              <br />
-              JavaScript in {REGIONS} regions
-            </Text>
+          <div className="mx-16 my-16 xl:my-0 flex flex-col gap-4 xl:max-w-[40%]">
+            <Text size="h2">Run TypeScript and JavaScript in {REGIONS} regions</Text>
             <Text paragraph>
-              Your Functions are replicated at the Edge in a growing list of
-              <br />
-              {REGIONS} regions, so your users always get a fast response anywhere
-              <br />
-              in the world.
+              Your Functions are replicated at the Edge in a growing list of {REGIONS} regions, so your users always get
+              a fast response anywhere in the world.
             </Text>
           </div>
-          <svg width="567" height="374" viewBox="0 0 567 374" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg
+            className="hidden xl:block"
+            width="567"
+            height="374"
+            viewBox="0 0 567 374"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
             <g clipPath="url(#clip0_539_445)">
               <g filter="url(#filter0_d_539_445)">
                 <rect
