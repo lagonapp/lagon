@@ -3,6 +3,7 @@ import { HomeSection } from '../lib/components/sections/HomeSection';
 import { ExplainSection } from '../lib/components/sections/ExplainSection';
 import { CardsSection } from '../lib/components/sections/CardsSection';
 import { FeaturesSection } from '../lib/components/sections/FeaturesSection';
+import { EdgeNetworkSection } from '../lib/components/sections/EdgeNetworkSection';
 
 const Home = () => {
   const ball = useRef<HTMLDivElement>(null);
@@ -32,6 +33,7 @@ const Home = () => {
       <ExplainSection />
       <FeaturesSection />
       <CardsSection />
+      <EdgeNetworkSection />
     </>
   );
 };

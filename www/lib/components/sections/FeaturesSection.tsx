@@ -21,19 +21,19 @@ export const FeaturesSection = () => {
       </div>
       <Text size="h2" className="z-10">
         Build faster&nbsp;
-        <span className="h-10 overflow-hidden inline-flex">
+        <span className="h-[49px] overflow-hidden inline-flex">
           <ul style={{ animation: 'text-carousel calc(1.5s * 4) steps(4) infinite' }}>
             {CATEGORIES.map((category, i) => (
               <li
                 key={i}
-                className="h-10 text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple"
+                className="h-[49px] text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple"
                 style={{ animation: 'text-carousel-line 1.5s infinite' }}
               >
                 {category}
               </li>
             ))}
             <li
-              className="h-10 text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple"
+              className="h-[49px] text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple"
               style={{ animation: 'text-carousel-line 1.5s infinite' }}
             >
               {CATEGORIES[0]}
