@@ -62,3 +62,22 @@ body {
     opacity: 1;
   }
 }
+
+@keyframes text-carousel {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(0, calc(4 * 40 * -1px));
+  }
+}
+
+@keyframes text-carousel-line {
+  0% {
+    transform: translate(0, 0);
+  }
+  80%,
+  100%  {
+    transform: translate(0, -40px);
+  }
+}

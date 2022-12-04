@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { AnimatedLine } from '../AnimatedLine';
 import { Badge } from '../Badge';
 import { Star } from '../Star';
@@ -7,22 +6,6 @@ import { Text } from '../Text';
 const CATEGORIES = ['websites', 'apps', 'cron jobs', 'webhooks'];
 
 export const FeaturesSection = () => {
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIndex(index => {
-        if (index === CATEGORIES.length - 1) {
-          return 0;
-        }
-
-        return index + 1;
-      });
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <section className="flex flex-col items-center gap-16 relative">
       <div
@@ -38,8 +21,24 @@ export const FeaturesSection = () => {
       </div>
       <Text size="h2" className="z-10">
         Build faster&nbsp;
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple">
-          {CATEGORIES[index]}
+        <span className="h-10 overflow-hidden inline-flex">
+          <ul style={{ animation: 'text-carousel calc(1.5s * 4) steps(4) infinite' }}>
+            {CATEGORIES.map((category, i) => (
+              <li
+                key={i}
+                className="h-10 text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple"
+                style={{ animation: 'text-carousel-line 1.5s infinite' }}
+              >
+                {category}
+              </li>
+            ))}
+            <li
+              className="h-10 text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple"
+              style={{ animation: 'text-carousel-line 1.5s infinite' }}
+            >
+              {CATEGORIES[0]}
+            </li>
+          </ul>
         </span>
       </Text>
       <div className="flex flex-col gap-2 items-center">
