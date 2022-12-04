@@ -63,7 +63,7 @@ export const ExplainSection = () => {
   }, [step, text]);
 
   return (
-    <section className="flex flex-col gap-16">
+    <section id="features" className="flex flex-col gap-16">
       <div
         className="p-[1px] rounded-3xl"
         style={{

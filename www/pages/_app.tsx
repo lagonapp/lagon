@@ -2,6 +2,7 @@ import { AppProps } from 'next/app';
 import posthog from 'posthog-js';
 import { Analytics } from '@vercel/analytics/react';
 import '../styles/globals.css';
+import { Layout } from '../lib/layouts/Layout';
 
 // Only init PostHog on client-side and production env
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
@@ -11,7 +12,9 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
 const App = ({ Component, pageProps }: AppProps) => {
   return (
     <>
-      <Component {...pageProps} />
+      <Layout title="Lagon">
+        <Component {...pageProps} />
+      </Layout>
       <Analytics />
     </>
   );
