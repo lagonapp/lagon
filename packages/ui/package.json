@@ -26,12 +26,12 @@
     "@storybook/testing-library": "^0.0.13",
     "@types/react": "^18.0.9",
     "autoprefixer": "^10.4.7",
-    "chart.js": "^3.8.0",
+    "chart.js": "^4.0.0",
     "final-form": "^4.20.7",
     "next": "13.0.6",
     "postcss": "^8.4.14",
     "react": "18.2.0",
-    "react-chartjs-2": "^4.2.0",
+    "react-chartjs-2": "^5.0.0",
     "react-dom": "18.2.0",
     "react-final-form": "^6.5.9",
     "react-hot-toast": "^2.2.0",
@@ -43,10 +43,10 @@
     "@radix-ui/react-alert-dialog": "^1.0.0",
     "@radix-ui/react-dropdown-menu": "^2.0.1",
     "@radix-ui/react-tabs": "^1.0.0",
-    "chart.js": "^3.8.0",
+    "chart.js": "^4.0.0",
     "next": "13.0.6",
     "react": "18.2.0",
-    "react-chartjs-2": "^4.2.0",
+    "react-chartjs-2": "^5.0.0",
     "react-hot-toast": "^2.2.0"
   }
 }
