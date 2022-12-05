@@ -40,7 +40,7 @@
     "next-international": "^0.3.0",
     "node-fetch": "^3.2.10",
     "react": "18.2.0",
-    "react-chartjs-2": "^4.2.0",
+    "react-chartjs-2": "^5.0.0",
     "react-dom": "18.2.0",
     "react-final-form": "^6.5.9",
     "react-hot-toast": "^2.2.0",

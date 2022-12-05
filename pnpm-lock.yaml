@@ -219,7 +219,7 @@ importers:
       postcss: ^8.4.14
       prisma: ^4.0.0
       react: 18.2.0
-      react-chartjs-2: ^4.2.0
+      react-chartjs-2: ^5.0.0
       react-dom: 18.2.0
       react-final-form: ^6.5.9
       react-hot-toast: ^2.2.0
@@ -255,7 +255,7 @@ importers:
       next-international: 0.3.6_next@13.0.6+react@18.2.0
       node-fetch: 3.2.10
       react: 18.2.0
-      react-chartjs-2: 4.2.0_mdhqntb7qznawtkbfweh7f2mzm
+      react-chartjs-2: 5.0.1_mdhqntb7qznawtkbfweh7f2mzm
       react-dom: 18.2.0_react@18.2.0
       react-final-form: 6.5.9_b76tjmhm4bpbaoui6lan2hu4pm
       react-hot-toast: 2.2.0_biqbaboplfbrettd7655fr4n2y
@@ -353,7 +353,7 @@ importers:
       next: 13.0.6
       postcss: ^8.4.14
       react: 18.2.0
-      react-chartjs-2: ^4.2.0
+      react-chartjs-2: ^5.0.0
       react-dom: 18.2.0
       react-final-form: ^6.5.9
       react-hot-toast: ^2.2.0
@@ -381,7 +381,7 @@ importers:
       next: 13.0.6_biqbaboplfbrettd7655fr4n2y
       postcss: 8.4.19
       react: 18.2.0
-      react-chartjs-2: 4.2.0_mdhqntb7qznawtkbfweh7f2mzm
+      react-chartjs-2: 5.0.1_mdhqntb7qznawtkbfweh7f2mzm
       react-dom: 18.2.0_react@18.2.0
       react-final-form: 6.5.9_b76tjmhm4bpbaoui6lan2hu4pm
       react-hot-toast: 2.2.0_biqbaboplfbrettd7655fr4n2y
@@ -17126,10 +17126,10 @@ packages:
       strip-json-comments: 2.0.1
     dev: false
 
-  /react-chartjs-2/4.2.0_mdhqntb7qznawtkbfweh7f2mzm:
-    resolution: {integrity: sha512-9Vm9Sg9XAKiR579/FnBkesofjW9goaaFLfS7XlGTzUJlWFZGSE6A/pBI6+i/bP3pobKZoFcWJdFnjShytToqXw==}
+  /react-chartjs-2/5.0.1_mdhqntb7qznawtkbfweh7f2mzm:
+    resolution: {integrity: sha512-u38C9OxynlNCBp+79grgXRs7DSJ9w8FuQ5/HO5FbYBbri8HSZW+9SWgjVshLkbXBfXnMGWakbHEtvN0nL2UG7Q==}
     peerDependencies:
-      chart.js: ^3.5.0
+      chart.js: ^4.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       chart.js: 4.0.1
