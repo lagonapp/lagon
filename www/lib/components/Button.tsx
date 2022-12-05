@@ -28,7 +28,7 @@ type ButtonProps = {
 
 export const Button = ({ leftIcon, rightIcon, onClick, className, children, ...props }: ButtonProps) => {
   return (
-    <button type="button" onClick={onClick} className={`${style(props)} ${className}`}>
+    <button type="button" onClick={onClick} className={style({ ...props, className })}>
       {leftIcon}
       {children}
       {rightIcon}

@@ -36,11 +36,11 @@ type TextProps = {
 export const Text = ({ size: Tag = 'p', href, target, children, className, ...props }: TextProps) => {
   if (Tag === 'a') {
     return (
-      <Link href={href || ''} target={target} className={`${style({ size: Tag, ...props })} ${className}`}>
+      <Link href={href || ''} target={target} className={style({ size: Tag, className, ...props })}>
         {children}
       </Link>
     );
   }
 
-  return <Tag className={`${style({ size: Tag, ...props })} ${className}`}>{children}</Tag>;
+  return <Tag className={style({ size: Tag, className, ...props })}>{children}</Tag>;
 };
