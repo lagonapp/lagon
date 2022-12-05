@@ -12,7 +12,7 @@ import {
 import { LOG_LEVELS } from '@lagon/ui';
 import { TRPCError } from '@trpc/server';
 import { T } from 'pages/api/trpc/[trpc]';
-import Client, { datasets } from '@axiomhq/axiom-node';
+import Client from '@axiomhq/axiom-node';
 
 const axiomClient = new Client({
   orgId: process.env.AXIOM_ORG_ID,
@@ -112,36 +112,22 @@ export const functionsRouter = (t: T) =>
         }),
       )
       .query(async ({ input }) => {
-        const logs = await axiomClient.datasets.queryLegacy('serverless', {
-          startTime: new Date(
-            new Date().getTime() -
-              (input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 30 days' ? 30 : 7) *
-                24 *
-                60 *
-                60 *
-                1000,
-          ).toISOString(),
-          endTime: new Date(Date.now()).toISOString(),
-          resolution: 'auto',
-          filter: {
-            field: 'metadata.source',
-            op: datasets.FilterOp.Equal,
-            value: 'console',
-            children: [
-              {
-                field: 'metadata.function',
-                op: datasets.FilterOp.Equal,
-                value: input.functionId,
-              },
-            ],
+        const logs = await axiomClient.datasets.query(
+          `['serverless'] | where ['metadata.source'] == 'console' and ['metadata.function'] == '${input.functionId}' | sort by time`,
+          {
+            startTime: new Date(
+              new Date().getTime() -
+                (input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 30 days' ? 30 : 7) *
+                  24 *
+                  60 *
+                  60 *
+                  1000,
+            ).toISOString(),
+            endTime: new Date(Date.now()).toISOString(),
+            noCache: false,
+            streamingDuration: '',
           },
-          order: [
-            {
-              field: '_time',
-              desc: true,
-            },
-          ],
-        });
+        );
 
         return (
           (logs.matches?.map(({ _time, data }) => ({
