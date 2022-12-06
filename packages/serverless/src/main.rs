@@ -270,9 +270,14 @@ async fn main() -> Result<()> {
     let _flush_guard = init_logger().expect("Failed to init logger");
 
     let runtime = Runtime::new(RuntimeOptions::default());
-    let addr = SocketAddr::from(([0, 0, 0, 0], 4000));
+    let addr: SocketAddr = env::var("LAGON_LISTEN_ADDR")
+        .expect("LAGON_LISTEN_ADDR must be set")
+        .parse()?;
+    let prometheus_addr: SocketAddr = env::var("PROMETHEUS_LISTEN_ADDR")
+        .expect("PROMETHEUS_LISTEN_ADDR must be set")
+        .parse()?;
 
-    let builder = PrometheusBuilder::new();
+    let builder = PrometheusBuilder::new().with_http_listener(prometheus_addr);
     builder.install().expect("Failed to start metrics exporter");
 
     let url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
