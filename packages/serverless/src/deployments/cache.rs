@@ -1,5 +1,6 @@
 use std::{
     collections::HashMap,
+    env,
     sync::Arc,
     time::{Duration, Instant},
 };
@@ -13,10 +14,10 @@ const CACHE_TASK_INTERVAL: Duration = Duration::from_secs(60);
 
 pub fn run_cache_clear_task(last_requests: Arc<RwLock<HashMap<String, Instant>>>) {
     let isolates_cache_seconds = Duration::from_secs(
-        dotenv::var("LAGON_ISOLATES_CACHE_SECONDS")
-            .expect("LAGON_ISOLATES_CACHE_SECONDS must be set")
+        env::var("LAGON_ISOLATES_CACHE_SECONDS")
+            .expect("LAGON_ISOLATES_CACHE_SECONDS is not set")
             .parse()
-            .expect("Failed to parse LAGON_ISOLATES_CACHE_SECONDS"),
+            .expect("LAGON_ISOLATES_CACHE_SECONDS is not a valid number"),
     );
 
     tokio::spawn(async move {
