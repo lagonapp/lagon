@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, env, sync::Arc};
 
 use anyhow::Result;
 use log::{error, warn};
@@ -26,7 +26,7 @@ pub fn listen_pub_sub(
     deployments: Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
 ) -> JoinHandle<Result<()>> {
     tokio::spawn(async move {
-        let url = dotenv::var("REDIS_URL").expect("REDIS_URL must be set");
+        let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
         let client = redis::Client::open(url)?;
         let mut conn = client.get_connection()?;
         let mut pub_sub = conn.as_pubsub();

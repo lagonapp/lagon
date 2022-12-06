@@ -2,7 +2,10 @@ use axiom_rs::Client;
 use chrono::prelude::Local;
 use flume::Sender;
 use serde_json::{json, Value};
-use std::sync::{Arc, RwLock};
+use std::{
+    env,
+    sync::{Arc, RwLock},
+};
 
 use log::{
     as_debug, kv::source::as_map, set_boxed_logger, set_max_level, Level, LevelFilter, Log,
@@ -35,7 +38,7 @@ impl SimpleLogger {
 
         Self {
             tx: Arc::new(RwLock::new(Some(tx))),
-            region: dotenv::var("LAGON_REGION").expect("LAGON_REGION must be set"),
+            region: env::var("LAGON_REGION").expect("LAGON_REGION must be set"),
         }
     }
 }

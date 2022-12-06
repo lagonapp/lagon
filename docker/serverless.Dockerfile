@@ -10,7 +10,10 @@ RUN cargo build --release
 FROM rust:1.65
 
 COPY --from=builder /app/target/release/lagon-serverless /usr/local/bin/lagon-serverless
-COPY --from=builder /app/.env ./.env
 
+# Serverless
 EXPOSE 4000
+# Prometheus
+EXPOSE 9000
+
 CMD ["lagon-serverless"]

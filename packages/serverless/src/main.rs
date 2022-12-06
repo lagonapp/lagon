@@ -22,6 +22,7 @@ use s3::creds::Credentials;
 use s3::Bucket;
 use std::collections::HashMap;
 use std::convert::Infallible;
+use std::env;
 use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Instant;
@@ -262,7 +263,10 @@ async fn handle_request(
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // Only load a .env file on development
+    #[cfg(debug_assertions)]
     dotenv::dotenv().expect("Failed to load .env file");
+
     let _flush_guard = init_logger().expect("Failed to init logger");
 
     let runtime = Runtime::new(RuntimeOptions::default());
@@ -271,7 +275,7 @@ async fn main() -> Result<()> {
     let builder = PrometheusBuilder::new();
     builder.install().expect("Failed to start metrics exporter");
 
-    let url = dotenv::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
     #[cfg(not(debug_assertions))]
@@ -281,11 +285,11 @@ async fn main() -> Result<()> {
     let pool = Pool::new(opts)?;
     let conn = pool.get_conn()?;
 
-    let bucket_name = dotenv::var("S3_BUCKET").expect("S3_BUCKET must be set");
+    let bucket_name = env::var("S3_BUCKET").expect("S3_BUCKET must be set");
     let region = "eu-west-3".parse()?;
     let credentials = Credentials::new(
-        Some(&dotenv::var("S3_ACCESS_KEY_ID").expect("S3_ACCESS_KEY_ID must be set")),
-        Some(&dotenv::var("S3_SECRET_ACCESS_KEY").expect("S3_SECRET_ACCESS_KEY must be set")),
+        Some(&env::var("S3_ACCESS_KEY_ID").expect("S3_ACCESS_KEY_ID must be set")),
+        Some(&env::var("S3_SECRET_ACCESS_KEY").expect("S3_SECRET_ACCESS_KEY must be set")),
         None,
         None,
         None,

@@ -1,6 +1,6 @@
 use std::{
     collections::{HashMap, HashSet},
-    fs,
+    env, fs,
     path::Path,
     sync::Arc,
 };
@@ -43,7 +43,7 @@ impl Deployment {
         domains.push(format!(
             "{}.{}",
             self.id,
-            dotenv::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
+            env::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
         ));
 
         // Default domain (function's name) and custom domains are only set in production deployments
@@ -51,7 +51,7 @@ impl Deployment {
             domains.push(format!(
                 "{}.{}",
                 self.function_name,
-                dotenv::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
+                env::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
             ));
 
             domains.extend(self.domains.clone());
