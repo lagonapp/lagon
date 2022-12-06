@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { forwardRef, MouseEventHandler, MutableRefObject, ReactElement, ReactNode } from 'react';
+import { cx } from 'class-variance-authority';
 import { useTailwind } from '../../';
 
 type ButtonProps = {
@@ -63,7 +64,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
           href={href}
           ref={ref as MutableRefObject<HTMLAnchorElement>}
           aria-disabled={disabled}
-          className={`${styles} select-none whitespace-nowrap shadow-sm`}
+          className={cx([styles, 'select-none whitespace-nowrap shadow-sm'])}
         >
           {leftIcon}
           {children}
@@ -79,7 +80,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
         type={submit ? 'submit' : 'button'}
         disabled={disabled}
         aria-disabled={disabled}
-        className={`${styles} transition select-none flex gap-2 items-center whitespace-nowrap shadow-sm`}
+        className={cx([styles, 'transition select-none flex gap-2 items-center whitespace-nowrap shadow-sm'])}
       >
         {leftIcon}
         {children}

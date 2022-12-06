@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { cx } from 'class-variance-authority';
 
 type DotProps = {
   status: 'success' | 'info' | 'danger';
@@ -27,8 +28,8 @@ export const Dot = ({ status }: DotProps) => {
 
   return (
     <span className="h-3 w-3 relative inline-flex mr-4 align-middle">
-      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${ringColor}`} />
-      <span className={`relative inline-flex rounded-full h-3 w-3 ${centerColor}`} />
+      <span className={cx(['animate-ping absolute inline-flex h-full w-full rounded-full opacity-75', ringColor])} />
+      <span className={cx(['relative inline-flex rounded-full h-3 w-3', centerColor])} />
     </span>
   );
 };

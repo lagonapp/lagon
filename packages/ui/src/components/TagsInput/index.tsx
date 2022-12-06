@@ -3,6 +3,7 @@ import { FieldValidator } from 'final-form';
 import { useTailwind } from '../../';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Field, useForm, useFormState } from 'react-final-form';
+import { cx } from 'class-variance-authority';
 import { Text } from '../';
 
 type TagsInputProps = {
@@ -42,7 +43,10 @@ export const TagsInput = ({ name, placeholder, disabled, validator }: TagsInputP
         <div className="flex flex-col gap-2">
           <div
             onClick={onClick}
-            className={`${styles} bg-white dark:bg-stone-900 px-1.5 py-0.5 flex items-center rounded-md border border-stone-300 dark:border-stone-600 focus-within:outline-1 focus-within:outline-blue-500 focus-within:outline-offset-2`}
+            className={cx([
+              styles,
+              `bg-white dark:bg-stone-900 px-1.5 py-0.5 flex items-center rounded-md border border-stone-300 dark:border-stone-600 focus-within:outline-1 focus-within:outline-blue-500 focus-within:outline-offset-2`,
+            ])}
           >
             {tags.map(tag => (
               <span

@@ -1,4 +1,5 @@
 import { MouseEventHandler, ReactElement, ReactNode } from 'react';
+import { cx } from 'class-variance-authority';
 import { Text } from '../';
 import { useTailwind } from '../../';
 
@@ -25,7 +26,7 @@ export const Card = ({ clickable, title, description, rightItem, fullWidth, onCl
     },
   );
   return (
-    <div className={`${fullWidth ? 'w-full' : ''} flex flex-col gap-2`}>
+    <div className={cx([fullWidth ? 'w-full' : '', 'flex flex-col gap-2'])}>
       {title ? (
         <div className="flex items-end justify-between">
           <Text size="xl" strong>
@@ -36,7 +37,10 @@ export const Card = ({ clickable, title, description, rightItem, fullWidth, onCl
       ) : null}
       <div
         onClick={onClick}
-        className={`${styles} p-4 rounded-md bg-white dark:bg-stone-900 shadow-md shadow-stone-200 dark:shadow-stone-800 transition flex flex-col gap-4`}
+        className={cx([
+          styles,
+          'p-4 rounded-md bg-white dark:bg-stone-900 shadow-md shadow-stone-200 dark:shadow-stone-800 transition flex flex-col gap-4',
+        ])}
       >
         {description ? <Text>{description}</Text> : null}
         {children}
