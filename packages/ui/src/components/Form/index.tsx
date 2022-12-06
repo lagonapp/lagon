@@ -30,7 +30,7 @@ export const Form = ({ initialValues, onSubmit, onSubmitSuccess, onSubmitError, 
           await onSubmit(values, form, callback);
           await onSubmitSuccess(values, form, callback);
         } catch (error) {
-          toast.error((error as Error).message || 'An error occured.');
+          toast.error((error as Error).message || 'An error occurred.');
           await onSubmitError?.(values, form, callback);
         }
       }}
