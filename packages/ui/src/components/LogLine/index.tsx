@@ -36,10 +36,10 @@ export const LogLine = ({ date, level = 'info', message }: LogLineProps) => {
   }, [level]);
 
   return (
-    <div className={cx([`flex justify-between w-full px-2 py-1 rounded-md group`, containerStyle])}>
+    <div className={cx(['flex justify-between w-full px-2 py-1 rounded-md group', containerStyle])}>
       <div className="flex items-start gap-4">
-        <p className={cx([`text-sm whitespace-pre w-36`, dateStyle])}>{date.toLocaleString('en-US')}</p>
-        <pre className={cx([`text-sm whitespace-pre-wrap`, messageStyle])}>{message}</pre>
+        <p className={cx(['text-sm whitespace-pre w-36', dateStyle])}>{date.toLocaleString('en-US')}</p>
+        <pre className={cx(['text-sm whitespace-pre-wrap', messageStyle])}>{message}</pre>
       </div>
       <span
         className="hidden cursor-pointer group-hover:inline text-xs text-stone-400 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"

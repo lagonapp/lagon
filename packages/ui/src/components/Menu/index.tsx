@@ -48,9 +48,9 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
         <Link
           href={href}
           className={cx([
-            `focus:bg-stone-100 focus:dark:bg-stone-800 focus-visible:outline-none`,
+            'focus:bg-stone-100 focus:dark:bg-stone-800 focus-visible:outline-none',
             disabled ? 'cursor-not-allowed opacity-50' : '',
-            `select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`,
+            'select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center',
           ])}
         >
           {icon}
@@ -66,9 +66,9 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
         type="button"
         onClick={onClick}
         className={cx([
-          `focus:bg-stone-100 focus:dark:bg-stone-800 focus-visible:outline-none`,
-          disabled ? 'cursor-not-allowed opacity-50' : '',
-          `select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`,
+          'focus:bg-stone-100 focus:dark:bg-stone-800 focus-visible:outline-none',
+          disabled ? 'cursor-not-allowed opacity-50' : undefined,
+          'select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center',
         ])}
       >
         {icon}
