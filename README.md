@@ -45,6 +45,7 @@ Current status:
 - **[docs](./packages/docs)** Documentation website
 - **[serverless](./packages/serverless)** HTTP entrypoint for Functions, using the Runtime and exporting metrics
 - **[dashboard](./packages/dashboard)** Dashboard and API
+- **[ui](./packages/ui)** Design system
 - **[www](./www)** Public website
 
 ## Planned features
@@ -60,6 +61,12 @@ Current status:
 Lagon is a fairly recent project. It is still in heavy development, so expect breaking changes and buggy features.
 
 [See the roadmap on GitHub](https://github.com/orgs/lagonapp/projects/1)
+
+## Contributing
+
+Thanks for wanting to contribute! That really means a lot for us. You can contribute in many ways, with or without any coding required.
+
+[Open the contributing documentation](https://docs.lagon.app/contributing)
 
 ## How it works
 
