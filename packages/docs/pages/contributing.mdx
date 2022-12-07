@@ -1,6 +1,13 @@
+import { Callout } from 'nextra-theme-docs';
+
 Thanks for wanting to contribute! That really means a lot for us. You can contribute in many ways, with or without any coding required.
 
 If you encounter any issue, you can join [our Discord](https://discord.lagon.app/) so we can help you.
+
+<Callout type="info">
+  Need some good first issues to start with? Check out the [good first issue
+  label](https://github.com/lagonapp/lagon/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) on GitHub!
+</Callout>
 
 ## Non-code contributions
 
@@ -29,11 +36,15 @@ You will need [Node.js](https://nodejs.org/en/) >= 16 and [PNPM](https://pnpm.io
 1. Fork and clone the repository
 2. Install all NPM dependencies: `pnpm install`
 
-And if you want to contribute on the Dashboard / Runtime:
+And if you want to contribute on the Dashboard / Serverless:
 
 3. Run the local docker-compose: `docker-compose up -d`
 
-### Dashboard
+#### UI
+
+The UI package is our design system. Navigate to `packages/ui` and run `pnpm dev` to start the Storybook on [http://localhost:6006](http://localhost:6006).
+
+#### Dashboard
 
 The first step is to copy the `.env.example` file and rename it to `.env`. You will need to fill the following environment variables:
 
@@ -49,6 +60,20 @@ GITHUB_CLIENT_SECRET=
 
 Then, navigate to `packages/dashboard` and run `pnpm prisma migrate dev` to generate the database tables. You can now start the dashboard using `pnpm dev`.
 
-### Runtime
+#### JS Runtime
 
 Work in progress...
+
+#### Runtime / Serverless
+
+Work in progress...
+
+#### CLI
+
+Work in progress...
+
+### Before submitting a PR
+
+We have some checks in place to ensure we don't introduce bugs or regressions in PRs. You can run `pnpm lint` and `pnpm typecheck` at the project's root to ensure there are no lint and type errors.
+
+Finally, run `pnpm changeset` to generate a [changeset file](https://github.com/changesets/changesets#how-do-we-do-that). Select the modified packages and choose the semver increment "major", "minor", or "patch".
