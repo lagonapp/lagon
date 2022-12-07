@@ -6,7 +6,7 @@ export const Skeleton = ({ variant }: SkeletonProps) => {
   if (variant === 'card') {
     return (
       <div className="flex flex-col gap-2">
-        <div className={`p-4 rounded-md flex flex-col gap-6 animate-pulse`}>
+        <div className="p-4 rounded-md flex flex-col gap-6 animate-pulse">
           <div className="h-3 w-1/2 bg-stone-200 dark:bg-stone-600 rounded" />
           <div className="h-3 w-1/4 bg-stone-200 dark:bg-stone-600 rounded" />
           <div className="h-3 w-10/12 bg-stone-200 dark:bg-stone-600 rounded" />

@@ -349,6 +349,7 @@ importers:
       '@types/react': ^18.0.9
       autoprefixer: ^10.4.7
       chart.js: ^4.0.0
+      class-variance-authority: ^0.4.0
       final-form: ^4.20.7
       next: 13.0.6
       postcss: ^8.4.14
@@ -377,6 +378,7 @@ importers:
       '@types/react': 18.0.14
       autoprefixer: 10.4.7_postcss@8.4.19
       chart.js: 4.0.1
+      class-variance-authority: 0.4.0_typescript@4.7.4
       final-form: 4.20.7
       next: 13.0.6_biqbaboplfbrettd7655fr4n2y
       postcss: 8.4.19
@@ -9564,6 +9566,17 @@ packages:
       define-property: 0.2.5
       isobject: 3.0.1
       static-extend: 0.1.2
+    dev: true
+
+  /class-variance-authority/0.4.0_typescript@4.7.4:
+    resolution: {integrity: sha512-74enNN8O9ZNieycac/y8FxqgyzZhZbxmCitAtAeUrLPlxjSd5zA7LfpprmxEcOmQBnaGs5hYhiSGnJ0mqrtBLQ==}
+    peerDependencies:
+      typescript: '>= 4.5.5 < 5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      typescript: 4.7.4
     dev: true
 
   /clean-css/4.2.4:

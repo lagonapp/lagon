@@ -1,1 +1,0 @@
-export { useTailwind } from './useTailwind';

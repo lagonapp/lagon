@@ -1,5 +1,5 @@
 import { forwardRef, ReactNode, useMemo } from 'react';
-import { useTailwind } from '../../';
+import { variants } from './styles';
 
 type TextProps = {
   size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
@@ -25,27 +25,10 @@ export const Text = forwardRef<HTMLParagraphElement, TextProps>(
       }
     }, [size]);
 
-    const styles = useTailwind(
-      {
-        size,
-        strong,
-        error,
-      },
-      {
-        size: {
-          sm: 'text-xs text-stone-500 dark:text-stone-500',
-          md: 'text-sm text-stone-800 dark:text-stone-400',
-          lg: 'text-lg text-stone-900 dark:text-stone-50',
-          xl: 'text-xl text-stone-900 dark:text-stone-50 font-semibold',
-          '2xl': 'text-2xl text-stone-900 dark:text-stone-50 font-semibold',
-        },
-        strong: 'font-semibold',
-        error: 'text-red-500 dark:text-red-500',
-      },
-    );
+    const styles = variants({ size, strong, error, className });
 
     return (
-      <Tag ref={ref} className={`${styles} ${className}`}>
+      <Tag ref={ref} className={styles}>
         {children}
       </Tag>
     );

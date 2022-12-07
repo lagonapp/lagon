@@ -19,4 +19,3 @@ export {
   Text,
   Textarea,
 } from './components';
-export { useTailwind } from './hooks';

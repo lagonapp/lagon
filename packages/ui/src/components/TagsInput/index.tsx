@@ -1,16 +1,16 @@
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { FieldValidator } from 'final-form';
-import { useTailwind } from '../../';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Field, useForm, useFormState } from 'react-final-form';
+import { VariantProps } from 'class-variance-authority';
 import { Text } from '../';
+import { variants } from './styles';
 
 type TagsInputProps = {
   name: string;
   placeholder?: string;
-  disabled?: boolean;
   validator?: FieldValidator<string | number>;
-};
+} & VariantProps<typeof variants>;
 
 export const TagsInput = ({ name, placeholder, disabled, validator }: TagsInputProps) => {
   const { values } = useFormState();
@@ -23,14 +23,7 @@ export const TagsInput = ({ name, placeholder, disabled, validator }: TagsInputP
     inputRef.current?.focus();
   }, [inputRef]);
 
-  const styles = useTailwind(
-    {
-      disabled,
-    },
-    {
-      disabled: 'cursor-not-allowed opacity-50',
-    },
-  );
+  const styles = variants({ disabled });
 
   useEffect(() => {
     change(name, tags);
@@ -40,10 +33,7 @@ export const TagsInput = ({ name, placeholder, disabled, validator }: TagsInputP
     <Field name={name}>
       {({ input, meta }) => (
         <div className="flex flex-col gap-2">
-          <div
-            onClick={onClick}
-            className={`${styles} bg-white dark:bg-stone-900 px-1.5 py-0.5 flex items-center rounded-md border border-stone-300 dark:border-stone-600 focus-within:outline-1 focus-within:outline-blue-500 focus-within:outline-offset-2`}
-          >
+          <div onClick={onClick} className={styles}>
             {tags.map(tag => (
               <span
                 key={tag}
@@ -97,8 +87,8 @@ export const TagsInput = ({ name, placeholder, disabled, validator }: TagsInputP
               }}
               type="text"
               placeholder={placeholder}
-              disabled={disabled}
-              aria-disabled={disabled}
+              disabled={!!disabled}
+              aria-disabled={!!disabled}
               className="bg-white dark:bg-stone-900 text-sm text-stone-800 dark:text-stone-200 py-0.5 focus-visible:outline-none"
             />
           </div>

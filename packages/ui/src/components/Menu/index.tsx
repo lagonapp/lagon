@@ -1,4 +1,5 @@
 import * as RadixMenu from '@radix-ui/react-dropdown-menu';
+import { cx } from 'class-variance-authority';
 import Link from 'next/link';
 import { MouseEventHandler, ReactElement, ReactNode } from 'react';
 
@@ -46,9 +47,11 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
       <RadixMenu.Item asChild>
         <Link
           href={href}
-          className={`focus:bg-stone-100 focus:dark:bg-stone-800 focus-visible:outline-none ${
-            disabled ? 'cursor-not-allowed opacity-50' : ''
-          } select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
+          className={cx([
+            'focus:bg-stone-100 focus:dark:bg-stone-800 focus-visible:outline-none',
+            disabled ? 'cursor-not-allowed opacity-50' : '',
+            'select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center',
+          ])}
         >
           {icon}
           {children}
@@ -62,9 +65,11 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
       <button
         type="button"
         onClick={onClick}
-        className={`focus:bg-stone-100 focus:dark:bg-stone-800 focus-visible:outline-none ${
-          disabled ? 'cursor-not-allowed opacity-50' : ''
-        } select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center`}
+        className={cx([
+          'focus:bg-stone-100 focus:dark:bg-stone-800 focus-visible:outline-none',
+          disabled ? 'cursor-not-allowed opacity-50' : undefined,
+          'select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center',
+        ])}
       >
         {icon}
         {children}
