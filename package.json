@@ -10,10 +10,8 @@
     "build": "turbo build --continue --filter=!@lagon/example-*",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck --continue",
-    "docker:build:serverless": "docker build -t lagon/serverless -f docker/serverless.Dockerfile .",
-    "docker:start:serverless": "docker run --rm -p 4000:4000 --env-file packages/serverless/.env --network host lagon/serverless",
-    "docker:build:nginx": "docker build -t lagon/nginx -f docker/nginx.Dockerfile ./docker/nginx",
-    "docker:start:nginx": "docker run --rm -p 80:80 lagon/nginx",
+    "docker:build": "docker build -t lagon/serverless -f docker/Dockerfile .",
+    "docker:start": "docker run --rm -p 4000:4000 --env-file packages/serverless/.env lagon/serverless",
     "release": "pnpm build && pnpm changeset publish",
     "prepare": "husky install"
   },
