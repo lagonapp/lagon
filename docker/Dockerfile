@@ -1,4 +1,4 @@
-FROM node:18.9.1-buster-slim as runtime
+FROM node:18.12.1-buster-slim as runtime
 
 WORKDIR /app
 COPY ./packages/js-runtime/src/ ./src
