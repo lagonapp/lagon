@@ -2,11 +2,12 @@ use std::{collections::HashMap, env, sync::Arc};
 
 use anyhow::Result;
 use log::{error, warn};
+use metrics::increment_counter;
 use s3::Bucket;
 use serde_json::Value;
 use tokio::{sync::RwLock, task::JoinHandle};
 
-use crate::ISOLATES;
+use crate::{ISOLATES, REGION};
 
 use super::{filesystem::rm_deployment, Deployment};
 
@@ -74,6 +75,14 @@ pub fn listen_pub_sub(
                 "deploy" => {
                     match deployment.download(&bucket).await {
                         Ok(_) => {
+                            increment_counter!(
+                                "lagon_deployments",
+                                "status" => "success",
+                                "deployment" => deployment.id.clone(),
+                                "function" => deployment.function_id.clone(),
+                                "region" => REGION.clone(),
+                            );
+
                             let mut deployments = deployments.write().await;
                             let domains = deployment.get_domains();
 
@@ -84,6 +93,13 @@ pub fn listen_pub_sub(
                             clear_deployments_cache(&domains).await;
                         }
                         Err(error) => {
+                            increment_counter!(
+                                "lagon_deployments",
+                                "status" => "error",
+                                "deployment" => deployment.id.clone(),
+                                "function" => deployment.function_id.clone(),
+                                "region" => REGION.clone(),
+                            );
                             error!(
                                 deployment = deployment.id;
                                 "Failed to download deployment: {}", error
@@ -94,6 +110,14 @@ pub fn listen_pub_sub(
                 "undeploy" => {
                     match rm_deployment(&deployment.id) {
                         Ok(_) => {
+                            increment_counter!(
+                                "lagon_undeployments",
+                                "status" => "success",
+                                "deployment" => deployment.id.clone(),
+                                "function" => deployment.function_id.clone(),
+                                "region" => REGION.clone(),
+                            );
+
                             let mut deployments = deployments.write().await;
                             let domains = deployment.get_domains();
 
@@ -104,11 +128,25 @@ pub fn listen_pub_sub(
                             clear_deployments_cache(&domains).await;
                         }
                         Err(error) => {
+                            increment_counter!(
+                                "lagon_undeployments",
+                                "status" => "error",
+                                "deployment" => deployment.id.clone(),
+                                "function" => deployment.function_id.clone(),
+                                "region" => REGION.clone(),
+                            );
                             error!(deployment = deployment.id; "Failed to delete deployment: {}", error);
                         }
                     };
                 }
                 "promote" => {
+                    increment_counter!(
+                        "lagon_promotion",
+                        "deployment" => deployment.id.clone(),
+                        "function" => deployment.function_id.clone(),
+                        "region" => REGION.clone(),
+                    );
+
                     let previous_id = value["previousDeploymentId"].as_str().unwrap();
                     let mut deployments = deployments.write().await;
 
