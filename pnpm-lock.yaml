@@ -400,7 +400,7 @@ importers:
       '@types/node': ^18.0.0
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
-      '@vercel/analytics': 0.1.5
+      '@vercel/analytics': 0.1.6
       autoprefixer: ^10.4.7
       cobe: ^0.6.0
       eslint: ^8.16.0
@@ -415,7 +415,7 @@ importers:
       typescript: ^4.6.4
     dependencies:
       '@next/font': 13.0.6
-      '@vercel/analytics': 0.1.5_react@18.2.0
+      '@vercel/analytics': 0.1.6_react@18.2.0
       cobe: 0.6.2
       next: 13.0.6_biqbaboplfbrettd7655fr4n2y
       posthog-js: 1.30.0
@@ -7700,8 +7700,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@vercel/analytics/0.1.5_react@18.2.0:
-    resolution: {integrity: sha512-/k9N8Ea3Yc5A52GlkjzUEbi2vE/izClrOf++ryBkxEfrZM/OZwtHkdNw/QExZ1h/B67RCZLK7bCOnKKrhG7gTg==}
+  /@vercel/analytics/0.1.6_react@18.2.0:
+    resolution: {integrity: sha512-zNd5pj3iDvq8IMBQHa1YRcIteiw6ZiPB8AsONHd8ieFXlNpLqhXfIYnf4WvTfZ7S1NSJ++mIM14aJnNac/VMXQ==}
     peerDependencies:
       react: ^16.8||^17||^18
     dependencies:
