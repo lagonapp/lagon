@@ -34,7 +34,7 @@ impl Runtime {
         // https://github.com/denoland/deno/blob/a55b194638bcaace38917703b7d9233fb1989d44/core/runtime.rs#L223
         v8::icu::set_common_data_71(&ICU_DATA.0).expect("Failed to load ICU data");
 
-        // Disable code generation from `code_generation(...)` / `new Function(...)`
+        // Disable code generation from `eval` / `new Function`
         if !options.allow_code_generation {
             V8::set_flags_from_string("--disallow-code-generation-from-strings");
         }
