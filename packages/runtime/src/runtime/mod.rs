@@ -16,7 +16,14 @@ lazy_static! {
 
 #[derive(Default)]
 pub struct RuntimeOptions {
-    allow_eval: bool,
+    allow_code_generation: bool,
+}
+
+impl RuntimeOptions {
+    pub fn with_allow_code_generation(mut self, allow_code_generation: bool) -> Self {
+        self.allow_code_generation = allow_code_generation;
+        self
+    }
 }
 
 pub struct Runtime;
@@ -27,8 +34,8 @@ impl Runtime {
         // https://github.com/denoland/deno/blob/a55b194638bcaace38917703b7d9233fb1989d44/core/runtime.rs#L223
         v8::icu::set_common_data_71(&ICU_DATA.0).expect("Failed to load ICU data");
 
-        // Disable code generation from `eval(...)` / `new Function(...)`
-        if !options.allow_eval {
+        // Disable code generation from `code_generation(...)` / `new Function(...)`
+        if !options.allow_code_generation {
             V8::set_flags_from_string("--disallow-code-generation-from-strings");
         }
 

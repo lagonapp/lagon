@@ -25,6 +25,10 @@ pub fn error(message: &str) -> String {
     format!("{} {}", "✖".red(), message)
 }
 
+pub fn warn(message: &str) -> String {
+    format!("{} {}", "○".yellow(), message)
+}
+
 pub fn print_progress(message: &str) -> impl Fn() + '_ {
     let index_progress = ProgressBar::new_spinner();
     index_progress.set_style(ProgressStyle::default_spinner());

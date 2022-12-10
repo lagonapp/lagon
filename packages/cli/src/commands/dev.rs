@@ -21,7 +21,8 @@ use std::time::Duration;
 use tokio::sync::Mutex;
 
 use crate::utils::{
-    bundle_function, info, input, success, validate_code_file, validate_public_dir, FileCursor,
+    bundle_function, info, input, success, validate_code_file, validate_public_dir, warn,
+    FileCursor,
 };
 
 use log::{
@@ -208,6 +209,7 @@ pub async fn dev(
     port: Option<u16>,
     hostname: Option<String>,
     env: Option<PathBuf>,
+    allow_code_generation: bool,
 ) -> Result<()> {
     validate_code_file(&file)?;
 
@@ -224,7 +226,8 @@ pub async fn dev(
 
     let content = Arc::new(Mutex::new((index, assets)));
 
-    let runtime = Runtime::new(RuntimeOptions::default());
+    let runtime =
+        Runtime::new(RuntimeOptions::default().with_allow_code_generation(allow_code_generation));
     let addr = format!(
         "{}:{}",
         hostname.unwrap_or_else(|| "127.0.0.1".into()),
@@ -284,6 +287,14 @@ pub async fn dev(
 
     println!();
     println!("{}", success("Dev Server started!"));
+
+    if allow_code_generation {
+        println!(
+            "{}",
+            warn("Code generation is allowed due to `--allow-code-generation`")
+        );
+    }
+
     println!();
     println!(" {} http://{}", "➤".black(), format!("{}", addr).blue());
     println!();
