@@ -27,7 +27,7 @@ const Header = () => {
   return (
     <header className="flex items-center justify-between max-w-4xl mx-auto mt-6 px-6 flex-col gap-2 md:flex-row md:gap-0">
       <Link href="/">
-        <Image width="122" height="32" className="h-8" src="/logo-white.png" alt="Lagon logo" />
+        <Image width="105" height="32" className="h-8" src="/logo-white.png" alt="Lagon logo" />
       </Link>
       <div className="flex gap-8">
         <HeaderLink href="#" soon>
