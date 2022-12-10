@@ -285,7 +285,7 @@ importers:
       eslint-config-next: 13.0.6
       next: 13.0.6
       nextra: 2.0.0
-      nextra-theme-docs: 2.0.0
+      nextra-theme-docs: 2.0.1
       postcss: ^8.4.14
       react: 18.2.0
       react-dom: 18.2.0
@@ -295,7 +295,7 @@ importers:
       '@vercel/analytics': 0.1.3_react@18.2.0
       next: 13.0.6_biqbaboplfbrettd7655fr4n2y
       nextra: 2.0.0_6jx7hpii6hgsrmhxgqrmo3277u
-      nextra-theme-docs: 2.0.0_6jx7hpii6hgsrmhxgqrmo3277u
+      nextra-theme-docs: 2.0.1_6jx7hpii6hgsrmhxgqrmo3277u
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
@@ -15543,8 +15543,8 @@ packages:
       - '@babel/core'
       - babel-plugin-macros
 
-  /nextra-theme-docs/2.0.0_6jx7hpii6hgsrmhxgqrmo3277u:
-    resolution: {integrity: sha512-Bkzbx4I/q4MlhGE9/wkI+xGKQFjwE/M3hcCZY1O6vOXkKWSOZ9L7BNq77iPBOzxqdrdN3fVPh0HYMKaR9O4xHA==}
+  /nextra-theme-docs/2.0.1_6jx7hpii6hgsrmhxgqrmo3277u:
+    resolution: {integrity: sha512-vrxSQjfG5hcWXd0foVUgRu1T9rD+dQdVnKzJhpEG+ncAIYTT/o7GajvYUEPPZMYvvZwehmNIUhSTDN9unnVsxw==}
     peerDependencies:
       next: '>=9.5.3'
       react: '>=16.13.1'
