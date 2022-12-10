@@ -1,15 +1,9 @@
-import { REGIONS } from '../../constants';
+import { ALL_REGIONS, Region, REGIONS } from '../../constants';
 import { Button } from '../Button';
 import { Text } from '../Text';
 import { Tooltip } from '../Tooltip';
 
-type CityPointProps = {
-  name: string;
-  top: number;
-  left: number;
-};
-
-const CityPoint = ({ name, top, left }: CityPointProps) => {
+const CityPoint = ({ name, top, left }: Region) => {
   return (
     <div className="absolute" style={{ top: `${top}px`, left: `${left}px` }}>
       <Tooltip content={name}>
@@ -19,54 +13,6 @@ const CityPoint = ({ name, top, left }: CityPointProps) => {
     </div>
   );
 };
-
-const CITY_POINTS: CityPointProps[] = [
-  {
-    name: '🇫🇷 Paris',
-    top: 162,
-    left: 571,
-  },
-  {
-    name: '🇬🇧 London',
-    top: 146,
-    left: 560,
-  },
-  {
-    name: '🇩🇪 Frankfurt',
-    top: 151,
-    left: 593,
-  },
-  {
-    name: '🇵🇱 Warsaw',
-    top: 144,
-    left: 630,
-  },
-  {
-    name: '🇦🇺 Sydney',
-    top: 468,
-    left: 1063,
-  },
-  {
-    name: '🇸🇬 Singapore',
-    top: 342,
-    left: 903,
-  },
-  {
-    name: '🇨🇦 Montreal',
-    top: 173,
-    left: 317,
-  },
-  {
-    name: '🇺🇸 Washington',
-    top: 201,
-    left: 299,
-  },
-  {
-    name: '🇺🇸 Seattle',
-    top: 170,
-    left: 156,
-  },
-];
 
 export const EdgeNetworkSection = () => {
   return (
@@ -92,7 +38,7 @@ export const EdgeNetworkSection = () => {
           />
         </defs>
       </svg>
-      {CITY_POINTS.map((point, i) => (
+      {ALL_REGIONS.map((point, i) => (
         <CityPoint key={i} {...point} />
       ))}
       <div className="flex flex-col items-center gap-4 absolute top-0 left-1/2 transform -translate-x-1/2">
