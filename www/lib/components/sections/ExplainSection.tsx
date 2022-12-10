@@ -729,7 +729,7 @@ export const ExplainSection = () => {
           </svg>
         </div>
       </div>
-      <div className="flex flex-col xl:flex-row gap-16">
+      <div className="flex flex-col lg:flex-row gap-16">
         <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1">
           <div className="bg-dark rounded-3xl flex flex-col gap-4 p-16">
             <div
@@ -755,9 +755,9 @@ export const ExplainSection = () => {
           </div>
         </div>
         <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1">
-          <div className="bg-dark rounded-3xl flex flex-col gap-4 p-16 h-full">
-            <svg viewBox="0 0 581 373" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-80">
-              <rect width="581" height="373" fill="url(#paint0_radial_388_140)" fillOpacity="0.05" />
+          <div className="bg-dark rounded-3xl flex flex-col p-16 h-full justify-between">
+            <svg viewBox="0 0 581 373" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect fill="url(#paint0_radial_388_140)" fillOpacity="0.05" />
               <rect x="156.5" y="119.5" width="251" height="122" rx="22.5" fill="url(#paint1_linear_388_140)" />
               <path
                 d="M239 179.268C240.333 180.038 240.333 181.962 239 182.732L225.5 190.526C224.167 191.296 222.5 190.334 222.5 188.794L222.5 173.206C222.5 171.666 224.167 170.704 225.5 171.474L239 179.268Z"
@@ -991,11 +991,13 @@ export const ExplainSection = () => {
                 </radialGradient>
               </defs>
             </svg>
-            <Text size="h2">(Almost) no cold start</Text>
-            <Text>
-              Using the V8 engine from Chromium, your Functions starts almost instantly in single-digit milliseconds,
-              and stays warm for subsequent requests.
-            </Text>
+            <div className="flex flex-col gap-4">
+              <Text size="h2">(Almost) no cold start</Text>
+              <Text>
+                Using the V8 engine from Chromium, your Functions starts almost instantly in single-digit milliseconds,
+                and stays warm for subsequent requests.
+              </Text>
+            </div>
           </div>
         </div>
       </div>
