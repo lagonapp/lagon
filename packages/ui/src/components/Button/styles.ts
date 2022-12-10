@@ -1,6 +1,6 @@
 import { cva } from 'class-variance-authority';
 
-export const variants = cva('select-none whitespace-nowrap shadow-sm', {
+export const variants = cva('select-none whitespace-nowrap shadow-sm transition flex gap-2 items-center', {
   variants: {
     variant: {
       primary: [

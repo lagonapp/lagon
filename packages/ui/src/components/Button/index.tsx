@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { forwardRef, MouseEventHandler, MutableRefObject, ReactElement, ReactNode } from 'react';
-import { VariantProps, cx } from 'class-variance-authority';
+import { VariantProps } from 'class-variance-authority';
 import { variants } from './styles';
 
 type ButtonProps = {
@@ -52,7 +52,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
         type={submit ? 'submit' : 'button'}
         disabled={!!disabled}
         aria-disabled={!!disabled}
-        className={cx([styles, 'transition flex gap-2 items-center'])}
+        className={styles}
       >
         {leftIcon}
         {children}

@@ -113,7 +113,7 @@ export const functionsRouter = (t: T) =>
       )
       .query(async ({ input }) => {
         const logs = await axiomClient.datasets.query(
-          `['serverless'] | where ['metadata.source'] == 'console' and ['metadata.function'] == '${input.functionId}' | sort by time`,
+          `['serverless'] | where ['metadata.source'] == 'console' and ['metadata.function'] == '${input.functionId}' | sort by _time`,
           {
             startTime: new Date(
               new Date().getTime() -
