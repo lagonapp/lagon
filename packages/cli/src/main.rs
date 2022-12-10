@@ -72,6 +72,9 @@ enum Commands {
         /// Path to a env file to parse
         #[clap(short, long, value_parser)]
         env: Option<PathBuf>,
+        /// Allow code generation from strings using `eval` / `new Function`
+        #[clap(long)]
+        allow_code_generation: bool,
     },
     /// Build a Function without deploying it
     Build {
@@ -137,7 +140,19 @@ async fn main() {
                 port,
                 hostname,
                 env,
-            } => commands::dev(file, client, public_dir, port, hostname, env).await,
+                allow_code_generation,
+            } => {
+                commands::dev(
+                    file,
+                    client,
+                    public_dir,
+                    port,
+                    hostname,
+                    env,
+                    allow_code_generation,
+                )
+                .await
+            }
             Commands::Build {
                 file,
                 client,

@@ -132,6 +132,7 @@ This command accept the same arguments and options as `lagon deploy` and `lagon 
 - `--hostname <HOSTNAME>` allows you to specify a custom hostname the start the server on. (Default: `127.0.0.1`)
 - `--port <PORT>` allows you to specify a custom port the start the server on. (Default: `1234`)
 - `--env <PATH>` allows you to specify an environment file (typically `.env`) to use to inject environment variables.
+- `--allow-code-generation` allows you to enable code generation from strings (`eval` / `new Function`)
 
 <Callout type="warning">
   Although the `dev` command uses the exact same Runtime as when deployed, the local HTTP server itself doesn't have the
