@@ -19,6 +19,6 @@
     "esbuild": "^0.15.0"
   },
   "devDependencies": {
-    "astro": "1.6.12"
+    "astro": "1.6.14"
   }
 }
