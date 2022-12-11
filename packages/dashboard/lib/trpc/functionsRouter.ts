@@ -13,6 +13,7 @@ import { LOG_LEVELS } from '@lagon/ui';
 import { TRPCError } from '@trpc/server';
 import { T } from 'pages/api/trpc/[trpc]';
 import Client from '@axiomhq/axiom-node';
+import { findUniqueFunctionName, isFunctionNameUnique } from 'lib/api/functions';
 
 const axiomClient = new Client({
   orgId: process.env.AXIOM_ORG_ID,
@@ -166,7 +167,7 @@ export const functionsRouter = (t: T) =>
     functionCreate: t.procedure
       .input(
         z.object({
-          name: z.string(),
+          name: z.string().optional(),
           domains: z.string().array(),
           env: z
             .object({
@@ -178,10 +179,21 @@ export const functionsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ ctx, input }) => {
+        if (input.name) {
+          if (!isFunctionNameUnique(input.name)) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: 'A Function with the same name already exists',
+            });
+          }
+        }
+
+        const name = input.name || (await findUniqueFunctionName());
+
         return prisma.function.create({
           data: {
             organizationId: ctx.session.organization.id,
-            name: input.name,
+            name,
             domains: {
               createMany: {
                 data: input.domains.map(domain => ({
@@ -211,67 +223,23 @@ export const functionsRouter = (t: T) =>
       .input(
         z.object({
           functionId: z.string(),
-          name: z.string().min(FUNCTION_NAME_MIN_LENGTH).max(FUNCTION_NAME_MAX_LENGTH),
-          domains: z.string().array(),
-          cron: z.string().nullable(),
-          cronRegion: z.string(),
+          name: z.string().min(FUNCTION_NAME_MIN_LENGTH).max(FUNCTION_NAME_MAX_LENGTH).optional(),
+          domains: z.string().array().optional(),
+          cron: z.string().nullable().optional(),
+          cronRegion: z.string().optional(),
           env: z
             .object({
               key: z.string(),
               value: z.string(),
             })
-            .array(),
+            .array()
+            .optional(),
         }),
       )
       .mutation(async ({ input }) => {
-        const currentFunction = await prisma.function.findFirst({
+        const func = await prisma.function.findFirst({
           where: {
             id: input.functionId,
-          },
-          select: {
-            domains: {
-              select: {
-                domain: true,
-              },
-            },
-          },
-        });
-
-        if (!currentFunction) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-          });
-        }
-
-        await prisma.domain.deleteMany({
-          where: {
-            functionId: input.functionId,
-          },
-        });
-
-        await prisma.domain.createMany({
-          data: input.domains.map(domain => ({
-            functionId: input.functionId,
-            domain,
-          })),
-        });
-
-        const func = await prisma.function.update({
-          where: {
-            id: input.functionId,
-          },
-          data: {
-            name: input.name,
-            cron: input.cron,
-            cronRegion: input.cronRegion,
-            env: {
-              createMany: {
-                data: input.env.map(({ key, value }) => ({
-                  key,
-                  value,
-                })),
-              },
-            },
           },
           select: {
             id: true,
@@ -308,10 +276,91 @@ export const functionsRouter = (t: T) =>
           },
         });
 
-        const currentDomains = currentFunction.domains.map(({ domain }) => domain);
-        const newDomains = func.domains.map(({ domain }) => domain);
+        if (!func) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+          });
+        }
 
-        if (currentDomains !== newDomains) {
+        if (input.domains) {
+          await prisma.domain.deleteMany({
+            where: {
+              functionId: input.functionId,
+            },
+          });
+
+          await prisma.domain.createMany({
+            data: input.domains.map(domain => ({
+              functionId: input.functionId,
+              domain,
+            })),
+          });
+        }
+
+        if (input.env) {
+          await prisma.envVariable.deleteMany({
+            where: {
+              functionId: input.functionId,
+            },
+          });
+
+          await prisma.envVariable.createMany({
+            data: input.env.map(({ key, value }) => ({
+              functionId: input.functionId,
+              key,
+              value,
+            })),
+          });
+        }
+
+        if (input.name) {
+          const isUnique = await isFunctionNameUnique(input.name);
+
+          if (!isUnique) {
+            throw new TRPCError({
+              code: 'CONFLICT',
+              message: 'A Function with the same name already exists',
+            });
+          }
+
+          await prisma.function.update({
+            where: {
+              id: input.functionId,
+            },
+            data: {
+              name: input.name,
+            },
+          });
+        }
+
+        // undefined means we don't want to update the field
+        // null means we want to clear it
+        if (input.cron !== undefined) {
+          await prisma.function.update({
+            where: {
+              id: input.functionId,
+            },
+            data: {
+              cron: input.cron,
+            },
+          });
+        }
+
+        if (input.cronRegion) {
+          await prisma.function.update({
+            where: {
+              id: input.functionId,
+            },
+            data: {
+              cronRegion: input.cronRegion,
+            },
+          });
+        }
+
+        const currentDomains = func.domains.map(({ domain }) => domain);
+        const newDomains = input.domains;
+
+        if (newDomains && currentDomains !== newDomains) {
           const deployment = func.deployments.find(deployment => deployment.isProduction)!;
 
           await updateDomains(

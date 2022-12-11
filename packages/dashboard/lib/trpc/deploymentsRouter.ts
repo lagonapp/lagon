@@ -50,7 +50,7 @@ export const deploymentsRouter = (t: T) =>
         });
 
         if (!func) {
-          return new TRPCError({
+          throw new TRPCError({
             code: 'NOT_FOUND',
           });
         }
@@ -141,7 +141,7 @@ export const deploymentsRouter = (t: T) =>
         ]);
 
         if (!func) {
-          return new TRPCError({
+          throw new TRPCError({
             code: 'NOT_FOUND',
           });
         }
