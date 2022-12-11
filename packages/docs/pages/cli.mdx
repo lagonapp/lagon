@@ -160,6 +160,18 @@ lagon build ./server.tsx --client App.tsx --public ./assets
 ls .lagon/ # server.js, App.js, assets/
 ```
 
+### `lagon link`
+
+Link a local Function to a deployed one, without triggering a new Deployment. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
+
+- `<FILE>` path to a file containing the Function to list deployments of.
+
+Example:
+
+```bash
+lagon link ./index.ts
+```
+
 ## Self-hosting configuration
 
 If you are [self-hosting](/self-hosted/installation) Lagon, you will need to update the default site URL to the one used by your installation. To do so, find the configuration file located in `~/.lagon/config.json`:
@@ -173,14 +185,3 @@ If you are [self-hosting](/self-hosted/installation) Lagon, you will need to upd
 
 Replace the `site_url` field by the one configured during the installation. To verify if it's working correctly, login to your installation using `lagon login`.
 
-### `lagon link`
-
-Link a local Function to a deployed one, without triggering a new Deployment. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
-
-- `<FILE>` path to a file containing the Function to list deployments of.
-
-Example:
-
-```bash
-lagon link ./index.ts
-```
