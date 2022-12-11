@@ -1,5 +1,11 @@
 # @lagon/cli
 
+## 0.4.2
+
+### Patch Changes
+
+- [#365](https://github.com/lagonapp/lagon/pull/365) [`c6dec43`](https://github.com/lagonapp/lagon/commit/c6dec4316bf6c2e155a7b244c0b74842f0b3527e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add --allow-code-generation flag to dev command
+
 ## 0.4.1
 
 ### Patch Changes

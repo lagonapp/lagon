@@ -1,5 +1,13 @@
 # @lagon/docs
 
+## 0.0.6
+
+### Patch Changes
+
+- [#357](https://github.com/lagonapp/lagon/pull/357) [`4e1372c`](https://github.com/lagonapp/lagon/commit/4e1372ccac668570202b39a53e218151499cb0a7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve contributing guidelines
+
+* [#365](https://github.com/lagonapp/lagon/pull/365) [`c6dec43`](https://github.com/lagonapp/lagon/commit/c6dec4316bf6c2e155a7b244c0b74842f0b3527e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add --allow-code-generation docs for lagon dev
+
 ## 0.0.5
 
 ### Patch Changes
