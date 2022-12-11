@@ -2,6 +2,7 @@ import { Button } from './Button';
 import { Text } from './Text';
 import Image from 'next/image';
 import Link from 'next/link';
+import { GitHubIcon } from './icons/GitHubIcon';
 
 export const Header = () => {
   return (
@@ -24,8 +25,16 @@ export const Header = () => {
         </Text>
       </div>
       <div className="flex gap-4">
-        <Button variant="tertiary">Get started</Button>
-        <Button variant="secondary">Sign in</Button>
+        <Button
+          variant="tertiary"
+          leftIcon={<GitHubIcon className="w-6 h-6 fill-current" />}
+          href="https://github.com/lagonapp/lagon"
+        >
+          GitHub
+        </Button>
+        <Button variant="secondary" href="https://dash.lagon.app">
+          Sign in
+        </Button>
       </div>
     </header>
   );
