@@ -1,5 +1,16 @@
 # @lagon/dashboard
 
+## 0.0.10
+
+### Patch Changes
+
+- [#351](https://github.com/lagonapp/lagon/pull/351) [`b23f359`](https://github.com/lagonapp/lagon/commit/b23f359f13fee4e6473d581843b36054fcc3673a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use query instead of queryLegacy for axiom
+
+* [#371](https://github.com/lagonapp/lagon/pull/371) [`33f9698`](https://github.com/lagonapp/lagon/commit/33f96983d63109918675256e5e23a649c2483ed2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Axiom logs sorting by \_time instead of time
+
+* Updated dependencies [[`baae7ce`](https://github.com/lagonapp/lagon/commit/baae7ce981b31f0d97946d435cb859a609b7dd20), [`951cbd1`](https://github.com/lagonapp/lagon/commit/951cbd1c9204dcb4d54581fa6eb29108f40b4255), [`1e0134d`](https://github.com/lagonapp/lagon/commit/1e0134d93808caaa5387905d0fb2bded64ed31e1), [`33f9698`](https://github.com/lagonapp/lagon/commit/33f96983d63109918675256e5e23a649c2483ed2)]:
+  - @lagon/ui@0.2.0
+
 ## 0.0.9
 
 ### Patch Changes
