@@ -42,7 +42,6 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
 
           await updateFunction.mutateAsync({
             functionId: func.id,
-            ...func,
             name,
           });
 
@@ -82,7 +81,6 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
 
           await updateFunction.mutateAsync({
             functionId: func.id,
-            ...func,
             domains,
           });
 
@@ -129,7 +127,6 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
 
           await updateFunction.mutateAsync({
             functionId: func.id,
-            ...func,
             cron: cron || null,
             cronRegion: cronRegion,
           });
@@ -187,7 +184,6 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
 
           await updateFunction.mutateAsync({
             functionId: func.id,
-            ...func,
             env: (env as string[]).map(currentEnv => {
               const [key, value] = currentEnv.split('=');
 

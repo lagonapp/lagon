@@ -31,7 +31,7 @@ export const tokensRouter = (t: T) =>
       });
 
       if (!user) {
-        return new TRPCError({
+        throw new TRPCError({
           code: 'NOT_FOUND',
         });
       }

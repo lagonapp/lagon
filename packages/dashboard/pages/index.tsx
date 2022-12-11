@@ -1,16 +1,17 @@
-import { Suspense } from 'react';
+import { Suspense, useState } from 'react';
 import FunctionsList from 'lib/pages/functions/FunctionsList';
 import LayoutTitle from 'lib/components/LayoutTitle';
 import { Button, Skeleton } from '@lagon/ui';
 import { trpc } from 'lib/trpc';
-import useRandomName from '@scaleway/use-random-name';
 import { useRouter } from 'next/router';
 import { getLocaleProps, useI18n } from 'locales';
 import { GetStaticProps } from 'next';
 
 const Home = () => {
   const createFunction = trpc.functionCreate.useMutation();
-  const name = useRandomName();
+  const createDeployment = trpc.deploymentCreate.useMutation();
+  const deployDeployment = trpc.deploymentDeploy.useMutation();
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { scopedT } = useI18n();
   const t = scopedT('home');
@@ -21,34 +22,38 @@ const Home = () => {
       rightItem={
         <Button
           variant="primary"
-          disabled={createFunction.isLoading}
+          disabled={isLoading}
           onClick={async () => {
+            setIsLoading(true);
+
             const func = await createFunction.mutateAsync({
-              name,
               domains: [],
               env: [],
               cron: null,
             });
 
-            const body = new FormData();
-
-            body.set('functionId', func.id);
-            body.set(
-              'code',
-              new File(
-                [
-                  `export function handler(request) {
-return new Response("Hello World!")
-}`,
-                ],
-                'index.js',
-              ),
-            );
-
-            await fetch('/api/deployment', {
-              method: 'POST',
-              body,
+            const deployment = await createDeployment.mutateAsync({
+              functionId: func.id,
+              assets: [],
             });
+
+            await fetch(deployment.codeUrl, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'text/javascript',
+              },
+              body: `export function handler(request) {
+  return new Response("Hello World!")
+}`,
+            });
+
+            await deployDeployment.mutateAsync({
+              functionId: func.id,
+              deploymentId: deployment.deploymentId,
+              isProduction: true,
+            });
+
+            setIsLoading(false);
 
             router.push(`/playground/${func.id}`);
           }}
