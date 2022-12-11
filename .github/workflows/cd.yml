@@ -96,7 +96,7 @@ jobs:
           path: packages/cli/${{ matrix.asset_name }}.tar.gz
       - name: Upload to release
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'workflow_run'
         with:
           files: packages/cli/${{ matrix.asset_name }}.tar.gz
           token: ${{ secrets.GITHUB_TOKEN }}
