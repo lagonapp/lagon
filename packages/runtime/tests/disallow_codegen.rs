@@ -51,4 +51,3 @@ async fn disallow_function() {
         RunResult::Error("Uncaught EvalError: Code generation from strings disallowed for this context, at:\n    const result = new Function('return 1 + 1')".into())
     );
 }
-

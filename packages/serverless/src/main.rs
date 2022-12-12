@@ -41,7 +41,6 @@ mod logger;
 lazy_static! {
     pub static ref ISOLATES: RwLock<HashMap<usize, HashMap<String, Isolate>>> =
         RwLock::new(HashMap::new());
-    static ref X_FORWARDED_FOR: String = String::from("X-Forwarded-For");
     pub static ref REGION: String = env::var("LAGON_REGION").expect("LAGON_REGION must be set");
 }
 
@@ -49,6 +48,9 @@ const POOL_SIZE: usize = 8;
 const PAGE_404: &str = include_str!("../public/404.html");
 const PAGE_502: &str = include_str!("../public/502.html");
 const PAGE_500: &str = include_str!("../public/500.html");
+const X_FORWARDED_FOR: &str = "x-forwarded-for";
+const X_LAGON_REGION: &str = "x-lagon-region";
+const X_REAL_IP: &str = "x-real-ip";
 
 async fn handle_request(
     req: HyperRequest<Body>,
@@ -156,7 +158,14 @@ async fn handle_request(
                     };
 
                     counter!("lagon_bytes_in", request.len() as u64, &thread_labels);
+
+                    // Try to Extract the X-Real-Ip header or fallback to remote addr IP
+                    let ip = request.headers
+                        .as_ref()
+                        .map_or(&ip, |headers| headers.get(X_REAL_IP).unwrap_or(&ip)).to_string();
+
                     request.add_header(X_FORWARDED_FOR.to_string(), ip);
+                    request.add_header(X_LAGON_REGION.to_string(), REGION.to_string());
 
                     // Only acquire the lock when we are sure we have a
                     // deployment and that the isolate should be called.
