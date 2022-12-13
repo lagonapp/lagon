@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Result};
-use hyper::{http::request::Builder, Body, Client};
+use hyper::{client::HttpConnector, http::request::Builder, Body, Client};
 use hyper_tls::HttpsConnector;
+use lazy_static::lazy_static;
 
 use crate::{
     http::{FromV8, Request, Response},
@@ -8,6 +9,11 @@ use crate::{
 };
 
 use super::BindingResult;
+
+lazy_static! {
+    static ref CLIENT: Client<HttpsConnector<HttpConnector>> =
+        Client::builder().build::<_, Body>(HttpsConnector::new());
+}
 
 type Arg = Request;
 
@@ -41,9 +47,7 @@ pub async fn fetch_binding(id: usize, arg: Arg) -> BindingResult {
         }
     };
 
-    let client = Client::builder().build::<_, Body>(HttpsConnector::new());
-
-    let hyper_response = match client.request(hyper_request).await {
+    let hyper_response = match CLIENT.request(hyper_request).await {
         Ok(hyper_response) => hyper_response,
         Err(error) => {
             return BindingResult {
