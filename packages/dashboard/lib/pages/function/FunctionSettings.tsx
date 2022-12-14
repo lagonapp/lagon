@@ -153,7 +153,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                 <Text size="lg">{t('cron.region')}</Text>
                 <Menu>
                   <Menu.Button>
-                    <Button>{REGIONS[values.cronRegion as Regions] || REGIONS['EU-WEST-3']}</Button>
+                    <Button>{REGIONS[values.cronRegion as Regions] || REGIONS['paris-eu-west']}</Button>
                   </Menu.Button>
                   <Menu.Items>
                     {Object.entries(REGIONS).map(([key, value]) => (
