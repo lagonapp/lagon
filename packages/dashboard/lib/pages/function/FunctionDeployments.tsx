@@ -16,12 +16,12 @@ type FunctionDeploymentsProps = {
 const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
   const { scopedT } = useI18n();
   const t = scopedT('functions.deployments');
-  const deleteDeployment = trpc.deploymentDelete.useMutation();
+  const undeployDeployment = trpc.deploymentUndeploy.useMutation();
   const promoteDeployment = trpc.deploymentPromote.useMutation();
 
   const removeDeplomyent = useCallback(
     async (deployment: { id: string }) => {
-      await deleteDeployment.mutateAsync({
+      await undeployDeployment.mutateAsync({
         functionId: func?.id || '',
         deploymentId: deployment.id,
       });
@@ -29,7 +29,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
       await refetch();
       toast.success(t('delete.success'));
     },
-    [func?.id, deleteDeployment, refetch, t],
+    [func?.id, undeployDeployment, refetch, t],
   );
 
   const promoteDeploymentHandler = useCallback(
@@ -106,7 +106,10 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                       title={t('promote.modal.title')}
                       description={t('promote.modal.description')}
                       disclosure={
-                        <Button leftIcon={<ArrowPathIcon className="w-4 h-4" />} disabled={deleteDeployment.isLoading}>
+                        <Button
+                          leftIcon={<ArrowPathIcon className="w-4 h-4" />}
+                          disabled={undeployDeployment.isLoading}
+                        >
                           {t('promote')}
                         </Button>
                       }
@@ -122,17 +125,17 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                       title={t('delete.modal.title')}
                       description={t('delete.modal.description')}
                       disclosure={
-                        <Button variant="danger" disabled={deleteDeployment.isLoading}>
+                        <Button variant="danger" disabled={undeployDeployment.isLoading}>
                           {t('delete')}
                         </Button>
                       }
                     >
                       <Dialog.Buttons>
-                        <Dialog.Cancel disabled={deleteDeployment.isLoading} />
+                        <Dialog.Cancel disabled={undeployDeployment.isLoading} />
                         <Dialog.Action
                           variant="danger"
                           onClick={() => removeDeplomyent(deployment)}
-                          disabled={deleteDeployment.isLoading}
+                          disabled={undeployDeployment.isLoading}
                         >
                           {t('delete.modal.submit')}
                         </Dialog.Action>

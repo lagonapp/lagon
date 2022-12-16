@@ -36,3 +36,7 @@ export const REGIONS = {
 };
 
 export type Regions = keyof typeof REGIONS;
+
+export const DEFAULT_FUNCTION = `export function handler(request) {
+  return new Response("Hello World!")
+}`;

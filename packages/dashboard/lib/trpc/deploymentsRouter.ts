@@ -21,7 +21,13 @@ export const deploymentsRouter = (t: T) =>
       .input(
         z.object({
           functionId: z.string(),
-          assets: z.string().array(),
+          functionSize: z.number(),
+          assets: z
+            .object({
+              name: z.string(),
+              size: z.number(),
+            })
+            .array(),
         }),
       )
       .mutation(async ({ ctx, input }) => {
@@ -68,14 +74,15 @@ export const deploymentsRouter = (t: T) =>
             ...func,
             domains: func.domains.map(({ domain }) => domain),
           },
-          input.assets,
+          input.assets.map(({ name }) => name),
           ctx.session.user.email,
         );
 
-        const getPresignedUrl = async (key: string) => {
+        const getPresignedUrl = async (key: string, size: number) => {
           const putCommand = new PutObjectCommand({
             Bucket: process.env.S3_BUCKET,
             Key: key,
+            ContentLength: size,
           });
 
           return getSignedUrl(s3, putCommand, {
@@ -83,13 +90,13 @@ export const deploymentsRouter = (t: T) =>
           });
         };
 
-        const codeUrl = await getPresignedUrl(`${deployment.id}.js`);
+        const codeUrl = await getPresignedUrl(`${deployment.id}.js`, input.functionSize);
         const assetsUrls: Record<string, string> = {};
 
         await Promise.all(
-          input.assets.map(async asset => {
-            const url = await getPresignedUrl(`${deployment.id}/${asset}`);
-            assetsUrls[asset] = url;
+          input.assets.map(async ({ name, size }) => {
+            const url = await getPresignedUrl(`${deployment.id}/${name}`, size);
+            assetsUrls[name] = url;
           }),
         );
 
@@ -193,7 +200,7 @@ export const deploymentsRouter = (t: T) =>
 
         return { ok: true };
       }),
-    deploymentDelete: t.procedure
+    deploymentUndeploy: t.procedure
       .input(
         z.object({
           functionId: z.string(),
@@ -230,6 +237,21 @@ export const deploymentsRouter = (t: T) =>
         if (!func) {
           throw new TRPCError({
             code: 'NOT_FOUND',
+          });
+        }
+
+        const isCurrentProductionDeployment = await prisma.deployment.findFirst({
+          where: {
+            functionId: input.functionId,
+            isProduction: true,
+            id: input.deploymentId,
+          },
+        });
+
+        if (isCurrentProductionDeployment !== null) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Cannot delete a production deployment, promote another deployment first.',
           });
         }
 
