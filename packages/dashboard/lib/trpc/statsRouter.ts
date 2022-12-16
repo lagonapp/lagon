@@ -71,7 +71,7 @@ export const statsRouter = (t: T) =>
       .query(async ({ input }) => {
         const step = getStep(input.timeframe);
         const { result } = await prometheus(
-          `increase(lagon_requests{function="${input.functionId}"}[${step}s])`,
+          `increase(lagon_isolate_requests{function="${input.functionId}"}[${step}s])`,
           input.timeframe,
         );
 

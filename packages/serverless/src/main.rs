@@ -282,9 +282,11 @@ async fn handle_request(
         RunResult::Timeout | RunResult::MemoryLimit => {
             match result {
                 RunResult::Timeout => {
+                    increment_counter!("lagon_isolate_timeouts", &labels);
                     warn!(deployment = deployment_id; "Function execution timed out")
                 }
                 RunResult::MemoryLimit => {
+                    increment_counter!("lagon_isolate_memory_limits", &labels);
                     warn!(deployment = deployment_id; "Function execution memory limit reached")
                 }
                 _ => {}
@@ -293,6 +295,7 @@ async fn handle_request(
             Ok(HyperResponse::builder().status(502).body(PAGE_502.into())?)
         }
         RunResult::Error(error) => {
+            increment_counter!("lagon_isolate_errors", &labels);
             error!(deployment = deployment_id; "Function execution error: {}", error);
 
             Ok(HyperResponse::builder().status(500).body(PAGE_500.into())?)
