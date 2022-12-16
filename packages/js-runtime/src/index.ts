@@ -80,6 +80,10 @@ export async function masterHandler(request: {
   h: ResponseInit['headers'];
   s: ResponseInit['status'];
 }> {
+  if (typeof handler !== 'function') {
+    throw new Error('Handler function is not defined or is not a function');
+  }
+
   const handlerRequest = new Request(request.i, {
     method: request.m,
     headers: request.h,

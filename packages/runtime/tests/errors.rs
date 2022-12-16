@@ -16,6 +16,32 @@ fn setup() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
+async fn no_handler() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new("console.log('Hello')".into()));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: Handler function is not defined or is not a function, at:\n    throw new Error(\"Handler function is not defined or is not a function\");".into())
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn handler_not_function() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new("export const handler = 'Hello'".into()));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: Handler function is not defined or is not a function, at:\n    throw new Error(\"Handler function is not defined or is not a function\");".into())
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
 async fn handler_reject() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
