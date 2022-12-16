@@ -8,14 +8,14 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
 };
-use walkdir::WalkDir;
+use walkdir::{DirEntry, WalkDir};
 
 use pathdiff::diff_paths;
 use serde::{Deserialize, Serialize};
 
 use crate::utils::{debug, print_progress, success, TrpcClient};
 
-use super::Config;
+use super::{Config, MAX_ASSETS_PER_FUNCTION, MAX_ASSET_SIZE_MB, MAX_FUNCTION_SIZE_MB};
 
 pub type FileCursor = Cursor<Vec<u8>>;
 
@@ -87,6 +87,13 @@ fn esbuild(file: &PathBuf) -> Result<FileCursor> {
     if result.status.success() {
         let output = result.stdout;
 
+        if output.len() >= MAX_FUNCTION_SIZE_MB {
+            return Err(anyhow!(
+                "Function can't be larger than {} bytes",
+                MAX_FUNCTION_SIZE_MB
+            ));
+        }
+
         return Ok(Cursor::new(output));
     }
 
@@ -139,11 +146,30 @@ pub fn bundle_function(
         );
         let end_progress = print_progress(&msg);
 
-        for file in WalkDir::new(public_dir) {
+        let files = WalkDir::new(public_dir)
+            .into_iter()
+            .collect::<Vec<walkdir::Result<DirEntry>>>();
+
+        if files.len() >= MAX_ASSETS_PER_FUNCTION {
+            return Err(anyhow!(
+                "Too many assets in public directory, max is {}",
+                MAX_ASSETS_PER_FUNCTION
+            ));
+        }
+
+        for file in files {
             let file = file?;
             let path = file.path();
 
             if path.is_file() {
+                if path.metadata()?.len() >= MAX_ASSET_SIZE_MB {
+                    return Err(anyhow!(
+                        "File {:?} can't be larger than {} bytes",
+                        path,
+                        MAX_ASSET_SIZE_MB
+                    ));
+                }
+
                 let diff = diff_paths(path, public_dir)
                     .unwrap()
                     .to_str()

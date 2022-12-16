@@ -11,6 +11,10 @@ pub use console::*;
 pub use deployments::*;
 pub use trpc::*;
 
+pub const MAX_FUNCTION_SIZE_MB: usize = 10 * 1024 * 1024; // 10MB
+pub const MAX_ASSET_SIZE_MB: u64 = 10 * 1024 * 1024; // 10MB
+pub const MAX_ASSETS_PER_FUNCTION: usize = 100;
+
 pub fn validate_code_file(file: &Path) -> Result<()> {
     if !file.exists() || !file.is_file() {
         return Err(anyhow!("{} is not a file", file.to_str().unwrap()));
