@@ -51,6 +51,7 @@ const PlaygroundPage = () => {
 
             const deployment = await createDeployment.mutateAsync({
               functionId: func.id,
+              functionSize: new TextEncoder().encode(code).length,
               assets: [],
             });
 

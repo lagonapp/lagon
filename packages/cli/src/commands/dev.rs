@@ -21,8 +21,7 @@ use std::time::Duration;
 use tokio::sync::Mutex;
 
 use crate::utils::{
-    bundle_function, info, input, success, validate_code_file, validate_public_dir, warn,
-    FileCursor,
+    bundle_function, info, input, success, validate_code_file, validate_public_dir, warn, Assets,
 };
 
 use log::{
@@ -76,7 +75,7 @@ fn parse_environment_variables(env: Option<PathBuf>) -> Result<HashMap<String, S
 async fn handle_request(
     req: HyperRequest<Body>,
     ip: String,
-    content: Arc<Mutex<(FileCursor, HashMap<String, FileCursor>)>>,
+    content: Arc<Mutex<(Vec<u8>, Assets)>>,
     environment_variables: HashMap<String, String>,
 ) -> Result<HyperResponse<Body>> {
     let mut url = req.uri().to_string();
@@ -119,7 +118,7 @@ async fn handle_request(
         let response = Response {
             status: 200,
             headers: Some(headers),
-            body: Bytes::from(asset.1.get_ref().to_vec()),
+            body: Bytes::from(asset.1.clone()),
         };
 
         tx.send_async(RunResult::Response(response))
@@ -131,7 +130,7 @@ async fn handle_request(
                 request.add_header("X-Forwarded-For".into(), ip);
 
                 let mut isolate = Isolate::new(
-                    IsolateOptions::new(String::from_utf8(index.get_ref().to_vec())?)
+                    IsolateOptions::new(String::from_utf8(index)?)
                         .with_metadata(Some((String::from(""), String::from(""))))
                         .with_environment_variables(environment_variables),
                 );

@@ -3,11 +3,16 @@ import prisma from 'lib/prisma';
 import { TIMEFRAMES } from 'lib/types';
 import { getDeploymentCode, removeFunction, updateDomains } from 'lib/api/deployments';
 import {
+  CUSTOM_DOMAINS_PER_FUNCTION,
+  ENVIRONMENT_VARIABLES_PER_FUNCTION,
+  ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH,
+  ENVIRONMENT_VARIABLE_VALUE_MAX_SIZE,
   FUNCTION_DEFAULT_MEMORY,
   FUNCTION_DEFAULT_STARTUP_TIMEOUT,
   FUNCTION_DEFAULT_TIMEOUT,
   FUNCTION_NAME_MAX_LENGTH,
   FUNCTION_NAME_MIN_LENGTH,
+  MAX_FUNCTIONS_PER_ORGANIZATION,
 } from 'lib/constants';
 import { LOG_LEVELS } from '@lagon/ui';
 import { TRPCError } from '@trpc/server';
@@ -168,13 +173,14 @@ export const functionsRouter = (t: T) =>
       .input(
         z.object({
           name: z.string().optional(),
-          domains: z.string().array(),
+          domains: z.string().array().max(CUSTOM_DOMAINS_PER_FUNCTION),
           env: z
             .object({
-              key: z.string(),
-              value: z.string(),
+              key: z.string().max(ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH),
+              value: z.string().max(ENVIRONMENT_VARIABLE_VALUE_MAX_SIZE),
             })
-            .array(),
+            .array()
+            .max(ENVIRONMENT_VARIABLES_PER_FUNCTION),
           cron: z.string().nullable(),
         }),
       )
@@ -189,6 +195,19 @@ export const functionsRouter = (t: T) =>
         }
 
         const name = input.name || (await findUniqueFunctionName());
+
+        const functions = await prisma.function.count({
+          where: {
+            organizationId: ctx.session.organization.id,
+          },
+        });
+
+        if (functions >= MAX_FUNCTIONS_PER_ORGANIZATION) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `You can only have ${MAX_FUNCTIONS_PER_ORGANIZATION} Functions per Organization`,
+          });
+        }
 
         return prisma.function.create({
           data: {
@@ -224,15 +243,16 @@ export const functionsRouter = (t: T) =>
         z.object({
           functionId: z.string(),
           name: z.string().min(FUNCTION_NAME_MIN_LENGTH).max(FUNCTION_NAME_MAX_LENGTH).optional(),
-          domains: z.string().array().optional(),
+          domains: z.string().array().max(CUSTOM_DOMAINS_PER_FUNCTION).optional(),
           cron: z.string().nullable().optional(),
           cronRegion: z.string().optional(),
           env: z
             .object({
-              key: z.string(),
-              value: z.string(),
+              key: z.string().max(ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH),
+              value: z.string().max(ENVIRONMENT_VARIABLE_VALUE_MAX_SIZE),
             })
             .array()
+            .max(ENVIRONMENT_VARIABLES_PER_FUNCTION)
             .optional(),
         }),
       )

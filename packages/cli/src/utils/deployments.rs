@@ -4,20 +4,19 @@ use hyper::{Body, Method, Request};
 use std::{
     collections::HashMap,
     fs,
-    io::Cursor,
     path::{Path, PathBuf},
     process::Command,
 };
-use walkdir::WalkDir;
+use walkdir::{DirEntry, WalkDir};
 
 use pathdiff::diff_paths;
 use serde::{Deserialize, Serialize};
 
 use crate::utils::{debug, print_progress, success, TrpcClient};
 
-use super::Config;
+use super::{Config, MAX_ASSETS_PER_FUNCTION, MAX_ASSET_SIZE_MB, MAX_FUNCTION_SIZE_MB};
 
-pub type FileCursor = Cursor<Vec<u8>>;
+pub type Assets = HashMap<String, Vec<u8>>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeploymentConfig {
@@ -73,7 +72,7 @@ pub fn delete_function_config(file: &Path) -> Result<()> {
     Ok(())
 }
 
-fn esbuild(file: &PathBuf) -> Result<FileCursor> {
+fn esbuild(file: &PathBuf) -> Result<Vec<u8>> {
     let result = Command::new("esbuild")
         .arg(file)
         .arg("--bundle")
@@ -87,7 +86,14 @@ fn esbuild(file: &PathBuf) -> Result<FileCursor> {
     if result.status.success() {
         let output = result.stdout;
 
-        return Ok(Cursor::new(output));
+        if output.len() >= MAX_FUNCTION_SIZE_MB {
+            return Err(anyhow!(
+                "Function can't be larger than {} bytes",
+                MAX_FUNCTION_SIZE_MB
+            ));
+        }
+
+        return Ok(output);
     }
 
     Err(anyhow!(
@@ -101,7 +107,7 @@ pub fn bundle_function(
     index: &PathBuf,
     client: &Option<PathBuf>,
     public_dir: &PathBuf,
-) -> Result<(FileCursor, HashMap<String, FileCursor>)> {
+) -> Result<(Vec<u8>, Assets)> {
     if Command::new("esbuild").arg("--version").output().is_err() {
         return Err(anyhow!(
             "esbuild is not installed. Please install it with `npm install -g esbuild`",
@@ -112,7 +118,7 @@ pub fn bundle_function(
     let index_output = esbuild(index)?;
     end_progress();
 
-    let mut assets = HashMap::<String, FileCursor>::new();
+    let mut assets = Assets::new();
 
     if let Some(client) = client {
         let end_progress = print_progress("Bundling client file...");
@@ -139,11 +145,30 @@ pub fn bundle_function(
         );
         let end_progress = print_progress(&msg);
 
-        for file in WalkDir::new(public_dir) {
+        let files = WalkDir::new(public_dir)
+            .into_iter()
+            .collect::<Vec<walkdir::Result<DirEntry>>>();
+
+        if files.len() >= MAX_ASSETS_PER_FUNCTION {
+            return Err(anyhow!(
+                "Too many assets in public directory, max is {}",
+                MAX_ASSETS_PER_FUNCTION
+            ));
+        }
+
+        for file in files {
             let file = file?;
             let path = file.path();
 
             if path.is_file() {
+                if path.metadata()?.len() >= MAX_ASSET_SIZE_MB {
+                    return Err(anyhow!(
+                        "File {:?} can't be larger than {} bytes",
+                        path,
+                        MAX_ASSET_SIZE_MB
+                    ));
+                }
+
                 let diff = diff_paths(path, public_dir)
                     .unwrap()
                     .to_str()
@@ -151,7 +176,7 @@ pub fn bundle_function(
                     .to_string();
                 let file_content = fs::read(path)?;
 
-                assets.insert(diff, Cursor::new(file_content));
+                assets.insert(diff, file_content);
             }
         }
 
@@ -164,10 +189,17 @@ pub fn bundle_function(
 }
 
 #[derive(Serialize, Debug)]
+struct Asset {
+    name: String,
+    size: usize,
+}
+
+#[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct CreateDeploymentRequest {
     function_id: String,
-    assets: Vec<String>,
+    function_size: usize,
+    assets: Vec<Asset>,
 }
 
 #[derive(Deserialize, Debug)]
@@ -209,7 +241,14 @@ pub async fn create_deployment(
             "deploymentCreate",
             CreateDeploymentRequest {
                 function_id: function_id.clone(),
-                assets: assets.keys().cloned().collect(),
+                function_size: index.len(),
+                assets: assets
+                    .iter()
+                    .map(|(key, value)| Asset {
+                        name: key.clone(),
+                        size: value.len(),
+                    })
+                    .collect(),
             },
         )
         .await?;
@@ -227,7 +266,7 @@ pub async fn create_deployment(
     let request = Request::builder()
         .method(Method::PUT)
         .uri(code_url)
-        .body(Body::from(index.into_inner()))?;
+        .body(Body::from(index))?;
 
     trpc_client.client.request(request).await?;
 
@@ -240,7 +279,7 @@ pub async fn create_deployment(
         let request = Request::builder()
             .method(Method::PUT)
             .uri(url)
-            .body(Body::from(asset.clone().into_inner()))?;
+            .body(Body::from(asset.clone()))?;
 
         trpc_client.client.request(request).await?;
     }

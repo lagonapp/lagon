@@ -23,7 +23,7 @@ pub fn build(file: PathBuf, client: Option<PathBuf>, public_dir: Option<PathBuf>
     let end_progress = print_progress("Writting index.js...");
 
     fs::create_dir_all(".lagon")?;
-    fs::write(".lagon/index.js", index.get_ref())?;
+    fs::write(".lagon/index.js", index)?;
 
     end_progress();
 
@@ -35,7 +35,7 @@ pub fn build(file: PathBuf, client: Option<PathBuf>, public_dir: Option<PathBuf>
             .join("public")
             .join(PathBuf::from(&path).parent().unwrap());
         fs::create_dir_all(dir)?;
-        fs::write(format!(".lagon/public/{}", path), content.get_ref())?;
+        fs::write(format!(".lagon/public/{}", path), content)?;
 
         end_progress();
     }

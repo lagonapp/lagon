@@ -6,6 +6,7 @@ import { trpc } from 'lib/trpc';
 import { useRouter } from 'next/router';
 import { getLocaleProps, useI18n } from 'locales';
 import { GetStaticProps } from 'next';
+import { DEFAULT_FUNCTION } from 'lib/constants';
 
 const Home = () => {
   const createFunction = trpc.functionCreate.useMutation();
@@ -34,6 +35,7 @@ const Home = () => {
 
             const deployment = await createDeployment.mutateAsync({
               functionId: func.id,
+              functionSize: new TextEncoder().encode(DEFAULT_FUNCTION).length,
               assets: [],
             });
 
@@ -42,9 +44,7 @@ const Home = () => {
               headers: {
                 'Content-Type': 'text/javascript',
               },
-              body: `export function handler(request) {
-  return new Response("Hello World!")
-}`,
+              body: DEFAULT_FUNCTION,
             });
 
             await deployDeployment.mutateAsync({

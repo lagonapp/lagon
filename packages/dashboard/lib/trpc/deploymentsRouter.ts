@@ -13,6 +13,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import redis from 'lib/redis';
 import { envStringToObject, getFullCurrentDomain } from 'lib/utils';
 import s3 from 'lib/s3';
+import { MAX_ASSETS_PER_FUNCTION, PRESIGNED_URL_EXPIRES_SECONDS } from 'lib/constants';
 
 export const deploymentsRouter = (t: T) =>
   t.router({
@@ -20,10 +21,23 @@ export const deploymentsRouter = (t: T) =>
       .input(
         z.object({
           functionId: z.string(),
-          assets: z.string().array(),
+          functionSize: z.number(),
+          assets: z
+            .object({
+              name: z.string(),
+              size: z.number(),
+            })
+            .array(),
         }),
       )
       .mutation(async ({ ctx, input }) => {
+        if (input.assets.length >= MAX_ASSETS_PER_FUNCTION) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: `You can only upload ${MAX_ASSETS_PER_FUNCTION} assets per Function`,
+          });
+        }
+
         const func = await prisma.function.findFirst({
           where: {
             id: input.functionId as string,
@@ -60,27 +74,31 @@ export const deploymentsRouter = (t: T) =>
             ...func,
             domains: func.domains.map(({ domain }) => domain),
           },
-          input.assets,
+          input.assets.map(({ name }) => name),
           ctx.session.user.email,
         );
 
-        const getPresignedUrl = async (key: string) => {
+        const getPresignedUrl = async (key: string, size: number) => {
           const putCommand = new PutObjectCommand({
             Bucket: process.env.S3_BUCKET,
             Key: key,
+            ContentLength: size,
           });
 
           return getSignedUrl(s3, putCommand, {
-            expiresIn: 3600,
+            expiresIn: PRESIGNED_URL_EXPIRES_SECONDS,
           });
         };
 
-        const codeUrl = await getPresignedUrl(`${deployment.id}.js`);
+        const codeUrl = await getPresignedUrl(`${deployment.id}.js`, input.functionSize);
         const assetsUrls: Record<string, string> = {};
 
-        for (const asset of input.assets) {
-          assetsUrls[asset] = await getPresignedUrl(`${deployment.id}/${asset}`);
-        }
+        await Promise.all(
+          input.assets.map(async ({ name, size }) => {
+            const url = await getPresignedUrl(`${deployment.id}/${name}`, size);
+            assetsUrls[name] = url;
+          }),
+        );
 
         return {
           deploymentId: deployment.id,
@@ -182,7 +200,7 @@ export const deploymentsRouter = (t: T) =>
 
         return { ok: true };
       }),
-    deploymentDelete: t.procedure
+    deploymentUndeploy: t.procedure
       .input(
         z.object({
           functionId: z.string(),
@@ -219,6 +237,21 @@ export const deploymentsRouter = (t: T) =>
         if (!func) {
           throw new TRPCError({
             code: 'NOT_FOUND',
+          });
+        }
+
+        const isCurrentProductionDeployment = await prisma.deployment.findFirst({
+          where: {
+            functionId: input.functionId,
+            isProduction: true,
+            id: input.deploymentId,
+          },
+        });
+
+        if (isCurrentProductionDeployment !== null) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Cannot delete a production deployment, promote another deployment first.',
           });
         }
 

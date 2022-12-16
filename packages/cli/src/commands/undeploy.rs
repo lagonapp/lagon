@@ -10,13 +10,13 @@ use crate::utils::{
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
-struct DeleteDeploymentRequest {
+struct UndeployDeploymentRequest {
     function_id: String,
     deployment_id: String,
 }
 
 #[derive(Deserialize, Debug)]
-struct DeleteDeploymentResponse {
+struct UndeployDeploymentResponse {
     #[allow(dead_code)]
     ok: bool,
 }
@@ -41,9 +41,9 @@ pub async fn undeploy(file: PathBuf, deployment_id: String) -> Result<()> {
             true => {
                 let end_progress = print_progress("Deleting Deployment...");
                 TrpcClient::new(&config)
-                    .mutation::<DeleteDeploymentRequest, DeleteDeploymentResponse>(
-                        "deploymentDelete",
-                        DeleteDeploymentRequest {
+                    .mutation::<UndeployDeploymentRequest, UndeployDeploymentResponse>(
+                        "deploymentUndeploy",
+                        UndeployDeploymentRequest {
                             function_id: function_config.function_id,
                             deployment_id,
                         },
