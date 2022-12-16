@@ -10,7 +10,6 @@
     "astro": "astro"
   },
   "devDependencies": {
-    "@lagon/types": "workspace:0.0.1",
     "astro": "1.0.0-rc.7"
   },
   "dependencies": {

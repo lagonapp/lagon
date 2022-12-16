@@ -52,50 +52,39 @@ importers:
     specifiers:
       '@astrojs/deno': ^0.2.0
       '@lagon/astro': workspace:0.0.4
-      '@lagon/types': workspace:0.0.1
       astro: 1.0.0-rc.7
     dependencies:
       '@astrojs/deno': 0.2.0
       '@lagon/astro': link:../../packages/astro
     devDependencies:
-      '@lagon/types': link:../../packages/types
       astro: 1.0.0-rc.7
 
   examples/fetch-api:
-    specifiers:
-      '@lagon/types': workspace:0.0.1
-    dependencies:
-      '@lagon/types': link:../../packages/types
+    specifiers: {}
 
   examples/preact:
     specifiers:
-      '@lagon/types': workspace:0.0.1
       preact: ^10.8.2
       preact-render-to-string: ^5.2.0
     dependencies:
-      '@lagon/types': link:../../packages/types
       preact: 10.8.2
       preact-render-to-string: 5.2.0_preact@10.8.2
 
   examples/preact-ssr:
     specifiers:
-      '@lagon/types': workspace:0.0.1
       preact: ^10.8.2
       preact-render-to-string: ^5.2.0
     dependencies:
-      '@lagon/types': link:../../packages/types
       preact: 10.8.2
       preact-render-to-string: 5.2.0_preact@10.8.2
 
   examples/react:
     specifiers:
-      '@lagon/types': workspace:0.0.1
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
       react: 18.1.0
       react-dom: 18.1.0
     dependencies:
-      '@lagon/types': link:../../packages/types
       '@types/react': 18.0.14
       '@types/react-dom': 18.0.6
       react: 18.1.0
@@ -103,13 +92,11 @@ importers:
 
   examples/react-ssr:
     specifiers:
-      '@lagon/types': workspace:0.0.1
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
       react: 18.1.0
       react-dom: 18.1.0
     dependencies:
-      '@lagon/types': link:../../packages/types
       '@types/react': 18.0.14
       '@types/react-dom': 18.0.6
       react: 18.1.0
@@ -117,48 +104,36 @@ importers:
 
   examples/react-streaming:
     specifiers:
-      '@lagon/types': workspace:0.0.1
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
       react: 18.1.0
       react-dom: 18.1.0
     dependencies:
-      '@lagon/types': link:../../packages/types
       '@types/react': 18.0.14
       '@types/react-dom': 18.0.6
       react: 18.1.0
       react-dom: 18.1.0_react@18.1.0
 
   examples/reply-with-html:
-    specifiers:
-      '@lagon/types': workspace:0.0.1
-    dependencies:
-      '@lagon/types': link:../../packages/types
+    specifiers: {}
 
   examples/reply-with-json:
-    specifiers:
-      '@lagon/types': workspace:0.0.1
-    dependencies:
-      '@lagon/types': link:../../packages/types
+    specifiers: {}
 
   examples/satori:
     specifiers:
-      '@lagon/types': workspace:0.0.1
       react: 18.1.0
       satori: ^0.0.41
       yoga-wasm-web: ^0.1.2
     dependencies:
-      '@lagon/types': link:../../packages/types
       react: 18.1.0
       satori: 0.0.41
       yoga-wasm-web: 0.1.2
 
   examples/trpc:
     specifiers:
-      '@lagon/types': workspace:0.0.1
       '@trpc/server': 10.0.0
     dependencies:
-      '@lagon/types': link:../../packages/types
       '@trpc/server': 10.0.0
 
   packages/astro:
@@ -324,12 +299,6 @@ importers:
 
   packages/serverless:
     specifiers: {}
-
-  packages/types:
-    specifiers:
-      zx: ^7.0.0
-    devDependencies:
-      zx: 7.0.7
 
   packages/ui:
     specifiers:
@@ -7398,12 +7367,6 @@ packages:
       '@types/node': 17.0.35
     dev: true
 
-  /@types/fs-extra/9.0.13:
-    resolution: {integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==}
-    dependencies:
-      '@types/node': 18.11.9
-    dev: true
-
   /@types/glob/7.2.0:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
@@ -7565,10 +7528,6 @@ packages:
   /@types/prop-types/15.7.5:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
 
-  /@types/ps-tree/1.1.2:
-    resolution: {integrity: sha512-ZREFYlpUmPQJ0esjxoG1fMvB2HNaD3z+mjqdSosZvd3RalncI9NEur73P8ZJz4YQdL64CmV1w0RuqoRUlhQRBw==}
-    dev: true
-
   /@types/qs/6.9.7:
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
     dev: true
@@ -7647,10 +7606,6 @@ packages:
       '@types/webpack-sources': 3.2.0
       anymatch: 3.1.2
       source-map: 0.6.1
-    dev: true
-
-  /@types/which/2.0.1:
-    resolution: {integrity: sha512-Jjakcv8Roqtio6w1gr0D7y6twbhx6gGgFGF5BLwajPpnOIOxFkakFhCq+LmyyeAz7BX6ULrjBOxdKaCDy+4+dQ==}
     dev: true
 
   /@types/yargs-parser/21.0.0:
@@ -10801,10 +10756,6 @@ packages:
     engines: {node: '>=4'}
     dev: true
 
-  /duplexer/0.1.2:
-    resolution: {integrity: sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==}
-    dev: true
-
   /duplexify/3.7.1:
     resolution: {integrity: sha512-07z8uv2wMyS51kKhD1KsdXJg5WQ6t93RneqRxUHnskXVtlYYkLqM0gqStQZ3pj073g687jPCHrqNfCzawLYh5g==}
     dependencies:
@@ -11875,18 +11826,6 @@ packages:
     engines: {node: '>= 0.6'}
     dev: true
 
-  /event-stream/3.3.4:
-    resolution: {integrity: sha512-QHpkERcGsR0T7Qm3HNJSyXKEEj8AHNxkY3PK8TS2KJvQ7NiSHe3DDpwVKKtoYprL/AreyzFBeIkBIWChAqn60g==}
-    dependencies:
-      duplexer: 0.1.2
-      from: 0.1.7
-      map-stream: 0.1.0
-      pause-stream: 0.0.11
-      split: 0.3.3
-      stream-combiner: 0.0.4
-      through: 2.3.8
-    dev: true
-
   /events/3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
@@ -12494,10 +12433,6 @@ packages:
   /fresh/0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
     engines: {node: '>= 0.6'}
-    dev: true
-
-  /from/0.1.7:
-    resolution: {integrity: sha512-twe20eF1OxVxp/ML/kq2p1uc6KvFK/+vs8WjEbeKmV2He22MKm7YF2ANIt+EOqhJ5L3K/SuuPhk0hWQDjOM23g==}
     dev: true
 
   /from2/2.3.0:
@@ -14721,10 +14656,6 @@ packages:
     resolution: {integrity: sha512-0aF7ZmVon1igznGI4VS30yugpduQW3y3GkcgGJOp7d8x8QrizhigUxjI/m2UojsXXto+jLAH3KSz+xOJTiORjg==}
     dev: true
 
-  /map-stream/0.1.0:
-    resolution: {integrity: sha512-CkYQrPYZfWnu/DAmVCpTSX/xHpKZ80eKh2lAkyA6AJTef6bW+6JpbQZN5rofum7da+SyN1bi5ctTm+lTfcCW3g==}
-    dev: true
-
   /map-visit/1.0.0:
     resolution: {integrity: sha512-4y7uGv8bd2WdM9vpQsiQNo41Ln1NvhvDRuVt0k2JZQ+ezN2uaQes7lZeZ+QQUHOLQAtDaBJ+7wCbi+ab/KFs+w==}
     engines: {node: '>=0.10.0'}
@@ -16590,12 +16521,6 @@ packages:
     resolution: {integrity: sha512-Dp6zGqpTdETdR63lehJYPeIOqpiNBNtc7BpWSLrOje7UaIsE5aY92r/AunQA7rsXvet3lrJ3JnZX29UPTKXyKQ==}
     dev: true
 
-  /pause-stream/0.0.11:
-    resolution: {integrity: sha512-e3FBlXLmN/D1S+zHzanP4E/4Z60oFAa3O051qt1pxa7DEJWKAyil6upYVXCWadEnuoqa4Pkc9oUx9zsxYeRv8A==}
-    dependencies:
-      through: 2.3.8
-    dev: true
-
   /pbkdf2/3.1.2:
     resolution: {integrity: sha512-iuh7L6jA7JEGu2WxDwtQP1ddOpaJNC4KlDEFfdQajSGgGPNi4OyDc2R7QnbY2bR9QjBVGwgvTdNJZoE7RaxUMA==}
     engines: {node: '>=0.12'}
@@ -17198,14 +17123,6 @@ packages:
 
   /prr/1.0.1:
     resolution: {integrity: sha512-yPw4Sng1gWghHQWj0B3ZggWUm4qVbPwPFcRG8KyxiU7J2OHFSoEHKS+EZ3fv5l1t9CyCiop6l/ZYeWbrgoQejw==}
-    dev: true
-
-  /ps-tree/1.2.0:
-    resolution: {integrity: sha512-0VnamPPYHl4uaU/nSFeZZpR21QAWRz+sRv4iW9+v/GS/J5U5iZB5BNN6J0RMoOvdx2gWM2+ZFMIm58q24e4UYA==}
-    engines: {node: '>= 0.10'}
-    hasBin: true
-    dependencies:
-      event-stream: 3.3.4
     dev: true
 
   /pseudomap/1.0.2:
@@ -18767,12 +18684,6 @@ packages:
       extend-shallow: 3.0.2
     dev: true
 
-  /split/0.3.3:
-    resolution: {integrity: sha512-wD2AeVmxXRBoX44wAycgjVpMhvbwdI2aZjCkvfNcH1YqHQvJVa1duWc73OyVGJUc05fhFaTZeQ/PYsrmyH0JVA==}
-    dependencies:
-      through: 2.3.8
-    dev: true
-
   /sprintf-js/1.0.3:
     resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
 
@@ -18850,12 +18761,6 @@ packages:
     dependencies:
       inherits: 2.0.4
       readable-stream: 2.3.7
-    dev: true
-
-  /stream-combiner/0.0.4:
-    resolution: {integrity: sha512-rT00SPnTVyRsaSz5zgSPma/aHSOic5U1prhYdRy5HS2kTZviFpmDgzilbtsJsxiroqACmayynDN/9VzIbX5DOw==}
-    dependencies:
-      duplexer: 0.1.2
     dev: true
 
   /stream-each/1.2.3:
@@ -21124,23 +21029,3 @@ packages:
 
   /zwitch/2.0.2:
     resolution: {integrity: sha512-JZxotl7SxAJH0j7dN4pxsTV6ZLXoLdGME+PsjkL/DaBrVryK9kTGq06GfKrwcSOqypP+fdXGoCHE36b99fWVoA==}
-
-  /zx/7.0.7:
-    resolution: {integrity: sha512-cWF5cWqqrTVxgEPmQ8w/LvUXOK3rJTdgC+Tt1nz113+YncNIO0X6UXgCY72UfE8Az/lwOubbEJARXpQ+7RiM9g==}
-    engines: {node: '>= 16.0.0'}
-    hasBin: true
-    dependencies:
-      '@types/fs-extra': 9.0.13
-      '@types/minimist': 1.2.2
-      '@types/node': 17.0.35
-      '@types/ps-tree': 1.1.2
-      '@types/which': 2.0.1
-      chalk: 5.0.1
-      fs-extra: 10.1.0
-      globby: 13.1.2
-      minimist: 1.2.6
-      node-fetch: 3.2.10
-      ps-tree: 1.2.0
-      which: 2.0.2
-      yaml: 2.1.1
-    dev: true

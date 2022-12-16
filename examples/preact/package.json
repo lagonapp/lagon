@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "@lagon/types": "workspace:0.0.1",
     "preact": "^10.8.2",
     "preact-render-to-string": "^5.2.0"
   }
