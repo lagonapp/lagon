@@ -21,7 +21,7 @@ use std::time::Duration;
 use tokio::sync::Mutex;
 
 use crate::utils::{
-    bundle_function, info, input, success, validate_code_file, validate_public_dir, warn,
+    bundle_function, info, input, success, validate_code_file, validate_public_dir, warn, Assets,
 };
 
 use log::{
@@ -75,7 +75,7 @@ fn parse_environment_variables(env: Option<PathBuf>) -> Result<HashMap<String, S
 async fn handle_request(
     req: HyperRequest<Body>,
     ip: String,
-    content: Arc<Mutex<(Vec<u8>, HashMap<String, Vec<u8>>)>>,
+    content: Arc<Mutex<(Vec<u8>, Assets)>>,
     environment_variables: HashMap<String, String>,
 ) -> Result<HyperResponse<Body>> {
     let mut url = req.uri().to_string();

@@ -16,7 +16,7 @@ use crate::utils::{debug, print_progress, success, TrpcClient};
 
 use super::{Config, MAX_ASSETS_PER_FUNCTION, MAX_ASSET_SIZE_MB, MAX_FUNCTION_SIZE_MB};
 
-type Assets = HashMap<String, Vec<u8>>;
+pub type Assets = HashMap<String, Vec<u8>>;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeploymentConfig {
