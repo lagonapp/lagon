@@ -26,21 +26,21 @@ export const Footer = () => {
       <div>Copyright</div>
       <div className="flex gap-32">
         <FooterSection title="Lagon">
-          <Text size="a" href="#">
+          <Text size="a" href="https://docs.lagon.app/cli">
             CLI
           </Text>
-          <Text size="a" href="#">
-            Runtime
+          <Text size="a" href="https://docs.lagon.app/runtime-apis">
+            Runtime APIs
           </Text>
         </FooterSection>
         <FooterSection title="Product">
-          <Text size="a" href="#">
+          <Text size="a" href="/#features" scroll={false}>
             Features
           </Text>
-          <Text size="a" href="#">
+          <Text size="a" href="https://docs.lagon.app">
             Documentation
           </Text>
-          <Text size="a" href="#">
+          <Text size="a" href="/pricing">
             Pricing
           </Text>
         </FooterSection>
@@ -51,7 +51,7 @@ export const Footer = () => {
           <Text size="a" href="https://twitter.com/lagonapp" target="_blank">
             Twitter
           </Text>
-          <Text size="a" href="https://discord.lagon/app" target="_blank">
+          <Text size="a" href="https://discord.lagon.app" target="_blank">
             Discord
           </Text>
         </FooterSection>

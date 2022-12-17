@@ -17,9 +17,9 @@ export const CardsSection = () => {
           </div>
         </div>
         <Text size="h3">Trigger via HTTP or CRON</Text>
-        <Text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque sit varius in ut sit varius rhoncus. Purus
-          viverra at faucibus donec placerat amet, tempus.
+        <Text className="justify-self-end">
+          All Functions have an HTTP endpoint by default, and you can also configure a CRON expression to automatically
+          trigger your Function at the given interval.
         </Text>
       </Card>
       <Card lineAnimation className="flex flex-col gap-4 p-12 rounded-2xl">
@@ -28,10 +28,10 @@ export const CardsSection = () => {
             <RollbackIcon />
           </div>
         </div>
-        <Text size="h3">Rollback to any deployment in seconds</Text>
+        <Text size="h3">Rollback in seconds</Text>
         <Text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque sit varius in ut sit varius rhoncus. Purus
-          viverra at faucibus donec placerat amet, tempus.
+          You can promote any previous Preview deployment to Production with a single click. The rollback is propagated
+          globally in a few seconds.
         </Text>
       </Card>
       <Card lineAnimation className="flex flex-col gap-4 p-12 rounded-2xl">
@@ -40,10 +40,10 @@ export const CardsSection = () => {
             <StatsIcon />
           </div>
         </div>
-        <Text size="h3">Statistics and real-time logs</Text>
+        <Text size="h3">Analytics and logs</Text>
         <Text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque sit varius in ut sit varius rhoncus. Purus
-          viverra at faucibus donec placerat amet, tempus.
+          View detailed analytics with requests, CPU/memory, and HTTP traffic graphs. Debug your Functions with
+          real-time logs.
         </Text>
       </Card>
       <Card lineAnimation className="flex flex-col gap-4 p-12 rounded-2xl">
@@ -52,10 +52,10 @@ export const CardsSection = () => {
             <APIsIcon />
           </div>
         </div>
-        <Text size="h3">Use the Web APIs you know</Text>
+        <Text size="h3">Build on Web APIs</Text>
         <Text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque sit varius in ut sit varius rhoncus. Purus
-          viverra at faucibus donec placerat amet, tempus.
+          No need to learn new things - we use the same Web APIs you already know like Request and Response, so you can
+          build faster with no vendor lock-in.
         </Text>
       </Card>
       <Card lineAnimation className="flex flex-col gap-4 p-12 rounded-2xl">
@@ -64,10 +64,10 @@ export const CardsSection = () => {
             <DollarIcon />
           </div>
         </div>
-        <Text size="h3">Pay only for what you use</Text>
+        <Text size="h3">Only pay for what you use</Text>
         <Text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque sit varius in ut sit varius rhoncus. Purus
-          viverra at faucibus donec placerat amet, tempus.
+          Get a generous free tier, and then only pay for the number of requests your Functions receive. No need to
+          worry about scaling.
         </Text>
       </Card>
       <Card lineAnimation className="flex flex-col gap-4 p-12 rounded-2xl">
@@ -78,8 +78,8 @@ export const CardsSection = () => {
         </div>
         <Text size="h3">We love Open Source</Text>
         <Text>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Neque sit varius in ut sit varius rhoncus. Purus
-          viverra at faucibus donec placerat amet, tempus.
+          Lagon is fully open-source and built in the open, focusing on the community. Use our Cloud platform, or
+          self-host it yourself.
         </Text>
       </Card>
     </section>

@@ -28,13 +28,14 @@ type ButtonProps = {
   onClick?: MouseEventHandler;
   className?: string;
   href?: string;
+  scroll?: boolean;
   children: ReactNode;
 } & VariantProps<typeof style>;
 
-export const Button = ({ leftIcon, rightIcon, onClick, className, href, children, ...props }: ButtonProps) => {
+export const Button = ({ leftIcon, rightIcon, onClick, className, href, scroll, children, ...props }: ButtonProps) => {
   if (href) {
     return (
-      <Link onClick={onClick} className={style({ ...props, className })} href={href}>
+      <Link onClick={onClick} className={style({ ...props, className })} href={href} scroll={scroll}>
         {leftIcon}
         {children}
         {rightIcon}

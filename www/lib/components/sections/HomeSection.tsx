@@ -31,10 +31,10 @@ export const HomeSection = () => {
         </Text>
       </div>
       <div className="flex gap-4">
-        <Button variant="primary" size="lg">
+        <Button variant="primary" size="lg" href="https://dash.lagon.app">
           Deploy now!
         </Button>
-        <Button variant="secondary" size="lg">
+        <Button variant="secondary" size="lg" href="#features" scroll={false}>
           Discover
         </Button>
       </div>

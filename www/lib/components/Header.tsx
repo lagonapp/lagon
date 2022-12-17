@@ -11,17 +11,14 @@ export const Header = () => {
         <Image src="/logo-small-white.png" width="80" height="24" alt="Lagon Logo" />
       </Link>
       <div className="flex gap-12">
-        <Text size="a" href="/features">
+        <Text size="a" href="/#features" scroll={false}>
           Features
         </Text>
         <Text size="a" href="https://docs.lagon.app">
-          Docs
+          Documentation
         </Text>
         <Text size="a" href="/pricing">
           Pricing
-        </Text>
-        <Text size="a" href="/community">
-          Community
         </Text>
       </div>
       <div className="flex gap-4">

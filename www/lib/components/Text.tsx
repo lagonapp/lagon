@@ -31,12 +31,13 @@ type TextProps = {
   href?: string;
   target?: HTMLAttributeAnchorTarget;
   className?: string;
+  scroll?: boolean;
 } & VariantProps<typeof style>;
 
-export const Text = ({ size: Tag = 'p', href, target, children, className, ...props }: TextProps) => {
+export const Text = ({ size: Tag = 'p', href, target, children, className, scroll, ...props }: TextProps) => {
   if (Tag === 'a') {
     return (
-      <Link href={href || ''} target={target} className={style({ size: Tag, className, ...props })}>
+      <Link href={href || ''} target={target} className={style({ size: Tag, className, ...props })} scroll={scroll}>
         {children}
       </Link>
     );
