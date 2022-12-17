@@ -21,7 +21,7 @@
     "@lagon/ui": "workspace:*",
     "@monaco-editor/react": "^4.4.5",
     "@next-auth/prisma-adapter": "^1.0.3",
-    "@prisma/client": "^4.0.0",
+    "@prisma/client": "4.7.1",
     "@radix-ui/react-alert-dialog": "^1.0.0",
     "@radix-ui/react-tabs": "^1.0.0",
     "@scaleway/use-random-name": "^0.2.3",
@@ -33,7 +33,6 @@
     "@trpc/server": "10.4.3",
     "chart.js": "^4.0.0",
     "final-form": "^4.20.7",
-    "formidable": "^2.0.1",
     "monaco-editor": "^0.34.0",
     "next": "13.0.6",
     "next-auth": "^4.12.2",
@@ -48,7 +47,6 @@
     "zod": "^3.17.3"
   },
   "devDependencies": {
-    "@types/formidable": "^2.0.5",
     "@types/react": "^18.0.9",
     "autoprefixer": "^10.4.7",
     "eslint": "^8.16.0",
@@ -56,7 +54,7 @@
     "eslint-plugin-storybook": "^0.6.0",
     "next-transpile-modules": "^10.0.0",
     "postcss": "^8.4.14",
-    "prisma": "^4.0.0",
+    "prisma": "4.7.1",
     "tailwindcss": "^3.0.24",
     "typescript": "^4.6.4"
   }
