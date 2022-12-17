@@ -10,6 +10,7 @@ type Plan = {
   gradientTo: string;
   price: string;
   cta: string;
+  href: string;
   features: string[];
 };
 
@@ -20,6 +21,7 @@ const PLANS: Plan[] = [
     gradientTo: 'to-blue-1',
     price: 'Free',
     cta: 'Get started',
+    href: 'https://dash.lagon.app',
     features: [
       '3,000,000 free requests/month',
       `${REGIONS} regions`,
@@ -36,6 +38,7 @@ const PLANS: Plan[] = [
     gradientTo: 'to-blue-2',
     price: '$10/month',
     cta: 'Get started',
+    href: 'https://dash.lagon.app',
     features: [
       '5,000,000 free requests/month',
       '$1/million additional requests',
@@ -49,6 +52,7 @@ const PLANS: Plan[] = [
     gradientTo: 'to-blue-1',
     price: 'Contact us',
     cta: 'Contact us',
+    href: 'mailto:contact@lagon.app',
     features: [
       'Unlimited requests/month',
       'On-demand regions',
@@ -85,7 +89,7 @@ const Pricing = () => {
                 ))}
               </div>
             </div>
-            <Button variant="primary" size="lg" className="justify-self-end justify-center">
+            <Button variant="primary" size="lg" className="justify-self-end justify-center" href={plan.href}>
               {plan.cta}
             </Button>
           </Card>
@@ -256,13 +260,19 @@ const Pricing = () => {
           <tr>
             <td></td>
             <td>
-              <Button variant="primary">Get started</Button>
+              <Button variant="primary" href="https://dash.lagon.app" className="w-48">
+                Get started
+              </Button>
             </td>
             <td>
-              <Button variant="primary">Get started</Button>
+              <Button variant="primary" href="https://dash.lagon.app" className="w-48">
+                Get started
+              </Button>
             </td>
             <td>
-              <Button variant="primary">Contact us</Button>
+              <Button variant="primary" href="mailto:contact@lagon.app" className="w-48">
+                Contact us
+              </Button>
             </td>
           </tr>
         </tbody>
