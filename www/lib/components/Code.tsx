@@ -17,7 +17,7 @@ export const FunctionCode = ({ children }: CodeProps) => {
     setIsLoading(true);
 
     const now = Date.now();
-    const response = await fetch('https://welcome.lagon.app');
+    const response = await fetch('https://whatismyip.lagon.app');
     const text = await response.text();
     const time = Date.now() - now;
 

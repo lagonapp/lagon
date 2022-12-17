@@ -55,6 +55,26 @@ export const ALL_REGIONS: Region[] = [
     top: 167,
     left: 152,
   },
+  {
+    name: '🇯🇵 Tokyo',
+    top: 212,
+    left: 1024,
+  },
+  {
+    name: '🇮🇳 Mumbai',
+    top: 283,
+    left: 812,
+  },
+  {
+    name: '🇧🇷 São Paulo',
+    top: 434,
+    left: 405,
+  },
+  {
+    name: '🇿🇦 Johannesburg',
+    top: 446,
+    left: 658,
+  },
 ];
 
 export const REGIONS = ALL_REGIONS.length;
