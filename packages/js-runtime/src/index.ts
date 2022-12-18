@@ -9,6 +9,7 @@ import './runtime/blob';
 import './runtime/global/console';
 import './runtime/global/process';
 import './runtime/global/crypto';
+import './runtime/global/navigator';
 import './runtime/http/URLSearchParams';
 import './runtime/http/URL';
 import './runtime/http/Headers';
