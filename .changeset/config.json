@@ -1,8 +1,18 @@
 {
   "$schema": "https://unpkg.com/@changesets/config@2.0.1/schema.json",
-  "changelog": ["@changesets/changelog-github", { "repo": "lagonapp/lagon" }],
+  "changelog": [
+    "@changesets/changelog-github",
+    {
+      "repo": "lagonapp/lagon"
+    }
+  ],
   "commit": false,
-  "fixed": [],
+  "fixed": [
+    [
+      "@lagon/runtime",
+      "@lagon/js-runtime"
+    ]
+  ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",

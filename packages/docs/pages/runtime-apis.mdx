@@ -32,7 +32,7 @@ You can log multiple objects, and use string substitution. [See the documentatio
 
 ### `process`
 
-The only usage of `process` is to get [environment variables](/cloud/environment-variables) via `process.env`.
+The only usage of `process` is to access [environment variables](/cloud/environment-variables) via `process.env`.
 
 Example:
 
@@ -41,6 +41,12 @@ export function handler(request: Request): Response {
   return new Response(`My secret is: ${process.env.SECRET}`);
 }
 ```
+
+---
+
+### `navigator.userAgent`
+
+`navigator.userAgent` is a fixed string that can be used to detect the current runtime. Its value is always `Lagon/VERSION`, where `VERSION` is the current version of the Lagon Runtime.
 
 ---
 
