@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import prisma from 'lib/prisma';
 import { TIMEFRAMES } from 'lib/types';
-import { getDeploymentCode, removeFunction, updateDomains } from 'lib/api/deployments';
+import { getDeploymentCode, removeFunction, redeploy } from 'lib/api/deployments';
 import {
   CUSTOM_DOMAINS_PER_FUNCTION,
   ENVIRONMENT_VARIABLES_PER_FUNCTION,
@@ -377,22 +377,24 @@ export const functionsRouter = (t: T) =>
           });
         }
 
-        const currentDomains = func.domains.map(({ domain }) => domain);
-        const newDomains = input.domains;
+        const oldDomains = func.domains.map(({ domain }) => domain);
+        const deployment = func.deployments.find(deployment => deployment.isProduction);
 
-        if (newDomains && currentDomains !== newDomains) {
-          const deployment = func.deployments.find(deployment => deployment.isProduction)!;
-
-          await updateDomains(
+        if (deployment) {
+          await redeploy(
             {
               ...func,
-              domains: newDomains,
+              name: input.name || func.name,
+              env: input.env || func.env,
+              cron: input.cron !== undefined ? input.cron : func.cron,
+              cronRegion: input.cronRegion || func.cronRegion,
+              domains: input.domains || oldDomains,
             },
             {
               ...deployment,
               assets: deployment.assets.map(({ name }) => name),
             },
-            currentDomains,
+            oldDomains,
           );
         }
 

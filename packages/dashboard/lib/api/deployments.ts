@@ -241,7 +241,7 @@ export async function promoteProductionDeployment(functionId: string, newDeploym
   );
 }
 
-export async function updateDomains(
+export async function redeploy(
   func: {
     id: string;
     name: string;
