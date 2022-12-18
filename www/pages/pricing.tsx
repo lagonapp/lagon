@@ -25,7 +25,7 @@ const PLANS: Plan[] = [
     features: [
       '3,000,000 free requests/month',
       `${REGIONS} regions`,
-      '50ms/request',
+      '10ms/request',
       'Preview deployments',
       'Automatic HTTPS',
       'Custom domains',
@@ -42,6 +42,7 @@ const PLANS: Plan[] = [
     features: [
       '5,000,000 free requests/month',
       '$1/million additional requests',
+      '50ms/request',
       '10 Organization members',
       'Everything in Personal',
     ],
