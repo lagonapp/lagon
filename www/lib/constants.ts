@@ -41,7 +41,7 @@ export const ALL_REGIONS: Region[] = [
     left: 1065,
   },
   {
-    name: '🇨🇦 Montreal',
+    name: '🇨🇦 Beauharnois',
     top: 166,
     left: 306,
   },
