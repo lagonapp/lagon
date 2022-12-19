@@ -192,32 +192,34 @@ async fn handle_request(
                             .with_startup_timeout(deployment.startup_timeout)
                             .with_metadata(Some((deployment.id.clone(), deployment.function_id.clone())))
                             .with_on_drop_callback(Box::new(|metadata| {
-                                let metadata = metadata.unwrap();
+                                if let Some(metadata) = metadata.as_ref().as_ref() {
 
-                                let labels = [
-                                    ("deployment", metadata.0.clone()),
-                                    ("function", metadata.1.clone()),
-                                    ("region", REGION.clone()),
-                                ];
 
-                                decrement_gauge!("lagon_isolates", 1.0, &labels);
-                                info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
+                                    let labels = [
+                                        ("deployment", metadata.0.clone()),
+                                        ("function", metadata.1.clone()),
+                                        ("region", REGION.clone()),
+                                    ];
+
+                                    decrement_gauge!("lagon_isolates", 1.0, &labels);
+                                    info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
+                                }
                             }))
                             .with_on_statistics_callback(Box::new(|metadata, statistics| {
-                                let metadata = metadata.unwrap();
+                                if let Some(metadata) = metadata.as_ref().as_ref() {
+                                    let labels = [
+                                        ("deployment", metadata.0.clone()),
+                                        ("function", metadata.1.clone()),
+                                        ("region", REGION.clone()),
+                                    ];
 
-                                let labels = [
-                                    ("deployment", metadata.0),
-                                    ("function", metadata.1),
-                                    ("region", REGION.clone()),
-                                ];
-
-                                histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
-                                histogram!(
-                                    "lagon_isolate_memory_usage",
-                                    statistics.memory_usage as f64,
-                                    &labels
-                                );
+                                    histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
+                                    histogram!(
+                                        "lagon_isolate_memory_usage",
+                                        statistics.memory_usage as f64,
+                                        &labels
+                                    );
+                                }
                             }));
 
                         Isolate::new(options)

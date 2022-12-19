@@ -71,7 +71,7 @@ struct IsolateState {
     js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
     handler_result: Option<v8::Global<v8::Promise>>,
     stream_sender: flume::Sender<StreamResult>,
-    metadata: Metadata,
+    metadata: Rc<Metadata>,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -81,8 +81,8 @@ pub struct IsolateStatistics {
 }
 
 pub type Metadata = Option<(String, String)>;
-type OnIsolateDropCallback = Box<dyn Fn(Metadata)>;
-type OnIsolateStatisticsCallback = Box<dyn Fn(Metadata, IsolateStatistics)>;
+type OnIsolateDropCallback = Box<dyn Fn(Rc<Metadata>)>;
+type OnIsolateStatisticsCallback = Box<dyn Fn(Rc<Metadata>, IsolateStatistics)>;
 
 pub struct IsolateOptions {
     pub code: String,
@@ -90,7 +90,7 @@ pub struct IsolateOptions {
     pub memory: usize,          // in MB (MegaBytes)
     pub timeout: usize,         // in ms (MilliSeconds)
     pub startup_timeout: usize, // is ms (MilliSeconds)
-    pub metadata: Metadata,
+    pub metadata: Rc<Metadata>,
     pub on_drop: Option<OnIsolateDropCallback>,
     pub on_statistics: Option<OnIsolateStatisticsCallback>,
     // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
@@ -104,7 +104,7 @@ impl IsolateOptions {
             timeout: 50,
             startup_timeout: 200,
             memory: 128,
-            metadata: None,
+            metadata: Rc::new(None),
             on_drop: None,
             on_statistics: None,
             // snapshot_blob: None,
@@ -135,7 +135,7 @@ impl IsolateOptions {
     }
 
     pub fn with_metadata(mut self, metadata: Metadata) -> Self {
-        self.metadata = metadata;
+        self.metadata = Rc::new(metadata);
         self
     }
 
@@ -210,7 +210,7 @@ impl Isolate {
                 js_promises: HashMap::new(),
                 handler_result: None,
                 stream_sender,
-                metadata: options.metadata.clone(),
+                metadata: Rc::clone(&options.metadata),
             }
         };
 
@@ -236,8 +236,8 @@ impl Isolate {
         this
     }
 
-    pub fn get_metadata(&self) -> Metadata {
-        self.options.metadata.clone()
+    pub fn get_metadata(&self) -> Rc<Metadata> {
+        Rc::clone(&self.options.metadata)
     }
 
     fn heap_limit_reached(&mut self) {
@@ -615,7 +615,7 @@ impl Isolate {
                 memory_usage: heap_statistics.used_heap_size(),
             };
 
-            on_isolate_statistics(self.options.metadata.clone(), statistics);
+            on_isolate_statistics(Rc::clone(&self.options.metadata), statistics);
         }
     }
 }
@@ -627,7 +627,7 @@ impl Drop for Isolate {
         }
 
         if let Some(on_drop) = &self.options.on_drop {
-            on_drop(self.options.metadata.clone());
+            on_drop(Rc::clone(&self.options.metadata));
         }
     }
 }
