@@ -51,11 +51,11 @@ pub fn run_cache_clear_task(last_requests: Arc<RwLock<HashMap<String, Instant>>>
                     last_requests.remove(&hostname);
 
                     if let Some(isolate) = isolates.remove(&hostname) {
-                        let (deployment, ..) = isolate
-                            .get_metadata()
-                            .unwrap_or_else(|| ("Unknown".to_owned(), "".to_owned()));
+                        let metadata = isolate.get_metadata();
 
-                        info!(deployment = deployment; "Clearing deployment from cache due to expiration");
+                        if let Some((deployment, ..)) = metadata.as_ref() {
+                            info!(deployment = deployment; "Clearing deployment from cache due to expiration");
+                        }
                     }
                 }
             }

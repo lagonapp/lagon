@@ -14,7 +14,7 @@ pub fn console_binding(
     let state = Isolate::state(scope);
     let state = state.borrow();
 
-    if let Some((deployment, function)) = &state.metadata {
+    if let Some((deployment, function)) = &state.metadata.as_ref() {
         let deployment = deployment.as_str();
         let function = function.as_str();
 
