@@ -43,7 +43,7 @@
     "tsup": "^6.0.1",
     "turbo": "^1.5.2",
     "typescript": "^4.6.4",
-    "vite-tsconfig-paths": "^3.5.0",
+    "vite-tsconfig-paths": "^4.0.0",
     "vitest": "^0.25.0"
   }
 }
