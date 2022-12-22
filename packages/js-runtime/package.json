@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "abortcontroller-polyfill": "^1.7.5",
-    "blob-polyfill": "^7.0.20220408",
     "web-streams-polyfill": "^3.2.1"
   }
 }

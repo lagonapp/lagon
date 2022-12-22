@@ -54,7 +54,7 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-const SKIP_TESTS: [&str; 15] = [
+const SKIP_TESTS: [&str; 17] = [
     // request
     "request-cache-default-conditional.any.js",
     "request-cache-no-cache.any.js",
@@ -73,6 +73,9 @@ const SKIP_TESTS: [&str; 15] = [
     "unsupported-encodings.any.js",
     "api-invalid-label.any.js",
     "replacement-encodings.any.js",
+    // blob
+    "Blob-slice.any.js",
+    "Blob-constructor.any.js",
 ];
 
 async fn run_test(path: &Path) {
@@ -152,6 +155,7 @@ async fn main() {
         // Enable when CompressionStream/DecompressionStream are implemented
         // test_directory(Path::new("../../tools/wpt/compression")).await;
         test_directory(Path::new("../../tools/wpt/encoding")).await;
+        test_directory(Path::new("../../tools/wpt/FileAPI/blob")).await;
     }
 
     let result = RESULT.lock().unwrap();
