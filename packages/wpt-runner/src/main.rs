@@ -12,6 +12,7 @@ use lagon_runtime::{
 };
 
 const ENCODING_TABLE: &str = include_str!("../../../tools/wpt/encoding/resources/encodings.js");
+const SUPPORT_BLOB: &str = include_str!("../../../tools/wpt/FileAPI/support/Blob.js");
 
 lazy_static! {
     static ref RESULT: Mutex<(usize, usize, usize)> = Mutex::new((0, 0, 0));
@@ -54,7 +55,7 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-const SKIP_TESTS: [&str; 17] = [
+const SKIP_TESTS: [&str; 15] = [
     // request
     "request-cache-default-conditional.any.js",
     "request-cache-no-cache.any.js",
@@ -73,9 +74,6 @@ const SKIP_TESTS: [&str; 17] = [
     "unsupported-encodings.any.js",
     "api-invalid-label.any.js",
     "replacement-encodings.any.js",
-    // blob
-    "Blob-slice.any.js",
-    "Blob-constructor.any.js",
 ];
 
 async fn run_test(path: &Path) {
@@ -104,10 +102,11 @@ async fn run_test(path: &Path) {
 export function handler() {{
     {}
     {ENCODING_TABLE}
+    {SUPPORT_BLOB}
     {code}
     return new Response()
 }}",
-        TEST_HARNESS.as_str()
+        TEST_HARNESS.as_str(),
     )
     .replace("self.", "globalThis.");
 
@@ -134,7 +133,7 @@ async fn test_directory(path: &Path) {
 
 #[tokio::main]
 async fn main() {
-    let runtime = Runtime::new(RuntimeOptions::default());
+    let runtime = Runtime::new(RuntimeOptions::default().with_expose_gc(true));
     init_logger().expect("Failed to initialize logger");
 
     if let Some(path) = env::args().nth(1) {
