@@ -19,6 +19,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Mutex;
+use tokio_util::task::LocalPoolHandle;
 
 use crate::utils::{
     bundle_function, info, input, success, validate_code_file, validate_public_dir, warn, Assets,
@@ -77,6 +78,7 @@ async fn handle_request(
     ip: String,
     content: Arc<Mutex<(Vec<u8>, Assets)>>,
     environment_variables: HashMap<String, String>,
+    pool: LocalPoolHandle,
 ) -> Result<HyperResponse<Body>> {
     let mut url = req.uri().to_string();
 
@@ -129,13 +131,20 @@ async fn handle_request(
             Ok(mut request) => {
                 request.add_header("X-Forwarded-For".into(), ip);
 
-                let mut isolate = Isolate::new(
-                    IsolateOptions::new(String::from_utf8(index)?)
-                        .with_metadata(Some((String::from(""), String::from(""))))
-                        .with_environment_variables(environment_variables),
-                );
+                pool.spawn_pinned_by_idx(
+                    move || async move {
+                        let mut isolate = Isolate::new(
+                            IsolateOptions::new(
+                                String::from_utf8(index).expect("Code is not UTF-8"),
+                            )
+                            .with_metadata(Some((String::from(""), String::from(""))))
+                            .with_environment_variables(environment_variables),
+                        );
 
-                isolate.run(request, tx).await;
+                        isolate.run(request, tx).await;
+                    },
+                    0,
+                );
             }
             Err(error) => {
                 println!("Error while parsing request: {}", error);
@@ -236,10 +245,12 @@ pub async fn dev(
 
     let server_content = content.clone();
     let environment_variables = parse_environment_variables(env)?;
+    let pool = LocalPoolHandle::new(1);
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let content = server_content.clone();
         let environment_variables = environment_variables.clone();
+        let pool = pool.clone();
 
         let addr = conn.remote_addr();
         let ip = addr.ip().to_string();
@@ -251,6 +262,7 @@ pub async fn dev(
                     ip.clone(),
                     content.clone(),
                     environment_variables.clone(),
+                    pool.clone(),
                 )
             }))
         }
