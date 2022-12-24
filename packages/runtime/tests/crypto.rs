@@ -181,13 +181,13 @@ async fn crypto_verify() {
 }
 
 #[tokio::test(flavor = "multi_thread")]
-async fn crypto_digest_string() {
+async fn crypto_digest_sha1() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
-    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('hello, world'));
+    const digest = await crypto.subtle.digest('SHA-1', new TextEncoder().encode('hello, world'));
 
-    return new Response(digest.length);
+    return new Response(`${digest.length} ${digest}`);
 }"
         .into(),
     ));
@@ -196,7 +196,29 @@ async fn crypto_digest_string() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("32"))
+        RunResult::Response(Response::from(
+            "20 183,226,62,194,154,242,43,11,78,65,218,49,232,104,213,114,38,18,28,132"
+        ))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn crypto_digest_string() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
+    const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('hello, world'));
+
+    return new Response(`${digest.length} ${digest}`);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("32 9,202,126,78,170,110,138,233,199,210,97,22,113,41,24,72,131,100,77,7,223,186,124,191,188,76,138,46,8,54,13,91"))
     );
 }
 
@@ -207,7 +229,7 @@ async fn crypto_digest_object() {
         "export async function handler() {
     const digest = await crypto.subtle.digest({ name: 'SHA-256' }, new TextEncoder().encode('hello, world'));
 
-    return new Response(digest.length);
+    return new Response(`${digest.length} ${digest}`);
 }"
         .into(),
     ));
@@ -216,7 +238,7 @@ async fn crypto_digest_object() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("32"))
+        RunResult::Response(Response::from("32 9,202,126,78,170,110,138,233,199,210,97,22,113,41,24,72,131,100,77,7,223,186,124,191,188,76,138,46,8,54,13,91"))
     );
 }
 

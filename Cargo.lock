@@ -1386,6 +1386,7 @@ dependencies = [
  "lazy_static",
  "log",
  "rand",
+ "sha1",
  "sha2",
  "tokio",
  "tokio-util",
