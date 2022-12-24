@@ -1,5 +1,13 @@
 # @lagon/cli
 
+## 0.4.3
+
+### Patch Changes
+
+- [#390](https://github.com/lagonapp/lagon/pull/390) [`6c2f557`](https://github.com/lagonapp/lagon/commit/6c2f5577b1997f3b9c46fbfeb7cbedd93a1cb92e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Implement limits
+
+* [#406](https://github.com/lagonapp/lagon/pull/406) [`7e0738a`](https://github.com/lagonapp/lagon/commit/7e0738a2a610f0047ac4a78a899411b2bc7068ee) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix random segfault with `lagon dev`
+
 ## 0.4.2
 
 ### Patch Changes

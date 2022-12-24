@@ -1,5 +1,23 @@
 # @lagon/dashboard
 
+## 0.1.0
+
+### Minor Changes
+
+- [#395](https://github.com/lagonapp/lagon/pull/395) [`18aaee0`](https://github.com/lagonapp/lagon/commit/18aaee062886b768541f045c5f958024446f9018) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Redeploy the production deployment when a settings is updated
+
+### Patch Changes
+
+- [#376](https://github.com/lagonapp/lagon/pull/376) [`2575f90`](https://github.com/lagonapp/lagon/commit/2575f90f6998f235e7e3e85c1dc7a1f51d31259b) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix create function button and playground deployments
+
+* [#390](https://github.com/lagonapp/lagon/pull/390) [`6c2f557`](https://github.com/lagonapp/lagon/commit/6c2f5577b1997f3b9c46fbfeb7cbedd93a1cb92e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Implement limits
+
+- [#394](https://github.com/lagonapp/lagon/pull/394) [`1c01e67`](https://github.com/lagonapp/lagon/commit/1c01e678ca4b8eea2037dbc4541fbbb1761a66b3) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add indexes to Prisma schema
+
+* [#376](https://github.com/lagonapp/lagon/pull/376) [`2575f90`](https://github.com/lagonapp/lagon/commit/2575f90f6998f235e7e3e85c1dc7a1f51d31259b) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Updating a function will only update the given fields instead of all fields
+
+- [#376](https://github.com/lagonapp/lagon/pull/376) [`2575f90`](https://github.com/lagonapp/lagon/commit/2575f90f6998f235e7e3e85c1dc7a1f51d31259b) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Don't allow creating/updating functions with a non-unique name
+
 ## 0.0.10
 
 ### Patch Changes

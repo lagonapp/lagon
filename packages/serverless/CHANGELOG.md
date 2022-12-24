@@ -1,5 +1,17 @@
 # @lagon/serverless
 
+## 0.1.13
+
+### Patch Changes
+
+- [#389](https://github.com/lagonapp/lagon/pull/389) [`5ec41ee`](https://github.com/lagonapp/lagon/commit/5ec41ee203bba86cb66d9486ffcde9fd2f28e361) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add metrics for errors/timeouts/memory limits
+
+* [#397](https://github.com/lagonapp/lagon/pull/397) [`ab4e2ac`](https://github.com/lagonapp/lagon/commit/ab4e2ac7e1882497a57ed68e54ce972826c98acf) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use an Rc for isolates metadata instead of cloning
+
+- [#379](https://github.com/lagonapp/lagon/pull/379) [`d48f00c`](https://github.com/lagonapp/lagon/commit/d48f00c3e042f6ec66cfba9ff7b2dafa418fcc84) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Forward X-Real-Ip header to X-Forwarded-For
+
+* [#379](https://github.com/lagonapp/lagon/pull/379) [`d48f00c`](https://github.com/lagonapp/lagon/commit/d48f00c3e042f6ec66cfba9ff7b2dafa418fcc84) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Forward X-Lagon-Region header
+
 ## 0.1.12
 
 ### Patch Changes

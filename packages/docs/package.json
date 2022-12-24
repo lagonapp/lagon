@@ -1,6 +1,6 @@
 {
   "name": "@lagon/docs",
-  "version": "0.0.6",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
