@@ -12,6 +12,7 @@ use lagon_runtime::{
 };
 
 const ENCODING_TABLE: &str = include_str!("../../../tools/wpt/encoding/resources/encodings.js");
+const SUPPORT_BLOB: &str = include_str!("../../../tools/wpt/FileAPI/support/Blob.js");
 
 lazy_static! {
     static ref RESULT: Mutex<(usize, usize, usize)> = Mutex::new((0, 0, 0));
@@ -101,10 +102,11 @@ async fn run_test(path: &Path) {
 export function handler() {{
     {}
     {ENCODING_TABLE}
+    {SUPPORT_BLOB}
     {code}
     return new Response()
 }}",
-        TEST_HARNESS.as_str()
+        TEST_HARNESS.as_str(),
     )
     .replace("self.", "globalThis.");
 
@@ -131,7 +133,7 @@ async fn test_directory(path: &Path) {
 
 #[tokio::main]
 async fn main() {
-    let runtime = Runtime::new(RuntimeOptions::default());
+    let runtime = Runtime::new(RuntimeOptions::default().with_expose_gc(true));
     init_logger().expect("Failed to initialize logger");
 
     if let Some(path) = env::args().nth(1) {
@@ -152,6 +154,7 @@ async fn main() {
         // Enable when CompressionStream/DecompressionStream are implemented
         // test_directory(Path::new("../../tools/wpt/compression")).await;
         test_directory(Path::new("../../tools/wpt/encoding")).await;
+        test_directory(Path::new("../../tools/wpt/FileAPI/blob")).await;
     }
 
     let result = RESULT.lock().unwrap();

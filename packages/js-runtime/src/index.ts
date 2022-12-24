@@ -6,6 +6,7 @@ import './runtime/core';
 import './runtime/streams';
 import './runtime/abort';
 import './runtime/blob';
+import './runtime/file';
 import './runtime/global/console';
 import './runtime/global/process';
 import './runtime/global/crypto';
@@ -68,6 +69,10 @@ declare global {
 
   interface Response {
     readonly isStream: boolean;
+  }
+
+  interface Blob {
+    readonly buffer: Uint8Array;
   }
 }
 
