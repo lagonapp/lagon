@@ -1,4 +1,5 @@
 use anyhow::Result;
+use sha1::Sha1;
 use sha2::{Digest, Sha256, Sha384, Sha512};
 
 use crate::{
@@ -24,6 +25,11 @@ pub async fn digest_binding(id: usize, arg: Arg) -> BindingResult {
     let data = arg.1;
 
     let result = match name.as_str() {
+        "SHA-1" => {
+            let mut hasher = Sha1::new();
+            hasher.update(data);
+            hasher.finalize().to_vec()
+        }
         "SHA-256" => {
             let mut hasher = Sha256::new();
             hasher.update(data);
