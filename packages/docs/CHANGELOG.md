@@ -1,5 +1,21 @@
 # @lagon/docs
 
+## 0.1.0
+
+### Minor Changes
+
+- [#403](https://github.com/lagonapp/lagon/pull/403) [`5e2ca1b`](https://github.com/lagonapp/lagon/commit/5e2ca1b23fe34e299b9b0f090238538732a68ace) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Blob and File APIs
+
+* [#396](https://github.com/lagonapp/lagon/pull/396) [`f538576`](https://github.com/lagonapp/lagon/commit/f538576ee86179e8a53c03dd19e740ff9252f992) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `navigator.userAgent` API
+
+### Patch Changes
+
+- [#374](https://github.com/lagonapp/lagon/pull/374) [`fa2d2a8`](https://github.com/lagonapp/lagon/commit/fa2d2a8b66df18460d7d71b4101d730ff8cc8768) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix position of `lagon link` section
+
+* [#390](https://github.com/lagonapp/lagon/pull/390) [`6c2f557`](https://github.com/lagonapp/lagon/commit/6c2f5577b1997f3b9c46fbfeb7cbedd93a1cb92e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add limits page
+
+- [#405](https://github.com/lagonapp/lagon/pull/405) [`4b59eff`](https://github.com/lagonapp/lagon/commit/4b59effdb9e32a73cf3b98a8945883ac38c33bd2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add SHA-1 to CryptoSubtle#digest
+
 ## 0.0.6
 
 ### Patch Changes

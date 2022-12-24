@@ -1,5 +1,15 @@
 # @lagon/runtime
 
+## 0.2.0
+
+### Patch Changes
+
+- [#381](https://github.com/lagonapp/lagon/pull/381) [`4f7c6ab`](https://github.com/lagonapp/lagon/commit/4f7c6ab08cec7a650b0310f58cfd8f79e89e5244) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Avoid creating a new HTTP(S) client on each `fetch` call
+
+* [#397](https://github.com/lagonapp/lagon/pull/397) [`ab4e2ac`](https://github.com/lagonapp/lagon/commit/ab4e2ac7e1882497a57ed68e54ce972826c98acf) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use an Rc for isolates metadata instead of cloning
+
+- [#405](https://github.com/lagonapp/lagon/pull/405) [`4b59eff`](https://github.com/lagonapp/lagon/commit/4b59effdb9e32a73cf3b98a8945883ac38c33bd2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add SHA-1 to CryptoSubtle#digest
+
 ## 0.1.10
 
 ### Patch Changes

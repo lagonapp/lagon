@@ -1,5 +1,17 @@
 # @lagon/js-runtime
 
+## 0.2.0
+
+### Minor Changes
+
+- [#403](https://github.com/lagonapp/lagon/pull/403) [`5e2ca1b`](https://github.com/lagonapp/lagon/commit/5e2ca1b23fe34e299b9b0f090238538732a68ace) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Blob and File APIs
+
+* [#396](https://github.com/lagonapp/lagon/pull/396) [`f538576`](https://github.com/lagonapp/lagon/commit/f538576ee86179e8a53c03dd19e740ff9252f992) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `navigator.userAgent` API
+
+### Patch Changes
+
+- [#253](https://github.com/lagonapp/lagon/pull/253) [`683e635`](https://github.com/lagonapp/lagon/commit/683e635f3037f1d1f01439f762d3acd494b27c64) Thanks [@cyco130](https://github.com/cyco130)! - Bring URL class closer to the standard
+
 ## 0.1.8
 
 ### Patch Changes
