@@ -1,3 +1,5 @@
+use aes::{cipher::typenum::U16, Aes256};
+use aes_gcm::AesGcm;
 use anyhow::{anyhow, Result};
 use hmac::Hmac;
 use sha2::{Sha256, Sha384, Sha512};
@@ -7,6 +9,7 @@ use crate::utils::{extract_v8_string, extract_v8_uint8array, v8_string};
 pub type HmacSha256 = Hmac<Sha256>;
 pub type HmacSha384 = Hmac<Sha384>;
 pub type HmacSha512 = Hmac<Sha512>;
+pub type Aes256Gcm = AesGcm<Aes256, U16>;
 
 pub enum Sha {
     Sha256,
