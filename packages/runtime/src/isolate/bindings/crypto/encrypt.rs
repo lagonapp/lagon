@@ -1,9 +1,9 @@
 use crate::{
-    crypto::{extract_algorithm_object, extract_cryptokey_key_value, Algorithm},
+    crypto::{extract_algorithm_object, extract_cryptokey_key_value, Aes256Gcm, Algorithm},
     isolate::bindings::{BindingResult, PromiseResult},
     utils::extract_v8_uint8array,
 };
-use aes_gcm::{aead::Aead, Aes256Gcm};
+use aes_gcm::aead::Aead;
 use aes_gcm::{KeyInit, Nonce};
 use anyhow::Result;
 

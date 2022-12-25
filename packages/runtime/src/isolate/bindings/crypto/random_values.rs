@@ -15,7 +15,6 @@ pub fn random_values_binding(
         buf[i] = rand::random();
     }
 
-    dbg!(&buf);
     let result = v8_uint8array(scope, buf);
 
     retval.set(result.into());
