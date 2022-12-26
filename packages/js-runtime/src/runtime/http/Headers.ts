@@ -7,32 +7,32 @@
         throw new TypeError('HeadersInit must not be null');
       }
 
-      //   if (init) {
-      //     if (Array.isArray(init)) {
-      //       init.forEach(entry => {
-      //         if (entry.length !== 2) {
-      //           throw new TypeError('HeadersInit must be an array of 2-tuples');
-      //         }
+      if (init) {
+        if (Array.isArray(init)) {
+          init.forEach(entry => {
+            if (entry.length !== 2) {
+              throw new TypeError('HeadersInit must be an array of 2-tuples');
+            }
 
-      //         this.addValue(entry[0], entry[1]);
-      //       });
-      //     } else {
-      //       if (init instanceof Headers) {
-      //         // @ts-expect-error `h` doesn't exists in the type definition of Headers
-      //         this.h = init.h;
+            this.addValue(entry[0], entry[1]);
+          });
+        } else {
+          if (init instanceof Headers) {
+            // @ts-expect-error `h` doesn't exists in the type definition of Headers
+            this.h = init.h;
 
-      //         return;
-      //       }
+            return;
+          }
 
-      //       if (typeof init !== 'object') {
-      //         throw new TypeError('HeadersInit must be an object or an array of 2-tuples');
-      //       }
+          if (typeof init !== 'object') {
+            throw new TypeError('HeadersInit must be an object or an array of 2-tuples');
+          }
 
-      //       Object.entries(init).forEach(([key, value]) => {
-      //         this.addValue(key, value);
-      //       });
-      //     }
-      //   }
+          Object.entries(init).forEach(([key, value]) => {
+            this.addValue(key, value);
+          });
+        }
+      }
     }
 
     private addValue(name: string, value: string) {
