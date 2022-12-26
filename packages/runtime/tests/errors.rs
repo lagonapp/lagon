@@ -24,7 +24,7 @@ async fn no_handler() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: Handler function is not defined or is not a function, at:\n    throw new Error(\"Handler function is not defined or is not a function\");".into())
+        RunResult::Error("Error: Handler function is not defined or is not a function".into())
     );
 }
 
@@ -37,7 +37,7 @@ async fn handler_not_function() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: Handler function is not defined or is not a function, at:\n    throw new Error(\"Handler function is not defined or is not a function\");".into())
+        RunResult::Error("Error: Handler function is not defined or is not a function".into())
     );
 }
 
@@ -55,7 +55,7 @@ async fn handler_reject() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: Rejected, at:\n    throw new Error('Rejected');".into())
+        RunResult::Error("Error: Rejected".into())
     );
 }
 

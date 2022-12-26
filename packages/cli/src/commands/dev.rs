@@ -22,7 +22,8 @@ use tokio::sync::Mutex;
 use tokio_util::task::LocalPoolHandle;
 
 use crate::utils::{
-    bundle_function, info, input, success, validate_code_file, validate_public_dir, warn, Assets,
+    bundle_function, error, info, input, success, validate_code_file, validate_public_dir, warn,
+    Assets,
 };
 
 use log::{
@@ -72,7 +73,7 @@ fn parse_environment_variables(env: Option<PathBuf>) -> Result<HashMap<String, S
 
 // This function is similar to packages/serverless/src/main.rs,
 // expect that we don't have multiple deployments and such multiple
-// threads to manage.
+// threads to manage, and we don't manager logs and metrics.
 async fn handle_request(
     req: HyperRequest<Body>,
     ip: String,
@@ -177,16 +178,21 @@ async fn handle_request(
             }
 
             tokio::spawn(async move {
-                while let Ok(RunResult::Stream(stream_result)) = rx.recv_async().await {
-                    match stream_result {
-                        StreamResult::Start(response) => {
+                while let Ok(result) = rx.recv_async().await {
+                    match result {
+                        RunResult::Stream(StreamResult::Start(response)) => {
                             response_tx.send_async(response).await.unwrap_or(());
                         }
-                        StreamResult::Data(bytes) => {
+                        RunResult::Stream(StreamResult::Data(bytes)) => {
                             let bytes = Bytes::from(bytes);
                             stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                         }
-                        _ => {}
+                        _ => {
+                            println!("{} {:?}", error("Unexpected stream result:"), result);
+                            // Close the stream by sending empty bytes if we receive anything
+                            // else than StreamResult (e.g errors)
+                            stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
+                        }
                     }
                 }
             });

@@ -52,6 +52,24 @@ const X_FORWARDED_FOR: &str = "x-forwarded-for";
 const X_LAGON_REGION: &str = "x-lagon-region";
 const X_REAL_IP: &str = "x-real-ip";
 
+fn handle_error(result: RunResult, deployment_id: &String, labels: &[(&'static str, String); 3]) {
+    match result {
+        RunResult::Timeout => {
+            increment_counter!("lagon_isolate_timeouts", labels);
+            warn!(deployment = deployment_id; "Function execution timed out")
+        }
+        RunResult::MemoryLimit => {
+            increment_counter!("lagon_isolate_memory_limits", labels);
+            warn!(deployment = deployment_id; "Function execution memory limit reached")
+        }
+        RunResult::Error(error) => {
+            increment_counter!("lagon_isolate_errors", labels);
+            error!(deployment = deployment_id; "Function execution error: {}", error);
+        }
+        _ => {}
+    };
+}
+
 async fn handle_request(
     req: HyperRequest<Body>,
     ip: String,
@@ -254,17 +272,24 @@ async fn handle_request(
                 StreamResult::Done => panic!("Got a stream done without data"),
             }
 
+            let deployment_id = deployment_id.clone();
+
             tokio::spawn(async move {
-                while let Ok(RunResult::Stream(stream_result)) = rx.recv_async().await {
-                    match stream_result {
-                        StreamResult::Start(response) => {
+                while let Ok(result) = rx.recv_async().await {
+                    match result {
+                        RunResult::Stream(StreamResult::Start(response)) => {
                             response_tx.send_async(response).await.unwrap_or(());
                         }
-                        StreamResult::Data(bytes) => {
+                        RunResult::Stream(StreamResult::Data(bytes)) => {
                             let bytes = Bytes::from(bytes);
                             stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                         }
-                        _ => {}
+                        _ => {
+                            handle_error(result, &deployment_id, &labels);
+                            // Close the stream by sending empty bytes if we receive anything
+                            // else than StreamResult (e.g errors)
+                            stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
+                        }
                     }
                 }
             });
@@ -282,23 +307,12 @@ async fn handle_request(
             Ok(hyper_response)
         }
         RunResult::Timeout | RunResult::MemoryLimit => {
-            match result {
-                RunResult::Timeout => {
-                    increment_counter!("lagon_isolate_timeouts", &labels);
-                    warn!(deployment = deployment_id; "Function execution timed out")
-                }
-                RunResult::MemoryLimit => {
-                    increment_counter!("lagon_isolate_memory_limits", &labels);
-                    warn!(deployment = deployment_id; "Function execution memory limit reached")
-                }
-                _ => {}
-            };
+            handle_error(result, deployment_id, &labels);
 
             Ok(HyperResponse::builder().status(502).body(PAGE_502.into())?)
         }
-        RunResult::Error(error) => {
-            increment_counter!("lagon_isolate_errors", &labels);
-            error!(deployment = deployment_id; "Function execution error: {}", error);
+        RunResult::Error(_) => {
+            handle_error(result, deployment_id, &labels);
 
             Ok(HyperResponse::builder().status(500).body(PAGE_500.into())?)
         }

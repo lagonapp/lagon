@@ -244,3 +244,97 @@ async fn response_before_write() {
     );
     assert!(rx.recv_async().await.is_err());
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn timeout_infinite_streaming() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    const { readable } = new TransformStream()
+
+    return new Response(readable);
+}"
+        .to_owned(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response::from(
+            "[object ReadableStream]"
+        )))
+    );
+    assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn promise_reject_callback() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    const { readable } = new TransformStream()
+
+    async function trigger() {
+        doesNotExists();
+    }
+
+    trigger();
+
+    return new Response(readable);
+}"
+        .to_owned(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error("ReferenceError: doesNotExists is not defined".to_owned())
+    );
+    assert!(rx.recv_async().await.is_err());
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn promise_reject_callback_after_response() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    const output = new TextEncoder().encode('This is rendered as binary stream with non-ASCII chars 😊');
+
+    const { readable, writable } = new TransformStream();
+
+    async function stream() {
+        // Just to delay a bit
+        await fetch('https://google.com');
+
+        const writer = writable.getWriter();
+        for (let i = 0; i < output.length; i++) {
+            await new Promise(resolve => {
+                doesNotExists(resolve, 0);
+            });
+            writer.write(new Uint8Array([output[i]]));
+        }
+    }
+
+    stream();
+
+    return new Response(readable);
+}"
+        .to_owned(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response::from(
+            "[object ReadableStream]"
+        )))
+    );
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error("ReferenceError: doesNotExists is not defined".to_owned())
+    );
+    assert!(rx.recv_async().await.is_err());
+}

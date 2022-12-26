@@ -55,7 +55,7 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-const SKIP_TESTS: [&str; 15] = [
+const SKIP_TESTS: [&str; 32] = [
     // request
     "request-cache-default-conditional.any.js",
     "request-cache-no-cache.any.js",
@@ -65,7 +65,23 @@ const SKIP_TESTS: [&str; 15] = [
     "request-cache-only-if-cached.any.js",
     "request-cache-reload.any.js",
     "request-bad-port.any.js",
-    "request/request-error.any.js",
+    "request-error.any.js",
+    "request-init-stream.any.js",
+    "request-consume-empty.any.js",
+    "request-consume.any.js",
+    "request-disturbed.any.js",
+    // response
+    "response-stream-disturbed-4.any.js",
+    "response-error-from-stream.any.js",
+    "response-stream-disturbed-6.any.js",
+    "response-stream-disturbed-2.any.js",
+    "response-stream-disturbed-5.any.js",
+    "response-consume-empty.any.js",
+    "response-cancel-stream.any.js",
+    "response-stream-with-broken-then.any.js",
+    "response-stream-disturbed-3.any.js",
+    "response-stream-disturbed-1.any.js",
+    "response-static-json.any.js",
     // url
     "idlharness.any.js",
     "url-setters.any.js",
@@ -74,6 +90,10 @@ const SKIP_TESTS: [&str; 15] = [
     "unsupported-encodings.any.js",
     "api-invalid-label.any.js",
     "replacement-encodings.any.js",
+    // fetch
+    "mime-type.any.js",
+    // Blob
+    "Blob-stream.any.js",
 ];
 
 async fn run_test(path: &Path) {
