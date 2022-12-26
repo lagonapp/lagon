@@ -131,13 +131,7 @@ TEST DONE 0 Headers has values method
 Running ../../tools/wpt/fetch/api/body/formdata.any.js
 TEST DONE 0 Consume empty response.formData() as FormData
 TEST DONE 0 Consume empty request.formData() as FormData
-Running ../../tools/wpt/fetch/api/body/mime-type.any.js
-TEST DONE 1 : overriding explicit Content-Type
-TEST DONE 1 : overriding explicit Content-Type
-TEST DONE 1 : removing implicit Content-Type
-TEST DONE 1 : removing implicit Content-Type
-TEST DONE 1 : setting missing Content-Type
-TEST DONE 1 : setting missing Content-Type
+Skipping ../../tools/wpt/fetch/api/body/mime-type.any.js
 Running ../../tools/wpt/fetch/api/request/forbidden-method.any.js
 TEST DONE 1 Request() with a forbidden method CONNECT must throw.
 TEST DONE 1 Request() with a forbidden method TRACE must throw.
@@ -153,70 +147,9 @@ Skipping ../../tools/wpt/fetch/api/request/request-cache-no-cache.any.js
 Skipping ../../tools/wpt/fetch/api/request/request-cache-no-store.any.js
 Skipping ../../tools/wpt/fetch/api/request/request-cache-only-if-cached.any.js
 Skipping ../../tools/wpt/fetch/api/request/request-cache-reload.any.js
-Running ../../tools/wpt/fetch/api/request/request-consume-empty.any.js
-TEST DONE 1 Consume request's body as text
-TEST DONE 1 Consume request's body as blob
-TEST DONE 1 Consume request's body as arrayBuffer
-TEST DONE 1 Consume request's body as json (error case)
-TEST DONE 1 Consume request's body as formData with correct multipart type (error case)
-TEST DONE 1 Consume request's body as formData with correct urlencoded type
-TEST DONE 1 Consume request's body as formData without correct type (error case)
-TEST DONE 1 Consume empty blob request body as arrayBuffer
-TEST DONE 0 Consume empty text request body as arrayBuffer
-TEST DONE 1 Consume empty blob request body as text
-TEST DONE 0 Consume empty text request body as text
-TEST DONE 0 Consume empty URLSearchParams request body as text
-TEST DONE 0 Consume empty FormData request body as text
-TEST DONE 1 Consume empty ArrayBuffer request body as text
-Running ../../tools/wpt/fetch/api/request/request-consume.any.js
-TEST DONE 0 Consume String request's body as text
-TEST DONE 1 Consume String request's body as blob
-TEST DONE 1 Consume String request's body as arrayBuffer
-TEST DONE 0 Consume String request's body as JSON
-TEST DONE 1 Consume ArrayBuffer request's body as text
-TEST DONE 1 Consume ArrayBuffer request's body as blob
-TEST DONE 1 Consume ArrayBuffer request's body as arrayBuffer
-TEST DONE 1 Consume ArrayBuffer request's body as JSON
-TEST DONE 0 Consume Uint8Array request's body as text
-TEST DONE 1 Consume Uint8Array request's body as blob
-TEST DONE 1 Consume Uint8Array request's body as arrayBuffer
-TEST DONE 0 Consume Uint8Array request's body as JSON
-TEST DONE 0 Consume Int8Array request's body as text
-TEST DONE 1 Consume Int8Array request's body as blob
-TEST DONE 1 Consume Int8Array request's body as arrayBuffer
-TEST DONE 0 Consume Int8Array request's body as JSON
-TEST DONE 1 Consume Float32Array request's body as text
-TEST DONE 1 Consume Float32Array request's body as blob
-TEST DONE 1 Consume Float32Array request's body as arrayBuffer
-TEST DONE 1 Consume Float32Array request's body as JSON
-TEST DONE 1 Consume DataView request's body as text
-TEST DONE 1 Consume DataView request's body as blob
-TEST DONE 1 Consume DataView request's body as arrayBuffer
-TEST DONE 1 Consume DataView request's body as JSON
-TEST DONE 0 Consume FormData request's body as FormData
-TEST DONE 1 Consume blob response's body as blob
-TEST DONE 1 Consume blob response's body as text
-TEST DONE 1 Consume blob response's body as json
-TEST DONE 1 Consume blob response's body as arrayBuffer
-TEST DONE 1 Consume blob response's body as blob (empty blob as input)
-TEST DONE 0 Consume JSON from text: '"null"'
-TEST DONE 0 Consume JSON from text: '"1"'
-TEST DONE 0 Consume JSON from text: '"true"'
-TEST DONE 0 Consume JSON from text: '"\"string\""'
-TEST DONE 0 Trying to consume bad JSON text as JSON: 'undefined'
-TEST DONE 0 Trying to consume bad JSON text as JSON: '{'
-TEST DONE 0 Trying to consume bad JSON text as JSON: 'a'
-TEST DONE 0 Trying to consume bad JSON text as JSON: '['
-Running ../../tools/wpt/fetch/api/request/request-disturbed.any.js
-TEST DONE 1 Request's body: initial state
-TEST DONE 1 Request without body cannot be disturbed
-TEST DONE 1 Check cloning a disturbed request
-TEST DONE 1 Check creating a new request from a disturbed request
-TEST DONE 1 Request construction failure should not set "bodyUsed"
-TEST DONE 0 Check creating a new request with a new body from a disturbed request
-TEST DONE 1 Input request used for creating new request became disturbed
-TEST DONE 1 Input request used for creating new request became disturbed even if body is not used
-TEST DONE 0 Check consuming a disturbed request
+Skipping ../../tools/wpt/fetch/api/request/request-consume-empty.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-consume.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-disturbed.any.js
 Skipping ../../tools/wpt/fetch/api/request/request-error.any.js
 Running ../../tools/wpt/fetch/api/request/request-headers.any.js
 TEST DONE 0 Adding valid request header "Content-Type: OK"
@@ -282,7 +215,7 @@ Running ../../tools/wpt/fetch/api/request/request-init-002.any.js
 TEST DONE 0 Initialize Request with headers values
 TEST DONE 0 Initialize Request's body with "undefined", undefined
 TEST DONE 0 Initialize Request's body with "null", null
-TEST DONE 1 Initialize Request's body with "[object Blob]", application/octet-binary
+TEST DONE 1 Initialize Request's body with "[object Object]", application/octet-binary
 TEST DONE 1 Initialize Request's body with "[object Object]", multipart/form-data
 TEST DONE 1 Initialize Request's body with "This is a USVString", text/plain;charset=UTF-8
 TEST DONE 1 Initialize Request's body with "hi!", text/plain;charset=UTF-8
@@ -306,30 +239,7 @@ TEST DONE 0 Can override Content-Type for Request with URLSearchParams body
 TEST DONE 0 Can override Content-Type for Request with string body
 TEST DONE 0 Can override Content-Type for Request with ReadableStream body
 TEST DONE 1 Default Content-Type for Request with FormData body
-Running ../../tools/wpt/fetch/api/request/request-init-stream.any.js
-TEST DONE 1 Constructing a Request with a stream holds the original object.
-TEST DONE 1 Constructing a Request with a stream on which getReader() is called
-TEST DONE 1 Constructing a Request with a stream on which read() is called
-TEST DONE 1 Constructing a Request with a Request on which body.getReader() is called
-TEST DONE 1 Constructing a Request with a Request on which body.getReader().read() is called
-TEST DONE 0 It is OK to omit .duplex when the body is null.
-TEST DONE 0 It is OK to omit .duplex when the body is a string.
-TEST DONE 0 It is OK to omit .duplex when the body is a Uint8Array.
-TEST DONE 0 It is OK to omit .duplex when the body is a Blob.
-TEST DONE 1 It is error to omit .duplex when the body is a ReadableStream.
-TEST DONE 0 It is OK to set .duplex = 'half' when the body is null.
-TEST DONE 0 It is OK to set .duplex = 'half' when the body is a string.
-TEST DONE 0 It is OK to set .duplex = 'half' when the body is a Uint8Array.
-TEST DONE 0 It is OK to set .duplex = 'half' when the body is a Blob.
-TEST DONE 0 It is OK to set .duplex = 'half' when the body is a ReadableStream.
-TEST DONE 1 It is error to set .duplex = 'full' when the body is null.
-TEST DONE 1 It is error to set .duplex = 'full' when the body is a string.
-TEST DONE 1 It is error to set .duplex = 'full' when the body is a Uint8Array.
-TEST DONE 1 It is error to set .duplex = 'full' when the body is a Blob.
-TEST DONE 1 It is error to set .duplex = 'full' when the body is a ReadableStream.
-TEST DONE 0 It is OK to omit duplex when init.body is not given and input.body is given.
-TEST DONE 1 Constructing a Request with a stream on which read() and releaseLock() are called
-TEST DONE 1 Constructing a Request with a Request on which read() and releaseLock() are called
+Skipping ../../tools/wpt/fetch/api/request/request-init-stream.any.js
 Running ../../tools/wpt/fetch/api/request/request-keepalive.any.js
 TEST DONE 1 keepalive flag
 TEST DONE 1 keepalive flag with stream body
@@ -357,13 +267,7 @@ TEST DONE 1 Check duplex attribute
 TEST DONE 1 Check bodyUsed attribute
 Running ../../tools/wpt/fetch/api/response/json.any.js
 TEST DONE 1 Ensure the correct JSON parser is used
-Running ../../tools/wpt/fetch/api/response/response-cancel-stream.any.js
-TEST DONE 0 Cancelling a starting blob Response stream
-TEST DONE 0 Cancelling a loading blob Response stream
-TEST DONE 0 Cancelling a closed blob Response stream
-TEST DONE 1 Cancelling a starting Response stream
-TEST DONE 1 Cancelling a loading Response stream
-TEST DONE 1 Cancelling a closed Response stream
+Skipping ../../tools/wpt/fetch/api/response/response-cancel-stream.any.js
 Running ../../tools/wpt/fetch/api/response/response-clone.any.js
 TEST DONE 1 Check Response's clone with default values, without body
 TEST DONE 0 Check Response's clone has the expected attribute values
@@ -371,21 +275,7 @@ TEST DONE 1 Check orginal response's body after cloning
 TEST DONE 1 Check cloned response's body
 TEST DONE 1 Cannot clone a disturbed response
 TEST DONE 1 Cloned responses should provide the same data
-Running ../../tools/wpt/fetch/api/response/response-consume-empty.any.js
-TEST DONE 1 Consume response's body as text
-TEST DONE 1 Consume response's body as blob
-TEST DONE 1 Consume response's body as arrayBuffer
-TEST DONE 1 Consume response's body as json (error case)
-TEST DONE 1 Consume response's body as formData with correct multipart type (error case)
-TEST DONE 1 Consume response's body as formData with correct urlencoded type
-TEST DONE 1 Consume response's body as formData without correct type (error case)
-TEST DONE 1 Consume empty blob response body as arrayBuffer
-TEST DONE 0 Consume empty text response body as arrayBuffer
-TEST DONE 1 Consume empty blob response body as text
-TEST DONE 0 Consume empty text response body as text
-TEST DONE 0 Consume empty URLSearchParams response body as text
-TEST DONE 0 Consume empty FormData response body as text
-TEST DONE 1 Consume empty ArrayBuffer response body as text
+Skipping ../../tools/wpt/fetch/api/response/response-consume-empty.any.js
 Running ../../tools/wpt/fetch/api/response/response-consume-stream.any.js
 TEST DONE 0 Getting an error Response stream
 TEST DONE 0 Getting a redirect Response stream
@@ -396,9 +286,7 @@ TEST DONE 1 Read text response's body as readableStream
 TEST DONE 1 Read URLSearchParams response's body as readableStream
 TEST DONE 1 Read array buffer response's body as readableStream
 TEST DONE 1 Read form data response's body as readableStream
-Running ../../tools/wpt/fetch/api/response/response-error-from-stream.any.js
-TEST DONE 0 ReadableStreamDefaultReader Promise receives ReadableStream start() Error
-TEST DONE 0 ReadableStreamDefaultReader Promise receives ReadableStream pull() Error
+Skipping ../../tools/wpt/fetch/api/response/response-error-from-stream.any.js
 Running ../../tools/wpt/fetch/api/response/response-error.any.js
 TEST DONE 1 Throws RangeError when responseInit's status is 0
 TEST DONE 1 Throws RangeError when responseInit's status is 100
@@ -456,20 +344,7 @@ TEST DONE 1 Default Content-Type for Response with FormData body
 Running ../../tools/wpt/fetch/api/response/response-static-error.any.js
 TEST DONE 1 Check response returned by static method error()
 TEST DONE 1 the 'guard' of the Headers instance should be immutable
-Running ../../tools/wpt/fetch/api/response/response-static-json.any.js
-TEST DONE 1 Throws TypeError when calling static json() with a status of 204
-TEST DONE 1 Throws TypeError when calling static json() with a status of 205
-TEST DONE 1 Throws TypeError when calling static json() with a status of 304
-TEST DONE 1 Check static json() throws when data is not encodable
-TEST DONE 1 Check static json() throws when data is circular
-TEST DONE 1 Check response returned by static json() with init undefined
-TEST DONE 1 Check response returned by static json() with init {"status":400}
-TEST DONE 1 Check response returned by static json() with init {"statusText":"foo"}
-TEST DONE 1 Check response returned by static json() with init {"headers":{}}
-TEST DONE 1 Check response returned by static json() with init {"headers":{"content-type":"foo/bar"}}
-TEST DONE 1 Check response returned by static json() with init {"headers":{"x-foo":"bar"}}
-TEST DONE 1 Check static json() encodes JSON objects correctly
-TEST DONE 1 Check static json() propagates JSON serializer errors
+Skipping ../../tools/wpt/fetch/api/response/response-static-json.any.js
 Running ../../tools/wpt/fetch/api/response/response-static-redirect.any.js
 TEST DONE 1 Check default redirect response
 TEST DONE 1 Check response returned by static method redirect(), status = 301
@@ -488,83 +363,16 @@ TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.blob() c
 TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.formData() causes TypeError
 TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.json() causes TypeError
 TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.text() causes TypeError
-Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-1.any.js
-TEST DONE 1 Getting blob after getting the Response body - not disturbed, not locked (body source: fetch)
-TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: fetch)
-TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: fetch)
-TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: fetch)
-TEST DONE 1 Getting blob after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting blob after getting the Response body - not disturbed, not locked (body source: string)
-TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: string)
-TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: string)
-TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: string)
-Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-2.any.js
-TEST DONE 1 Getting blob after getting a locked Response body (body source: fetch)
-TEST DONE 1 Getting text after getting a locked Response body (body source: fetch)
-TEST DONE 1 Getting json after getting a locked Response body (body source: fetch)
-TEST DONE 1 Getting arrayBuffer after getting a locked Response body (body source: fetch)
-TEST DONE 1 Getting blob after getting a locked Response body (body source: stream)
-TEST DONE 1 Getting text after getting a locked Response body (body source: stream)
-TEST DONE 1 Getting json after getting a locked Response body (body source: stream)
-TEST DONE 1 Getting arrayBuffer after getting a locked Response body (body source: stream)
-TEST DONE 1 Getting blob after getting a locked Response body (body source: string)
-TEST DONE 1 Getting text after getting a locked Response body (body source: string)
-TEST DONE 1 Getting json after getting a locked Response body (body source: string)
-TEST DONE 1 Getting arrayBuffer after getting a locked Response body (body source: string)
-Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-3.any.js
-TEST DONE 1 Getting blob after reading the Response body (body source: fetch)
-TEST DONE 1 Getting text after reading the Response body (body source: fetch)
-TEST DONE 1 Getting json after reading the Response body (body source: fetch)
-TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: fetch)
-TEST DONE 1 Getting blob after reading the Response body (body source: stream)
-TEST DONE 1 Getting text after reading the Response body (body source: stream)
-TEST DONE 1 Getting json after reading the Response body (body source: stream)
-TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: stream)
-TEST DONE 1 Getting blob after reading the Response body (body source: string)
-TEST DONE 1 Getting text after reading the Response body (body source: string)
-TEST DONE 1 Getting json after reading the Response body (body source: string)
-TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: string)
-Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-4.any.js
-TEST DONE 1 Getting blob after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting text after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting json after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting blob after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting text after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting json after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting blob after cancelling the Response body (body source: string)
-TEST DONE 1 Getting text after cancelling the Response body (body source: string)
-TEST DONE 1 Getting json after cancelling the Response body (body source: string)
-TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: string)
-Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-5.any.js
-TEST DONE 1 Getting a body reader after consuming as blob (body source: fetch)
-TEST DONE 1 Getting a body reader after consuming as text (body source: fetch)
-TEST DONE 1 Getting a body reader after consuming as json (body source: fetch)
-TEST DONE 1 Getting a body reader after consuming as arrayBuffer (body source: fetch)
-TEST DONE 1 Getting a body reader after consuming as blob (body source: stream)
-TEST DONE 1 Getting a body reader after consuming as text (body source: stream)
-TEST DONE 1 Getting a body reader after consuming as json (body source: stream)
-TEST DONE 1 Getting a body reader after consuming as arrayBuffer (body source: stream)
-TEST DONE 1 Getting a body reader after consuming as blob (body source: string)
-TEST DONE 1 Getting a body reader after consuming as text (body source: string)
-TEST DONE 1 Getting a body reader after consuming as json (body source: string)
-TEST DONE 1 Getting a body reader after consuming as arrayBuffer (body source: string)
-Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-6.any.js
-TEST DONE 1 A non-closed stream on which read() has been called
-TEST DONE 1 A non-closed stream on which cancel() has been called
-TEST DONE 1 A closed stream on which read() has been called
-TEST DONE 1 An errored stream on which read() has been called
-TEST DONE 1 An errored stream on which cancel() has been called
+Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-1.any.js
+Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-2.any.js
+Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-3.any.js
+Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-4.any.js
+Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-5.any.js
+Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-6.any.js
 Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-by-pipe.any.js
 TEST DONE 1 using pipeTo on Response body should disturb it synchronously
 TEST DONE 1 using pipeThrough on Response body should disturb it synchronously
-Running ../../tools/wpt/fetch/api/response/response-stream-with-broken-then.any.js
-TEST DONE 1 Attempt to inject {done: false, value: bye} via Object.prototype.then.
-TEST DONE 1 Attempt to inject value: undefined via Object.prototype.then.
+Skipping ../../tools/wpt/fetch/api/response/response-stream-with-broken-then.any.js
 Running ../../tools/wpt/url/historical.any.js
 TEST DONE 1 Setting URL's href attribute and base URLs
 TEST DONE 0 URL.domainToASCII should be undefined
@@ -576,7 +384,7 @@ Running ../../tools/wpt/url/url-origin.any.js
 TEST DONE 1 Loading data…
 Running ../../tools/wpt/url/url-searchparams.any.js
 TEST DONE 0 URL.searchParams getter
-TEST DONE 1 URL.searchParams updating, clearing
+TEST DONE 0 URL.searchParams updating, clearing
 TEST DONE 1 URL.searchParams setter, invalid values
 TEST DONE 1 URL.searchParams and URL.search setters, update propagation
 Running ../../tools/wpt/url/url-setters-stripping.any.js
@@ -982,15 +790,10 @@ TEST DONE 1 Custom [Symbol.iterator]
 Running ../../tools/wpt/url/urlsearchparams-delete.any.js
 TEST DONE 1 Delete basics
 TEST DONE 1 Deleting appended multiple
-TEST DONE 1 Deleting all params removes ? from URL
+TEST DONE 0 Deleting all params removes ? from URL
 TEST DONE 1 Removing non-existent param removes ? from URL
 Running ../../tools/wpt/url/urlsearchparams-foreach.any.js
 TEST DONE 0 ForEach Check
-TEST DONE 1 For-of Check
-TEST DONE 0 empty
-TEST DONE 0 delete next param during iteration
-TEST DONE 1 delete current param during iteration
-TEST DONE 1 delete every param seen during iteration
 Running ../../tools/wpt/url/urlsearchparams-get.any.js
 TEST DONE 1 Get basics
 TEST DONE 1 More get() basics
@@ -1615,5 +1418,217 @@ TEST DONE 1 USVString handling: swapped surrogate pair
 TEST DONE 0 USVString handling: properly encoded MUSICAL SYMBOL G CLEF (U+1D11E)
 TEST DONE 0 USVString default
 Skipping ../../tools/wpt/encoding/unsupported-encodings.any.js
+Running ../../tools/wpt/FileAPI/blob/Blob-array-buffer.any.js
+TEST DONE 0 Blob.arrayBuffer()
+TEST DONE 0 Blob.arrayBuffer() empty Blob data
+TEST DONE 0 Blob.arrayBuffer() non-ascii input
+TEST DONE 0 Blob.arrayBuffer() non-unicode input
+TEST DONE 0 Blob.arrayBuffer() concurrent reads
+Running ../../tools/wpt/FileAPI/blob/Blob-constructor.any.js
+TEST DONE 1 Blob interface object
+TEST DONE 1 Blob constructor with no arguments
+TEST DONE 0 Blob constructor with no arguments, without 'new'
+TEST DONE 0 Blob constructor without brackets
+TEST DONE 1 Blob constructor with undefined as first argument
+TEST DONE 1 Passing non-objects, Dates and RegExps for blobParts should throw a TypeError.
+TEST DONE 1 A plain object with @@iterator should be treated as a sequence for the blobParts argument.
+TEST DONE 1 A plain object with custom @@iterator should be treated as a sequence for the blobParts argument.
+TEST DONE 1 A plain object with @@iterator and a length property should be treated as a sequence for the blobParts argument.
+TEST DONE 1 A String object should be treated as a sequence for the blobParts argument.
+TEST DONE 1 A Uint8Array object should be treated as a sequence for the blobParts argument.
+TEST DONE 1 The length getter should be invoked and any exceptions should be propagated.
+TEST DONE 1 ToUint32 should be applied to the length and any exceptions should be propagated.
+TEST DONE 1 Getters and value conversions should happen in order until an exception is thrown.
+TEST DONE 1 ToString should be called on elements of the blobParts array and any exceptions should be propagated.
+TEST DONE 1 Changes to the blobParts array should be reflected in the returned Blob (pop).
+TEST DONE 1 Changes to the blobParts array should be reflected in the returned Blob (unshift).
+TEST DONE 1 ToString should be called on elements of the blobParts array.
+TEST DONE 1 Passing typed arrays as elements of the blobParts array should work.
+TEST DONE 1 Passing a Float64Array as element of the blobParts array should work.
+TEST DONE 1 Passing BigInt typed arrays as elements of the blobParts array should work.
+TEST DONE 1 Passing a FrozenArray as the blobParts array should work (FrozenArray<MessagePort>).
+TEST DONE 1 Array with two buffers
+TEST DONE 1 Array with two bufferviews
+TEST DONE 1 options properties should be accessed in lexicographic order.
+TEST DONE 1 Arguments should be evaluated from left to right.
+TEST DONE 1 Passing 123 for options should throw
+TEST DONE 1 Passing 123.4 for options should throw
+TEST DONE 1 Passing true for options should throw
+TEST DONE 1 Passing "abc" for options should throw
+TEST DONE 0 Blob with type ""
+TEST DONE 0 Blob with type "a"
+TEST DONE 1 Blob with type "A"
+TEST DONE 0 Blob with type "text/html"
+TEST DONE 1 Blob with type "TEXT/HTML"
+TEST DONE 0 Blob with type "text/plain;charset=utf-8"
+TEST DONE 1 Blob with type "å"
+TEST DONE 1 Blob with type "𐑾"
+TEST DONE 0 Blob with type " image/gif "
+TEST DONE 1 Blob with type "\timage/gif\t"
+TEST DONE 1 Blob with type "image/gif;"
+TEST DONE 1 Blob with type "İmage/gif"
+TEST DONE 1 Blob with type "ımage/gif"
+TEST DONE 1 Blob with type "image/gif\0"
+TEST DONE 0 Blob with type "unknown/unknown"
+TEST DONE 0 Blob with type "text/plain"
+TEST DONE 0 Blob with type "image/png"
+TEST DONE 1 ArrayBuffer elements of the blobParts array should be supported.
+TEST DONE 0 Array with two blobs
+TEST DONE 1 Array with mixed types
+TEST DONE 0 Passing null (index 0) for options should use the defaults.
+TEST DONE 0 Passing null (index 0) for options should use the defaults (with newlines).
+TEST DONE 0 Passing undefined (index 1) for options should use the defaults.
+TEST DONE 0 Passing undefined (index 1) for options should use the defaults (with newlines).
+TEST DONE 0 Passing object "[object Object]" (index 2) for options should use the defaults.
+TEST DONE 0 Passing object "[object Object]" (index 2) for options should use the defaults (with newlines).
+TEST DONE 0 Passing object "[object Object]" (index 3) for options should use the defaults.
+TEST DONE 0 Passing object "[object Object]" (index 3) for options should use the defaults (with newlines).
+TEST DONE 0 Passing object "/regex/" (index 4) for options should use the defaults.
+TEST DONE 0 Passing object "/regex/" (index 4) for options should use the defaults (with newlines).
+TEST DONE 0 Passing function "function() {}" (index 5) for options should use the defaults.
+TEST DONE 0 Passing function "function() {}" (index 5) for options should use the defaults (with newlines).
+Running ../../tools/wpt/FileAPI/blob/Blob-slice-overflow.any.js
+TEST DONE 0 slice start is negative, relativeStart will be max((size + start), 0)
+TEST DONE 0 slice start is greater than blob size, relativeStart will be min(start, size)
+TEST DONE 0 slice end is negative, relativeEnd will be max((size + end), 0)
+TEST DONE 0 slice end is greater than blob size, relativeEnd will be min(end, size)
+Running ../../tools/wpt/FileAPI/blob/Blob-slice.any.js
+TEST DONE 0 Slicing test (0,0).
+TEST DONE 0 Slicing test (0,1).
+TEST DONE 0 Slicing test (0,2).
+TEST DONE 0 Slicing test (0,3).
+TEST DONE 0 Slicing test (0,4).
+TEST DONE 0 Slicing test (0,5).
+TEST DONE 0 Slicing test (0,6).
+TEST DONE 0 Slicing test (0,7).
+TEST DONE 0 Slicing test (0,8).
+TEST DONE 0 Slicing test (1,0).
+TEST DONE 0 Slicing test (1,1).
+TEST DONE 0 Slicing test (1,2).
+TEST DONE 0 Slicing test (1,3).
+TEST DONE 0 Slicing test (1,4).
+TEST DONE 0 Slicing test (1,5).
+TEST DONE 0 Slicing test (1,6).
+TEST DONE 0 Slicing test (1,7).
+TEST DONE 0 Slicing test (2,0).
+TEST DONE 0 Slicing test (2,1).
+TEST DONE 0 Slicing test (2,2).
+TEST DONE 0 Slicing test (2,3).
+TEST DONE 0 Slicing test (3,0).
+TEST DONE 0 Slicing test (3,1).
+TEST DONE 0 Slicing test (3,2).
+TEST DONE 0 Slicing test (3,3).
+TEST DONE 0 Slicing test (3,4).
+TEST DONE 0 Slicing test (3,5).
+TEST DONE 0 Slicing test (4,0).
+TEST DONE 0 Slicing test (4,1).
+TEST DONE 0 Slicing test (4,2).
+TEST DONE 0 Slicing test (4,3).
+TEST DONE 0 Slicing test (4,4).
+TEST DONE 0 Slicing test (5,0).
+TEST DONE 1 Slicing test: slice (5,1).
+TEST DONE 0 Slicing test (5,1).
+TEST DONE 1 Slicing test: slice (5,2).
+TEST DONE 0 Slicing test (5,2).
+TEST DONE 1 Slicing test: slice (5,3).
+TEST DONE 0 Slicing test (5,3).
+TEST DONE 0 Slicing test (6,0).
+TEST DONE 0 Slicing test (6,1).
+TEST DONE 0 Slicing test (6,2).
+TEST DONE 1 Slicing test: slice (7,0).
+TEST DONE 0 Slicing test (7,0).
+TEST DONE 1 Slicing test: slice (7,1).
+TEST DONE 0 Slicing test (7,1).
+TEST DONE 1 Slicing test: slice (7,2).
+TEST DONE 0 Slicing test (7,2).
+TEST DONE 1 Slicing test: slice (7,3).
+TEST DONE 0 Slicing test (7,3).
+TEST DONE 0 Slicing test (8,0).
+TEST DONE 0 Slicing test (8,1).
+TEST DONE 0 Slicing test (8,2).
+TEST DONE 0 Slicing test (8,3).
+TEST DONE 0 Slices
+TEST DONE 1 Invalid contentType ("ÿ")
+TEST DONE 1 Invalid contentType ("te\txt/plain")
+TEST DONE 1 Invalid contentType ("te\0xt/plain")
+TEST DONE 1 Invalid contentType ("te\x1fxt/plain")
+TEST DONE 1 Invalid contentType ("text/plain")
+TEST DONE 1 Valid contentType ("TEXT/PLAIN")
+TEST DONE 1 Valid contentType ("text/plain;charset = UTF-8")
+TEST DONE 1 Valid contentType ("text/plain;charset=UTF-8")
+TEST DONE 0 no-argument Blob slice
+TEST DONE 0 blob1.
+TEST DONE 0 blob2.
+TEST DONE 0 null type Blob slice
+TEST DONE 0 undefined type Blob slice
+TEST DONE 0 no type Blob slice
+TEST DONE 0 Slicing test: slice (0,0).
+TEST DONE 0 Slicing test: slice (0,1).
+TEST DONE 0 Slicing test: slice (0,2).
+TEST DONE 0 Slicing test: slice (0,3).
+TEST DONE 0 Slicing test: slice (0,4).
+TEST DONE 0 Slicing test: slice (0,5).
+TEST DONE 0 Slicing test: slice (0,6).
+TEST DONE 0 Slicing test: slice (0,7).
+TEST DONE 0 Slicing test: slice (0,8).
+TEST DONE 0 Slicing test: slice (1,0).
+TEST DONE 0 Slicing test: slice (1,1).
+TEST DONE 0 Slicing test: slice (1,2).
+TEST DONE 0 Slicing test: slice (1,3).
+TEST DONE 0 Slicing test: slice (1,4).
+TEST DONE 0 Slicing test: slice (1,5).
+TEST DONE 0 Slicing test: slice (1,6).
+TEST DONE 0 Slicing test: slice (1,7).
+TEST DONE 0 Slicing test: slice (2,0).
+TEST DONE 0 Slicing test: slice (2,1).
+TEST DONE 0 Slicing test: slice (2,2).
+TEST DONE 0 Slicing test: slice (2,3).
+TEST DONE 0 Slicing test: slice (3,0).
+TEST DONE 0 Slicing test: slice (3,1).
+TEST DONE 0 Slicing test: slice (3,2).
+TEST DONE 0 Slicing test: slice (3,3).
+TEST DONE 0 Slicing test: slice (3,4).
+TEST DONE 0 Slicing test: slice (3,5).
+TEST DONE 0 Slicing test: slice (4,0).
+TEST DONE 0 Slicing test: slice (4,1).
+TEST DONE 0 Slicing test: slice (4,2).
+TEST DONE 0 Slicing test: slice (4,3).
+TEST DONE 0 Slicing test: slice (4,4).
+TEST DONE 1 Slicing test: slice (5,0).
+TEST DONE 0 Slicing test: slice (6,0).
+TEST DONE 0 Slicing test: slice (6,1).
+TEST DONE 0 Slicing test: slice (6,2).
+TEST DONE 1 Slicing test: slice (8,0).
+TEST DONE 0 Slicing test: slice (8,1).
+TEST DONE 0 Slicing test: slice (8,2).
+TEST DONE 1 Slicing test: slice (8,3).
+TEST DONE 0 Valid contentType ("te(xt/plain")
+TEST DONE 0 Valid contentType ("te)xt/plain")
+TEST DONE 0 Valid contentType ("te<xt/plain")
+TEST DONE 0 Valid contentType ("te>xt/plain")
+TEST DONE 0 Valid contentType ("te@xt/plain")
+TEST DONE 0 Valid contentType ("te,xt/plain")
+TEST DONE 0 Valid contentType ("te;xt/plain")
+TEST DONE 0 Valid contentType ("te:xt/plain")
+TEST DONE 0 Valid contentType ("te\\xt/plain")
+TEST DONE 0 Valid contentType ("te\"xt/plain")
+TEST DONE 0 Valid contentType ("te/xt/plain")
+TEST DONE 0 Valid contentType ("te[xt/plain")
+TEST DONE 0 Valid contentType ("te]xt/plain")
+TEST DONE 0 Valid contentType ("te?xt/plain")
+TEST DONE 0 Valid contentType ("te=xt/plain")
+TEST DONE 0 Valid contentType ("te{xt/plain")
+TEST DONE 0 Valid contentType ("te}xt/plain")
+TEST DONE 0 Valid contentType ("te xt/plain")
+Skipping ../../tools/wpt/FileAPI/blob/Blob-stream.any.js
+Running ../../tools/wpt/FileAPI/blob/Blob-text.any.js
+TEST DONE 0 Blob.text()
+TEST DONE 0 Blob.text() empty blob data
+TEST DONE 0 Blob.text() multi-element array in constructor
+TEST DONE 0 Blob.text() non-unicode
+TEST DONE 0 Blob.text() different charset param in type option
+TEST DONE 0 Blob.text() different charset param with non-ascii input
+TEST DONE 1 Blob.text() invalid utf-8 input
+TEST DONE 1 Blob.text() concurrent reads
 
-1527 tests, 247 passed, 1274 failed
+1535 tests, 354 passed, 1176 failed
