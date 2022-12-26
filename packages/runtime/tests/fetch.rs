@@ -326,10 +326,7 @@ async fn throw_invalid_url() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error(
-            "Uncaught Error: client requires absolute-form URIs, at:\n        throw new Error(error);"
-                .into()
-        )
+        RunResult::Error("Error: client requires absolute-form URIs".into())
     );
 }
 
@@ -354,10 +351,7 @@ async fn throw_invalid_header() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error(
-            "Uncaught Error: failed to parse header value, at:\n        throw new Error(error);"
-                .into()
-        )
+        RunResult::Error("Error: failed to parse header value".into())
     );
 }
 

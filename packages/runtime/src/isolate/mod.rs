@@ -12,12 +12,11 @@ use std::{
 };
 
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
-use v8::PromiseState;
 
 use crate::{
     http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult},
     runtime::{get_runtime_code, POOL},
-    utils::{v8_boolean, v8_string, v8_uint8array},
+    utils::{extract_v8_string, v8_boolean, v8_string, v8_uint8array},
 };
 
 use self::bindings::{BindingResult, PromiseResult};
@@ -37,6 +36,21 @@ extern "C" fn heap_limit_callback(
     // Avoid OOM killer by increasing the limit, since we kill
     // Immediately the isolate above.
     current_heap_limit * 2
+}
+
+extern "C" fn promise_reject_callback(message: v8::PromiseRejectMessage) {
+    let scope = &mut unsafe { v8::CallbackScope::new(&message) };
+    let message = message.get_value().map_or_else(
+        || "Unknown promise rejected error".to_owned(),
+        |value| {
+            extract_v8_string(value, scope)
+                .unwrap_or_else(|_| "Failed to extract promise reject message".to_owned())
+        },
+    );
+
+    let isolate = Isolate::state(scope);
+    let mut state = isolate.borrow_mut();
+    state.promise_rejected_message = Some(message);
 }
 
 // We don't allow imports at all, so we return None and throw an error
@@ -72,6 +86,7 @@ struct IsolateState {
     handler_result: Option<v8::Global<v8::Promise>>,
     stream_sender: flume::Sender<StreamResult>,
     metadata: Rc<Metadata>,
+    promise_rejected_message: Option<String>,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -198,6 +213,9 @@ impl Isolate {
         // }
 
         let mut isolate = v8::Isolate::new(params);
+        isolate.set_capture_stack_trace_for_uncaught_exceptions(true, 4);
+        isolate.set_promise_reject_callback(promise_reject_callback);
+
         let (stream_sender, stream_receiver) = flume::unbounded();
 
         let state: IsolateState = {
@@ -211,6 +229,7 @@ impl Isolate {
                 handler_result: None,
                 stream_sender,
                 metadata: Rc::clone(&options.metadata),
+                promise_rejected_message: None,
             }
         };
 
@@ -374,9 +393,6 @@ impl Isolate {
 
             if !isolate_state.promises.is_empty() {
                 promises = Some(Vec::new());
-            }
-
-            if !isolate_state.promises.is_empty() {
                 self.running_promises.store(true, Ordering::SeqCst);
 
                 while let Poll::Ready(Some(BindingResult { id, result })) =
@@ -447,14 +463,8 @@ impl Isolate {
         self.resolve_promises(cx);
         self.poll_stream(tx);
 
-        if self.stream_response_sent {
-            if self.stream_status.is_done() {
-                return Poll::Ready(());
-            }
-
-            return Poll::Pending;
-        }
-
+        // Handle termination results like timeouts and memory limit before
+        // checking the streaming status and promise state.
         if let Ok(run_result) = self.termination_rx.as_ref().unwrap().try_recv() {
             tx.send(run_result).unwrap_or(());
             return Poll::Ready(());
@@ -462,6 +472,22 @@ impl Isolate {
 
         let isolate_state = Isolate::state(&self.isolate);
         let state = isolate_state.borrow();
+
+        if let Some(promise_rejected_message) = &state.promise_rejected_message {
+            tx.send(RunResult::Error(promise_rejected_message.to_string()))
+                .unwrap_or(());
+            return Poll::Ready(());
+        }
+
+        if self.stream_response_sent {
+            if self.stream_status.is_done() {
+                return Poll::Ready(());
+            }
+
+            cx.waker().wake_by_ref();
+            return Poll::Pending;
+        }
+
         let global = state.global.0.clone();
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
         let try_catch = &mut v8::TryCatch::new(scope);
@@ -470,7 +496,7 @@ impl Isolate {
             let promise = promise.open(try_catch);
 
             match promise.state() {
-                PromiseState::Fulfilled => {
+                v8::PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
 
                     let run_result = match Response::from_v8(try_catch, response) {
@@ -490,6 +516,7 @@ impl Isolate {
                             return if self.stream_status.is_done() {
                                 Poll::Ready(())
                             } else {
+                                cx.waker().wake_by_ref();
                                 Poll::Pending
                             };
                         }
@@ -498,7 +525,7 @@ impl Isolate {
                     tx.send(run_result).unwrap_or(());
                     return Poll::Ready(());
                 }
-                PromiseState::Rejected => {
+                v8::PromiseState::Rejected => {
                     let exception = promise.result(try_catch);
 
                     tx.send(RunResult::Error(get_exception_message(
@@ -507,7 +534,7 @@ impl Isolate {
                     .unwrap_or(());
                     return Poll::Ready(());
                 }
-                PromiseState::Pending => {}
+                v8::PromiseState::Pending => {}
             };
         }
 
