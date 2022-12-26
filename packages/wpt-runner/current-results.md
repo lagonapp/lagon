@@ -46,7 +46,7 @@ TEST DONE 0 Create headers with 1 should throw
 TEST DONE 0 Create headers with sequence
 TEST DONE 0 Create headers with record
 TEST DONE 0 Create headers with existing headers
-TEST DONE 1 Create headers with existing headers with custom iterator
+TEST DONE 0 Create headers with existing headers with custom iterator
 TEST DONE 0 Check append method
 TEST DONE 0 Check set method
 TEST DONE 0 Check has method
@@ -131,7 +131,13 @@ TEST DONE 0 Headers has values method
 Running ../../tools/wpt/fetch/api/body/formdata.any.js
 TEST DONE 0 Consume empty response.formData() as FormData
 TEST DONE 0 Consume empty request.formData() as FormData
-Skipping ../../tools/wpt/fetch/api/body/mime-type.any.js
+Running ../../tools/wpt/fetch/api/body/mime-type.any.js
+TEST DONE 0 : overriding explicit Content-Type
+TEST DONE 0 : overriding explicit Content-Type
+TEST DONE 0 : removing implicit Content-Type
+TEST DONE 0 : removing implicit Content-Type
+TEST DONE 0 : setting missing Content-Type
+TEST DONE 0 : setting missing Content-Type
 Running ../../tools/wpt/fetch/api/request/forbidden-method.any.js
 TEST DONE 1 Request() with a forbidden method CONNECT must throw.
 TEST DONE 1 Request() with a forbidden method TRACE must throw.
@@ -139,17 +145,128 @@ TEST DONE 1 Request() with a forbidden method TRACK must throw.
 TEST DONE 1 Request() with a forbidden method connect must throw.
 TEST DONE 1 Request() with a forbidden method trace must throw.
 TEST DONE 1 Request() with a forbidden method track must throw.
-Skipping ../../tools/wpt/fetch/api/request/request-bad-port.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-cache-default-conditional.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-cache-default.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-cache-force-cache.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-cache-no-cache.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-cache-no-store.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-cache-only-if-cached.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-cache-reload.any.js
+Running ../../tools/wpt/fetch/api/request/request-bad-port.any.js
+Running ../../tools/wpt/fetch/api/request/request-cache-default-conditional.any.js
+TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Etag and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Last-Modified and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Etag and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Last-Modified and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
+TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
+TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Etag and stale response
+TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Last-Modified and stale response
+TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Etag and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Last-Modified and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Etag and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Last-Modified and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Etag and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Last-Modified and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Etag and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Last-Modified and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Etag and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Last-Modified and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Etag and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Last-Modified and stale response
+TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Etag and fresh response
+TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Last-Modified and fresh response
+Running ../../tools/wpt/fetch/api/request/request-cache-default.any.js
+TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and goes to the network for stale responses with Etag and stale response
+TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and goes to the network for stale responses with Last-Modified and stale response
+TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and avoids going to the network if a fresh response exists with Etag and fresh response
+TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and avoids going to the network if a fresh response exists with Last-Modified and fresh response
+TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Etag and stale response
+TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Last-Modified and stale response
+TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Etag and fresh response
+TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Last-Modified and fresh response
+Running ../../tools/wpt/fetch/api/request/request-cache-force-cache.any.js
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for stale responses with Etag and stale response
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for stale responses with Last-Modified and stale response
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for fresh responses with Etag and fresh response
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for fresh responses with Last-Modified and fresh response
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Etag and stale response
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Last-Modified and stale response
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Etag and fresh response
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Last-Modified and fresh response
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Etag and stale response
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Last-Modified and stale response
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Etag and fresh response
+TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Last-Modified and fresh response
+TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Etag and stale response
+TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Last-Modified and stale response
+TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Etag and fresh response
+TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Last-Modified and fresh response
+Running ../../tools/wpt/fetch/api/request/request-cache-no-cache.any.js
+TEST DONE 1 RequestCache "no-cache" mode revalidates stale responses found in the cache with Etag and stale response
+TEST DONE 1 RequestCache "no-cache" mode revalidates stale responses found in the cache with Last-Modified and stale response
+TEST DONE 1 RequestCache "no-cache" mode revalidates fresh responses found in the cache with Etag and fresh response
+TEST DONE 1 RequestCache "no-cache" mode revalidates fresh responses found in the cache with Last-Modified and fresh response
+Running ../../tools/wpt/fetch/api/request/request-cache-no-store.any.js
+TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Etag and stale response
+TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and stale response
+TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Etag and fresh response
+TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and fresh response
+TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Etag and stale response
+TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Last-Modified and stale response
+TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Etag and fresh response
+TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Last-Modified and fresh response
+Running ../../tools/wpt/fetch/api/request/request-cache-only-if-cached.any.js
+TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for stale responses with Etag and stale response
+TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for stale responses with Last-Modified and stale response
+TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for fresh responses with Etag and fresh response
+TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for fresh responses with Last-Modified and fresh response
+TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and does not go to the network if a cached response is not found with Etag and fresh response
+TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and does not go to the network if a cached response is not found with Last-Modified and fresh response
+TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Etag and fresh response
+TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Last-Modified and fresh response
+TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Etag and stale response
+TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Last-Modified and stale response
+TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Etag and fresh response
+TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Last-Modified and fresh response
+TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Etag and stale response
+TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Last-Modified and stale response
+Running ../../tools/wpt/fetch/api/request/request-cache-reload.any.js
+TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Etag and stale response
+TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and stale response
+TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Etag and fresh response
+TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and fresh response
+TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Etag and stale response
+TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Last-Modified and stale response
+TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Etag and fresh response
+TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Last-Modified and fresh response
+TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Etag and stale response
+TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Last-Modified and stale response
+TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Etag and fresh response
+TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Last-Modified and fresh response
 Skipping ../../tools/wpt/fetch/api/request/request-consume-empty.any.js
 Skipping ../../tools/wpt/fetch/api/request/request-consume.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-disturbed.any.js
+Running ../../tools/wpt/fetch/api/request/request-disturbed.any.js
+TEST DONE 1 Request's body: initial state
+TEST DONE 1 Request without body cannot be disturbed
+TEST DONE 1 Check cloning a disturbed request
+TEST DONE 1 Check creating a new request from a disturbed request
+TEST DONE 1 Request construction failure should not set "bodyUsed"
+TEST DONE 0 Check creating a new request with a new body from a disturbed request
+TEST DONE 1 Input request used for creating new request became disturbed
+TEST DONE 1 Input request used for creating new request became disturbed even if body is not used
+TEST DONE 0 Check consuming a disturbed request
 Skipping ../../tools/wpt/fetch/api/request/request-error.any.js
 Running ../../tools/wpt/fetch/api/request/request-headers.any.js
 TEST DONE 0 Adding valid request header "Content-Type: OK"
@@ -226,7 +343,7 @@ TEST DONE 0 Default Content-Type for Request with Blob body (no type set)
 TEST DONE 0 Default Content-Type for Request with Blob body (empty type)
 TEST DONE 1 Default Content-Type for Request with Blob body (set type)
 TEST DONE 0 Default Content-Type for Request with buffer source body
-TEST DONE 1 Default Content-Type for Request with URLSearchParams body
+TEST DONE 0 Default Content-Type for Request with URLSearchParams body
 TEST DONE 1 Default Content-Type for Request with string body
 TEST DONE 0 Default Content-Type for Request with ReadableStream body
 TEST DONE 0 Can override Content-Type for Request with empty body
@@ -235,7 +352,7 @@ TEST DONE 0 Can override Content-Type for Request with Blob body (empty type)
 TEST DONE 0 Can override Content-Type for Request with Blob body (set type)
 TEST DONE 0 Can override Content-Type for Request with buffer source body
 TEST DONE 0 Can override Content-Type for Request with FormData body
-TEST DONE 0 Can override Content-Type for Request with URLSearchParams body
+TEST DONE 1 Can override Content-Type for Request with URLSearchParams body
 TEST DONE 0 Can override Content-Type for Request with string body
 TEST DONE 0 Can override Content-Type for Request with ReadableStream body
 TEST DONE 1 Default Content-Type for Request with FormData body
@@ -275,7 +392,21 @@ TEST DONE 1 Check orginal response's body after cloning
 TEST DONE 1 Check cloned response's body
 TEST DONE 1 Cannot clone a disturbed response
 TEST DONE 1 Cloned responses should provide the same data
-Skipping ../../tools/wpt/fetch/api/response/response-consume-empty.any.js
+Running ../../tools/wpt/fetch/api/response/response-consume-empty.any.js
+TEST DONE 1 Consume response's body as text
+TEST DONE 1 Consume response's body as blob
+TEST DONE 1 Consume response's body as arrayBuffer
+TEST DONE 1 Consume response's body as json (error case)
+TEST DONE 1 Consume response's body as formData with correct multipart type (error case)
+TEST DONE 1 Consume response's body as formData with correct urlencoded type
+TEST DONE 1 Consume response's body as formData without correct type (error case)
+TEST DONE 1 Consume empty blob response body as arrayBuffer
+TEST DONE 0 Consume empty text response body as arrayBuffer
+TEST DONE 1 Consume empty blob response body as text
+TEST DONE 0 Consume empty text response body as text
+TEST DONE 0 Consume empty URLSearchParams response body as text
+TEST DONE 0 Consume empty FormData response body as text
+TEST DONE 1 Consume empty ArrayBuffer response body as text
 Running ../../tools/wpt/fetch/api/response/response-consume-stream.any.js
 TEST DONE 0 Getting an error Response stream
 TEST DONE 0 Getting a redirect Response stream
@@ -328,7 +459,7 @@ TEST DONE 0 Default Content-Type for Response with Blob body (no type set)
 TEST DONE 0 Default Content-Type for Response with Blob body (empty type)
 TEST DONE 1 Default Content-Type for Response with Blob body (set type)
 TEST DONE 0 Default Content-Type for Response with buffer source body
-TEST DONE 1 Default Content-Type for Response with URLSearchParams body
+TEST DONE 0 Default Content-Type for Response with URLSearchParams body
 TEST DONE 1 Default Content-Type for Response with string body
 TEST DONE 0 Default Content-Type for Response with ReadableStream body
 TEST DONE 0 Can override Content-Type for Response with empty body
@@ -337,14 +468,27 @@ TEST DONE 0 Can override Content-Type for Response with Blob body (empty type)
 TEST DONE 0 Can override Content-Type for Response with Blob body (set type)
 TEST DONE 0 Can override Content-Type for Response with buffer source body
 TEST DONE 0 Can override Content-Type for Response with FormData body
-TEST DONE 0 Can override Content-Type for Response with URLSearchParams body
+TEST DONE 1 Can override Content-Type for Response with URLSearchParams body
 TEST DONE 0 Can override Content-Type for Response with string body
 TEST DONE 0 Can override Content-Type for Response with ReadableStream body
 TEST DONE 1 Default Content-Type for Response with FormData body
 Running ../../tools/wpt/fetch/api/response/response-static-error.any.js
 TEST DONE 1 Check response returned by static method error()
 TEST DONE 1 the 'guard' of the Headers instance should be immutable
-Skipping ../../tools/wpt/fetch/api/response/response-static-json.any.js
+Running ../../tools/wpt/fetch/api/response/response-static-json.any.js
+TEST DONE 1 Throws TypeError when calling static json() with a status of 204
+TEST DONE 1 Throws TypeError when calling static json() with a status of 205
+TEST DONE 1 Throws TypeError when calling static json() with a status of 304
+TEST DONE 1 Check static json() throws when data is not encodable
+TEST DONE 1 Check static json() throws when data is circular
+TEST DONE 1 Check response returned by static json() with init undefined
+TEST DONE 1 Check response returned by static json() with init {"status":400}
+TEST DONE 1 Check response returned by static json() with init {"statusText":"foo"}
+TEST DONE 1 Check response returned by static json() with init {"headers":{}}
+TEST DONE 1 Check response returned by static json() with init {"headers":{"content-type":"foo/bar"}}
+TEST DONE 1 Check response returned by static json() with init {"headers":{"x-foo":"bar"}}
+TEST DONE 1 Check static json() encodes JSON objects correctly
+TEST DONE 1 Check static json() propagates JSON serializer errors
 Running ../../tools/wpt/fetch/api/response/response-static-redirect.any.js
 TEST DONE 1 Check default redirect response
 TEST DONE 1 Check response returned by static method redirect(), status = 301
@@ -363,17 +507,83 @@ TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.blob() c
 TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.formData() causes TypeError
 TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.json() causes TypeError
 TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.text() causes TypeError
-Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-1.any.js
-Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-2.any.js
-Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-3.any.js
-Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-4.any.js
-Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-5.any.js
-Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-6.any.js
+Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-1.any.js
+TEST DONE 1 Getting blob after getting the Response body - not disturbed, not locked (body source: fetch)
+TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: fetch)
+TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: fetch)
+TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: fetch)
+TEST DONE 1 Getting blob after getting the Response body - not disturbed, not locked (body source: stream)
+TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: stream)
+TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: stream)
+TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: stream)
+TEST DONE 1 Getting blob after getting the Response body - not disturbed, not locked (body source: string)
+TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: string)
+TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: string)
+TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: string)
+Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-2.any.js
+TEST DONE 1 Getting blob after getting a locked Response body (body source: fetch)
+TEST DONE 1 Getting text after getting a locked Response body (body source: fetch)
+TEST DONE 1 Getting json after getting a locked Response body (body source: fetch)
+TEST DONE 1 Getting arrayBuffer after getting a locked Response body (body source: fetch)
+TEST DONE 1 Getting blob after getting a locked Response body (body source: stream)
+TEST DONE 1 Getting text after getting a locked Response body (body source: stream)
+TEST DONE 1 Getting json after getting a locked Response body (body source: stream)
+TEST DONE 1 Getting arrayBuffer after getting a locked Response body (body source: stream)
+TEST DONE 1 Getting blob after getting a locked Response body (body source: string)
+TEST DONE 1 Getting text after getting a locked Response body (body source: string)
+TEST DONE 1 Getting json after getting a locked Response body (body source: string)
+TEST DONE 1 Getting arrayBuffer after getting a locked Response body (body source: string)
+Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-3.any.js
+TEST DONE 1 Getting blob after reading the Response body (body source: fetch)
+TEST DONE 1 Getting text after reading the Response body (body source: fetch)
+TEST DONE 1 Getting json after reading the Response body (body source: fetch)
+TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: fetch)
+TEST DONE 1 Getting blob after reading the Response body (body source: stream)
+TEST DONE 1 Getting text after reading the Response body (body source: stream)
+TEST DONE 1 Getting json after reading the Response body (body source: stream)
+TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: stream)
+TEST DONE 1 Getting blob after reading the Response body (body source: string)
+TEST DONE 1 Getting text after reading the Response body (body source: string)
+TEST DONE 1 Getting json after reading the Response body (body source: string)
+TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: string)
+Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-4.any.js
+TEST DONE 1 Getting blob after cancelling the Response body (body source: fetch)
+TEST DONE 1 Getting text after cancelling the Response body (body source: fetch)
+TEST DONE 1 Getting json after cancelling the Response body (body source: fetch)
+TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: fetch)
+TEST DONE 1 Getting blob after cancelling the Response body (body source: stream)
+TEST DONE 1 Getting text after cancelling the Response body (body source: stream)
+TEST DONE 1 Getting json after cancelling the Response body (body source: stream)
+TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: stream)
+TEST DONE 1 Getting blob after cancelling the Response body (body source: string)
+TEST DONE 1 Getting text after cancelling the Response body (body source: string)
+TEST DONE 1 Getting json after cancelling the Response body (body source: string)
+TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: string)
+Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-5.any.js
+TEST DONE 1 Getting a body reader after consuming as blob (body source: fetch)
+TEST DONE 1 Getting a body reader after consuming as text (body source: fetch)
+TEST DONE 1 Getting a body reader after consuming as json (body source: fetch)
+TEST DONE 1 Getting a body reader after consuming as arrayBuffer (body source: fetch)
+TEST DONE 1 Getting a body reader after consuming as blob (body source: stream)
+TEST DONE 1 Getting a body reader after consuming as text (body source: stream)
+TEST DONE 1 Getting a body reader after consuming as json (body source: stream)
+TEST DONE 1 Getting a body reader after consuming as arrayBuffer (body source: stream)
+TEST DONE 1 Getting a body reader after consuming as blob (body source: string)
+TEST DONE 1 Getting a body reader after consuming as text (body source: string)
+TEST DONE 1 Getting a body reader after consuming as json (body source: string)
+TEST DONE 1 Getting a body reader after consuming as arrayBuffer (body source: string)
+Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-6.any.js
+TEST DONE 1 A non-closed stream on which read() has been called
+TEST DONE 1 A non-closed stream on which cancel() has been called
+TEST DONE 1 A closed stream on which read() has been called
+TEST DONE 1 An errored stream on which read() has been called
+TEST DONE 1 An errored stream on which cancel() has been called
 Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-by-pipe.any.js
 TEST DONE 1 using pipeTo on Response body should disturb it synchronously
 TEST DONE 1 using pipeThrough on Response body should disturb it synchronously
 Skipping ../../tools/wpt/fetch/api/response/response-stream-with-broken-then.any.js
 Running ../../tools/wpt/url/historical.any.js
+TEST DONE 0 searchParams on location object
 TEST DONE 1 Setting URL's href attribute and base URLs
 TEST DONE 0 URL.domainToASCII should be undefined
 TEST DONE 0 URL.domainToUnicode should be undefined
@@ -846,8 +1056,99 @@ TEST DONE 0 Encode/decode round trip: utf-8
 TEST DONE 1 Decode sample: utf-16le
 TEST DONE 1 Decode sample: utf-16be
 TEST DONE 1 Decode sample: utf-16
-Skipping ../../tools/wpt/encoding/api-invalid-label.any.js
-Skipping ../../tools/wpt/encoding/api-replacement-encodings.any.js
+Running ../../tools/wpt/encoding/api-invalid-label.any.js
+TEST DONE 1 Invalid label "invalid-invalidLabel" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0unicode-1-1-utf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode-1-1-utf-8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0unicode-1-1-utf-8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vunicode-1-1-utf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode-1-1-utf-8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vunicode-1-1-utf-8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode-1-1-utf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode-1-1-utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode-1-1-utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode-1-1-utf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode-1-1-utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode-1-1-utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode-1-1-utf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode-1-1-utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode-1-1-utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0unicode11utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode11utf8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0unicode11utf8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vunicode11utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode11utf8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vunicode11utf8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode11utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode11utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode11utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode11utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode11utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode11utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode11utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode11utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode11utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0unicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode20utf8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0unicode20utf8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vunicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode20utf8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vunicode20utf8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0utf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf-8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0utf-8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vutf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf-8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vutf-8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0utf8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vutf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vutf8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0x-unicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "x-unicode20utf8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\0x-unicode20utf8\0" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vx-unicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "x-unicode20utf8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "\vx-unicode20utf8\v" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " x-unicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "x-unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " x-unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " x-unicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "x-unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " x-unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " x-unicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "x-unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " x-unicode20utf8 " should be rejected by TextDecoder.
+Running ../../tools/wpt/encoding/api-replacement-encodings.any.js
 Running ../../tools/wpt/encoding/api-surrogates-utf8.any.js
 TEST DONE 0 Invalid surrogates encoded into UTF-8: Sanity check
 TEST DONE 1 Invalid surrogates encoded into UTF-8: Surrogate half (low)
@@ -855,153 +1156,10 @@ TEST DONE 1 Invalid surrogates encoded into UTF-8: Surrogate half (high)
 TEST DONE 1 Invalid surrogates encoded into UTF-8: Surrogate half (low), in a string
 TEST DONE 1 Invalid surrogates encoded into UTF-8: Surrogate half (high), in a string
 TEST DONE 1 Invalid surrogates encoded into UTF-8: Wrong order
-Running ../../tools/wpt/encoding/encodeInto.any.js
-TEST DONE 1 encodeInto() into ArrayBuffer with Hi and destination length 0, offset 0, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with Hi and destination length 0, offset 0, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with Hi and destination length 0, offset 4, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with Hi and destination length 0, offset 4, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with Hi and destination length 0, offset 0, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with Hi and destination length 0, offset 0, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with Hi and destination length 0, offset 4, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with Hi and destination length 0, offset 4, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with Hi and destination length 0, offset 0, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with Hi and destination length 0, offset 0, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with Hi and destination length 0, offset 4, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with Hi and destination length 0, offset 4, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with A and destination length 10, offset 0, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A and destination length 10, offset 0, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with A and destination length 10, offset 4, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A and destination length 10, offset 4, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with A and destination length 10, offset 0, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A and destination length 10, offset 0, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with A and destination length 10, offset 4, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A and destination length 10, offset 4, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with A and destination length 10, offset 0, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A and destination length 10, offset 0, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with A and destination length 10, offset 4, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A and destination length 10, offset 4, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆 and destination length 4, offset 0, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆 and destination length 4, offset 0, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆 and destination length 4, offset 4, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆 and destination length 4, offset 4, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆 and destination length 4, offset 0, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆 and destination length 4, offset 0, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆 and destination length 4, offset 4, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆 and destination length 4, offset 4, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆 and destination length 4, offset 0, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆 and destination length 4, offset 0, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆 and destination length 4, offset 4, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆 and destination length 4, offset 4, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆A and destination length 3, offset 0, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆A and destination length 3, offset 0, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆A and destination length 3, offset 4, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆A and destination length 3, offset 4, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆A and destination length 3, offset 0, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆A and destination length 3, offset 0, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆A and destination length 3, offset 4, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆A and destination length 3, offset 4, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆A and destination length 3, offset 0, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆A and destination length 3, offset 0, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with 𝌆A and destination length 3, offset 4, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with 𝌆A and destination length 3, offset 4, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with �A�A¥Hi and destination length 10, offset 0, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with �A�A¥Hi and destination length 10, offset 0, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with �A�A¥Hi and destination length 10, offset 4, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with �A�A¥Hi and destination length 10, offset 4, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with �A�A¥Hi and destination length 10, offset 0, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with �A�A¥Hi and destination length 10, offset 0, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with �A�A¥Hi and destination length 10, offset 4, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with �A�A¥Hi and destination length 10, offset 4, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with �A�A¥Hi and destination length 10, offset 0, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with �A�A¥Hi and destination length 10, offset 0, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with �A�A¥Hi and destination length 10, offset 4, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with �A�A¥Hi and destination length 10, offset 4, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with A� and destination length 4, offset 0, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A� and destination length 4, offset 0, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with A� and destination length 4, offset 4, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A� and destination length 4, offset 4, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with A� and destination length 4, offset 0, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A� and destination length 4, offset 0, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with A� and destination length 4, offset 4, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A� and destination length 4, offset 4, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with A� and destination length 4, offset 0, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A� and destination length 4, offset 0, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with A� and destination length 4, offset 4, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with A� and destination length 4, offset 4, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with ¥¥ and destination length 4, offset 0, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with ¥¥ and destination length 4, offset 0, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with ¥¥ and destination length 4, offset 4, filler 0
-TEST DONE 1 encodeInto() into SharedArrayBuffer with ¥¥ and destination length 4, offset 4, filler 0
-TEST DONE 1 encodeInto() into ArrayBuffer with ¥¥ and destination length 4, offset 0, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with ¥¥ and destination length 4, offset 0, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with ¥¥ and destination length 4, offset 4, filler 128
-TEST DONE 1 encodeInto() into SharedArrayBuffer with ¥¥ and destination length 4, offset 4, filler 128
-TEST DONE 1 encodeInto() into ArrayBuffer with ¥¥ and destination length 4, offset 0, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with ¥¥ and destination length 4, offset 0, filler random
-TEST DONE 1 encodeInto() into ArrayBuffer with ¥¥ and destination length 4, offset 4, filler random
-TEST DONE 1 encodeInto() into SharedArrayBuffer with ¥¥ and destination length 4, offset 4, filler random
-TEST DONE 1 Invalid encodeInto() destination: DataView, backed by: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: DataView, backed by: SharedArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Int8Array, backed by: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Int8Array, backed by: SharedArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Int16Array, backed by: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Int16Array, backed by: SharedArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Int32Array, backed by: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Int32Array, backed by: SharedArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Uint16Array, backed by: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Uint16Array, backed by: SharedArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Uint32Array, backed by: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Uint32Array, backed by: SharedArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Uint8ClampedArray, backed by: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Uint8ClampedArray, backed by: SharedArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: BigInt64Array, backed by: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: BigInt64Array, backed by: SharedArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: BigUint64Array, backed by: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: BigUint64Array, backed by: SharedArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Float32Array, backed by: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Float32Array, backed by: SharedArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Float64Array, backed by: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: Float64Array, backed by: SharedArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: ArrayBuffer
-TEST DONE 1 Invalid encodeInto() destination: SharedArrayBuffer
-TEST DONE 1 encodeInto() and a detached output buffer
+Skipping ../../tools/wpt/encoding/encodeInto.any.js
 Skipping ../../tools/wpt/encoding/idlharness.any.js
-Running ../../tools/wpt/encoding/iso-2022-jp-decoder.any.js
-TEST DONE 1 iso-2022-jp decoder: Error ESC
-TEST DONE 1 iso-2022-jp decoder: Error ESC, character
-TEST DONE 1 iso-2022-jp decoder: ASCII ESC, character
-TEST DONE 1 iso-2022-jp decoder: Double ASCII ESC, character
-TEST DONE 1 iso-2022-jp decoder: character, ASCII ESC, character
-TEST DONE 0 iso-2022-jp decoder: characters
-TEST DONE 1 iso-2022-jp decoder: SO / SI
-TEST DONE 1 iso-2022-jp decoder: Roman ESC, characters
-TEST DONE 1 iso-2022-jp decoder: Roman ESC, SO / SI
-TEST DONE 1 iso-2022-jp decoder: Roman ESC, error ESC, Katakana ESC
-TEST DONE 1 iso-2022-jp decoder: Katakana ESC, character
-TEST DONE 1 iso-2022-jp decoder: Katakana ESC, multibyte ESC, character
-TEST DONE 1 iso-2022-jp decoder: Katakana ESC, error ESC, character
-TEST DONE 1 iso-2022-jp decoder: Katakana ESC, error ESC #2, character
-TEST DONE 1 iso-2022-jp decoder: Katakana ESC, character, Katakana ESC, character
-TEST DONE 1 iso-2022-jp decoder: Katakana ESC, SO / SI
-TEST DONE 1 iso-2022-jp decoder: Multibyte ESC, character
-TEST DONE 1 iso-2022-jp decoder: Multibyte ESC #2, character
-TEST DONE 1 iso-2022-jp decoder: Multibyte ESC, error ESC, character
-TEST DONE 1 iso-2022-jp decoder: Double multibyte ESC
-TEST DONE 1 iso-2022-jp decoder: Double multibyte ESC, character
-TEST DONE 1 iso-2022-jp decoder: Double multibyte ESC #2, character
-TEST DONE 1 iso-2022-jp decoder: Multibyte ESC, error ESC #2, character
-TEST DONE 1 iso-2022-jp decoder: Multibyte ESC, single byte, multibyte ESC, character
-TEST DONE 1 iso-2022-jp decoder: Multibyte ESC, lead error byte
-TEST DONE 1 iso-2022-jp decoder: Multibyte ESC, trail error byte
-TEST DONE 1 iso-2022-jp decoder: character, error ESC
-TEST DONE 1 iso-2022-jp decoder: character, error ESC #2
-TEST DONE 1 iso-2022-jp decoder: character, error ESC #3
-TEST DONE 1 iso-2022-jp decoder: character, ASCII ESC
-TEST DONE 1 iso-2022-jp decoder: character, Roman ESC
-TEST DONE 1 iso-2022-jp decoder: character, Katakana ESC
-TEST DONE 1 iso-2022-jp decoder: character, Multibyte ESC
-TEST DONE 1 iso-2022-jp decoder: character, Multibyte ESC #2
-Skipping ../../tools/wpt/encoding/replacement-encodings.any.js
+Skipping ../../tools/wpt/encoding/iso-2022-jp-decoder.any.js
+Running ../../tools/wpt/encoding/replacement-encodings.any.js
 Running ../../tools/wpt/encoding/textdecoder-arguments.any.js
 TEST DONE 1 TextDecoder decode() with explicit undefined
 TEST DONE 1 TextDecoder decode() with undefined and undefined
@@ -1069,222 +1227,6 @@ TEST DONE 0 unicode20utf8 => UTF-8
 TEST DONE 0 utf-8 => UTF-8
 TEST DONE 0 utf8 => UTF-8
 TEST DONE 0 x-unicode20utf8 => UTF-8
-TEST DONE 1 866 => IBM866
-TEST DONE 1 cp866 => IBM866
-TEST DONE 1 csibm866 => IBM866
-TEST DONE 1 ibm866 => IBM866
-TEST DONE 1 csisolatin2 => ISO-8859-2
-TEST DONE 1 iso-8859-2 => ISO-8859-2
-TEST DONE 1 iso-ir-101 => ISO-8859-2
-TEST DONE 1 iso8859-2 => ISO-8859-2
-TEST DONE 1 iso88592 => ISO-8859-2
-TEST DONE 1 iso_8859-2 => ISO-8859-2
-TEST DONE 1 iso_8859-2:1987 => ISO-8859-2
-TEST DONE 1 l2 => ISO-8859-2
-TEST DONE 1 latin2 => ISO-8859-2
-TEST DONE 1 csisolatin3 => ISO-8859-3
-TEST DONE 1 iso-8859-3 => ISO-8859-3
-TEST DONE 1 iso-ir-109 => ISO-8859-3
-TEST DONE 1 iso8859-3 => ISO-8859-3
-TEST DONE 1 iso88593 => ISO-8859-3
-TEST DONE 1 iso_8859-3 => ISO-8859-3
-TEST DONE 1 iso_8859-3:1988 => ISO-8859-3
-TEST DONE 1 l3 => ISO-8859-3
-TEST DONE 1 latin3 => ISO-8859-3
-TEST DONE 1 csisolatin4 => ISO-8859-4
-TEST DONE 1 iso-8859-4 => ISO-8859-4
-TEST DONE 1 iso-ir-110 => ISO-8859-4
-TEST DONE 1 iso8859-4 => ISO-8859-4
-TEST DONE 1 iso88594 => ISO-8859-4
-TEST DONE 1 iso_8859-4 => ISO-8859-4
-TEST DONE 1 iso_8859-4:1988 => ISO-8859-4
-TEST DONE 1 l4 => ISO-8859-4
-TEST DONE 1 latin4 => ISO-8859-4
-TEST DONE 1 csisolatincyrillic => ISO-8859-5
-TEST DONE 1 cyrillic => ISO-8859-5
-TEST DONE 1 iso-8859-5 => ISO-8859-5
-TEST DONE 1 iso-ir-144 => ISO-8859-5
-TEST DONE 1 iso8859-5 => ISO-8859-5
-TEST DONE 1 iso88595 => ISO-8859-5
-TEST DONE 1 iso_8859-5 => ISO-8859-5
-TEST DONE 1 iso_8859-5:1988 => ISO-8859-5
-TEST DONE 1 arabic => ISO-8859-6
-TEST DONE 1 asmo-708 => ISO-8859-6
-TEST DONE 1 csiso88596e => ISO-8859-6
-TEST DONE 1 csiso88596i => ISO-8859-6
-TEST DONE 1 csisolatinarabic => ISO-8859-6
-TEST DONE 1 ecma-114 => ISO-8859-6
-TEST DONE 1 iso-8859-6 => ISO-8859-6
-TEST DONE 1 iso-8859-6-e => ISO-8859-6
-TEST DONE 1 iso-8859-6-i => ISO-8859-6
-TEST DONE 1 iso-ir-127 => ISO-8859-6
-TEST DONE 1 iso8859-6 => ISO-8859-6
-TEST DONE 1 iso88596 => ISO-8859-6
-TEST DONE 1 iso_8859-6 => ISO-8859-6
-TEST DONE 1 iso_8859-6:1987 => ISO-8859-6
-TEST DONE 1 csisolatingreek => ISO-8859-7
-TEST DONE 1 ecma-118 => ISO-8859-7
-TEST DONE 1 elot_928 => ISO-8859-7
-TEST DONE 1 greek => ISO-8859-7
-TEST DONE 1 greek8 => ISO-8859-7
-TEST DONE 1 iso-8859-7 => ISO-8859-7
-TEST DONE 1 iso-ir-126 => ISO-8859-7
-TEST DONE 1 iso8859-7 => ISO-8859-7
-TEST DONE 1 iso88597 => ISO-8859-7
-TEST DONE 1 iso_8859-7 => ISO-8859-7
-TEST DONE 1 iso_8859-7:1987 => ISO-8859-7
-TEST DONE 1 sun_eu_greek => ISO-8859-7
-TEST DONE 1 csiso88598e => ISO-8859-8
-TEST DONE 1 csisolatinhebrew => ISO-8859-8
-TEST DONE 1 hebrew => ISO-8859-8
-TEST DONE 1 iso-8859-8 => ISO-8859-8
-TEST DONE 1 iso-8859-8-e => ISO-8859-8
-TEST DONE 1 iso-ir-138 => ISO-8859-8
-TEST DONE 1 iso8859-8 => ISO-8859-8
-TEST DONE 1 iso88598 => ISO-8859-8
-TEST DONE 1 iso_8859-8 => ISO-8859-8
-TEST DONE 1 iso_8859-8:1988 => ISO-8859-8
-TEST DONE 1 visual => ISO-8859-8
-TEST DONE 1 csiso88598i => ISO-8859-8-I
-TEST DONE 1 iso-8859-8-i => ISO-8859-8-I
-TEST DONE 1 logical => ISO-8859-8-I
-TEST DONE 1 csisolatin6 => ISO-8859-10
-TEST DONE 1 iso-8859-10 => ISO-8859-10
-TEST DONE 1 iso-ir-157 => ISO-8859-10
-TEST DONE 1 iso8859-10 => ISO-8859-10
-TEST DONE 1 iso885910 => ISO-8859-10
-TEST DONE 1 l6 => ISO-8859-10
-TEST DONE 1 latin6 => ISO-8859-10
-TEST DONE 1 iso-8859-13 => ISO-8859-13
-TEST DONE 1 iso8859-13 => ISO-8859-13
-TEST DONE 1 iso885913 => ISO-8859-13
-TEST DONE 1 iso-8859-14 => ISO-8859-14
-TEST DONE 1 iso8859-14 => ISO-8859-14
-TEST DONE 1 iso885914 => ISO-8859-14
-TEST DONE 1 csisolatin9 => ISO-8859-15
-TEST DONE 1 iso-8859-15 => ISO-8859-15
-TEST DONE 1 iso8859-15 => ISO-8859-15
-TEST DONE 1 iso885915 => ISO-8859-15
-TEST DONE 1 iso_8859-15 => ISO-8859-15
-TEST DONE 1 l9 => ISO-8859-15
-TEST DONE 1 iso-8859-16 => ISO-8859-16
-TEST DONE 1 cskoi8r => KOI8-R
-TEST DONE 1 koi => KOI8-R
-TEST DONE 1 koi8 => KOI8-R
-TEST DONE 1 koi8-r => KOI8-R
-TEST DONE 1 koi8_r => KOI8-R
-TEST DONE 1 koi8-ru => KOI8-U
-TEST DONE 1 koi8-u => KOI8-U
-TEST DONE 1 csmacintosh => macintosh
-TEST DONE 1 mac => macintosh
-TEST DONE 1 macintosh => macintosh
-TEST DONE 1 x-mac-roman => macintosh
-TEST DONE 1 dos-874 => windows-874
-TEST DONE 1 iso-8859-11 => windows-874
-TEST DONE 1 iso8859-11 => windows-874
-TEST DONE 1 iso885911 => windows-874
-TEST DONE 1 tis-620 => windows-874
-TEST DONE 1 windows-874 => windows-874
-TEST DONE 1 cp1250 => windows-1250
-TEST DONE 1 windows-1250 => windows-1250
-TEST DONE 1 x-cp1250 => windows-1250
-TEST DONE 1 cp1251 => windows-1251
-TEST DONE 1 windows-1251 => windows-1251
-TEST DONE 1 x-cp1251 => windows-1251
-TEST DONE 1 ansi_x3.4-1968 => windows-1252
-TEST DONE 1 ascii => windows-1252
-TEST DONE 1 cp1252 => windows-1252
-TEST DONE 1 cp819 => windows-1252
-TEST DONE 1 csisolatin1 => windows-1252
-TEST DONE 1 ibm819 => windows-1252
-TEST DONE 1 iso-8859-1 => windows-1252
-TEST DONE 1 iso-ir-100 => windows-1252
-TEST DONE 1 iso8859-1 => windows-1252
-TEST DONE 1 iso88591 => windows-1252
-TEST DONE 1 iso_8859-1 => windows-1252
-TEST DONE 1 iso_8859-1:1987 => windows-1252
-TEST DONE 1 l1 => windows-1252
-TEST DONE 1 latin1 => windows-1252
-TEST DONE 1 us-ascii => windows-1252
-TEST DONE 1 windows-1252 => windows-1252
-TEST DONE 1 x-cp1252 => windows-1252
-TEST DONE 1 cp1253 => windows-1253
-TEST DONE 1 windows-1253 => windows-1253
-TEST DONE 1 x-cp1253 => windows-1253
-TEST DONE 1 cp1254 => windows-1254
-TEST DONE 1 csisolatin5 => windows-1254
-TEST DONE 1 iso-8859-9 => windows-1254
-TEST DONE 1 iso-ir-148 => windows-1254
-TEST DONE 1 iso8859-9 => windows-1254
-TEST DONE 1 iso88599 => windows-1254
-TEST DONE 1 iso_8859-9 => windows-1254
-TEST DONE 1 iso_8859-9:1989 => windows-1254
-TEST DONE 1 l5 => windows-1254
-TEST DONE 1 latin5 => windows-1254
-TEST DONE 1 windows-1254 => windows-1254
-TEST DONE 1 x-cp1254 => windows-1254
-TEST DONE 1 cp1255 => windows-1255
-TEST DONE 1 windows-1255 => windows-1255
-TEST DONE 1 x-cp1255 => windows-1255
-TEST DONE 1 cp1256 => windows-1256
-TEST DONE 1 windows-1256 => windows-1256
-TEST DONE 1 x-cp1256 => windows-1256
-TEST DONE 1 cp1257 => windows-1257
-TEST DONE 1 windows-1257 => windows-1257
-TEST DONE 1 x-cp1257 => windows-1257
-TEST DONE 1 cp1258 => windows-1258
-TEST DONE 1 windows-1258 => windows-1258
-TEST DONE 1 x-cp1258 => windows-1258
-TEST DONE 1 x-mac-cyrillic => x-mac-cyrillic
-TEST DONE 1 x-mac-ukrainian => x-mac-cyrillic
-TEST DONE 1 chinese => GBK
-TEST DONE 1 csgb2312 => GBK
-TEST DONE 1 csiso58gb231280 => GBK
-TEST DONE 1 gb2312 => GBK
-TEST DONE 1 gb_2312 => GBK
-TEST DONE 1 gb_2312-80 => GBK
-TEST DONE 1 gbk => GBK
-TEST DONE 1 iso-ir-58 => GBK
-TEST DONE 1 x-gbk => GBK
-TEST DONE 1 gb18030 => gb18030
-TEST DONE 1 big5 => Big5
-TEST DONE 1 big5-hkscs => Big5
-TEST DONE 1 cn-big5 => Big5
-TEST DONE 1 csbig5 => Big5
-TEST DONE 1 x-x-big5 => Big5
-TEST DONE 1 cseucpkdfmtjapanese => EUC-JP
-TEST DONE 1 euc-jp => EUC-JP
-TEST DONE 1 x-euc-jp => EUC-JP
-TEST DONE 1 csiso2022jp => ISO-2022-JP
-TEST DONE 1 iso-2022-jp => ISO-2022-JP
-TEST DONE 1 csshiftjis => Shift_JIS
-TEST DONE 1 ms932 => Shift_JIS
-TEST DONE 1 ms_kanji => Shift_JIS
-TEST DONE 1 shift-jis => Shift_JIS
-TEST DONE 1 shift_jis => Shift_JIS
-TEST DONE 1 sjis => Shift_JIS
-TEST DONE 1 windows-31j => Shift_JIS
-TEST DONE 1 x-sjis => Shift_JIS
-TEST DONE 1 cseuckr => EUC-KR
-TEST DONE 1 csksc56011987 => EUC-KR
-TEST DONE 1 euc-kr => EUC-KR
-TEST DONE 1 iso-ir-149 => EUC-KR
-TEST DONE 1 korean => EUC-KR
-TEST DONE 1 ks_c_5601-1987 => EUC-KR
-TEST DONE 1 ks_c_5601-1989 => EUC-KR
-TEST DONE 1 ksc5601 => EUC-KR
-TEST DONE 1 ksc_5601 => EUC-KR
-TEST DONE 1 windows-949 => EUC-KR
-TEST DONE 1 unicodefffe => UTF-16BE
-TEST DONE 1 utf-16be => UTF-16BE
-TEST DONE 1 csunicode => UTF-16LE
-TEST DONE 1 iso-10646-ucs-2 => UTF-16LE
-TEST DONE 1 ucs-2 => UTF-16LE
-TEST DONE 1 unicode => UTF-16LE
-TEST DONE 1 unicodefeff => UTF-16LE
-TEST DONE 1 utf-16 => UTF-16LE
-TEST DONE 1 utf-16le => UTF-16LE
-TEST DONE 1 x-user-defined => x-user-defined
 Running ../../tools/wpt/encoding/textdecoder-streaming.any.js
 TEST DONE 1 Streaming decode: utf-8, 1 byte window (ArrayBuffer)
 TEST DONE 1 Streaming decode: utf-8, 2 byte window (ArrayBuffer)
@@ -1318,106 +1260,26 @@ TEST DONE 1 Streaming decode: utf-16be, 3 byte window (SharedArrayBuffer)
 TEST DONE 1 Streaming decode: utf-16be, 4 byte window (SharedArrayBuffer)
 TEST DONE 1 Streaming decode: utf-16be, 5 byte window (SharedArrayBuffer)
 TEST DONE 1 Streaming decode: UTF-8 chunk tests (SharedArrayBuffer)
-Running ../../tools/wpt/encoding/textdecoder-utf16-surrogates.any.js
-TEST DONE 1 utf-16le - lone surrogate lead
-TEST DONE 1 utf-16le - lone surrogate lead (fatal flag set)
-TEST DONE 1 utf-16le - lone surrogate trail
-TEST DONE 1 utf-16le - lone surrogate trail (fatal flag set)
-TEST DONE 1 utf-16le - unmatched surrogate lead
-TEST DONE 1 utf-16le - unmatched surrogate lead (fatal flag set)
-TEST DONE 1 utf-16le - unmatched surrogate trail
-TEST DONE 1 utf-16le - unmatched surrogate trail (fatal flag set)
-TEST DONE 1 utf-16le - swapped surrogate pair
-TEST DONE 1 utf-16le - swapped surrogate pair (fatal flag set)
+Skipping ../../tools/wpt/encoding/textdecoder-utf16-surrogates.any.js
 Running ../../tools/wpt/encoding/textencoder-constructor-non-utf.any.js
 TEST DONE 0 Encoding argument supported for decode: UTF-8
 TEST DONE 0 Encoding argument not considered for encode: UTF-8
-TEST DONE 1 Encoding argument supported for decode: IBM866
-TEST DONE 0 Encoding argument not considered for encode: IBM866
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-2
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-2
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-3
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-3
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-4
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-4
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-5
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-5
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-6
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-6
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-7
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-7
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-8
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-8
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-8-I
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-8-I
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-10
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-10
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-13
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-13
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-14
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-14
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-15
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-15
-TEST DONE 1 Encoding argument supported for decode: ISO-8859-16
-TEST DONE 0 Encoding argument not considered for encode: ISO-8859-16
-TEST DONE 1 Encoding argument supported for decode: KOI8-R
-TEST DONE 0 Encoding argument not considered for encode: KOI8-R
-TEST DONE 1 Encoding argument supported for decode: KOI8-U
-TEST DONE 0 Encoding argument not considered for encode: KOI8-U
-TEST DONE 1 Encoding argument supported for decode: macintosh
-TEST DONE 0 Encoding argument not considered for encode: macintosh
-TEST DONE 1 Encoding argument supported for decode: windows-874
-TEST DONE 0 Encoding argument not considered for encode: windows-874
-TEST DONE 1 Encoding argument supported for decode: windows-1250
-TEST DONE 0 Encoding argument not considered for encode: windows-1250
-TEST DONE 1 Encoding argument supported for decode: windows-1251
-TEST DONE 0 Encoding argument not considered for encode: windows-1251
-TEST DONE 1 Encoding argument supported for decode: windows-1252
-TEST DONE 0 Encoding argument not considered for encode: windows-1252
-TEST DONE 1 Encoding argument supported for decode: windows-1253
-TEST DONE 0 Encoding argument not considered for encode: windows-1253
-TEST DONE 1 Encoding argument supported for decode: windows-1254
-TEST DONE 0 Encoding argument not considered for encode: windows-1254
-TEST DONE 1 Encoding argument supported for decode: windows-1255
-TEST DONE 0 Encoding argument not considered for encode: windows-1255
-TEST DONE 1 Encoding argument supported for decode: windows-1256
-TEST DONE 0 Encoding argument not considered for encode: windows-1256
-TEST DONE 1 Encoding argument supported for decode: windows-1257
-TEST DONE 0 Encoding argument not considered for encode: windows-1257
-TEST DONE 1 Encoding argument supported for decode: windows-1258
-TEST DONE 0 Encoding argument not considered for encode: windows-1258
-TEST DONE 1 Encoding argument supported for decode: x-mac-cyrillic
-TEST DONE 0 Encoding argument not considered for encode: x-mac-cyrillic
-TEST DONE 1 Encoding argument supported for decode: GBK
-TEST DONE 0 Encoding argument not considered for encode: GBK
-TEST DONE 1 Encoding argument supported for decode: gb18030
-TEST DONE 0 Encoding argument not considered for encode: gb18030
-TEST DONE 1 Encoding argument supported for decode: Big5
-TEST DONE 0 Encoding argument not considered for encode: Big5
-TEST DONE 1 Encoding argument supported for decode: EUC-JP
-TEST DONE 0 Encoding argument not considered for encode: EUC-JP
-TEST DONE 1 Encoding argument supported for decode: ISO-2022-JP
-TEST DONE 0 Encoding argument not considered for encode: ISO-2022-JP
-TEST DONE 1 Encoding argument supported for decode: Shift_JIS
-TEST DONE 0 Encoding argument not considered for encode: Shift_JIS
-TEST DONE 1 Encoding argument supported for decode: EUC-KR
-TEST DONE 0 Encoding argument not considered for encode: EUC-KR
-TEST DONE 0 Encoding argument not considered for encode: replacement
-TEST DONE 1 Encoding argument supported for decode: UTF-16BE
-TEST DONE 0 Encoding argument not considered for encode: UTF-16BE
-TEST DONE 1 Encoding argument supported for decode: UTF-16LE
-TEST DONE 0 Encoding argument not considered for encode: UTF-16LE
-TEST DONE 1 Encoding argument supported for decode: x-user-defined
-TEST DONE 0 Encoding argument not considered for encode: x-user-defined
-Running ../../tools/wpt/encoding/textencoder-utf16-surrogates.any.js
-TEST DONE 1 USVString handling: lone surrogate lead
-TEST DONE 1 USVString handling: lone surrogate trail
-TEST DONE 1 USVString handling: unmatched surrogate lead
-TEST DONE 1 USVString handling: unmatched surrogate trail
-TEST DONE 1 USVString handling: swapped surrogate pair
-TEST DONE 0 USVString handling: properly encoded MUSICAL SYMBOL G CLEF (U+1D11E)
-TEST DONE 0 USVString default
-Skipping ../../tools/wpt/encoding/unsupported-encodings.any.js
+Skipping ../../tools/wpt/encoding/textencoder-utf16-surrogates.any.js
+Running ../../tools/wpt/encoding/unsupported-encodings.any.js
+TEST DONE 1 UTF-7 should not be supported
+TEST DONE 1 utf-7 should not be supported
+TEST DONE 1 UTF-32 with BOM should decode as UTF-16LE
+TEST DONE 1 UTF-32 with no BOM should decode as UTF-8
+TEST DONE 1 utf-32 with BOM should decode as UTF-16LE
+TEST DONE 1 utf-32 with no BOM should decode as UTF-8
+TEST DONE 1 UTF-32LE with BOM should decode as UTF-16LE
+TEST DONE 1 UTF-32LE with no BOM should decode as UTF-8
+TEST DONE 1 utf-32le with BOM should decode as UTF-16LE
+TEST DONE 1 utf-32le with no BOM should decode as UTF-8
+TEST DONE 1 UTF-32be with no BOM should decode as UTF-8
+TEST DONE 1 UTF-32be with BOM should decode as UTF-8
+TEST DONE 1 utf-32be with no BOM should decode as UTF-8
+TEST DONE 1 utf-32be with BOM should decode as UTF-8
 Running ../../tools/wpt/FileAPI/blob/Blob-array-buffer.any.js
 TEST DONE 0 Blob.arrayBuffer()
 TEST DONE 0 Blob.arrayBuffer() empty Blob data
@@ -1620,7 +1482,11 @@ TEST DONE 0 Valid contentType ("te=xt/plain")
 TEST DONE 0 Valid contentType ("te{xt/plain")
 TEST DONE 0 Valid contentType ("te}xt/plain")
 TEST DONE 0 Valid contentType ("te xt/plain")
-Skipping ../../tools/wpt/FileAPI/blob/Blob-stream.any.js
+Running ../../tools/wpt/FileAPI/blob/Blob-stream.any.js
+TEST DONE 0 Blob.stream()
+TEST DONE 0 Blob.stream() empty Blob
+TEST DONE 0 Blob.stream() non-unicode input
+TEST DONE 1 Blob.stream() garbage collection of blob shouldn't break streamconsumption
 Running ../../tools/wpt/FileAPI/blob/Blob-text.any.js
 TEST DONE 0 Blob.text()
 TEST DONE 0 Blob.text() empty blob data
@@ -1631,4 +1497,5 @@ TEST DONE 0 Blob.text() different charset param with non-ascii input
 TEST DONE 1 Blob.text() invalid utf-8 input
 TEST DONE 1 Blob.text() concurrent reads
 
-1535 tests, 354 passed, 1176 failed
+1402 tests, 329 passed, 1067 failed
+ -> 23% conformance

@@ -18,8 +18,9 @@
           });
         } else {
           if (init instanceof Headers) {
-            // @ts-expect-error `h` doesn't exists in the type definition of Headers
-            this.h = init.h;
+            for (const [key, value] of init) {
+              this.addValue(key, value);
+            }
 
             return;
           }

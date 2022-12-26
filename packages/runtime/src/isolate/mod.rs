@@ -39,19 +39,29 @@ extern "C" fn heap_limit_callback(
 }
 
 extern "C" fn promise_reject_callback(message: v8::PromiseRejectMessage) {
-    if message.get_event() == v8::PromiseRejectEvent::PromiseRejectWithNoHandler {
-        let scope = &mut unsafe { v8::CallbackScope::new(&message) };
-        let message = message.get_value().map_or_else(
-            || "Unknown promise rejected error".to_owned(),
-            |value| {
-                extract_v8_string(value, scope)
-                    .unwrap_or_else(|_| "Failed to extract promise reject message".to_owned())
-            },
-        );
+    let scope = &mut unsafe { v8::CallbackScope::new(&message) };
+    let promise = message.get_promise();
+    let promise = v8::Global::new(scope, promise);
 
-        let isolate = Isolate::state(scope);
-        let mut state = isolate.borrow_mut();
-        state.promise_rejected_message = Some(message);
+    let isolate = Isolate::state(scope);
+    let mut state = isolate.borrow_mut();
+
+    match message.get_event() {
+        v8::PromiseRejectEvent::PromiseRejectWithNoHandler => {
+            let content = message.get_value().map_or_else(
+                || "Unknown promise rejected error".to_owned(),
+                |value| {
+                    extract_v8_string(value, scope)
+                        .unwrap_or_else(|_| "Failed to extract promise reject message".to_owned())
+                },
+            );
+
+            state.rejected_promises.insert(promise, content);
+        }
+        v8::PromiseRejectEvent::PromiseHandlerAddedAfterReject => {
+            state.rejected_promises.remove(&promise);
+        }
+        _ => {}
     }
 }
 
@@ -88,7 +98,7 @@ struct IsolateState {
     handler_result: Option<v8::Global<v8::Promise>>,
     stream_sender: flume::Sender<StreamResult>,
     metadata: Rc<Metadata>,
-    promise_rejected_message: Option<String>,
+    rejected_promises: HashMap<v8::Global<v8::Promise>, String>,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -231,7 +241,7 @@ impl Isolate {
                 handler_result: None,
                 stream_sender,
                 metadata: Rc::clone(&options.metadata),
-                promise_rejected_message: None,
+                rejected_promises: HashMap::new(),
             }
         };
 
@@ -473,11 +483,13 @@ impl Isolate {
         }
 
         let isolate_state = Isolate::state(&self.isolate);
-        let state = isolate_state.borrow();
+        let mut state = isolate_state.borrow_mut();
 
-        if let Some(promise_rejected_message) = &state.promise_rejected_message {
-            tx.send(RunResult::Error(promise_rejected_message.to_string()))
-                .unwrap_or(());
+        if !state.rejected_promises.is_empty() {
+            let key = state.rejected_promises.keys().next().unwrap().clone();
+            let content = state.rejected_promises.remove(&key).unwrap();
+
+            tx.send(RunResult::Error(content)).unwrap_or(());
             return Poll::Ready(());
         }
 
