@@ -39,18 +39,20 @@ extern "C" fn heap_limit_callback(
 }
 
 extern "C" fn promise_reject_callback(message: v8::PromiseRejectMessage) {
-    let scope = &mut unsafe { v8::CallbackScope::new(&message) };
-    let message = message.get_value().map_or_else(
-        || "Unknown promise rejected error".to_owned(),
-        |value| {
-            extract_v8_string(value, scope)
-                .unwrap_or_else(|_| "Failed to extract promise reject message".to_owned())
-        },
-    );
+    if message.get_event() == v8::PromiseRejectEvent::PromiseRejectWithNoHandler {
+        let scope = &mut unsafe { v8::CallbackScope::new(&message) };
+        let message = message.get_value().map_or_else(
+            || "Unknown promise rejected error".to_owned(),
+            |value| {
+                extract_v8_string(value, scope)
+                    .unwrap_or_else(|_| "Failed to extract promise reject message".to_owned())
+            },
+        );
 
-    let isolate = Isolate::state(scope);
-    let mut state = isolate.borrow_mut();
-    state.promise_rejected_message = Some(message);
+        let isolate = Isolate::state(scope);
+        let mut state = isolate.borrow_mut();
+        state.promise_rejected_message = Some(message);
+    }
 }
 
 // We don't allow imports at all, so we return None and throw an error
