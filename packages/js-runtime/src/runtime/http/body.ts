@@ -10,7 +10,7 @@ export class RequestResponseBody {
   private headersCache: Headers | undefined;
 
   constructor(
-    body: string | ArrayBuffer | ArrayBufferView | FormData | ReadableStream | Blob | null = null,
+    body: string | ArrayBuffer | ArrayBufferView | FormData | ReadableStream | Blob | URLSearchParams | null = null,
     headersInit?: HeadersInit,
   ) {
     if (body !== null) {
@@ -43,6 +43,10 @@ export class RequestResponseBody {
     this.bodyUsed = false;
     this.headersInit = headersInit;
     this.isStream = false;
+
+    if (body instanceof URLSearchParams) {
+      this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+    }
   }
 
   get headers(): Headers {
@@ -68,7 +72,9 @@ export class RequestResponseBody {
   }
 
   async blob(): Promise<Blob> {
-    return this.arrayBuffer().then(buffer => new Blob([buffer]));
+    const type = this.headers.get('content-type') || undefined;
+
+    return this.arrayBuffer().then(buffer => new Blob([buffer], { type }));
   }
 
   async formData(): Promise<FormData> {

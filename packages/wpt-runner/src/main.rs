@@ -16,7 +16,30 @@ use lagon_runtime::{
     runtime::{Runtime, RuntimeOptions},
 };
 
-const ENCODING_TABLE: &str = include_str!("../../../tools/wpt/encoding/resources/encodings.js");
+// From tools/wpt/encoding/resources/encodings.js, we only support utf-8
+const ENCODING_TABLE: &str = r#"const encodings_table =
+[
+  {
+    "encodings": [
+      {
+        "labels": [
+          "unicode-1-1-utf-8",
+          "unicode11utf8",
+          "unicode20utf8",
+          "utf-8",
+          "utf8",
+          "x-unicode20utf8"
+        ],
+        "name": "UTF-8"
+      }
+    ],
+    "heading": "The Encoding"
+  }
+]"#;
+const REQUEST_CACHE: &str = include_str!("../../../tools/wpt/fetch/api/request/request-cache.js");
+const SUBSET_TESTS: &str = include_str!("../../../tools/wpt/common/subset-tests.js");
+const DECODING_HELPERS: &str =
+    include_str!("../../../tools/wpt/encoding/resources/decoding-helpers.js");
 const SUPPORT_BLOB: &str = include_str!("../../../tools/wpt/FileAPI/support/Blob.js");
 
 lazy_static! {
@@ -60,45 +83,25 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-const SKIP_TESTS: [&str; 32] = [
+const SKIP_TESTS: [&str; 14] = [
     // request
-    "request-cache-default-conditional.any.js",
-    "request-cache-no-cache.any.js",
-    "request-cache-no-store.any.js",
-    "request-cache-force-cache.any.js",
-    "request-cache-default.any.js",
-    "request-cache-only-if-cached.any.js",
-    "request-cache-reload.any.js",
-    "request-bad-port.any.js",
-    "request-error.any.js",
-    "request-init-stream.any.js",
-    "request-consume-empty.any.js",
-    "request-consume.any.js",
-    "request-disturbed.any.js",
+    "request-error.any.js",         // "badRequestArgTests is not defined"
+    "request-init-stream.any.js",   // "request.body.getReader is not a function"
+    "request-consume-empty.any.js", // "Unexpected end of JSON input"
+    "request-consume.any.js",       // "Unexpected end of JSON input"
     // response
-    "response-stream-disturbed-4.any.js",
-    "response-error-from-stream.any.js",
-    "response-stream-disturbed-6.any.js",
-    "response-stream-disturbed-2.any.js",
-    "response-stream-disturbed-5.any.js",
-    "response-consume-empty.any.js",
-    "response-cancel-stream.any.js",
-    "response-stream-with-broken-then.any.js",
-    "response-stream-disturbed-3.any.js",
-    "response-stream-disturbed-1.any.js",
-    "response-static-json.any.js",
+    "response-cancel-stream.any.js",           // "undefined"
+    "response-error-from-stream.any.js",       // "Start error"
+    "response-stream-with-broken-then.any.js", // "Cannot destructure property 'done' of 'undefined' as it is undefine"
     // url
-    "idlharness.any.js",
-    "url-setters.any.js",
+    "idlharness.any.js",  // load webidl stuff, not supported
+    "url-setters.any.js", // fetch an json file, find a way to run it
     // encoding
-    "textdecoder-fatal-single-byte.any.js",
-    "unsupported-encodings.any.js",
-    "api-invalid-label.any.js",
-    "replacement-encodings.any.js",
-    // fetch
-    "mime-type.any.js",
-    // Blob
-    "Blob-stream.any.js",
+    "textdecoder-utf16-surrogates.any.js", // we only support utf-8
+    "textencoder-utf16-surrogates.any.js", // we only support utf-8
+    "iso-2022-jp-decoder.any.js",          // we only support utf-8
+    "encodeInto.any.js",                   // TextEncoder#encodeInto isn't implemented yet
+    "textdecoder-fatal-single-byte.any.js", // have a random number of tests?
 ];
 
 async fn run_test(path: &Path) {
@@ -123,10 +126,14 @@ async fn run_test(path: &Path) {
     isShadowRealm: () => false,
     isWindow: () => false,
 }}
+globalThis.location = {{}}
 
 export function handler() {{
     {}
     {ENCODING_TABLE}
+    {REQUEST_CACHE}
+    {SUBSET_TESTS}
+    {DECODING_HELPERS}
     {SUPPORT_BLOB}
     {code}
     return new Response()
@@ -195,6 +202,12 @@ async fn main() {
         result.1.to_string().green(),
         result.2.to_string().red()
     );
+
+    if result.2 == 0 {
+        println!(" -> 100% conformance");
+    } else {
+        println!(" -> {}% conformance", (result.1 * 100) / result.0);
+    }
 
     runtime.dispose();
 }
