@@ -75,10 +75,12 @@ pub fn delete_function_config(file: &Path) -> Result<()> {
 fn esbuild(file: &PathBuf) -> Result<Vec<u8>> {
     let result = Command::new("esbuild")
         .arg(file)
+        .arg("--define:process.env.NODE_ENV=\"production\"")
         .arg("--bundle")
         .arg("--format=esm")
-        .arg("--target=es2020")
+        .arg("--target=esnext")
         .arg("--platform=browser")
+        .arg("--conditions=lagon")
         .arg("--loader:.wasm=binary")
         .output()?;
 
