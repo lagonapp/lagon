@@ -1,0 +1,37 @@
+.item {
+  list-style-type: none;
+  padding: 1em;
+  border-radius: 0.5em;
+  background-color: #ddd;
+  margin-top: 1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.done {
+  text-decoration: line-through;
+}
+
+.input {
+  padding: 0.5em;
+  font-size: 16px;
+  border-radius: 0.5em;
+  border: solid 1px #aaa;
+}
+
+.input:focus {
+  outline: none;
+  border: solid 1px #b26;
+}
+
+.buttons button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: #924;
+}
+
+.buttons button:hover {
+  color: #c26;
+}
