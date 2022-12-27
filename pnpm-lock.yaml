@@ -56,6 +56,20 @@ importers:
   examples/fetch-api:
     specifiers: {}
 
+  examples/hattip:
+    specifiers:
+      '@hattip/adapter-lagon': ^0.0.24
+      '@hattip/core': ^0.0.24
+    dependencies:
+      '@hattip/adapter-lagon': 0.0.24
+      '@hattip/core': 0.0.24
+
+  examples/hono:
+    specifiers:
+      hono: ^2.6.2
+    dependencies:
+      hono: 2.6.2
+
   examples/preact:
     specifiers:
       preact: ^10.8.2
@@ -4390,6 +4404,24 @@ packages:
   /@gar/promisify/1.1.3:
     resolution: {integrity: sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==}
     dev: true
+
+  /@hattip/adapter-lagon/0.0.24:
+    resolution: {integrity: sha512-rzHpJe0ezBPGGGk/5/A97PJTF8wPg/AeS09oUOVT8G0zE+Cql/TVup0a6UVrHqr7NnaIXD/WTCr0YrzaZLWO+Q==}
+    dependencies:
+      '@hattip/core': 0.0.24
+      '@hattip/polyfills': 0.0.24
+    dev: false
+
+  /@hattip/core/0.0.24:
+    resolution: {integrity: sha512-253FWc3YcnO6Z7pwDzrED+h3I9/sqIwIU5E8zwcLv5j693SqHY3qMm5r1X/Ly0I2aUokZjpnjlDOTkEfMDWW4g==}
+    dev: false
+
+  /@hattip/polyfills/0.0.24:
+    resolution: {integrity: sha512-gvydPhzwb4mWVt5w476WjrHO6fRudyvOQTc1Nob+/y2Vyxa5srG7XbwLor3UFXQXinSJDew5dsk1mkQP/3stPg==}
+    dependencies:
+      '@hattip/core': 0.0.24
+      node-fetch-native: 0.1.8
+    dev: false
 
   /@headlessui/react/1.7.2_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-snLv2lxwsf2HNTOBNgHYdvoYZ3ChJE8QszPi1d/hl9js8KrFrUulTaQBfSyPbJP5BybVreWh9DxCgz9S0Z6hKQ==}
@@ -13119,6 +13151,11 @@ packages:
       react-is: 16.13.1
     dev: false
 
+  /hono/2.6.2:
+    resolution: {integrity: sha512-Y4Uv6dPPx6u7TNoWN245tLw8jycBf97w0FJGJoEMdgdBqQEv1dqIvg5IfDhiYMkimSIt4SXxmMgiyPf2wzwFWQ==}
+    engines: {node: '>=16.0.0'}
+    dev: false
+
   /hosted-git-info/2.8.9:
     resolution: {integrity: sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==}
     dev: true
@@ -15699,6 +15736,10 @@ packages:
   /node-domexception/1.0.0:
     resolution: {integrity: sha512-/jKZoMpw0F8GRwl4/eLROPA3cfcXtLApP0QzLmUT/HuPCZWyB7IY9ZrMeKw2O/nFIqPQB3PVM9aYm0F312AXDQ==}
     engines: {node: '>=10.5.0'}
+
+  /node-fetch-native/0.1.8:
+    resolution: {integrity: sha512-ZNaury9r0NxaT2oL65GvdGDy+5PlSaHTovT6JV5tOW07k1TQmgC0olZETa4C9KZg0+6zBr99ctTYa3Utqj9P/Q==}
+    dev: false
 
   /node-fetch/2.6.7:
     resolution: {integrity: sha512-ZjMPFEfVx5j+y2yF35Kzx5sF7kDzxuDj6ziH4FFbOp87zKDZNx8yExJIb05OGF4Nlt9IHFIMBkRl41VdvcNdbQ==}
