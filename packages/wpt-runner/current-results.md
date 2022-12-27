@@ -386,7 +386,7 @@ Running ../../tools/wpt/fetch/api/response/json.any.js
 TEST DONE 1 Ensure the correct JSON parser is used
 Skipping ../../tools/wpt/fetch/api/response/response-cancel-stream.any.js
 Running ../../tools/wpt/fetch/api/response/response-clone.any.js
-TEST DONE 1 Check Response's clone with default values, without body
+TEST DONE 0 Check Response's clone with default values, without body
 TEST DONE 0 Check Response's clone has the expected attribute values
 TEST DONE 1 Check orginal response's body after cloning
 TEST DONE 1 Check cloned response's body
@@ -427,22 +427,22 @@ TEST DONE 1 Throws RangeError when responseInit's status is 1000
 TEST DONE 1 Throws TypeError when responseInit's statusText is 
 
 TEST DONE 1 Throws TypeError when responseInit's statusText is Ā
-TEST DONE 1 Throws TypeError when building a response with body and a body status of 204
-TEST DONE 1 Throws TypeError when building a response with body and a body status of 205
-TEST DONE 1 Throws TypeError when building a response with body and a body status of 304
+TEST DONE 0 Throws TypeError when building a response with body and a body status of 204
+TEST DONE 0 Throws TypeError when building a response with body and a body status of 205
+TEST DONE 0 Throws TypeError when building a response with body and a body status of 304
 Running ../../tools/wpt/fetch/api/response/response-from-stream.any.js
 TEST DONE 1 Constructing a Response with a stream on which getReader() is called
 TEST DONE 1 Constructing a Response with a stream on which read() is called
 TEST DONE 1 Constructing a Response with a stream on which read() and releaseLock() are called
 Running ../../tools/wpt/fetch/api/response/response-init-001.any.js
-TEST DONE 1 Check default value for type attribute
+TEST DONE 0 Check default value for type attribute
 TEST DONE 0 Check default value for url attribute
 TEST DONE 0 Check default value for ok attribute
 TEST DONE 0 Check default value for status attribute
-TEST DONE 1 Check default value for statusText attribute
+TEST DONE 0 Check default value for statusText attribute
 TEST DONE 0 Check default value for body attribute
 TEST DONE 0 Check status init values and associated getter
-TEST DONE 1 Check statusText init values and associated getter
+TEST DONE 0 Check statusText init values and associated getter
 TEST DONE 0 Test that Response.headers has the [SameObject] extended attribute
 Running ../../tools/wpt/fetch/api/response/response-init-002.any.js
 TEST DONE 0 Initialize Response with headers values
@@ -476,19 +476,19 @@ Running ../../tools/wpt/fetch/api/response/response-static-error.any.js
 TEST DONE 1 Check response returned by static method error()
 TEST DONE 1 the 'guard' of the Headers instance should be immutable
 Running ../../tools/wpt/fetch/api/response/response-static-json.any.js
-TEST DONE 1 Throws TypeError when calling static json() with a status of 204
-TEST DONE 1 Throws TypeError when calling static json() with a status of 205
-TEST DONE 1 Throws TypeError when calling static json() with a status of 304
-TEST DONE 1 Check static json() throws when data is not encodable
-TEST DONE 1 Check static json() throws when data is circular
-TEST DONE 1 Check response returned by static json() with init undefined
-TEST DONE 1 Check response returned by static json() with init {"status":400}
-TEST DONE 1 Check response returned by static json() with init {"statusText":"foo"}
-TEST DONE 1 Check response returned by static json() with init {"headers":{}}
-TEST DONE 1 Check response returned by static json() with init {"headers":{"content-type":"foo/bar"}}
-TEST DONE 1 Check response returned by static json() with init {"headers":{"x-foo":"bar"}}
-TEST DONE 1 Check static json() encodes JSON objects correctly
-TEST DONE 1 Check static json() propagates JSON serializer errors
+TEST DONE 0 Throws TypeError when calling static json() with a status of 204
+TEST DONE 0 Throws TypeError when calling static json() with a status of 205
+TEST DONE 0 Throws TypeError when calling static json() with a status of 304
+TEST DONE 0 Check static json() throws when data is not encodable
+TEST DONE 0 Check static json() throws when data is circular
+TEST DONE 0 Check response returned by static json() with init undefined
+TEST DONE 0 Check response returned by static json() with init {"status":400}
+TEST DONE 0 Check response returned by static json() with init {"statusText":"foo"}
+TEST DONE 0 Check response returned by static json() with init {"headers":{}}
+TEST DONE 0 Check response returned by static json() with init {"headers":{"content-type":"foo/bar"}}
+TEST DONE 0 Check response returned by static json() with init {"headers":{"x-foo":"bar"}}
+TEST DONE 0 Check static json() encodes JSON objects correctly
+TEST DONE 0 Check static json() propagates JSON serializer errors
 Running ../../tools/wpt/fetch/api/response/response-static-redirect.any.js
 TEST DONE 1 Check default redirect response
 TEST DONE 1 Check response returned by static method redirect(), status = 301
@@ -1497,5 +1497,5 @@ TEST DONE 0 Blob.text() different charset param with non-ascii input
 TEST DONE 1 Blob.text() invalid utf-8 input
 TEST DONE 1 Blob.text() concurrent reads
 
-1402 tests, 329 passed, 1067 failed
- -> 23% conformance
+1402 tests, 349 passed, 1047 failed
+ -> 24% conformance
