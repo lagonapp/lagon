@@ -4,33 +4,22 @@ The easiest way to deploy and manage Functions is through our [Command-line inte
 
 ## Installation
 
-<Callout type="warning">
-  The CLI is not stable yet, so you might encounter bugs. Please [open an
-  issue](https://github.com/lagonapp/lagon/issues/new?assignees=&labels=bug&template=bug_report.md&title=) if it's the
-  case.
-</Callout>
-
 Lagon CLI is available for the following operating systems:
 
 - macOS (Intel and M1)
 - Linux (x64 and arm64)
 - Windows (x64)
 
-We recommend to install the CLI globally, using the package manager of your choice:
+We recommend to install the CLI globally, using the package manager of your choice. You will also need [ESBuild](https://esbuild.github.io/) installed globally on your machine, as we use it to bundle your Function's code:
 
 ```bash
 # NPM
-npm install --global @lagon/cli
+npm install --global @lagon/cli esbuild
 # Yarn
-yarn global add @lagon/cli
+yarn global add @lagon/cli esbuild
 # PNPM
-pnpm install --global @lagon/cli
+pnpm install --global @lagon/cli esbuild
 ```
-
-<Callout type="info">
-  You will also be able to install it through [Cargo](https://doc.rust-lang.org/stable/cargo/) - Rust's package manager
-  - soon.
-</Callout>
 
 ## Usage
 
@@ -59,13 +48,15 @@ If you then want to trigger a new Deployment, re-run the same command. This comm
 
 - `<FILE>` is the only required argument. It should be the path to a file containing and exporting a Function.
 - `--client, -c <CLIENT>` allows you to specify a path to an additional file to bundle as a client-side script.
-- `--public, -p <CLIENT>` allows you to specify a path a custom assets directory, that will be served at the root (`/`) of the Function. (Default: `public`)
+- `--public, -p <FOLDER>` allows you to specify a path a custom assets directory, that will be served at the root (`/`) of the Function. (Default: `public`)
 - `--production, --prod` allows you to deploy the Function in production mode. (Default: `false`)
 
 Examples:
 
 ```bash
-lagon deploy ./index.ts
+# Create a new Deployment in production mode
+lagon deploy ./index.ts --prod
+# Create a new Function with a client file and some assets
 lagon deploy ./server.tsx --client App.tsx --public ./assets
 ```
 
@@ -131,7 +122,7 @@ This command accept the same arguments and options as `lagon deploy` and `lagon 
 
 - `--hostname <HOSTNAME>` allows you to specify a custom hostname the start the server on. (Default: `127.0.0.1`)
 - `--port <PORT>` allows you to specify a custom port the start the server on. (Default: `1234`)
-- `--env <PATH>` allows you to specify an environment file (typically `.env`) to use to inject environment variables.
+- `--env <FILE>` allows you to specify an environment file (typically `.env`) to use to inject environment variables.
 - `--allow-code-generation` allows you to enable code generation from strings (`eval` / `new Function`)
 
 <Callout type="warning">
@@ -143,7 +134,9 @@ This command accept the same arguments and options as `lagon deploy` and `lagon 
 Examples:
 
 ```bash
+# Run a local dev server on port 56565
 lagon dev ./index.ts --port 56565
+# Run a local dev server with a client file and some assets
 lagon dev ./server.tsx --client App.tsx --public ./assets
 ```
 
@@ -157,7 +150,11 @@ Examples:
 
 ```bash
 lagon build ./server.tsx --client App.tsx --public ./assets
-ls .lagon/ # server.js, App.js, assets/
+tree .lagon/
+# .lagon/
+#   | index.js
+#   | App.js
+#   | assets/
 ```
 
 ### `lagon link`
@@ -184,4 +181,3 @@ If you are [self-hosting](/self-hosted/installation) Lagon, you will need to upd
 ```
 
 Replace the `site_url` field by the one configured during the installation. To verify if it's working correctly, login to your installation using `lagon login`.
-
