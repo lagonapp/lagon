@@ -1,0 +1,8 @@
+{
+  "name": "@lagon/example-hono",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "hono": "^2.6.2"
+  }
+}

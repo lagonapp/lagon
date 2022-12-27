@@ -1,0 +1,35 @@
+.todoList {
+  padding: 1;
+}
+
+.addButton {
+  margin-left: 0.5em;
+  padding: 0.5em 1em;
+  border-radius: 0.5em;
+  border: none;
+  background: #924;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.addButton[disabled] {
+  color: rgba(255 255 255 50%);
+  cursor: not-allowed;
+}
+
+.p {
+  text-align: center;
+}
+
+.input {
+  padding: 0.5em;
+  font-size: 16px;
+  border-radius: 0.5em;
+  border: solid 1px #aaa;
+}
+
+.input:focus {
+  outline: none;
+  border: solid 1px #b26;
+}
