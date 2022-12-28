@@ -82,7 +82,6 @@
     }
 
     get href(): string {
-      // TODO: username and password
       const credentials = this.username + (this.password ? ':' + this.password : '');
 
       let href =

@@ -473,8 +473,8 @@ TEST DONE 0 Can override Content-Type for Response with string body
 TEST DONE 0 Can override Content-Type for Response with ReadableStream body
 TEST DONE 1 Default Content-Type for Response with FormData body
 Running ../../tools/wpt/fetch/api/response/response-static-error.any.js
-TEST DONE 1 Check response returned by static method error()
-TEST DONE 1 the 'guard' of the Headers instance should be immutable
+TEST DONE 0 Check response returned by static method error()
+TEST DONE 0 the 'guard' of the Headers instance should be immutable
 Running ../../tools/wpt/fetch/api/response/response-static-json.any.js
 TEST DONE 0 Throws TypeError when calling static json() with a status of 204
 TEST DONE 0 Throws TypeError when calling static json() with a status of 205
@@ -490,17 +490,18 @@ TEST DONE 0 Check response returned by static json() with init {"headers":{"x-fo
 TEST DONE 0 Check static json() encodes JSON objects correctly
 TEST DONE 0 Check static json() propagates JSON serializer errors
 Running ../../tools/wpt/fetch/api/response/response-static-redirect.any.js
-TEST DONE 1 Check default redirect response
-TEST DONE 1 Check response returned by static method redirect(), status = 301
-TEST DONE 1 Check response returned by static method redirect(), status = 302
-TEST DONE 1 Check response returned by static method redirect(), status = 303
-TEST DONE 1 Check response returned by static method redirect(), status = 307
-TEST DONE 1 Check response returned by static method redirect(), status = 308
+http://test.url:1234/
+TEST DONE 0 Check default redirect response
+TEST DONE 0 Check response returned by static method redirect(), status = 301
+TEST DONE 0 Check response returned by static method redirect(), status = 302
+TEST DONE 0 Check response returned by static method redirect(), status = 303
+TEST DONE 0 Check response returned by static method redirect(), status = 307
+TEST DONE 0 Check response returned by static method redirect(), status = 308
 TEST DONE 1 Check error returned when giving invalid url to redirect()
-TEST DONE 1 Check error returned when giving invalid status to redirect(), status = 200
-TEST DONE 1 Check error returned when giving invalid status to redirect(), status = 309
-TEST DONE 1 Check error returned when giving invalid status to redirect(), status = 400
-TEST DONE 1 Check error returned when giving invalid status to redirect(), status = 500
+TEST DONE 0 Check error returned when giving invalid status to redirect(), status = 200
+TEST DONE 0 Check error returned when giving invalid status to redirect(), status = 309
+TEST DONE 0 Check error returned when giving invalid status to redirect(), status = 400
+TEST DONE 0 Check error returned when giving invalid status to redirect(), status = 500
 Running ../../tools/wpt/fetch/api/response/response-stream-bad-chunk.any.js
 TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.arrayBuffer() causes TypeError
 TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.blob() causes TypeError
@@ -1497,5 +1498,5 @@ TEST DONE 0 Blob.text() different charset param with non-ascii input
 TEST DONE 1 Blob.text() invalid utf-8 input
 TEST DONE 1 Blob.text() concurrent reads
 
-1402 tests, 349 passed, 1047 failed
- -> 24% conformance
+1402 tests, 361 passed, 1035 failed
+ -> 25% conformance

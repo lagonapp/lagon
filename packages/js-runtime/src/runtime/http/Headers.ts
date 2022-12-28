@@ -1,6 +1,7 @@
 (globalThis => {
   globalThis.Headers = class {
     private readonly h: Map<string, string[]> = new Map();
+    immutable = false;
 
     constructor(init?: HeadersInit) {
       if (init === null) {
@@ -49,11 +50,19 @@
     }
 
     append(name: string, value: string) {
+      if (this.immutable) {
+        throw new TypeError('Headers are immutable');
+      }
+
       name = name.toLowerCase();
       this.addValue(name, value);
     }
 
     delete(name: string) {
+      if (this.immutable) {
+        throw new TypeError('Headers are immutable');
+      }
+
       name = name.toLowerCase();
       this.h.delete(name);
     }
@@ -81,6 +90,10 @@
     }
 
     set(name: string, value: string) {
+      if (this.immutable) {
+        throw new TypeError('Headers are immutable');
+      }
+
       name = name.toLowerCase();
       value = String(value);
       this.h.set(name, [value]);
