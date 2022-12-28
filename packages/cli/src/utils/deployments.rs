@@ -4,6 +4,7 @@ use hyper::{Body, Method, Request};
 use std::{
     collections::HashMap,
     fs,
+    io::ErrorKind,
     path::{Path, PathBuf},
     process::Command,
 };
@@ -17,6 +18,12 @@ use crate::utils::{debug, print_progress, success, TrpcClient};
 use super::{Config, MAX_ASSETS_PER_FUNCTION, MAX_ASSET_SIZE_MB, MAX_FUNCTION_SIZE_MB};
 
 pub type Assets = HashMap<String, Vec<u8>>;
+
+#[cfg(windows)]
+const ESBUILD: &str = "C:\\Program Files\\nodejs\\esbuild.cmd";
+
+#[cfg(not(windows))]
+const ESBUILD: &str = "esbuild";
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct DeploymentConfig {
@@ -73,7 +80,7 @@ pub fn delete_function_config(file: &Path) -> Result<()> {
 }
 
 fn esbuild(file: &PathBuf) -> Result<Vec<u8>> {
-    let result = Command::new("esbuild")
+    let result = Command::new(ESBUILD)
         .arg(file)
         .arg("--define:process.env.NODE_ENV=\"production\"")
         .arg("--bundle")
@@ -110,10 +117,17 @@ pub fn bundle_function(
     client: &Option<PathBuf>,
     public_dir: &PathBuf,
 ) -> Result<(Vec<u8>, Assets)> {
-    if Command::new("esbuild").arg("--version").output().is_err() {
-        return Err(anyhow!(
-            "esbuild is not installed. Please install it with `npm install -g esbuild`",
-        ));
+    if let Err(error) = Command::new(ESBUILD).arg("--version").output() {
+        return if error.kind() == ErrorKind::NotFound {
+            Err(anyhow!(
+                "Could not find ESBuild. Please install it with `npm install -g esbuild`",
+            ))
+        } else {
+            Err(anyhow!(
+                "An error occured while running ESBuild: {:?}",
+                error
+            ))
+        };
     }
 
     let end_progress = print_progress("Bundling Function handler...");
