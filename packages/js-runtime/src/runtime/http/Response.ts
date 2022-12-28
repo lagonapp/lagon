@@ -3,6 +3,8 @@ import { RequestResponseBody } from './body';
 (globalThis => {
   // https://fetch.spec.whatwg.org/#null-body-status
   const NULL_BODY_STATUS = [101, 103, 204, 205, 304];
+  // https://fetch.spec.whatwg.org/#redirect-status
+  const REDIRECT_STATUS = [301, 302, 303, 307, 308];
 
   globalThis.Response = class extends RequestResponseBody {
     ok: boolean;
@@ -25,8 +27,8 @@ import { RequestResponseBody } from './body';
         this.ok = true;
       }
 
-      this.status = init?.status || 200;
-      this.statusText = init?.statusText || '';
+      this.status = init?.status ?? 200;
+      this.statusText = init?.statusText ?? '';
       // TODO: investigate
       // @ts-expect-error ResponseInit doesn't have url
       this.url = init?.url || '';
@@ -43,19 +45,29 @@ import { RequestResponseBody } from './body';
     }
 
     static error(): Response {
-      return {
-        ...new Response(),
-        type: 'error',
-      };
+      const response = new Response(null, {
+        status: 0,
+      });
+      // @ts-expect-error we modify a read-only property
+      response.type = 'error';
+      response.headers.immutable = true;
+
+      return response;
     }
 
-    static redirect(url: string | URL, status?: number): Response {
-      const response = {
-        ...new Response(null, {
-          status,
-        }),
-        url: url.toString(),
-      };
+    static redirect(url: string | URL, status = 302): Response {
+      if (!REDIRECT_STATUS.includes(status)) {
+        throw new RangeError('Invalid status code');
+      }
+
+      const response = new Response(null, {
+        status,
+        headers: {
+          Location: new URL(url).toString(),
+        },
+      });
+      // @ts-expect-error we modify a read-only property
+      response.type = 'default';
 
       return response;
     }

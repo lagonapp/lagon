@@ -74,6 +74,10 @@ declare global {
   interface Blob {
     readonly buffer: Uint8Array;
   }
+
+  interface Headers {
+    immutable: boolean;
+  }
 }
 
 export async function masterHandler(request: {
