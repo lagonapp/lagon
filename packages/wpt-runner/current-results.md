@@ -490,7 +490,6 @@ TEST DONE 0 Check response returned by static json() with init {"headers":{"x-fo
 TEST DONE 0 Check static json() encodes JSON objects correctly
 TEST DONE 0 Check static json() propagates JSON serializer errors
 Running ../../tools/wpt/fetch/api/response/response-static-redirect.any.js
-http://test.url:1234/
 TEST DONE 0 Check default redirect response
 TEST DONE 0 Check response returned by static method redirect(), status = 301
 TEST DONE 0 Check response returned by static method redirect(), status = 302
