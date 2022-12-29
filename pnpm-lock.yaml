@@ -218,7 +218,6 @@ importers:
       next: 13.1.0
       next-auth: ^4.12.2
       next-international: ^0.3.0
-      next-transpile-modules: ^10.0.0
       node-fetch: ^3.2.10
       postcss: ^8.4.14
       prisma: 4.8.0
@@ -270,7 +269,6 @@ importers:
       eslint: 8.19.0
       eslint-config-next: 13.1.0_4x5o4skxv6sl53vpwefgt23khm
       eslint-plugin-storybook: 0.6.7_4x5o4skxv6sl53vpwefgt23khm
-      next-transpile-modules: 10.0.0
       postcss: 8.4.14
       prisma: 4.8.0
       tailwindcss: 3.1.4_postcss@8.4.14
@@ -17034,12 +17032,6 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false
-
-  /next-transpile-modules/10.0.0:
-    resolution: {integrity: sha512-FyeJ++Lm2Fq31gbThiRCrJlYpIY9QaI7A3TjuhQLzOix8ChQrvn5ny4MhfIthS5cy6+uK1AhDRvxVdW17y3Xdw==}
-    dependencies:
-      enhanced-resolve: 5.10.0
-    dev: true
 
   /next/13.1.0_biqbaboplfbrettd7655fr4n2y:
     resolution: {integrity: sha512-lQMZH1V94L5IL/WaihQkTYabSY73aqgrkGPJB5uz+2O3ES4I3losV/maXLY7l7x5e+oNyE9N81upNQ8uRsR5/A==}

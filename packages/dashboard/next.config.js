@@ -1,5 +1,3 @@
-const withTM = require('next-transpile-modules')(['@lagon/ui']);
-
 // This file sets a custom webpack configuration to use your Next.js app
 // with Sentry.
 // https://nextjs.org/docs/api-reference/next.config.js/introduction
@@ -15,6 +13,7 @@ const nextConfig = {
     locales: ['en', 'fr'],
     defaultLocale: 'en',
   },
+  transpilePackages: ['@lagon/ui'],
 };
 
 const sentryWebpackPluginOptions = {
@@ -32,4 +31,4 @@ const sentryWebpackPluginOptions = {
 
 // Make sure adding Sentry options is the last code to run before exporting, to
 // ensure that your source maps include changes from all other Webpack plugins
-module.exports = withTM(withSentryConfig(nextConfig, sentryWebpackPluginOptions));
+module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);
