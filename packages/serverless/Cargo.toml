@@ -21,4 +21,4 @@ axiom-rs = "0.7.0"
 chrono = "0.4.23"
 lazy_static = "1.4.0"
 rand = { version = "0.8.5", features = ["std_rng"] }
-anyhow = "1.0.66"
+anyhow = "1.0.68"

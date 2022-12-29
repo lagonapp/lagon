@@ -24,6 +24,6 @@ flume = "0.10.14"
 chrono = "0.4.23"
 notify = "5.0.0"
 envfile = "0.2.1"
-anyhow = "1.0.66"
+anyhow = "1.0.68"
 log = { version = "0.4.17", features = ["std", "kv_unstable"] }
 urlencoding = "2.1.2"
