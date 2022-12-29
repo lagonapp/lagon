@@ -5,6 +5,8 @@
   "deployments": "Deployments",
   "logs": "Logs",
   "environment-variables": "Environment variables",
+  "cron": "Cron Functions",
+  "static-files": "Static files",
   "domains": "Domains",
   "plans": "Plans",
   "limits": "Limits",
