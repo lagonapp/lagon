@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import Image from 'next/image';
 import { DocsThemeConfig, useTheme } from 'nextra-theme-docs';
 
 const config: DocsThemeConfig = {
@@ -8,7 +9,7 @@ const config: DocsThemeConfig = {
   docsRepositoryBase: 'https://github.com/lagonapp/lagon/blob/main/packages/docs',
   banner: {
     key: 'dev',
-    text: 'Warning! This documentation is heavily in Work-in-Progress and subject to changes.',
+    text: '🚧 This documentation is not complete yet as Lagon is in development.',
   },
   useNextSeoProps: () => ({ titleTemplate: '%s – Lagon' }),
   darkMode: true,
@@ -19,10 +20,10 @@ const config: DocsThemeConfig = {
     const { resolvedTheme } = useTheme();
 
     if (resolvedTheme === 'light' || !resolvedTheme) {
-      return <img src="/logo-black.png" alt="Logo" className="h-6" />;
+      return <Image src="/logo-black.png" alt="Logo" height="24" width="80" />;
     }
 
-    return <img src="/logo-white.png" alt="Logo" className="h-6" />;
+    return <Image src="/logo-white.png" alt="Logo" height="24" width="80" />;
   },
   head: (
     <>

@@ -1,0 +1,137 @@
+import { Tab, Tabs } from 'nextra-theme-docs';
+
+This page will guide you through creating a simple JavaScript/TypeScript Edge Function and deploy it on Lagon Cloud. The Function will be deployed globally in [multiple regions](/regions), and will be accessible through a unique URL.
+
+<div className="steps-container">
+
+## Installation
+
+The first step is to install the Lagon CLI. For more information about it, read the [CLI documentation](/cli).
+
+```bash
+# NPM
+npm install --global @lagon/cli esbuild
+# Yarn
+yarn global add @lagon/cli esbuild
+# PNPM
+pnpm install --global @lagon/cli esbuild
+```
+
+## Create a new Function
+
+We will now create a new Function, that listen for `Request`s and reply with `Response`s. Remember the `fetch` function from browsers? We use the same native Web APIs!
+
+Create a new file called `hello.js` / `hello.ts` and add the following code:
+
+<Tabs items={['JavaScript', 'TypeScript']}>
+  <Tab>
+    ```javascript
+    // hello.js
+    export function handler(request) {
+      return new Response('Hello, <b>World!</b>', {
+        headers: { 'content-type': 'text/html' }
+      })
+    }
+    ```
+  </Tab>
+  <Tab>
+    ```typescript
+    // hello.ts
+    export function handler(request: Request) {
+      return new Response('Hello, <b>World!</b>', {
+        headers: { 'content-type': 'text/html' }
+      })
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Deploy the Function
+
+Head over to the Dashboard at [https://dash.lagon.app](https://dash.lagon.app) and create an account. Once you're logged in, go back to a terminal and log in with your newly created account:
+
+```bash
+lagon login
+```
+
+This command will open a new tab in your browser, where you can copy an authentication token. Paste it in the terminal and press enter. You should now be logged in!
+
+Now, let's deploy our Function:
+
+```bash
+# JavaScript
+lagon deploy hello.js
+# TypeScript
+lagon deploy hello.ts
+```
+
+You will be asked to select the Organization where you want to deploy this Function. Press enter to select the one you just created.
+
+Then, you will be asked to either **link this Function to an existing one**, or **create a new Function**. Here, we don't have any Function created yet, so press `n` to create a new one. Enter the name to give for this new Function, and press enter.
+
+Wait a few seconds, and you should now see a message with an URL, indicating that your Function has been deployed successfully! You can now `curl` this URl, or access it directly in your browser. [Learn more about the Runtime APIs](/runtime-apis).
+
+</div>
+
+## Going further
+
+### Updating the Function's code
+
+Now that we have a Function deployed, we would like to add a new feature and return the name of the user that is making the request. To do so, we will need to update the Function's code:
+
+<Tabs items={['JavaScript', 'TypeScript']}>
+  <Tab>
+    ```javascript {3-4,6}
+    // hello.js
+    export function handler(request) {
+      const url = new URL(request.url)
+      const name = url.searchParams.get('name') || 'World'
+
+      return new Response(`Hello, <b>${name}!</b>`, {
+        headers: { 'content-type': 'text/html' }
+      })
+    }
+    ```
+
+  </Tab>
+  <Tab>
+    ```typescript {3-4,6}
+    // hello.ts
+    export function handler(request: Request) {
+      const url = new URL(request.url)
+      const name = url.searchParams.get('name') || 'World'
+
+      return new Response(`Hello, <b>${name}!</b>`, {
+        headers: { 'content-type': 'text/html' }
+      })
+    }
+    ```
+
+  </Tab>
+</Tabs>
+
+We can now re-deploy the Function with the same command as before, and appending `--prod` to automatically promote this new Deployment to Production:
+
+```bash
+# JavaScript
+lagon deploy hello.js --prod
+# TypeScript
+lagon deploy hello.ts --prod
+```
+
+Try to access your Function's URL again with `/?name=Your name`, and you should see the new message!
+
+### Debugging
+
+During development, you can use [`lagon dev`](/cli#lagon-dev) to launch a local development server that will automatically watch your Function's code:
+
+```bash
+# JavaScript
+lagon dev hello.js
+# TypeScript
+lagon dev hello.ts
+```
+
+Running the above code will start a local server on port `1234` by default. You can now access your Function at [http://localhost:1234](http://localhost:1234).
+
+You can also use the [`console` API](/runtime-apis#console) to log messages, objects and more. If you are using `lagon dev`, the logs will be printed in your terminal. When deployed, the logs are accessible in the Dashboard. [Learn more about logs](/cloud/logs).
