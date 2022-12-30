@@ -1,1 +1,39 @@
-Work in progress...
+import { Callout } from 'nextra-theme-docs';
+
+By default, all Functions receive a subdomain of `lagon.app`, pointing to the current production deployment. The subdomain is always the name of the Function: if your Function is named `my-function`, the subdomain will be `my-function.lagon.app`.
+
+## Adding a domain
+
+You can add custom domains or subdomains to your Functions, pointing to the current production deployment. Head over to the settings tab of your Function, and scroll to the "Domains" section. Here, you can see the default domain as explained above, and your custom domains.
+
+To add a new custom domain or subdomain, write it inside the tags field and press "Enter" or "Space", and then click on "Update":
+
+![Custom domains](/images/custom-domains.png)
+
+## Pointing your domain to Lagon
+
+Now that you've added a custom domain or subdomain, you must update the DNS settings of your domain to point to Lagon. You can do this by adding a CNAME record, pointing to your Function's default domain.
+
+### For a domain
+
+<Callout type="warning">
+  Your DNS provider must supports CNAME flattening to use a CNAME record on a root domain.
+</Callout>
+
+Let's say that you have the domain `my-domain.com`, and you want to point it to your Function named `my-function`. Use the following CNAME record to point your domain to your Function:
+
+```
+my-domain.com.  60  IN  CNAME   my-function.lagon.app
+```
+
+### For a subdomain
+
+Let's say that you have the subdomain `hello.my-domain.com`, and you want to point it to your Function named `my-function`. Use the following CNAME record to point your subdomain to your Function:
+
+```
+hello.my-domain.com.  60  IN  CNAME   my-function.lagon.app
+```
+
+## Removing a domain
+
+To remove a custom domain or subdomain, click on the "X" button next to the domain name, and then click on "Update".
