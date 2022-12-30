@@ -10,7 +10,7 @@ Lagon CLI is available for the following operating systems:
 - Linux (x64 and arm64)
 - Windows (x64)
 
-We recommend to install the CLI globally, using the package manager of your choice. You will also need [ESBuild](https://esbuild.github.io/) installed globally on your machine, as we use it to bundle your Function's code:
+We recommend installing the CLI globally, using the package manager of your choice. You will also need [ESBuild](https://esbuild.github.io/) installed globally on your machine, as we use it to bundle your Function's code:
 
 ```bash
 # NPM
@@ -33,7 +33,7 @@ To proceed, run `lagon login` and follow the instructions.
 
 ### `lagon logout`
 
-If you want, you can log out at anytime. For security, you will be asked to confirm that you really want to log out.
+If you want, you can log out at any time. For security, you will be asked to confirm that you want to log out.
 
 To proceed, run `lagon logout` and follow the instructions.
 
@@ -44,11 +44,11 @@ Create a new Function or a new Deployment for the given files. Make sure you are
 1. You will be prompted to select an Organization
 2. You will be able to link to an existing Function, or create a new one by specifying a name
 
-If you then want to trigger a new Deployment, re-run the same command. This command accept the following arguments and options:
+If you then want to trigger a new Deployment, re-run the same command. This command accepts the following arguments and options:
 
 - `<FILE>` is the only required argument. It should be the path to a file containing and exporting a Function.
 - `--client, -c <CLIENT>` allows you to specify a path to an additional file to bundle as a client-side script.
-- `--public, -p <FOLDER>` allows you to specify a path a custom assets directory, that will be served at the root (`/`) of the Function. (Default: `public`)
+- `--public, -p <FOLDER>` allows you to specify a path to a custom assets directory, that will be served at the root (`/`) of the Function. (Default: `public`)
 - `--production, --prod` allows you to deploy the Function in production mode. (Default: `false`)
 
 Examples:
@@ -62,9 +62,9 @@ lagon deploy ./server.tsx --client App.tsx --public ./assets
 
 ### `lagon ls`
 
-List all the Deployments of the given Function. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
+List all the Deployments of the given Function. Make sure you are [logged in](#lagon-login) before proceeding. This command accepts only one argument:
 
-- `<FILE>` path to a file containing the Function to list deployments of.
+- `<FILE>` path to a file containing the Function to list deployments.
 
 Example:
 
@@ -74,10 +74,10 @@ lagon ls ./index.ts
 
 ### `lagon promote`
 
-Promote the given Deployment to production. Make sure you are [logged in](#lagon-login) before proceeding. This command accept the following arguments:
+Promote the given Deployment to production. Make sure you are [logged in](#lagon-login) before proceeding. This command accepts the following arguments:
 
 - `<FILE>` path to a file containing the Function to promote a Deployment from.
-- `<DEPLOYMENT_ID>` the ID of the Deployment to prmote.
+- `<DEPLOYMENT_ID>` the ID of the Deployment to promote.
 
 Example:
 
@@ -87,7 +87,7 @@ lagon promote ./index.ts claxnlc230738q5pa7iximskm
 
 ### `lagon undeploy`
 
-Un-deploy a Deployment. Make sure you are [logged in](#lagon-login) before proceeding. This command accept the following arguments:
+Un-deploy a Deployment. Make sure you are [logged in](#lagon-login) before proceeding. This command accepts the following arguments:
 
 - `<FILE>` path to a file containing the Function to undeploy a Deployment from.
 - `<DEPLOYMENT_ID>` the ID of the Deployment to undeploy.
@@ -104,7 +104,7 @@ lagon undeploy ./index.ts claxnlc230738q5pa7iximskm
   Deleting a Function also deletes permanently all of its Deployments, statistics and logs.
 </Callout>
 
-Delete completely a Function. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
+Delete completely a Function. Make sure you are [logged in](#lagon-login) before proceeding. This command accepts only one argument:
 
 - `<FILE>` path to a file containing the Function to undeploy.
 
@@ -118,17 +118,16 @@ lagon rm ./index.ts
 
 Launch a local dev server, using the same Runtime as when deployed to the Cloud.
 
-This command accept the same arguments and options as `lagon deploy` and `lagon build`. It can also accept the following options:
+This command accepts the same arguments and options as `lagon deploy` and `lagon build`. It can also accept the following options:
 
-- `--hostname <HOSTNAME>` allows you to specify a custom hostname the start the server on. (Default: `127.0.0.1`)
-- `--port <PORT>` allows you to specify a custom port the start the server on. (Default: `1234`)
+- `--hostname <HOSTNAME>` allows you to specify a custom hostname to start the server on. (Default: `127.0.0.1`)
+- `--port <PORT>` allows you to specify a custom port to start the server on. (Default: `1234`)
 - `--env <FILE>` allows you to specify an environment file (typically `.env`) to use to inject environment variables.
 - `--allow-code-generation` allows you to enable code generation from strings (`eval` / `new Function`)
 
 <Callout type="warning">
-  Although the `dev` command uses the exact same Runtime as when deployed, the local HTTP server itself doesn't have the
-  same optimizations. As such, you shouldn't run a production environment on it, or run any kind of load
-  tests/benchmarks.
+  Although the `dev` command uses the same Runtime as when deployed, the local HTTP server itself doesn't have the same
+  optimizations. As such, you shouldn't run a production environment on it, or run any kind of load tests/benchmarks.
 </Callout>
 
 Examples:
@@ -142,9 +141,9 @@ lagon dev ./server.tsx --client App.tsx --public ./assets
 
 ### `lagon build`
 
-For debugging purposes, you can build a Function and see its output without deploying it. Under the hood, `lagon build` does the exact same steps as `lagon deploy`, but skip the deployment part and instead writes the output to a local `.lagon` folder.
+For debugging purposes, you can build a Function and see its output without deploying it. Under the hood, `lagon build` does the same steps as `lagon deploy`, but skip the deployment part and instead writes the output to a local `.lagon` folder.
 
-This command accept the same arguments and options as `lagon deploy` and `lagon build`.
+This command accepts the same arguments and options as `lagon deploy` and `lagon build`.
 
 Examples:
 
@@ -161,7 +160,7 @@ tree .lagon/
 
 Link a local Function to a deployed one, without triggering a new Deployment. Make sure you are [logged in](#lagon-login) before proceeding. This command accept only one argument:
 
-- `<FILE>` path to a file containing the Function to list deployments of.
+- `<FILE>` path to a file containing the Function to list deployments.
 
 Example:
 
@@ -180,4 +179,4 @@ If you are [self-hosting](/self-hosted/installation) Lagon, you will need to upd
 }
 ```
 
-Replace the `site_url` field by the one configured during the installation. To verify if it's working correctly, login to your installation using `lagon login`.
+Replace the `site_url` field by the one configured during the installation. To verify if it's working correctly, log in to your installation using `lagon login`.

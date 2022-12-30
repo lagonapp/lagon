@@ -1,6 +1,6 @@
 import { Tab, Tabs } from 'nextra-theme-docs';
 
-This page will guide you through creating a simple JavaScript/TypeScript Edge Function and deploy it on Lagon Cloud using the CLI. The Function will be deployed globally in [multiple regions](/cloud/regions), and will be accessible through a unique URL.
+This page will guide you through creating a simple JavaScript/TypeScript Edge Function and deploying it on Lagon Cloud using the CLI. The Function will be deployed globally in [multiple regions](/cloud/regions), and will be accessible through a unique URL.
 
 <div className="steps-container">
 
@@ -19,7 +19,7 @@ pnpm install --global @lagon/cli esbuild
 
 ## Create a new Function
 
-We will now create a new Function, that listen for `Request`s and reply with `Response`s. Remember the `fetch` function from browsers? We use the same native Web APIs!
+We will now create a new Function, that listens for `Request`s and replies with `Response`s. Remember the `fetch` function from browsers? We use the same native Web APIs!
 
 Create a new file called `hello.js` / `hello.ts` and add the following code:
 
@@ -48,7 +48,7 @@ Create a new file called `hello.js` / `hello.ts` and add the following code:
 
 ## Deploy the Function
 
-Head over to the Dashboard at [https://dash.lagon.app](https://dash.lagon.app) and create an account. Once you're logged in, go back to a terminal and log in with your newly created account:
+Head over to the Dashboard at [https://dash.lagon.app](https://dash.lagon.app) and create an account. Once you're logged in, go back to a terminal and login with your newly created account:
 
 ```bash
 lagon login
@@ -69,7 +69,7 @@ You will be asked to select the Organization where you want to deploy this Funct
 
 Then, you will be asked to either **link this Function to an existing one**, or **create a new Function**. Here, we don't have any Function created yet, so press `n` to create a new one. Enter the name to give for this new Function, and press enter.
 
-Wait a few seconds, and you should now see a message with an URL, indicating that your Function has been deployed successfully! You can now `curl` this URl, or access it directly in your browser. [Learn more about the Runtime APIs](/runtime-apis).
+Wait a few seconds, and you should now see a message with an URL, indicating that your Function has been deployed successfully! You can now `curl` this URL, or access it directly in your browser. [Learn more about the Runtime APIs](/runtime-apis).
 
 </div>
 
@@ -110,7 +110,7 @@ Now that we have a Function deployed, we would like to add a new feature and ret
   </Tab>
 </Tabs>
 
-We can now re-deploy the Function with the same command as before, and appending `--prod` to automatically promote this new Deployment to Production:
+We can now re-deploy the Function with the same command as before, and append `--prod` to automatically promote this new Deployment to Production:
 
 ```bash
 # JavaScript

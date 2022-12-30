@@ -16,7 +16,7 @@
     <br />
     Cron triggers • Instant deployments
     <br />
-    Interactive playground
+    Interactive Playground
   </p>
 </p>
 
@@ -33,9 +33,9 @@ Lagon is an open-source runtime and platform that allows developers to run TypeS
 Current status:
 
 - **Dev**: In heavy development, features are being added and APIs have breaking changes
-- ~Alpha~: Missing features and bugs to fix, not ready for production usages
+- ~Alpha~: Missing features and bugs to fix, not ready for production usage
 - ~Beta~: Stable APIs, last bugs are being fixed and last features are being added
-- ~General Availability~: Cloud and self-hosted version available for production usages
+- ~General Availability~: Cloud and self-hosted versions available for production usage
 
 ## Packages
 
@@ -66,15 +66,15 @@ Lagon is a fairly recent project. It is still in heavy development, so expect br
 
 ## Contributing
 
-The roadmap is accessible by anyone on GitHub. Feel free to open an issue to discuss about new features that you would like to see implemented.
+The roadmap is accessible to anyone on GitHub. Feel free to open an issue to discuss new features that you would like to see implemented.
 
 [See the roadmap on GitHub](https://github.com/orgs/lagonapp/projects/1)
 
 ## How it works
 
-Lagon uses V8 Isolates, which are sandboxed environments used to run plain JavaScript. That means each Function's memory is isolated from each other, and that you can run a lot of them at the same time with very little resources. [Node.js](https://nodejs.org/), [Electron](https://www.electronjs.org/), [Deno](https://deno.land/) (and [Deno Deploy](https://deno.com/deploy)), [Cloudflare Workers](https://workers.cloudflare.com/) are also using V8 Isolates to execute JavaScript.
+Lagon uses V8 Isolates, which are sandboxed environments used to run plain JavaScript. That means each Function's memory is isolated from each others, and you can run a lot of them at the same time with very few resources. [Node.js](https://nodejs.org/), [Electron](https://www.electronjs.org/), [Deno](https://deno.land/) (and [Deno Deploy](https://deno.com/deploy)), [Cloudflare Workers](https://workers.cloudflare.com/) are also using V8 Isolates to execute JavaScript.
 
-Starting an Isolate is a lot faster than starting a whole Node.js process, which allows for almost free cold-starts.
+Starting an Isolate is a lot faster than starting a whole Node.js process, which allows for almost free cold starts.
 
 ## License
 

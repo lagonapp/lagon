@@ -1,8 +1,8 @@
 import { Callout } from 'nextra-theme-docs';
 
-Thanks for wanting to contribute! That really means a lot for us. You can contribute in many ways, with or without any coding required.
+Thanks for wanting to contribute! That means a lot to us. You can contribute in many ways, with or without any coding required.
 
-If you encounter any issue, you can join [our Discord](https://discord.lagon.app/) so we can help you.
+If you encounter any issues, you can join [our Discord](https://discord.lagon.app/) so we can help you.
 
 <Callout type="info">
   Need some good first issues to start with? Check out the [good first issue
@@ -19,7 +19,7 @@ Work in progress...
 
 The documentation website is made of [Markdown](https://en.wikipedia.org/wiki/Markdown) files, located in `packages/docs/pages/`. It uses [Nextra](https://nextra.vercel.app/) behind the scenes.
 
-If you want to preview your changes, you can run the documenation website locally. First, follow the [Requirements](#requirements), and then run `pnpm start:docs` at the root of the project. You can now access the documentation website on `localhost:3000`.
+If you want to preview your changes, you can run the documentation website locally. First, follow the [Requirements](#requirements), and then run `pnpm start:docs` at the root of the project. You can now access the documentation website on `localhost:3000`.
 
 ## Code contributions
 
@@ -27,7 +27,7 @@ If you want to preview your changes, you can run the documenation website locall
 
 - Commits are following the [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/) convention.
 - We use ESLint and Prettier to format our code, which should be handled automatically by most editors. If this is not the case, you can run the `lint` script.
-- Make sure to add a test when adding new features / fixing bugs, so we can prevent any other future bug.
+- Make sure to add a test when adding new features / fixing bugs, so we can prevent any other future bugs.
 
 ### Requirements
 
@@ -36,7 +36,7 @@ You will need [Node.js](https://nodejs.org/en/) >= 16 and [PNPM](https://pnpm.io
 1. Fork and clone the repository
 2. Install all NPM dependencies: `pnpm install`
 
-And if you want to contribute on the Dashboard / Serverless:
+And if you want to contribute to the Dashboard / Serverless:
 
 3. Run the local docker-compose: `docker-compose up -d`
 
@@ -46,7 +46,7 @@ The UI package is our design system. Navigate to `packages/ui` and run `pnpm dev
 
 #### Dashboard
 
-The first step is to copy the `.env.example` file and rename it to `.env`. You will need to fill the following environment variables:
+The first step is to copy the `.env.example` file and rename it to `.env`. You will need to fill in the following environment variables:
 
 ```bash
 NEXTAUTH_SECRET= # Random secret
@@ -54,7 +54,7 @@ S3_REGION= # S3 credentials to a bucket you own
 S3_BUCKET=
 S3_ACCESS_KEY_ID=
 S3_SECRET_ACCESS_KEY=
-GITHUB_CLIENT_ID= # Create a new Github OAuth app: https://github.com/settings/developers
+GITHUB_CLIENT_ID= # Create a new GitHub OAuth app: https://github.com/settings/developers
 GITHUB_CLIENT_SECRET=
 ```
 
@@ -76,4 +76,4 @@ Work in progress...
 
 We have some checks in place to ensure we don't introduce bugs or regressions in PRs. You can run `pnpm lint` and `pnpm typecheck` at the project's root to ensure there are no lint and type errors.
 
-Finally, run `pnpm changeset` to generate a [changeset file](https://github.com/changesets/changesets#how-do-we-do-that). Select the modified packages and choose the semver increment "major", "minor", or "patch".
+Finally, run `pnpm changeset` to generate a [changeset file](https://github.com/changesets/changesets#how-do-we-do-that). Select the modified packages and choose the SemVer increment "major", "minor", or "patch".

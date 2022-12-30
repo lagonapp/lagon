@@ -2,21 +2,21 @@ Instead of providing an HTTP endpoint, you can create a [Cron expression](https:
 
 ## How it works
 
-Cron Functions works the same as normal Functions, except that:
+Cron Functions work the same as normal Functions, except that:
 
-- Function's `Request` are always empty, meaning the body, URL, and headers are empty
+- Function's `Request` is always empty, meaning the body, URL, and headers are empty
 - If the Function's `Response` returns a `200` status code, Lagon will log a success message, optionally logging the `body` if it isn't empty.
 - If the Function's `Response` returns a non-`200` status code, Lagon will log an error message optionally logging the `body` if it isn't empty, and retry the execution later.
 
 ## Configuration
 
-Head over to the settings tab of your Function in the [Dashboard](https://dash.lagon.app) and scroll to the Cron section. Here, you can configure the Cron expression, which will be empty by default. We recommand using a tool like [Crontab Guru](https://crontab.guru/) to generate Cron expression:
+Head over to the settings tab of your Function in the [Dashboard](https://dash.lagon.app) and scroll to the Cron section. Here, you can configure the Cron expression, which will be empty by default. We recommend using a tool like [Crontab Guru](https://crontab.guru/) to generate Cron expression:
 
 ![Cron](/images/cron.png)
 
-In the above example, Lagon will execute your Function every day at 12:00 PM (`0 12 * * *`). You can then click "Update" and your Function will be automatically executed at the given intervals.
+In the above example, Lagon will execute your Function every day at midnight (`0 12 * * *`). You can then click "Update" and your Function will be automatically executed at the given intervals.
 
-Cron Functions only runs in a single [region](/cloud/regions). You can select your preferred region:
+Cron Functions only run in a single [region](/cloud/regions). You can select your preferred region:
 
 ![Cron region](/images/cron-region.png)
 
