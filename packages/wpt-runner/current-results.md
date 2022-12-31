@@ -1508,10 +1508,6 @@ TEST DONE 1 returnValue should be ignored if-and-only-if the passive option is t
 TEST DONE 0 passive behavior of one listener should be unaffected by the presence of other listeners
 TEST DONE 1 Equivalence of option values
 Running ../../tools/wpt/dom/events/AddEventListenerOptions-signal.any.js
-1
-2
-2
-2
 TEST DONE 0 Passing an AbortSignal to addEventListener options should allow removing a listener
 TEST DONE 0 Passing an AbortSignal to addEventListener does not prevent removeEventListener
 TEST DONE 0 Passing an AbortSignal to addEventListener works with the once flag
