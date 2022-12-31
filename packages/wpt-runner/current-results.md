@@ -1496,6 +1496,54 @@ TEST DONE 0 Blob.text() different charset param in type option
 TEST DONE 0 Blob.text() different charset param with non-ascii input
 TEST DONE 1 Blob.text() invalid utf-8 input
 TEST DONE 1 Blob.text() concurrent reads
+Running ../../tools/wpt/dom/events/AddEventListenerOptions-once.any.js
+TEST DONE 0 Once listener should be invoked only once
+TEST DONE 0 Once listener should be invoked only once even if the event is nested
+TEST DONE 0 Once listener should be added / removed like normal listeners
+TEST DONE 0 Multiple once listeners should be invoked even if the stopImmediatePropagation is set
+Running ../../tools/wpt/dom/events/AddEventListenerOptions-passive.any.js
+TEST DONE 1 Supports passive option on addEventListener only
+TEST DONE 0 preventDefault should be ignored if-and-only-if the passive option is true
+TEST DONE 1 returnValue should be ignored if-and-only-if the passive option is true
+TEST DONE 0 passive behavior of one listener should be unaffected by the presence of other listeners
+TEST DONE 1 Equivalence of option values
+Running ../../tools/wpt/dom/events/AddEventListenerOptions-signal.any.js
+TEST DONE 0 Passing an AbortSignal to addEventListener options should allow removing a listener
+TEST DONE 0 Passing an AbortSignal to addEventListener does not prevent removeEventListener
+TEST DONE 0 Passing an AbortSignal to addEventListener works with the once flag
+TEST DONE 0 Removing a once listener works with a passed signal
+TEST DONE 0 Passing an AbortSignal to multiple listeners
+TEST DONE 0 Passing an AbortSignal to addEventListener works with the capture flag
+TEST DONE 0 Aborting from a listener does not call future listeners
+TEST DONE 0 Adding then aborting a listener in another listener does not call it
+TEST DONE 0 Aborting from a nested listener should remove it
+TEST DONE 0 Passing null as the signal should throw
+TEST DONE 0 Passing null as the signal should throw (listener is also null)
+Running ../../tools/wpt/dom/events/Event-constructors.any.js
+TEST DONE 0 Untitled
+TEST DONE 0 Untitled 1
+TEST DONE 1 Untitled 2
+TEST DONE 0 Untitled 3
+TEST DONE 0 Untitled 4
+TEST DONE 0 Untitled 5
+TEST DONE 0 Untitled 6
+TEST DONE 0 Untitled 7
+TEST DONE 0 Untitled 8
+TEST DONE 0 Untitled 9
+TEST DONE 0 Untitled 10
+TEST DONE 0 Untitled 11
+TEST DONE 0 Untitled 12
+TEST DONE 0 Untitled 13
+Running ../../tools/wpt/dom/events/Event-isTrusted.any.js
+TEST DONE 1 Untitled
+Running ../../tools/wpt/dom/events/EventTarget-add-remove-listener.any.js
+TEST DONE 0 Removing an event listener without explicit capture arg should succeed
+Running ../../tools/wpt/dom/events/EventTarget-addEventListener.any.js
+TEST DONE 0 Adding a null event listener should succeed
+Running ../../tools/wpt/dom/events/EventTarget-constructible.any.js
+TEST DONE 0 A constructed EventTarget can be used as expected
+TEST DONE 0 EventTarget can be subclassed
+Skipping ../../tools/wpt/dom/events/EventTarget-removeEventListener.any.js
 
-1402 tests, 361 passed, 1035 failed
- -> 25% conformance
+1441 tests, 395 passed, 1040 failed
+ -> 27% conformance

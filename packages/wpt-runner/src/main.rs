@@ -83,7 +83,7 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-const SKIP_TESTS: [&str; 14] = [
+const SKIP_TESTS: [&str; 15] = [
     // request
     "request-error.any.js",         // "badRequestArgTests is not defined"
     "request-init-stream.any.js",   // "request.body.getReader is not a function"
@@ -102,6 +102,8 @@ const SKIP_TESTS: [&str; 14] = [
     "iso-2022-jp-decoder.any.js",          // we only support utf-8
     "encodeInto.any.js",                   // TextEncoder#encodeInto isn't implemented yet
     "textdecoder-fatal-single-byte.any.js", // have a random number of tests?
+    // event
+    "EventTarget-removeEventListener.any.js", // removeEventListener does not exists on the global object
 ];
 
 async fn run_test(path: &Path) {
@@ -192,6 +194,7 @@ async fn main() {
         // test_directory(Path::new("../../tools/wpt/compression")).await;
         test_directory(Path::new("../../tools/wpt/encoding")).await;
         test_directory(Path::new("../../tools/wpt/FileAPI/blob")).await;
+        test_directory(Path::new("../../tools/wpt/dom/events")).await;
     }
 
     let result = RESULT.lock().unwrap();
