@@ -81,8 +81,6 @@ jobs:
           echo "QEMU_LD_PREFIX=/usr/aarch64-linux-gnu" >> ${GITHUB_ENV}
       - name: Install dependencies
         run: pnpm install
-      - name: Build js-runtime
-        run: pnpm turbo build --filter=@lagon/js-runtime
       - name: Build CLI
         run: |
           cd packages/cli && cargo build --release --target ${{ matrix.target }}

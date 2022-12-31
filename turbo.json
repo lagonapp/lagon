@@ -7,12 +7,14 @@
     },
     "test": {
       "dependsOn": [
-        "^build"
+        "@lagon/runtime#build"
       ],
       "outputs": []
     },
     "lint": {
-      "dependsOn": [],
+      "dependsOn": [
+        "@lagon/runtime#build"
+      ],
       "outputs": []
     },
     "build": {
@@ -24,6 +26,21 @@
         ".next/**",
         "target/debug/**",
         "storybook-static"
+      ]
+    },
+    "@lagon/runtime#build": {
+      "dependsOn": [
+        "@lagon/js-runtime#build"
+      ]
+    },
+    "@lagon/cli#build": {
+      "dependsOn": [
+        "@lagon/js-runtime#build"
+      ]
+    },
+    "@lagon/serverless#build": {
+      "dependsOn": [
+        "@lagon/js-runtime#build"
       ]
     }
   }

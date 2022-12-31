@@ -9,7 +9,7 @@
   "scripts": {
     "test": "vitest --run",
     "build": "esbuild src/index.ts --format=esm --bundle --outdir=dist",
-    "lint": "eslint --cache --ignore-pattern dist .",
+    "lint": "eslint --cache .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

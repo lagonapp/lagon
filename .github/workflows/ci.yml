@@ -37,8 +37,6 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Build runtime
-        run: pnpm turbo build --filter=@lagon/js-runtime
       - name: Lint
         run: pnpm lint
   test:
@@ -67,8 +65,6 @@ jobs:
           cache: 'pnpm'
       - name: Install dependencies
         run: pnpm install
-      - name: Build runtime
-        run: pnpm turbo build --filter=@lagon/js-runtime
       - name: Test
         run: pnpm test
   typecheck:

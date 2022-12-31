@@ -8,7 +8,7 @@
     "build": "next build",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook",
-    "lint": "eslint --cache --ignore-pattern dist .",
+    "lint": "eslint --cache .",
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate"
   },
