@@ -3,6 +3,7 @@ import './runtime/encoding/TextEncoder';
 import './runtime/encoding/TextDecoder';
 import './runtime/encoding/base64';
 import './runtime/core';
+import './runtime/event';
 import './runtime/streams';
 import './runtime/abort';
 import './runtime/blob';
