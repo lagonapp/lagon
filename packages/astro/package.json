@@ -12,7 +12,7 @@
   "scripts": {
     "watch": "tsup src/index.ts src/server.ts --format=esm --external astro  --watch",
     "build": "tsup src/index.ts src/server.ts --format=esm --external astro",
-    "lint": "eslint --cache --ignore-pattern dist .",
+    "lint": "eslint --cache .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

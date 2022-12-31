@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "start-storybook -p 6006",
     "build": "build-storybook",
-    "lint": "eslint --cache --ignore-pattern dist .",
+    "lint": "eslint --cache .",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

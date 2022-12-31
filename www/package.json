@@ -6,7 +6,7 @@
     "dev": "next dev",
     "start": "next start",
     "build": "next build",
-    "lint": "eslint --cache --ignore-pattern dist .",
+    "lint": "eslint --cache .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
