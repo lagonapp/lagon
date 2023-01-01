@@ -8,8 +8,8 @@ use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::{Request, RunResult, StreamResult};
-use lagon_runtime::isolate::{Isolate, IsolateOptions};
-use lagon_runtime::runtime::{Runtime, RuntimeOptions};
+use lagon_runtime::isolate::{options::IsolateOptions, Isolate};
+use lagon_runtime::runtime::{options::RuntimeOptions, Runtime};
 use lazy_static::lazy_static;
 use log::{as_debug, error, info, warn};
 use metrics::{counter, decrement_gauge, histogram, increment_counter, increment_gauge};
@@ -202,14 +202,14 @@ async fn handle_request(
                             "".into()
                         });
                         let options = IsolateOptions::new(code)
-                            .with_environment_variables(
+                            .environment_variables(
                                 deployment.environment_variables.clone(),
                             )
-                            .with_memory(deployment.memory)
-                            .with_timeout(deployment.timeout)
-                            .with_startup_timeout(deployment.startup_timeout)
-                            .with_metadata(Some((deployment.id.clone(), deployment.function_id.clone())))
-                            .with_on_drop_callback(Box::new(|metadata| {
+                            .memory(deployment.memory)
+                            .timeout(deployment.timeout)
+                            .startup_timeout(deployment.startup_timeout)
+                            .metadata(Some((deployment.id.clone(), deployment.function_id.clone())))
+                            .on_drop_callback(Box::new(|metadata| {
                                 if let Some(metadata) = metadata.as_ref().as_ref() {
 
 
@@ -223,7 +223,7 @@ async fn handle_request(
                                     info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
                                 }
                             }))
-                            .with_on_statistics_callback(Box::new(|metadata, statistics| {
+                            .on_statistics_callback(Box::new(|metadata, statistics| {
                                 if let Some(metadata) = metadata.as_ref().as_ref() {
                                     let labels = [
                                         ("deployment", metadata.0.clone()),

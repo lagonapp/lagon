@@ -6,8 +6,8 @@ use hyper::{
 };
 use lagon_runtime::{
     http::{Request, Response, RunResult},
-    isolate::{Isolate, IsolateOptions},
-    runtime::{Runtime, RuntimeOptions},
+    isolate::{options::IsolateOptions, Isolate},
+    runtime::{options::RuntimeOptions, Runtime},
 };
 
 fn setup() {

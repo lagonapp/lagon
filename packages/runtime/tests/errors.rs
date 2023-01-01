@@ -3,8 +3,8 @@ use std::sync::Once;
 use hyper::body::Bytes;
 use lagon_runtime::{
     http::{Method, Request, RunResult},
-    isolate::{Isolate, IsolateOptions},
-    runtime::{Runtime, RuntimeOptions},
+    isolate::{options::IsolateOptions, Isolate},
+    runtime::{options::RuntimeOptions, Runtime},
 };
 
 fn setup() {
@@ -155,8 +155,8 @@ async fn memory_reached() {
             .into(),
         )
         // Increase timeout for CI
-        .with_startup_timeout(1000)
-        .with_memory(1),
+        .startup_timeout(1000)
+        .memory(1),
     );
     let (tx, rx) = flume::unbounded();
     isolate

@@ -3,8 +3,8 @@ use std::{collections::HashMap, sync::Once};
 use hyper::body::Bytes;
 use lagon_runtime::{
     http::{Method, Request, Response, RunResult},
-    isolate::{Isolate, IsolateOptions},
-    runtime::{Runtime, RuntimeOptions},
+    isolate::{options::IsolateOptions, Isolate},
+    runtime::{options::RuntimeOptions, Runtime},
 };
 
 fn setup() {
@@ -43,7 +43,7 @@ async fn environment_variables() {
 }"
             .into(),
         )
-        .with_environment_variables(
+        .environment_variables(
             vec![("TEST".into(), "Hello world".into())]
                 .into_iter()
                 .collect(),
