@@ -1,5 +1,17 @@
 # @lagon/cli
 
+## 0.4.4
+
+### Patch Changes
+
+- [#416](https://github.com/lagonapp/lagon/pull/416) [`c3bbdb3`](https://github.com/lagonapp/lagon/commit/c3bbdb366ee6d419d1738511b3f547899c89e983) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Stop streaming and log errors when we have errors/timeouts/memory limits
+
+* [#424](https://github.com/lagonapp/lagon/pull/424) [`6384939`](https://github.com/lagonapp/lagon/commit/6384939835ec621fff547fa4cc86185144eb2ded) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Bundle in ESNext
+
+- [#424](https://github.com/lagonapp/lagon/pull/424) [`6384939`](https://github.com/lagonapp/lagon/commit/6384939835ec621fff547fa4cc86185144eb2ded) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Define process.env.NODE_ENV as "production"
+
+* [#434](https://github.com/lagonapp/lagon/pull/434) [`4697533`](https://github.com/lagonapp/lagon/commit/4697533b6189eb71a10dcc356f0a35a6916079e2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix ESBuild path on Windows
+
 ## 0.4.3
 
 ### Patch Changes

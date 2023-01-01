@@ -1,5 +1,15 @@
 # @lagon/runtime
 
+## 0.2.1
+
+### Patch Changes
+
+- [#416](https://github.com/lagonapp/lagon/pull/416) [`c3bbdb3`](https://github.com/lagonapp/lagon/commit/c3bbdb366ee6d419d1738511b3f547899c89e983) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add promise_reject_callback to always throw errors
+
+* [#411](https://github.com/lagonapp/lagon/pull/411) [`b0cfd82`](https://github.com/lagonapp/lagon/commit/b0cfd8246d422d4da0f2fb675053ce6b9af83f52) Thanks [@QuiiBz](https://github.com/QuiiBz)! - AES-GCM uses 16 bytes iv instead of 12 bytes previously
+
+- [#447](https://github.com/lagonapp/lagon/pull/447) [`5a4b0dc`](https://github.com/lagonapp/lagon/commit/5a4b0dca8fc6d340b371c1d20e1b5640c7c01731) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Follow redirects in `fetch`
+
 ## 0.2.0
 
 ### Patch Changes

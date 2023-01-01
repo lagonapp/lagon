@@ -1,5 +1,15 @@
 # @lagon/js-runtime
 
+## 0.2.1
+
+### Patch Changes
+
+- [#429](https://github.com/lagonapp/lagon/pull/429) [`84290e6`](https://github.com/lagonapp/lagon/commit/84290e6de6e87c0c4c80da58cfa7365a88aac7c4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix implementation of `Response.error()` & `Response.redirect()`
+
+* [#438](https://github.com/lagonapp/lagon/pull/438) [`462b024`](https://github.com/lagonapp/lagon/commit/462b0243445a79d208470711be173d4c9e25e3a1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `Event` & `EventTarget` APIs
+
+- [#423](https://github.com/lagonapp/lagon/pull/423) [`047b7ce`](https://github.com/lagonapp/lagon/commit/047b7ce72ae479f383293755883928276b9806df) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix implementation of `Response.json()`
+
 ## 0.2.0
 
 ### Minor Changes

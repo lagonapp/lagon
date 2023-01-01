@@ -1,5 +1,11 @@
 # @lagon/docs
 
+## 0.1.1
+
+### Patch Changes
+
+- [#438](https://github.com/lagonapp/lagon/pull/438) [`462b024`](https://github.com/lagonapp/lagon/commit/462b0243445a79d208470711be173d4c9e25e3a1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `Event` & `EventTarget` APIs
+
 ## 0.1.0
 
 ### Minor Changes
