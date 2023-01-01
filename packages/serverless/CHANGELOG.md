@@ -1,5 +1,13 @@
 # @lagon/serverless
 
+## 0.1.14
+
+### Patch Changes
+
+- [#416](https://github.com/lagonapp/lagon/pull/416) [`c3bbdb3`](https://github.com/lagonapp/lagon/commit/c3bbdb366ee6d419d1738511b3f547899c89e983) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Stop streaming and log errors when we have errors/timeouts/memory limits
+
+* [#416](https://github.com/lagonapp/lagon/pull/416) [`c3bbdb3`](https://github.com/lagonapp/lagon/commit/c3bbdb366ee6d419d1738511b3f547899c89e983) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Handle termination results (timeouts and memory limit) before processing streaming to avoid hanging
+
 ## 0.1.13
 
 ### Patch Changes
