@@ -234,7 +234,11 @@ async fn response_status() {
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
-            .respond_with(status_code(302).body("Moved")),
+            .respond_with(status_code(302).append_header("location", "/moved")),
+    );
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/moved"))
+            .respond_with(status_code(200).body("Moved")),
     );
     let url = server.url("/");
 
@@ -251,7 +255,7 @@ async fn response_status() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Moved: 302"))
+        RunResult::Response(Response::from("Moved: 200"))
     );
 }
 
