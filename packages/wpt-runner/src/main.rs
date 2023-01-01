@@ -12,8 +12,8 @@ use std::{
 
 use lagon_runtime::{
     http::{Request, RunResult},
-    isolate::{Isolate, IsolateOptions},
-    runtime::{Runtime, RuntimeOptions},
+    isolate::{options::IsolateOptions, Isolate},
+    runtime::{options::RuntimeOptions, Runtime},
 };
 
 // From tools/wpt/encoding/resources/encodings.js, we only support utf-8
@@ -145,7 +145,7 @@ export function handler() {{
     .replace("self.", "globalThis.");
 
     let mut isolate = Isolate::new(
-        IsolateOptions::new(code).with_metadata(Some((String::from(""), String::from("")))),
+        IsolateOptions::new(code).metadata(Some((String::from(""), String::from("")))),
     );
 
     let (tx, rx) = flume::unbounded();
@@ -172,7 +172,7 @@ async fn test_directory(path: &Path) {
 
 #[tokio::main]
 async fn main() {
-    let runtime = Runtime::new(RuntimeOptions::default().with_expose_gc(true));
+    let runtime = Runtime::new(RuntimeOptions::default().expose_gc(true));
     init_logger().expect("Failed to initialize logger");
 
     if let Some(path) = env::args().nth(1) {

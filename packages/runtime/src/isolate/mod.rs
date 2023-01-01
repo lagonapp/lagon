@@ -15,77 +15,21 @@ use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
 
 use crate::{
     http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult},
-    runtime::{get_runtime_code, POOL},
-    utils::{extract_v8_string, v8_boolean, v8_string, v8_uint8array},
+    runtime::POOL,
+    utils::{v8_boolean, v8_string, v8_uint8array},
 };
 
-use self::bindings::{BindingResult, PromiseResult};
+use self::{
+    bindings::{BindingResult, PromiseResult},
+    callbacks::{heap_limit_callback, promise_reject_callback, resolve_module_callback},
+    options::{IsolateOptions, Metadata},
+};
 
 mod bindings;
+mod callbacks;
+pub mod options;
 
 const TIMEOUT_LOOP_DELAY: Duration = Duration::from_millis(1);
-
-extern "C" fn heap_limit_callback(
-    data: *mut std::ffi::c_void,
-    current_heap_limit: usize,
-    _initial_heap_limit: usize,
-) -> usize {
-    let isolate = unsafe { &mut *(data as *mut Isolate) };
-
-    isolate.heap_limit_reached();
-    // Avoid OOM killer by increasing the limit, since we kill
-    // Immediately the isolate above.
-    current_heap_limit * 2
-}
-
-extern "C" fn promise_reject_callback(message: v8::PromiseRejectMessage) {
-    let scope = &mut unsafe { v8::CallbackScope::new(&message) };
-    let promise = message.get_promise();
-    let promise = v8::Global::new(scope, promise);
-
-    let isolate = Isolate::state(scope);
-    let mut state = isolate.borrow_mut();
-
-    match message.get_event() {
-        v8::PromiseRejectEvent::PromiseRejectWithNoHandler => {
-            let content = message.get_value().map_or_else(
-                || "Unknown promise rejected error".to_owned(),
-                |value| {
-                    extract_v8_string(value, scope)
-                        .unwrap_or_else(|_| "Failed to extract promise reject message".to_owned())
-                },
-            );
-
-            state.rejected_promises.insert(promise, content);
-        }
-        v8::PromiseRejectEvent::PromiseHandlerAddedAfterReject => {
-            state.rejected_promises.remove(&promise);
-        }
-        _ => {}
-    }
-}
-
-// We don't allow imports at all, so we return None and throw an error
-// so it can be catched later. As the error message suggests, all code
-// should be bundled into a single file.
-fn resolve_module_callback<'a>(
-    context: v8::Local<'a, v8::Context>,
-    _: v8::Local<'a, v8::String>,
-    _: v8::Local<'a, v8::FixedArray>,
-    _: v8::Local<'a, v8::Module>,
-) -> Option<v8::Local<'a, v8::Module>> {
-    let scope = &mut unsafe { v8::CallbackScope::new(context) };
-
-    let message = v8_string(
-        scope,
-        "Can't import modules, everything should be bundled in a single file",
-    );
-
-    let exception = v8::Exception::error(scope, message);
-    scope.throw_exception(exception);
-
-    None
-}
 
 #[derive(Debug, Clone)]
 struct Global(v8::Global<v8::Context>);
@@ -105,79 +49,6 @@ struct IsolateState {
 pub struct IsolateStatistics {
     pub cpu_time: Duration,
     pub memory_usage: usize,
-}
-
-pub type Metadata = Option<(String, String)>;
-type OnIsolateDropCallback = Box<dyn Fn(Rc<Metadata>)>;
-type OnIsolateStatisticsCallback = Box<dyn Fn(Rc<Metadata>, IsolateStatistics)>;
-
-pub struct IsolateOptions {
-    pub code: String,
-    pub environment_variables: Option<HashMap<String, String>>,
-    pub memory: usize,          // in MB (MegaBytes)
-    pub timeout: usize,         // in ms (MilliSeconds)
-    pub startup_timeout: usize, // is ms (MilliSeconds)
-    pub metadata: Rc<Metadata>,
-    pub on_drop: Option<OnIsolateDropCallback>,
-    pub on_statistics: Option<OnIsolateStatisticsCallback>,
-    // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
-}
-
-impl IsolateOptions {
-    pub fn new(code: String) -> Self {
-        Self {
-            code,
-            environment_variables: None,
-            timeout: 50,
-            startup_timeout: 200,
-            memory: 128,
-            metadata: Rc::new(None),
-            on_drop: None,
-            on_statistics: None,
-            // snapshot_blob: None,
-        }
-    }
-
-    pub fn with_environment_variables(
-        mut self,
-        environment_variables: HashMap<String, String>,
-    ) -> Self {
-        self.environment_variables = Some(environment_variables);
-        self
-    }
-
-    pub fn with_timeout(mut self, timeout: usize) -> Self {
-        self.timeout = timeout;
-        self
-    }
-
-    pub fn with_startup_timeout(mut self, startup_timeout: usize) -> Self {
-        self.startup_timeout = startup_timeout;
-        self
-    }
-
-    pub fn with_memory(mut self, memory: usize) -> Self {
-        self.memory = memory;
-        self
-    }
-
-    pub fn with_metadata(mut self, metadata: Metadata) -> Self {
-        self.metadata = Rc::new(metadata);
-        self
-    }
-
-    pub fn with_on_drop_callback(mut self, on_drop: OnIsolateDropCallback) -> Self {
-        self.on_drop = Some(on_drop);
-        self
-    }
-
-    pub fn with_on_statistics_callback(
-        mut self,
-        on_statistics: OnIsolateStatisticsCallback,
-    ) -> Self {
-        self.on_statistics = Some(on_statistics);
-        self
-    }
 }
 
 #[derive(Debug)]
@@ -281,8 +152,6 @@ impl Isolate {
         if !self.isolate.is_execution_terminating() {
             self.isolate.terminate_execution();
         }
-
-        // TODO: add callback for serverless to log killed process?
     }
 
     pub(self) fn state(isolate: &v8::Isolate) -> Rc<RefCell<IsolateState>> {
@@ -306,7 +175,7 @@ impl Isolate {
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if self.handler.is_none() && self.compilation_error.is_none() {
-            let code = get_runtime_code(try_catch, &self.options);
+            let code = self.options.get_runtime_code(try_catch);
             let resource_name = v8_string(try_catch, "isolate.js");
             let source_map_url = v8_string(try_catch, "");
 

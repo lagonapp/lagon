@@ -8,8 +8,8 @@ use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::http::{Request, Response, RunResult, StreamResult};
-use lagon_runtime::isolate::{Isolate, IsolateOptions};
-use lagon_runtime::runtime::{Runtime, RuntimeOptions};
+use lagon_runtime::isolate::{options::IsolateOptions, Isolate};
+use lagon_runtime::runtime::{options::RuntimeOptions, Runtime};
 use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
 use std::convert::Infallible;
@@ -138,8 +138,8 @@ async fn handle_request(
                             IsolateOptions::new(
                                 String::from_utf8(index).expect("Code is not UTF-8"),
                             )
-                            .with_metadata(Some((String::from(""), String::from(""))))
-                            .with_environment_variables(environment_variables),
+                            .metadata(Some((String::from(""), String::from(""))))
+                            .environment_variables(environment_variables),
                         );
 
                         isolate.run(request, tx).await;
@@ -241,7 +241,7 @@ pub async fn dev(
     let content = Arc::new(Mutex::new((index, assets)));
 
     let runtime =
-        Runtime::new(RuntimeOptions::default().with_allow_code_generation(allow_code_generation));
+        Runtime::new(RuntimeOptions::default().allow_code_generation(allow_code_generation));
     let addr = format!(
         "{}:{}",
         hostname.unwrap_or_else(|| "127.0.0.1".into()),

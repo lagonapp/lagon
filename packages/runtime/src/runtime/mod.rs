@@ -2,36 +2,19 @@ use lazy_static::lazy_static;
 use tokio_util::task::LocalPoolHandle;
 use v8::V8;
 
-use crate::{isolate::IsolateOptions, utils::v8_string};
+use self::options::RuntimeOptions;
+
+pub mod options;
 
 #[repr(C, align(16))]
 struct IcuData([u8; 10541264]);
 
-static JS_RUNTIME: &str = include_str!("../../runtime.js");
 static ICU_DATA: IcuData = IcuData(*include_bytes!("../../icudtl.dat"));
 
 const FLAGS: [&str; 0] = [];
 
 lazy_static! {
     pub static ref POOL: LocalPoolHandle = LocalPoolHandle::new(1);
-}
-
-#[derive(Default)]
-pub struct RuntimeOptions {
-    allow_code_generation: bool,
-    expose_gc: bool,
-}
-
-impl RuntimeOptions {
-    pub fn with_allow_code_generation(mut self, allow_code_generation: bool) -> Self {
-        self.allow_code_generation = allow_code_generation;
-        self
-    }
-
-    pub fn with_expose_gc(mut self, expose_gc: bool) -> Self {
-        self.expose_gc = expose_gc;
-        self
-    }
 }
 
 pub struct Runtime;
@@ -69,33 +52,4 @@ impl Runtime {
 
         V8::dispose_platform();
     }
-}
-
-pub fn get_runtime_code<'a>(
-    scope: &mut v8::HandleScope<'a>,
-    options: &IsolateOptions,
-) -> v8::Local<'a, v8::String> {
-    let IsolateOptions {
-        code,
-        environment_variables,
-        ..
-    } = options;
-
-    let environment_variables = match environment_variables {
-        Some(environment_variables) => environment_variables
-            .iter()
-            .map(|(k, v)| format!("globalThis.process.env.{} = '{}'", k, v))
-            .collect::<Vec<String>>()
-            .join("\n"),
-        None => "".to_string(),
-    };
-
-    v8_string(
-        scope,
-        &format!(
-            r"{JS_RUNTIME}
-{environment_variables}
-{code}"
-        ),
-    )
 }

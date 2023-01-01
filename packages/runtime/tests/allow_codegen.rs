@@ -2,15 +2,15 @@ use std::sync::Once;
 
 use lagon_runtime::{
     http::{Request, Response, RunResult},
-    isolate::{Isolate, IsolateOptions},
-    runtime::{Runtime, RuntimeOptions},
+    isolate::{options::IsolateOptions, Isolate},
+    runtime::{options::RuntimeOptions, Runtime},
 };
 
 fn setup() {
     static START: Once = Once::new();
 
     START.call_once(|| {
-        Runtime::new(RuntimeOptions::default().with_allow_code_generation(true));
+        Runtime::new(RuntimeOptions::default().allow_code_generation(true));
     });
 }
 
