@@ -388,3 +388,122 @@ async fn abort_signal() {
         RunResult::Response(Response::from("Aborted"))
     );
 }
+
+#[tokio::test(flavor = "multi_thread")]
+async fn redirect() {
+    setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/"))
+            .respond_with(status_code(301).append_header("Location", "https://google.com")),
+    );
+    let url = server.url("/");
+
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
+        "export async function handler() {{
+    const status = (await fetch('{url}')).status;
+    return new Response(status);
+}}"
+    )));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("200"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn redirect_relative_url() {
+    setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/"))
+            .respond_with(status_code(301).append_header("Location", "/redirected")),
+    );
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/redirected"))
+            .respond_with(status_code(200)),
+    );
+    let url = server.url("/");
+
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
+        "export async function handler() {{
+    const status = (await fetch('{url}')).status;
+    return new Response(status);
+}}"
+    )));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("200"))
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn redirect_without_location_header() {
+    setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/")).respond_with(status_code(301)),
+    );
+    let url = server.url("/");
+
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
+        "export async function handler() {{
+    const status = (await fetch('{url}')).status;
+    return new Response(status);
+}}"
+    )));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error("Error: Got a redirect without Location header".into())
+    );
+}
+
+#[tokio::test(flavor = "multi_thread")]
+async fn redirect_loop() {
+    setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/"))
+            .respond_with(status_code(301).append_header("location", "/a")),
+    );
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/a"))
+            .respond_with(status_code(301).append_header("location", "/b")),
+    );
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/b"))
+            .respond_with(status_code(301).append_header("location", "/c")),
+    );
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/c"))
+            .respond_with(status_code(301).append_header("location", "/d")),
+    );
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/d"))
+            .respond_with(status_code(301).append_header("location", "/e")),
+    );
+    let url = server.url("/");
+
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
+        "export async function handler() {{
+    const status = (await fetch('{url}')).status;
+    return new Response(status);
+}}"
+    )));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error("Error: Too many redirects".into())
+    );
+}
