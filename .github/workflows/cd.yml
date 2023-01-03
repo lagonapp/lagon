@@ -85,7 +85,7 @@ jobs:
         run: pnpm turbo build --filter=@lagon/js-runtime
       - name: Build CLI
         run: |
-          cd packages/cli && cargo build --release --target ${{ matrix.target }}
+          cd crates/cli && cargo build --release --target ${{ matrix.target }}
           mkdir -p builds/${{ matrix.asset_name }}
           cp ../../target/${{ matrix.target }}/release/${{ matrix.input }} builds/${{ matrix.asset_name }}/${{ matrix.output }}
           tar -C builds -czvf ${{ matrix.asset_name }}.tar.gz ${{ matrix.asset_name }}
@@ -93,10 +93,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.asset_name }}
-          path: packages/cli/${{ matrix.asset_name }}.tar.gz
+          path: crates/cli/${{ matrix.asset_name }}.tar.gz
       - name: Upload to release
         uses: softprops/action-gh-release@v1
         if: github.event_name == 'workflow_run'
         with:
-          files: packages/cli/${{ matrix.asset_name }}.tar.gz
+          files: crates/cli/${{ matrix.asset_name }}.tar.gz
           token: ${{ secrets.GITHUB_TOKEN }}
