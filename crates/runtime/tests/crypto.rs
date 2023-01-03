@@ -11,7 +11,7 @@ fn setup() {
     });
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn crypto_random_uuid() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -31,7 +31,7 @@ async fn crypto_random_uuid() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn crypto_get_random_values() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -51,7 +51,7 @@ async fn crypto_get_random_values() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn crypto_key_value() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -77,7 +77,7 @@ async fn crypto_key_value() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn crypto_unique_key_value() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -110,7 +110,7 @@ async fn crypto_unique_key_value() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn crypto_sign() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -140,7 +140,7 @@ async fn crypto_sign() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn crypto_verify() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -174,7 +174,7 @@ async fn crypto_verify() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn crypto_digest_sha1() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -196,7 +196,7 @@ async fn crypto_digest_sha1() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn crypto_digest_string() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -216,7 +216,7 @@ async fn crypto_digest_string() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn crypto_digest_object() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -236,7 +236,7 @@ async fn crypto_digest_object() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn crypto_encrypt() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -269,7 +269,7 @@ async fn crypto_encrypt() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn crypto_decrypt() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(

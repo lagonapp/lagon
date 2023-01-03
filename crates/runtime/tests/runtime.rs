@@ -279,7 +279,7 @@ async fn return_uint8array() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn console_log() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -303,7 +303,7 @@ async fn console_log() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn atob() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -321,7 +321,7 @@ async fn atob() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn btoa() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(

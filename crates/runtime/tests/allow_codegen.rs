@@ -11,7 +11,7 @@ fn setup() {
     });
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn allow_eval() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -30,7 +30,7 @@ async fn allow_eval() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn allow_function() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(

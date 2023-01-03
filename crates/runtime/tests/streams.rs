@@ -13,7 +13,7 @@ fn setup() {
     });
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn sync_streaming() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -49,7 +49,7 @@ async fn sync_streaming() {
     assert!(rx.recv_async().await.is_err());
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn queue_multiple() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -94,7 +94,7 @@ async fn queue_multiple() {
     assert!(rx.recv_async().await.is_err());
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn custom_response() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -140,7 +140,7 @@ async fn custom_response() {
     assert!(rx.recv_async().await.is_err());
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn start_and_pull() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -185,7 +185,7 @@ async fn start_and_pull() {
     assert!(rx.recv_async().await.is_err());
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn response_before_write() {
     setup();
     let server = Server::run();
@@ -242,7 +242,7 @@ async fn response_before_write() {
     assert!(rx.recv_async().await.is_err());
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn timeout_infinite_streaming() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -265,7 +265,7 @@ async fn timeout_infinite_streaming() {
     assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn promise_reject_callback() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -292,7 +292,7 @@ async fn promise_reject_callback() {
     assert!(rx.recv_async().await.is_err());
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn promise_reject_callback_after_response() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(

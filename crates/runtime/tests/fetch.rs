@@ -12,7 +12,7 @@ fn setup() {
     });
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn basic_fetch() {
     setup();
     let server = Server::run();
@@ -37,7 +37,7 @@ async fn basic_fetch() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn request_method() {
     setup();
     let server = Server::run();
@@ -65,7 +65,7 @@ async fn request_method() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn request_method_fallback() {
     setup();
     let server = Server::run();
@@ -93,7 +93,7 @@ async fn request_method_fallback() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn request_headers() {
     setup();
     let server = Server::run();
@@ -126,7 +126,7 @@ async fn request_headers() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn request_headers_class() {
     setup();
     let server = Server::run();
@@ -159,7 +159,7 @@ async fn request_headers_class() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn request_body() {
     setup();
     let server = Server::run();
@@ -191,7 +191,7 @@ async fn request_body() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn response_headers() {
     setup();
     let server = Server::run();
@@ -225,7 +225,7 @@ async fn response_headers() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn response_status() {
     setup();
     let server = Server::run();
@@ -256,7 +256,7 @@ async fn response_status() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn response_json() {
     setup();
     let server = Server::run();
@@ -283,7 +283,7 @@ async fn response_json() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn response_array_buffer() {
     setup();
     let server = Server::run();
@@ -310,7 +310,7 @@ async fn response_array_buffer() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn throw_invalid_url() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -331,7 +331,7 @@ async fn throw_invalid_url() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn throw_invalid_header() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -356,7 +356,7 @@ async fn throw_invalid_header() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn abort_signal() {
     setup();
     let server = Server::run();
@@ -390,7 +390,7 @@ async fn abort_signal() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn redirect() {
     setup();
     let server = Server::run();
@@ -415,7 +415,7 @@ async fn redirect() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn redirect_relative_url() {
     setup();
     let server = Server::run();
@@ -444,7 +444,7 @@ async fn redirect_relative_url() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn redirect_without_location_header() {
     setup();
     let server = Server::run();
@@ -468,7 +468,7 @@ async fn redirect_without_location_header() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn redirect_loop() {
     setup();
     let server = Server::run();

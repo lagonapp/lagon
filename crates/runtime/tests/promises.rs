@@ -15,7 +15,7 @@ fn setup() {
     });
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn execute_async_handler() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -33,7 +33,7 @@ async fn execute_async_handler() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn execute_promise() {
     let addr = SocketAddr::from(([127, 0, 0, 1], 5556));
 

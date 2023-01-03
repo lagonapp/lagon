@@ -12,7 +12,7 @@ fn setup() {
     });
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn no_handler() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new("console.log('Hello')".into()));
@@ -25,7 +25,7 @@ async fn no_handler() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn handler_not_function() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new("export const handler = 'Hello'".into()));
@@ -38,7 +38,7 @@ async fn handler_not_function() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn handler_reject() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -56,7 +56,7 @@ async fn handler_reject() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn compilation_error() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -77,7 +77,7 @@ async fn compilation_error() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn import_errors() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -100,7 +100,7 @@ export function handler() {
     );
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn execution_timeout_reached() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -116,7 +116,7 @@ async fn execution_timeout_reached() {
     assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn init_timeout_reached() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -132,7 +132,7 @@ export function handler() {
     assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn memory_reached() {
     setup();
     let mut isolate = Isolate::new(
