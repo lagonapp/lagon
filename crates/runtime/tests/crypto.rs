@@ -125,7 +125,6 @@ async fn crypto_sign() {
 
     const signed = await crypto.subtle.sign({
         name: 'HMAC',
-        hash: 'SHA-256',
     }, key, new TextEncoder().encode('Hello'));
 
     return new Response(`${signed instanceof Uint8Array} ${signed.length}`);
@@ -156,12 +155,10 @@ async fn crypto_verify() {
 
     const signed = await crypto.subtle.sign({
         name: 'HMAC',
-        hash: 'SHA-256',
     }, key, new TextEncoder().encode('Hello'));
 
     const verified = await crypto.subtle.verify({
         name: 'HMAC',
-        hash: 'SHA-256',
     }, key, signed, new TextEncoder().encode('Hello'));
 
     return new Response(verified);

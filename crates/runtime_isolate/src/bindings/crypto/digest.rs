@@ -1,12 +1,8 @@
 use anyhow::Result;
+use lagon_runtime_crypto::{extract_algorithm_object_or_string, methods::digest};
 use lagon_runtime_v8_utils::extract_v8_uint8array;
-use sha1::Sha1;
-use sha2::{Digest, Sha256, Sha384, Sha512};
 
-use crate::{
-    bindings::{BindingResult, PromiseResult},
-    crypto::extract_algorithm_object_or_string,
-};
+use crate::bindings::{BindingResult, PromiseResult};
 
 type Arg = (String, Vec<u8>);
 
@@ -24,37 +20,14 @@ pub async fn digest_binding(id: usize, arg: Arg) -> BindingResult {
     let name = arg.0;
     let data = arg.1;
 
-    let result = match name.as_str() {
-        "SHA-1" => {
-            let mut hasher = Sha1::new();
-            hasher.update(data);
-            hasher.finalize().to_vec()
-        }
-        "SHA-256" => {
-            let mut hasher = Sha256::new();
-            hasher.update(data);
-            hasher.finalize().to_vec()
-        }
-        "SHA-384" => {
-            let mut hasher = Sha384::new();
-            hasher.update(data);
-            hasher.finalize().to_vec()
-        }
-        "SHA-512" => {
-            let mut hasher = Sha512::new();
-            hasher.update(data);
-            hasher.finalize().to_vec()
-        }
-        _ => {
-            return BindingResult {
-                id,
-                result: PromiseResult::Error("Algorithm not found".into()),
-            }
-        }
-    };
-
-    BindingResult {
-        id,
-        result: PromiseResult::ArrayBuffer(result),
+    match digest(name.as_str(), data) {
+        Ok(result) => BindingResult {
+            id,
+            result: PromiseResult::ArrayBuffer(result),
+        },
+        Err(error) => BindingResult {
+            id,
+            result: PromiseResult::Error(error.to_string()),
+        },
     }
 }

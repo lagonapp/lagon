@@ -1,14 +1,10 @@
 use anyhow::Result;
-use hmac::Mac;
+use lagon_runtime_crypto::{
+    extract_algorithm_object, extract_cryptokey_key_value, methods::sign, Algorithm,
+};
 use lagon_runtime_v8_utils::extract_v8_uint8array;
 
-use crate::{
-    bindings::{BindingResult, PromiseResult},
-    crypto::{
-        extract_algorithm_object, extract_cryptokey_key_value, Algorithm, HmacSha256, HmacSha384,
-        HmacSha512, Sha,
-    },
-};
+use crate::bindings::{BindingResult, PromiseResult};
 
 type Arg = (Algorithm, Vec<u8>, Vec<u8>);
 
@@ -25,34 +21,14 @@ pub async fn sign_binding(id: usize, arg: Arg) -> BindingResult {
     let key_value = arg.1;
     let data = arg.2;
 
-    let result = match algorithm {
-        Algorithm::Hmac(sha) => match sha {
-            Sha::Sha256 => {
-                let mut mac = HmacSha256::new_from_slice(&key_value).unwrap();
-                mac.update(&data);
-                mac.finalize().into_bytes().to_vec()
-            }
-            Sha::Sha384 => {
-                let mut mac = HmacSha384::new_from_slice(&key_value).unwrap();
-                mac.update(&data);
-                mac.finalize().into_bytes().to_vec()
-            }
-            Sha::Sha512 => {
-                let mut mac = HmacSha512::new_from_slice(&key_value).unwrap();
-                mac.update(&data);
-                mac.finalize().into_bytes().to_vec()
-            }
+    match sign(algorithm, key_value, data) {
+        Ok(result) => BindingResult {
+            id,
+            result: PromiseResult::ArrayBuffer(result),
         },
-        _ => {
-            return BindingResult {
-                id,
-                result: PromiseResult::Error("Algorithm not supported".into()),
-            }
-        }
-    };
-
-    BindingResult {
-        id,
-        result: PromiseResult::ArrayBuffer(result),
+        Err(error) => BindingResult {
+            id,
+            result: PromiseResult::Error(error.to_string()),
+        },
     }
 }

@@ -1,3 +1,4 @@
+use lagon_runtime_crypto::methods::random_values;
 use lagon_runtime_v8_utils::v8_uint8array;
 
 pub fn random_values_binding(
@@ -10,11 +11,7 @@ pub fn random_values_binding(
     let mut buf = vec![0; chunk.byte_length()];
     chunk.copy_contents(&mut buf);
 
-    #[allow(clippy::needless_range_loop)]
-    for i in 0..buf.len() {
-        buf[i] = rand::random();
-    }
-
+    let buf = random_values(buf);
     let result = v8_uint8array(scope, buf);
 
     retval.set(result.into());

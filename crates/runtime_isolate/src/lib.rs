@@ -24,7 +24,6 @@ use self::{
 
 mod bindings;
 mod callbacks;
-mod crypto;
 pub mod options;
 
 lazy_static! {

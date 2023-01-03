@@ -1398,6 +1398,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "lagon-runtime-crypto"
+version = "0.1.0"
+dependencies = [
+ "aes",
+ "aes-gcm",
+ "anyhow",
+ "hmac",
+ "lagon-runtime-v8-utils",
+ "rand",
+ "sha1",
+ "sha2",
+ "uuid",
+ "v8",
+]
+
+[[package]]
 name = "lagon-runtime-http"
 version = "0.1.0"
 dependencies = [
@@ -1411,25 +1427,19 @@ dependencies = [
 name = "lagon-runtime-isolate"
 version = "0.1.0"
 dependencies = [
- "aes",
- "aes-gcm",
  "anyhow",
  "async-recursion",
  "flume",
  "futures",
- "hmac",
  "hyper",
  "hyper-tls",
+ "lagon-runtime-crypto",
  "lagon-runtime-http",
  "lagon-runtime-v8-utils",
  "lazy_static",
  "log",
- "rand",
- "sha1",
- "sha2",
  "tokio",
  "tokio-util",
- "uuid",
  "v8",
 ]
 

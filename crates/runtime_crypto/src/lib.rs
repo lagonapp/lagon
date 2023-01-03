@@ -3,21 +3,22 @@ use aes_gcm::AesGcm;
 use anyhow::{anyhow, Result};
 use hmac::Hmac;
 use lagon_runtime_v8_utils::{extract_v8_string, extract_v8_uint8array, v8_string};
-use sha2::{Sha256, Sha384, Sha512};
+use sha2::Sha256;
+
+pub mod methods;
 
 pub type HmacSha256 = Hmac<Sha256>;
-pub type HmacSha384 = Hmac<Sha384>;
-pub type HmacSha512 = Hmac<Sha512>;
 pub type Aes256Gcm = AesGcm<Aes256, U16>;
 
 pub enum Sha {
+    Sha1,
     Sha256,
     Sha384,
     Sha512,
 }
 
 pub enum Algorithm {
-    Hmac(Sha),
+    Hmac,
     AesGcm(Vec<u8>),
 }
 
@@ -33,15 +34,7 @@ pub fn extract_algorithm_object(
         };
 
         if name == "HMAC" {
-            let hash_key = v8_string(scope, "hash");
-            let hash = match algorithm.get(scope, hash_key.into()) {
-                Some(hash) => extract_v8_string(hash, scope)?,
-                None => return Err(anyhow!("Algorithm hash not found")),
-            };
-
-            let sha = get_sha(&hash)?;
-
-            return Ok(Algorithm::Hmac(sha));
+            return Ok(Algorithm::Hmac);
         }
 
         if name == "AES-GCM" {
@@ -95,6 +88,7 @@ pub fn extract_cryptokey_key_value(
 
 pub fn get_sha(hash: &str) -> Result<Sha> {
     match hash {
+        "SHA-1" => Ok(Sha::Sha1),
         "SHA-256" => Ok(Sha::Sha256),
         "SHA-384" => Ok(Sha::Sha384),
         "SHA-512" => Ok(Sha::Sha512),

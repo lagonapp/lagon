@@ -1,11 +1,10 @@
-use aes_gcm::{aead::Aead, KeyInit, Nonce};
 use anyhow::Result;
+use lagon_runtime_crypto::{
+    extract_algorithm_object, extract_cryptokey_key_value, methods::decrypt, Algorithm,
+};
 use lagon_runtime_v8_utils::extract_v8_uint8array;
 
-use crate::{
-    bindings::{BindingResult, PromiseResult},
-    crypto::{extract_algorithm_object, extract_cryptokey_key_value, Aes256Gcm, Algorithm},
-};
+use crate::bindings::{BindingResult, PromiseResult};
 
 type Arg = (Algorithm, Vec<u8>, Vec<u8>);
 
@@ -25,22 +24,14 @@ pub async fn decrypt_binding(id: usize, arg: Arg) -> BindingResult {
     let key_value = arg.1;
     let data = arg.2;
 
-    let result = match algorithm {
-        Algorithm::AesGcm(iv) => {
-            let cipher = Aes256Gcm::new_from_slice(&key_value).unwrap();
-            let nonce = Nonce::from_slice(&iv);
-            cipher.decrypt(nonce, data.as_ref()).unwrap()
-        }
-        _ => {
-            return BindingResult {
-                id,
-                result: PromiseResult::Error("Algorithm not supported".into()),
-            }
-        }
-    };
-
-    BindingResult {
-        id,
-        result: PromiseResult::ArrayBuffer(result),
+    match decrypt(algorithm, key_value, data) {
+        Ok(result) => BindingResult {
+            id,
+            result: PromiseResult::ArrayBuffer(result),
+        },
+        Err(error) => BindingResult {
+            id,
+            result: PromiseResult::Error(error.to_string()),
+        },
     }
 }
