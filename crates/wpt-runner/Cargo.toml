@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+tokio = { version = "1", features = ["rt", "macros"] }
 lagon-runtime = { path = "../runtime" }
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-isolate = { path = "../runtime_isolate" }

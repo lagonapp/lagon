@@ -7,7 +7,7 @@ edition = "2021"
 v8 = "0.61.0"
 
 [dev-dependencies]
-tokio = { version = "1", features = ["full"] }
+tokio = { version = "1", features = ["rt-multi-thread", "time"] }
 flume = "0.10.14"
 httptest = "0.15.4"
 hyper = { version = "0.14", features = ["client", "http1", "http2", "tcp"] }
