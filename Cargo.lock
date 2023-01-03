@@ -1370,6 +1370,7 @@ dependencies = [
  "hyper-tls",
  "indicatif",
  "lagon-runtime",
+ "lagon-runtime-http",
  "log",
  "mime",
  "notify",
@@ -1397,6 +1398,8 @@ dependencies = [
  "httptest",
  "hyper",
  "hyper-tls",
+ "lagon-runtime-http",
+ "lagon-runtime-v8-utils",
  "lazy_static",
  "log",
  "rand",
@@ -1405,6 +1408,24 @@ dependencies = [
  "tokio",
  "tokio-util",
  "uuid",
+ "v8",
+]
+
+[[package]]
+name = "lagon-runtime-http"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "hyper",
+ "lagon-runtime-v8-utils",
+ "v8",
+]
+
+[[package]]
+name = "lagon-runtime-v8-utils"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
  "v8",
 ]
 
@@ -1419,6 +1440,7 @@ dependencies = [
  "flume",
  "hyper",
  "lagon-runtime",
+ "lagon-runtime-http",
  "lazy_static",
  "log",
  "metrics",
@@ -1439,6 +1461,7 @@ dependencies = [
  "colored",
  "flume",
  "lagon-runtime",
+ "lagon-runtime-http",
  "lazy_static",
  "log",
  "tokio",
