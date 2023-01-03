@@ -1,0 +1,10 @@
+[package]
+name = "lagon-runtime-http"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+v8 = "0.61.0"
+hyper = { version = "0.14", features = ["client", "http1", "http2", "tcp"] }
+anyhow = "1.0.68"
+lagon-runtime-v8-utils = { path = "../runtime_v8_utils" }

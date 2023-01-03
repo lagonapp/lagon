@@ -39,11 +39,11 @@ Current status:
 
 ## Packages
 
-- **[runtime](./packages/runtime)** Rust JavaScript Runtime, using V8 Isolates
-- **[js-runtime](./packages/runtime)** JavaScript code for the Runtime, containing the Web APIs
-- **[cli](./packages/cli)** CLI to manage Functions
+- **[runtime](./crates/runtime)** Rust JavaScript Runtime, using V8 Isolates
+- **[js-runtime](./packages/js-runtime)** JavaScript code for the Runtime, containing the Web APIs
+- **[cli](./crates/cli)** CLI to manage Functions
 - **[docs](./packages/docs)** Documentation website
-- **[serverless](./packages/serverless)** HTTP entrypoint for Functions, using the Runtime and exporting metrics
+- **[serverless](./crates/serverless)** HTTP entrypoint for Functions, using the Runtime and exporting metrics
 - **[dashboard](./packages/dashboard)** Dashboard and API
 - **[ui](./packages/ui)** Design system
 - **[www](./www)** Public website

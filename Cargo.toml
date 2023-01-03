@@ -1,7 +1,7 @@
 [workspace]
 members = [
-  "packages/runtime",
-  "packages/serverless",
-  "packages/cli",
-  "packages/wpt-runner",
+  "crates/runtime",
+  "crates/serverless",
+  "crates/cli",
+  "crates/wpt-runner",
 ]

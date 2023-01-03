@@ -11,7 +11,7 @@
     "lint": "turbo lint --continue",
     "typecheck": "turbo typecheck --continue",
     "docker:build": "docker build -t lagon/serverless -f docker/Dockerfile .",
-    "docker:start": "docker run --rm -p 4000:4000 --env-file packages/serverless/.env lagon/serverless",
+    "docker:start": "docker run --rm -p 4000:4000 --env-file crates/serverless/.env lagon/serverless",
     "release": "pnpm build && pnpm changeset publish",
     "prepare": "husky install"
   },

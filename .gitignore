@@ -5,7 +5,7 @@ coverage/
 .turbo/
 ssl/
 target/
-packages/serverless/deployments/
+crates/serverless/deployments/
 .vercel/
 storybook-static/
 

@@ -2,3 +2,7 @@ packages:
   - 'packages/*'
   - 'examples/*'
   - 'www'
+  - 'crates/cli'
+  - 'crates/runtime'
+  - 'crates/serverless'
+  - 'crates/wpt-runner'

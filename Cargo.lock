@@ -1370,8 +1370,9 @@ dependencies = [
  "hyper-tls",
  "indicatif",
  "lagon-runtime",
+ "lagon-runtime-http",
+ "lagon-runtime-isolate",
  "log",
- "mime",
  "notify",
  "pathdiff",
  "serde",
@@ -1387,24 +1388,66 @@ dependencies = [
 name = "lagon-runtime"
 version = "0.1.0"
 dependencies = [
+ "flume",
+ "httptest",
+ "hyper",
+ "lagon-runtime-http",
+ "lagon-runtime-isolate",
+ "tokio",
+ "v8",
+]
+
+[[package]]
+name = "lagon-runtime-crypto"
+version = "0.1.0"
+dependencies = [
  "aes",
  "aes-gcm",
+ "anyhow",
+ "hmac",
+ "lagon-runtime-v8-utils",
+ "rand",
+ "sha1",
+ "sha2",
+ "uuid",
+ "v8",
+]
+
+[[package]]
+name = "lagon-runtime-http"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "hyper",
+ "lagon-runtime-v8-utils",
+ "v8",
+]
+
+[[package]]
+name = "lagon-runtime-isolate"
+version = "0.1.0"
+dependencies = [
  "anyhow",
  "async-recursion",
  "flume",
  "futures",
- "hmac",
- "httptest",
  "hyper",
  "hyper-tls",
+ "lagon-runtime-crypto",
+ "lagon-runtime-http",
+ "lagon-runtime-v8-utils",
  "lazy_static",
  "log",
- "rand",
- "sha1",
- "sha2",
  "tokio",
  "tokio-util",
- "uuid",
+ "v8",
+]
+
+[[package]]
+name = "lagon-runtime-v8-utils"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
  "v8",
 ]
 
@@ -1413,12 +1456,13 @@ name = "lagon-serverless"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axiom-rs",
- "chrono",
  "dotenv",
  "flume",
  "hyper",
  "lagon-runtime",
+ "lagon-runtime-http",
+ "lagon-runtime-isolate",
+ "lagon-serverless-logger",
  "lazy_static",
  "log",
  "metrics",
@@ -1433,12 +1477,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "lagon-serverless-logger"
+version = "0.1.0"
+dependencies = [
+ "axiom-rs",
+ "chrono",
+ "flume",
+ "log",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "lagon-wpt-runner"
 version = "0.1.0"
 dependencies = [
  "colored",
  "flume",
  "lagon-runtime",
+ "lagon-runtime-http",
+ "lagon-runtime-isolate",
  "lazy_static",
  "log",
  "tokio",
@@ -1675,7 +1733,6 @@ dependencies = [
  "quanta",
  "thiserror",
  "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -2302,6 +2359,7 @@ dependencies = [
  "percent-encoding",
  "ryu",
  "sha1_smol",
+ "tokio-native-tls",
  "url",
 ]
 
@@ -2657,15 +2715,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "43b2853a4d09f215c24cc5489c992ce46052d359b5109343cbafbf26bc62f8a3"
 
 [[package]]
-name = "signal-hook-registry"
-version = "1.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e51e73328dc4ac0c7ccbda3a494dfa03df1de2f46018127f60c693f2648455b0"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "sketches-ddsketch"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2884,9 +2933,7 @@ dependencies = [
  "memchr",
  "mio",
  "num_cpus",
- "parking_lot",
  "pin-project-lite",
- "signal-hook-registry",
  "socket2",
  "tokio-macros",
  "winapi",

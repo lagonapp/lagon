@@ -13,8 +13,8 @@ FROM rust:1.66-buster as builder
 WORKDIR /app
 COPY . ./
 
-WORKDIR /app/packages/serverless
-COPY --from=runtime /app/dist/index.js /app/packages/js-runtime/dist/
+WORKDIR /app/crates/serverless
+COPY --from=runtime /app/dist/index.js /app/crates/js-runtime/dist/
 RUN cargo build --release
 
 FROM rust:1.66-slim-buster
