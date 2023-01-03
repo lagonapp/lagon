@@ -9,6 +9,7 @@ tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 tokio-util = { version = "0.7.4", features = ["rt"] }
 lagon-runtime = { path = "../runtime" }
 lagon-runtime-http = { path = "../runtime_http" }
+lagon-runtime-isolate = { path = "../runtime_isolate" }
 flume = "0.10.14"
 mysql = "23.0.1"
 dotenv = "0.15.0"

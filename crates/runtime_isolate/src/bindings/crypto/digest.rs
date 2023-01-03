@@ -4,8 +4,8 @@ use sha1::Sha1;
 use sha2::{Digest, Sha256, Sha384, Sha512};
 
 use crate::{
+    bindings::{BindingResult, PromiseResult},
     crypto::extract_algorithm_object_or_string,
-    isolate::bindings::{BindingResult, PromiseResult},
 };
 
 type Arg = (String, Vec<u8>);

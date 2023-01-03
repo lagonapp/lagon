@@ -9,7 +9,7 @@ use lagon_runtime_http::Response;
 use lagon_runtime_v8_utils::v8_string;
 use pull_stream::pull_stream_binding;
 
-use crate::isolate::{bindings::crypto::digest_init, Isolate};
+use crate::{bindings::crypto::digest_init, Isolate};
 
 mod console;
 mod crypto;

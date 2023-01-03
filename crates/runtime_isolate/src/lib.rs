@@ -1,6 +1,7 @@
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
 use lagon_runtime_http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult};
 use lagon_runtime_v8_utils::{v8_boolean, v8_string, v8_uint8array};
+use lazy_static::lazy_static;
 use std::{
     cell::RefCell,
     collections::HashMap,
@@ -13,8 +14,7 @@ use std::{
     task::{Context, Poll},
     time::{Duration, Instant},
 };
-
-use crate::runtime::POOL;
+use tokio_util::task::LocalPoolHandle;
 
 use self::{
     bindings::{BindingResult, PromiseResult},
@@ -24,7 +24,12 @@ use self::{
 
 mod bindings;
 mod callbacks;
+mod crypto;
 pub mod options;
+
+lazy_static! {
+    pub static ref POOL: LocalPoolHandle = LocalPoolHandle::new(1);
+}
 
 const TIMEOUT_LOOP_DELAY: Duration = Duration::from_millis(1);
 

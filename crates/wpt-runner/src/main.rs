@@ -1,9 +1,7 @@
 use colored::*;
-use lagon_runtime::{
-    isolate::{options::IsolateOptions, Isolate},
-    runtime::{options::RuntimeOptions, Runtime},
-};
+use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, RunResult};
+use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use lazy_static::lazy_static;
 use log::{
     set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,

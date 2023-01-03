@@ -1371,8 +1371,8 @@ dependencies = [
  "indicatif",
  "lagon-runtime",
  "lagon-runtime-http",
+ "lagon-runtime-isolate",
  "log",
- "mime",
  "notify",
  "pathdiff",
  "serde",
@@ -1388,6 +1388,29 @@ dependencies = [
 name = "lagon-runtime"
 version = "0.1.0"
 dependencies = [
+ "flume",
+ "httptest",
+ "hyper",
+ "lagon-runtime-http",
+ "lagon-runtime-isolate",
+ "tokio",
+ "v8",
+]
+
+[[package]]
+name = "lagon-runtime-http"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "hyper",
+ "lagon-runtime-v8-utils",
+ "v8",
+]
+
+[[package]]
+name = "lagon-runtime-isolate"
+version = "0.1.0"
+dependencies = [
  "aes",
  "aes-gcm",
  "anyhow",
@@ -1395,7 +1418,6 @@ dependencies = [
  "flume",
  "futures",
  "hmac",
- "httptest",
  "hyper",
  "hyper-tls",
  "lagon-runtime-http",
@@ -1408,16 +1430,6 @@ dependencies = [
  "tokio",
  "tokio-util",
  "uuid",
- "v8",
-]
-
-[[package]]
-name = "lagon-runtime-http"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "hyper",
- "lagon-runtime-v8-utils",
  "v8",
 ]
 
@@ -1441,6 +1453,7 @@ dependencies = [
  "hyper",
  "lagon-runtime",
  "lagon-runtime-http",
+ "lagon-runtime-isolate",
  "lazy_static",
  "log",
  "metrics",
@@ -1462,6 +1475,7 @@ dependencies = [
  "flume",
  "lagon-runtime",
  "lagon-runtime-http",
+ "lagon-runtime-isolate",
  "lazy_static",
  "log",
  "tokio",

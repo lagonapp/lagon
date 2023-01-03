@@ -1,6 +1,6 @@
 use log::{debug, error, info, warn};
 
-use crate::isolate::Isolate;
+use crate::Isolate;
 
 const SOURCE: &str = "console";
 

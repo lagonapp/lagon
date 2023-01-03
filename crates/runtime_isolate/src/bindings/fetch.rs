@@ -9,7 +9,7 @@ use hyper_tls::HttpsConnector;
 use lagon_runtime_http::{FromV8, Request, Response};
 use lazy_static::lazy_static;
 
-use crate::isolate::bindings::PromiseResult;
+use crate::bindings::PromiseResult;
 
 use super::BindingResult;
 

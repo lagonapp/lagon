@@ -1,7 +1,7 @@
 use lagon_runtime_http::StreamResult;
 use lagon_runtime_v8_utils::extract_v8_uint8array;
 
-use crate::isolate::Isolate;
+use crate::Isolate;
 
 pub fn pull_stream_binding(
     scope: &mut v8::HandleScope,

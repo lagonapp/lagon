@@ -2,11 +2,9 @@ use hyper::{
     service::{make_service_fn, service_fn},
     Body, Request as HyperRequest, Response as HyperResponse, Server,
 };
-use lagon_runtime::{
-    isolate::{options::IsolateOptions, Isolate},
-    runtime::{options::RuntimeOptions, Runtime},
-};
+use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult};
+use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use std::{convert::Infallible, net::SocketAddr, sync::Once};
 
 fn setup() {

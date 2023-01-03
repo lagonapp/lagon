@@ -1,8 +1,6 @@
-use lagon_runtime::{
-    isolate::{options::IsolateOptions, Isolate},
-    runtime::{options::RuntimeOptions, Runtime},
-};
+use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult};
+use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use std::sync::Once;
 
 fn setup() {

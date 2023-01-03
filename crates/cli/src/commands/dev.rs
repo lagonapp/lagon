@@ -7,9 +7,9 @@ use hyper::http::response::Builder;
 use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
-use lagon_runtime::isolate::{options::IsolateOptions, Isolate};
-use lagon_runtime::runtime::{options::RuntimeOptions, Runtime};
+use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult, StreamResult};
+use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use log::{
     set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,
 };

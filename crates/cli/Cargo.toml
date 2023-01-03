@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 lagon-runtime = { path = "../runtime" }
 lagon-runtime-http = { path = "../runtime_http" }
+lagon-runtime-isolate = { path = "../runtime_isolate" }
 clap = { version = "4.0.32", features = ["derive"] }
 dialoguer = "0.10.2"
 indicatif = "0.17.2"
@@ -15,7 +16,6 @@ webbrowser = "0.8.4"
 tokio = { version = "1", features = ["full"] }
 tokio-util = { version = "0.7.4", features = ["rt"] }
 hyper = { version = "0.14", features = ["client", "server", "http1", "http2", "runtime", "stream"] }
-mime = "0.3.16"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 walkdir = "2.3.2"

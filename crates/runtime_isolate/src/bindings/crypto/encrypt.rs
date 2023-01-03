@@ -4,8 +4,8 @@ use anyhow::Result;
 use lagon_runtime_v8_utils::extract_v8_uint8array;
 
 use crate::{
+    bindings::{BindingResult, PromiseResult},
     crypto::{extract_algorithm_object, extract_cryptokey_key_value, Aes256Gcm, Algorithm},
-    isolate::bindings::{BindingResult, PromiseResult},
 };
 
 type Arg = (Algorithm, Vec<u8>, Vec<u8>);

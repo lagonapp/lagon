@@ -1,0 +1,28 @@
+[package]
+name = "lagon-runtime-isolate"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+v8 = "0.61.0"
+tokio = { version = "1", features = ["full"] }
+tokio-util = { version = "0.7.4", features = ["rt"] }
+futures = "0.3.25"
+hyper = { version = "0.14", features = ["client", "http1", "http2", "tcp"] }
+hyper-tls = { version = "0.5.0", features = ["vendored"] }
+flume = "0.10.14"
+anyhow = "1.0.68"
+uuid = { version = "1.2.2", features = ["v4", "fast-rng"] }
+rand = "0.8.5"
+log = { version = "0.4.17", features = ["std", "kv_unstable"] }
+lazy_static = "1.4.0"
+async-recursion = "1.0.0"
+# Cryptography
+hmac = "0.12.1"
+sha1 = "0.10.5"
+sha2 = "0.10.6"
+aes = "0.8.2"
+aes-gcm = "0.10.1"
+# Lagon
+lagon-runtime-v8-utils = { path = "../runtime_v8_utils" }
+lagon-runtime-http = { path = "../runtime_http" }

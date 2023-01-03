@@ -3,7 +3,7 @@ use std::{collections::HashMap, rc::Rc};
 
 use super::IsolateStatistics;
 
-const JS_RUNTIME: &str = include_str!("../../runtime.js");
+const JS_RUNTIME: &str = include_str!("../runtime.js");
 
 pub type Metadata = Option<(String, String)>;
 type OnIsolateDropCallback = Box<dyn Fn(Rc<Metadata>)>;
