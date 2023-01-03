@@ -10,6 +10,7 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, RunResult, StreamResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
+use lagon_serverless_logger::init_logger;
 use lazy_static::lazy_static;
 use log::{as_debug, error, info, warn};
 use metrics::{counter, decrement_gauge, histogram, increment_counter, increment_gauge};
@@ -33,10 +34,8 @@ use crate::deployments::assets::handle_asset;
 use crate::deployments::filesystem::get_deployment_code;
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
-use crate::logger::init_logger;
 
 mod deployments;
-mod logger;
 
 lazy_static! {
     pub static ref ISOLATES: RwLock<HashMap<usize, HashMap<String, Isolate>>> =
@@ -326,7 +325,7 @@ async fn main() -> Result<()> {
     #[cfg(debug_assertions)]
     dotenv::dotenv().expect("Failed to load .env file");
 
-    let _flush_guard = init_logger().expect("Failed to init logger");
+    let _flush_guard = init_logger(REGION.clone()).expect("Failed to init logger");
 
     let runtime = Runtime::new(RuntimeOptions::default());
     let addr: SocketAddr = env::var("LAGON_LISTEN_ADDR")

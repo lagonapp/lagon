@@ -1456,14 +1456,13 @@ name = "lagon-serverless"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axiom-rs",
- "chrono",
  "dotenv",
  "flume",
  "hyper",
  "lagon-runtime",
  "lagon-runtime-http",
  "lagon-runtime-isolate",
+ "lagon-serverless-logger",
  "lazy_static",
  "log",
  "metrics",
@@ -1475,6 +1474,18 @@ dependencies = [
  "serde_json",
  "tokio",
  "tokio-util",
+]
+
+[[package]]
+name = "lagon-serverless-logger"
+version = "0.1.0"
+dependencies = [
+ "axiom-rs",
+ "chrono",
+ "flume",
+ "log",
+ "serde_json",
+ "tokio",
 ]
 
 [[package]]

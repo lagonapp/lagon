@@ -1,0 +1,12 @@
+[package]
+name = "lagon-serverless-logger"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+flume = "0.10.14"
+chrono = "0.4.23"
+serde_json = "1.0"
+axiom-rs = { version = "0.7.0", default-features = false, features = ["tokio", "native-tls"] }
+log = { version = "0.4.17", features = ["std", "kv_unstable", "kv_unstable_serde"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }

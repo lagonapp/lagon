@@ -9,15 +9,13 @@ use log::{
     Metadata, Record, SetLoggerError,
 };
 
-use crate::REGION;
-
 struct SimpleLogger {
     tx: Arc<RwLock<Option<Sender<Value>>>>,
     region: String,
 }
 
 impl SimpleLogger {
-    pub fn new() -> Self {
+    pub fn new(region: String) -> Self {
         let (tx, rx) = flume::unbounded();
 
         // Axiom is optional
@@ -37,7 +35,7 @@ impl SimpleLogger {
 
         Self {
             tx: Arc::new(RwLock::new(Some(tx))),
-            region: REGION.clone(),
+            region,
         }
     }
 }
@@ -91,7 +89,9 @@ impl Drop for FlushGuard {
     }
 }
 
-pub fn init_logger() -> Result<FlushGuard, SetLoggerError> {
-    set_boxed_logger(Box::new(SimpleLogger::new())).map(|()| set_max_level(LevelFilter::Info))?;
+pub fn init_logger(region: String) -> Result<FlushGuard, SetLoggerError> {
+    set_boxed_logger(Box::new(SimpleLogger::new(region)))
+        .map(|()| set_max_level(LevelFilter::Info))?;
+
     Ok(FlushGuard)
 }
