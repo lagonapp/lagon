@@ -16,8 +16,7 @@
     public pathname = '';
     public port = '';
     public protocol = '';
-    // @ts-expect-error: TypeScript isn't smart enough to know this is always defined
-    public searchParams: URLSearchParams;
+    public searchParams!: URLSearchParams;
     public username = '';
 
     constructor(url: string | URL, base?: string | URL) {
