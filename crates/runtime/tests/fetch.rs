@@ -327,7 +327,7 @@ async fn throw_invalid_url() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Error: client requires absolute-form URIs".into())
+        RunResult::Error("Uncaught Error: client requires absolute-form URIs".into())
     );
 }
 
@@ -352,7 +352,7 @@ async fn throw_invalid_header() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Error: failed to parse header value".into())
+        RunResult::Error("Uncaught Error: failed to parse header value".into())
     );
 }
 
@@ -464,7 +464,7 @@ async fn redirect_without_location_header() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Error: Got a redirect without Location header".into())
+        RunResult::Error("Uncaught Error: Got a redirect without Location header".into())
     );
 }
 
@@ -505,6 +505,6 @@ async fn redirect_loop() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Error: Too many redirects".into())
+        RunResult::Error("Uncaught Error: Too many redirects".into())
     );
 }

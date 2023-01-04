@@ -206,9 +206,24 @@ async fn handle_request(
 
             Ok(hyper_response)
         }
-        RunResult::Error(error) => Ok(HyperResponse::builder().status(500).body(error.into())?),
-        RunResult::Timeout => Ok(HyperResponse::new("Timeouted".into())),
-        RunResult::MemoryLimit => Ok(HyperResponse::new("MemoryLimited".into())),
+        RunResult::Timeout | RunResult::MemoryLimit => {
+            if result == RunResult::Timeout {
+                println!("{}", error("Function execution timed out"));
+            } else {
+                println!("{}", error("Function execution reached memory limit"));
+            }
+
+            Ok(HyperResponse::builder()
+                .status(502)
+                .body("Resources reached".into())?)
+        }
+        RunResult::Error(err) => {
+            println!("{}", error(err.as_str()));
+
+            Ok(HyperResponse::builder()
+                .status(500)
+                .body("Function error".into())?)
+        }
         RunResult::NotFound => Ok(HyperResponse::builder()
             .status(404)
             .body("Deployment not found".into())?),

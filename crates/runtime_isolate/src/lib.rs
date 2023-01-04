@@ -44,6 +44,7 @@ struct IsolateState {
     stream_sender: flume::Sender<StreamResult>,
     metadata: Rc<Metadata>,
     rejected_promises: HashMap<v8::Global<v8::Promise>, String>,
+    lines: usize,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -114,6 +115,7 @@ impl Isolate {
                 stream_sender,
                 metadata: Rc::clone(&options.metadata),
                 rejected_promises: HashMap::new(),
+                lines: 0,
             }
         };
 
@@ -167,18 +169,19 @@ impl Isolate {
         self.stream_status = StreamStatus::None;
         self.stream_response_sent = false;
 
-        let global = {
-            let state = isolate_state.borrow();
-            state.global.0.clone()
-        };
+        let mut state = isolate_state.borrow_mut();
+        let global = state.global.0.clone();
 
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global.clone());
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if self.handler.is_none() && self.compilation_error.is_none() {
-            let code = self.options.get_runtime_code(try_catch);
+            let (code, lines) = self.options.get_runtime_code(try_catch);
             let resource_name = v8_string(try_catch, "isolate.js");
             let source_map_url = v8_string(try_catch, "");
+
+            state.lines = lines;
+            drop(state);
 
             let source = v8::script_compiler::Source::new(
                 code,
@@ -202,7 +205,7 @@ impl Isolate {
                         .instantiate_module(try_catch, resolve_module_callback)
                         .is_none()
                     {
-                        return Some(handle_error(try_catch).as_error());
+                        return Some(handle_error(try_catch, lines).as_error());
                     }
 
                     module.evaluate(try_catch)?;
@@ -217,7 +220,7 @@ impl Isolate {
 
                     self.handler = Some(handler);
                 }
-                None => return Some(handle_error(try_catch).as_error()),
+                None => return Some(handle_error(try_catch, lines).as_error()),
             };
         }
 
@@ -240,7 +243,7 @@ impl Isolate {
             None => {
                 // We might have already sent a termination result, e.g if timeout was reached
                 if self.termination_tx.as_ref().unwrap().is_empty() {
-                    let run_result = handle_error(try_catch);
+                    let run_result = handle_error(try_catch, 0);
 
                     self.termination_tx
                         .as_ref()
@@ -413,7 +416,9 @@ impl Isolate {
                     let exception = promise.result(try_catch);
 
                     tx.send(RunResult::Error(get_exception_message(
-                        try_catch, exception,
+                        try_catch,
+                        exception,
+                        state.lines,
                     )))
                     .unwrap_or(());
                     return Poll::Ready(());
@@ -543,12 +548,44 @@ impl Drop for Isolate {
     }
 }
 
-fn get_exception_message(
+pub fn get_exception_message(
     scope: &mut v8::TryCatch<v8::HandleScope>,
     exception: v8::Local<v8::Value>,
+    lines: usize,
 ) -> String {
     let exception_message = v8::Exception::create_message(scope, exception);
     let message = exception_message.get(scope).to_rust_string_lossy(scope);
+
+    if let Some(stack_trace) = exception_message.get_stack_trace(scope) {
+        let frames = stack_trace.get_frame_count();
+        let mut formatted = String::new();
+
+        for i in 0..frames {
+            if let Some(frame) = stack_trace.get_frame(scope, i) {
+                // Skip frames that are from Lagon's JS runtime
+                if lines > frame.get_line_number() {
+                    continue;
+                }
+
+                let location =
+                    format!("{}:{}", frame.get_line_number() - lines, frame.get_column());
+
+                let frame = if let Some(function_name) = frame.get_function_name(scope) {
+                    format!(
+                        "\n  at {} ({})",
+                        function_name.to_rust_string_lossy(scope),
+                        location,
+                    )
+                } else {
+                    format!("\n  at {}", location)
+                };
+
+                formatted.push_str(&frame);
+            }
+        }
+
+        return format!("{}{}", message, formatted,);
+    }
 
     if let Some(line) = exception_message.get_source_line(scope) {
         return format!("{}, at:\n{}", message, line.to_rust_string_lossy(scope),);
@@ -557,9 +594,9 @@ fn get_exception_message(
     message
 }
 
-fn handle_error(scope: &mut v8::TryCatch<v8::HandleScope>) -> RunResult {
+fn handle_error(scope: &mut v8::TryCatch<v8::HandleScope>, lines: usize) -> RunResult {
     if let Some(exception) = scope.exception() {
-        return RunResult::Error(get_exception_message(scope, exception));
+        return RunResult::Error(get_exception_message(scope, exception, lines));
     }
 
     RunResult::Error("Unknown error".into())

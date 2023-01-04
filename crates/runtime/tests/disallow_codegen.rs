@@ -27,7 +27,7 @@ async fn disallow_eval() {
     assert_eq!(
         rx.recv_async().await.unwrap(),
         RunResult::Error(
-            "EvalError: Code generation from strings disallowed for this context".into()
+            "Uncaught EvalError: Code generation from strings disallowed for this context\n  at handler (2:20)".into()
         )
     );
 }
@@ -48,7 +48,7 @@ async fn disallow_function() {
     assert_eq!(
         rx.recv_async().await.unwrap(),
         RunResult::Error(
-            "EvalError: Code generation from strings disallowed for this context".into()
+            "Uncaught EvalError: Code generation from strings disallowed for this context\n  at handler (2:20)".into()
         )
     );
 }

@@ -1,4 +1,6 @@
-use lagon_runtime_v8_utils::{extract_v8_string, v8_string};
+use lagon_runtime_v8_utils::v8_string;
+
+use crate::get_exception_message;
 
 use super::Isolate;
 
@@ -25,15 +27,11 @@ pub extern "C" fn promise_reject_callback(message: v8::PromiseRejectMessage) {
 
     match message.get_event() {
         v8::PromiseRejectEvent::PromiseRejectWithNoHandler => {
-            let content = message.get_value().map_or_else(
-                || "Unknown promise rejected error".to_owned(),
-                |value| {
-                    extract_v8_string(value, scope)
-                        .unwrap_or_else(|_| "Failed to extract promise reject message".to_owned())
-                },
-            );
+            let try_catch = &mut v8::TryCatch::new(scope);
+            let exception_message =
+                get_exception_message(try_catch, message.get_value().unwrap(), state.lines);
 
-            state.rejected_promises.insert(promise, content);
+            state.rejected_promises.insert(promise, exception_message);
         }
         v8::PromiseRejectEvent::PromiseHandlerAddedAfterReject => {
             state.rejected_promises.remove(&promise);

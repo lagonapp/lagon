@@ -74,7 +74,7 @@ impl IsolateOptions {
     pub fn get_runtime_code<'a>(
         &self,
         scope: &mut v8::HandleScope<'a>,
-    ) -> v8::Local<'a, v8::String> {
+    ) -> (v8::Local<'a, v8::String>, usize) {
         let IsolateOptions {
             code,
             environment_variables,
@@ -90,13 +90,18 @@ impl IsolateOptions {
             None => "".to_string(),
         };
 
-        v8_string(
+        let code = v8_string(
             scope,
             &format!(
                 r"{JS_RUNTIME}
-    {environment_variables}
-    {code}"
+{environment_variables}
+{code}"
             ),
-        )
+        );
+
+        // We add two lines because of last \n from js-runtime and env variables \n
+        let lines = JS_RUNTIME.lines().count() + environment_variables.lines().count() + 2;
+
+        (code, lines)
     }
 }
