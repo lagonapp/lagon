@@ -94,12 +94,13 @@ impl IsolateOptions {
             scope,
             &format!(
                 r"{JS_RUNTIME}
-    {environment_variables}
-    {code}"
+{environment_variables}
+{code}"
             ),
         );
 
-        let lines = JS_RUNTIME.lines().count() + environment_variables.lines().count();
+        // We add two lines because of last \n from js-runtime and env variables \n
+        let lines = JS_RUNTIME.lines().count() + environment_variables.lines().count() + 2;
 
         (code, lines)
     }

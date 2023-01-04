@@ -56,7 +56,7 @@ async fn handler_reject() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: Rejected\n  at handler (4:11)".into())
+        RunResult::Error("Uncaught Error: Rejected\n  at handler (2:11)".into())
     );
 }
 
@@ -194,6 +194,6 @@ export function handler() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught TypeError: a is not a function\n  at test (4:12)\n  at first (8:12)\n  at handler (12:25)".into(),
+        RunResult::Error("Uncaught TypeError: a is not a function\n  at test (2:12)\n  at first (6:12)\n  at handler (10:25)".into(),
     ));
 }

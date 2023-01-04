@@ -287,7 +287,7 @@ async fn promise_reject_callback() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at trigger (7:9)\n  at handler (10:5)".to_owned())
+        RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at trigger (5:9)\n  at handler (8:5)".to_owned())
     );
     assert!(rx.recv_async().await.is_err());
 }
@@ -331,7 +331,7 @@ async fn promise_reject_callback_after_response() {
     );
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at 15:17\n  at stream (14:19)".to_owned())
+        RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at 13:17\n  at stream (12:19)".to_owned())
     );
     assert!(rx.recv_async().await.is_err());
 }
