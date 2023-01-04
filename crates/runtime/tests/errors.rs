@@ -21,7 +21,9 @@ async fn no_handler() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Error: Handler function is not defined or is not a function".into())
+        RunResult::Error(
+            "Uncaught Error: Handler function is not defined or is not a function".into()
+        )
     );
 }
 
@@ -34,7 +36,9 @@ async fn handler_not_function() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Error: Handler function is not defined or is not a function".into())
+        RunResult::Error(
+            "Uncaught Error: Handler function is not defined or is not a function".into()
+        )
     );
 }
 
@@ -52,7 +56,7 @@ async fn handler_reject() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error("Error: Rejected".into())
+        RunResult::Error("Uncaught Error: Rejected\n  at handler (4:11)".into())
     );
 }
 
@@ -70,10 +74,7 @@ async fn compilation_error() {
 
     assert_eq!(
         rx.recv_async().await.unwrap(),
-        RunResult::Error(
-            "Uncaught SyntaxError: Unexpected identifier 'syntax', at:\n    this syntax is invalid"
-                .into()
-        ),
+        RunResult::Error("Uncaught SyntaxError: Unexpected identifier 'syntax'".into()),
     );
 }
 
@@ -94,7 +95,7 @@ export function handler() {
     assert_eq!(
         rx.recv_async().await.unwrap(),
         RunResult::Error(
-            "Uncaught Error: Can't import modules, everything should be bundled in a single file, at:\n"
+            "Uncaught Error: Can't import modules, everything should be bundled in a single file"
                 .into()
         ),
     );
@@ -169,4 +170,30 @@ async fn memory_reached() {
         .await;
 
     assert_eq!(rx.recv_async().await.unwrap(), RunResult::MemoryLimit);
+}
+
+#[tokio::test]
+async fn stacktrace() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "function test(a) {
+    return a() / 1;
+}
+
+function first(a) {
+    return test(a);
+}
+
+export function handler() {
+    return new Response(first('a'));
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught TypeError: a is not a function\n  at test (4:12)\n  at first (8:12)\n  at handler (12:25)".into(),
+    ));
 }
