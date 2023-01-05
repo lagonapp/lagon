@@ -1,20 +1,22 @@
 import { getCurrentDomain, getFullCurrentDomain, getFullDomain } from 'lib/utils';
 import { Link } from '@lagon/ui';
+import { MouseEventHandler } from 'react';
 
 type FunctionLinksProps = {
   func?: {
     name: string;
     domains: string[];
   };
+  onClick?: MouseEventHandler<HTMLDivElement> | undefined;
 };
 
-const FunctionLinks = ({ func }: FunctionLinksProps) => {
+const FunctionLinks = ({ func, onClick }: FunctionLinksProps) => {
   if (!func) {
     return null;
   }
 
   return (
-    <div className="flex gap-4 overflow-x-scroll md:overflow-x-auto">
+    <div onClick={onClick} className="flex gap-4 overflow-x-scroll md:overflow-x-auto">
       <Link href={getFullCurrentDomain(func)} target="_blank">
         {getCurrentDomain(func)}
       </Link>
