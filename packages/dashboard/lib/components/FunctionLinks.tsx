@@ -7,7 +7,7 @@ type FunctionLinksProps = {
     name: string;
     domains: string[];
   };
-  onClick?: MouseEventHandler<HTMLDivElement> | undefined;
+  onClick?: MouseEventHandler<HTMLDivElement>;
 };
 
 const FunctionLinks = ({ func, onClick }: FunctionLinksProps) => {
