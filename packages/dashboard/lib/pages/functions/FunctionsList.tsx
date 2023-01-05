@@ -18,6 +18,10 @@ const FunctionsList = () => {
     [push],
   );
 
+  const handleLinkClick = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    event.stopPropagation();
+  };
+
   return (
     <div className="flex gap-4 flex-col">
       {functions?.length === 0 ? <EmptyState title={t('empty.title')} description={t('empty.description')} /> : null}
@@ -28,7 +32,7 @@ const FunctionsList = () => {
               <Dot status="success" />
               {func.name}
             </Text>
-            <FunctionLinks func={func} />
+            <FunctionLinks onClick={handleLinkClick} func={func} />
           </div>
           <Text size="sm">
             {t('list.lastUpdate')}&nbsp;
