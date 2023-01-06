@@ -31,6 +31,31 @@ async fn execute_function() {
 }
 
 #[tokio::test]
+async fn execute_function_twice() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    return new Response('Hello world');
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx.clone()).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello world"))
+    );
+
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello world"))
+    );
+}
+
+#[tokio::test]
 async fn environment_variables() {
     setup();
     let mut isolate = Isolate::new(
