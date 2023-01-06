@@ -106,23 +106,22 @@ export async function masterHandler(request: {
   if (response.body && response.isStream) {
     const reader = response.body.getReader();
 
-    new ReadableStream({
-      start: controller => {
-        const push = () => {
-          reader.read().then(({ done, value }) => {
-            if (done) {
-              controller.close();
-              Lagon.pullStream(done);
-              return;
-            }
-            controller.enqueue(value);
-            Lagon.pullStream(done, value);
-            push();
-          });
-        };
-        push();
-      },
-    });
+    const read = () => {
+      reader.read().then(({ done, value }) => {
+        if (done) {
+          Lagon.pullStream(done);
+          return;
+        }
+
+        if (value.byteLength !== 0) {
+          Lagon.pullStream(done, value);
+        }
+
+        read();
+      });
+    };
+
+    read();
   } else {
     // @ts-expect-error we reassign body even if it's readonly
     response.body = await response.text();

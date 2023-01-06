@@ -173,23 +173,45 @@ async fn handle_request(
                     let bytes = Bytes::from(bytes);
                     stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                 }
-                StreamResult::Done => panic!("Got a stream done without data"),
+                StreamResult::Done => {
+                    println!(
+                        "{}",
+                        error("The stream was done before sending a response/data")
+                    );
+
+                    // Close the stream by sending empty bytes
+                    stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
+                }
             }
 
             tokio::spawn(async move {
+                let mut done = false;
+
                 while let Ok(result) = rx.recv_async().await {
                     match result {
                         RunResult::Stream(StreamResult::Start(response)) => {
                             response_tx.send_async(response).await.unwrap_or(());
                         }
                         RunResult::Stream(StreamResult::Data(bytes)) => {
+                            if done {
+                                println!("{}", error("Got data after stream was done"));
+
+                                // Close the stream by sending empty bytes
+                                stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
+                                break;
+                            }
+
                             let bytes = Bytes::from(bytes);
                             stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                         }
                         _ => {
-                            println!("{} {:?}", error("Unexpected stream result:"), result);
-                            // Close the stream by sending empty bytes if we receive anything
-                            // else than StreamResult (e.g errors)
+                            done = result == RunResult::Stream(StreamResult::Done);
+
+                            if !done {
+                                println!("{} {:?}", error("Unexpected stream result:"), result);
+                            }
+
+                            // Close the stream by sending empty bytes
                             stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
                         }
                     }
