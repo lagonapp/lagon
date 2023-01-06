@@ -169,8 +169,10 @@ impl Isolate {
         self.stream_status = StreamStatus::None;
         self.stream_response_sent = false;
 
-        let mut state = isolate_state.borrow_mut();
-        let global = state.global.0.clone();
+        let global = {
+            let state = isolate_state.borrow();
+            state.global.0.clone()
+        };
 
         let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global.clone());
         let try_catch = &mut v8::TryCatch::new(scope);
@@ -180,8 +182,7 @@ impl Isolate {
             let resource_name = v8_string(try_catch, "isolate.js");
             let source_map_url = v8_string(try_catch, "");
 
-            state.lines = lines;
-            drop(state);
+            isolate_state.borrow_mut().lines = lines;
 
             let source = v8::script_compiler::Source::new(
                 code,
