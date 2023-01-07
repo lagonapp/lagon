@@ -1,4 +1,4 @@
-use hyper::body::Bytes;
+use httptest::bytes::Bytes;
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Method, Request, Response, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};

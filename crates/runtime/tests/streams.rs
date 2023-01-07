@@ -1,5 +1,4 @@
-use httptest::{matchers::*, responders::*, Expectation, Server};
-use hyper::body::Bytes;
+use httptest::{bytes::Bytes, matchers::*, responders::*, Expectation, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult, StreamResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
