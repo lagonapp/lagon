@@ -67,7 +67,7 @@ async fn set_timeout() {
     assert!(rx.recv_async().await.is_err());
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn set_timeout_not_blocking_response() {
     setup();
@@ -129,7 +129,7 @@ async fn set_timeout_clear() {
     assert!(rx.recv_async().await.is_err());
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn set_interval() {
     let log_rx = setup_logger();
