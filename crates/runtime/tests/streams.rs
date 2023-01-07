@@ -291,7 +291,7 @@ async fn promise_reject_callback() {
     assert!(rx.recv_async().await.is_err());
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 async fn promise_reject_callback_after_response() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
@@ -302,7 +302,7 @@ async fn promise_reject_callback_after_response() {
 
     async function stream() {
         // Just to delay a bit
-        await new Promise(resolve => setTimeout(resolve, 100))
+        await fetch('https://google.com');
 
         const writer = writable.getWriter();
         for (let i = 0; i < output.length; i++) {
