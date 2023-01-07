@@ -25,7 +25,10 @@ pub fn extract_v8_headers_object(
     value: v8::Local<v8::Value>,
     scope: &mut v8::HandleScope,
 ) -> Result<Option<HashMap<String, String>>> {
-    // TODO: check if value is a Map
+    if !value.is_map() {
+        return Err(anyhow!("Value is not of type 'Map'"));
+    }
+
     let map = unsafe { v8::Local::<v8::Map>::cast(value) };
 
     if map.size() > 0 {
@@ -57,7 +60,10 @@ pub fn extract_v8_headers_object(
 }
 
 pub fn extract_v8_uint8array(value: v8::Local<v8::Value>) -> Result<Vec<u8>> {
-    // TODO: check if value is a Uint8Array
+    if !value.is_uint8_array() {
+        return Err(anyhow!("Value is not of type 'Uint8Array'"));
+    }
+
     let chunk = unsafe { v8::Local::<v8::Uint8Array>::cast(value) };
     let mut buf = vec![0; chunk.byte_length()];
     chunk.copy_contents(&mut buf);
@@ -107,4 +113,9 @@ pub fn v8_headers_object<'a>(
 
 pub fn v8_boolean<'a>(scope: &mut v8::HandleScope<'a>, value: bool) -> v8::Local<'a, v8::Boolean> {
     v8::Boolean::new(scope, value)
+}
+
+pub fn v8_exception<'a>(scope: &mut v8::HandleScope<'a>, value: &str) -> v8::Local<'a, v8::Value> {
+    let message = v8_string(scope, value);
+    v8::Exception::type_error(scope, message)
 }

@@ -205,6 +205,32 @@ async fn queue_microtask() {
 
 #[tokio::test]
 #[serial]
+async fn queue_microtask_throw_not_function() {
+    setup();
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export async function handler() {
+    queueMicrotask(true);
+    return new Response('Hello world');
+}"
+            .into(),
+        )
+        .metadata(Some(("".to_owned(), "".to_owned()))),
+    );
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error(
+            "Uncaught TypeError: Parameter 1 is not of type 'Function'\n  at handler (2:5)".into()
+        )
+    );
+    assert!(rx.recv_async().await.is_err());
+}
+
+#[tokio::test]
+#[serial]
 async fn timers_order() {
     let log_rx = setup_logger();
     setup();
