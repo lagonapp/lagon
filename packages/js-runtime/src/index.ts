@@ -12,6 +12,7 @@ import './runtime/global/console';
 import './runtime/global/process';
 import './runtime/global/crypto';
 import './runtime/global/navigator';
+import './runtime/global/timers';
 import './runtime/http/URLSearchParams';
 import './runtime/http/URL';
 import './runtime/http/Headers';
@@ -59,6 +60,8 @@ declare global {
       key: CryptoKey,
       data: BufferSource,
     ) => Promise<ArrayBuffer>;
+    sleep: (ms: number) => Promise<void>;
+    queueMicrotask: (callback: () => void) => void;
   };
   var __lagon__: {
     isIterable: (value: unknown) => value is ArrayBuffer;

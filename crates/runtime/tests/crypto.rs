@@ -52,6 +52,28 @@ async fn crypto_get_random_values() {
 }
 
 #[tokio::test]
+async fn crypto_get_random_values_throw_not_typedarray() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export function handler() {
+    const result = crypto.getRandomValues(true);
+    return new Response(`${result == typedArray} ${typedArray.length} ${result.length}`);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error(
+            "Uncaught TypeError: Parameter 1 is not of type 'TypedArray'\n  at handler (2:27)"
+                .to_string()
+        )
+    );
+}
+
+#[tokio::test]
 async fn crypto_key_value() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(

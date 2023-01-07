@@ -5,9 +5,11 @@ use crypto::{
     verify_binding, verify_init,
 };
 use fetch::{fetch_binding, fetch_init};
-use lagon_runtime_http::Response;
-use lagon_runtime_v8_utils::v8_string;
+use lagon_runtime_http::{IntoV8, Response};
+use lagon_runtime_v8_utils::{v8_boolean, v8_string, v8_uint8array};
 use pull_stream::pull_stream_binding;
+use queue_microtask::queue_microtask_binding;
+use sleep::{sleep_binding, sleep_init};
 
 use crate::{bindings::crypto::digest_init, Isolate};
 
@@ -15,6 +17,8 @@ mod console;
 mod crypto;
 mod fetch;
 mod pull_stream;
+mod queue_microtask;
+mod sleep;
 
 pub struct BindingResult {
     pub id: usize,
@@ -26,6 +30,19 @@ pub enum PromiseResult {
     ArrayBuffer(Vec<u8>),
     Boolean(bool),
     Error(String),
+    Undefined,
+}
+
+impl PromiseResult {
+    pub fn into_value<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Value> {
+        match self {
+            PromiseResult::Response(response) => response.into_v8(scope).into(),
+            PromiseResult::ArrayBuffer(bytes) => v8_uint8array(scope, bytes).into(),
+            PromiseResult::Boolean(boolean) => v8_boolean(scope, boolean).into(),
+            PromiseResult::Error(error) => v8_string(scope, &error).into(),
+            PromiseResult::Undefined => v8::undefined(scope).into(),
+        }
+    }
 }
 
 macro_rules! binding {
@@ -99,6 +116,13 @@ pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
         "decrypt",
         decrypt_init,
         decrypt_binding
+    );
+    async_binding!(scope, lagon_object, "sleep", sleep_init, sleep_binding);
+    binding!(
+        scope,
+        lagon_object,
+        "queueMicrotask",
+        queue_microtask_binding
     );
 
     global.set(v8_string(scope, "Lagon").into(), lagon_object.into());

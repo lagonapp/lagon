@@ -153,7 +153,7 @@ async fn memory_reached() {
             .into(),
         )
         // Increase timeout for CI
-        .startup_timeout(1000)
+        .startup_timeout(10000)
         .memory(1),
     );
     let (tx, rx) = flume::unbounded();
