@@ -1402,7 +1402,6 @@ version = "0.1.0"
 dependencies = [
  "flume",
  "httptest",
- "hyper",
  "lagon-runtime-http",
  "lagon-runtime-isolate",
  "log",

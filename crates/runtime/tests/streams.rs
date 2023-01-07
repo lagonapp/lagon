@@ -1,5 +1,4 @@
-use httptest::{matchers::*, responders::*, Expectation, Server};
-use hyper::body::Bytes;
+use httptest::{bytes::Bytes, matchers::*, responders::*, Expectation, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult, StreamResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
@@ -303,7 +302,7 @@ async fn promise_reject_callback_after_response() {
 
     async function stream() {
         // Just to delay a bit
-        await fetch('https://google.com');
+        await new Promise(resolve => setTimeout(resolve, 100))
 
         const writer = writable.getWriter();
         for (let i = 0; i < output.length; i++) {
