@@ -108,8 +108,11 @@ async fn set_timeout_clear() {
     let id;
     const test = await new Promise((resolve) => {
         id = setTimeout(() => {
-            resolve('test');
+            resolve('first');
         }, 100);
+        setTimeout(() => {
+            resolve('second');
+        }, 200);
         clearTimeout(id);
     });
     return new Response(test);
@@ -119,7 +122,10 @@ async fn set_timeout_clear() {
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
-    assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("second"))
+    );
     assert!(rx.recv_async().await.is_err());
 }
 
