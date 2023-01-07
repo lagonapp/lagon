@@ -1,6 +1,6 @@
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
 use lagon_runtime_http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult};
-use lagon_runtime_v8_utils::{v8_boolean, v8_string, v8_uint8array};
+use lagon_runtime_v8_utils::v8_string;
 use lazy_static::lazy_static;
 use std::{
     cell::RefCell,
@@ -233,6 +233,12 @@ impl Isolate {
         let global = global.open(try_catch);
         let global = global.global(try_catch);
 
+        {
+            let mut state = isolate_state.borrow_mut();
+            state.handler_result = None;
+            state.rejected_promises.clear();
+        }
+
         match handler.call(try_catch, global.into(), &[request.into()]) {
             Some(response) => {
                 let promise = v8::Local::<v8::Promise>::try_from(response)
@@ -305,25 +311,14 @@ impl Isolate {
 
             for (result, promise) in promises {
                 let promise = promise.open(scope);
+                let should_reject = matches!(result, PromiseResult::Error(_));
+                let value = result.into_value(scope);
 
-                match result {
-                    PromiseResult::Response(response) => {
-                        let response = response.into_v8(scope);
-                        promise.resolve(scope, response.into());
-                    }
-                    PromiseResult::ArrayBuffer(bytes) => {
-                        let array = v8_uint8array(scope, bytes);
-                        promise.resolve(scope, array.into());
-                    }
-                    PromiseResult::Boolean(boolean) => {
-                        let boolean = v8_boolean(scope, boolean);
-                        promise.resolve(scope, boolean.into());
-                    }
-                    PromiseResult::Error(error) => {
-                        let error = v8_string(scope, &error);
-                        promise.reject(scope, error.into());
-                    }
-                };
+                if should_reject {
+                    promise.reject(scope, value);
+                } else {
+                    promise.resolve(scope, value);
+                }
             }
         }
     }

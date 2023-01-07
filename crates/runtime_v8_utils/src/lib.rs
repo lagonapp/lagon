@@ -25,6 +25,7 @@ pub fn extract_v8_headers_object(
     value: v8::Local<v8::Value>,
     scope: &mut v8::HandleScope,
 ) -> Result<Option<HashMap<String, String>>> {
+    // TODO: check if value is a Map
     let map = unsafe { v8::Local::<v8::Map>::cast(value) };
 
     if map.size() > 0 {
@@ -56,6 +57,7 @@ pub fn extract_v8_headers_object(
 }
 
 pub fn extract_v8_uint8array(value: v8::Local<v8::Value>) -> Result<Vec<u8>> {
+    // TODO: check if value is a Uint8Array
     let chunk = unsafe { v8::Local::<v8::Uint8Array>::cast(value) };
     let mut buf = vec![0; chunk.byte_length()];
     chunk.copy_contents(&mut buf);
