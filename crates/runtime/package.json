@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "cargo build",
-    "test": "cargo nextest run",
+    "test": "cargo nextest run --no-fail-fast",
     "lint": "cargo clippy -- -Dwarnings --no-deps"
   }
 }

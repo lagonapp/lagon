@@ -291,7 +291,7 @@ async fn promise_reject_callback() {
     assert!(rx.recv_async().await.is_err());
 }
 
-#[tokio::test]
+#[tokio::test(flavor = "multi_thread")]
 async fn promise_reject_callback_after_response() {
     setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
