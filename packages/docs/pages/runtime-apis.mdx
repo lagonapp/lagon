@@ -14,7 +14,9 @@ export function handler(request: Request) {
 
 Starting from this simple code, you can do whatever you wish, using the Web APIs you already know.
 
-This `Request` also contains additional headers:
+## Additional Headers
+
+The `Request` object coming from the `handler` function also contains additional headers:
 
 - `X-Lagon-Region`: the [region](/cloud/regions) where this Function is executing
 - `X-Forwarded-For`: the IP address of the client that made the request
@@ -23,12 +25,14 @@ You can access them the same as any other header:
 
 ```typescript {2-3}
 export function handler(request: Request) {
-  const region = request.headers.get('X-Lagon-Region');
-  const ip = request.headers.get('X-Forwarded-For');
+  const region = request.headers.get('x-lagon-region');
+  const ip = request.headers.get('x-forwarded-for');
 
   return new Response(`Region: ${region}, User IP: ${ip}`);
 }
 ```
+
+The `X-Lagon-Region` header is also automatically added to each response, making it easy to identify which Region served the request.
 
 ## Global objects
 
@@ -100,7 +104,7 @@ The standard `EventTarget` object. [See the documentation on MDN](https://develo
 
 ### Fetch APIs
 
-<Callout type="info">Looking for the `fetch()` method? [Jump to fetch()](#fetch-1).</Callout>
+<Callout type="info">Looking for the `fetch()` method? [Jump to fetch()](#fetch).</Callout>
 
 #### `Headers`
 
@@ -141,15 +145,7 @@ The standard `FormData` object. [See the documentation on MDN](https://developer
 
 ### `process.env`
 
-The only usage of `process` is to access [environment variables](/cloud/environment-variables) via `process.env`.
-
-Example:
-
-```typescript
-export function handler(request: Request): Response {
-  return new Response(`My secret is: ${process.env.SECRET}`);
-}
-```
+The only usage of `process` is to access environment variables. [Learn more about environment variables](/cloud/environment-variables).
 
 ### Stream APIs
 

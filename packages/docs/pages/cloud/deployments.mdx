@@ -8,9 +8,14 @@ Each Deployment is immutable, and always accessible via a unique URL. You can se
 
 In this list, you can see the current production Deployment, the date at which each Deployment was created, their always-accessible URLs, and the author of each Deployment.
 
+<Callout type="info">
+  By default, `lagon deploy` will create a preview Deployment. You can use the `--prod` flag to automatically promote
+  this new Deployment to production.
+</Callout>
+
 ## Promoting a Deployment
 
-<Callout type="info">
+<Callout type="warning">
   You can't promote a production Deployment, as it is already the current production Deployment.
 </Callout>
 
@@ -20,6 +25,6 @@ To promote a preview Deployment to production, click on the "Promote" button nex
 
 ## Deleting a Deployment
 
-<Callout type="info">You can't delete a production Deployment.</Callout>
+<Callout type="warning">You can't delete a production Deployment.</Callout>
 
 You can delete a preview Deployment at any time. To do so, click on the "Delete" button next to the preview Deployment you want to delete. You will be asked to confirm, and then this Deployment will be deleted.

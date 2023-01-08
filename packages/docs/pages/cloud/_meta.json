@@ -1,7 +1,4 @@
 {
-  "account": "Account",
-  "organizations": "Organizations",
-  "functions": "Functions",
   "deployments": "Deployments",
   "logs": "Logs",
   "environment-variables": "Environment variables",
