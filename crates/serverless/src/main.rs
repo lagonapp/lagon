@@ -21,10 +21,14 @@ use mysql::{OptsBuilder, SslOpts};
 use rand::prelude::*;
 use s3::creds::Credentials;
 use s3::Bucket;
+#[cfg(not(debug_assertions))]
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::env;
 use std::net::SocketAddr;
+#[cfg(not(debug_assertions))]
+use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::RwLock;
@@ -371,9 +375,9 @@ async fn main() -> Result<()> {
     let url = url.as_str();
     let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
     #[cfg(not(debug_assertions))]
-    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(
-        SslOpts::default().with_danger_accept_invalid_certs(true),
-    ));
+    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(SslOpts::default().with_root_cert_path(
+        Some(Cow::from(Path::new("/etc/ssl/certs/ca-certificates.crt"))),
+    )));
     let pool = Pool::new(opts)?;
     let conn = pool.get_conn()?;
 
