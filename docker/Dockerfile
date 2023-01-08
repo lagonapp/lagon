@@ -19,6 +19,7 @@ RUN cargo build --release
 
 FROM rust:1.66-slim-buster
 
+RUN apt-get install -y ca-certificates
 COPY --from=builder /app/target/release/lagon-serverless /usr/local/bin/lagon-serverless
 
 # Serverless
