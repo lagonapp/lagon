@@ -1,24 +1,56 @@
 import { Callout } from 'nextra-theme-docs';
 
-The following APIs are the same as the Web APIS you already know. Additionally, we follow the [WinterCG](https://wintercg.org/) conventions.
+The following APIs are the same as the native Web APIS you already know. We also follow the [WinterCG](https://wintercg.org/) conventions. Lagon's Runtime uses the V8 engine and is written in both Rust and TypeScript.
 
 ## Handler
 
 The only required code to make your Function runnable is to export a `handler` function, that accepts a [`Request`](#request) and returns a [`Response`](#response) (or a promise returning a Response):
 
 ```typescript
-export function handler(request: Request): Response {
+export function handler(request: Request) {
   return new Response('Hello World!');
 }
 ```
 
-Starting from this simple code, you can do whatever you whish, using the Web APIs you already know.
+Starting from this simple code, you can do whatever you wish, using the Web APIs you already know.
+
+## Additional Headers
+
+The `Request` object coming from the `handler` function also contains additional headers:
+
+- `X-Lagon-Region`: the [region](/cloud/regions) where this Function is executing
+- `X-Forwarded-For`: the IP address of the client that made the request
+
+You can access them the same as any other header:
+
+```typescript {2-3}
+export function handler(request: Request) {
+  const region = request.headers.get('x-lagon-region');
+  const ip = request.headers.get('x-forwarded-for');
+
+  return new Response(`Region: ${region}, User IP: ${ip}`);
+}
+```
+
+The `X-Lagon-Region` header is also automatically added to each response, making it easy to identify which Region served the request.
 
 ## Global objects
 
+### `AbortController`
+
+The standard `AbortController` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/AbortController).
+
+### `AbortSignal`
+
+The standard `AbortSignal` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal).
+
+### `Blob`
+
+The standard `Blob` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
+
 ### `console`
 
-Similar to the the standard `console` object on the browser and on Node.js, expect that it only supports the following methods:
+Similar to the standard `console` object on the browser and Node.js, except that it only supports the following methods:
 
 - `log`
 - `info`
@@ -27,28 +59,6 @@ Similar to the the standard `console` object on the browser and on Node.js, expe
 - `error`
 
 You can log multiple objects, and use string substitution. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/console#outputting_text_to_the_console).
-
----
-
-### `process`
-
-The only usage of `process` is to access [environment variables](/cloud/environment-variables) via `process.env`.
-
-Example:
-
-```typescript
-export function handler(request: Request): Response {
-  return new Response(`My secret is: ${process.env.SECRET}`);
-}
-```
-
----
-
-### `navigator.userAgent`
-
-`navigator.userAgent` is a fixed string that can be used to detect the current runtime. Its value is always `Lagon/VERSION`, where `VERSION` is the current version of the Lagon Runtime.
-
----
 
 ### `crypto`
 
@@ -80,31 +90,9 @@ The standard `CryptoSubtle` object. [See the documentation on MDN](https://devel
 
 </Callout>
 
----
+### `CustomEvent`
 
-### `TextEncoder`
-
-The standard `TextEncoder` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder).
-
-### `TextDecoder`
-
-The standard `TextDecoder` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder).
-
-### `AbortController`
-
-The standard `AbortController` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/AbortController).
-
-### `AbortSignal`
-
-The standard `AbortSignal` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal).
-
-### `Blob`
-
-The standard `Blob` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
-
-### `File`
-
-The standard `File` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/File).
+The standard `CustomEvent` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent).
 
 ### `Event`
 
@@ -114,15 +102,13 @@ The standard `Event` object. [See the documentation on MDN](https://developer.mo
 
 The standard `EventTarget` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
 
-### `CustomEvent`
+### Fetch APIs
 
-The standard `CustomEvent` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent).
+<Callout type="info">Looking for the `fetch()` method? [Jump to fetch()](#fetch).</Callout>
 
----
+#### `Headers`
 
-### Fetch
-
-<Callout type="info">Looking for the `fetch()` method? [Jump to fetch()](#fetch-1).</Callout>
+The standard `Headers` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Headers).
 
 #### `Request`
 
@@ -145,13 +131,23 @@ The standard `URL` object. [See the documentation on MDN](https://developer.mozi
 
 The standard `URLSearchParams` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams).
 
-#### `Headers`
+### `File`
 
-The standard `Headers` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Headers).
+The standard `File` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/File).
 
----
+### `FormData`
 
-### Streams
+The standard `FormData` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/FormData).
+
+### `navigator.userAgent`
+
+`navigator.userAgent` is a fixed string that can be used to detect the current runtime. Its value is always `Lagon/VERSION`, where `VERSION` is the current version of the Lagon Runtime.
+
+### `process.env`
+
+The only usage of `process` is to access environment variables. [Learn more about environment variables](/cloud/environment-variables).
+
+### Stream APIs
 
 #### `ReadableStream`
 
@@ -161,6 +157,10 @@ The standard `ReadableStream` object. [See the documentation on MDN](https://dev
 
 The standard `ReadableStreamDefaultReader` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader).
 
+#### `TransformStream`
+
+The standard `TransformStream` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/TransformStream).
+
 #### `WritableStream`
 
 The standard `WritableStream` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/WritableStream).
@@ -169,15 +169,15 @@ The standard `WritableStream` object. [See the documentation on MDN](https://dev
 
 The standard `WritableStreamDefaultWriter` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter).
 
-#### `TransformStream`
+### `TextEncoder`
 
-The standard `TransformStream` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/TransformStream).
+The standard `TextEncoder` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder).
+
+### `TextDecoder`
+
+The standard `TextDecoder` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder).
 
 ## Global methods
-
-### `fetch()`
-
-The standard `fetch` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/fetch).
 
 ### `atob()`
 
@@ -187,14 +187,6 @@ The standard `atob` method. [See the documentation on MDN](https://developer.moz
 
 The standard `btoa` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/btoa).
 
-### `setInterval()`
-
-The standard `setInterval` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/setInterval).
-
-### `setTimeout()`
-
-The standard `setTimeout` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout).
-
 ### `clearInterval()`
 
 The standard `clearInterval` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/clearInterval).
@@ -203,6 +195,18 @@ The standard `clearInterval` method. [See the documentation on MDN](https://deve
 
 The standard `clearTimeout` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/clearTimeout).
 
+### `fetch()`
+
+The standard `fetch` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/fetch).
+
 ### `queueMicrotask()`
 
 The standard `queueMicrotask` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/queueMicrotask).
+
+### `setInterval()`
+
+The standard `setInterval` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/setInterval).
+
+### `setTimeout()`
+
+The standard `setTimeout` method. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/setTimeout).

@@ -1,12 +1,11 @@
 {
-  "account": "Account",
-  "organizations": "Organizations",
-  "functions": "Functions",
   "deployments": "Deployments",
   "logs": "Logs",
   "environment-variables": "Environment variables",
+  "cron": "Cron",
+  "static-files": "Static files",
   "domains": "Domains",
-  "plans": "Plans",
+  "pricing": "Pricing",
   "limits": "Limits",
   "regions": "Regions",
   "security": "Security"

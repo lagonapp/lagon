@@ -1,0 +1,29 @@
+When deploying a Function, you can add static files using the [`--public` or `-p`](/cli#lagon-deploy) flag. It accepts a path to a directory, which will be then served by Lagon at the root of your Function's URL.
+
+Let's say you have a Function inside an `index.ts` file, with a favicon and an image:
+
+```
+index.ts
+public/
+  favicon.ico
+  images/image.png
+```
+
+To deploy this Function with these static files, you can use the `-p` or `--public` flag:
+
+```bash
+lagon deploy ./index.ts -p public
+```
+
+Your Function is now deployed to `example.lagon.app`. You can access the favicon and the image at the following URLs:
+
+- `example.lagon.app/favicon.ico`
+- `example.lagon.app/images/image.png`
+
+In your HTML, you can reference these files using relative paths:
+
+```html
+<link rel="icon" href="/favicon.ico" />
+<!-- ... -->
+<img src="/images/image.png" />
+```

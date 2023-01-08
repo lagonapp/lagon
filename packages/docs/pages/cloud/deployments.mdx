@@ -1,1 +1,30 @@
-Work in progress...
+import { Callout } from 'nextra-theme-docs';
+
+There are two types of deployments: **Production** and **Preview** deployments. [Default and custom Domains](/cloud/domains) always points to the current production Deployment.
+
+Each Deployment is immutable, and always accessible via a unique URL. You can see the list of Deployments for a Function in the "Deployments" tab of a Function:
+
+![Deployments](/images/deployments.png)
+
+In this list, you can see the current production Deployment, the date at which each Deployment was created, their always-accessible URLs, and the author of each Deployment.
+
+<Callout type="info">
+  By default, `lagon deploy` will create a preview Deployment. You can use the `--prod` flag to automatically promote
+  this new Deployment to production.
+</Callout>
+
+## Promoting a Deployment
+
+<Callout type="warning">
+  You can't promote a production Deployment, as it is already the current production Deployment.
+</Callout>
+
+You can roll back at any time to a previous or a new preview Deployment:
+
+To promote a preview Deployment to production, click on the "Promote" button next to the preview Deployment you want to promote. You will be asked to confirm, and then this Deployment will be promoted and become the new production Deployment. The previous production Deployment will still exist but as a preview Deployment.
+
+## Deleting a Deployment
+
+<Callout type="warning">You can't delete a production Deployment.</Callout>
+
+You can delete a preview Deployment at any time. To do so, click on the "Delete" button next to the preview Deployment you want to delete. You will be asked to confirm, and then this Deployment will be deleted.
