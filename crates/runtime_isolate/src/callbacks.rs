@@ -28,8 +28,11 @@ pub extern "C" fn promise_reject_callback(message: v8::PromiseRejectMessage) {
     match message.get_event() {
         v8::PromiseRejectEvent::PromiseRejectWithNoHandler => {
             let try_catch = &mut v8::TryCatch::new(scope);
-            let exception_message =
-                get_exception_message(try_catch, message.get_value().unwrap(), state.lines);
+
+            let exception_message = match message.get_value() {
+                Some(exception) => get_exception_message(try_catch, exception, state.lines),
+                None => "Unknown error".to_string(),
+            };
 
             state.rejected_promises.insert(promise, exception_message);
         }

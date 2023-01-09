@@ -1,6 +1,6 @@
 use std::{fs, path::PathBuf};
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 
 use crate::utils::{
     bundle_function, debug, print_progress, success, validate_code_file, validate_public_dir,
@@ -31,9 +31,11 @@ pub fn build(file: PathBuf, client: Option<PathBuf>, public_dir: Option<PathBuf>
         let message = format!("Writting {}...", path);
         let end_progress = print_progress(&message);
 
-        let dir = PathBuf::from(".lagon")
-            .join("public")
-            .join(PathBuf::from(&path).parent().unwrap());
+        let dir = PathBuf::from(".lagon").join("public").join(
+            PathBuf::from(&path)
+                .parent()
+                .ok_or_else(|| anyhow!("Could not find parent of {}", path))?,
+        );
         fs::create_dir_all(dir)?;
         fs::write(format!(".lagon/public/{}", path), content)?;
 

@@ -3,7 +3,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::{env, fs, path::Path};
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use log::info;
 
 use super::Deployment;
@@ -47,9 +47,11 @@ pub fn write_deployment_asset(deployment_id: &str, asset: &str, buf: &[u8]) -> R
     let asset = asset.replace("public/", "");
     let asset = asset.as_str();
 
-    let dir = PathBuf::from("deployments")
-        .join(deployment_id)
-        .join(PathBuf::from(asset).parent().unwrap());
+    let dir = PathBuf::from("deployments").join(deployment_id).join(
+        PathBuf::from(asset)
+            .parent()
+            .ok_or_else(|| anyhow!("Could not get parent of {}", asset))?,
+    );
     fs::create_dir_all(dir)?;
 
     let mut file =

@@ -42,13 +42,11 @@ pub fn extract_v8_headers_object(
 
             let key = headers_keys
                 .get_index(scope, index)
-                .unwrap()
-                .to_rust_string_lossy(scope);
+                .map_or_else(|| "".to_string(), |key| key.to_rust_string_lossy(scope));
             index += 1;
             let value = headers_keys
                 .get_index(scope, index)
-                .unwrap()
-                .to_rust_string_lossy(scope);
+                .map_or_else(|| "".to_string(), |value| value.to_rust_string_lossy(scope));
 
             headers.insert(key, value);
         }

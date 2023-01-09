@@ -1,5 +1,5 @@
 use lagon_runtime_http::StreamResult;
-use lagon_runtime_v8_utils::extract_v8_uint8array;
+use lagon_runtime_v8_utils::{extract_v8_uint8array, v8_exception};
 
 use crate::Isolate;
 
@@ -14,12 +14,18 @@ pub fn pull_stream_binding(
     let done = args.get(0).to_boolean(scope);
 
     if done.is_false() {
-        let buf = extract_v8_uint8array(args.get(1)).unwrap();
-
-        state
-            .stream_sender
-            .send(StreamResult::Data(buf))
-            .unwrap_or(());
+        match extract_v8_uint8array(args.get(1)) {
+            Ok(buf) => {
+                state
+                    .stream_sender
+                    .send(StreamResult::Data(buf))
+                    .unwrap_or(());
+            }
+            Err(error) => {
+                let exception = v8_exception(scope, error.to_string().as_str());
+                scope.throw_exception(exception);
+            }
+        }
     } else {
         state.stream_sender.send(StreamResult::Done).unwrap_or(());
     }
