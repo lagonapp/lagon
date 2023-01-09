@@ -51,7 +51,7 @@ async fn make_request(
 
     if response.status().is_redirection() {
         let mut redirect_url = match response.headers().get("location") {
-            Some(location) => location.to_str().unwrap().to_string(),
+            Some(location) => location.to_str()?.to_string(),
             None => return Err(anyhow!("Got a redirect without Location header")),
         };
 

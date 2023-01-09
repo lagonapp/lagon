@@ -12,19 +12,21 @@ pub fn handle_asset(deployment: &Deployment, asset: &String) -> Result<Response>
         .join(asset);
     let body = fs::read(path)?;
 
-    let extension = Path::new(asset).extension().unwrap().to_str().unwrap();
-    let content_type = match extension {
-        "js" => "application/javascript",
-        "css" => "text/css",
-        "html" => "text/html",
-        "png" => "image/png",
-        "jpg" => "image/jpeg",
-        "jpeg" => "image/jpeg",
-        "svg" => "image/svg+xml",
-        "json" => "application/json",
-        "txt" => "text/plain",
-        _ => "text/plain",
-    };
+    let content_type = Path::new(asset).extension().map_or(
+        "application/octet-stream",
+        |extension| match extension.to_str().unwrap_or("") {
+            "js" => "application/javascript",
+            "css" => "text/css",
+            "html" => "text/html",
+            "png" => "image/png",
+            "jpg" => "image/jpeg",
+            "jpeg" => "image/jpeg",
+            "svg" => "image/svg+xml",
+            "json" => "application/json",
+            "txt" => "text/plain",
+            _ => "application/octet-stream",
+        },
+    );
 
     let mut headers = HashMap::new();
     headers.insert("content-type".into(), content_type.into());

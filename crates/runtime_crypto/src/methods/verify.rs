@@ -11,7 +11,7 @@ pub fn verify(
 ) -> Result<bool> {
     match algorithm {
         Algorithm::Hmac => {
-            let mut mac = HmacSha256::new_from_slice(&key_value).unwrap();
+            let mut mac = HmacSha256::new_from_slice(&key_value)?;
             mac.update(&data);
             Ok(mac.verify_slice(&signature).is_ok())
         }

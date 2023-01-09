@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
@@ -13,8 +13,11 @@ fn get_site_url() -> String {
     "https://dash.lagon.app".to_string()
 }
 
-fn get_config_path() -> PathBuf {
-    dirs::home_dir().unwrap().join(".lagon").join("config.json")
+fn get_config_path() -> Result<PathBuf> {
+    Ok(dirs::home_dir()
+        .ok_or_else(|| anyhow!("Could not find home directory"))?
+        .join(".lagon")
+        .join("config.json"))
 }
 
 #[derive(Serialize, Deserialize)]
@@ -25,10 +28,13 @@ pub struct Config {
 
 impl Config {
     pub fn new() -> Result<Self> {
-        let path = get_config_path();
+        let path = get_config_path()?;
 
         if !path.exists() {
-            fs::create_dir_all(path.parent().unwrap())?;
+            fs::create_dir_all(
+                path.parent()
+                    .ok_or_else(|| anyhow!("Could not find parent of {:?}", path))?,
+            )?;
 
             let config = Config {
                 token: None,
@@ -47,7 +53,7 @@ impl Config {
     }
 
     pub fn save(&self) -> Result<()> {
-        let path = get_config_path();
+        let path = get_config_path()?;
 
         fs::write(path, serde_json::to_string(&self)?)?;
         Ok(())
