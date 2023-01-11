@@ -3,7 +3,6 @@ import { RequestResponseBody } from './body';
 (globalThis => {
   globalThis.Request = class extends RequestResponseBody {
     readonly method: string;
-    readonly url: string;
     readonly cache: RequestCache;
     readonly credentials: RequestCredentials;
     readonly destination: RequestDestination;
@@ -15,14 +14,15 @@ import { RequestResponseBody } from './body';
     readonly referrerPolicy: ReferrerPolicy;
 
     private readonly init?: RequestInit;
+    private readonly input: RequestInfo | URL;
 
     constructor(input: RequestInfo | URL, init?: RequestInit) {
       super(init?.body, init?.headers);
 
       this.init = init;
+      this.input = input;
 
       this.method = init?.method || 'GET';
-      this.url = input.toString();
       this.cache = init?.cache || 'default';
       this.credentials = init?.credentials || 'same-origin';
       this.destination = 'worker';
@@ -32,6 +32,10 @@ import { RequestResponseBody } from './body';
       this.redirect = init?.redirect || 'follow';
       this.referrer = init?.referrer || '';
       this.referrerPolicy = init?.referrerPolicy || '';
+    }
+
+    get url(): string {
+      return this.input.toString();
     }
 
     get signal(): AbortSignal {
