@@ -191,12 +191,12 @@ importers:
 
   packages/astro:
     specifiers:
-      astro: 1.8.0
+      astro: 1.9.0
       esbuild: ^0.16.0
     dependencies:
       esbuild: 0.16.5
     devDependencies:
-      astro: 1.8.0
+      astro: 1.9.0
 
   packages/dashboard:
     specifiers:
@@ -8992,8 +8992,8 @@ packages:
       - ts-node
     dev: true
 
-  /astro/1.8.0:
-    resolution: {integrity: sha512-MZIJveOC1OCIA0w2XmxjDtKviAEuYdF142DVq0VApInE1lm+CvAoyMgJs0a1h4mydD2vgQZpTjPhYKJIdxDjOA==}
+  /astro/1.9.0:
+    resolution: {integrity: sha512-wHHMOHgqBGV4L8ThjCeBuVHq0mGF1F515jRyp5ns0MzFcu2nFk1frlXBKZEfmMMM84cilq3HeimrRTLkIGxI8A==}
     engines: {node: ^14.18.0 || >=16.12.0, npm: '>=6.14.0'}
     hasBin: true
     dependencies:
@@ -9026,7 +9026,7 @@ packages:
       estree-walker: 3.0.1
       execa: 6.1.0
       fast-glob: 3.2.12
-      github-slugger: 1.4.0
+      github-slugger: 2.0.0
       gray-matter: 4.0.3
       html-entities: 2.3.3
       html-escaper: 3.0.3
@@ -13067,7 +13067,6 @@ packages:
 
   /github-slugger/2.0.0:
     resolution: {integrity: sha512-IaOQ9puYtjrkq7Y0Ygl9KDZnrf/aiUJYUpVf89y8kyaxbRG7Y1SrX/jaumrv81vc61+kiMempujsM3Yw7w5qcw==}
-    dev: false
 
   /glob-parent/3.1.0:
     resolution: {integrity: sha512-E8Ak/2+dZY6fnzlR7+ueWvhsH1SjHr4jjss4YS/h4py44jY9MhK/VFdaZJAWDz6BbL21KeteKxFSFpq8OS5gVA==}
