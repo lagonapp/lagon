@@ -38,6 +38,8 @@ const SUBSET_TESTS: &str = include_str!("../../../tools/wpt/common/subset-tests.
 const DECODING_HELPERS: &str =
     include_str!("../../../tools/wpt/encoding/resources/decoding-helpers.js");
 const SUPPORT_BLOB: &str = include_str!("../../../tools/wpt/FileAPI/support/Blob.js");
+const SUPPORT_FORMDATA: &str =
+    include_str!("../../../tools/wpt/FileAPI/support/send-file-formdata-helper.js");
 
 lazy_static! {
     static ref RESULT: Mutex<(usize, usize, usize)> = Mutex::new((0, 0, 0));
@@ -191,6 +193,8 @@ async fn main() {
         // test_directory(Path::new("../../tools/wpt/compression")).await;
         test_directory(Path::new("../../tools/wpt/encoding")).await;
         test_directory(Path::new("../../tools/wpt/FileAPI/blob")).await;
+        // test_directory(Path::new("../../tools/wpt/FileAPI/file")).await;
+        // test_directory(Path::new("../../tools/wpt/FileAPI/reading-data-section")).await;
         test_directory(Path::new("../../tools/wpt/dom/events")).await;
     }
 
