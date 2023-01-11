@@ -63,6 +63,10 @@
   const TEXT_ENCODER = new TextEncoder();
   const TEXT_DECODER = new TextDecoder();
 
+  // https://developer.mozilla.org/en-US/docs/Web/API/WorkerGlobalScope/self
+  // @ts-expect-error Workers have a global `self` property, which we assign
+  // to `globalThis` because we don't implement all the Workers APIs
+  globalThis.self = globalThis;
   globalThis.__lagon__ = {
     isIterable,
     parseMultipart,

@@ -129,6 +129,34 @@ async fn set_timeout_clear() {
     assert!(rx.recv_async().await.is_err());
 }
 
+#[tokio::test]
+async fn set_timeout_clear_correct() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {
+    const test = await new Promise((resolve) => {
+        setTimeout(() => {
+            resolve('first');
+        }, 100);
+        const id = setTimeout(() => {
+            resolve('second');
+        }, 200);
+        clearTimeout(id);
+    });
+    return new Response(test);
+}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("first"))
+    );
+    assert!(rx.recv_async().await.is_err());
+}
+
 #[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn set_interval() {

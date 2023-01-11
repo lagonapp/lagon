@@ -8,19 +8,19 @@
   const timers = new Map<number, Timer>();
 
   const addTimer = (handler: () => void, timeout = 0, repeat: boolean) => {
-    counter++;
+    const id = counter++;
 
-    timers.set(counter, {
+    timers.set(id, {
       handler,
       repeat,
     });
 
     Lagon.sleep(timeout).then(() => {
-      const timer = timers.get(counter);
+      const timer = timers.get(id);
 
       if (timer) {
         timer.handler();
-        timers.delete(counter);
+        timers.delete(id);
 
         if (timer.repeat) {
           addTimer(timer.handler, timeout, repeat);
@@ -28,7 +28,7 @@
       }
     });
 
-    return counter;
+    return id;
   };
 
   // @ts-expect-error missing __promisify__
