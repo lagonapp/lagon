@@ -167,4 +167,19 @@
       this.detail = detail ?? (null as T);
     }
   };
+
+  globalThis.ProgressEvent = class<T extends EventTarget = EventTarget> extends Event {
+    readonly lengthComputable: boolean;
+    readonly loaded: number;
+    readonly target: T | null = null;
+    readonly total: number;
+
+    constructor(type: string, eventInitDict?: ProgressEventInit) {
+      super(type, eventInitDict);
+
+      this.lengthComputable = eventInitDict?.lengthComputable ?? false;
+      this.loaded = eventInitDict?.loaded ?? 0;
+      this.total = eventInitDict?.total ?? 0;
+    }
+  };
 })(globalThis);
