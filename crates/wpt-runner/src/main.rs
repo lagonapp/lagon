@@ -136,6 +136,7 @@ export function handler() {{
     {SUBSET_TESTS}
     {DECODING_HELPERS}
     {SUPPORT_BLOB}
+    {SUPPORT_FORMDATA}
     {code}
     return new Response()
 }}",
@@ -193,8 +194,8 @@ async fn main() {
         // test_directory(Path::new("../../tools/wpt/compression")).await;
         test_directory(Path::new("../../tools/wpt/encoding")).await;
         test_directory(Path::new("../../tools/wpt/FileAPI/blob")).await;
-        // test_directory(Path::new("../../tools/wpt/FileAPI/file")).await;
-        // test_directory(Path::new("../../tools/wpt/FileAPI/reading-data-section")).await;
+        test_directory(Path::new("../../tools/wpt/FileAPI/file")).await;
+        test_directory(Path::new("../../tools/wpt/FileAPI/reading-data-section")).await;
         test_directory(Path::new("../../tools/wpt/dom/events")).await;
     }
 

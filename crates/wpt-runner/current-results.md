@@ -1309,7 +1309,6 @@ TEST DONE 1 Passing typed arrays as elements of the blobParts array should work.
 TEST DONE 1 Passing a Float64Array as element of the blobParts array should work.
 TEST DONE 1 Passing BigInt typed arrays as elements of the blobParts array should work.
 TEST DONE 1 Passing a FrozenArray as the blobParts array should work (FrozenArray<MessagePort>).
-TEST DONE 1 Array with two buffers
 TEST DONE 1 Array with two bufferviews
 TEST DONE 1 options properties should be accessed in lexicographic order.
 TEST DONE 1 Arguments should be evaluated from left to right.
@@ -1336,6 +1335,7 @@ TEST DONE 0 Blob with type "text/plain"
 TEST DONE 0 Blob with type "image/png"
 TEST DONE 1 ArrayBuffer elements of the blobParts array should be supported.
 TEST DONE 0 Array with two blobs
+TEST DONE 0 Array with two buffers
 TEST DONE 1 Array with mixed types
 TEST DONE 0 Passing null (index 0) for options should use the defaults.
 TEST DONE 0 Passing null (index 0) for options should use the defaults (with newlines).
@@ -1347,8 +1347,8 @@ TEST DONE 0 Passing object "[object Object]" (index 3) for options should use th
 TEST DONE 0 Passing object "[object Object]" (index 3) for options should use the defaults (with newlines).
 TEST DONE 0 Passing object "/regex/" (index 4) for options should use the defaults.
 TEST DONE 0 Passing object "/regex/" (index 4) for options should use the defaults (with newlines).
-TEST DONE 0 Passing function "function() {}" (index 5) for options should use the defaults.
-TEST DONE 0 Passing function "function() {}" (index 5) for options should use the defaults (with newlines).
+TEST DONE 0 Passing function "function () {}" (index 5) for options should use the defaults.
+TEST DONE 0 Passing function "function () {}" (index 5) for options should use the defaults (with newlines).
 Running ../../tools/wpt/FileAPI/blob/Blob-slice-overflow.any.js
 TEST DONE 0 slice start is negative, relativeStart will be max((size + start), 0)
 TEST DONE 0 slice start is greater than blob size, relativeStart will be min(start, size)
@@ -1496,6 +1496,119 @@ TEST DONE 0 Blob.text() different charset param in type option
 TEST DONE 0 Blob.text() different charset param with non-ascii input
 TEST DONE 1 Blob.text() invalid utf-8 input
 TEST DONE 1 Blob.text() concurrent reads
+Running ../../tools/wpt/FileAPI/file/File-constructor.any.js
+TEST DONE 0 File interface object exists
+TEST DONE 1 Required arguments
+TEST DONE 0 empty fileBits
+TEST DONE 0 DOMString fileBits
+TEST DONE 0 Unicode DOMString fileBits
+TEST DONE 1 String object fileBits
+TEST DONE 0 Empty Blob fileBits
+TEST DONE 0 Blob fileBits
+TEST DONE 0 Empty File fileBits
+TEST DONE 0 File fileBits
+TEST DONE 0 ArrayBuffer fileBits
+TEST DONE 0 Typed array fileBits
+TEST DONE 1 Various fileBits
+TEST DONE 1 Number in fileBits
+TEST DONE 1 Array in fileBits
+TEST DONE 1 Object in fileBits
+TEST DONE 1 Object with toString in fileBits
+TEST DONE 1 Custom @@iterator
+TEST DONE 0 Invalid bits argument: "hello"
+TEST DONE 1 Invalid bits argument: 0
+TEST DONE 1 Invalid bits argument: null
+TEST DONE 1 Bits argument: object that throws
+TEST DONE 0 Using fileName
+TEST DONE 0 No replacement when using special character in fileName
+TEST DONE 1 Using null fileName
+TEST DONE 1 Using number fileName
+TEST DONE 0 Using empty string fileName
+TEST DONE 0 Using type in File constructor: text/plain
+TEST DONE 1 Using type in File constructor: text/plain;charset=UTF-8
+TEST DONE 1 Using type in File constructor: TEXT/PLAIN
+TEST DONE 1 Using type in File constructor: 𝓽𝓮𝔁𝓽/𝔭𝔩𝔞𝔦𝔫
+TEST DONE 1 Using type in File constructor: ascii/nonprintable
+TEST DONE 1 Using type in File constructor: ascii/nonprintable
+TEST DONE 1 Using type in File constructor: nonasciiî
+TEST DONE 1 Using type in File constructor: nonasciiሴ
+TEST DONE 0 Using type in File constructor: nonparsable
+TEST DONE 0 Using lastModified
+TEST DONE 0 Misusing name
+TEST DONE 0 Unknown properties are ignored
+TEST DONE 1 Invalid property bag: 123
+TEST DONE 1 Invalid property bag: 123.4
+TEST DONE 1 Invalid property bag: true
+TEST DONE 1 Invalid property bag: "abc"
+TEST DONE 0 Unusual but valid property bag: null
+TEST DONE 0 Unusual but valid property bag: undefined
+TEST DONE 0 Unusual but valid property bag: 1,2,3
+TEST DONE 0 Unusual but valid property bag: /regex/
+TEST DONE 0 Unusual but valid property bag: function() {}
+TEST DONE 1 Property bag propagates exceptions
+Running ../../tools/wpt/FileAPI/file/send-file-formdata-controls.any.js
+TEST DONE 1 Upload file-for-upload-in-form-NUL-[ ].txt (ASCII) in fetch with FormData
+Running ../../tools/wpt/FileAPI/file/send-file-formdata-punctuation.any.js
+TEST DONE 1 Upload file-for-upload-in-form-QUOTATION-MARK-["].txt (ASCII) in fetch with FormData
+Running ../../tools/wpt/FileAPI/file/send-file-formdata-utf-8.any.js
+TEST DONE 1 Upload file-for-upload-in-form.txt (ASCII) in fetch with FormData
+Running ../../tools/wpt/FileAPI/file/send-file-formdata.any.js
+TEST DONE 1 Upload file-for-upload-in-form.txt (ASCII) in fetch with FormData
+Running ../../tools/wpt/FileAPI/reading-data-section/Determining-Encoding.any.js
+TEST DONE 1 Blob Determing Encoding with encoding argument
+TEST DONE 1 Blob Determing Encoding with type attribute
+TEST DONE 1 Blob Determing Encoding with UTF-8 BOM
+TEST DONE 0 Blob Determing Encoding without anything implying charset.
+TEST DONE 1 Blob Determing Encoding with UTF-16BE BOM
+TEST DONE 1 Blob Determing Encoding with UTF-16LE BOM
+Running ../../tools/wpt/FileAPI/reading-data-section/FileReader-event-handler-attributes.any.js
+TEST DONE 0 FileReader.onloadstart: initial value
+TEST DONE 0 FileReader.onprogress: initial value
+TEST DONE 0 FileReader.onload: initial value
+TEST DONE 0 FileReader.onabort: initial value
+TEST DONE 0 FileReader.onerror: initial value
+TEST DONE 0 FileReader.onloadend: initial value
+Running ../../tools/wpt/FileAPI/reading-data-section/FileReader-multiple-reads.any.js
+TEST DONE 1 test FileReader InvalidStateError exception for readAsText
+TEST DONE 1 test FileReader InvalidStateError exception for readAsDataURL
+TEST DONE 1 test FileReader InvalidStateError exception for readAsArrayBuffer
+TEST DONE 1 test FileReader InvalidStateError exception in onloadstart event for readAsArrayBuffer
+TEST DONE 0 test FileReader no InvalidStateError exception in loadend event handler for readAsArrayBuffer
+TEST DONE 0 test abort and restart in onloadstart event for readAsText
+Running ../../tools/wpt/FileAPI/reading-data-section/filereader_abort.any.js
+TEST DONE 1 Aborting before read
+TEST DONE 1 Aborting after read
+Running ../../tools/wpt/FileAPI/reading-data-section/filereader_error.any.js
+TEST DONE 1 Untitled
+Running ../../tools/wpt/FileAPI/reading-data-section/filereader_events.any.js
+TEST DONE 1 events are dispatched in the correct order for an empty blob
+TEST DONE 1 events are dispatched in the correct order for a non-empty blob
+Running ../../tools/wpt/FileAPI/reading-data-section/filereader_readAsArrayBuffer.any.js
+TEST DONE 1 Untitled
+Running ../../tools/wpt/FileAPI/reading-data-section/filereader_readAsBinaryString.any.js
+TEST DONE 1 Untitled
+Running ../../tools/wpt/FileAPI/reading-data-section/filereader_readAsDataURL.any.js
+TEST DONE 1 FileReader readyState during readAsDataURL
+TEST DONE 1 readAsDataURL result for Blob with specified MIME type
+TEST DONE 1 readAsDataURL result for Blob with unspecified MIME type
+Running ../../tools/wpt/FileAPI/reading-data-section/filereader_readAsText.any.js
+TEST DONE 1 readAsText should correctly read UTF-8.
+TEST DONE 1 readAsText should correctly read UTF-16.
+Running ../../tools/wpt/FileAPI/reading-data-section/filereader_readystate.any.js
+TEST DONE 1 Untitled
+Running ../../tools/wpt/FileAPI/reading-data-section/filereader_result.any.js
+TEST DONE 0 readAsText
+TEST DONE 0 readAsDataURL
+TEST DONE 0 readAsArrayBuffer
+TEST DONE 1 readAsBinaryString
+TEST DONE 1 result is null during "loadstart" event for readAsText
+TEST DONE 1 result is null during "loadstart" event for readAsDataURL
+TEST DONE 1 result is null during "loadstart" event for readAsArrayBuffer
+TEST DONE 1 result is null during "loadstart" event for readAsBinaryString
+TEST DONE 1 result is null during "progress" event for readAsText
+TEST DONE 1 result is null during "progress" event for readAsDataURL
+TEST DONE 1 result is null during "progress" event for readAsArrayBuffer
+TEST DONE 1 result is null during "progress" event for readAsBinaryString
 Running ../../tools/wpt/dom/events/AddEventListenerOptions-once.any.js
 TEST DONE 0 Once listener should be invoked only once
 TEST DONE 0 Once listener should be invoked only once even if the event is nested
@@ -1545,5 +1658,5 @@ TEST DONE 0 A constructed EventTarget can be used as expected
 TEST DONE 0 EventTarget can be subclassed
 Skipping ../../tools/wpt/dom/events/EventTarget-removeEventListener.any.js
 
-1441 tests, 395 passed, 1040 failed
- -> 27% conformance
+1540 tests, 432 passed, 1099 failed
+ -> 28% conformance
