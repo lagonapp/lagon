@@ -1347,8 +1347,8 @@ TEST DONE 0 Passing object "[object Object]" (index 3) for options should use th
 TEST DONE 0 Passing object "[object Object]" (index 3) for options should use the defaults (with newlines).
 TEST DONE 0 Passing object "/regex/" (index 4) for options should use the defaults.
 TEST DONE 0 Passing object "/regex/" (index 4) for options should use the defaults (with newlines).
-TEST DONE 0 Passing function "function () {}" (index 5) for options should use the defaults.
-TEST DONE 0 Passing function "function () {}" (index 5) for options should use the defaults (with newlines).
+TEST DONE 0 Passing function "function() {}" (index 5) for options should use the defaults.
+TEST DONE 0 Passing function "function() {}" (index 5) for options should use the defaults (with newlines).
 Running ../../tools/wpt/FileAPI/blob/Blob-slice-overflow.any.js
 TEST DONE 0 slice start is negative, relativeStart will be max((size + start), 0)
 TEST DONE 0 slice start is greater than blob size, relativeStart will be min(start, size)
