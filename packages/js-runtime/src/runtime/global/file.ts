@@ -77,7 +77,7 @@
 
           const loadEvent = new ProgressEvent('load');
           // @ts-expect-error to fix
-          this.onloadend?.(this, loadEvent);
+          this.onload?.(this, loadEvent);
           this.dispatchEvent(loadEvent);
 
           const loadendEvent = new ProgressEvent('loadend');
@@ -91,7 +91,7 @@
 
           const errorEvent = new ProgressEvent('error');
           // @ts-expect-error to fix
-          this.onloadend?.(this, errorEvent);
+          this.onerror?.(this, errorEvent);
           this.dispatchEvent(errorEvent);
 
           const loadendEvent = new ProgressEvent('loadend');
