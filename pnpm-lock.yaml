@@ -191,12 +191,12 @@ importers:
 
   packages/astro:
     specifiers:
-      astro: 1.9.0
+      astro: 1.9.2
       esbuild: ^0.16.0
     dependencies:
       esbuild: 0.16.5
     devDependencies:
-      astro: 1.9.0
+      astro: 1.9.2
 
   packages/dashboard:
     specifiers:
@@ -8994,8 +8994,8 @@ packages:
       - ts-node
     dev: true
 
-  /astro/1.9.0:
-    resolution: {integrity: sha512-wHHMOHgqBGV4L8ThjCeBuVHq0mGF1F515jRyp5ns0MzFcu2nFk1frlXBKZEfmMMM84cilq3HeimrRTLkIGxI8A==}
+  /astro/1.9.2:
+    resolution: {integrity: sha512-L+Ma0eR0Aa6QZg7RF0lEs+106Ye1/zukvtq3KtsYIogAojltlwllwU9X5CwMBzFwA55NxpNp4gSRh5US/xb+8Q==}
     engines: {node: ^14.18.0 || >=16.12.0, npm: '>=6.14.0'}
     hasBin: true
     dependencies:
