@@ -1,3 +1,10 @@
-**/node_modules
-**/target
-**/.env
+node_modules/
+packages/*/node_modules/
+packages/*/.turbo/
+crates/*/.turbo/
+target/
+wpt/
+dist/
+.env
+.eslintcache
+crates/serverless/deployments/
