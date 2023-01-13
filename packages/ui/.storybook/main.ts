@@ -1,5 +1,5 @@
-import postcss from 'postcss';
-import * as tailwindcss from '../tailwind.config';
+const postcss = require('postcss');
+const tailwindcss = require('../tailwind.config');
 
 module.exports = {
   stories: ['../src/components/**/*.stories.mdx', '../src/components/**/*.stories.@(js|jsx|ts|tsx)'],
