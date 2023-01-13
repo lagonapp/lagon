@@ -12,8 +12,7 @@
     "typecheck": "turbo typecheck --continue",
     "docker:build": "docker build -t lagon/serverless -f docker/Dockerfile .",
     "docker:start": "docker run --rm -p 4000:4000 --env-file crates/serverless/.env lagon/serverless",
-    "release": "pnpm build && pnpm changeset publish",
-    "prepare": "husky install"
+    "release": "pnpm build && pnpm changeset publish"
   },
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix"
@@ -35,8 +34,6 @@
     "eslint": "^8.16.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "husky": "^8.0.1",
-    "lint-staged": "^13.0.2",
     "mock-fs": "^5.1.4",
     "prettier": "^2.6.2",
     "tsup": "^6.0.1",
