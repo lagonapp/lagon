@@ -211,7 +211,7 @@ importers:
       '@prisma/client': 4.8.0
       '@radix-ui/react-alert-dialog': ^1.0.0
       '@radix-ui/react-tabs': ^1.0.0
-      '@scaleway/use-random-name': ^0.2.3
+      '@scaleway/use-random-name': ^0.3.0
       '@sentry/nextjs': ^7.1.1
       '@tanstack/react-query': ^4.6.1
       '@trpc/client': 10.8.1
@@ -253,7 +253,7 @@ importers:
       '@prisma/client': 4.8.0_prisma@4.8.0
       '@radix-ui/react-alert-dialog': 1.0.2_twyhzqqpkwvvgrmyeapdo6i4my
       '@radix-ui/react-tabs': 1.0.1_biqbaboplfbrettd7655fr4n2y
-      '@scaleway/use-random-name': 0.2.4_react@18.2.0
+      '@scaleway/use-random-name': 0.3.1_react@18.2.0
       '@sentry/nextjs': 7.5.0_next@13.1.1+react@18.2.0
       '@tanstack/react-query': 4.6.1_biqbaboplfbrettd7655fr4n2y
       '@trpc/client': 10.8.1_@trpc+server@10.8.1
@@ -5784,16 +5784,18 @@ packages:
     resolution: {integrity: sha512-LwzQKA4vzIct1zNZzBmRKI9QuNpLgTQMEjsQLf3BXuGYb3QPTP4Yjf6mkdX+X1mYttZ808QpOwAzZjv28kq7DA==}
     dev: true
 
-  /@scaleway/random-name/3.0.2:
-    resolution: {integrity: sha512-vEL2RegTjZx/3ZEgVgWvNfxsXUZZ0ieiheNva+mXbHCrWc6f0CvntMezf8dONVajLC4Wi6V7Fo2Y9lhnJbvNow==}
+  /@scaleway/random-name/4.0.1:
+    resolution: {integrity: sha512-gj7mCDm3RU4ZUoBTUPkKj7hKUYGVw2aLZ+AGkj6ZzSgRHxM0N57vG1BL5XaVvD30gae1i+trVheEBmzmcNlbGQ==}
+    engines: {node: '>=14.x'}
     dev: false
 
-  /@scaleway/use-random-name/0.2.4_react@18.2.0:
-    resolution: {integrity: sha512-f0+LDFpn0d7X6wciYoGdh/hyQC+mrMMMXXMGGqysQfkOwGwaCJsmyBxEOgQF2sB6zBHqk849OMKJq2Nan5EFRg==}
+  /@scaleway/use-random-name/0.3.1_react@18.2.0:
+    resolution: {integrity: sha512-2xjrSClACHVi0C/j7iZlmXicCNPx9rscKCTmW3y+SCwWkEB34pzzKZWHiBY1x1CYR7UQSOzT70v4clGsUsoIlw==}
+    engines: {node: '>=14.x'}
     peerDependencies:
       react: '>=16.8'
     dependencies:
-      '@scaleway/random-name': 3.0.2
+      '@scaleway/random-name': 4.0.1
       react: 18.2.0
     dev: false
 
