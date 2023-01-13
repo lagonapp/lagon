@@ -7,7 +7,7 @@ edition = "2021"
 lagon-runtime = { path = "../runtime" }
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-isolate = { path = "../runtime_isolate" }
-clap = { version = "4.0.32", features = ["derive"] }
+clap = { version = "4.1.0", features = ["derive"] }
 dialoguer = "0.10.2"
 indicatif = "0.17.2"
 colored = "2.0.0"
