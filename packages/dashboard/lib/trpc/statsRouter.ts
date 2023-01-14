@@ -2,14 +2,16 @@ import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
 import fetch from 'node-fetch';
+import * as Sentry from '@sentry/nextjs';
 
 const getStep = (timeframe: Timeframe) => {
+  // a point every every hour
   if (timeframe === 'Last 30 days') {
-    return 24 * 60;
+    return 30 * 60 * 60;
   } else if (timeframe === 'Last 7 days') {
-    return 24 * 60;
+    return 7 * 60 * 60;
   } else {
-    return 60 * 10;
+    return 60 * 60;
   }
 };
 
@@ -61,6 +63,29 @@ const prometheus = async (query: string, timeframe: Timeframe) => {
 
 export const statsRouter = (t: T) =>
   t.router({
+    usage: t.procedure
+      .input(
+        z.object({
+          timeframe: z.enum(TIMEFRAMES),
+          functionId: z.string(),
+        }),
+      )
+      .query(async ({ input }) => {
+        const step = getStep(input.timeframe);
+        const result = await prometheus(
+          `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[${step * 24}s]))`,
+          input.timeframe,
+        );
+
+        try {
+          const values = result.result[0].values;
+
+          return Number(values[values.length - 1][1]);
+        } catch (error) {
+          Sentry.captureException(error);
+          return 0;
+        }
+      }),
     statsRequests: t.procedure
       .input(
         z.object({
@@ -71,13 +96,13 @@ export const statsRouter = (t: T) =>
       .query(async ({ input }) => {
         const step = getStep(input.timeframe);
         const { result } = await prometheus(
-          `increase(lagon_isolate_requests{function="${input.functionId}"}[${step}s])`,
+          `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[${step}s]))`,
           input.timeframe,
         );
 
         return result.reduce(
           (acc, { values }) => {
-            return [...acc, ...values.map(([time, value]) => ({ time: time * 1000, value: Number(value) }))];
+            return [...acc, ...values.map(([time, value]) => ({ time, value: Number(value) }))];
           },
           [] as {
             time: number;
@@ -94,36 +119,13 @@ export const statsRouter = (t: T) =>
       )
       .query(async ({ input }) => {
         const { result } = await prometheus(
-          `lagon_isolate_cpu_time{function="${input.functionId}",quantile="0.99"}`,
+          `avg(lagon_isolate_cpu_time{function="${input.functionId}",quantile="0.99"})`,
           input.timeframe,
         );
 
         return result.reduce(
           (acc, { values }) => {
-            return [...acc, ...values.map(([time, value]) => ({ time: time * 1000, value: Number(value) }))];
-          },
-          [] as {
-            time: number;
-            value: number;
-          }[],
-        );
-      }),
-    statsMemoryUsage: t.procedure
-      .input(
-        z.object({
-          timeframe: z.enum(TIMEFRAMES),
-          functionId: z.string(),
-        }),
-      )
-      .query(async ({ input }) => {
-        const { result } = await prometheus(
-          `lagon_isolate_memory_usage{function="${input.functionId}"}`,
-          input.timeframe,
-        );
-
-        return result.reduce(
-          (acc, { values }) => {
-            return [...acc, ...values.map(([time, value]) => ({ time: time * 1000, value: Number(value) }))];
+            return [...acc, ...values.map(([time, value]) => ({ time, value: Number(value) }))];
           },
           [] as {
             time: number;
@@ -141,13 +143,13 @@ export const statsRouter = (t: T) =>
       .query(async ({ input }) => {
         const step = getStep(input.timeframe);
         const { result } = await prometheus(
-          `increase(lagon_bytes_in{function="${input.functionId}"}[${step}s])`,
+          `sum(increase(lagon_bytes_in{function="${input.functionId}"}[${step}s]))`,
           input.timeframe,
         );
 
         return result.reduce(
           (acc, { values }) => {
-            return [...acc, ...values.map(([time, value]) => ({ time: time * 1000, value: Number(value) }))];
+            return [...acc, ...values.map(([time, value]) => ({ time, value: Number(value) }))];
           },
           [] as {
             time: number;
@@ -165,13 +167,13 @@ export const statsRouter = (t: T) =>
       .query(async ({ input }) => {
         const step = getStep(input.timeframe);
         const { result } = await prometheus(
-          `increase(lagon_bytes_out{function="${input.functionId}"}[${step}s])`,
+          `sum(increase(lagon_bytes_out{function="${input.functionId}"}[${step}s]))`,
           input.timeframe,
         );
 
         return result.reduce(
           (acc, { values }) => {
-            return [...acc, ...values.map(([time, value]) => ({ time: time * 1000, value: Number(value) }))];
+            return [...acc, ...values.map(([time, value]) => ({ time, value: Number(value) }))];
           },
           [] as {
             time: number;

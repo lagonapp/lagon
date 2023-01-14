@@ -15,9 +15,9 @@ const useFunctionStats = ({ functionId, timeframe }: { functionId?: string; time
   return {
     requests: trpc.statsRequests.useQuery(input, options),
     cpuTime: trpc.statsCpuTime.useQuery(input, options),
-    // memoryUsage: trpc.statsMemoryUsage.useQuery(input, options),
     bytesIn: trpc.statsBytesIn.useQuery(input, options),
     bytesOut: trpc.statsBytesOut.useQuery(input, options),
+    usage: trpc.usage.useQuery(input, options),
   };
 };
 
