@@ -396,10 +396,14 @@ async fn main() -> Result<()> {
     let deployments = get_deployments(conn, bucket.clone()).await?;
     let redis = listen_pub_sub(bucket.clone(), Arc::clone(&deployments));
     let last_requests = Arc::new(RwLock::new(HashMap::new()));
-    run_cache_clear_task(Arc::clone(&last_requests));
-
     let pool = LocalPoolHandle::new(POOL_SIZE);
     let thread_ids = Arc::new(RwLock::new(HashMap::new()));
+
+    run_cache_clear_task(
+        Arc::clone(&last_requests),
+        Arc::clone(&thread_ids),
+        pool.clone(),
+    );
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let deployments = Arc::clone(&deployments);
