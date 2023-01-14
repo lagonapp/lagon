@@ -5,9 +5,11 @@ export default {
   component: Chart,
 } as ComponentMeta<typeof Chart>;
 
+const now = Math.floor(Date.now() / 1000);
+
 export const Default: ComponentStory<typeof Chart> = () => (
   <Chart
-    labels={['First label', 'Second label', 'Third label']}
+    labels={[now - 1000, now, now + 1000]}
     datasets={[
       {
         label: 'Dataset',
@@ -20,7 +22,7 @@ export const Default: ComponentStory<typeof Chart> = () => (
 
 export const MultipleDatasets: ComponentStory<typeof Chart> = () => (
   <Chart
-    labels={['First label', 'Second label', 'Third label']}
+    labels={[now - 1000, now, now + 1000]}
     datasets={[
       {
         label: 'First dataset',
