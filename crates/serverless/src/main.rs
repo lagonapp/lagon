@@ -47,7 +47,7 @@ lazy_static! {
     pub static ref REGION: String = env::var("LAGON_REGION").expect("LAGON_REGION must be set");
 }
 
-const POOL_SIZE: usize = 8;
+pub const POOL_SIZE: usize = 8;
 const PAGE_404: &str = include_str!("../public/404.html");
 const PAGE_502: &str = include_str!("../public/502.html");
 const PAGE_500: &str = include_str!("../public/500.html");
@@ -394,16 +394,12 @@ async fn main() -> Result<()> {
     let bucket = Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?;
 
     let deployments = get_deployments(conn, bucket.clone()).await?;
-    let redis = listen_pub_sub(bucket.clone(), Arc::clone(&deployments));
     let last_requests = Arc::new(RwLock::new(HashMap::new()));
     let pool = LocalPoolHandle::new(POOL_SIZE);
     let thread_ids = Arc::new(RwLock::new(HashMap::new()));
 
-    run_cache_clear_task(
-        Arc::clone(&last_requests),
-        Arc::clone(&thread_ids),
-        pool.clone(),
-    );
+    let redis = listen_pub_sub(bucket.clone(), Arc::clone(&deployments), pool.clone());
+    run_cache_clear_task(Arc::clone(&last_requests), pool.clone());
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let deployments = Arc::clone(&deployments);
