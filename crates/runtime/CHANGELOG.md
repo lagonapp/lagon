@@ -1,5 +1,17 @@
 # @lagon/runtime
 
+## 0.3.0
+
+### Minor Changes
+
+- [#460](https://github.com/lagonapp/lagon/pull/460) [`a7b3e3b`](https://github.com/lagonapp/lagon/commit/a7b3e3b4b30bc41dc7e9fd8357b87c474eb36b1c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add timers APIs (`setTimeout`, `setInterval`, `clearTimeout`, `clearInterval`, `queueMicrotask`)
+
+### Patch Changes
+
+- [#457](https://github.com/lagonapp/lagon/pull/457) [`9c00ad1`](https://github.com/lagonapp/lagon/commit/9c00ad1a5d8c818a61435b5db8aa9fd5f7ef8727) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix runtime error when calling the same function twice
+
+* [#453](https://github.com/lagonapp/lagon/pull/453) [`aa76449`](https://github.com/lagonapp/lagon/commit/aa76449ac4e199dd2fdcb485765b897a3c6da4ac) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve errors stacktrace
+
 ## 0.2.1
 
 ### Patch Changes
