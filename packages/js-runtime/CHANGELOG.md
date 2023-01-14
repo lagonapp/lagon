@@ -1,5 +1,19 @@
 # @lagon/js-runtime
 
+## 0.3.0
+
+### Minor Changes
+
+- [#460](https://github.com/lagonapp/lagon/pull/460) [`a7b3e3b`](https://github.com/lagonapp/lagon/commit/a7b3e3b4b30bc41dc7e9fd8357b87c474eb36b1c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add timers APIs (`setTimeout`, `setInterval`, `clearTimeout`, `clearInterval`, `queueMicrotask`)
+
+### Patch Changes
+
+- [#458](https://github.com/lagonapp/lagon/pull/458) [`083f639`](https://github.com/lagonapp/lagon/commit/083f6396bb79622222eabd0b769c3a7f382d5d21) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Simplify streaming responses
+
+* [#467](https://github.com/lagonapp/lagon/pull/467) [`ef007f6`](https://github.com/lagonapp/lagon/commit/ef007f68700c01143179d4d2b7342545ccbce9d8) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix timers id to always be unique
+
+- [#467](https://github.com/lagonapp/lagon/pull/467) [`ef007f6`](https://github.com/lagonapp/lagon/commit/ef007f68700c01143179d4d2b7342545ccbce9d8) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `self` to `globalThis`
+
 ## 0.2.1
 
 ### Patch Changes

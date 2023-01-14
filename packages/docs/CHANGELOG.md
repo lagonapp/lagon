@@ -1,5 +1,11 @@
 # @lagon/docs
 
+## 0.1.2
+
+### Patch Changes
+
+- [#460](https://github.com/lagonapp/lagon/pull/460) [`a7b3e3b`](https://github.com/lagonapp/lagon/commit/a7b3e3b4b30bc41dc7e9fd8357b87c474eb36b1c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add timers APIs (`setTimeout`, `setInterval`, `clearTimeout`, `clearInterval`, `queueMicrotask`)
+
 ## 0.1.1
 
 ### Patch Changes

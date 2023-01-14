@@ -1,5 +1,15 @@
 # @lagon/serverless
 
+## 0.1.15
+
+### Patch Changes
+
+- [#483](https://github.com/lagonapp/lagon/pull/483) [`9468c1f`](https://github.com/lagonapp/lagon/commit/9468c1fc75e45cbe042f5a5b106158d918616562) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Drop and exit isolates in the same thread as they were created
+
+* [#463](https://github.com/lagonapp/lagon/pull/463) [`6cabfb7`](https://github.com/lagonapp/lagon/commit/6cabfb78a97f69cf2206252c423f8fa409a371ad) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use the system root CA to connect to MySQL
+
+- [#458](https://github.com/lagonapp/lagon/pull/458) [`083f639`](https://github.com/lagonapp/lagon/commit/083f6396bb79622222eabd0b769c3a7f382d5d21) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow ending a stream before sending the response
+
 ## 0.1.14
 
 ### Patch Changes

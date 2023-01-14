@@ -1,5 +1,13 @@
 # @lagon/cli
 
+## 0.4.5
+
+### Patch Changes
+
+- [#453](https://github.com/lagonapp/lagon/pull/453) [`aa76449`](https://github.com/lagonapp/lagon/commit/aa76449ac4e199dd2fdcb485765b897a3c6da4ac) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Show errors in the terminal instead of as request responses
+
+* [#458](https://github.com/lagonapp/lagon/pull/458) [`083f639`](https://github.com/lagonapp/lagon/commit/083f6396bb79622222eabd0b769c3a7f382d5d21) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow ending a stream before sending the response
+
 ## 0.4.4
 
 ### Patch Changes
