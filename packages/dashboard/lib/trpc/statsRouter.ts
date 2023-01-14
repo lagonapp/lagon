@@ -5,12 +5,13 @@ import fetch from 'node-fetch';
 import * as Sentry from '@sentry/nextjs';
 
 const getStep = (timeframe: Timeframe) => {
+  // a point every every hour
   if (timeframe === 'Last 30 days') {
-    return 24 * 60;
+    return 30 * 60 * 60;
   } else if (timeframe === 'Last 7 days') {
-    return 24 * 60;
+    return 7 * 60 * 60;
   } else {
-    return 60 * 60; // a point every every hour
+    return 60 * 60;
   }
 };
 
@@ -70,8 +71,9 @@ export const statsRouter = (t: T) =>
         }),
       )
       .query(async ({ input }) => {
+        const step = getStep(input.timeframe);
         const result = await prometheus(
-          `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[24h]))`,
+          `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[${step * 24}s]))`,
           input.timeframe,
         );
 
