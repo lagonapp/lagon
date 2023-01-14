@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "build": "cargo build",
-    "lint": "cargo clippy -- -Dwarnings --no-deps"
+    "lint": "cargo clippy -- -Dwarnings --no-deps",
+    "debug": "cargo build && rust-lldb ../../target/debug/lagon-serverless"
   }
 }
