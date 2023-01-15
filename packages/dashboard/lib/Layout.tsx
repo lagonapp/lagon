@@ -1,7 +1,7 @@
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { ReactNode, Suspense, useCallback, useMemo } from 'react';
+import { HTMLAttributeAnchorTarget, ReactNode, Suspense, useCallback, useMemo } from 'react';
 import { Button, Menu, Divider, EmptyState } from '@lagon/ui';
 import {
   ChevronDownIcon,
@@ -26,10 +26,11 @@ import Image from 'next/image';
 type HeaderLinkProps = {
   href: string;
   selected: boolean;
+  target?: HTMLAttributeAnchorTarget;
   children: string;
 };
 
-const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
+const HeaderLink = ({ href, selected, target, children }: HeaderLinkProps) => {
   const styles = useMemo(
     () => (selected ? 'text-stone-800 dark:text-stone-200' : 'text-stone-500 dark:text-stone-400'),
     [selected],
@@ -38,6 +39,7 @@ const HeaderLink = ({ href, selected, children }: HeaderLinkProps) => {
   return (
     <Link
       href={href}
+      target={target}
       className={`${styles} select-none transition text-md hover:text-stone-800 dark:hover:text-stone-200`}
     >
       {children}
@@ -126,6 +128,9 @@ const Layout = ({ title, children }: LayoutProps) => {
                 </HeaderLink>
                 <HeaderLink href="/settings" selected={asPath.startsWith('/settings')}>
                   {t('header.settings')}
+                </HeaderLink>
+                <HeaderLink href="https://docs.lagon.app" target="_blank" selected={false}>
+                  {t('header.documentation')}
                 </HeaderLink>
               </div>
               {session?.organization ? (

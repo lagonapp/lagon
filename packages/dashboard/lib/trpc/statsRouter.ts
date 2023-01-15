@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
 import fetch from 'node-fetch';
 import * as Sentry from '@sentry/nextjs';
+import { checkCanQueryFunction } from 'lib/api/functions';
 
 const getStep = (timeframe: Timeframe) => {
   // a point every every hour
@@ -70,7 +71,12 @@ export const statsRouter = (t: T) =>
           functionId: z.string(),
         }),
       )
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        await checkCanQueryFunction({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const step = getStep(input.timeframe);
         const result = await prometheus(
           `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[${step * 24}s]))`,
@@ -93,7 +99,12 @@ export const statsRouter = (t: T) =>
           functionId: z.string(),
         }),
       )
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        await checkCanQueryFunction({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const step = getStep(input.timeframe);
         const { result } = await prometheus(
           `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[${step}s]))`,
@@ -117,7 +128,12 @@ export const statsRouter = (t: T) =>
           functionId: z.string(),
         }),
       )
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        await checkCanQueryFunction({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const { result } = await prometheus(
           `avg(lagon_isolate_cpu_time{function="${input.functionId}",quantile="0.99"})`,
           input.timeframe,
@@ -140,7 +156,12 @@ export const statsRouter = (t: T) =>
           functionId: z.string(),
         }),
       )
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        await checkCanQueryFunction({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const step = getStep(input.timeframe);
         const { result } = await prometheus(
           `sum(increase(lagon_bytes_in{function="${input.functionId}"}[${step}s]))`,
@@ -164,7 +185,12 @@ export const statsRouter = (t: T) =>
           functionId: z.string(),
         }),
       )
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        await checkCanQueryFunction({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const step = getStep(input.timeframe);
         const { result } = await prometheus(
           `sum(increase(lagon_bytes_out{function="${input.functionId}"}[${step}s]))`,

@@ -12,13 +12,17 @@ import {
   FUNCTION_DEFAULT_TIMEOUT,
   FUNCTION_NAME_MAX_LENGTH,
   FUNCTION_NAME_MIN_LENGTH,
-  MAX_FUNCTIONS_PER_ORGANIZATION,
 } from 'lib/constants';
 import { LOG_LEVELS } from '@lagon/ui';
 import { TRPCError } from '@trpc/server';
 import { T } from 'pages/api/trpc/[trpc]';
 import Client from '@axiomhq/axiom-node';
-import { findUniqueFunctionName, isFunctionNameUnique } from 'lib/api/functions';
+import {
+  checkCanCreateFunction,
+  checkCanQueryFunction,
+  findUniqueFunctionName,
+  isFunctionNameUnique,
+} from 'lib/api/functions';
 
 const axiomClient = new Client({
   orgId: process.env.AXIOM_ORG_ID,
@@ -59,6 +63,11 @@ export const functionsRouter = (t: T) =>
         }),
       )
       .query(async ({ ctx, input }) => {
+        await checkCanQueryFunction({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const func = await prisma.function.findFirst({
           where: {
             organizationId: ctx.session.organization.id,
@@ -117,7 +126,12 @@ export const functionsRouter = (t: T) =>
           timeframe: z.enum(TIMEFRAMES),
         }),
       )
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        await checkCanQueryFunction({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const logs = await axiomClient.datasets.query(
           `['serverless'] | where ['metadata.source'] == 'console' and ['metadata.function'] == '${input.functionId}' | sort by _time`,
           {
@@ -148,7 +162,12 @@ export const functionsRouter = (t: T) =>
           functionId: z.string(),
         }),
       )
-      .query(async ({ input }) => {
+      .query(async ({ input, ctx }) => {
+        await checkCanQueryFunction({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const deployment = await prisma.deployment.findFirst({
           where: {
             functionId: input.functionId,
@@ -185,29 +204,12 @@ export const functionsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        if (input.name) {
-          if (!isFunctionNameUnique(input.name)) {
-            throw new TRPCError({
-              code: 'CONFLICT',
-              message: 'A Function with the same name already exists',
-            });
-          }
-        }
-
-        const name = input.name || (await findUniqueFunctionName());
-
-        const functions = await prisma.function.count({
-          where: {
-            organizationId: ctx.session.organization.id,
-          },
+        await checkCanCreateFunction({
+          functionName: input.name,
+          ownerId: ctx.session.user.id,
         });
 
-        if (functions >= MAX_FUNCTIONS_PER_ORGANIZATION) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: `You can only have ${MAX_FUNCTIONS_PER_ORGANIZATION} Functions per Organization`,
-          });
-        }
+        const name = input.name || (await findUniqueFunctionName());
 
         return prisma.function.create({
           data: {
@@ -256,7 +258,12 @@ export const functionsRouter = (t: T) =>
             .optional(),
         }),
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await checkCanQueryFunction({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const func = await prisma.function.findFirst({
           where: {
             id: input.functionId,
@@ -406,7 +413,12 @@ export const functionsRouter = (t: T) =>
           functionId: z.string(),
         }),
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await checkCanQueryFunction({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const func = await prisma.function.findFirst({
           where: {
             id: input.functionId,

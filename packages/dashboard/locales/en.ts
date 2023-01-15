@@ -1,6 +1,7 @@
 export default {
   'layout.header.functions': 'Functions',
   'layout.header.settings': 'Settings',
+  'layout.header.documentation': 'Documentation',
   'layout.header.menu.newOrganization': 'New Organization',
   'layout.header.menu.settings': 'Settings',
   'layout.header.menu.theme': 'Theme',
@@ -19,7 +20,8 @@ export default {
   'home.title': 'Functions',
   'home.createFunction': 'Create a Function',
   'home.empty.title': 'No Functions found',
-  'home.empty.description': 'Start by creating a new Function by clicking the button in the right corner.',
+  'home.empty.description': 'Get started by creating a Function on the Dashboard, or use the CLI to test and deploy.',
+  'home.empty.action': 'Get Started guide',
   'home.list.lastUpdate': 'Last update:',
 
   'settings.title': 'Settings',
@@ -40,6 +42,9 @@ export default {
   'settings.transfer.placeholder': 'New Owner email',
   'settings.transfer.submit': 'Transfer ownership',
   'settings.transfer.success': 'Ownership of this Organization transferred successfully.',
+  'settings.transfer.notAvailable': 'Not available yet.',
+  'settings.transfer.notAvailable.description':
+    'Please email contact@lagon.app if you want to transfer your Organization.',
 
   'settings.delete.title': 'Delete',
   'settings.delete.description':
@@ -78,12 +83,15 @@ export default {
   'profile.delete.modal.description': 'Write your account email to confirm deletion: {email}',
   'profile.delete.modal.confirm': 'Confirm with your email',
   'profile.delete.modal.submit': 'Delete Account',
+  'profile.delete.notAvailable': 'Not available yet.',
+  'profile.delete.notAvailable.description': 'Please email contact@lagon.app if you want to delete your Account.',
 
   'cli.title': 'Log in to the CLI',
   'cli.description': 'This is your verification code to login in the CLI. Copy it and paste it in your terminal.',
   'cli.copy': 'Click to copy',
   'cli.copy.success': 'Copied to clipboard!',
 
+  'new.title': 'New Organization',
   'new.success': 'Organization created successfully.',
   'new.name.title': 'Name',
   'new.name.placeholder': 'awesome-project',
@@ -120,8 +128,8 @@ export default {
   'functions.overview.network.label.outBytes': 'OUT bytes',
 
   'functions.deployments.empty.title': 'No Deployments found',
-  'functions.deployments.empty.description': 'Create your first Deployment from the Playground or with the CLI.',
-  'functions.deployments.empty.action': 'Go to Playground',
+  'functions.deployments.empty.description': 'Create your first Deployment from the Dashboar or with the CLI.',
+  'functions.deployments.empty.action': 'Deployments documentation',
   'functions.deployments.list.production': 'Production Deployment',
   'functions.deployments.list.noCommit': 'No commit linked',
   'functions.deployments.list.by': 'By:',
@@ -139,7 +147,8 @@ export default {
   'functions.logs.title': 'Live Logs & Errors',
   'functions.logs.logLevel': 'Log level:',
   'functions.logs.empty.title': 'No logs found',
-  'functions.logs.empty.description': "Try to add some 'console.log', or adjust the filters at the top-right.",
+  'functions.logs.empty.description': 'Adjust the filters or add some logs by reading the documentation.',
+  'functions.logs.empty.action': 'Logs documentation',
 
   'functions.settings.name.title': 'Name',
   'functions.settings.name.description':

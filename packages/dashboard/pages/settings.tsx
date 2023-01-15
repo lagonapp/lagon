@@ -2,7 +2,7 @@ import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
 import { useRouter } from 'next/router';
-import { Button, Card, Form, Input, Dialog, Textarea } from '@lagon/ui';
+import { Button, Card, Form, Input, Dialog, Textarea, Text } from '@lagon/ui';
 import {
   ORGANIZATION_DESCRIPTION_MAX_LENGTH,
   ORGANIZATION_NAME_MAX_LENGTH,
@@ -81,7 +81,7 @@ const Settings = () => {
             toast.success(t('description.success'));
           }}
         >
-          <Card title={t('description.title')} description={t('description.title')}>
+          <Card title={t('description.title')} description={t('description.description')}>
             <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
               <Textarea
                 name="description"
@@ -99,15 +99,19 @@ const Settings = () => {
           </Card>
         </Form>
         <Form
-          onSubmit={async ({ email }) => null}
+          onSubmit={async () => null}
           onSubmitSuccess={() => {
             toast.success(t('transfer.success'));
           }}
         >
           <Card title={t('transfer.title')} description={t('transfer.description')} danger>
+            <div className="flex gap-1">
+              <Text strong>{t('transfer.notAvailable')}</Text>
+              <Text>{t('transfer.notAvailable.description')}</Text>
+            </div>
             <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
-              <Input name="email" placeholder={t('transfer.placeholder')} />
-              <Button variant="danger" submit>
+              <Input name="email" placeholder={t('transfer.placeholder')} disabled />
+              <Button variant="danger" submit disabled>
                 {t('transfer.submit')}
               </Button>
             </div>

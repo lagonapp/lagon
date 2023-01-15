@@ -18,7 +18,7 @@ const createContext = async ({
   res,
 }: trpcNext.CreateNextContextOptions): Promise<{
   req: NextApiRequest;
-  res: NextApiResponse<any>;
+  res: NextApiResponse<unknown>;
   session: Session;
 }> => {
   const tokenValue = req.headers['x-lagon-token'] as string;
@@ -55,18 +55,23 @@ const createContext = async ({
       });
     }
 
+    // We shouldn't use anything other than ID in the session when
+    // authenticating with tokens
     return {
       req,
       res,
       session: {
         user: {
           id: token.user.id,
-          email: token.user.email,
+          name: '',
+          email: token.user.email ?? '',
         },
         organization: {
-          id: token.user.currentOrganizationId,
+          id: token.user.currentOrganizationId ?? '',
+          name: '',
         },
-      } as Session,
+        expires: '',
+      },
     };
   } else {
     const session = await unstable_getServerSession(req, res, authOptions);

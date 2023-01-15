@@ -113,13 +113,21 @@ const Profile = () => {
           </div>
         </Card>
         <Card title={t('delete.title')} description={t('delete.description')} danger>
+          <div className="flex gap-1">
+            <Text strong>{t('delete.notAvailable')}</Text>
+            <Text>{t('delete.notAvailable.description')}</Text>
+          </div>
           <div>
             <Dialog
               title={t('delete.modal.title')}
               description={t('delete.modal.description', {
-                email: session!.user.email,
+                email: session?.user.email,
               })}
-              disclosure={<Button variant="danger">{t('delete.submit')}</Button>}
+              disclosure={
+                <Button variant="danger" disabled>
+                  {t('delete.submit')}
+                </Button>
+              }
             >
               <Form
                 onSubmit={() => {

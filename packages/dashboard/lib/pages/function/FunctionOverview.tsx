@@ -85,13 +85,25 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
               {Math.round(usageData)}
             </Description>
             <Description title={t('usage.avgCpu')} total={`${func?.timeout || 0}ms`}>
-              {formatSeconds(cpuTimeData.reduce((acc, { value }) => acc + value, 0) / cpuTimeData.length)}
+              {formatSeconds(
+                cpuTimeData.length === 0
+                  ? 0
+                  : cpuTimeData.reduce((acc, { value }) => acc + value, 0) / cpuTimeData.length,
+              )}
             </Description>
             <Description title={t('usage.avgInBytes')}>
-              {formatBytes(bytesInData.reduce((acc, { value }) => acc + value, 0) / bytesInData.length)}
+              {formatBytes(
+                bytesInData.length === 0
+                  ? 0
+                  : bytesInData.reduce((acc, { value }) => acc + value, 0) / bytesInData.length,
+              )}
             </Description>
             <Description title={t('usage.avgOutBytes')}>
-              {formatBytes(bytesOutData.reduce((acc, { value }) => acc + value, 0) / bytesOutData.length)}
+              {formatBytes(
+                bytesOutData.length === 0
+                  ? 0
+                  : bytesOutData.reduce((acc, { value }) => acc + value, 0) / bytesOutData.length,
+              )}
             </Description>
           </div>
           <Divider />
