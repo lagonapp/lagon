@@ -12,7 +12,7 @@ const useFunctionStats = ({ functionId, timeframe }: { functionId?: string; time
     suspense: false,
   };
 
-  return trpc.stats.useQuery(input, options);
+  return trpc.usage.useQuery(input, options);
 };
 
 export default useFunctionStats;

@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Button, Card, Chart, Description, Divider, Menu, Text } from '@lagon/ui';
 import useFunctionStats from 'lib/hooks/useFunctionStats';
+import useFunctionUsage from 'lib/hooks/useFunctionUsage';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
 import { useI18n } from 'locales';
@@ -42,12 +43,14 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
   const t = scopedT('functions.overview');
   const [timeframe, setTimeframe] = useState<Timeframe>(() => (router.query.timeframe as Timeframe) || 'Last 24 hours');
   const {
-    requests: { data: requestsData = [] },
-    cpuTime: { data: cpuTimeData = [] },
-    bytesIn: { data: bytesInData = [] },
-    bytesOut: { data: bytesOutData = [] },
-    usage: { data: usageData = 0 },
+    data: { requests, cpuTime, bytesIn, bytesOut } = {
+      requests: [],
+      cpuTime: [],
+      bytesIn: [],
+      bytesOut: [],
+    },
   } = useFunctionStats({ functionId: func?.id, timeframe });
+  const { data: usage = 0 } = useFunctionUsage({ functionId: func?.id, timeframe });
 
   useEffect(() => {
     router.replace({
@@ -86,23 +89,17 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
             </Description>
             <Description title={t('usage.avgCpu')} total={`${func?.timeout || 0}ms`}>
               {formatSeconds(
-                cpuTimeData.length === 0
-                  ? 0
-                  : cpuTimeData.reduce((acc, { value }) => acc + value, 0) / cpuTimeData.length,
+                cpuTime.length === 0 ? 0 : cpuTime.reduce((acc, { value }) => acc + value, 0) / cpuTime.length,
               )}
             </Description>
             <Description title={t('usage.avgInBytes')}>
               {formatBytes(
-                bytesInData.length === 0
-                  ? 0
-                  : bytesInData.reduce((acc, { value }) => acc + value, 0) / bytesInData.length,
+                bytesIn.length === 0 ? 0 : bytesIn.reduce((acc, { value }) => acc + value, 0) / bytesIn.length,
               )}
             </Description>
             <Description title={t('usage.avgOutBytes')}>
               {formatBytes(
-                bytesOutData.length === 0
-                  ? 0
-                  : bytesOutData.reduce((acc, { value }) => acc + value, 0) / bytesOutData.length,
+                bytesOut.length === 0 ? 0 : bytesOut.reduce((acc, { value }) => acc + value, 0) / bytesOut.length,
               )}
             </Description>
           </div>
@@ -134,12 +131,12 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
       <Card title={t('requests')}>
         <div className="h-72">
           <Chart
-            labels={requestsData.map(({ time }) => time)}
+            labels={requests.map(({ time }) => time)}
             datasets={[
               {
                 label: t('requests.label'),
                 color: '#3B82F6',
-                data: requestsData.map(({ value }) => Math.round(value)),
+                data: requests.map(({ value }) => Math.round(value)),
               },
             ]}
           />
@@ -148,12 +145,12 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
       <Card title={t('cpuTime')}>
         <div className="h-72">
           <Chart
-            labels={cpuTimeData.map(({ time }) => time)}
+            labels={cpuTime.map(({ time }) => time)}
             datasets={[
               {
                 label: t('cpuTime.label'),
                 color: '#F59E0B',
-                data: cpuTimeData.map(({ value }) => value),
+                data: cpuTime.map(({ value }) => value),
                 transform: formatSeconds,
               },
             ]}
@@ -163,18 +160,18 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
       <Card title={t('network')}>
         <div className="h-72">
           <Chart
-            labels={bytesInData.map(({ time }) => time)}
+            labels={bytesIn.map(({ time }) => time)}
             datasets={[
               {
                 label: t('network.label.inBytes'),
                 color: '#10B981',
-                data: bytesInData.map(({ value }) => Math.round(value)),
+                data: bytesIn.map(({ value }) => Math.round(value)),
                 transform: formatBytes,
               },
               {
                 label: t('network.label.outBytes'),
                 color: '#3B82F6',
-                data: bytesOutData.map(({ value }) => Math.round(value)),
+                data: bytesOut.map(({ value }) => Math.round(value)),
                 transform: formatBytes,
               },
             ]}
