@@ -40,6 +40,9 @@ export default {
   'settings.transfer.placeholder': 'New Owner email',
   'settings.transfer.submit': 'Transfer ownership',
   'settings.transfer.success': 'Ownership of this Organization transferred successfully.',
+  'settings.transfer.notAvailable': 'Not available yet.',
+  'settings.transfer.notAvailable.description':
+    'Please email contact@lagon.app if you need to transfer your Organization.',
 
   'settings.delete.title': 'Delete',
   'settings.delete.description':

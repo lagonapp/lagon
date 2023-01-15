@@ -42,6 +42,9 @@ export default defineLocale({
   'settings.transfer.placeholder': 'Email du nouveau propriétaire',
   'settings.transfer.submit': 'Transférer la propriété',
   'settings.transfer.success': "La propriété de l'Organisation a été transférée.",
+  'settings.transfer.notAvailable': 'Non disponible.',
+  'settings.transfer.notAvailable.description':
+    "Merci d'envoyer un email à contact@lagon.app si vous devez transférer votre Organisation.",
 
   'settings.delete.title': 'Supprimer',
   'settings.delete.description':
