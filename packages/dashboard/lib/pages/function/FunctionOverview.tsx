@@ -16,21 +16,25 @@ function formatBytes(bytes = 0) {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(0))} ${sizes[i]}`;
 }
 
 function formatSeconds(seconds = 0) {
   if (seconds === 0) return '0s';
 
   if (seconds < 0.001) {
-    return `${(seconds * 1000000).toFixed(2)}μs`;
+    return `${(seconds * 1000000).toFixed(0)}μs`;
   }
 
   if (seconds < 1) {
-    return `${(seconds * 1000).toFixed(2)}ms`;
+    return `${(seconds * 1000).toFixed(0)}ms`;
   }
 
-  return `${seconds.toFixed(2)}s`;
+  return `${seconds.toFixed(0)}s`;
+}
+
+function formatNumber(number = 0) {
+  return number.toLocaleString();
 }
 
 type FunctionOverviewProps = {
@@ -85,7 +89,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
         >
           <div className="flex justify-between flex-wrap gap-4">
             <Description title={t('usage.requests')} total="100,000">
-              {Math.round(usageData)}
+              {formatNumber(Math.round(usage))}
             </Description>
             <Description title={t('usage.avgCpu')} total={`${func?.timeout || 0}ms`}>
               {formatSeconds(
@@ -137,6 +141,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
                 label: t('requests.label'),
                 color: '#3B82F6',
                 data: requests.map(({ value }) => Math.round(value)),
+                transform: formatNumber,
               },
             ]}
           />
@@ -154,6 +159,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
                 transform: formatSeconds,
               },
             ]}
+            axisTransform={(self, ticks) => ticks.map(formatSeconds)}
           />
         </div>
       </Card>
@@ -175,6 +181,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
                 transform: formatBytes,
               },
             ]}
+            axisTransform={(self, ticks) => ticks.map(formatBytes)}
           />
         </div>
       </Card>
