@@ -2,6 +2,7 @@ import prisma from 'lib/prisma';
 import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import { checkCanDeleteToken } from 'lib/api/tokens';
 
 export const tokensRouter = (t: T) =>
   t.router({
@@ -112,7 +113,12 @@ export const tokensRouter = (t: T) =>
           tokenId: z.string(),
         }),
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await checkCanDeleteToken({
+          tokenId: input.tokenId,
+          userId: ctx.session.user.id,
+        });
+
         await prisma.token.delete({
           where: {
             id: input.tokenId,

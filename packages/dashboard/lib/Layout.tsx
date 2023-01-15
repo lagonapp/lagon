@@ -127,6 +127,9 @@ const Layout = ({ title, children }: LayoutProps) => {
                 <HeaderLink href="/settings" selected={asPath.startsWith('/settings')}>
                   {t('header.settings')}
                 </HeaderLink>
+                <HeaderLink href="/settings" selected={asPath.startsWith('/settings')}>
+                  {t('header.documentation')}
+                </HeaderLink>
               </div>
               {session?.organization ? (
                 <Menu>

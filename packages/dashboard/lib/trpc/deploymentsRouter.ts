@@ -5,6 +5,8 @@ import {
   unpromoteProductionDeployment,
   removeDeployment,
   promoteProductionDeployment,
+  checkCanCreateDeployment,
+  checkCanUpdateDeployment,
 } from 'lib/api/deployments';
 import prisma from 'lib/prisma';
 import { T } from 'pages/api/trpc/[trpc]';
@@ -13,7 +15,7 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import redis from 'lib/redis';
 import { envStringToObject, getFullCurrentDomain } from 'lib/utils';
 import s3 from 'lib/s3';
-import { MAX_ASSETS_PER_FUNCTION, PRESIGNED_URL_EXPIRES_SECONDS } from 'lib/constants';
+import { PRESIGNED_URL_EXPIRES_SECONDS } from 'lib/constants';
 
 export const deploymentsRouter = (t: T) =>
   t.router({
@@ -31,16 +33,15 @@ export const deploymentsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        if (input.assets.length >= MAX_ASSETS_PER_FUNCTION) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: `You can only upload ${MAX_ASSETS_PER_FUNCTION} assets per Function`,
-          });
-        }
+        await checkCanCreateDeployment({
+          assets: input.assets.length,
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
 
         const func = await prisma.function.findFirst({
           where: {
-            id: input.functionId as string,
+            id: input.functionId,
           },
           select: {
             id: true,
@@ -114,7 +115,12 @@ export const deploymentsRouter = (t: T) =>
           isProduction: z.boolean(),
         }),
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await checkCanUpdateDeployment({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const hasProductionDeployment = await prisma.deployment.findFirst({
           where: {
             functionId: input.functionId,
@@ -195,7 +201,12 @@ export const deploymentsRouter = (t: T) =>
           deploymentId: z.string(),
         }),
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await checkCanUpdateDeployment({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         await promoteProductionDeployment(input.functionId, input.deploymentId);
 
         return { ok: true };
@@ -207,7 +218,12 @@ export const deploymentsRouter = (t: T) =>
           deploymentId: z.string(),
         }),
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await checkCanUpdateDeployment({
+          functionId: input.functionId,
+          ownerId: ctx.session.user.id,
+        });
+
         const func = await prisma.function.findFirst({
           where: {
             id: input.functionId,

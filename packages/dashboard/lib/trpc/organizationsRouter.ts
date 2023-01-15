@@ -1,4 +1,5 @@
 import { removeFunction } from 'lib/api/deployments';
+import { checkCanCreateOrganization, checkIsOrganizationOwner } from 'lib/api/organizations';
 import {
   ORGANIZATION_DESCRIPTION_MAX_LENGTH,
   ORGANIZATION_NAME_MAX_LENGTH,
@@ -29,6 +30,10 @@ export const organizationsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ ctx, input }) => {
+        await checkCanCreateOrganization({
+          userId: ctx.session.user.id,
+        });
+
         const organization = await prisma.organization.create({
           data: {
             name: input.name,
@@ -59,7 +64,12 @@ export const organizationsRouter = (t: T) =>
           description: z.string().max(ORGANIZATION_DESCRIPTION_MAX_LENGTH).nullable(),
         }),
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
+        await checkIsOrganizationOwner({
+          organizationId: input.organizationId,
+          ownerId: ctx.session.user.id,
+        });
+
         await prisma.organization.update({
           where: {
             id: input.organizationId,
@@ -80,6 +90,11 @@ export const organizationsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ ctx, input }) => {
+        await checkIsOrganizationOwner({
+          organizationId: input.organizationId,
+          ownerId: ctx.session.user.id,
+        });
+
         const functions = await prisma.function.findMany({
           where: {
             organizationId: input.organizationId,
@@ -155,6 +170,11 @@ export const organizationsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ ctx, input }) => {
+        await checkIsOrganizationOwner({
+          organizationId: input.organizationId,
+          ownerId: ctx.session.user.id,
+        });
+
         await prisma.user.update({
           where: {
             id: ctx.session.user.id,

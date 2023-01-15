@@ -4,6 +4,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from 'lib/prisma';
 import apiHandler from 'lib/api';
 import * as Sentry from '@sentry/nextjs';
+import { createOrAssignDefaultOrganization } from 'lib/api/users';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -36,9 +37,19 @@ export const authOptions: NextAuthOptions = {
         throw new Error('User not found');
       }
 
+      let currentOrganizationId = userFromDB.currentOrganizationId;
+
+      if (!currentOrganizationId) {
+        currentOrganizationId = await createOrAssignDefaultOrganization({
+          email: userFromDB.email,
+          id: userFromDB.id,
+          name: userFromDB.name,
+        });
+      }
+
       const organization = await prisma.organization.findFirst({
         where: {
-          id: userFromDB.currentOrganizationId!,
+          id: currentOrganizationId,
         },
         select: {
           id: true,
@@ -49,8 +60,8 @@ export const authOptions: NextAuthOptions = {
 
       Sentry.setUser({
         id: userFromDB.id,
-        username: userFromDB.name!,
-        email: userFromDB.email!,
+        username: userFromDB.name ?? 'Unknown',
+        email: userFromDB.email ?? 'Unknown',
       });
 
       return {
@@ -66,28 +77,10 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     createUser: async ({ user }) => {
-      const name = user.name || user.email;
-
-      const { id } = await prisma.organization.create({
-        data: {
-          // Email address is always returned for GitHub provider
-          // https://next-auth.js.org/providers/github#example
-          name: user.name || (user.email as string),
-          description: `${name}'s default organization.`,
-          ownerId: user.id,
-        },
-        select: {
-          id: true,
-        },
-      });
-
-      await prisma.user.update({
-        where: {
-          id: user.id,
-        },
-        data: {
-          currentOrganizationId: id,
-        },
+      await createOrAssignDefaultOrganization({
+        email: user.email,
+        id: user.id,
+        name: user.name,
       });
     },
   },

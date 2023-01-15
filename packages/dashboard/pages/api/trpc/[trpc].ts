@@ -18,7 +18,7 @@ const createContext = async ({
   res,
 }: trpcNext.CreateNextContextOptions): Promise<{
   req: NextApiRequest;
-  res: NextApiResponse<any>;
+  res: NextApiResponse<unknown>;
   session: Session;
 }> => {
   const tokenValue = req.headers['x-lagon-token'] as string;

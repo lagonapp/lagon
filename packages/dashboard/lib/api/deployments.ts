@@ -5,6 +5,7 @@ import prisma from 'lib/prisma';
 import { Readable } from 'node:stream';
 import { TRPCError } from '@trpc/server';
 import { envStringToObject } from 'lib/utils';
+import { MAX_ASSETS_PER_FUNCTION } from 'lib/constants';
 
 export async function createDeployment(
   func: {
@@ -358,4 +359,43 @@ export async function getDeploymentCode(deploymentId: string) {
   }
 
   return '';
+}
+
+export async function checkCanCreateDeployment({
+  assets,
+  functionId,
+  ownerId,
+}: {
+  assets: number;
+  functionId: string;
+  ownerId: string;
+}) {
+  if (assets >= MAX_ASSETS_PER_FUNCTION) {
+    throw new TRPCError({
+      code: 'BAD_REQUEST',
+      message: `You can only upload ${MAX_ASSETS_PER_FUNCTION} assets per Function`,
+    });
+  }
+
+  await checkCanUpdateDeployment({
+    functionId,
+    ownerId,
+  });
+}
+
+export async function checkCanUpdateDeployment({ functionId, ownerId }: { functionId: string; ownerId: string }) {
+  const func = await prisma.function.count({
+    where: {
+      id: functionId,
+      organization: {
+        ownerId,
+      },
+    },
+  });
+
+  if (func === 0) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+    });
+  }
 }

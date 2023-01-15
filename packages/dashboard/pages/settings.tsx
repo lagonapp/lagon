@@ -99,7 +99,7 @@ const Settings = () => {
           </Card>
         </Form>
         <Form
-          onSubmit={async ({ email }) => null}
+          onSubmit={async () => null}
           onSubmitSuccess={() => {
             toast.success(t('transfer.success'));
           }}

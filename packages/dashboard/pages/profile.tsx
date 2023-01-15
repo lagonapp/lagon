@@ -112,12 +112,12 @@ const Profile = () => {
             ))}
           </div>
         </Card>
-        <Card title={t('delete.title')} description={t('delete.description')} danger>
+        <Card title={a('delete.title')} description={t('delete.description')} danger>
           <div>
             <Dialog
               title={t('delete.modal.title')}
               description={t('delete.modal.description', {
-                email: session!.user.email,
+                email: session?.user.email,
               })}
               disclosure={<Button variant="danger">{t('delete.submit')}</Button>}
             >
