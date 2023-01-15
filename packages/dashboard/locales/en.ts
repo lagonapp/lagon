@@ -20,7 +20,8 @@ export default {
   'home.title': 'Functions',
   'home.createFunction': 'Create a Function',
   'home.empty.title': 'No Functions found',
-  'home.empty.description': 'Start by creating a new Function by clicking the button in the right corner.',
+  'home.empty.description': 'Get started by creating a Function on the Dashboard, or use the CLI to test and deploy.',
+  'home.empty.action': 'Get Started guide',
   'home.list.lastUpdate': 'Last update:',
 
   'settings.title': 'Settings',
@@ -126,8 +127,8 @@ export default {
   'functions.overview.network.label.outBytes': 'OUT bytes',
 
   'functions.deployments.empty.title': 'No Deployments found',
-  'functions.deployments.empty.description': 'Create your first Deployment from the Playground or with the CLI.',
-  'functions.deployments.empty.action': 'Go to Playground',
+  'functions.deployments.empty.description': 'Create your first Deployment from the Dashboar or with the CLI.',
+  'functions.deployments.empty.action': 'Deployments documentation',
   'functions.deployments.list.production': 'Production Deployment',
   'functions.deployments.list.noCommit': 'No commit linked',
   'functions.deployments.list.by': 'By:',
@@ -145,7 +146,8 @@ export default {
   'functions.logs.title': 'Live Logs & Errors',
   'functions.logs.logLevel': 'Log level:',
   'functions.logs.empty.title': 'No logs found',
-  'functions.logs.empty.description': "Try to add some 'console.log', or adjust the filters at the top-right.",
+  'functions.logs.empty.description': 'Adjust the filters or add some logs by reading the documentation.',
+  'functions.logs.empty.action': 'Logs documentation',
 
   'functions.settings.name.title': 'Name',
   'functions.settings.name.description':

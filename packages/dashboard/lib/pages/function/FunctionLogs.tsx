@@ -21,9 +21,18 @@ const Content = ({ func, logLevel, timeframe }: ContentProps) => {
   const { data: logs } = useFunctionLogs({ functionId: func?.id, logLevel, timeframe });
 
   if (logs?.length === 0) {
-    return <EmptyState title={t('empty.title')} description={t('empty.description')} />;
+    return (
+      <EmptyState
+        title={t('empty.title')}
+        description={t('empty.description')}
+        action={
+          <Button href="https://docs.lagon.app/cloud/logs" target="_blank">
+            {t('empty.action')}
+          </Button>
+        }
+      />
+    );
   }
-  console.log(logs);
 
   return (
     <div className="flex flex-col">

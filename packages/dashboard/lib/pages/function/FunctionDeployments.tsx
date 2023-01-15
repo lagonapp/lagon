@@ -52,7 +52,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
           title={t('empty.title')}
           description={t('empty.description')}
           action={
-            <Button variant="primary" href={`/playground/${func?.id}`}>
+            <Button href="https://docs.lagon.app/cloud/deployments" target="_blank">
               {t('empty.action')}
             </Button>
           }

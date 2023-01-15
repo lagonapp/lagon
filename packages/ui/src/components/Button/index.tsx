@@ -1,5 +1,12 @@
 import Link from 'next/link';
-import { forwardRef, MouseEventHandler, MutableRefObject, ReactElement, ReactNode } from 'react';
+import {
+  forwardRef,
+  HTMLAttributeAnchorTarget,
+  MouseEventHandler,
+  MutableRefObject,
+  ReactElement,
+  ReactNode,
+} from 'react';
 import { VariantProps } from 'class-variance-authority';
 import { variants } from './styles';
 
@@ -8,6 +15,7 @@ type ButtonProps = {
   rightIcon?: ReactElement;
   submit?: boolean;
   href?: string;
+  target?: HTMLAttributeAnchorTarget;
   onClick?: MouseEventHandler;
   children: ReactNode;
 } & VariantProps<typeof variants>;
@@ -23,6 +31,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
       center,
       submit,
       href,
+      target,
       onClick,
       children,
     }: ButtonProps,
@@ -37,6 +46,7 @@ export const Button = forwardRef<HTMLButtonElement | HTMLAnchorElement, ButtonPr
           ref={ref as MutableRefObject<HTMLAnchorElement>}
           aria-disabled={!!disabled}
           className={styles}
+          target={target}
         >
           {leftIcon}
           {children}

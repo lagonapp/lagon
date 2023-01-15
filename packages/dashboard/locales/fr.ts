@@ -22,7 +22,9 @@ export default defineLocale({
   'home.title': 'Fonctions',
   'home.createFunction': 'Créer une Fonction',
   'home.empty.title': 'Aucune Fonction trouvée',
-  'home.empty.description': 'Commencez par crééer une Fonction en cliquant sur le bouton en haut à droite.',
+  'home.empty.description':
+    'Démarrez en créant une Fonction sur le Dashboard, ou en utilisant la CLI pour tester et déployer.',
+  'home.empty.action': 'Guide de démarrage',
   'home.list.lastUpdate': 'Dernière mise à jour :',
 
   'settings.title': 'Paramètres',
@@ -131,8 +133,8 @@ export default defineLocale({
   'functions.overview.network.label.outBytes': 'Octets OUT',
 
   'functions.deployments.empty.title': 'Aucun Déploiement trouvé',
-  'functions.deployments.empty.description': 'Créez votre premier Déploiement depuis le Playground ou la CLI.',
-  'functions.deployments.empty.action': 'Aller au Playground',
+  'functions.deployments.empty.description': 'Créez votre premier Déploiement depuis le Dashboard ou la CLI.',
+  'functions.deployments.empty.action': 'Documentation des Déploiements',
   'functions.deployments.list.production': 'Déploiement de production',
   'functions.deployments.list.noCommit': 'Aucun commit lié',
   'functions.deployments.list.by': 'Par :',
@@ -151,7 +153,8 @@ export default defineLocale({
   'functions.logs.title': 'Logs & Erreurs',
   'functions.logs.logLevel': 'Niveau de log :',
   'functions.logs.empty.title': 'Aucun log trouvés',
-  'functions.logs.empty.description': "Essayez d'ajouter des 'console.log', ou ajustez les filtres en haut à droite.",
+  'functions.logs.empty.description': 'Ajustez les filtres ou rajoutez des logs en lisant la documentation.',
+  'functions.logs.empty.action': 'Documentation des logs',
 
   'functions.settings.name.title': 'Nom',
   'functions.settings.name.description':
