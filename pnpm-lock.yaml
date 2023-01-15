@@ -281,8 +281,8 @@ importers:
       eslint: ^8.16.0
       eslint-config-next: 13.1.2
       next: 13.1.2
-      nextra: 2.0.3
-      nextra-theme-docs: 2.0.3
+      nextra: 2.1.0
+      nextra-theme-docs: 2.1.0
       postcss: ^8.4.14
       react: 18.2.0
       react-dom: 18.2.0
@@ -291,8 +291,8 @@ importers:
     dependencies:
       '@vercel/analytics': 0.1.3_react@18.2.0
       next: 13.1.2_biqbaboplfbrettd7655fr4n2y
-      nextra: 2.0.3_7jnwqgtpcnwg4nzft4b6xlzlfi
-      nextra-theme-docs: 2.0.3_7jnwqgtpcnwg4nzft4b6xlzlfi
+      nextra: 2.1.0_7jnwqgtpcnwg4nzft4b6xlzlfi
+      nextra-theme-docs: 2.1.0_7jnwqgtpcnwg4nzft4b6xlzlfi
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
@@ -4682,6 +4682,18 @@ packages:
       react: ^16 || ^17 || ^18
       react-dom: ^16 || ^17 || ^18
     dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+    dev: false
+
+  /@headlessui/react/1.7.7_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-BqDOd/tB9u2tA0T3Z0fn18ktw+KbVwMnkxxsGPIH2hzssrQhKB5n/6StZOyvLYP/FsYtvuXfi9I0YowKPv2c1w==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: ^16 || ^17 || ^18
+      react-dom: ^16 || ^17 || ^18
+    dependencies:
+      client-only: 0.0.1
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     dev: false
@@ -15995,14 +16007,14 @@ packages:
       - '@babel/core'
       - babel-plugin-macros
 
-  /nextra-theme-docs/2.0.3_7jnwqgtpcnwg4nzft4b6xlzlfi:
-    resolution: {integrity: sha512-BN0NOzYNMQNLU8PMRKVtgOitLC2jFubMA9O8b3gNhr+5/Uny6MTDwuSAVO7G7z830b6dNaRqrMA84iVRS+2LaQ==}
+  /nextra-theme-docs/2.1.0_7jnwqgtpcnwg4nzft4b6xlzlfi:
+    resolution: {integrity: sha512-0Fn0EsGaKa9We2+CkN9LPtT6F21w4wbihuv0/Vg2YowpAdu5nslsDIhtg66CRET5U5007xE5GG8NLwWaCHQhhg==}
     peerDependencies:
       next: '>=9.5.3'
       react: '>=16.13.1'
       react-dom: '>=16.13.1'
     dependencies:
-      '@headlessui/react': 1.7.2_biqbaboplfbrettd7655fr4n2y
+      '@headlessui/react': 1.7.7_biqbaboplfbrettd7655fr4n2y
       '@mdx-js/react': 2.1.5_react@18.2.0
       '@popperjs/core': 2.11.6
       clsx: 1.2.1
@@ -16018,10 +16030,11 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       scroll-into-view-if-needed: 3.0.3
+      zod: 3.20.2
     dev: false
 
-  /nextra/2.0.3_7jnwqgtpcnwg4nzft4b6xlzlfi:
-    resolution: {integrity: sha512-GttZMwfHiVcrnVMnN2PKq2mS6YoQ0zrbzRYS838WYfzUpjIPCR6L8rJbAEd00kcrJNM1MvSCxONOTqGDDjW7YA==}
+  /nextra/2.1.0_7jnwqgtpcnwg4nzft4b6xlzlfi:
+    resolution: {integrity: sha512-8bq/TW8wv8H8D6UAokb9WKhnYeoxKG7c8ikWF1n6k3kOO9m0PLG+guTwqkWre28jJyziljc3i/Fnr3k4HiB9Ow==}
     peerDependencies:
       next: '>=9.5.3'
       react: '>=16.13.1'
@@ -21273,6 +21286,10 @@ packages:
 
   /zod/3.17.3:
     resolution: {integrity: sha512-4oKP5zvG6GGbMlqBkI5FESOAweldEhSOZ6LI6cG+JzUT7ofj1ZOC0PJudpQOpT1iqOFpYYtX5Pw0+o403y4bcg==}
+
+  /zod/3.20.2:
+    resolution: {integrity: sha512-1MzNQdAvO+54H+EaK5YpyEy0T+Ejo/7YLHS93G3RnYWh5gaotGHwGeN/ZO687qEDU2y4CdStQYXVHIgrUl5UVQ==}
+    dev: false
 
   /zwitch/1.0.5:
     resolution: {integrity: sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw==}
