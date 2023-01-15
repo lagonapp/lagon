@@ -97,6 +97,7 @@ export default defineLocale({
   'cli.copy': 'Cliquez pour copier',
   'cli.copy.success': 'Copié dans le presse-papier !',
 
+  'new.title': 'Nouvelle Organisation',
   'new.success': "L'Organisation a été créée.",
   'new.name.title': 'Nom',
   'new.name.placeholder': 'super-projet',

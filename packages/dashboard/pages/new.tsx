@@ -36,7 +36,8 @@ const New = () => {
         router.push('/');
       }}
     >
-      <div className="flex flex-col gap-8 w-96 mx-auto mt-12">
+      <div className="flex flex-col gap-8 w-96 mx-auto pt-12">
+        <Text size="2xl">{t('title')}</Text>
         <div className="flex flex-col gap-2">
           <Text>{t('name.title')}</Text>
           <Input

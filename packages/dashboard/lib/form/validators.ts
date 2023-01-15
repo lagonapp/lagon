@@ -7,7 +7,7 @@ export const requiredValidator: FieldValidator<string | number> = value => {
 export const minLengthValidator =
   (minLength: number): FieldValidator<string | number> =>
   value => {
-    return typeof value === 'string' && (!value || value.length >= minLength)
+    return value === undefined || (typeof value === 'string' && value.length >= minLength)
       ? undefined
       : 'Field must be at least ' + minLength + ' characters long';
   };
@@ -15,7 +15,7 @@ export const minLengthValidator =
 export const maxLengthValidator =
   (maxLength: number): FieldValidator<string | number> =>
   value => {
-    return typeof value === 'string' && (!value || value.length <= maxLength)
+    return value === undefined || (typeof value === 'string' && value.length <= maxLength)
       ? undefined
       : 'Field must be at most ' + maxLength + ' characters long';
   };

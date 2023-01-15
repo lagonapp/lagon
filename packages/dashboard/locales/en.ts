@@ -91,6 +91,7 @@ export default {
   'cli.copy': 'Click to copy',
   'cli.copy.success': 'Copied to clipboard!',
 
+  'new.title': 'New Organization',
   'new.success': 'Organization created successfully.',
   'new.name.title': 'Name',
   'new.name.placeholder': 'awesome-project',
