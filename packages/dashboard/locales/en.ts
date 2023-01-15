@@ -1,6 +1,7 @@
 export default {
   'layout.header.functions': 'Functions',
   'layout.header.settings': 'Settings',
+  'layout.header.documentation': 'Documentation',
   'layout.header.menu.newOrganization': 'New Organization',
   'layout.header.menu.settings': 'Settings',
   'layout.header.menu.theme': 'Theme',

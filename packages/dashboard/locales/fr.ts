@@ -3,6 +3,7 @@ import { defineLocale } from 'locales';
 export default defineLocale({
   'layout.header.functions': 'Fonctions',
   'layout.header.settings': 'Paramètres',
+  'layout.header.documentation': 'Documentation',
   'layout.header.menu.newOrganization': 'Créer une Organisation',
   'layout.header.menu.settings': 'Paramètres',
   'layout.header.menu.theme': 'Thème',
