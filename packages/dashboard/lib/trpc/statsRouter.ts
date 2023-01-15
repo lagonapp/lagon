@@ -92,7 +92,7 @@ export const statsRouter = (t: T) =>
           return 0;
         }
       }),
-    statsRequests: t.procedure
+    stats: t.procedure
       .input(
         z.object({
           timeframe: z.enum(TIMEFRAMES),
@@ -106,105 +106,32 @@ export const statsRouter = (t: T) =>
         });
 
         const step = getStep(input.timeframe);
-        const { result } = await prometheus(
-          `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[${step}s]))`,
-          input.timeframe,
-        );
+        const [requests, cpuTime, bytesIn, bytesOut] = await Promise.all([
+          prometheus(
+            `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[${step}s]))`,
+            input.timeframe,
+          ),
+          prometheus(`avg(lagon_isolate_cpu_time{function="${input.functionId}",quantile="0.99"})`, input.timeframe),
+          prometheus(`sum(increase(lagon_bytes_in{function="${input.functionId}"}[${step}s]))`, input.timeframe),
+          prometheus(`sum(increase(lagon_bytes_out{function="${input.functionId}"}[${step}s]))`, input.timeframe),
+        ]);
 
-        return result.reduce(
-          (acc, { values }) => {
-            return [...acc, ...values.map(([time, value]) => ({ time, value: Number(value) }))];
-          },
-          [] as {
-            time: number;
-            value: number;
-          }[],
-        );
-      }),
-    statsCpuTime: t.procedure
-      .input(
-        z.object({
-          timeframe: z.enum(TIMEFRAMES),
-          functionId: z.string(),
-        }),
-      )
-      .query(async ({ input, ctx }) => {
-        await checkCanQueryFunction({
-          functionId: input.functionId,
-          ownerId: ctx.session.user.id,
-        });
+        const flatResult = ({ result }: Awaited<ReturnType<typeof prometheus>>) =>
+          result.reduce(
+            (acc, { values }) => {
+              return [...acc, ...values.map(([time, value]) => ({ time, value: Number(value) }))];
+            },
+            [] as {
+              time: number;
+              value: number;
+            }[],
+          );
 
-        const { result } = await prometheus(
-          `avg(lagon_isolate_cpu_time{function="${input.functionId}",quantile="0.99"})`,
-          input.timeframe,
-        );
-
-        return result.reduce(
-          (acc, { values }) => {
-            return [...acc, ...values.map(([time, value]) => ({ time, value: Number(value) }))];
-          },
-          [] as {
-            time: number;
-            value: number;
-          }[],
-        );
-      }),
-    statsBytesIn: t.procedure
-      .input(
-        z.object({
-          timeframe: z.enum(TIMEFRAMES),
-          functionId: z.string(),
-        }),
-      )
-      .query(async ({ input, ctx }) => {
-        await checkCanQueryFunction({
-          functionId: input.functionId,
-          ownerId: ctx.session.user.id,
-        });
-
-        const step = getStep(input.timeframe);
-        const { result } = await prometheus(
-          `sum(increase(lagon_bytes_in{function="${input.functionId}"}[${step}s]))`,
-          input.timeframe,
-        );
-
-        return result.reduce(
-          (acc, { values }) => {
-            return [...acc, ...values.map(([time, value]) => ({ time, value: Number(value) }))];
-          },
-          [] as {
-            time: number;
-            value: number;
-          }[],
-        );
-      }),
-    statsBytesOut: t.procedure
-      .input(
-        z.object({
-          timeframe: z.enum(TIMEFRAMES),
-          functionId: z.string(),
-        }),
-      )
-      .query(async ({ input, ctx }) => {
-        await checkCanQueryFunction({
-          functionId: input.functionId,
-          ownerId: ctx.session.user.id,
-        });
-
-        const step = getStep(input.timeframe);
-        const { result } = await prometheus(
-          `sum(increase(lagon_bytes_out{function="${input.functionId}"}[${step}s]))`,
-          input.timeframe,
-        );
-
-        return result.reduce(
-          (acc, { values }) => {
-            return [...acc, ...values.map(([time, value]) => ({ time, value: Number(value) }))];
-          },
-          [] as {
-            time: number;
-            value: number;
-          }[],
-        );
+        return {
+          requests: flatResult(requests),
+          cpuTime: flatResult(cpuTime),
+          bytesIn: flatResult(bytesIn),
+          bytesOut: flatResult(bytesOut),
+        };
       }),
   });

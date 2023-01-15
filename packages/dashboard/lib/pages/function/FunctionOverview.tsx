@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Button, Card, Chart, Description, Divider, Menu, Text } from '@lagon/ui';
 import useFunctionStats from 'lib/hooks/useFunctionStats';
+import useFunctionUsage from 'lib/hooks/useFunctionUsage';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
 import { useI18n } from 'locales';
@@ -15,21 +16,25 @@ function formatBytes(bytes = 0) {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
+  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(0))} ${sizes[i]}`;
 }
 
 function formatSeconds(seconds = 0) {
   if (seconds === 0) return '0s';
 
   if (seconds < 0.001) {
-    return `${(seconds * 1000000).toFixed(2)}μs`;
+    return `${(seconds * 1000000).toFixed(0)}μs`;
   }
 
   if (seconds < 1) {
-    return `${(seconds * 1000).toFixed(2)}ms`;
+    return `${(seconds * 1000).toFixed(0)}ms`;
   }
 
-  return `${seconds.toFixed(2)}s`;
+  return `${seconds.toFixed(0)}s`;
+}
+
+function formatNumber(number = 0) {
+  return number.toLocaleString();
 }
 
 type FunctionOverviewProps = {
@@ -42,12 +47,14 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
   const t = scopedT('functions.overview');
   const [timeframe, setTimeframe] = useState<Timeframe>(() => (router.query.timeframe as Timeframe) || 'Last 24 hours');
   const {
-    requests: { data: requestsData = [] },
-    cpuTime: { data: cpuTimeData = [] },
-    bytesIn: { data: bytesInData = [] },
-    bytesOut: { data: bytesOutData = [] },
-    usage: { data: usageData = 0 },
+    data: { requests, cpuTime, bytesIn, bytesOut } = {
+      requests: [],
+      cpuTime: [],
+      bytesIn: [],
+      bytesOut: [],
+    },
   } = useFunctionStats({ functionId: func?.id, timeframe });
+  const { data: usage = 0 } = useFunctionUsage({ functionId: func?.id, timeframe });
 
   useEffect(() => {
     router.replace({
@@ -82,27 +89,21 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
         >
           <div className="flex justify-between flex-wrap gap-4">
             <Description title={t('usage.requests')} total="100,000">
-              {Math.round(usageData)}
+              {formatNumber(Math.round(usage))}
             </Description>
             <Description title={t('usage.avgCpu')} total={`${func?.timeout || 0}ms`}>
               {formatSeconds(
-                cpuTimeData.length === 0
-                  ? 0
-                  : cpuTimeData.reduce((acc, { value }) => acc + value, 0) / cpuTimeData.length,
+                cpuTime.length === 0 ? 0 : cpuTime.reduce((acc, { value }) => acc + value, 0) / cpuTime.length,
               )}
             </Description>
             <Description title={t('usage.avgInBytes')}>
               {formatBytes(
-                bytesInData.length === 0
-                  ? 0
-                  : bytesInData.reduce((acc, { value }) => acc + value, 0) / bytesInData.length,
+                bytesIn.length === 0 ? 0 : bytesIn.reduce((acc, { value }) => acc + value, 0) / bytesIn.length,
               )}
             </Description>
             <Description title={t('usage.avgOutBytes')}>
               {formatBytes(
-                bytesOutData.length === 0
-                  ? 0
-                  : bytesOutData.reduce((acc, { value }) => acc + value, 0) / bytesOutData.length,
+                bytesOut.length === 0 ? 0 : bytesOut.reduce((acc, { value }) => acc + value, 0) / bytesOut.length,
               )}
             </Description>
           </div>
@@ -134,12 +135,13 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
       <Card title={t('requests')}>
         <div className="h-72">
           <Chart
-            labels={requestsData.map(({ time }) => time)}
+            labels={requests.map(({ time }) => time)}
             datasets={[
               {
                 label: t('requests.label'),
                 color: '#3B82F6',
-                data: requestsData.map(({ value }) => Math.round(value)),
+                data: requests.map(({ value }) => Math.round(value)),
+                transform: formatNumber,
               },
             ]}
           />
@@ -148,36 +150,38 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
       <Card title={t('cpuTime')}>
         <div className="h-72">
           <Chart
-            labels={cpuTimeData.map(({ time }) => time)}
+            labels={cpuTime.map(({ time }) => time)}
             datasets={[
               {
                 label: t('cpuTime.label'),
                 color: '#F59E0B',
-                data: cpuTimeData.map(({ value }) => value),
+                data: cpuTime.map(({ value }) => value),
                 transform: formatSeconds,
               },
             ]}
+            axisTransform={(self, ticks) => ticks.map(formatSeconds)}
           />
         </div>
       </Card>
       <Card title={t('network')}>
         <div className="h-72">
           <Chart
-            labels={bytesInData.map(({ time }) => time)}
+            labels={bytesIn.map(({ time }) => time)}
             datasets={[
               {
                 label: t('network.label.inBytes'),
                 color: '#10B981',
-                data: bytesInData.map(({ value }) => Math.round(value)),
+                data: bytesIn.map(({ value }) => Math.round(value)),
                 transform: formatBytes,
               },
               {
                 label: t('network.label.outBytes'),
                 color: '#3B82F6',
-                data: bytesOutData.map(({ value }) => Math.round(value)),
+                data: bytesOut.map(({ value }) => Math.round(value)),
                 transform: formatBytes,
               },
             ]}
+            axisTransform={(self, ticks) => ticks.map(formatBytes)}
           />
         </div>
       </Card>
