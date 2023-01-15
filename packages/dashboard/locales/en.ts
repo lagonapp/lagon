@@ -43,7 +43,7 @@ export default {
   'settings.transfer.success': 'Ownership of this Organization transferred successfully.',
   'settings.transfer.notAvailable': 'Not available yet.',
   'settings.transfer.notAvailable.description':
-    'Please email contact@lagon.app if you need to transfer your Organization.',
+    'Please email contact@lagon.app if you want to transfer your Organization.',
 
   'settings.delete.title': 'Delete',
   'settings.delete.description':
@@ -82,6 +82,8 @@ export default {
   'profile.delete.modal.description': 'Write your account email to confirm deletion: {email}',
   'profile.delete.modal.confirm': 'Confirm with your email',
   'profile.delete.modal.submit': 'Delete Account',
+  'profile.delete.notAvailable': 'Not available yet.',
+  'profile.delete.notAvailable.description': 'Please email contact@lagon.app if you want to delete your Account.',
 
   'cli.title': 'Log in to the CLI',
   'cli.description': 'This is your verification code to login in the CLI. Copy it and paste it in your terminal.',
