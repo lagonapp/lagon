@@ -36,7 +36,7 @@ const TIMEOUT_LOOP_DELAY: Duration = Duration::from_millis(1);
 struct Global(v8::Global<v8::Context>);
 
 #[derive(Debug)]
-struct IsolateState {
+pub struct IsolateState {
     global: Global,
     promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
     js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
@@ -45,6 +45,7 @@ struct IsolateState {
     metadata: Rc<Metadata>,
     rejected_promises: HashMap<v8::Global<v8::Promise>, String>,
     lines: usize,
+    fetch_calls: usize,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -116,6 +117,7 @@ impl Isolate {
                 metadata: Rc::clone(&options.metadata),
                 rejected_promises: HashMap::new(),
                 lines: 0,
+                fetch_calls: 0,
             }
         };
 
@@ -237,6 +239,7 @@ impl Isolate {
             let mut state = isolate_state.borrow_mut();
             state.handler_result = None;
             state.rejected_promises.clear();
+            state.fetch_calls = 0;
         }
 
         match handler.call(try_catch, global.into(), &[request.into()]) {

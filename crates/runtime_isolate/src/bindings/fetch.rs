@@ -9,7 +9,7 @@ use hyper_tls::HttpsConnector;
 use lagon_runtime_http::{FromV8, Request, Response};
 use lazy_static::lazy_static;
 
-use crate::bindings::PromiseResult;
+use crate::{bindings::PromiseResult, Isolate};
 
 use super::BindingResult;
 
@@ -21,6 +21,17 @@ lazy_static! {
 type Arg = Request;
 
 pub fn fetch_init(scope: &mut v8::HandleScope, args: v8::FunctionCallbackArguments) -> Result<Arg> {
+    let state = Isolate::state(scope);
+    let fetch_calls = {
+        let mut state = state.borrow_mut();
+        state.fetch_calls += 1;
+        state.fetch_calls
+    };
+
+    if fetch_calls > 20 {
+        return Err(anyhow!("fetch() can only be called 20 times per requests"));
+    }
+
     let request = match args.get(0).to_object(scope) {
         Some(request) => request,
         None => return Err(anyhow!("Invalid request")),
