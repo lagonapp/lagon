@@ -508,3 +508,46 @@ async fn redirect_loop() {
         RunResult::Error("Uncaught Error: Too many redirects".into())
     );
 }
+
+#[tokio::test]
+async fn limit_fetch_calls() {
+    setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(request::method_path("GET", "/"))
+            .times(21)
+            .respond_with(status_code(200)),
+    );
+    let url = server.url("/");
+
+    let mut isolate = Isolate::new(IsolateOptions::new(format!(
+        "let pass = false;
+export async function handler() {{
+    if (!pass) {{
+        pass = true
+        while (true) {{
+            await fetch('{url}');
+        }}
+        return new Response('done');
+    }}
+    await fetch('{url}');
+    return new Response('ok')
+}}"
+    )));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx.clone()).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: fetch() can only be called 20 times per requests".into())
+    );
+    assert!(rx.try_recv().is_err());
+
+    // Test if we can still call fetch in subsequent requests
+    isolate.run(Request::default(), tx).await;
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("ok"))
+    );
+    assert!(rx.try_recv().is_err());
+}

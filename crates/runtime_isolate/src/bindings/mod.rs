@@ -62,18 +62,22 @@ macro_rules! async_binding {
             let promise = v8::PromiseResolver::new(scope).unwrap();
             retval.set(promise.into());
 
-            let state = Isolate::state(scope);
-            let mut state = state.borrow_mut();
+            let isolate_state = Isolate::state(scope);
+            let mut state = isolate_state.borrow_mut();
             let id = state.js_promises.len() + 1;
 
             let global_promise = v8::Global::new(scope, promise);
             state.js_promises.insert(id, global_promise);
 
+            // Drop the state so we can borrow
+            // it mutably inside init()
+            drop(state);
+
             match $init(scope, args) {
                 Ok(args) => {
                     let future = $binding(id, args);
 
-                    state.promises.push(Box::pin(future));
+                    isolate_state.borrow_mut().promises.push(Box::pin(future));
                 }
                 Err(error) => {
                     let error = v8_string(scope, &error.to_string());

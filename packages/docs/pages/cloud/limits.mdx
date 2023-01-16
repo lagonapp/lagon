@@ -21,20 +21,20 @@ Each Function name must be unique. The name must be at least 3 and up to 64 char
 
 Below are the limits for each plan:
 
-|                       | Personal      | Pro           | Enterprise |
-| --------------------- | ------------- | ------------- | ---------- |
-| Free requests/month   | 3,000,000     | 5,000,000     | Custom     |
-| Code size             | 10MB          | 10MB          | Custom     |
-| Assets                | 100           | 100           | Custom     |
-| Assets size           | 10MB          | 10MB          | Custom     |
-| Memory                | 128MB         | 128MB         | Up to 1GB  |
-| CPU time/request      | 10ms          | 50ms          | Up to 1s   |
-| CPU startup time      | 100ms         | 200ms         | Up to 1s   |
-| Custom domains        | 10            | 10            | Custom     |
-| Environment variables | 100           | 100           | Custom     |
-| Env. var. key length  | 64 characters | 64 characters | Custom     |
-| Env. var. value size  | 5KB           | 5KB           | Custom     |
+|                        | Personal      | Pro           | Enterprise |
+| ---------------------- | ------------- | ------------- | ---------- |
+| Free requests/month    | 3,000,000     | 5,000,000     | Custom     |
+| Code size              | 10MB          | 10MB          | Custom     |
+| Assets                 | 100           | 100           | Custom     |
+| Assets size            | 10MB          | 10MB          | Custom     |
+| Memory                 | 128MB         | 128MB         | Up to 1GB  |
+| CPU time/request       | 10ms          | 50ms          | Up to 1s   |
+| CPU startup time       | 100ms         | 200ms         | Up to 1s   |
+| Custom domains         | 10            | 10            | Custom     |
+| Environment variables  | 100           | 100           | Custom     |
+| Env. var. key length   | 64 characters | 64 characters | Custom     |
+| Env. var. value size   | 5KB           | 5KB           | Custom     |
+| `fetch()` calls        | 20            | 20            | Custom     |
+| `fetch()` redirections | 5             | 5             | Custom     |
 
 The CPU time limit only counts the time spent executing your code. For example, that means the time spent waiting for a response from a `fetch` call is not counted.
-
-The CPU startup time
