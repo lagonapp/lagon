@@ -1,4 +1,5 @@
 use anyhow::Result;
+use cronjob::Cronjob;
 use deployments::cache::run_cache_clear_task;
 use deployments::Deployment;
 use hyper::body::Bytes;
@@ -39,6 +40,7 @@ use crate::deployments::filesystem::get_deployment_code;
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
 
+mod cronjob;
 mod deployments;
 
 lazy_static! {
@@ -392,13 +394,19 @@ async fn main() -> Result<()> {
     )?;
 
     let bucket = Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?;
+    let mut cronjob = Cronjob::new().await;
 
-    let deployments = get_deployments(conn, bucket.clone()).await?;
+    let deployments = get_deployments(conn, bucket.clone(), &mut cronjob).await?;
     let last_requests = Arc::new(RwLock::new(HashMap::new()));
     let pool = LocalPoolHandle::new(POOL_SIZE);
     let thread_ids = Arc::new(RwLock::new(HashMap::new()));
 
-    let redis = listen_pub_sub(bucket.clone(), Arc::clone(&deployments), pool.clone());
+    let redis = listen_pub_sub(
+        bucket.clone(),
+        Arc::clone(&deployments),
+        pool.clone(),
+        &mut cronjob,
+    );
     run_cache_clear_task(Arc::clone(&last_requests), pool.clone());
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
