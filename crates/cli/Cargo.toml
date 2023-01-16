@@ -8,7 +8,7 @@ lagon-runtime = { path = "../runtime" }
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-isolate = { path = "../runtime_isolate" }
 clap = { version = "4.1.1", features = ["derive"] }
-dialoguer = "0.10.2"
+dialoguer = "0.10.3"
 indicatif = "0.17.2"
 colored = "2.0.0"
 dirs = "4.0.0"
