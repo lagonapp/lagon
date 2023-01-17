@@ -26,6 +26,7 @@ export default defineLocale({
     'Démarrez en créant une Fonction sur le Dashboard, ou en utilisant la CLI pour tester et déployer.',
   'home.empty.action': 'Guide de démarrage',
   'home.list.lastUpdate': 'Dernière mise à jour :',
+  'home.list.cron': 'Cron',
 
   'settings.title': 'Paramètres',
   'settings.name.title': 'Nom',
@@ -117,6 +118,7 @@ export default defineLocale({
   'function.nav.deployments': 'Déploiements',
   'function.nav.logs': 'Logs',
   'function.nav.settings': 'Paramètres',
+  'function.nav.cron': 'Cron',
 
   'functions.overview.usage': 'Utilisation & Limites',
   'functions.overview.usage.requests': 'Requêtes',
@@ -150,6 +152,7 @@ export default defineLocale({
   'functions.deployments.delete.modal.description': 'Etes-vous sûr de vouloir supprimer ce Déploiement ?',
   'functions.deployments.delete.modal.submit': 'Supprimer',
   'functions.deployments.delete.success': 'Le Déploiement a été supprimé.',
+  'functions.deployments.cron': 'Cron',
 
   'functions.logs.title': 'Logs & Erreurs',
   'functions.logs.logLevel': 'Niveau de log :',

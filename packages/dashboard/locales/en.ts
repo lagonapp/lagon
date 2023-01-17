@@ -23,6 +23,7 @@ export default {
   'home.empty.description': 'Get started by creating a Function on the Dashboard, or use the CLI to test and deploy.',
   'home.empty.action': 'Get Started guide',
   'home.list.lastUpdate': 'Last update:',
+  'home.list.cron': 'Cron',
 
   'settings.title': 'Settings',
   'settings.name.title': 'Name',
@@ -111,6 +112,7 @@ export default {
   'function.nav.deployments': 'Deployments',
   'function.nav.logs': 'Logs',
   'function.nav.settings': 'Settings',
+  'function.nav.cron': 'Cron',
 
   'functions.overview.usage': 'Usage & Limits',
   'functions.overview.usage.requests': 'Requests',
@@ -143,6 +145,7 @@ export default {
   'functions.deployments.delete.modal.description': 'Are you sure you want to delete this Deployment?',
   'functions.deployments.delete.modal.submit': 'Delete',
   'functions.deployments.delete.success': 'Deployment deleted successfully.',
+  'functions.deployments.cron': 'Cron',
 
   'functions.logs.title': 'Live Logs & Errors',
   'functions.logs.logLevel': 'Log level:',

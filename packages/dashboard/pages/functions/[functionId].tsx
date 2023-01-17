@@ -21,7 +21,11 @@ const Function = () => {
   const { data: func, refetch } = useFunction(functionId as string);
 
   return (
-    <LayoutTitle title={func?.name || 'Loading...'} titleStatus="success" rightItem={<FunctionLinks func={func} />}>
+    <LayoutTitle
+      title={func?.name || 'Loading...'}
+      titleStatus="success"
+      rightItem={func?.cron === null ? <FunctionLinks func={func} /> : undefined}
+    >
       <Head>
         <title>{func?.name || 'Loading...'}</title>
       </Head>

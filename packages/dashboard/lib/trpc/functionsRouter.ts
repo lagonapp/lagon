@@ -45,6 +45,7 @@ export const functionsRouter = (t: T) =>
               domain: true,
             },
           },
+          cron: true,
         },
         orderBy: {
           updatedAt: 'desc',
