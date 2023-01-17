@@ -32,7 +32,7 @@ use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 use tokio_util::task::LocalPoolHandle;
 
 use crate::deployments::assets::handle_asset;
@@ -117,6 +117,18 @@ async fn handle_request(
             return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
         }
     };
+
+    if deployment.cron.is_some() {
+        increment_counter!(
+            "lagon_ignored_requests",
+            "reason" => "Cron",
+            "hostname" => hostname.clone(),
+            "region" => REGION.clone(),
+        );
+        warn!(request = as_debug!(req), ip = ip, hostname = hostname; "Cron deployment cannot be called directly");
+
+        return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
+    }
 
     let deployment_id = &Arc::clone(&deployment).id;
     let thread_ids_reader = thread_ids.read().await;
@@ -394,9 +406,9 @@ async fn main() -> Result<()> {
     )?;
 
     let bucket = Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?;
-    let mut cronjob = Cronjob::new().await;
+    let cronjob = Arc::new(Mutex::new(Cronjob::new().await));
 
-    let deployments = get_deployments(conn, bucket.clone(), &mut cronjob).await?;
+    let deployments = get_deployments(conn, bucket.clone(), Arc::clone(&cronjob)).await?;
     let last_requests = Arc::new(RwLock::new(HashMap::new()));
     let pool = LocalPoolHandle::new(POOL_SIZE);
     let thread_ids = Arc::new(RwLock::new(HashMap::new()));
@@ -405,7 +417,7 @@ async fn main() -> Result<()> {
         bucket.clone(),
         Arc::clone(&deployments),
         pool.clone(),
-        &mut cronjob,
+        Arc::clone(&cronjob),
     );
     run_cache_clear_task(Arc::clone(&last_requests), pool.clone());
 

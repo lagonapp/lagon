@@ -21,6 +21,8 @@ pub struct IsolateOptions {
     // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
 }
 
+unsafe impl Send for IsolateOptions {}
+
 impl IsolateOptions {
     pub fn new(code: String) -> Self {
         Self {

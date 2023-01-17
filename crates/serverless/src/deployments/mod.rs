@@ -9,7 +9,7 @@ use anyhow::{anyhow, Result};
 use log::{error, info};
 use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 
 use crate::{cronjob::Cronjob, deployments::filesystem::has_deployment_code, REGION};
 
@@ -61,6 +61,10 @@ impl Deployment {
         domains
     }
 
+    pub fn should_run_cron(&self) -> bool {
+        self.is_production && self.cron.is_some()
+    }
+
     pub async fn download(&self, bucket: &Bucket) -> Result<()> {
         match bucket.get_object(self.id.clone() + ".js").await {
             Ok(object) => {
@@ -85,10 +89,23 @@ impl Deployment {
     }
 }
 
+type QueryResult = (
+    String,
+    bool,
+    String,
+    String,
+    usize,
+    usize,
+    usize,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+);
+
 pub async fn get_deployments(
     mut conn: PooledConn,
     bucket: Bucket,
-    cronjob: &mut Cronjob,
+    cronjob: Arc<Mutex<Cronjob>>,
 ) -> Result<Arc<RwLock<HashMap<String, Arc<Deployment>>>>> {
     let deployments = Arc::new(RwLock::new(HashMap::new()));
 
@@ -121,7 +138,7 @@ WHERE
 OR
     Function.cronRegion = '{}'
 ",
-            REGION.to_string()
+            REGION.as_str()
         ),
         |(
             id,
@@ -134,18 +151,7 @@ OR
             cron,
             domain,
             asset,
-        ): (
-            String,
-            bool,
-            String,
-            String,
-            usize,
-            usize,
-            usize,
-            Option<String>,
-            Option<String>,
-            Option<String>,
-        )| {
+        ): QueryResult| {
             deployments_list
                 .entry(id.clone())
                 .and_modify(|deployment| {
@@ -199,6 +205,7 @@ OR
 
     {
         let mut deployments = deployments.write().await;
+        let mut cronjob = cronjob.lock().await;
 
         for deployment in deployments_list {
             if !has_deployment_code(&deployment) {
@@ -214,7 +221,7 @@ OR
                 deployments.insert(domain, Arc::clone(&deployment));
             }
 
-            if deployment.cron.is_some() {
+            if deployment.should_run_cron() {
                 if let Err(error) = cronjob.add(deployment).await {
                     error!("Failed to register cron: {}", error);
                 }
