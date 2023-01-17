@@ -81,7 +81,7 @@ model Function {
   timeout        Int
   cron           String?
   organizationId String
-  cronRegion     String        @default("EU-WEST-3")
+  cronRegion     String        @default("paris-eu-west")
   startupTimeout Int           @default(200)
   organization   Organization  @relation(fields: [organizationId], references: [id])
   domains        Domain[]

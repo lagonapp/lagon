@@ -20,6 +20,8 @@ mod pull_stream;
 mod queue_microtask;
 mod sleep;
 
+pub use console::CONSOLE_SOURCE;
+
 pub struct BindingResult {
     pub id: usize,
     pub result: PromiseResult,

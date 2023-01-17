@@ -43,7 +43,7 @@ export const cronValidator: FieldValidator<string | number> = value => {
     return /((((\d+,)+\d+|(\d+(\/|-)\d+)|\d+|\*) ?){5,7})/.test(value) ? undefined : 'Field must be a Cron expression';
   }
 
-  return typeof value === 'undefined' ? undefined : 'Field must be a string';
+  return undefined;
 };
 
 export const composeValidators =

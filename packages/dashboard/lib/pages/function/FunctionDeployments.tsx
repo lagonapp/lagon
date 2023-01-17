@@ -71,18 +71,24 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                 </span>
               ) : null}
               <div className="md:w-1/3">
-                <Link href={getFullCurrentDomain({ name: deployment.id })} target="_blank">
-                  {getCurrentDomain({ name: deployment.id })}
-                </Link>
-                {deployment.isProduction ? (
+                {func.cron === null ? (
                   <>
-                    {func.domains.map(domain => (
-                      <Link key={domain} href={getFullDomain(domain)} target="_blank">
-                        {domain}
-                      </Link>
-                    ))}
+                    <Link href={getFullCurrentDomain({ name: deployment.id })} target="_blank">
+                      {getCurrentDomain({ name: deployment.id })}
+                    </Link>
+                    {deployment.isProduction ? (
+                      <>
+                        {func.domains.map(domain => (
+                          <Link key={domain} href={getFullDomain(domain)} target="_blank">
+                            {domain}
+                          </Link>
+                        ))}
+                      </>
+                    ) : null}
                   </>
-                ) : null}
+                ) : (
+                  <p className="text-sm text-blue-500">{t('cron')}</p>
+                )}
                 <Text size="sm">
                   {date.toLocaleString('en-US', {
                     minute: 'numeric',

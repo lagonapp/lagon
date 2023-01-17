@@ -1,4 +1,5 @@
 use anyhow::Result;
+use cronjob::Cronjob;
 use deployments::cache::run_cache_clear_task;
 use deployments::Deployment;
 use hyper::body::Bytes;
@@ -31,7 +32,7 @@ use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
-use tokio::sync::RwLock;
+use tokio::sync::{Mutex, RwLock};
 use tokio_util::task::LocalPoolHandle;
 
 use crate::deployments::assets::handle_asset;
@@ -39,6 +40,7 @@ use crate::deployments::filesystem::get_deployment_code;
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
 
+mod cronjob;
 mod deployments;
 
 lazy_static! {
@@ -115,6 +117,18 @@ async fn handle_request(
             return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
         }
     };
+
+    if deployment.cron.is_some() {
+        increment_counter!(
+            "lagon_ignored_requests",
+            "reason" => "Cron",
+            "hostname" => hostname.clone(),
+            "region" => REGION.clone(),
+        );
+        warn!(request = as_debug!(req), ip = ip, hostname = hostname; "Cron deployment cannot be called directly");
+
+        return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
+    }
 
     let deployment_id = &Arc::clone(&deployment).id;
     let thread_ids_reader = thread_ids.read().await;
@@ -392,13 +406,19 @@ async fn main() -> Result<()> {
     )?;
 
     let bucket = Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?;
+    let cronjob = Arc::new(Mutex::new(Cronjob::new().await));
 
-    let deployments = get_deployments(conn, bucket.clone()).await?;
+    let deployments = get_deployments(conn, bucket.clone(), Arc::clone(&cronjob)).await?;
     let last_requests = Arc::new(RwLock::new(HashMap::new()));
     let pool = LocalPoolHandle::new(POOL_SIZE);
     let thread_ids = Arc::new(RwLock::new(HashMap::new()));
 
-    let redis = listen_pub_sub(bucket.clone(), Arc::clone(&deployments), pool.clone());
+    let redis = listen_pub_sub(
+        bucket.clone(),
+        Arc::clone(&deployments),
+        pool.clone(),
+        Arc::clone(&cronjob),
+    );
     run_cache_clear_task(Arc::clone(&last_requests), pool.clone());
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {

@@ -2,7 +2,7 @@ use log::{debug, error, info, warn};
 
 use crate::Isolate;
 
-const SOURCE: &str = "console";
+pub const CONSOLE_SOURCE: &str = "console";
 
 pub fn console_binding(
     scope: &mut v8::HandleScope,
@@ -20,16 +20,16 @@ pub fn console_binding(
 
         match level.as_str() {
             "debug" => {
-                debug!(source = SOURCE, deployment = deployment, function = function; "{}", message)
+                debug!(source = CONSOLE_SOURCE, deployment = deployment, function = function; "{}", message)
             }
             "warn" => {
-                warn!(source = SOURCE, deployment = deployment, function = function; "{}", message)
+                warn!(source = CONSOLE_SOURCE, deployment = deployment, function = function; "{}", message)
             }
             "error" => {
-                error!(source = SOURCE, deployment = deployment, function = function; "{}", message)
+                error!(source = CONSOLE_SOURCE, deployment = deployment, function = function; "{}", message)
             }
             _ => {
-                info!(source = SOURCE, deployment = deployment, function = function; "{}", message)
+                info!(source = CONSOLE_SOURCE, deployment = deployment, function = function; "{}", message)
             }
         };
     }

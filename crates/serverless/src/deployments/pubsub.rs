@@ -5,10 +5,13 @@ use log::{error, info, warn};
 use metrics::increment_counter;
 use s3::Bucket;
 use serde_json::Value;
-use tokio::{sync::RwLock, task::JoinHandle};
+use tokio::{
+    sync::{Mutex, RwLock},
+    task::JoinHandle,
+};
 use tokio_util::task::LocalPoolHandle;
 
-use crate::{ISOLATES, POOL_SIZE, REGION};
+use crate::{cronjob::Cronjob, ISOLATES, POOL_SIZE, REGION};
 
 use super::{filesystem::rm_deployment, Deployment};
 
@@ -68,6 +71,7 @@ pub fn listen_pub_sub(
     bucket: Bucket,
     deployments: Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
     pool: LocalPoolHandle,
+    cronjob: Arc<Mutex<Cronjob>>,
 ) -> JoinHandle<Result<()>> {
     tokio::spawn(async move {
         let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
@@ -85,6 +89,17 @@ pub fn listen_pub_sub(
             let payload: String = msg.get_payload()?;
 
             let value: Value = serde_json::from_str(&payload)?;
+
+            let cron = value["cron"].as_str();
+            let cron_region = value["cronRegion"].as_str().unwrap().to_string();
+
+            // Ignore deployments that have a cron set but where
+            // the region isn't this node' region
+            if cron.is_some() && cron_region != REGION.to_string() {
+                continue;
+            }
+
+            let cron = cron.map(|cron| cron.to_string());
 
             let deployment = Deployment {
                 id: value["deploymentId"].as_str().unwrap().to_string(),
@@ -112,6 +127,7 @@ pub fn listen_pub_sub(
                 timeout: value["timeout"].as_u64().unwrap() as usize,
                 startup_timeout: value["startupTimeout"].as_u64().unwrap() as usize,
                 is_production: value["isProduction"].as_bool().unwrap(),
+                cron,
             };
 
             match channel {
@@ -128,12 +144,22 @@ pub fn listen_pub_sub(
 
                             let mut deployments = deployments.write().await;
                             let domains = deployment.get_domains();
+                            let deployment = Arc::new(deployment);
 
                             for domain in &domains {
-                                deployments.insert(domain.clone(), Arc::new(deployment.clone()));
+                                deployments.insert(domain.clone(), Arc::clone(&deployment));
                             }
 
                             clear_deployments_cache(domains, &pool, "deployment").await;
+
+                            if deployment.should_run_cron() {
+                                let mut cronjob = cronjob.lock().await;
+                                let id = deployment.id.clone();
+
+                                if let Err(error) = cronjob.add(deployment).await {
+                                    error!(deployment = id; "Failed to register cron: {}", error);
+                                }
+                            }
                         }
                         Err(error) => {
                             increment_counter!(
@@ -169,6 +195,14 @@ pub fn listen_pub_sub(
                             }
 
                             clear_deployments_cache(domains, &pool, "undeployment").await;
+
+                            if deployment.should_run_cron() {
+                                let mut cronjob = cronjob.lock().await;
+
+                                if let Err(error) = cronjob.remove(&deployment.id).await {
+                                    error!(deployment = deployment.id; "Failed to remove cron: {}", error);
+                                }
+                            }
                         }
                         Err(error) => {
                             increment_counter!(
@@ -201,18 +235,30 @@ pub fn listen_pub_sub(
                             deployments.remove(&domain);
                         }
 
+                        let unpromoted_deployment = Arc::new(unpromoted_deployment);
+
                         for domain in unpromoted_deployment.get_domains() {
-                            deployments.insert(domain, Arc::new(unpromoted_deployment.clone()));
+                            deployments.insert(domain, Arc::clone(&unpromoted_deployment));
                         }
                     }
 
+                    let deployment = Arc::new(deployment);
                     let domains = deployment.get_domains();
 
                     for domain in &domains {
-                        deployments.insert(domain.clone(), Arc::new(deployment.clone()));
+                        deployments.insert(domain.clone(), Arc::clone(&deployment));
                     }
 
                     clear_deployments_cache(domains, &pool, "promotion").await;
+
+                    if deployment.should_run_cron() {
+                        let mut cronjob = cronjob.lock().await;
+                        let id = deployment.id.clone();
+
+                        if let Err(error) = cronjob.add(deployment).await {
+                            error!(deployment = id; "Failed to register cron: {}", error);
+                        }
+                    }
                 }
                 _ => warn!("Unknown channel: {}", channel),
             };

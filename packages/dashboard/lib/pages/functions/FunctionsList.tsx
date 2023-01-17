@@ -38,12 +38,16 @@ const FunctionsList = () => {
       ) : null}
       {functions?.map(func => (
         <Card key={func.id} clickable onClick={() => navigateToFunction(func.id)}>
-          <div className="flex justify-between items-start whitespace-nowrap gap-4">
+          <div className="flex justify-between items-start whitespace-nowrap gap-4 relative">
             <Text size="lg">
               <Dot status="success" />
               {func.name}
             </Text>
-            <FunctionLinks onClick={handleLinkClick} func={func} />
+            {func.cron === null ? (
+              <FunctionLinks onClick={handleLinkClick} func={func} />
+            ) : (
+              <span className="text-sm text-blue-500">{t('list.cron')}</span>
+            )}
           </div>
           <Text size="sm">
             {t('list.lastUpdate')}&nbsp;

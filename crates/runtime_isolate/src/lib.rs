@@ -25,6 +25,7 @@ use self::{
 mod bindings;
 mod callbacks;
 pub mod options;
+pub use bindings::CONSOLE_SOURCE;
 
 lazy_static! {
     pub static ref POOL: LocalPoolHandle = LocalPoolHandle::new(1);
