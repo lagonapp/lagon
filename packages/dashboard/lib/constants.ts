@@ -27,14 +27,18 @@ export const PRESIGNED_URL_EXPIRES_SECONDS = 60 * 60; // 1 hour
 export const REGIONS = {
   'ashburn-us-east': 'Ashburn (us-east)',
   'hillsboro-us-west': 'Hillsboro (us-west)',
+  'san-francisco-us-west': 'San Francisco (us-west)',
   'montreal-ca-east': 'Montreal (ca-east)',
   'london-eu-west': 'Londo (eu-west)',
   'paris-eu-west': 'Paris (eu-west)',
   'nuremberg-eu-central': 'Nuremberg (eu-central)',
   'helsinki-eu-north': 'Helsinki (eu-north)',
   'warsaw-eu-east': 'Warsaw (eu-east)',
+  'bangalore-ap-south': 'Bangalore (ap-south)',
   'singapore-ap-south': 'Singapore (ap-south)',
   'sydney-ap-south': 'Sydney (ap-south)',
+  'tokyo-ap-east': 'Tokyo (ap-east)',
+  'johannesburg-af-south': 'Johannesburg (af-south)',
 };
 
 export type Regions = keyof typeof REGIONS;
