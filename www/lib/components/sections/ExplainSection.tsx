@@ -117,7 +117,7 @@ export const ExplainSection = () => {
             <div className="flex flex-col gap-4">
               <Text size="h2">2ms cold starts</Text>
               <Text>
-                Lagon's Runtime is written in Rust and uses V8, the JavaScript engine from Chromium. Your Functions
+                Lagon&apos;s Runtime is written in Rust and uses V8, the JavaScript engine from Chromium. Your Functions
                 start in single-digit milliseconds and stay warm for subsequent requests.
               </Text>
             </div>

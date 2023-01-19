@@ -1,4 +1,4 @@
-const colors = require('tailwindcss/colors')
+const colors = require('tailwindcss/colors');
 
 module.exports = {
   content: ['./pages/**/*.{js,ts,jsx,tsx}', './lib/**/*.{js,ts,jsx,tsx}'],
@@ -7,12 +7,12 @@ module.exports = {
       ...colors,
       dark: '#050211',
       'dark-gray': '#110C1F',
-      'grey': '#95A8C6',
+      grey: '#95A8C6',
       'blue-1': '#449AFF',
       'blue-2': '#0500FF',
       'blue-3': '#041F47',
-      'green': '#44FFB0',
-      'purple': '#A449FF',
+      green: '#44FFB0',
+      purple: '#A449FF',
     },
     extend: {
       animation: {
@@ -35,11 +35,11 @@ module.exports = {
       }),
       container: {
         screens: {
-          'sm': '640px',
-          'md': '768px',
-          'lg': '1024px',
-          'xl': '1280px',
-      }
+          sm: '640px',
+          md: '768px',
+          lg: '1024px',
+          xl: '1280px',
+        },
       },
     },
   },
