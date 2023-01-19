@@ -1,6 +1,6 @@
 import { cva, VariantProps } from 'class-variance-authority';
 import Link from 'next/link';
-import { MouseEventHandler, ReactNode } from 'react';
+import { HTMLAttributeAnchorTarget, MouseEventHandler, ReactNode } from 'react';
 
 const style = cva(
   'text-base leading-5 rounded-lg border border-transparent transition-all duration-300 flex items-center',
@@ -28,14 +28,25 @@ type ButtonProps = {
   onClick?: MouseEventHandler;
   className?: string;
   href?: string;
+  target?: HTMLAttributeAnchorTarget;
   scroll?: boolean;
   children: ReactNode;
 } & VariantProps<typeof style>;
 
-export const Button = ({ leftIcon, rightIcon, onClick, className, href, scroll, children, ...props }: ButtonProps) => {
+export const Button = ({
+  leftIcon,
+  rightIcon,
+  onClick,
+  className,
+  href,
+  target,
+  scroll,
+  children,
+  ...props
+}: ButtonProps) => {
   if (href) {
     return (
-      <Link onClick={onClick} className={style({ ...props, className })} href={href} scroll={scroll}>
+      <Link onClick={onClick} className={style({ ...props, className })} href={href} target={target} scroll={scroll}>
         {leftIcon}
         {children}
         {rightIcon}

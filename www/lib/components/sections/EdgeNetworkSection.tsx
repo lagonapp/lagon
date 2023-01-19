@@ -29,13 +29,13 @@ export const EdgeNetworkSection = () => {
             Edge Network
           </span>
         </Text>
-        <Text>{REGIONS} regions allowing minimal lantency all around the world.</Text>
+        <Text>{REGIONS} regions allowing minimal latency all around the world.</Text>
       </div>
       <div className="flex gap-4 absolute bottom-0 left-1/2 transform -translate-x-1/2">
         <Button variant="primary" size="lg" href="https://dash.lagon.app">
           Start deploying
         </Button>
-        <Button variant="tertiary" size="lg" href="https://tally.so/r/mDqAYN">
+        <Button variant="tertiary" size="lg" href="https://tally.so/r/mDqAYN" target="_blank">
           Request a new Region
         </Button>
       </div>

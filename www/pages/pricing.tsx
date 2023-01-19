@@ -69,14 +69,14 @@ const Pricing = () => {
     <section className="flex flex-col gap-16">
       <div className="flex flex-col items-center gap-4">
         <Text size="h2">Pricing</Text>
-        <Text>Simple pricing that grow with you.</Text>
+        <Text>Simple pricing that grows with you.</Text>
       </div>
       <div className="flex gap-4 justify-center">
         {PLANS.map(plan => (
           <Card key={plan.name} className="rounded-2xl w-96 flex flex-col justify-between gap-6 p-12" lineAnimation>
             <div className="flex flex-col gap-4">
               <Text
-                className={`text-transparent bg-clip-text bg-gradient-to-r font-semibold ${plan.gradientFrom} ${plan.gradientTo}`}
+                className={`!text-transparent bg-clip-text bg-gradient-to-r font-semibold ${plan.gradientFrom} ${plan.gradientTo}`}
               >
                 {plan.name}
               </Text>

@@ -26,6 +26,7 @@ export const Header = () => {
           variant="tertiary"
           leftIcon={<GitHubIcon className="w-6 h-6 fill-current" />}
           href="https://github.com/lagonapp/lagon"
+          target="_blank"
         >
           GitHub
         </Button>
