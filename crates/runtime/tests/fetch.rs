@@ -551,3 +551,22 @@ export async function handler() {{
     );
     assert!(rx.try_recv().is_err());
 }
+
+#[tokio::test]
+async fn fetch_https() {
+    setup();
+    let mut isolate = Isolate::new(IsolateOptions::new(
+        "export async function handler() {{
+    const status = (await fetch('https://google.com')).status;
+    return new Response(status);
+}}"
+        .into(),
+    ));
+    let (tx, rx) = flume::unbounded();
+    isolate.run(Request::default(), tx).await;
+
+    assert_eq!(
+        rx.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("200"))
+    );
+}

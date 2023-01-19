@@ -9,7 +9,7 @@ use std::{
     rc::Rc,
     sync::{
         atomic::{AtomicBool, Ordering},
-        Arc,
+        Arc, Condvar, Mutex,
     },
     task::{Context, Poll},
     time::{Duration, Instant},
@@ -30,8 +30,6 @@ pub use bindings::CONSOLE_SOURCE;
 lazy_static! {
     pub static ref POOL: LocalPoolHandle = LocalPoolHandle::new(1);
 }
-
-const TIMEOUT_LOOP_DELAY: Duration = Duration::from_millis(1);
 
 #[derive(Debug, Clone)]
 struct Global(v8::Global<v8::Context>);
@@ -79,6 +77,7 @@ pub struct Isolate {
     termination_tx: Option<flume::Sender<RunResult>>,
     termination_rx: Option<flume::Receiver<RunResult>>,
     running_promises: Arc<AtomicBool>,
+    wait: Option<Arc<(Mutex<bool>, Condvar)>>,
 }
 
 unsafe impl Send for Isolate {}
@@ -135,6 +134,7 @@ impl Isolate {
             termination_tx: None,
             termination_rx: None,
             running_promises: Arc::new(AtomicBool::new(false)),
+            wait: None,
         };
 
         let isolate_ptr = &mut this as *mut _ as *mut std::ffi::c_void;
@@ -289,7 +289,10 @@ impl Isolate {
 
             if !isolate_state.promises.is_empty() {
                 promises = Some(Vec::new());
+
                 self.running_promises.store(true, Ordering::SeqCst);
+                let condvar = &self.wait.as_ref().unwrap().1;
+                condvar.notify_one();
 
                 while let Poll::Ready(Some(BindingResult { id, result })) =
                     isolate_state.promises.poll_next_unpin(cx)
@@ -303,6 +306,7 @@ impl Isolate {
                 }
 
                 self.running_promises.store(false, Ordering::SeqCst);
+                condvar.notify_one();
             }
         }
 
@@ -457,7 +461,7 @@ impl Isolate {
         let now = Instant::now();
         // Script parsing may take a long time, so we use the startup_timeout
         // when the isolate has not been used yet.
-        let mut timeout = match self.handler.is_none() && self.compilation_error.is_none() {
+        let timeout = match self.handler.is_none() && self.compilation_error.is_none() {
             true => Duration::from_millis(self.options.startup_timeout as u64),
             false => Duration::from_millis(self.options.timeout as u64),
         };
@@ -465,43 +469,24 @@ impl Isolate {
 
         self.termination_tx = Some(termination_tx.clone());
         self.termination_rx = Some(termination_rx);
+        self.wait = Some(Arc::new((Mutex::new(true), Condvar::new())));
 
-        let request_ended = Arc::new(AtomicBool::new(false));
-        let request_ended_handle = request_ended.clone();
-        let running_promises_handle = self.running_promises.clone();
+        let running_promises_handle = Arc::clone(&self.running_promises);
+        let wait_handle = Arc::clone(&self.wait.as_ref().unwrap());
 
         POOL.spawn_pinned(move || async move {
-            let mut paused_timer = None;
+            let (running, condition) = &*wait_handle;
 
-            loop {
-                if request_ended_handle.load(Ordering::SeqCst) {
-                    break;
-                }
+            let timer = condition
+                .wait_timeout_while(running.lock().unwrap(), timeout, |running| {
+                    *running && !running_promises_handle.load(Ordering::SeqCst)
+                })
+                .unwrap();
 
-                // While we are running promises, we don't want to increment the
-                // execution time. The first time we notice that we are running
-                // promises, we save the current time, and when done, we add
-                // this elasped time to the timeout duration guard.
-                if running_promises_handle.load(Ordering::SeqCst) {
-                    if paused_timer.is_none() {
-                        paused_timer = Some(Instant::now());
-                    }
-
-                    tokio::time::sleep(TIMEOUT_LOOP_DELAY).await;
-
-                    continue;
-                } else if let Some(timer) = paused_timer {
-                    paused_timer = None;
-                    timeout += timer.elapsed();
-                }
-
-                if now.elapsed() >= timeout {
-                    if !thread_safe_handle.is_execution_terminating() {
-                        thread_safe_handle.terminate_execution();
-                        termination_tx.send(RunResult::Timeout).unwrap_or(());
-                    }
-
-                    break;
+            if timer.1.timed_out() {
+                if !thread_safe_handle.is_execution_terminating() {
+                    thread_safe_handle.terminate_execution();
+                    termination_tx.send(RunResult::Timeout).unwrap_or(());
                 }
             }
         });
@@ -515,7 +500,10 @@ impl Isolate {
         }
 
         self.run_event_loop(&tx).await;
-        request_ended.store(true, Ordering::SeqCst);
+
+        let (running, condvar) = &**self.wait.as_ref().unwrap();
+        *running.lock().unwrap() = false;
+        condvar.notify_one();
 
         if let Some(on_isolate_statistics) = &self.options.on_statistics {
             let isolate_state = Isolate::state(&self.isolate);
