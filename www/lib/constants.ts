@@ -61,19 +61,19 @@ export const ALL_REGIONS: Region[] = [
     left: 1024,
   },
   {
-    name: '🇮🇳 Mumbai',
-    top: 283,
-    left: 812,
-  },
-  {
-    name: '🇧🇷 São Paulo',
-    top: 434,
-    left: 405,
+    name: '🇮🇳 Bangalore',
+    top: 301,
+    left: 822,
   },
   {
     name: '🇿🇦 Johannesburg',
     top: 446,
     left: 658,
+  },
+  {
+    name: '🇺🇸 San Francisco',
+    top: 203,
+    left: 154,
   },
 ];
 
