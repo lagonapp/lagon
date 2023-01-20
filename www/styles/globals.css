@@ -80,7 +80,7 @@ body {
     transform: translate(0, 0);
   }
   100% {
-    transform: translate(0, calc(4 * 49 * -1px));
+    transform: translate(0, calc(4 * 60 * -1px));
   }
 }
 
@@ -88,9 +88,9 @@ body {
   0% {
     transform: translate(0, 0);
   }
-  80%,
+  50%,
   100%  {
-    transform: translate(0, -49px);
+    transform: translate(0, -60px);
   }
 }
 

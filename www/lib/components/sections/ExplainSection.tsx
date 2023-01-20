@@ -66,7 +66,7 @@ export const ExplainSection = () => {
 
   return (
     <section id="features" className="flex flex-col gap-16">
-      <div
+      {/* <div
         className="p-[1px] rounded-3xl"
         style={{
           background: 'linear-gradient(to bottom right, #44FFB0, #5A7ACB, #A449FF, #0D2A54)',
@@ -85,7 +85,7 @@ export const ExplainSection = () => {
           </div>
           <TechnologiesWorldImage />
         </div>
-      </div>
+      </div> */}
       <div className="flex flex-col lg:flex-row gap-16">
         <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1">
           <div className="bg-dark rounded-3xl flex flex-col gap-4 p-16">
@@ -117,8 +117,8 @@ export const ExplainSection = () => {
             <div className="flex flex-col gap-4">
               <Text size="h2">2ms cold starts</Text>
               <Text>
-                Lagon&apos;s Runtime is written in Rust and uses V8, the JavaScript engine from Chromium. Your Functions
-                start in single-digit milliseconds and stay warm for subsequent requests.
+                Lagon&apos;s Runtime is written in Rust and uses V8, a fast JavaScript engine. Your Functions start in
+                single-digit milliseconds and stay warm for subsequent requests.
               </Text>
             </div>
           </div>

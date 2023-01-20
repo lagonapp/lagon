@@ -12,9 +12,9 @@ const poppins = Poppins({
 const style = cva('', {
   variants: {
     size: {
-      h1: 'text-5xl font-semibold',
-      h2: 'text-5xl leading-10 font-semibold',
-      h3: 'text-2xl font-semibold',
+      h1: 'text-[64px] font-semibold tracking-tight leading-tight',
+      h2: 'text-5xl font-semibold tracking-tight leading-tight',
+      h3: 'text-2xl font-semibold leading-tight',
       p: 'text-[#7F92AF] text-base',
       a: 'text-[#7F92AF] text-base hover:text-white transition',
       span: '',
@@ -23,6 +23,7 @@ const style = cva('', {
       default: 'text-white',
       bold: '!text-white font-semibold',
       radialGradientWhite: 'text-transparent bg-clip-text bg-radial-gradient-white',
+      linearGradiantGray: '!text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-gray-700',
     },
     paragraph: {
       true: 'leading-relaxed',

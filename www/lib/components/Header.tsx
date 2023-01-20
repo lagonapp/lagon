@@ -6,7 +6,7 @@ import { GitHubIcon } from './icons/GitHubIcon';
 
 export const Header = () => {
   return (
-    <header className="container sticky top-0 mx-auto flex items-center justify-between bg-dark/50 backdrop-blur py-4 px-8 rounded-full z-10">
+    <header className="container sticky top-0 mx-auto flex items-center justify-between bg-dark/50 backdrop-blur py-4 px-8 z-50">
       <Link href="/">
         <Image src="/logo-small-white.png" width="80" height="24" alt="Lagon Logo" />
       </Link>
