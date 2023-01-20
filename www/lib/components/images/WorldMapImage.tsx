@@ -1,7 +1,7 @@
 export const WorldMapImage = () => (
   <svg
-    width="1202"
-    height="590"
+    width="auto"
+    height="auto"
     viewBox="0 0 1202 590"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

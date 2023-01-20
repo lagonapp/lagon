@@ -2,8 +2,20 @@ import { AnimatedLine } from '../AnimatedLine';
 import { Badge } from '../Badge';
 import { Star } from '../Star';
 import { Text } from '../Text';
+import { motion } from 'framer-motion';
 
 const CATEGORIES = ['websites', 'apps', 'cron jobs', 'webhooks'];
+
+type AnimatedBadgeProps = {
+  delay: number;
+  children: string;
+};
+
+const AnimatedBadge = ({ delay, children }: AnimatedBadgeProps) => (
+  <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay }} viewport={{ once: true }}>
+    <Badge>{children}</Badge>
+  </motion.div>
+);
 
 export const FeaturesSection = () => {
   return (
@@ -43,24 +55,24 @@ export const FeaturesSection = () => {
       </Text>
       <div className="flex flex-col gap-2 items-center">
         <div className="flex gap-2">
-          <Badge>Open source</Badge>
-          <Badge>Custom JS Runtime</Badge>
+          <AnimatedBadge delay={0.2}>Open source</AnimatedBadge>
+          <AnimatedBadge delay={0.4}>Custom JS Runtime</AnimatedBadge>
         </div>
         <div className="flex gap-2">
-          <Badge>Deploy with CLI, Playground, GitHub Action</Badge>
-          <Badge>HTTP/2</Badge>
+          <AnimatedBadge delay={0.6}>Deploy with CLI, Playground, GitHub Action</AnimatedBadge>
+          <AnimatedBadge delay={0.8}>HTTP/2</AnimatedBadge>
         </div>
         <div className="flex gap-2">
-          <Badge>gzip / Brottli</Badge>
-          <Badge>Advanced statistics</Badge>
-          <Badge>Realtime logs</Badge>
-          <Badge>Cron triggers</Badge>
+          <AnimatedBadge delay={1}>gzip / Brottli</AnimatedBadge>
+          <AnimatedBadge delay={1.2}>Advanced statistics</AnimatedBadge>
+          <AnimatedBadge delay={1.4}>Realtime logs</AnimatedBadge>
+          <AnimatedBadge delay={1.6}>Cron triggers</AnimatedBadge>
         </div>
         <div className="flex gap-2">
-          <Badge>Preview and Production deployments</Badge>
-          <Badge>Custom domains</Badge>
-          <Badge>Cloud or self-hosted</Badge>
-          <Badge>Automatic HTTPS</Badge>
+          <AnimatedBadge delay={1.8}>Preview and Production deployments</AnimatedBadge>
+          <AnimatedBadge delay={2.0}>Custom domains</AnimatedBadge>
+          <AnimatedBadge delay={2.2}>Cloud or self-hosted</AnimatedBadge>
+          <AnimatedBadge delay={2.4}>Automatic HTTPS</AnimatedBadge>
         </div>
       </div>
     </section>

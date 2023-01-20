@@ -1,100 +1,64 @@
-import { REGIONS } from '../../constants';
-import { Button } from '../Button';
+import { useState } from 'react';
 import { FunctionCode } from '../Code';
-import { WorldBottomImage } from '../images/WorldBottomImage';
+import { CodeTab } from '../CodeTab';
 import { WorldSideImage } from '../images/WorldSideImage';
 import { Text } from '../Text';
+import { motion } from 'framer-motion';
 
 export const HomeSection = () => {
+  const [tab, setTab] = useState(0);
+
   return (
-    <>
-      <section className="flex flex-col gap-24 relative h-[50vh]">
-        <div className="absolute -top-[40%] -right-[12%]">
+    <section className="flex flex-col gap-24 relative h-[50vh]">
+      <div className="absolute -top-[25%] -right-[12%]">
+        <motion.div
+          style={{ transformOrigin: 'center' }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.2, delay: 0.2 }}
+        >
           <WorldSideImage />
-        </div>
-        <div className="flex flex-col gap-6 z-10">
-          <div className="max-w-4xl">
-            <Text size="h1" variant="linearGradiantGray">
-              Deploy JavaScript Functions at the&nbsp;
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green to-[#5A7ACB]">Edge</span>, in
-              seconds
-            </Text>
-          </div>
-          <div className="w-5/12">
-            <Text>
-              Lagon is an open-source runtime and platform that allows developers to run JavaScript Serverless Functions
-              close to users.
-            </Text>
-          </div>
-        </div>
-        <div className="w-fit">
-          <FunctionCode>
-            export function <span className="text-blue-1">handler</span>(request:&nbsp;
-            <span className="text-purple">Request</span>) &#123;
-            <br />
-            &nbsp;&nbsp;const ip = request.headers.get(<span className="text-green">&apos;X-Forwarded-For&apos;</span>
-            )
-            <br />
-            &nbsp;&nbsp;return new <span className="text-purple">Response</span>(
-            <span className="text-green">`Your IP is: </span>
-            {'${ip}'}
-            <span className="text-green">`</span>)
-            <br />
-            &#125;
-          </FunctionCode>
-        </div>
-      </section>
-      <section className="flex flex-col gap-8 items-center justify-center">
-        <div className="flex flex-col gap-4 text-center items-center">
-          <button
-            type="button"
-            className="text-grey text-base px-4 py-2 rounded-full bg-dark-gray hover:bg-blue-3 hover:text-white transition"
-          >
-            Get email updates
-          </button>
-          <Text size="h1" variant="radialGradientWhite">
-            Deploy Serverless
-            <br />
-            Functions at the&nbsp;
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple">
-              Edge
-            </span>
+        </motion.div>
+      </div>
+      <div className="flex flex-col gap-4 z-10">
+        <div className="max-w-4xl">
+          <Text size="h1" variant="linearGradiantGray">
+            Deploy JavaScript Functions at the&nbsp;
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green to-[#5A7ACB]">Edge</span>, in
+            seconds
           </Text>
+        </div>
+        <div className="w-5/12">
           <Text>
-            Lagon is an open-source runtime and platform
-            <br />
-            that allows developers to run JavaScript in
-            <br />
-            {REGIONS} regions all around the world.
+            Lagon is an open-source runtime and platform that allows developers to run JavaScript Serverless Functions
+            close to users.
           </Text>
         </div>
-        <div className="flex gap-4">
-          <Button variant="primary" size="lg" href="https://dash.lagon.app">
-            Deploy now!
-          </Button>
-          <Button variant="secondary" size="lg" href="#features" scroll={false}>
-            Discover
-          </Button>
+      </div>
+      <div className="w-fit">
+        <div className="flex gap-1 ml-6">
+          <CodeTab selected={tab === 0} onClick={() => setTab(0)}>
+            vim
+          </CodeTab>
+          <CodeTab selected={tab === 1} onClick={() => setTab(1)}>
+            zsh
+          </CodeTab>
         </div>
-        <WorldBottomImage />
-        <div className="border-l border-dashed border-[#86B6FF] h-12 mt-44" />
-        <div className="-mt-8">
-          <FunctionCode>
-            export function <span className="text-blue-1">handler</span>(request:&nbsp;
-            <span className="text-purple">Request</span>) &#123;
-            <br />
-            &nbsp;&nbsp;const ip = request.headers.get(<span className="text-green">&apos;X-Forwarded-For&apos;</span>
-            )
-            <br />
-            &nbsp;&nbsp;return new <span className="text-purple">Response</span>(
-            <span className="text-green">`Your IP is: </span>
-            {'${ip}'}
-            <span className="text-green">`</span>)
-            <br />
-            &#125;
-          </FunctionCode>
-        </div>
-      </section>
-    </>
+        <FunctionCode>
+          export function <span className="text-blue-1">handler</span>(request:&nbsp;
+          <span className="text-purple">Request</span>) &#123;
+          <br />
+          &nbsp;&nbsp;const ip = request.headers.get(<span className="text-green">&apos;X-Forwarded-For&apos;</span>
+          )
+          <br />
+          &nbsp;&nbsp;return new <span className="text-purple">Response</span>(
+          <span className="text-green">`Your IP is: </span>
+          {'${ip}'}
+          <span className="text-green">`</span>)
+          <br />
+          &#125;
+        </FunctionCode>
+      </div>
+    </section>
   );
 };

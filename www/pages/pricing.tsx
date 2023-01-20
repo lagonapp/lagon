@@ -113,55 +113,55 @@ const Pricing = () => {
             <td></td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Free requests/month</td>
+            <td className="text-base text-grey py-4">Free requests/month</td>
             <td>3,000,000</td>
             <td>5,000,000</td>
             <td>Custom</td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Additional requests/month</td>
+            <td className="text-base text-grey py-4">Additional requests/month</td>
             <td></td>
             <td>$1/million</td>
             <td>Custom</td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">CPU time</td>
+            <td className="text-base text-grey py-4">CPU time</td>
             <td>50ms/request</td>
             <td>50ms/request</td>
             <td>Up to 1s/request</td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">CPU startup time</td>
+            <td className="text-base text-grey py-4">CPU startup time</td>
             <td>200ms</td>
             <td>200ms</td>
             <td>Up to 1s</td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Memory</td>
+            <td className="text-base text-grey py-4">Memory</td>
             <td>128MB</td>
             <td>128MB</td>
             <td>Up to 1GB</td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Code size</td>
+            <td className="text-base text-grey py-4">Code size</td>
             <td>10MB</td>
             <td>10MB</td>
             <td>Custom</td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Asset size</td>
+            <td className="text-base text-grey py-4">Asset size</td>
             <td>10MB</td>
             <td>10MB</td>
             <td>Custom</td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Assets per Deployment</td>
+            <td className="text-base text-grey py-4">Assets per Deployment</td>
             <td>100</td>
             <td>100</td>
             <td>Custom</td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Automatic HTTPS</td>
+            <td className="text-base text-grey py-4">Automatic HTTPS</td>
             <td>
               <CheckIcon className="w-4 h-4" />
             </td>
@@ -173,13 +173,13 @@ const Pricing = () => {
             </td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Custom domains</td>
+            <td className="text-base text-grey py-4">Custom domains</td>
             <td>10</td>
             <td>10</td>
             <td>Custom</td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Environment variables</td>
+            <td className="text-base text-grey py-4">Environment variables</td>
             <td>100</td>
             <td>100</td>
             <td>Custom</td>
@@ -191,13 +191,13 @@ const Pricing = () => {
             <td></td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Regions</td>
+            <td className="text-base text-grey py-4">Regions</td>
             <td>{REGIONS}</td>
             <td>{REGIONS}</td>
             <td>On-demand regions</td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Preview deployments</td>
+            <td className="text-base text-grey py-4">Preview deployments</td>
             <td>
               <CheckIcon className="w-4 h-4" />
             </td>
@@ -209,7 +209,7 @@ const Pricing = () => {
             </td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Cron triggers</td>
+            <td className="text-base text-grey py-4">Cron triggers</td>
             <td>
               <CheckIcon className="w-4 h-4" />
             </td>
@@ -221,13 +221,13 @@ const Pricing = () => {
             </td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Organization members</td>
+            <td className="text-base text-grey py-4">Organization members</td>
             <td>1</td>
             <td>10</td>
             <td>Unlimited</td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Logs</td>
+            <td className="text-base text-grey py-4">Logs</td>
             <td>
               <CheckIcon className="w-4 h-4" />
             </td>
@@ -239,7 +239,7 @@ const Pricing = () => {
             </td>
           </tr>
           <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-white py-4">Analytics</td>
+            <td className="text-base text-grey py-4">Analytics</td>
             <td>
               <CheckIcon className="w-4 h-4" />
             </td>
@@ -251,7 +251,7 @@ const Pricing = () => {
             </td>
           </tr>
           <tr>
-            <td className="text-base text-white py-4">Advanced analytics</td>
+            <td className="text-base text-grey py-4">Advanced analytics</td>
             <td></td>
             <td></td>
             <td>

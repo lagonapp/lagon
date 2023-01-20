@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { REGIONS } from '../../constants';
 import { RunButtonImage } from '../images/RunButtonImage';
-import { TechnologiesWorldImage } from '../images/TechnologiesWorldImage';
 import { Text } from '../Text';
 
 const TERMINAL: { text: string; write?: boolean }[] = [
@@ -66,26 +64,6 @@ export const ExplainSection = () => {
 
   return (
     <section id="features" className="flex flex-col gap-16">
-      {/* <div
-        className="p-[1px] rounded-3xl"
-        style={{
-          background: 'linear-gradient(to bottom right, #44FFB0, #5A7ACB, #A449FF, #0D2A54)',
-        }}
-      >
-        <div
-          className="rounded-3xl flex justify-between items-center"
-          style={{ backgroundImage: 'linear-gradient(to bottom, rgba(5, 2, 17, 0.8), rgb(5, 2, 17))' }}
-        >
-          <div className="mx-16 my-16 xl:my-0 flex flex-col gap-4 xl:max-w-[40%]">
-            <Text size="h2">Run TypeScript and JavaScript in {REGIONS} regions</Text>
-            <Text paragraph>
-              Your Functions are replicated at the Edge in a growing list of {REGIONS} regions, so your users always get
-              a fast response anywhere in the world.
-            </Text>
-          </div>
-          <TechnologiesWorldImage />
-        </div>
-      </div> */}
       <div className="flex flex-col lg:flex-row gap-16">
         <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1">
           <div className="bg-dark rounded-3xl flex flex-col gap-4 p-16">
@@ -117,8 +95,8 @@ export const ExplainSection = () => {
             <div className="flex flex-col gap-4">
               <Text size="h2">2ms cold starts</Text>
               <Text>
-                Lagon&apos;s Runtime is written in Rust and uses V8, a fast JavaScript engine. Your Functions start in
-                single-digit milliseconds and stay warm for subsequent requests.
+                Lagon&apos;s Runtime is written in Rust and uses V8, Chrome&apos;s JavaScript engine. Your Functions
+                start in single-digit milliseconds and stay warm for subsequent requests.
               </Text>
             </div>
           </div>
