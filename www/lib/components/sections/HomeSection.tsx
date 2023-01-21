@@ -3,8 +3,12 @@ import { WorldSideImage } from '../images/WorldSideImage';
 import { Text } from '../Text';
 import { motion } from 'framer-motion';
 import { Button } from '../Button';
+import { useState } from 'react';
 
 export const HomeSection = () => {
+  const [response, setResponse] = useState<{ text: string; time: number; region: string } | undefined>();
+  const animate = [0, undefined].includes(response?.time) ? 'hidden' : 'visible';
+
   return (
     <section className="flex flex-col gap-24 relative mb-36">
       <motion.div
@@ -15,7 +19,23 @@ export const HomeSection = () => {
       >
         <WorldSideImage />
         <div className="absolute top-[48%] right-[9%]">
-          <FunctionCode>
+          {response?.time ? (
+            <motion.p
+              className="text-grey opacity-50 text-xs absolute -top-4 left-6"
+              variants={{
+                hidden: {
+                  opacity: 0,
+                },
+                visible: {
+                  opacity: 0.5,
+                },
+              }}
+              animate={animate}
+            >
+              Edge Function replied in {response.time}ms, from {response.region}
+            </motion.p>
+          ) : null}
+          <FunctionCode onResponse={setResponse}>
             export function <span className="text-blue-1">handler</span>(request:&nbsp;
             <span className="text-purple">Request</span>) &#123;
             <br />
@@ -30,6 +50,26 @@ export const HomeSection = () => {
             &#125;
           </FunctionCode>
         </div>
+        <motion.div
+          className="absolute right-52 flex flex-col items-center gap-2"
+          variants={{
+            hidden: {
+              opacity: 0,
+              top: 342,
+            },
+            visible: {
+              opacity: 1,
+              top: 332,
+            },
+          }}
+          animate={animate}
+        >
+          <p className="text-xs font-mono text-green">{response?.text}</p>
+          <div>
+            <div className="w-2 h-2 rounded-full bg-gradient-to-b from-blue-1 to-[#1B76FF]" />
+            <div className="w-[2px] h-1 rounded-full bg-grey ml-[3px] mt-[1px]" />
+          </div>
+        </motion.div>
       </motion.div>
       <div className="flex flex-col gap-16 z-10">
         <div className="flex flex-col gap-4">

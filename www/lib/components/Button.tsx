@@ -30,6 +30,7 @@ type ButtonProps = {
   href?: string;
   target?: HTMLAttributeAnchorTarget;
   scroll?: boolean;
+  'aria-label'?: string;
   children: ReactNode;
 } & VariantProps<typeof style>;
 
@@ -41,12 +42,20 @@ export const Button = ({
   href,
   target,
   scroll,
+  'aria-label': ariaLabel,
   children,
   ...props
 }: ButtonProps) => {
   if (href) {
     return (
-      <Link onClick={onClick} className={style({ ...props, className })} href={href} target={target} scroll={scroll}>
+      <Link
+        onClick={onClick}
+        aria-label={ariaLabel}
+        className={style({ ...props, className })}
+        href={href}
+        target={target}
+        scroll={scroll}
+      >
         {leftIcon}
         {children}
         {rightIcon}
@@ -55,7 +64,7 @@ export const Button = ({
   }
 
   return (
-    <button type="button" onClick={onClick} className={style({ ...props, className })}>
+    <button type="button" aria-label={ariaLabel} onClick={onClick} className={style({ ...props, className })}>
       {leftIcon}
       {children}
       {rightIcon}
