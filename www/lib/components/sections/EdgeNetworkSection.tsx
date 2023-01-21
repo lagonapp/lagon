@@ -5,16 +5,20 @@ import { Text } from '../Text';
 import { Tooltip } from '../Tooltip';
 import { motion } from 'framer-motion';
 
-const CityPoint = ({ name, top, left }: Region) => {
+type CityPointProps = Region & {
+  i: number;
+};
+
+const CityPoint = ({ name, top, left, i }: CityPointProps) => {
   return (
     <motion.div
       className="absolute"
-      initial={{ opacity: 0, top: top - 20, left }}
+      initial={{ opacity: 0, top: top - 10, left }}
       whileInView={{ opacity: 1, top, left }}
-      transition={{ delay: Math.random() * 1.2 + 0.4, type: 'tween' }}
+      transition={{ delay: i / 10, type: 'tween' }}
       viewport={{ once: true }}
     >
-      <Tooltip content={name}>
+      <Tooltip content={name} aria-label={`Pin located in ${name}, representing a Lagon Edge Region`}>
         <div className="w-2 h-2 rounded-full bg-gradient-to-b from-blue-1 to-[#1B76FF]" />
         <div className="w-[2px] h-1 rounded-full bg-grey ml-[3px] mt-[1px]" />
       </Tooltip>
@@ -28,7 +32,7 @@ export const EdgeNetworkSection = () => {
       <WorldMapImage />
       <div className="absolute w-full h-full">
         {ALL_REGIONS.map((point, i) => (
-          <CityPoint key={i} {...point} />
+          <CityPoint key={i} i={i} {...point} />
         ))}
       </div>
       <div className="flex flex-col items-center gap-4 absolute -top-8 left-1/2 transform -translate-x-1/2 w-full">

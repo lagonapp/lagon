@@ -56,23 +56,23 @@ export const FeaturesSection = () => {
       <div className="flex flex-col gap-2 items-center">
         <div className="flex gap-2">
           <AnimatedBadge delay={0.2}>Open source</AnimatedBadge>
-          <AnimatedBadge delay={0.4}>Custom JS Runtime</AnimatedBadge>
+          <AnimatedBadge delay={0.35}>Custom JS Runtime</AnimatedBadge>
         </div>
         <div className="flex gap-2">
-          <AnimatedBadge delay={0.6}>Deploy with CLI, Playground, GitHub Action</AnimatedBadge>
-          <AnimatedBadge delay={0.8}>HTTP/2</AnimatedBadge>
+          <AnimatedBadge delay={0.5}>Deploy with CLI, Playground, GitHub Action</AnimatedBadge>
+          <AnimatedBadge delay={0.65}>HTTP/2</AnimatedBadge>
         </div>
         <div className="flex gap-2">
-          <AnimatedBadge delay={1}>gzip / Brottli</AnimatedBadge>
-          <AnimatedBadge delay={1.2}>Advanced statistics</AnimatedBadge>
-          <AnimatedBadge delay={1.4}>Realtime logs</AnimatedBadge>
-          <AnimatedBadge delay={1.6}>Cron triggers</AnimatedBadge>
+          <AnimatedBadge delay={0.8}>gzip / Brottli</AnimatedBadge>
+          <AnimatedBadge delay={0.95}>Advanced statistics</AnimatedBadge>
+          <AnimatedBadge delay={1.1}>Realtime logs</AnimatedBadge>
+          <AnimatedBadge delay={1.25}>Cron triggers</AnimatedBadge>
         </div>
         <div className="flex gap-2">
-          <AnimatedBadge delay={1.8}>Preview and Production deployments</AnimatedBadge>
-          <AnimatedBadge delay={2.0}>Custom domains</AnimatedBadge>
-          <AnimatedBadge delay={2.2}>Cloud or self-hosted</AnimatedBadge>
-          <AnimatedBadge delay={2.4}>Automatic HTTPS</AnimatedBadge>
+          <AnimatedBadge delay={1.4}>Preview and Production deployments</AnimatedBadge>
+          <AnimatedBadge delay={1.55}>Custom domains</AnimatedBadge>
+          <AnimatedBadge delay={1.7}>Cloud or self-hosted</AnimatedBadge>
+          <AnimatedBadge delay={1.85}>Automatic HTTPS</AnimatedBadge>
         </div>
       </div>
     </section>

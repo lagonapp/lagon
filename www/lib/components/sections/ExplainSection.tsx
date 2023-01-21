@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { RunButtonImage } from '../images/RunButtonImage';
 import { Text } from '../Text';
+import { useInView } from 'framer-motion';
 
 const TERMINAL: { text: string; write?: boolean }[] = [
   {
@@ -26,8 +27,12 @@ export const ExplainSection = () => {
   const [step, setStep] = useState(0);
   const [text, setText] = useState('');
   const textIndex = useRef(0);
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref);
 
   useEffect(() => {
+    if (!inView) return;
+
     let timeout: NodeJS.Timeout;
 
     if (step === TERMINAL.length) {
@@ -60,12 +65,12 @@ export const ExplainSection = () => {
     );
 
     return () => clearTimeout(timeout);
-  }, [step, text]);
+  }, [step, text, inView]);
 
   return (
-    <section id="features" className="flex flex-col gap-16">
-      <div className="flex flex-col lg:flex-row gap-16">
-        <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1">
+    <section id="features" className="flex flex-col gap-16 pt-20">
+      <div className="flex flex-col lg:flex-row gap-16" ref={ref}>
+        <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1 transition duration-300 hover:shadow-2xl hover:shadow-blue-1/40 group">
           <div className="bg-dark rounded-3xl flex flex-col gap-4 p-16">
             <div
               className="p-[1px] rounded-t-2xl"
@@ -82,6 +87,7 @@ export const ExplainSection = () => {
                 </pre>
               </div>
             </div>
+            <div className="transition duration-300 opacity-0 group-hover:opacity-100 w-80 h-80 absolute rounded-full transform translate-x-[-30%] translate-y-[-30%] pointer-events-none bg-gradient-to-br from-purple/10 to-blue-1/10 blur-3xl" />
             <Text size="h2">Deploy in seconds</Text>
             <Text paragraph>
               Using the Command-line Interface (CLI), the Playground on the Dashboard, or the GitHub Action, your
@@ -89,7 +95,7 @@ export const ExplainSection = () => {
             </Text>
           </div>
         </div>
-        <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1">
+        <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1 transition duration-300 hover:shadow-2xl hover:shadow-blue-1/40">
           <div className="bg-dark rounded-3xl flex flex-col p-16 h-full justify-between">
             <RunButtonImage />
             <div className="flex flex-col gap-4">
