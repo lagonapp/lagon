@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { ReactNode } from 'react';
+import { StatusBadge } from './StatusBadge';
 import { Text } from './Text';
 
 type FooterSectionProps = {
@@ -43,6 +44,7 @@ export const Footer = () => {
           <Text size="a" href="/pricing">
             Pricing
           </Text>
+          <StatusBadge />
         </FooterSection>
         <FooterSection title="Community">
           <Text size="a" href="https://github.com/lagonapp/lagon" target="_blank">
