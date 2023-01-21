@@ -12,8 +12,8 @@ const poppins = Poppins({
 const style = cva('', {
   variants: {
     size: {
-      h1: 'text-[64px] font-semibold tracking-tight leading-tight',
-      h2: 'text-5xl font-semibold tracking-tight leading-tight',
+      h1: 'md:text-[64px] text-4xl font-semibold tracking-tight leading-tight',
+      h2: 'md:text-5xl text-3xl font-semibold tracking-tight leading-tight',
       h3: 'text-2xl font-semibold leading-tight',
       p: 'text-[#7F92AF] text-base',
       a: 'text-[#7F92AF] text-base hover:text-white transition',

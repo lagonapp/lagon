@@ -68,10 +68,10 @@ export const ExplainSection = () => {
   }, [step, text, inView]);
 
   return (
-    <section id="features" className="flex flex-col gap-16 pt-20">
-      <div className="flex flex-col lg:flex-row gap-16" ref={ref}>
+    <section id="features" className="pt-20">
+      <div className="flex flex-col lg:flex-row md:gap-16 gap-6" ref={ref}>
         <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1 transition duration-300 hover:shadow-2xl hover:shadow-blue-1/40 group">
-          <div className="bg-dark rounded-3xl flex flex-col gap-4 p-16">
+          <div className="bg-dark rounded-3xl flex flex-col gap-4 md:p-16 p-6">
             <div
               className="p-[1px] rounded-t-2xl"
               style={{ background: 'linear-gradient(rgb(37, 32, 46), rgba(37, 32, 46, 0)' }}
@@ -96,7 +96,7 @@ export const ExplainSection = () => {
           </div>
         </div>
         <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1 transition duration-300 hover:shadow-2xl hover:shadow-blue-1/40">
-          <div className="bg-dark rounded-3xl flex flex-col p-16 h-full justify-between">
+          <div className="bg-dark rounded-3xl flex flex-col md:p-16 p-6 h-full justify-between">
             <RunButtonImage />
             <div className="flex flex-col gap-4">
               <Text size="h2">2ms cold starts</Text>

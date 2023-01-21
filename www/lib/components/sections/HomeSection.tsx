@@ -10,9 +10,9 @@ export const HomeSection = () => {
   const animate = [0, undefined].includes(response?.time) ? 'hidden' : 'visible';
 
   return (
-    <section className="flex flex-col gap-24 relative mb-36">
+    <section className="flex flex-col gap-24 relative mb-0 md:mb-36">
       <motion.div
-        className="absolute -right-24 -top-28"
+        className="absolute -right-24 -top-28 hidden md:block"
         initial={{ opacity: 0, right: -106, top: -102 }}
         animate={{ opacity: 1, right: -96, top: -112 }}
         transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
@@ -86,7 +86,7 @@ export const HomeSection = () => {
             </Text>
           </motion.div>
           <motion.div
-            className="w-5/12 relative"
+            className="md:w-5/12 relative"
             initial={{ opacity: 0, top: 20 }}
             animate={{ opacity: 1, top: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}

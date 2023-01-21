@@ -24,7 +24,7 @@ const CustomCard = ({ icon, title, description, delay }: CustomCardProps) => (
     transition={{ delay }}
     viewport={{ once: true }}
   >
-    <Card lineAnimation className="flex flex-col gap-4 p-12 rounded-2xl">
+    <Card lineAnimation className="flex flex-col gap-4 md:p-12 p-6 rounded-2xl">
       {icon}
       <Text size="h3">{title}</Text>
       <Text className="justify-self-end">{description}</Text>
@@ -36,7 +36,7 @@ export const CardsSection = () => {
   return (
     <section className="flex flex-col items-center gap-16">
       <Text size="h2">Packed with features</Text>
-      <div className="grid gap-6 grid-cols-1 grid-rows-6 sm:grid-cols-2 sm:grid-rows-3 lg:grid-cols-3 lg:grid-rows-2">
+      <div className="grid md:gap-6 gap-4 grid-cols-1 grid-rows-6 sm:grid-cols-2 sm:grid-rows-3 lg:grid-cols-3 lg:grid-rows-2">
         <CustomCard
           icon={
             <div className="rounded-full w-16 h-16 p-[1px] bg-gradient-to-b from-[#8dc2fb] to-[#446EFF]">

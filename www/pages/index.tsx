@@ -26,7 +26,7 @@ const Home = () => {
   return (
     <>
       <div
-        className="w-80 h-80 absolute rounded-full transform translate-x-[-50%] translate-y-[-50%] pointer-events-none bg-gradient-to-br from-purple/10 to-blue-1/10 blur-3xl"
+        className="hidden md:block w-80 h-80 absolute rounded-full transform translate-x-[-50%] translate-y-[-50%] pointer-events-none bg-gradient-to-br from-purple/10 to-blue-1/10 blur-3xl"
         ref={ball}
       />
       <HomeSection />

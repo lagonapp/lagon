@@ -12,7 +12,7 @@ export const FunctionCode = ({ onResponse, children }: CodeProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const timeout = useRef<NodeJS.Timeout>();
 
-  const handleClick = useCallback(async () => {
+  const handleClick = async () => {
     if (isLoading || !!timeout.current) return;
 
     setIsLoading(true);
@@ -40,7 +40,7 @@ export const FunctionCode = ({ onResponse, children }: CodeProps) => {
     }, 3000);
 
     setIsLoading(false);
-  }, [isLoading]);
+  };
 
   return (
     <Card className="bg-dark p-6 rounded-2xl">

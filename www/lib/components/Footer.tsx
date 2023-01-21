@@ -19,13 +19,13 @@ const FooterSection = ({ title, children }: FooterSectionProps) => {
 
 export const Footer = () => {
   return (
-    <footer className="container mx-auto flex justify-between py-16 px-8 mt-48">
+    <footer className="container mx-auto flex lg:flex-row flex-col lg:gap-0 gap-4 justify-between py-16 px-8 mt-48">
       <div className="flex flex-col justify-between">
         <Image src="/logo-small-white.png" width="80" height="24" alt="Lagon Logo" />
         <Text>Copyright © {new Date().getFullYear()} Lagon</Text>
       </div>
       <div>Copyright</div>
-      <div className="flex gap-32">
+      <div className="flex md:gap-32 gap-16 justify-between flex-wrap">
         <FooterSection title="Lagon">
           <Text size="a" href="https://docs.lagon.app/cli">
             CLI

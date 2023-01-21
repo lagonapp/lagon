@@ -71,7 +71,7 @@ const Pricing = () => {
         <Text size="h2">Pricing</Text>
         <Text>Simple pricing that grows with you.</Text>
       </div>
-      <div className="flex gap-4 justify-center">
+      <div className="flex flex-col xl:flex-row gap-4 xl:items-start items-center justify-center">
         {PLANS.map(plan => (
           <Card key={plan.name} className="rounded-2xl w-96 flex flex-col justify-between gap-6 p-12" lineAnimation>
             <div className="flex flex-col gap-4">
@@ -96,188 +96,190 @@ const Pricing = () => {
           </Card>
         ))}
       </div>
-      <table className="table-auto text-grey mt-16">
-        <thead className="text-left sticky top-[74px] bg-dark/50 backdrop-blur">
-          <tr>
-            <th></th>
-            <th className="text-2xl text-white font-semibold pb-8">Personal</th>
-            <th className="text-2xl text-white font-semibold pb-8">Pro</th>
-            <th className="text-2xl text-white font-semibold pb-8">Enterprise</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="text-base text-white font-semibold">Functions</td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Free requests/month</td>
-            <td>3,000,000</td>
-            <td>5,000,000</td>
-            <td>Custom</td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Additional requests/month</td>
-            <td></td>
-            <td>$1/million</td>
-            <td>Custom</td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">CPU time</td>
-            <td>50ms/request</td>
-            <td>50ms/request</td>
-            <td>Up to 1s/request</td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">CPU startup time</td>
-            <td>200ms</td>
-            <td>200ms</td>
-            <td>Up to 1s</td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Memory</td>
-            <td>128MB</td>
-            <td>128MB</td>
-            <td>Up to 1GB</td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Code size</td>
-            <td>10MB</td>
-            <td>10MB</td>
-            <td>Custom</td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Asset size</td>
-            <td>10MB</td>
-            <td>10MB</td>
-            <td>Custom</td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Assets per Deployment</td>
-            <td>100</td>
-            <td>100</td>
-            <td>Custom</td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Automatic HTTPS</td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Custom domains</td>
-            <td>10</td>
-            <td>10</td>
-            <td>Custom</td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Environment variables</td>
-            <td>100</td>
-            <td>100</td>
-            <td>Custom</td>
-          </tr>
-          <tr>
-            <td className="text-base text-white font-semibold pt-8 pb-2">Platform</td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Regions</td>
-            <td>{REGIONS}</td>
-            <td>{REGIONS}</td>
-            <td>On-demand regions</td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Preview deployments</td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Cron triggers</td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Organization members</td>
-            <td>1</td>
-            <td>10</td>
-            <td>Unlimited</td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Logs</td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-          </tr>
-          <tr className="border-b border-[#1f1f2e]">
-            <td className="text-base text-grey py-4">Analytics</td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-          </tr>
-          <tr>
-            <td className="text-base text-grey py-4">Advanced analytics</td>
-            <td></td>
-            <td></td>
-            <td>
-              <CheckIcon className="w-4 h-4" />
-            </td>
-          </tr>
-          <tr>
-            <td></td>
-            <td>
-              <Button variant="primary" href="https://dash.lagon.app" className="w-48">
-                Get started
-              </Button>
-            </td>
-            <td>
-              <Button variant="primary" href="https://dash.lagon.app" className="w-48">
-                Get started
-              </Button>
-            </td>
-            <td>
-              <Button variant="primary" href="mailto:contact@lagon.app" className="w-48">
-                Contact us
-              </Button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div className="overflow-x-scroll whitespace-nowrap">
+        <table className="table-auto text-grey mt-16">
+          <thead className="text-left sticky top-[74px] bg-dark/50 backdrop-blur">
+            <tr>
+              <th></th>
+              <th className="text-2xl text-white font-semibold pb-8">Personal</th>
+              <th className="text-2xl text-white font-semibold pb-8">Pro</th>
+              <th className="text-2xl text-white font-semibold pb-8">Enterprise</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="text-base text-white font-semibold pt-2">Functions</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Free requests/month</td>
+              <td>3,000,000</td>
+              <td>5,000,000</td>
+              <td>Custom</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Additional requests/month</td>
+              <td></td>
+              <td>$1/million</td>
+              <td>Custom</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">CPU time</td>
+              <td>50ms/request</td>
+              <td>50ms/request</td>
+              <td>Up to 1s/request</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">CPU startup time</td>
+              <td>200ms</td>
+              <td>200ms</td>
+              <td>Up to 1s</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Memory</td>
+              <td>128MB</td>
+              <td>128MB</td>
+              <td>Up to 1GB</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Code size</td>
+              <td>10MB</td>
+              <td>10MB</td>
+              <td>Custom</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Asset size</td>
+              <td>10MB</td>
+              <td>10MB</td>
+              <td>Custom</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Assets per Deployment</td>
+              <td>100</td>
+              <td>100</td>
+              <td>Custom</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Automatic HTTPS</td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Custom domains</td>
+              <td>10</td>
+              <td>10</td>
+              <td>Custom</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Environment variables</td>
+              <td>100</td>
+              <td>100</td>
+              <td>Custom</td>
+            </tr>
+            <tr>
+              <td className="text-base text-white font-semibold pt-8 pb-2">Platform</td>
+              <td></td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Regions</td>
+              <td>{REGIONS}</td>
+              <td>{REGIONS}</td>
+              <td>On-demand regions</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Preview deployments</td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Cron triggers</td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Organization members</td>
+              <td>1</td>
+              <td>10</td>
+              <td>Unlimited</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Logs</td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-base text-grey py-4 mr-8">Analytics</td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+            </tr>
+            <tr>
+              <td className="text-base text-grey py-4 mr-8">Advanced analytics</td>
+              <td></td>
+              <td></td>
+              <td>
+                <CheckIcon className="w-4 h-4" />
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>
+                <Button variant="primary" href="https://dash.lagon.app" className="w-48 mr-8">
+                  Get started
+                </Button>
+              </td>
+              <td>
+                <Button variant="primary" href="https://dash.lagon.app" className="w-48 mr-8">
+                  Get started
+                </Button>
+              </td>
+              <td>
+                <Button variant="primary" href="mailto:contact@lagon.app" className="w-48">
+                  Contact us
+                </Button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 };
