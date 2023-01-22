@@ -22,7 +22,7 @@ export const PRO_PLAN: Plan = {
   id: process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_PRICE_ID,
   expired: false,
   maxFunctions: 50,
-  freeRequests: 35000000,
+  freeRequests: 5000000,
   cpuTime: 50,
   startupTime: 200,
 };

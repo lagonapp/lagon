@@ -7,6 +7,8 @@ import useFunctionUsage from 'lib/hooks/useFunctionUsage';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
 import { useI18n } from 'locales';
+import { getPlanFromPriceId } from 'lib/plans';
+import { useSession } from 'next-auth/react';
 
 function formatBytes(bytes = 0) {
   if (bytes === 0) return '0 bytes';
@@ -55,6 +57,11 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
     },
   } = useFunctionStats({ functionId: func?.id, timeframe });
   const { data: usage = 0 } = useFunctionUsage({ functionId: func?.id, timeframe });
+  const { data: session } = useSession();
+  const plan = getPlanFromPriceId({
+    priceId: session?.organization?.stripePriceId,
+    currentPeriodEnd: session?.organization?.stripeCurrentPeriodEnd,
+  });
 
   useEffect(() => {
     router.replace({
@@ -88,10 +95,10 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           }
         >
           <div className="flex justify-between flex-wrap gap-4">
-            <Description title={t('usage.requests')} total="100,000">
+            <Description title={t('usage.requests')} total={formatNumber(plan.freeRequests)}>
               {formatNumber(Math.round(usage))}
             </Description>
-            <Description title={t('usage.avgCpu')} total={`${func?.timeout || 0}ms`}>
+            <Description title={t('usage.avgCpu')} total={`${plan.cpuTime}ms`}>
               {formatSeconds(
                 cpuTime.length === 0 ? 0 : cpuTime.reduce((acc, { value }) => acc + value, 0) / cpuTime.length,
               )}

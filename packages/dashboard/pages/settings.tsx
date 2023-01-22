@@ -60,7 +60,7 @@ const Settings = () => {
     });
   };
 
-  const currentPlan = getPlanFromPriceId({
+  const plan = getPlanFromPriceId({
     priceId: session?.organization?.stripePriceId,
     currentPeriodEnd: session?.organization?.stripeCurrentPeriodEnd,
   });
@@ -143,9 +143,9 @@ const Settings = () => {
           <div className="flex justify-between">
             <div className="flex gap-1">
               <Text>Current plan:</Text>
-              <Text strong>{t(`subcription.plan.${currentPlan.type}`)}</Text>
+              <Text strong>{t(`subcription.plan.${plan.type}`)}</Text>
             </div>
-            {currentPlan.type === 'personal' ? (
+            {plan.type === 'personal' ? (
               <Button
                 variant="primary"
                 disabled={isLoadingPlan}
