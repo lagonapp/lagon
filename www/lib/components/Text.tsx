@@ -1,18 +1,11 @@
 import { cva, VariantProps } from 'class-variance-authority';
 import Link from 'next/link';
 import { HTMLAttributeAnchorTarget, ReactNode } from 'react';
-import { Poppins } from '@next/font/google';
-
-const poppins = Poppins({
-  style: ['normal'],
-  weight: '500',
-  subsets: ['latin'],
-});
 
 const style = cva('', {
   variants: {
     size: {
-      h1: 'md:text-[64px] text-4xl font-semibold tracking-tight leading-tight',
+      h1: 'md:text-[64px] text-4xl font-semibold tracking-tight leading-[1.1]',
       h2: 'md:text-5xl text-3xl font-semibold tracking-tight leading-tight',
       h3: 'text-2xl font-semibold leading-tight',
       p: 'text-[#7F92AF] text-base',
@@ -49,14 +42,6 @@ export const Text = ({ size: Tag = 'p', href, target, children, className, scrol
         {children}
       </Link>
     );
-  }
-
-  if (['h1', 'h2', 'h3'].includes(Tag ?? 'p')) {
-    if (className) {
-      className += ` ${poppins.className}`;
-    } else {
-      className = poppins.className;
-    }
   }
 
   // @ts-expect-error to fix

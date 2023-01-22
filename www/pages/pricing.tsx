@@ -71,7 +71,7 @@ const Pricing = () => {
       <Head>
         <title>Pricing - Lagon</title>
       </Head>
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-4 z-10">
         <Text size="h2">Pricing</Text>
         <Text>Simple pricing that grows with you.</Text>
       </div>
@@ -92,7 +92,7 @@ const Pricing = () => {
               <div className="flex flex-col gap-4 my-6">
                 {plan.features.map(feature => (
                   <Text key={feature} className="flex items-center gap-2">
-                    <CheckIcon className="w-4 h-4" />
+                    <CheckIcon className="w-4 h-4 text-blue-1" />
                     {feature}
                   </Text>
                 ))}
@@ -172,13 +172,13 @@ const Pricing = () => {
             <tr className="border-b border-[#1f1f2e]">
               <td className="text-base text-grey py-4 mr-8">Automatic HTTPS</td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
@@ -208,25 +208,25 @@ const Pricing = () => {
             <tr className="border-b border-[#1f1f2e]">
               <td className="text-base text-grey py-4 mr-8">Preview deployments</td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
               <td className="text-base text-grey py-4 mr-8">Cron triggers</td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
@@ -238,25 +238,25 @@ const Pricing = () => {
             <tr className="border-b border-[#1f1f2e]">
               <td className="text-base text-grey py-4 mr-8">Logs</td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
               <td className="text-base text-grey py-4 mr-8">Analytics</td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
             </tr>
             <tr>
@@ -264,7 +264,7 @@ const Pricing = () => {
               <td></td>
               <td></td>
               <td>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-4 h-4 text-blue-1" />
               </td>
             </tr>
             <tr>

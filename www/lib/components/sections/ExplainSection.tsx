@@ -69,7 +69,7 @@ export const ExplainSection = () => {
 
   return (
     <section id="features" className="pt-20">
-      <div className="flex flex-col lg:flex-row md:gap-16 gap-6" ref={ref}>
+      <div className="flex flex-col lg:flex-row md:gap-16 gap-12" ref={ref}>
         <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1 transition duration-300 hover:shadow-2xl hover:shadow-blue-1/40 group">
           <div className="bg-dark rounded-3xl flex flex-col gap-4 md:p-16 p-6">
             <div
