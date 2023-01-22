@@ -10,10 +10,12 @@ type CityPointProps = Region & {
 };
 
 const CityPoint = ({ name, top, left, i }: CityPointProps) => {
+  const initialTop = `${Number(top.replace('%', '')) - 1}%`;
+
   return (
     <motion.div
-      className="absolute"
-      initial={{ opacity: 0, top: top - 10, left }}
+      className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+      initial={{ opacity: 0, top: initialTop, left }}
       whileInView={{ opacity: 1, top, left }}
       transition={{ delay: i / 10, type: 'tween' }}
       viewport={{ once: true }}
@@ -31,11 +33,9 @@ export const EdgeNetworkSection = () => {
     <section className="relative flex justify-center flex-col gap-16">
       <div className="lg:contents hidden">
         <WorldMapImage />
-        <div className="absolute w-full h-full">
-          {ALL_REGIONS.map((point, i) => (
-            <CityPoint key={i} i={i} {...point} />
-          ))}
-        </div>
+        {ALL_REGIONS.map((point, i) => (
+          <CityPoint key={i} i={i} {...point} />
+        ))}
       </div>
       <div className="flex text-center flex-col items-center gap-4 lg:absolute lg:-top-8 lg:left-1/2 lg:transform lg:-translate-x-1/2 w-full">
         <Text size="h2">

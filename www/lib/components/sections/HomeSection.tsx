@@ -12,7 +12,7 @@ export const HomeSection = () => {
   return (
     <section className="flex flex-col gap-24 relative mb-0 md:mb-36">
       <motion.div
-        className="absolute -right-24 -top-28 hidden md:block"
+        className="absolute -right-24 -top-28 hidden md:block pointer-events-none"
         initial={{ opacity: 0, right: -106, top: -102 }}
         animate={{ opacity: 1, right: -96, top: -112 }}
         transition={{ duration: 0.8, delay: 0.6, ease: 'easeOut' }}
@@ -81,8 +81,10 @@ export const HomeSection = () => {
           >
             <Text size="h1" variant="linearGradiantGray">
               Deploy JavaScript Functions at the&nbsp;
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green to-[#5A7ACB]">Edge</span>, in
-              seconds
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple">
+                Edge
+              </span>
+              , in seconds
             </Text>
           </motion.div>
           <motion.div

@@ -47,7 +47,7 @@ body {
 
 @keyframes line-bottom-left {
   0% {
-    transform: rotate(45deg) translateY(0);
+    transform: rotate(-135deg) translateY(0);
     opacity: 0;
   }
 
@@ -60,7 +60,7 @@ body {
   }
 
   100% {
-    transform: rotate(45deg) translateY(200%);
+    transform: rotate(-135deg) translateY(200%);
     opacity: 0;
   }
 }

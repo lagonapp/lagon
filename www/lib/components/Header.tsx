@@ -4,38 +4,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { GitHubIcon } from './icons/GitHubIcon';
 import { BurgerIcon } from './icons/BurgerIcon';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { CloseIcon } from './icons/CloseIcon';
-
-/*
-        <div className="flex gap-12">
-          <Text size="a" href="/#features" scroll={false}>
-            Features
-          </Text>
-          <Text size="a" href="https://docs.lagon.app">
-            Documentation
-          </Text>
-          <Text size="a" href="/pricing">
-            Pricing
-          </Text>
-        </div>
-        <div className="flex gap-4">
-          <Button
-            variant="tertiary"
-            leftIcon={<GitHubIcon className="w-6 h-6 fill-current" />}
-            href="https://github.com/lagonapp/lagon"
-            target="_blank"
-          >
-            GitHub
-          </Button>
-          <Button variant="secondary" href="https://dash.lagon.app">
-            Sign in
-          </Button>
-        </div>
-        */
+import { useRouter } from 'next/router';
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
+  const { asPath } = useRouter();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [asPath]);
 
   return (
     <header className="container sticky top-0 mx-auto bg-dark/50 backdrop-blur py-4 px-8 z-50">

@@ -18,7 +18,7 @@ type CustomCardProps = {
 
 const CustomCard = ({ icon, title, description, delay }: CustomCardProps) => (
   <motion.div
-    style={{ position: 'relative' }}
+    className="relative"
     initial={{ opacity: 0, top: 20 }}
     whileInView={{ opacity: 1, top: 0 }}
     transition={{ delay }}
@@ -93,7 +93,7 @@ export const CardsSection = () => {
               </div>
             </div>
           }
-          title="Only pay for what you use"
+          title="Pay for what you use"
           description="Get a generous free tier, and then only pay for the number of requests your Functions receive. No need to worry about scaling."
           delay={1}
         />

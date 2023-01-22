@@ -71,9 +71,13 @@ const Pricing = () => {
         <Text size="h2">Pricing</Text>
         <Text>Simple pricing that grows with you.</Text>
       </div>
-      <div className="flex flex-col xl:flex-row gap-4 xl:items-start items-center justify-center">
+      <div className="flex flex-col xl:flex-row gap-4 xl:items-stretch items-center justify-center">
         {PLANS.map(plan => (
-          <Card key={plan.name} className="rounded-2xl w-96 flex flex-col justify-between gap-6 p-12" lineAnimation>
+          <Card
+            key={plan.name}
+            className="rounded-2xl md:w-96 w-full flex flex-col justify-between gap-6 md:p-12 p-6"
+            lineAnimation
+          >
             <div className="flex flex-col gap-4">
               <Text
                 className={`!text-transparent bg-clip-text bg-gradient-to-r font-semibold ${plan.gradientFrom} ${plan.gradientTo}`}
@@ -96,8 +100,8 @@ const Pricing = () => {
           </Card>
         ))}
       </div>
-      <div className="overflow-x-scroll whitespace-nowrap">
-        <table className="table-auto text-grey mt-16">
+      <div className="lg:overflow-x-hidden overflow-x-scroll whitespace-nowrap">
+        <table className="table-auto text-grey mt-16 w-full">
           <thead className="text-left sticky top-[74px] bg-dark/50 backdrop-blur">
             <tr>
               <th></th>

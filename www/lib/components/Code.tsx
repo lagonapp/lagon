@@ -43,7 +43,7 @@ export const FunctionCode = ({ onResponse, children }: CodeProps) => {
   };
 
   return (
-    <Card className="bg-dark p-6 rounded-2xl">
+    <Card className="bg-dark p-6 rounded-2xl pointer-events-auto">
       <pre>
         <code className="font-mono text-sm text-grey">{children}</code>
       </pre>
