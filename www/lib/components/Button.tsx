@@ -7,7 +7,7 @@ const style = cva(
   {
     variants: {
       variant: {
-        primary: 'bg-gradient-primary-button text-dark',
+        primary: 'bg-gradient-primary-button text-dark hover:shadow-lg hover:shadow-blue-1/30',
         secondary: 'bg-gradient-secondary-button text-white',
         tertiary: 'bg-gradient-tertiary-button text-grey',
       },
