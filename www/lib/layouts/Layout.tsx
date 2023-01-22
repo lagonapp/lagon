@@ -10,17 +10,15 @@ const inter = Inter({
 });
 
 type LayoutProps = {
-  title: string;
   children: ReactNode;
 };
 
-export const Layout = ({ title, children }: LayoutProps) => {
+export const Layout = ({ children }: LayoutProps) => {
   const theme = useSystemTheme();
 
   return (
     <>
       <Head>
-        <title>{title}</title>
         {theme === 'dark' ? (
           <link rel="icon" href="/favicon-white.ico" />
         ) : (

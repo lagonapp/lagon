@@ -7,12 +7,12 @@ import { WorldIcon } from '../icons/WorldIcon';
 import { HeartIcon } from '../icons/HeartIcon';
 import { Text } from '../Text';
 import { motion } from 'framer-motion';
-import { ReactElement } from 'react';
+import { ReactElement, ReactNode } from 'react';
 
 type CustomCardProps = {
   icon: ReactElement;
   title: string;
-  description: string;
+  description: ReactNode;
   delay: number;
 };
 
@@ -58,7 +58,7 @@ export const CardsSection = () => {
             </div>
           }
           title="Rollback in seconds"
-          description="You can promote any previous Preview deployment to Production with a single click. The rollback is propagated globally in a few seconds."
+          description="You can promote any previous Preview Deployment to Production with a single click. The rollback is propagated globally in a few seconds."
           delay={0.4}
         />
         <CustomCard
@@ -70,7 +70,7 @@ export const CardsSection = () => {
             </div>
           }
           title="Analytics and logs"
-          description="View detailed analytics with requests, CPU/memory, and HTTP traffic graphs. Debug your Functions with real-time logs."
+          description="Analyse the performance and usage of your Functions with detailed metrics, and debug them thanks to real-time logging."
           delay={0.6}
         />
         <CustomCard
@@ -82,7 +82,17 @@ export const CardsSection = () => {
             </div>
           }
           title="Build on Web APIs"
-          description="No need to learn new things - we use the same Web APIs you already know like Request and Response, so you can build faster with no vendor lock-in."
+          description={
+            <>
+              Use the same Web APIs you already know like&nbsp;
+              <span className="font-mono">Request</span> and <span className="font-mono">fetch()</span>, NPM packages,
+              frameworks and libraries. We follow the&nbsp;
+              <a href="https://wintercg.org" target="_blank" className="hover:underline">
+                WinterCG
+              </a>
+              &nbsp;conventions.
+            </>
+          }
           delay={0.8}
         />
         <CustomCard
@@ -93,8 +103,8 @@ export const CardsSection = () => {
               </div>
             </div>
           }
-          title="Pay for what you use"
-          description="Get a generous free tier, and then only pay for the number of requests your Functions receive. No need to worry about scaling."
+          title="Pay as you go"
+          description="Get a generous free tier, and then only pay for the number of requests your Functions receives, without worrying about scaling."
           delay={1}
         />
         <CustomCard
@@ -106,7 +116,7 @@ export const CardsSection = () => {
             </div>
           }
           title="We love Open Source"
-          description=" Lagon is fully open-source and built in the open, focusing on the community. Use our Cloud platform, or self-host it yourself."
+          description="Lagon is fully open source and is focused on the community. You can choose to use Lagon Cloud, or self-host it on your own infrastructure."
           delay={1.2}
         />
       </div>

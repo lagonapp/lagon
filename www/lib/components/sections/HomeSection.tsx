@@ -4,6 +4,7 @@ import { Text } from '../Text';
 import { motion } from 'framer-motion';
 import { Button } from '../Button';
 import { useState } from 'react';
+import { DESCRIPTION } from '../../constants';
 
 export const HomeSection = () => {
   const [response, setResponse] = useState<{ text: string; time: number; region: string } | undefined>();
@@ -93,10 +94,7 @@ export const HomeSection = () => {
             animate={{ opacity: 1, top: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
           >
-            <Text>
-              Lagon is an open-source runtime and platform that allows developers to run JavaScript Serverless Functions
-              close to users.
-            </Text>
+            <Text>{DESCRIPTION}</Text>
           </motion.div>
         </div>
         <motion.div

@@ -11,9 +11,12 @@ import { useRouter } from 'next/router';
 export const Header = () => {
   const [open, setOpen] = useState(false);
   const { asPath } = useRouter();
+  const [pricing, setPricing] = useState(false);
 
   useEffect(() => {
     setOpen(false);
+
+    setPricing(asPath === '/pricing');
   }, [asPath]);
 
   return (
@@ -32,7 +35,7 @@ export const Header = () => {
           <Text size="a" href="https://docs.lagon.app">
             Documentation
           </Text>
-          <Text size="a" href="/pricing">
+          <Text size="a" href="/pricing" className={pricing ? '!text-white' : undefined}>
             Pricing
           </Text>
         </div>
@@ -58,7 +61,9 @@ export const Header = () => {
           <div className="border-b border-b-grey/20" />
           <Link href="https://docs.lagon.app">Documentation</Link>
           <div className="border-b border-b-grey/20" />
-          <Link href="/pricing">Pricing</Link>
+          <Link href="/pricing" className={pricing ? '!text-white' : undefined}>
+            Pricing
+          </Link>
           <div className="flex gap-12 justify-between mt-6">
             <Button
               variant="tertiary"

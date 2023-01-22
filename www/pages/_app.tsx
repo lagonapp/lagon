@@ -13,7 +13,7 @@ if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
 const App = ({ Component, pageProps }: AppProps) => {
   return (
     <Tooltip.Provider skipDelayDuration={0} delayDuration={0}>
-      <Layout title="Lagon">
+      <Layout>
         <Component {...pageProps} />
       </Layout>
       <Analytics />

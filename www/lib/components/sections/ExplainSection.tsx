@@ -90,8 +90,8 @@ export const ExplainSection = () => {
             <div className="transition duration-300 opacity-0 group-hover:opacity-100 w-80 h-80 absolute rounded-full transform translate-x-[-30%] translate-y-[-30%] pointer-events-none bg-gradient-to-br from-purple/10 to-blue-1/10 blur-3xl" />
             <Text size="h2">Deploy in seconds</Text>
             <Text paragraph>
-              Using the Command-line Interface (CLI), the Playground on the Dashboard, or the GitHub Action, your
-              Deployments are live all around the world in a few seconds.
+              Your Deployments are live all around the world in a few seconds. Deploy with the CLI, the Playground on
+              the Dashboard, or automate with a GitHub Action.
             </Text>
           </div>
         </div>

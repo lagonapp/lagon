@@ -3,6 +3,7 @@ import { Card } from '../lib/components/Card';
 import { Text } from '../lib/components/Text';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { REGIONS } from '../lib/constants';
+import Head from 'next/head';
 
 type Plan = {
   name: string;
@@ -67,6 +68,9 @@ const PLANS: Plan[] = [
 const Pricing = () => {
   return (
     <section className="flex flex-col gap-16">
+      <Head>
+        <title>Pricing - Lagon</title>
+      </Head>
       <div className="flex flex-col items-center gap-4">
         <Text size="h2">Pricing</Text>
         <Text>Simple pricing that grows with you.</Text>
@@ -100,7 +104,7 @@ const Pricing = () => {
           </Card>
         ))}
       </div>
-      <div className="lg:overflow-x-hidden overflow-x-scroll whitespace-nowrap">
+      <div className="lg:overflow-x-visible overflow-x-scroll whitespace-nowrap">
         <table className="table-auto text-grey mt-16 w-full">
           <thead className="text-left sticky top-[74px] bg-dark/50 backdrop-blur">
             <tr>
