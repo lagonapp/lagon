@@ -8,6 +8,7 @@ import { HeartIcon } from '../icons/HeartIcon';
 import { Text } from '../Text';
 import { motion } from 'framer-motion';
 import { ReactElement, ReactNode } from 'react';
+import Link from 'next/link';
 
 type CustomCardProps = {
   icon: ReactElement;
@@ -87,9 +88,9 @@ export const CardsSection = () => {
               Use the same Web APIs you already know like&nbsp;
               <span className="font-mono">Request</span> and <span className="font-mono">fetch()</span>, NPM packages,
               frameworks and libraries. We follow the&nbsp;
-              <a href="https://wintercg.org" target="_blank" className="hover:underline">
+              <Link href="https://wintercg.org" target="_blank" className="hover:underline">
                 WinterCG
-              </a>
+              </Link>
               &nbsp;conventions.
             </>
           }

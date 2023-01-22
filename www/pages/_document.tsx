@@ -1,5 +1,5 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document';
-import { DESCRIPTION, REGIONS, SHORT_DESCRIPTION } from '../lib/constants';
+import { DESCRIPTION, SHORT_DESCRIPTION } from '../lib/constants';
 
 class MyDocument extends Document {
   render() {

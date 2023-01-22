@@ -40,13 +40,13 @@ export const EdgeNetworkSection = () => {
         </Text>
         <Text>{REGIONS} regions allowing minimal latency all around the world.</Text>
       </div>
-      <div className="relative -mt-16">
+      <div className="relative md:-mt-16">
         <WorldMapImage />
         {ALL_REGIONS.map((point, i) => (
           <CityPoint key={i} i={i} {...point} />
         ))}
       </div>
-      <div className="flex flex-wrap justify-center gap-4 w-full -mt-16 z-10">
+      <div className="flex flex-wrap justify-center gap-4 w-full md:-mt-16 z-10">
         <Button variant="primary" size="lg" href="https://dash.lagon.app">
           Start deploying
         </Button>
