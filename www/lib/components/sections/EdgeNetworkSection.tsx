@@ -30,14 +30,8 @@ const CityPoint = ({ name, top, left, i }: CityPointProps) => {
 
 export const EdgeNetworkSection = () => {
   return (
-    <section className="relative flex justify-center flex-col gap-16">
-      <div className="lg:contents hidden">
-        <WorldMapImage />
-        {ALL_REGIONS.map((point, i) => (
-          <CityPoint key={i} i={i} {...point} />
-        ))}
-      </div>
-      <div className="flex text-center flex-col items-center gap-4 lg:absolute lg:-top-8 lg:left-1/2 lg:transform lg:-translate-x-1/2 w-full">
+    <section className="flex justify-center flex-col">
+      <div className="flex text-center flex-col items-center gap-4 w-3/4 mx-auto">
         <Text size="h2">
           A growing&nbsp;
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple">
@@ -46,7 +40,13 @@ export const EdgeNetworkSection = () => {
         </Text>
         <Text>{REGIONS} regions allowing minimal latency all around the world.</Text>
       </div>
-      <div className="flex flex-wrap justify-center gap-4 lg:absolute lg:bottom-0 lg:left-1/2 lg:transform lg:-translate-x-1/2 w-full">
+      <div className="relative -mt-16">
+        <WorldMapImage />
+        {ALL_REGIONS.map((point, i) => (
+          <CityPoint key={i} i={i} {...point} />
+        ))}
+      </div>
+      <div className="flex flex-wrap justify-center gap-4 w-full -mt-16">
         <Button variant="primary" size="lg" href="https://dash.lagon.app">
           Start deploying
         </Button>
