@@ -31,7 +31,7 @@ const CityPoint = ({ name, top, left, i }: CityPointProps) => {
 export const EdgeNetworkSection = () => {
   return (
     <section className="flex justify-center flex-col">
-      <div className="flex text-center flex-col items-center gap-4 w-3/4 mx-auto">
+      <div className="flex text-center flex-col items-center gap-4 w-3/4 mx-auto z-10">
         <Text size="h2">
           A growing&nbsp;
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple">
@@ -46,7 +46,7 @@ export const EdgeNetworkSection = () => {
           <CityPoint key={i} i={i} {...point} />
         ))}
       </div>
-      <div className="flex flex-wrap justify-center gap-4 w-full -mt-16">
+      <div className="flex flex-wrap justify-center gap-4 w-full -mt-16 z-10">
         <Button variant="primary" size="lg" href="https://dash.lagon.app">
           Start deploying
         </Button>
