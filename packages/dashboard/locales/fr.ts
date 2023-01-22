@@ -41,6 +41,14 @@ export default defineLocale({
   'settings.description.submit': 'Mettre à jour',
   'settings.description.success': "La descrption de l'Organisation a été mise à jour.",
 
+  'settings.subcription.title': 'Abonnement',
+  'settings.subcription.description': ' Upgrade and manage the subscription of this Organization.',
+  'settings.subcription.plan.personal': 'Personal',
+  'settings.subcription.plan.pro': 'Pro',
+  'settings.subcription.renew': 'Renouvellement : {date}',
+  'settings.subcription.upgrade.pro': "S'abonner à Pro",
+  'settings.subcription.manage': "Gérer l'abonnement",
+
   'settings.transfer.title': 'Transférer',
   'settings.transfer.description': "Transférer la propriété de l'Organisation a un autre utilisateur.",
   'settings.transfer.placeholder': 'Email du nouveau propriétaire',
