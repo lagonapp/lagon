@@ -135,13 +135,13 @@ const Pricing = () => {
             </tr>
             <tr className="border-b border-[#1f1f2e]">
               <td className="text-base text-grey py-4 mr-8">CPU time</td>
-              <td>50ms/request</td>
+              <td>10ms/request</td>
               <td>50ms/request</td>
               <td>Up to 1s/request</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
               <td className="text-base text-grey py-4 mr-8">CPU startup time</td>
-              <td>200ms</td>
+              <td>100ms</td>
               <td>200ms</td>
               <td>Up to 1s</td>
             </tr>
