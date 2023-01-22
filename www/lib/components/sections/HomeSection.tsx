@@ -5,6 +5,7 @@ import { Button } from '../Button';
 import { useState } from 'react';
 import { DESCRIPTION } from '../../constants';
 import { WorldBottomImage } from '../images/WorldBottomImage';
+import { ArrowRightIcon } from '../icons/ArrowRightIcon';
 
 export const HomeSection = () => {
   const [response, setResponse] = useState<{ text: string; time: number; region: string } | undefined>();
@@ -13,15 +14,16 @@ export const HomeSection = () => {
   return (
     <section className="flex flex-col gap-8 items-center justify-center relative">
       <div className="flex flex-col gap-4 text-center items-center">
-        <motion.button
-          type="button"
-          className="text-grey text-base px-4 py-2 rounded-full bg-dark-gray hover:bg-blue-3 hover:text-white transition z-10"
+        <motion.a
+          href="https://tally.so/r/n9q1Rp"
+          target="_blank"
+          className="text-grey text-base px-4 py-2 rounded-full bg-dark-gray hover:bg-blue-3 hover:text-white transition z-10 inline-flex gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
         >
-          Get email updates
-        </motion.button>
+          Get email updates <ArrowRightIcon />
+        </motion.a>
         <motion.div
           className="max-w-2xl relative"
           initial={{ opacity: 0, top: 20 }}
