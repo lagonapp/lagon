@@ -5,7 +5,6 @@ import { CardsSection } from '../lib/components/sections/CardsSection';
 import { FeaturesSection } from '../lib/components/sections/FeaturesSection';
 import { EdgeNetworkSection } from '../lib/components/sections/EdgeNetworkSection';
 import Head from 'next/head';
-import { SHORT_DESCRIPTION } from '../lib/constants';
 
 const Home = () => {
   const ball = useRef<HTMLDivElement>(null);
@@ -28,7 +27,7 @@ const Home = () => {
   return (
     <>
       <Head>
-        <title>{SHORT_DESCRIPTION} - Lagon</title>
+        <title>Deploy JavaScript Functions at the Edge - Lagon</title>
       </Head>
       <div
         className="hidden md:block w-80 h-80 absolute rounded-full transform translate-x-[-50%] translate-y-[-50%] pointer-events-none bg-gradient-to-br from-purple/10 to-blue-1/10 blur-3xl"

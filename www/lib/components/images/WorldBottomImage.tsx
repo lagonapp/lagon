@@ -1,12 +1,5 @@
 export const WorldBottomImage = () => (
-  <svg
-    width="964"
-    height="936"
-    viewBox="0 0 964 936"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    // className="absolute transform translate-y-[-20%] pointer-events-none"
-  >
+  <svg width="964" height="936" viewBox="0 0 964 936" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g filter="url(#filter0_d_207_2)">
       <circle cx="480.405" cy="450" r="367.5" stroke="url(#paint0_linear_207_2)" shapeRendering="crispEdges" />
     </g>
