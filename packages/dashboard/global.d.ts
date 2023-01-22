@@ -6,6 +6,10 @@ declare module 'next-auth' {
       id: string;
       name: string;
       description?: string;
+      stripeCustomerId: string | null;
+      stripePriceId: string | null;
+      stripeSubscriptionId: string | null;
+      stripeCurrentPeriodEnd: Date | null;
     };
     user: {
       id: string;

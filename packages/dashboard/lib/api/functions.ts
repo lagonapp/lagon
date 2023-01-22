@@ -1,7 +1,7 @@
 import prisma from 'lib/prisma';
 import { randomName } from '@scaleway/use-random-name';
 import { TRPCError } from '@trpc/server';
-import { MAX_FUNCTIONS_PER_ORGANIZATION } from 'lib/constants';
+import type { Plan } from 'lib/plans';
 
 export async function isFunctionNameUnique(name: string): Promise<boolean> {
   const result = await prisma.function.findFirst({
@@ -24,7 +24,15 @@ export async function findUniqueFunctionName(): Promise<string> {
   return name;
 }
 
-export async function checkCanCreateFunction({ functionName, ownerId }: { functionName?: string; ownerId: string }) {
+export async function checkCanCreateFunction({
+  functionName,
+  ownerId,
+  plan,
+}: {
+  functionName?: string;
+  ownerId: string;
+  plan: Plan;
+}) {
   if (functionName) {
     if (!isFunctionNameUnique(functionName)) {
       throw new TRPCError({
@@ -42,10 +50,10 @@ export async function checkCanCreateFunction({ functionName, ownerId }: { functi
     },
   });
 
-  if (functions >= MAX_FUNCTIONS_PER_ORGANIZATION) {
+  if (functions >= plan.maxFunctions) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
-      message: `You can only have ${MAX_FUNCTIONS_PER_ORGANIZATION} Functions per Organization`,
+      message: `You can only have ${plan.maxFunctions} Functions per Organization`,
     });
   }
 }

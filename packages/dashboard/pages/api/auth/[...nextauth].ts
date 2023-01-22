@@ -55,6 +55,10 @@ export const authOptions: NextAuthOptions = {
           id: true,
           name: true,
           description: true,
+          stripeSubscriptionId: true,
+          stripePriceId: true,
+          stripeCustomerId: true,
+          stripeCurrentPeriodEnd: true,
         },
       });
 
