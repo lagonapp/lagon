@@ -38,6 +38,14 @@ export default {
   'settings.description.submit': 'Update',
   'settings.description.success': 'Organization description updated successfully.',
 
+  'settings.subcription.title': 'Subscription',
+  'settings.subcription.description': 'Upgrade and manage the subscription of this Organization.',
+  'settings.subcription.plan.personal': 'Personal',
+  'settings.subcription.plan.pro': 'Pro',
+  'settings.subcription.renew': 'Renew: {date}',
+  'settings.subcription.upgrade.pro': 'Upgrade to Pro',
+  'settings.subcription.manage': 'Manage subscription',
+
   'settings.transfer.title': 'Transfer',
   'settings.transfer.description': 'Transfer the ownership of this Organization to another user.',
   'settings.transfer.placeholder': 'New Owner email',

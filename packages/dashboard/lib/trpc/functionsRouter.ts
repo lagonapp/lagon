@@ -7,9 +7,7 @@ import {
   ENVIRONMENT_VARIABLES_PER_FUNCTION,
   ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH,
   ENVIRONMENT_VARIABLE_VALUE_MAX_SIZE,
-  FUNCTION_DEFAULT_MEMORY,
-  FUNCTION_DEFAULT_STARTUP_TIMEOUT,
-  FUNCTION_DEFAULT_TIMEOUT,
+  FUNCTION_MEMORY,
   FUNCTION_NAME_MAX_LENGTH,
   FUNCTION_NAME_MIN_LENGTH,
 } from 'lib/constants';
@@ -23,6 +21,7 @@ import {
   findUniqueFunctionName,
   isFunctionNameUnique,
 } from 'lib/api/functions';
+import { getPlanFromPriceId } from 'lib/plans';
 
 const axiomClient = new Client({
   orgId: process.env.AXIOM_ORG_ID,
@@ -205,9 +204,15 @@ export const functionsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ ctx, input }) => {
+        const plan = getPlanFromPriceId({
+          priceId: ctx.session.organization.stripePriceId,
+          currentPeriodEnd: ctx.session.organization.stripeCurrentPeriodEnd,
+        });
+
         await checkCanCreateFunction({
           functionName: input.name,
           ownerId: ctx.session.user.id,
+          plan,
         });
 
         const name = input.name || (await findUniqueFunctionName());
@@ -223,9 +228,9 @@ export const functionsRouter = (t: T) =>
                 })),
               },
             },
-            memory: FUNCTION_DEFAULT_MEMORY,
-            timeout: FUNCTION_DEFAULT_TIMEOUT,
-            startupTimeout: FUNCTION_DEFAULT_STARTUP_TIMEOUT,
+            memory: FUNCTION_MEMORY,
+            timeout: plan.cpuTime,
+            startupTimeout: plan.startupTime,
             env: {
               createMany: {
                 data: input.env.map(({ key, value }) => ({

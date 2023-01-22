@@ -69,6 +69,9 @@ const createContext = async ({
         organization: {
           id: token.user.currentOrganizationId ?? '',
           name: '',
+          stripeCurrentPeriodEnd: null,
+          stripeCustomerId: null,
+          stripeSubscriptionId: null,
         },
         expires: '',
       },

@@ -6,6 +6,7 @@ import {
   ORGANIZATION_NAME_MIN_LENGTH,
 } from 'lib/constants';
 import prisma from 'lib/prisma';
+import { stripe } from 'lib/stripe';
 import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 
@@ -185,5 +186,49 @@ export const organizationsRouter = (t: T) =>
         });
 
         return { ok: true };
+      }),
+    organizationCheckout: t.procedure
+      .input(
+        z.object({
+          priceId: z.string(),
+        }),
+      )
+      .mutation(async ({ input, ctx }) => {
+        const session = await stripe.checkout.sessions.create({
+          billing_address_collection: 'auto',
+          line_items: [
+            {
+              price: input.priceId,
+              quantity: 1,
+            },
+          ],
+          mode: 'subscription',
+          success_url: `${process.env.NEXTAUTH_URL}/settings`,
+          cancel_url: `${process.env.NEXTAUTH_URL}/settings`,
+          customer_email: ctx.session.user.email,
+          metadata: {
+            organizationId: ctx.session.organization.id,
+          },
+        });
+
+        return {
+          url: session.url,
+        };
+      }),
+    organizationPlan: t.procedure
+      .input(
+        z.object({
+          stripeCustomerId: z.string(),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        const session = await stripe.billingPortal.sessions.create({
+          customer: input.stripeCustomerId,
+          return_url: `${process.env.NEXTAUTH_URL}/settings`,
+        });
+
+        return {
+          url: session.url,
+        };
       }),
   });
