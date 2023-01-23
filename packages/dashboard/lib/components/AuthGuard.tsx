@@ -1,4 +1,4 @@
-import { signIn, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { ReactElement, useEffect } from 'react';
 
@@ -16,7 +16,7 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
     if (shouldRedirectToSignIn) {
       push('/auth/signin');
     }
-  }, [shouldRedirectToSignIn]);
+  }, [shouldRedirectToSignIn, push]);
 
   if (status === 'loading' || shouldRedirectToSignIn) {
     return (

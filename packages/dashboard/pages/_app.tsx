@@ -19,7 +19,7 @@ type LayoutAppProps = AppProps & {
 const App = ({ Component, pageProps: { session, ...pageProps } }: LayoutAppProps) => {
   const MaybeAuthGuard = useMemo(
     () => (Component.anonymous ? ({ children }: { children: React.ReactNode }) => <>{children}</> : AuthGuard),
-    [],
+    [Component.anonymous],
   );
 
   return (
