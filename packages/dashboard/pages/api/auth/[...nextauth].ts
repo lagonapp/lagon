@@ -29,13 +29,17 @@ export const authOptions: NextAuthOptions = {
         return false;
       }
 
-      const isAuthorized = await prisma.authorizedEmail.findFirst({
+      if (process.env.LAGON_RESTRICT_LOGIN === 'false') {
+        return true;
+      }
+
+      const isAuthorized = await prisma.authorizedEmail.count({
         where: {
           email: user.email,
         },
       });
 
-      if (!!isAuthorized) {
+      if (isAuthorized != 0) {
         return true;
       }
 
