@@ -1,6 +1,16 @@
 import { defineLocale } from 'locales';
 
 export default defineLocale({
+  'signin.title': 'Connexion',
+  'signin.description': 'Merci de vous connecter pour accéder au dashboard.',
+  'signin.github': 'Se connecter avec GitHub',
+  'signin.error.title': 'Impossible de se connecter',
+  'signin.error.description': 'Une erreur ({error}) est survenue. Merci de re-essayer.',
+  'signin.error.description.notAuthorized':
+    "Vous n'êtes pas autorisé à vous connecter. Rejoignez la liste d'attente pour être notifié des futures mises à jour.",
+  'signin.error.joinWaitlist': 'Rejoindre la liste d’attente',
+  'signin.error.github': 'Se connecter avec GitHub',
+
   'layout.header.functions': 'Fonctions',
   'layout.header.settings': 'Paramètres',
   'layout.header.documentation': 'Documentation',

@@ -89,10 +89,11 @@ const OrganizationsList = () => {
 
 type LayoutProps = {
   title: string;
+  anonymous?: boolean;
   children: ReactNode;
 };
 
-const Layout = ({ title, children }: LayoutProps) => {
+const Layout = ({ title, anonymous, children }: LayoutProps) => {
   const { data: session } = useSession();
   const { asPath, locale } = useRouter();
   const { theme, savedTheme, updateTheme } = useTheme();
@@ -110,115 +111,121 @@ const Layout = ({ title, children }: LayoutProps) => {
           <link rel="icon" href="/favicon-black.ico" />
         )}
       </Head>
-      {session?.organization || asPath === '/new' ? (
-        <>
-          <div className="py-4 h-16 w-full bg-white dark:bg-stone-900 border-b border-b-stone-200 dark:border-b-stone-700">
-            <div className="flex justify-between mx-auto px-4 md:max-w-4xl">
-              <div className="flex gap-6 items-center">
-                <Link href="/">
-                  <Image
-                    src={`/icon-${theme === 'Dark' ? 'white' : 'black'}.png`}
-                    alt="Lagon logo"
-                    width="24"
-                    height="24"
-                  />
-                </Link>
-                <HeaderLink href="/" selected={asPath === '/' || asPath.startsWith('/functions')}>
-                  {t('header.functions')}
-                </HeaderLink>
-                <HeaderLink href="/settings" selected={asPath.startsWith('/settings')}>
-                  {t('header.settings')}
-                </HeaderLink>
-                <HeaderLink href="https://docs.lagon.app" target="_blank" selected={false}>
-                  {t('header.documentation')}
-                </HeaderLink>
-              </div>
-              {session?.organization ? (
-                <Menu>
-                  <Menu.Button>
-                    <Button rightIcon={<ChevronDownIcon className="w-4 h-4" />}>{session.organization.name}</Button>
-                  </Menu.Button>
-                  <Menu.Items>
-                    <Suspense fallback={null}>
-                      <OrganizationsList />
-                    </Suspense>
-                    <Menu.Item icon={<PlusIcon className="w-4 h-4" />} href="/new">
-                      {t('header.menu.newOrganization')}
-                    </Menu.Item>
-                    <Menu.Item icon={<CogIcon className="w-4 h-4" />} href="/settings">
-                      {t('header.menu.settings')}
-                    </Menu.Item>
-                    <Menu>
-                      <Menu.Button>
-                        <Menu.Item icon={<SunIcon className="w-4 h-4" />}>{t('header.menu.theme')}</Menu.Item>
-                      </Menu.Button>
-                      <Menu.Items>
-                        <Menu.Item
-                          icon={<SunIcon className="w-4 h-4" />}
-                          disabled={savedTheme === 'Light'}
-                          onClick={() => updateTheme('Light')}
-                        >
-                          {t('header.menu.theme.light')}
-                        </Menu.Item>
-                        <Menu.Item
-                          icon={<MoonIcon className="w-4 h-4" />}
-                          disabled={savedTheme === 'Dark'}
-                          onClick={() => updateTheme('Dark')}
-                        >
-                          {t('header.menu.theme.dark')}
-                        </Menu.Item>
-                        <Menu.Item
-                          icon={<ComputerDesktopIcon className="w-4 h-4" />}
-                          disabled={savedTheme === 'System'}
-                          onClick={() => updateTheme('System')}
-                        >
-                          {t('header.menu.theme.system')}
-                        </Menu.Item>
-                      </Menu.Items>
-                    </Menu>
-                    <Divider />
-                    <Menu.Item icon={<UserIcon className="w-4 h-4" />} href="/profile">
-                      {t('header.menu.profile')}
-                    </Menu.Item>
-                    <Menu>
-                      <Menu.Button>
-                        <Menu.Item icon={<LanguageIcon className="w-4 h-4" />}>
-                          {t('header.menu.language', {
-                            locale: locale as string,
-                          })}
-                        </Menu.Item>
-                      </Menu.Button>
-                      <Menu.Items>
-                        <Menu.Item icon={<i>🇺🇸</i>} disabled={locale === 'en'} onClick={() => changeLocale('en')}>
-                          {t('header.menu.language.en')}
-                        </Menu.Item>
-                        <Menu.Item icon={<i>🇫🇷</i>} disabled={locale === 'fr'} onClick={() => changeLocale('fr')}>
-                          {t('header.menu.language.fr')}
-                        </Menu.Item>
-                      </Menu.Items>
-                    </Menu>
-                    <Menu.Item icon={<ArrowLeftOnRectangleIcon className="w-4 h-4" />} onClick={() => signOut()}>
-                      {t('header.menu.signOut')}
-                    </Menu.Item>
-                  </Menu.Items>
-                </Menu>
-              ) : null}
-            </div>
-          </div>
-          <div className="bg-stone-50 dark:bg-stone-800 min-h-screen">{children}</div>
-        </>
+      {anonymous ? (
+        children
       ) : (
-        <div className="w-screen h-screen flex justify-center items-center">
-          <EmptyState
-            title={t('empty.title')}
-            description={t('empty.description')}
-            action={
-              <Button variant="primary" href="/new">
-                {t('empty.action')}
-              </Button>
-            }
-          />
-        </div>
+        <>
+          {session?.organization || asPath === '/new' ? (
+            <>
+              <div className="py-4 h-16 w-full bg-white dark:bg-stone-900 border-b border-b-stone-200 dark:border-b-stone-700">
+                <div className="flex justify-between mx-auto px-4 md:max-w-4xl">
+                  <div className="flex gap-6 items-center">
+                    <Link href="/">
+                      <Image
+                        src={`/icon-${theme === 'Dark' ? 'white' : 'black'}.png`}
+                        alt="Lagon logo"
+                        width="24"
+                        height="24"
+                      />
+                    </Link>
+                    <HeaderLink href="/" selected={asPath === '/' || asPath.startsWith('/functions')}>
+                      {t('header.functions')}
+                    </HeaderLink>
+                    <HeaderLink href="/settings" selected={asPath.startsWith('/settings')}>
+                      {t('header.settings')}
+                    </HeaderLink>
+                    <HeaderLink href="https://docs.lagon.app" target="_blank" selected={false}>
+                      {t('header.documentation')}
+                    </HeaderLink>
+                  </div>
+                  {session?.organization ? (
+                    <Menu>
+                      <Menu.Button>
+                        <Button rightIcon={<ChevronDownIcon className="w-4 h-4" />}>{session.organization.name}</Button>
+                      </Menu.Button>
+                      <Menu.Items>
+                        <Suspense fallback={null}>
+                          <OrganizationsList />
+                        </Suspense>
+                        <Menu.Item icon={<PlusIcon className="w-4 h-4" />} href="/new">
+                          {t('header.menu.newOrganization')}
+                        </Menu.Item>
+                        <Menu.Item icon={<CogIcon className="w-4 h-4" />} href="/settings">
+                          {t('header.menu.settings')}
+                        </Menu.Item>
+                        <Menu>
+                          <Menu.Button>
+                            <Menu.Item icon={<SunIcon className="w-4 h-4" />}>{t('header.menu.theme')}</Menu.Item>
+                          </Menu.Button>
+                          <Menu.Items>
+                            <Menu.Item
+                              icon={<SunIcon className="w-4 h-4" />}
+                              disabled={savedTheme === 'Light'}
+                              onClick={() => updateTheme('Light')}
+                            >
+                              {t('header.menu.theme.light')}
+                            </Menu.Item>
+                            <Menu.Item
+                              icon={<MoonIcon className="w-4 h-4" />}
+                              disabled={savedTheme === 'Dark'}
+                              onClick={() => updateTheme('Dark')}
+                            >
+                              {t('header.menu.theme.dark')}
+                            </Menu.Item>
+                            <Menu.Item
+                              icon={<ComputerDesktopIcon className="w-4 h-4" />}
+                              disabled={savedTheme === 'System'}
+                              onClick={() => updateTheme('System')}
+                            >
+                              {t('header.menu.theme.system')}
+                            </Menu.Item>
+                          </Menu.Items>
+                        </Menu>
+                        <Divider />
+                        <Menu.Item icon={<UserIcon className="w-4 h-4" />} href="/profile">
+                          {t('header.menu.profile')}
+                        </Menu.Item>
+                        <Menu>
+                          <Menu.Button>
+                            <Menu.Item icon={<LanguageIcon className="w-4 h-4" />}>
+                              {t('header.menu.language', {
+                                locale: locale as string,
+                              })}
+                            </Menu.Item>
+                          </Menu.Button>
+                          <Menu.Items>
+                            <Menu.Item icon={<i>🇺🇸</i>} disabled={locale === 'en'} onClick={() => changeLocale('en')}>
+                              {t('header.menu.language.en')}
+                            </Menu.Item>
+                            <Menu.Item icon={<i>🇫🇷</i>} disabled={locale === 'fr'} onClick={() => changeLocale('fr')}>
+                              {t('header.menu.language.fr')}
+                            </Menu.Item>
+                          </Menu.Items>
+                        </Menu>
+                        <Menu.Item icon={<ArrowLeftOnRectangleIcon className="w-4 h-4" />} onClick={() => signOut()}>
+                          {t('header.menu.signOut')}
+                        </Menu.Item>
+                      </Menu.Items>
+                    </Menu>
+                  ) : null}
+                </div>
+              </div>
+              <div className="bg-stone-50 dark:bg-stone-800 min-h-screen">{children}</div>
+            </>
+          ) : (
+            <div className="w-screen h-screen flex justify-center items-center">
+              <EmptyState
+                title={t('empty.title')}
+                description={t('empty.description')}
+                action={
+                  <Button variant="primary" href="/new">
+                    {t('empty.action')}
+                  </Button>
+                }
+              />
+            </div>
+          )}
+        </>
       )}
     </>
   );

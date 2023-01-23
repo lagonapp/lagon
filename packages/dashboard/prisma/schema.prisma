@@ -154,3 +154,10 @@ model Token {
 
   @@index([userId])
 }
+
+model AuthorizedEmail {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  email     String   @unique
+}
