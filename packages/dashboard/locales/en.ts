@@ -65,9 +65,9 @@ export default {
   'settings.members.description': 'Manage the members of this Organization.',
   'settings.members.invite': 'Invite a new member',
   'settings.members.invite.modal.title': 'Invite a new member',
-  'settings.members.invite.modal.description': 'Enter the email of the user you want to invite.',
+  'settings.members.invite.modal.description': 'Enter the email of the member you want to invite.',
   'settings.members.invite.modal.submit': 'Invite member',
-  'settings.members.invite.success': 'User has been invited successfully.',
+  'settings.members.invite.success': 'Member has been invited.',
   'settings.members.joined': 'Joined at:',
   'settings.members.remove': 'Remove member',
 

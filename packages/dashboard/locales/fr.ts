@@ -65,6 +65,16 @@ export default defineLocale({
   'settings.delete.modal.submit': "Supprimer l'Organisation",
   'settings.delete.success': "L'Organisation a été supprimée.",
 
+  'settings.members.title': 'Membres',
+  'settings.members.description': 'Gérer les membres de cette Organisation.',
+  'settings.members.invite': 'Inviter un nouveau membre',
+  'settings.members.invite.modal.title': 'Inviter un nouveau membre',
+  'settings.members.invite.modal.description': "Entrez l'email du membre que vous voulez inviter.",
+  'settings.members.invite.modal.submit': 'Inviter le membre',
+  'settings.members.invite.success': 'Le membre a été invité.',
+  'settings.members.joined': 'Rejoins le :',
+  'settings.members.remove': 'Supprimer le membre',
+
   'settings.transfer.title': 'Transférer',
   'settings.transfer.description': "Transférer la propriété de l'Organisation a un autre utilisateur.",
   'settings.transfer.placeholder': 'Email du nouveau propriétaire',
