@@ -4,6 +4,7 @@ import { Text } from '../lib/components/Text';
 import { CheckIcon } from '@heroicons/react/24/outline';
 import { REGIONS } from '../lib/constants';
 import Head from 'next/head';
+import { motion } from 'framer-motion';
 
 type Plan = {
   name: string;
@@ -71,11 +72,21 @@ const Pricing = () => {
       <Head>
         <title>Pricing - Lagon</title>
       </Head>
-      <div className="flex flex-col items-center gap-4 z-10">
+      <motion.div
+        className="flex flex-col items-center gap-4 z-10 relative"
+        initial={{ opacity: 0, top: 20 }}
+        animate={{ opacity: 1, top: 0 }}
+        transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
+      >
         <Text size="h2">Pricing</Text>
         <Text>Simple pricing that grows with you.</Text>
-      </div>
-      <div className="flex flex-col xl:flex-row gap-4 xl:items-stretch items-center justify-center">
+      </motion.div>
+      <motion.div
+        className="flex flex-col xl:flex-row gap-4 xl:items-stretch items-center justify-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.4 }}
+      >
         {PLANS.map(plan => (
           <Card
             key={plan.name}
@@ -103,7 +114,7 @@ const Pricing = () => {
             </Button>
           </Card>
         ))}
-      </div>
+      </motion.div>
       <div className="lg:overflow-x-visible overflow-x-scroll whitespace-nowrap">
         <table className="table-auto text-grey mt-16 w-full">
           <thead className="text-left sticky top-[74px] bg-dark/50 backdrop-blur">

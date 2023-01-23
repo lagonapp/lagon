@@ -94,7 +94,7 @@ export const CardsSection = () => {
               &nbsp;conventions.
             </>
           }
-          delay={0.8}
+          delay={0.2}
         />
         <CustomCard
           icon={
@@ -106,7 +106,7 @@ export const CardsSection = () => {
           }
           title="Pay as you go"
           description="Get a generous free tier, and then only pay for the number of requests your Functions receives, without worrying about scaling."
-          delay={1}
+          delay={0.4}
         />
         <CustomCard
           icon={
@@ -118,7 +118,7 @@ export const CardsSection = () => {
           }
           title="We love Open Source"
           description="Lagon is fully open source and is focused on the community. You can choose to use Lagon Cloud, or self-host it on your own infrastructure."
-          delay={1.2}
+          delay={0.6}
         />
       </div>
     </section>
