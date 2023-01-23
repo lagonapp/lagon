@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Button, Card, Chart, Description, Divider, Menu, Text } from '@lagon/ui';
 import useFunctionStats from 'lib/hooks/useFunctionStats';
-import useFunctionUsage from 'lib/hooks/useFunctionUsage';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
 import { useI18n } from 'locales';
@@ -49,14 +48,14 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
   const t = scopedT('functions.overview');
   const [timeframe, setTimeframe] = useState<Timeframe>(() => (router.query.timeframe as Timeframe) || 'Last 24 hours');
   const {
-    data: { requests, cpuTime, bytesIn, bytesOut } = {
+    data: { usage, requests, cpuTime, bytesIn, bytesOut } = {
+      usage: 0,
       requests: [],
       cpuTime: [],
       bytesIn: [],
       bytesOut: [],
     },
   } = useFunctionStats({ functionId: func?.id, timeframe });
-  const { data: usage = 0 } = useFunctionUsage({ functionId: func?.id, timeframe });
   const { data: session } = useSession();
   const plan = getPlanFromPriceId({
     priceId: session?.organization?.stripePriceId,

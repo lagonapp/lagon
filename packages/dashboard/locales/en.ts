@@ -36,6 +36,9 @@ export default {
   'home.list.cron': 'Cron',
 
   'settings.title': 'Settings',
+  'settings.general': 'General',
+  'settings.members': 'Members',
+  'settings.billingUsage': 'Billing & Usage',
   'settings.name.title': 'Name',
   'settings.name.description': 'Change the name of this Organization.',
   'settings.name.placeholder': 'Organization name',
@@ -48,13 +51,25 @@ export default {
   'settings.description.submit': 'Update',
   'settings.description.success': 'Organization description updated successfully.',
 
-  'settings.subcription.title': 'Subscription',
-  'settings.subcription.description': 'Upgrade and manage the subscription of this Organization.',
-  'settings.subcription.plan.personal': 'Personal',
-  'settings.subcription.plan.pro': 'Pro',
-  'settings.subcription.renew': 'Renew: {date}',
-  'settings.subcription.upgrade.pro': 'Upgrade to Pro',
-  'settings.subcription.manage': 'Manage subscription',
+  'settings.delete.title': 'Delete',
+  'settings.delete.description':
+    'Delete completely this Organization, its Functions, Deployments and Logs. This action is irreversible.',
+  'settings.delete.submit': 'Delete',
+  'settings.delete.modal.title': 'Delete Organization',
+  'settings.delete.modal.description': "Write this Organization's name to confirm deletion: {organizationName}",
+  'settings.delete.modal.error': 'Confirm with the name of this Organization',
+  'settings.delete.modal.submit': 'Delete Organization',
+  'settings.delete.success': 'Organization deleted successfully.',
+
+  'settings.members.title': 'Members',
+  'settings.members.description': 'Manage the members of this Organization.',
+  'settings.members.invite': 'Invite a new member',
+  'settings.members.invite.modal.title': 'Invite a new member',
+  'settings.members.invite.modal.description': 'Enter the email of the user you want to invite.',
+  'settings.members.invite.modal.submit': 'Invite member',
+  'settings.members.invite.success': 'User has been invited successfully.',
+  'settings.members.joined': 'Joined at:',
+  'settings.members.remove': 'Remove member',
 
   'settings.transfer.title': 'Transfer',
   'settings.transfer.description': 'Transfer the ownership of this Organization to another user.',
@@ -65,15 +80,17 @@ export default {
   'settings.transfer.notAvailable.description':
     'Please email contact@lagon.app if you want to transfer your Organization.',
 
-  'settings.delete.title': 'Delete',
-  'settings.delete.description':
-    'Delete completely this Organization, its Functions, Deployments and Logs. This action is irreversible.',
-  'settings.delete.submit': 'Delete',
-  'settings.delete.modal.title': 'Delete Organization',
-  'settings.delete.modal.description': "Write this Organization's name to confirm deletion: {organizationName}",
-  'settings.delete.modal.error': 'Confirm with the name of this Organization',
-  'settings.delete.modal.submit': 'Delete Organization',
-  'settings.delete.success': 'Organization deleted successfully.',
+  'settings.usage.title': 'Usage',
+  'settings.usage.description':
+    'View the usage and limits of this Organization for the current month. Requests usage resets at the beginning of each month.',
+
+  'settings.subcription.title': 'Subscription',
+  'settings.subcription.description': 'Upgrade and manage the subscription of this Organization.',
+  'settings.subcription.plan.personal': 'Personal',
+  'settings.subcription.plan.pro': 'Pro',
+  'settings.subcription.renew': 'Renew: {date}',
+  'settings.subcription.upgrade.pro': 'Upgrade to Pro',
+  'settings.subcription.manage': 'Manage subscription',
 
   'profile.title': 'Profile',
   'profile.information.title': 'Information',
