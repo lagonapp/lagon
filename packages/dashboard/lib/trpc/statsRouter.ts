@@ -67,24 +67,39 @@ export const statsRouter = (t: T) =>
     usage: t.procedure
       .input(
         z.object({
-          timeframe: z.enum(TIMEFRAMES),
-          functionId: z.string(),
+          functions: z.array(z.string()),
         }),
       )
-      .query(async ({ input, ctx }) => {
-        await checkCanQueryFunction({
-          functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+      .query(async ({ input }) => {
+        const now = new Date();
+        const start = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+        const end = new Date().getTime();
+        const totalDays = Math.round((end - start) / (1000 * 60 * 60 * 24));
+
+        const query = `sum(increase(lagon_isolate_requests{function=~"${input.functions.join('|')}"}[${totalDays}d]))`;
+        const url = `${process.env.PROMETHEUS_ENDPOINT}/api/v1/query_range?query=${encodeURIComponent(
+          query,
+        )}&start=${toUnixTimestamp(start)}&end=${toUnixTimestamp(end)}&step=${totalDays * 60 * 60}`;
+
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Basic ${Buffer.from(
+              `${process.env.PROMETHEUS_USERNAME}:${process.env.PROMETHEUS_PASSWORD}`,
+            ).toString('base64')}`,
+          },
         });
 
-        const step = getStep(input.timeframe);
-        const result = await prometheus(
-          `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[${step * 24}s]))`,
-          input.timeframe,
-        );
+        const json = (await response.json()) as {
+          data: {
+            resultType: string;
+            result: {
+              values: [number, string][];
+            }[];
+          };
+        };
 
         try {
-          const values = result.result[0].values;
+          const values = json.data.result[0].values;
 
           return Number(values[values.length - 1][1]);
         } catch (error) {
@@ -106,7 +121,11 @@ export const statsRouter = (t: T) =>
         });
 
         const step = getStep(input.timeframe);
-        const [requests, cpuTime, bytesIn, bytesOut] = await Promise.all([
+        const [usage, requests, cpuTime, bytesIn, bytesOut] = await Promise.all([
+          prometheus(
+            `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[${step * 24}s]))`,
+            input.timeframe,
+          ),
           prometheus(
             `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[${step}s]))`,
             input.timeframe,
@@ -127,7 +146,10 @@ export const statsRouter = (t: T) =>
             }[],
           );
 
+        const usageValues = usage.result[0].values;
+
         return {
+          usage: Number(usageValues[usageValues.length - 1][1]),
           requests: flatResult(requests),
           cpuTime: flatResult(cpuTime),
           bytesIn: flatResult(bytesIn),

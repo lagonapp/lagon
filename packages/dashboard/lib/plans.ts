@@ -6,6 +6,7 @@ export type Plan = {
   freeRequests: number;
   cpuTime: number;
   startupTime: number;
+  organizationMembers: number;
 };
 
 export const PERSONAL_PLAN: Plan = {
@@ -15,6 +16,7 @@ export const PERSONAL_PLAN: Plan = {
   freeRequests: 3000000,
   cpuTime: 10,
   startupTime: 100,
+  organizationMembers: 1,
 };
 
 export const PRO_PLAN: Plan = {
@@ -25,6 +27,7 @@ export const PRO_PLAN: Plan = {
   freeRequests: 5000000,
   cpuTime: 50,
   startupTime: 200,
+  organizationMembers: 5,
 };
 
 export const getPlanFromPriceId = ({

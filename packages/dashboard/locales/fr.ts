@@ -39,6 +39,9 @@ export default defineLocale({
   'home.list.cron': 'Cron',
 
   'settings.title': 'Paramètres',
+  'settings.general': 'Général',
+  'settings.members': 'Membres',
+  'settings.billingUsage': 'Facturation & Utilisation',
   'settings.name.title': 'Nom',
   'settings.name.description': 'Changer le nom de cette Organisation.',
   'settings.name.placeholder': "Nom de l'Organisation",
@@ -51,23 +54,6 @@ export default defineLocale({
   'settings.description.submit': 'Mettre à jour',
   'settings.description.success': "La descrption de l'Organisation a été mise à jour.",
 
-  'settings.subcription.title': 'Abonnement',
-  'settings.subcription.description': ' Upgrade and manage the subscription of this Organization.',
-  'settings.subcription.plan.personal': 'Personal',
-  'settings.subcription.plan.pro': 'Pro',
-  'settings.subcription.renew': 'Renouvellement : {date}',
-  'settings.subcription.upgrade.pro': "S'abonner à Pro",
-  'settings.subcription.manage': "Gérer l'abonnement",
-
-  'settings.transfer.title': 'Transférer',
-  'settings.transfer.description': "Transférer la propriété de l'Organisation a un autre utilisateur.",
-  'settings.transfer.placeholder': 'Email du nouveau propriétaire',
-  'settings.transfer.submit': 'Transférer la propriété',
-  'settings.transfer.success': "La propriété de l'Organisation a été transférée.",
-  'settings.transfer.notAvailable': 'Non disponible.',
-  'settings.transfer.notAvailable.description':
-    "Merci d'envoyer un email à contact@lagon.app si vous voulez transférer votre Organisation.",
-
   'settings.delete.title': 'Supprimer',
   'settings.delete.description':
     'Supprimer complètement cette Organisation, ses Fonctions, Déploiement et Logs. Cette action est irréversible.',
@@ -78,6 +64,37 @@ export default defineLocale({
   'settings.delete.modal.error': 'Confirmez avec le nom de cette Organisation',
   'settings.delete.modal.submit': "Supprimer l'Organisation",
   'settings.delete.success': "L'Organisation a été supprimée.",
+
+  'settings.members.title': 'Membres',
+  'settings.members.description': 'Gérer les membres de cette Organisation.',
+  'settings.members.invite': 'Inviter un nouveau membre',
+  'settings.members.invite.modal.title': 'Inviter un nouveau membre',
+  'settings.members.invite.modal.description': "Entrez l'email du membre que vous voulez inviter.",
+  'settings.members.invite.modal.submit': 'Inviter le membre',
+  'settings.members.invite.success': 'Le membre a été invité.',
+  'settings.members.joined': 'Rejoins le :',
+  'settings.members.remove': 'Supprimer le membre',
+
+  'settings.transfer.title': 'Transférer',
+  'settings.transfer.description': "Transférer la propriété de l'Organisation a un autre utilisateur.",
+  'settings.transfer.placeholder': 'Email du nouveau propriétaire',
+  'settings.transfer.submit': 'Transférer la propriété',
+  'settings.transfer.success': "La propriété de l'Organisation a été transférée.",
+  'settings.transfer.notAvailable': 'Non disponible.',
+  'settings.transfer.notAvailable.description':
+    "Merci d'envoyer un email à contact@lagon.app si vous voulez transférer votre Organisation.",
+
+  'settings.usage.title': 'Utilisation',
+  'settings.usage.description':
+    "Voici l'utilisation et les limites de cette Organisation. L'utilisation des requêtes est remis à 0 au début de chaque mois.",
+
+  'settings.subcription.title': 'Abonnement',
+  'settings.subcription.description': ' Upgrade and manage the subscription of this Organization.',
+  'settings.subcription.plan.personal': 'Personal',
+  'settings.subcription.plan.pro': 'Pro',
+  'settings.subcription.renew': 'Renouvellement : {date}',
+  'settings.subcription.upgrade.pro': "S'abonner à Pro",
+  'settings.subcription.manage': "Gérer l'abonnement",
 
   'profile.title': 'Profil',
   'profile.information.title': 'Information',
