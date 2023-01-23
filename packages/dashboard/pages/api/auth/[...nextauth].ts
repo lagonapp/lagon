@@ -19,7 +19,39 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  pages: {
+    signIn: '/auth/signin',
+    error: '/auth/error',
+  },
   callbacks: {
+    signIn: async ({ user }) => {
+      if (!user.email) {
+        return false;
+      }
+
+      if (process.env.LAGON_RESTRICT_LOGIN === 'false') {
+        return true;
+      }
+
+      const isAuthorized = await prisma.authorizedEmail.count({
+        where: {
+          email: user.email,
+        },
+      });
+
+      if (isAuthorized != 0) {
+        return true;
+      }
+
+      Sentry.captureMessage('User is not authorized to sign in', {
+        user: {
+          email: user.email,
+        },
+      });
+      console.log('User is not authorized to sign in:', user.email);
+
+      return false;
+    },
     session: async ({ session, token }) => {
       const userFromDB = await prisma.user.findFirst({
         where: {

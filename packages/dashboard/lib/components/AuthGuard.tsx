@@ -1,6 +1,6 @@
-import { signIn, useSession } from 'next-auth/react';
-import { ReactElement } from 'react';
-import { Button, Card, Text } from '@lagon/ui';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { ReactElement, useEffect } from 'react';
 
 type AuthGuardProps = {
   children: ReactElement;
@@ -8,8 +8,17 @@ type AuthGuardProps = {
 
 const AuthGuard = ({ children }: AuthGuardProps) => {
   const { status } = useSession();
+  const { push, asPath } = useRouter();
 
-  if (status === 'loading') {
+  const shouldRedirectToSignIn = status === 'unauthenticated' && !asPath.startsWith('/auth');
+
+  useEffect(() => {
+    if (shouldRedirectToSignIn) {
+      push('/auth/signin');
+    }
+  }, [shouldRedirectToSignIn, push]);
+
+  if (status === 'loading' || shouldRedirectToSignIn) {
     return (
       <div className="w-screen h-screen flex justify-center items-center">
         <svg
@@ -25,22 +34,6 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           ></path>
         </svg>
-      </div>
-    );
-  }
-
-  if (status === 'unauthenticated') {
-    return (
-      <div className="w-screen h-screen flex justify-center items-center">
-        <Card>
-          <div className="w-64 flex flex-col items-center text-center gap-8">
-            <div className="flex flex-col items-center gap-2">
-              <Text size="xl">Sign In</Text>
-              <Text>Please sign in into your account to access the dashboard.</Text>
-            </div>
-            <Button onClick={() => signIn('github')}>Sign In with GitHub</Button>
-          </div>
-        </Card>
       </div>
     );
   }
