@@ -26,13 +26,11 @@ export default function createIntegration(args?: Options): AstroIntegration {
     hooks: {
       'astro:config:done': ({ setAdapter, config }) => {
         setAdapter(getAdapter(args));
+        _buildConfig = config.build;
 
         if (config.output === 'static') {
           console.warn(`[@lagon/astro] \`output: "server"\` is required to use this adapter.`);
         }
-      },
-      'astro:build:start': ({ buildConfig }) => {
-        _buildConfig = buildConfig;
       },
       'astro:build:setup': ({ vite, target }) => {
         if (target === 'server') {
