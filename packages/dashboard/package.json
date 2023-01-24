@@ -21,7 +21,7 @@
     "@lagon/ui": "workspace:*",
     "@monaco-editor/react": "^4.4.5",
     "@next-auth/prisma-adapter": "^1.0.3",
-    "@prisma/client": "4.8.1",
+    "@prisma/client": "4.9.0",
     "@radix-ui/react-alert-dialog": "^1.0.0",
     "@radix-ui/react-tabs": "^1.0.0",
     "@scaleway/use-random-name": "^0.3.0",
