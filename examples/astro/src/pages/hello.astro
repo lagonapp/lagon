@@ -1,0 +1,13 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const host = Astro.request.headers.get('host');
+---
+
+<Layout title="Hello">
+  <main>
+    <a href="/">Go to /</a>
+    <a href="/prerender">Go to /prerender</a>
+    <h1>Host header is: {host}</h1>
+  </main>
+</Layout>
