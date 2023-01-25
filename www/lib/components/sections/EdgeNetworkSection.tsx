@@ -31,7 +31,13 @@ const CityPoint = ({ name, top, left, i }: CityPointProps) => {
 export const EdgeNetworkSection = () => {
   return (
     <section className="flex justify-center flex-col">
-      <div className="flex text-center flex-col items-center gap-4 w-3/4 mx-auto z-10">
+      <motion.div
+        className="flex text-center flex-col items-center gap-4 w-3/4 mx-auto z-10"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        viewport={{ once: true }}
+      >
         <Text size="h2">
           A growing&nbsp;
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple">
@@ -39,7 +45,7 @@ export const EdgeNetworkSection = () => {
           </span>
         </Text>
         <Text>{REGIONS} regions allowing minimal latency all around the world.</Text>
-      </div>
+      </motion.div>
       <div className="relative md:-mt-16">
         <WorldMapImage />
         {ALL_REGIONS.map((point, i) => (
@@ -47,8 +53,8 @@ export const EdgeNetworkSection = () => {
         ))}
       </div>
       <div className="flex flex-wrap justify-center gap-4 w-full md:-mt-16 z-10">
-        <Button variant="primary" size="lg" href="https://dash.lagon.app">
-          Start deploying
+        <Button variant="primary" size="lg" href="https://tally.so/r/n9q1Rp" target="_blank">
+          Join the waitlist
         </Button>
         <Button variant="tertiary" size="lg" href="https://tally.so/r/mDqAYN" target="_blank">
           Request a new Region

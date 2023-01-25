@@ -36,7 +36,14 @@ const CustomCard = ({ icon, title, description, delay }: CustomCardProps) => (
 export const CardsSection = () => {
   return (
     <section className="flex flex-col items-center gap-16">
-      <Text size="h2">Packed with features</Text>
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        viewport={{ once: true }}
+      >
+        <Text size="h2">Packed with features</Text>
+      </motion.div>
       <div className="grid md:gap-6 gap-4 grid-cols-1 grid-rows-6 sm:grid-cols-2 sm:grid-rows-3 lg:grid-cols-3 lg:grid-rows-2">
         <CustomCard
           icon={

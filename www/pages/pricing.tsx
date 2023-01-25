@@ -5,6 +5,7 @@ import { CheckIcon } from '@heroicons/react/24/outline';
 import { REGIONS } from '../lib/constants';
 import Head from 'next/head';
 import { motion } from 'framer-motion';
+import { HTMLAttributeAnchorTarget } from 'react';
 
 type Plan = {
   name: string;
@@ -13,6 +14,7 @@ type Plan = {
   price: string;
   cta: string;
   href: string;
+  target?: HTMLAttributeAnchorTarget;
   features: string[];
 };
 
@@ -22,8 +24,9 @@ const PLANS: Plan[] = [
     gradientFrom: 'from-green',
     gradientTo: 'to-blue-1',
     price: 'Free',
-    cta: 'Get started',
-    href: 'https://dash.lagon.app',
+    cta: 'Join the waitlist',
+    href: 'https://tally.so/r/n9q1Rp',
+    target: '_blank',
     features: [
       '3,000,000 free requests/month',
       `${REGIONS} regions`,
@@ -39,8 +42,9 @@ const PLANS: Plan[] = [
     gradientFrom: 'from-blue-1',
     gradientTo: 'to-blue-2',
     price: '$10/month',
-    cta: 'Get started',
-    href: 'https://dash.lagon.app',
+    cta: 'Join the waitlist',
+    href: 'https://tally.so/r/n9q1Rp',
+    target: '_blank',
     features: [
       '5,000,000 free requests/month',
       '$1/million additional requests',
@@ -109,7 +113,13 @@ const Pricing = () => {
                 ))}
               </div>
             </div>
-            <Button variant="primary" size="lg" className="justify-self-end justify-center" href={plan.href}>
+            <Button
+              variant="primary"
+              size="lg"
+              className="justify-self-end justify-center"
+              href={plan.href}
+              target={plan.target}
+            >
               {plan.cta}
             </Button>
           </Card>
@@ -281,13 +291,13 @@ const Pricing = () => {
             <tr>
               <td></td>
               <td>
-                <Button variant="primary" href="https://dash.lagon.app" className="w-48 mr-8">
-                  Get started
+                <Button variant="primary" href="https://tally.so/r/n9q1Rp" target="_blank" className="w-48 mr-8">
+                  Join the waitlist
                 </Button>
               </td>
               <td>
-                <Button variant="primary" href="https://dash.lagon.app" className="w-48 mr-8">
-                  Get started
+                <Button variant="primary" href="https://tally.so/r/n9q1Rp" target="_blank" className="w-48 mr-8">
+                  Join the waitlist
                 </Button>
               </td>
               <td>

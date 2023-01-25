@@ -31,28 +31,35 @@ export const FeaturesSection = () => {
           <AnimatedLine size="large" key={i} />
         ))}
       </div>
-      <Text size="h2" className="z-10">
-        Build faster&nbsp;
-        <span className="h-[60px] overflow-hidden inline-flex">
-          <ul style={{ animation: 'text-carousel calc(2s * 4) steps(4) infinite' }}>
-            {CATEGORIES.map((category, i) => (
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
+        viewport={{ once: true }}
+      >
+        <Text size="h2" className="z-10">
+          Build faster&nbsp;
+          <span className="h-[60px] overflow-hidden inline-flex">
+            <ul style={{ animation: 'text-carousel calc(2s * 4) steps(4) infinite' }}>
+              {CATEGORIES.map((category, i) => (
+                <li
+                  key={i}
+                  className="h-[60px] text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple"
+                  style={{ animation: 'text-carousel-line 2s infinite' }}
+                >
+                  {category}
+                </li>
+              ))}
               <li
-                key={i}
                 className="h-[60px] text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple"
                 style={{ animation: 'text-carousel-line 2s infinite' }}
               >
-                {category}
+                {CATEGORIES[0]}
               </li>
-            ))}
-            <li
-              className="h-[60px] text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple"
-              style={{ animation: 'text-carousel-line 2s infinite' }}
-            >
-              {CATEGORIES[0]}
-            </li>
-          </ul>
-        </span>
-      </Text>
+            </ul>
+          </span>
+        </Text>
+      </motion.div>
       <div className="flex flex-col gap-2 items-center">
         <div className="flex gap-2 flex-wrap justify-center">
           <AnimatedBadge delay={0.2}>Open source</AnimatedBadge>

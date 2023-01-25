@@ -22,7 +22,7 @@ export const HomeSection = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
         >
-          Get email updates <ArrowRightIcon />
+          Lagon is in Alpha! <ArrowRightIcon />
         </motion.a>
         <motion.div
           className="max-w-2xl relative"
@@ -52,8 +52,8 @@ export const HomeSection = () => {
         animate={{ opacity: 1, top: 0 }}
         transition={{ duration: 0.4, delay: 0.4, ease: 'easeOut' }}
       >
-        <Button variant="primary" size="lg" href="https://dash.lagon.app">
-          Deploy now!
+        <Button variant="primary" size="lg" href="https://tally.so/r/n9q1Rp" target="_blank">
+          Join the waitlist
         </Button>
         <Button variant="secondary" size="lg" href="#features" scroll={false}>
           Discover
