@@ -1,5 +1,11 @@
 # @lagon/astro
 
+## 0.1.0
+
+### Minor Changes
+
+- [#512](https://github.com/lagonapp/lagon/pull/512) [`56433f3`](https://github.com/lagonapp/lagon/commit/56433f3902b29fef2b9b0b4748f242988277ac6e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Update to Astro v2
+
 ## 0.0.4
 
 ### Patch Changes

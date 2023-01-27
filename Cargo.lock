@@ -179,9 +179,9 @@ dependencies = [
 
 [[package]]
 name = "axiom-rs"
-version = "0.7.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06f1364927171c5c95c3f1746725798eb26b5fe59f14e26437a5cbd1815563d3"
+checksum = "f7ba97e64d99c305b52c1ae5da10b4941ddaa1a2f53b49fcb06b3435b9a66098"
 dependencies = [
  "backoff",
  "bytes",
@@ -3010,9 +3010,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-cron-scheduler"
-version = "0.9.1"
+version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cc153607c70424d96b8a4e17fb4fc1970a37a74ffc7d9123560a744de5b785be"
+checksum = "03f7bb5dd24aa0e665eed3d9646e07e6ac2f950b7292875a02580631d49af986"
 dependencies = [
  "chrono",
  "cron",
@@ -3361,9 +3361,9 @@ dependencies = [
 
 [[package]]
 name = "webbrowser"
-version = "0.8.5"
+version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4ec1eb1958002617e0247ccae4fd0ec7fb5fbb566a28e93ede1ea73fac578a0e"
+checksum = "769f1a8831de12cad7bd6f9693b15b1432d93a151557810f617f626af823acae"
 dependencies = [
  "core-foundation",
  "dirs",

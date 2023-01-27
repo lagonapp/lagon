@@ -1,5 +1,13 @@
 # @lagon/runtime
 
+## 0.3.1
+
+### Patch Changes
+
+- [#490](https://github.com/lagonapp/lagon/pull/490) [`9a67eb7`](https://github.com/lagonapp/lagon/commit/9a67eb77e5927eb6e0da296df7d9aeb02711a86f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Limit the number of `fetch()` calls to 20 per execution
+
+* [#497](https://github.com/lagonapp/lagon/pull/497) [`36a69eb`](https://github.com/lagonapp/lagon/commit/36a69ebee0fc6fe93c0ba869c6e63a8af01946f0) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use a condvar to timeout isolates execution
+
 ## 0.3.0
 
 ### Minor Changes

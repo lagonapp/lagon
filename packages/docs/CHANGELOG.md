@@ -1,5 +1,15 @@
 # @lagon/docs
 
+## 0.1.3
+
+### Patch Changes
+
+- [#486](https://github.com/lagonapp/lagon/pull/486) [`d5be717`](https://github.com/lagonapp/lagon/commit/d5be71752372260eeabe363e40b3e5b37a6a2d7c) Thanks [@renovate](https://github.com/apps/renovate)! - Add `FileReader` & `ProgressEvent` docs
+
+* [#490](https://github.com/lagonapp/lagon/pull/490) [`9a67eb7`](https://github.com/lagonapp/lagon/commit/9a67eb77e5927eb6e0da296df7d9aeb02711a86f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Limit the number of `fetch()` calls to 20 per execution
+
+- [#495](https://github.com/lagonapp/lagon/pull/495) [`c8349b7`](https://github.com/lagonapp/lagon/commit/c8349b75f4d84ca54643da799c3d05515daf6420) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add san-francisco-us-west and bangalore-ap-south regions
+
 ## 0.1.2
 
 ### Patch Changes
