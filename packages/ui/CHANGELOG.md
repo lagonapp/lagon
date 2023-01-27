@@ -1,5 +1,15 @@
 # @lagon/ui
 
+## 0.2.1
+
+### Patch Changes
+
+- [#487](https://github.com/lagonapp/lagon/pull/487) [`4ed9c5a`](https://github.com/lagonapp/lagon/commit/4ed9c5a89264f8adf0d34acb1b2a0b5102b971fd) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Nav border width
+
+* [#487](https://github.com/lagonapp/lagon/pull/487) [`4ed9c5a`](https://github.com/lagonapp/lagon/commit/4ed9c5a89264f8adf0d34acb1b2a0b5102b971fd) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add missing target prop for Button with href
+
+- [#487](https://github.com/lagonapp/lagon/pull/487) [`4ed9c5a`](https://github.com/lagonapp/lagon/commit/4ed9c5a89264f8adf0d34acb1b2a0b5102b971fd) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add an image prop to EmptyState
+
 ## 0.2.0
 
 ### Minor Changes

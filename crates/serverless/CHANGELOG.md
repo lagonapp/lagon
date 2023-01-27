@@ -1,5 +1,13 @@
 # @lagon/serverless
 
+## 0.1.16
+
+### Patch Changes
+
+- [#484](https://github.com/lagonapp/lagon/pull/484) [`d487cd0`](https://github.com/lagonapp/lagon/commit/d487cd0aa08cd0f9908a096133a3705aceeee73f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Always drop isolates on the same thread as created
+
+* [#493](https://github.com/lagonapp/lagon/pull/493) [`f15be2f`](https://github.com/lagonapp/lagon/commit/f15be2f4f568c0a42ab247104d8198d688a0413d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support cron deployments
+
 ## 0.1.15
 
 ### Patch Changes
