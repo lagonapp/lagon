@@ -3,6 +3,8 @@ import { randomName } from '@scaleway/use-random-name';
 import { TRPCError } from '@trpc/server';
 import type { Plan } from 'lib/plans';
 
+const LAGON_BLACKLISTED_FUNCTIONS_NAMES = process.env.LAGON_BLACKLISTED_NAMES?.split(',') ?? [];
+
 export async function isFunctionNameUnique(name: string): Promise<boolean> {
   const result = await prisma.function.findFirst({
     where: {
@@ -22,6 +24,10 @@ export async function findUniqueFunctionName(): Promise<string> {
   }
 
   return name;
+}
+
+export function isFunctionNameBlacklisted(name: string): boolean {
+  return LAGON_BLACKLISTED_FUNCTIONS_NAMES.includes(name.toLowerCase());
 }
 
 export async function checkCanCreateFunction({
