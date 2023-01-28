@@ -1,10 +1,10 @@
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
-import { Button, Card, Description, Text } from '@lagon/ui';
+import { Button, Card, Description, Skeleton, Text } from '@lagon/ui';
 import { trpc } from 'lib/trpc';
 import { useI18n } from 'locales';
 import { getPlanFromPriceId } from 'lib/plans';
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import useFunctions from 'lib/hooks/useFunctions';
 import useFunctionsUsage from 'lib/hooks/useFunctionsUsage';
 
@@ -12,14 +12,47 @@ function formatNumber(number = 0) {
   return number.toLocaleString();
 }
 
-const SettingsBillingUsage = () => {
+const Requests = () => {
   const { data: session } = useSession();
-  const organizationPlan = trpc.organizationPlan.useMutation();
-  const organizationCheckout = trpc.organizationCheckout.useMutation();
+  const plan = getPlanFromPriceId({
+    priceId: session?.organization?.stripePriceId,
+    currentPeriodEnd: session?.organization?.stripeCurrentPeriodEnd,
+  });
   const functions = useFunctions();
   const usage = useFunctionsUsage({
     functions: functions.data?.map(func => func.id) ?? [],
   });
+  const { scopedT } = useI18n();
+  const t = scopedT('settings');
+
+  return (
+    <Description title={t('usage.requests')} total={formatNumber(plan.freeRequests)}>
+      {formatNumber(Math.round(usage?.data ?? 0))}
+    </Description>
+  );
+};
+
+const Functions = () => {
+  const { data: session } = useSession();
+  const plan = getPlanFromPriceId({
+    priceId: session?.organization?.stripePriceId,
+    currentPeriodEnd: session?.organization?.stripeCurrentPeriodEnd,
+  });
+  const functions = useFunctions();
+  const { scopedT } = useI18n();
+  const t = scopedT('settings');
+
+  return (
+    <Description title={t('usage.functions')} total={plan.maxFunctions}>
+      {functions.data?.length || 0}
+    </Description>
+  );
+};
+
+const SettingsBillingUsage = () => {
+  const { data: session } = useSession();
+  const organizationPlan = trpc.organizationPlan.useMutation();
+  const organizationCheckout = trpc.organizationCheckout.useMutation();
   const [isLoadingPlan, setIsLoadingPlan] = useState(false);
   const { scopedT } = useI18n();
   const t = scopedT('settings');
@@ -64,13 +97,25 @@ const SettingsBillingUsage = () => {
     <div className="flex flex-col gap-8">
       <Card title={t('usage.title')} description={t('usage.description')}>
         <div className="flex justify-between flex-wrap gap-4">
-          <Description title="Total requests" total={formatNumber(plan.freeRequests)}>
-            {formatNumber(Math.round(usage?.data ?? 0))}
-          </Description>
-          <Description title="Functions" total={plan.maxFunctions}>
-            {functions.data?.length || 0}
-          </Description>
-          <Description title="Organization members" total={plan.organizationMembers}>
+          <Suspense
+            fallback={
+              <Description title={t('usage.requests')}>
+                <Skeleton variant="text" />
+              </Description>
+            }
+          >
+            <Requests />
+          </Suspense>
+          <Suspense
+            fallback={
+              <Description title={t('usage.functions')}>
+                <Skeleton variant="text" />
+              </Description>
+            }
+          >
+            <Functions />
+          </Suspense>
+          <Description title={t('usage.members')} total={plan.organizationMembers}>
             1
           </Description>
         </div>

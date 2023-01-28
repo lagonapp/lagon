@@ -83,6 +83,9 @@ export default {
   'settings.usage.title': 'Usage',
   'settings.usage.description':
     'View the usage and limits of this Organization for the current month. Requests usage resets at the beginning of each month.',
+  'settings.usage.requests': 'Total requests',
+  'settings.usage.functions': 'Functions',
+  'settings.usage.members': 'Organization members',
 
   'settings.subcription.title': 'Subscription',
   'settings.subcription.description': 'Upgrade and manage the subscription of this Organization.',

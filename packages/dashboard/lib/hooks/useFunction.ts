@@ -1,12 +1,12 @@
 import { trpc } from 'lib/trpc';
 
-const useFunction = (functionId?: string) => {
+const useFunction = (functionId?: string, suspense = true) => {
   return trpc.functionGet.useQuery(
     {
       functionId: functionId || '',
     },
     {
-      suspense: false,
+      suspense,
       enabled: !!functionId,
     },
   );
