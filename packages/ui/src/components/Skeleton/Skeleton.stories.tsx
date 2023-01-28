@@ -8,3 +8,5 @@ export default {
 export const Card: ComponentStory<typeof Skeleton> = () => <Skeleton variant="card" />;
 
 export const Log: ComponentStory<typeof Skeleton> = () => <Skeleton variant="log" />;
+
+export const Text: ComponentStory<typeof Skeleton> = () => <Skeleton variant="text" />;

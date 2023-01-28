@@ -9,10 +9,21 @@ type CardProps = {
   rightItem?: ReactElement;
   fullWidth?: boolean;
   onClick?: MouseEventHandler;
+  onHover?: MouseEventHandler;
   children: ReactNode;
 } & VariantProps<typeof variants>;
 
-export const Card = ({ clickable, title, description, rightItem, fullWidth, onClick, danger, children }: CardProps) => {
+export const Card = ({
+  clickable,
+  title,
+  description,
+  rightItem,
+  fullWidth,
+  onClick,
+  onHover,
+  danger,
+  children,
+}: CardProps) => {
   const styles = variants({ clickable, danger });
 
   return (
@@ -25,7 +36,7 @@ export const Card = ({ clickable, title, description, rightItem, fullWidth, onCl
           {rightItem}
         </div>
       ) : null}
-      <div onClick={onClick} className={styles}>
+      <div onClick={onClick} onMouseEnter={onHover} className={styles}>
         {description ? <Text>{description}</Text> : null}
         {children}
       </div>

@@ -87,6 +87,9 @@ export default defineLocale({
   'settings.usage.title': 'Utilisation',
   'settings.usage.description':
     "Voici l'utilisation et les limites de cette Organisation. L'utilisation des requêtes est remis à 0 au début de chaque mois.",
+  'settings.usage.requests': 'Requêtes',
+  'settings.usage.functions': 'Fonctions',
+  'settings.usage.members': "Membres dans l'Organisation",
 
   'settings.subcription.title': 'Abonnement',
   'settings.subcription.description': ' Upgrade and manage the subscription of this Organization.',

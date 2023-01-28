@@ -13,11 +13,7 @@ export const Description = ({ title, total, children }: TextProps) => {
       <Text>{title}:</Text>
       <Text size="lg">
         {children}
-        {total ? (
-          <>
-            <Text size="sm">/{total}</Text>
-          </>
-        ) : null}
+        {total ? <Text size="sm">/{total}</Text> : null}
       </Text>
     </div>
   );
