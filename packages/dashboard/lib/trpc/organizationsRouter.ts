@@ -6,7 +6,6 @@ import {
   ORGANIZATION_NAME_MIN_LENGTH,
 } from 'lib/constants';
 import prisma from 'lib/prisma';
-import { sendEmail, sendTestEmail } from 'lib/smtp';
 import { stripe } from 'lib/stripe';
 import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
@@ -67,8 +66,6 @@ export const organizationsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input, ctx }) => {
-        await sendTestEmail();
-
         await checkIsOrganizationOwner({
           organizationId: input.organizationId,
           ownerId: ctx.session.user.id,

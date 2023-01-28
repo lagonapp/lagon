@@ -5,6 +5,7 @@ import prisma from 'lib/prisma';
 import apiHandler from 'lib/api';
 import * as Sentry from '@sentry/nextjs';
 import { createOrAssignDefaultOrganization } from 'lib/api/users';
+import { sendWelcomeEmail } from 'lib/smtp';
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -118,6 +119,13 @@ export const authOptions: NextAuthOptions = {
         id: user.id,
         name: user.name,
       });
+
+      if (user.email && user.name) {
+        await sendWelcomeEmail({
+          to: user.email,
+          name: user.name,
+        });
+      }
     },
   },
 };

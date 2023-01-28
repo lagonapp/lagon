@@ -2,7 +2,7 @@ import { createTransport } from 'nodemailer';
 import { ReactElement } from 'react';
 import { render } from '@react-email/render';
 import * as Sentry from '@sentry/nextjs';
-import Test from './test';
+import { Welcome } from './Welcome';
 
 const createTransporter = () => {
   const port = parseInt(process.env.SMTP_PORT!);
@@ -18,11 +18,9 @@ const createTransporter = () => {
   });
 };
 
-export const sendEmail = async ({ to, subject, email }: { to: string; subject: string; email: ReactElement }) => {
+const sendEmail = async ({ to, subject, email }: { to: string; subject: string; email: ReactElement }) => {
   try {
-    console.log('Sending email to', to, 'with subject', subject);
     const transporter = createTransporter();
-    console.log('Transporter created');
 
     await transporter.sendMail({
       to,
@@ -30,17 +28,15 @@ export const sendEmail = async ({ to, subject, email }: { to: string; subject: s
       subject,
       html: render(email),
     });
-    console.log('Email sent');
   } catch (error) {
     Sentry.captureException(error);
     console.error(error);
   }
 };
 
-export const sendTestEmail = async () => {
-  await sendEmail({
-    to: 'contact@lagon.app',
-    subject: 'Organization updated',
-    email: <Test url="https://google.com" />,
+export const sendWelcomeEmail = async ({ to, name }: { to: string; name: string }) =>
+  sendEmail({
+    to,
+    subject: 'Welcome to Lagon',
+    email: <Welcome name={name} />,
   });
-};
