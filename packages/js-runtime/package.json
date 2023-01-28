@@ -8,12 +8,13 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "vitest --run",
-    "build": "esbuild src/index.ts --format=esm --bundle --outdir=dist",
+    "build": "esbuild src/index.ts --format=esm --bundle --outdir=dist --minify",
     "lint": "eslint --cache .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "abortcontroller-polyfill": "^1.7.5",
+    "urlpattern-polyfill": "^6.0.2",
     "web-streams-polyfill": "^3.2.1"
   }
 }
