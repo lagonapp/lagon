@@ -1,19 +1,17 @@
 import LayoutTitle from 'lib/components/LayoutTitle';
-import { Button, Card, Dialog, Divider, Form, Input, Text } from '@lagon/ui';
+import { Button, Card, Dialog, Divider, Form, Input, Skeleton, Text } from '@lagon/ui';
 import { requiredValidator } from 'lib/form/validators';
 import useTokens from 'lib/hooks/useTokens';
 import { trpc } from 'lib/trpc';
 import { getLocaleProps, useI18n } from 'locales';
 import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
-import { useCallback } from 'react';
+import { Suspense, useCallback } from 'react';
 import toast from 'react-hot-toast';
 
-const Profile = () => {
-  const { data: session } = useSession();
+const Tokens = () => {
   const { data: tokens = [], refetch } = useTokens();
   const deleteToken = trpc.tokensDelete.useMutation();
-  const updateAccount = trpc.accountUpdate.useMutation();
   const { scopedT } = useI18n();
   const t = scopedT('profile');
 
@@ -30,6 +28,54 @@ const Profile = () => {
   );
 
   return (
+    <Card title={t('tokens.title')} description={t('tokens.description')}>
+      <div>
+        {tokens?.map(token => (
+          <div key={token.id}>
+            <Divider />
+            <div className="flex items-center justify-between px-4 gap-4">
+              <Text strong>********</Text>
+              <Text size="sm">
+                {t('tokens.created')}&nbsp;
+                {new Date(token.createdAt).toLocaleString('en-US', {
+                  minute: 'numeric',
+                  hour: 'numeric',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </Text>
+              <Dialog
+                title={t('tokens.delete.modal.title')}
+                description={t('tokens.delete.modal.description')}
+                disclosure={
+                  <Button variant="danger" disabled={deleteToken.isLoading}>
+                    {t('tokens.delete.submit')}
+                  </Button>
+                }
+              >
+                <Dialog.Buttons>
+                  <Dialog.Cancel disabled={deleteToken.isLoading} />
+                  <Dialog.Action variant="danger" onClick={() => removeToken(token)} disabled={deleteToken.isLoading}>
+                    {t('tokens.delete.modal.submit')}
+                  </Dialog.Action>
+                </Dialog.Buttons>
+              </Dialog>
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+};
+
+const Profile = () => {
+  const { data: session } = useSession();
+  const updateAccount = trpc.accountUpdate.useMutation();
+  const { scopedT } = useI18n();
+  const t = scopedT('profile');
+
+  return (
     <LayoutTitle title={t('title')}>
       <div className="flex flex-col gap-8">
         <Card title={t('information.title')} description={t('information.description')}>
@@ -43,8 +89,6 @@ const Profile = () => {
                 name,
                 email,
               });
-
-              await refetch();
             }}
             onSubmitSuccess={() => {
               toast.success(t('information.success'));
@@ -70,48 +114,9 @@ const Profile = () => {
             </Button>
           </Form>
         </Card>
-        <Card title={t('tokens.title')} description={t('tokens.description')}>
-          <div>
-            {tokens?.map(token => (
-              <div key={token.id}>
-                <Divider />
-                <div className="flex items-center justify-between px-4 gap-4">
-                  <Text strong>********</Text>
-                  <Text size="sm">
-                    {t('tokens.created')}&nbsp;
-                    {new Date(token.createdAt).toLocaleString('en-US', {
-                      minute: 'numeric',
-                      hour: 'numeric',
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })}
-                  </Text>
-                  <Dialog
-                    title={t('tokens.delete.modal.title')}
-                    description={t('tokens.delete.modal.description')}
-                    disclosure={
-                      <Button variant="danger" disabled={deleteToken.isLoading}>
-                        {t('tokens.delete.submit')}
-                      </Button>
-                    }
-                  >
-                    <Dialog.Buttons>
-                      <Dialog.Cancel disabled={deleteToken.isLoading} />
-                      <Dialog.Action
-                        variant="danger"
-                        onClick={() => removeToken(token)}
-                        disabled={deleteToken.isLoading}
-                      >
-                        {t('tokens.delete.modal.submit')}
-                      </Dialog.Action>
-                    </Dialog.Buttons>
-                  </Dialog>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
+        <Suspense fallback={<Skeleton variant="card" />}>
+          <Tokens />
+        </Suspense>
         <Card title={t('delete.title')} description={t('delete.description')} danger>
           <div className="flex gap-1">
             <Text strong>{t('delete.notAvailable')}</Text>
