@@ -1657,6 +1657,10 @@ Running ../../tools/wpt/dom/events/EventTarget-constructible.any.js
 TEST DONE 0 A constructed EventTarget can be used as expected
 TEST DONE 0 EventTarget can be subclassed
 Skipping ../../tools/wpt/dom/events/EventTarget-removeEventListener.any.js
+Running ../../tools/wpt/urlpattern/urlpattern-compare.any.js
+Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
+Running ../../tools/wpt/urlpattern/urlpattern.any.js
+Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
 1540 tests, 432 passed, 1099 failed
  -> 28% conformance
