@@ -15,6 +15,7 @@ import './runtime/global/navigator';
 import './runtime/global/timers';
 import './runtime/http/URLSearchParams';
 import './runtime/http/URL';
+import './runtime/http/URLPattern';
 import './runtime/http/Headers';
 import './runtime/http/FormData';
 import './runtime/http/Response';
