@@ -77,6 +77,11 @@ export class RequestResponseBody {
       return new Uint8Array();
     }
 
+    if (typeof this.body === 'string') {
+      this.bodyUsed = true;
+      return globalThis.__lagon__.TEXT_ENCODER.encode(this.body);
+    }
+
     return new Promise(resolve => {
       const reader = (this.body as ReadableStream<Uint8Array>).getReader();
       let result = new Uint8Array();
