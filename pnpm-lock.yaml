@@ -307,8 +307,8 @@ importers:
       eslint: ^8.16.0
       eslint-config-next: 13.1.6
       next: 13.1.6
-      nextra: 2.2.13
-      nextra-theme-docs: 2.2.13
+      nextra: 2.2.14
+      nextra-theme-docs: 2.2.14
       postcss: ^8.4.14
       react: 18.2.0
       react-dom: 18.2.0
@@ -317,8 +317,8 @@ importers:
     dependencies:
       '@vercel/analytics': 0.1.3_react@18.2.0
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
-      nextra: 2.2.13_3vryta7zmbcsw4rrqf4axjqggm
-      nextra-theme-docs: 2.2.13_3rbs2ldaglhvhq3udluncyna4q
+      nextra: 2.2.14_3vryta7zmbcsw4rrqf4axjqggm
+      nextra-theme-docs: 2.2.14_u6qwm625rg3t7ll2t4ybomvrai
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
     devDependencies:
@@ -16022,11 +16022,11 @@ packages:
       - '@babel/core'
       - babel-plugin-macros
 
-  /nextra-theme-docs/2.2.13_3rbs2ldaglhvhq3udluncyna4q:
-    resolution: {integrity: sha512-cMjxK/ooLaobm/3xxioKnyUrdTXcejMh1hB0bJirKZ7Vm5GdI3hHsvlE4hCj3mV3/JvusEaUx8VvApb2LsJ/FQ==}
+  /nextra-theme-docs/2.2.14_u6qwm625rg3t7ll2t4ybomvrai:
+    resolution: {integrity: sha512-QQcHOcAXSfrpbSX3FqXgcQ2favKLnBAczqKWbSDVEtgHiUG6s7pVpxclpKm5F1c/fP47v19USRq3BL/SZ4JEIQ==}
     peerDependencies:
       next: '>=9.5.3'
-      nextra: 2.2.13
+      nextra: 2.2.14
       react: '>=16.13.1'
       react-dom: '>=16.13.1'
     dependencies:
@@ -16041,15 +16041,15 @@ packages:
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       next-seo: 5.14.1_3vryta7zmbcsw4rrqf4axjqggm
       next-themes: 0.2.1_3vryta7zmbcsw4rrqf4axjqggm
-      nextra: 2.2.13_3vryta7zmbcsw4rrqf4axjqggm
+      nextra: 2.2.14_3vryta7zmbcsw4rrqf4axjqggm
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       scroll-into-view-if-needed: 3.0.3
       zod: 3.20.2
     dev: false
 
-  /nextra/2.2.13_3vryta7zmbcsw4rrqf4axjqggm:
-    resolution: {integrity: sha512-COTh3Dw00qkiOMKynJlJlWNbhjHwawoL3oc206+C9x8V0zRmWg0bbwpRYpVeJXw7E627G/zL2jw8iZG01pk8ZQ==}
+  /nextra/2.2.14_3vryta7zmbcsw4rrqf4axjqggm:
+    resolution: {integrity: sha512-kToTiTiE4qrQsQ9snFRqCGLLSjKSFgFV/BJm3yp/SRmkmCr1WaWrlmUTAuXlxM7PREbNaZouNSOJ0hGS92rM8A==}
     peerDependencies:
       next: '>=9.5.3'
       react: '>=16.13.1'
