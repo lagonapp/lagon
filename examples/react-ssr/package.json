@@ -2,6 +2,9 @@
   "name": "@lagon/example-react-ssr",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "lagon-dev": "lagon dev index.tsx -p public -c App.tsx"
+  },
   "dependencies": {
     "@types/react": "^18.0.9",
     "@types/react-dom": "^18.0.5",

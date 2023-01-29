@@ -34,8 +34,7 @@ function wrapPromise(promise) {
 }
 
 async function fetchUser() {
-  const res = await fetch('https://random-data-api.com/api/users/random_user');
-  return res.json();
+  return new Promise(resolve => setTimeout(() => resolve({ name: 'Tim' }), 1000));
 }
 
 const resource = fetchProfileData();

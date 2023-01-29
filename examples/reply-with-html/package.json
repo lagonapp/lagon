@@ -1,5 +1,8 @@
 {
   "name": "@lagon/example-reply-with-html",
   "version": "0.0.1",
-  "private": true
+  "private": true,
+  "scripts": {
+    "lagon-dev": "lagon dev index.ts"
+  }
 }
