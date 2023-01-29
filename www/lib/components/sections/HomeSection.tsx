@@ -15,7 +15,7 @@ export const HomeSection = () => {
     <section className="flex flex-col gap-8 items-center justify-center relative">
       <div className="flex flex-col gap-4 text-center items-center">
         <motion.a
-          href="https://tally.so/r/n9q1Rp"
+          href="https://docs.lagon.app/blog/alpha"
           target="_blank"
           className="text-grey text-base px-4 py-2 rounded-full bg-dark-gray hover:bg-blue-3 hover:text-white transition z-10 inline-flex gap-2"
           initial={{ opacity: 0 }}
