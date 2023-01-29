@@ -1,9 +1,16 @@
 {
-  "index": "Introduction",
-  "get-started": "Get started",
-  "runtime-apis": "Runtime APIs",
-  "cli": "CLI",
-  "cloud": "Cloud",
-  "self-hosted": "Self-hosted",
-  "contributing": "Contributing"
+    "blog": {
+        "type": "page",
+        "title": "Blog",
+        "theme": {
+            "typesetting": "article"
+        }
+    },
+    "index": "Introduction",
+    "get-started": "Get started",
+    "runtime-apis": "Runtime APIs",
+    "cli": "CLI",
+    "cloud": "Cloud",
+    "self-hosted": "Self-hosted",
+    "contributing": "Contributing"
 }
