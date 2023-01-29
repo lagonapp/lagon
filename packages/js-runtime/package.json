@@ -8,7 +8,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "vitest --run",
-    "build": "esbuild src/index.ts --format=esm --bundle --outdir=dist --minify",
+    "build": "esbuild src/index.ts --format=esm --bundle --outdir=dist --minify-syntax --minify-whitespace",
     "lint": "eslint --cache .",
     "typecheck": "tsc --noEmit"
   },

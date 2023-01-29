@@ -2,9 +2,12 @@
   "name": "@lagon/example-satori",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "lagon-dev": "lagon dev index.tsx"
+  },
   "dependencies": {
     "react": "18.1.0",
-    "satori": "^0.0.41",
-    "yoga-wasm-web": "^0.1.2"
+    "satori": "^0.1.2",
+    "yoga-wasm-web": "^0.3.0"
   }
 }
