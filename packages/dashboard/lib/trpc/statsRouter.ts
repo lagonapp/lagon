@@ -98,14 +98,9 @@ export const statsRouter = (t: T) =>
           };
         };
 
-        try {
-          const values = json.data.result[0].values;
+        const values = json.data.result[0]?.values;
 
-          return Number(values[values.length - 1][1]);
-        } catch (error) {
-          Sentry.captureException(error);
-          return 0;
-        }
+        return values ? Number(values[values.length - 1][1]) : 0;
       }),
     stats: t.procedure
       .input(
@@ -146,10 +141,10 @@ export const statsRouter = (t: T) =>
             }[],
           );
 
-        const usageValues = usage.result[0].values;
+        const usageValues = usage.result[0]?.values;
 
         return {
-          usage: Number(usageValues[usageValues.length - 1][1]),
+          usage: usageValues ? Number(usageValues[usageValues.length - 1][1]) : 0,
           requests: flatResult(requests),
           cpuTime: flatResult(cpuTime),
           bytesIn: flatResult(bytesIn),
