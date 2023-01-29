@@ -1,7 +1,6 @@
-// @ts-expect-error abortcontroller-polyfill isn't typed
-import { AbortController, AbortSignal } from 'abortcontroller-polyfill/dist/abortcontroller';
-
 (globalThis => {
+  const { AbortController, AbortSignal } = require('abortcontroller-polyfill/dist/abortcontroller');
+
   globalThis.AbortController = AbortController;
   globalThis.AbortSignal = AbortSignal;
 })(globalThis);
