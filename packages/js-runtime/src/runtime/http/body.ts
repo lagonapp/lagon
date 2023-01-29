@@ -68,7 +68,43 @@ export class RequestResponseBody {
   }
 
   async arrayBuffer(): Promise<ArrayBuffer> {
-    return this.text().then(text => globalThis.__lagon__.TEXT_ENCODER.encode(text));
+    if (this.bodyUsed) {
+      throw new TypeError('Body is already used');
+    }
+
+    if (!this.body) {
+      this.bodyUsed = true;
+      return new Uint8Array();
+    }
+
+    if (typeof this.body === 'string') {
+      this.bodyUsed = true;
+      return globalThis.__lagon__.TEXT_ENCODER.encode(this.body);
+    }
+
+    return new Promise(resolve => {
+      const reader = (this.body as ReadableStream<Uint8Array>).getReader();
+      let result = new Uint8Array();
+
+      const pull = () => {
+        reader.read().then(({ done, value }) => {
+          if (done) {
+            this.bodyUsed = true;
+            return resolve(result);
+          }
+
+          const newResult = new Uint8Array(result.length + value.length);
+          newResult.set(result);
+          newResult.set(value, result.length);
+
+          result = newResult;
+
+          pull();
+        });
+      };
+
+      pull();
+    });
   }
 
   async blob(): Promise<Blob> {

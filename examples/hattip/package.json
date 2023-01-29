@@ -2,6 +2,9 @@
   "name": "@lagon/example-hattip",
   "version": "0.0.1",
   "private": true,
+  "scripts": {
+    "lagon-dev": "lagon dev index.ts"
+  },
   "dependencies": {
     "@hattip/adapter-lagon": "^0.0.24",
     "@hattip/core": "^0.0.24"

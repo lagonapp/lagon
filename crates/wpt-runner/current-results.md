@@ -400,7 +400,7 @@ TEST DONE 1 Consume response's body as json (error case)
 TEST DONE 1 Consume response's body as formData with correct multipart type (error case)
 TEST DONE 1 Consume response's body as formData with correct urlencoded type
 TEST DONE 1 Consume response's body as formData without correct type (error case)
-TEST DONE 1 Consume empty blob response body as arrayBuffer
+TEST DONE 0 Consume empty blob response body as arrayBuffer
 TEST DONE 0 Consume empty text response body as arrayBuffer
 TEST DONE 1 Consume empty blob response body as text
 TEST DONE 0 Consume empty text response body as text
@@ -1662,5 +1662,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1540 tests, 432 passed, 1099 failed
+1540 tests, 433 passed, 1098 failed
  -> 28% conformance
