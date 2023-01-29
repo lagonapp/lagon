@@ -19,6 +19,7 @@ import {
   checkCanCreateFunction,
   checkCanQueryFunction,
   findUniqueFunctionName,
+  isFunctionNameBlacklisted,
   isFunctionNameUnique,
 } from 'lib/api/functions';
 import { getPlanFromPriceId } from 'lib/plans';
@@ -216,6 +217,21 @@ export const functionsRouter = (t: T) =>
         });
 
         const name = input.name || (await findUniqueFunctionName());
+        const isUnique = await isFunctionNameUnique(name);
+
+        if (!isUnique) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: 'A Function with the same name already exists',
+          });
+        }
+
+        if (isFunctionNameBlacklisted(name)) {
+          throw new TRPCError({
+            code: 'FORBIDDEN',
+            message: `Function name "${name}" is not allowed`,
+          });
+        }
 
         return prisma.function.create({
           data: {
@@ -353,6 +369,13 @@ export const functionsRouter = (t: T) =>
             throw new TRPCError({
               code: 'CONFLICT',
               message: 'A Function with the same name already exists',
+            });
+          }
+
+          if (isFunctionNameBlacklisted(input.name)) {
+            throw new TRPCError({
+              code: 'FORBIDDEN',
+              message: `Function name "${input.name}" is not allowed`,
             });
           }
 

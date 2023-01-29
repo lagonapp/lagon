@@ -1,5 +1,5 @@
 type SkeletonProps = {
-  variant: 'card' | 'log';
+  variant: 'card' | 'log' | 'text' | 'rect';
 };
 
 export const Skeleton = ({ variant }: SkeletonProps) => {
@@ -25,6 +25,10 @@ export const Skeleton = ({ variant }: SkeletonProps) => {
         <div className="h-3 w-4/5 bg-stone-200 dark:bg-stone-600 rounded" />
       </div>
     );
+  }
+
+  if (variant === 'text') {
+    return <div className="h-4 animate-pulse bg-stone-200 dark:bg-stone-600 rounded" />;
   }
 
   return null;

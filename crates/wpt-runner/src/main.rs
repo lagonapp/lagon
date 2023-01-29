@@ -197,6 +197,7 @@ async fn main() {
         test_directory(Path::new("../../tools/wpt/FileAPI/file")).await;
         test_directory(Path::new("../../tools/wpt/FileAPI/reading-data-section")).await;
         test_directory(Path::new("../../tools/wpt/dom/events")).await;
+        test_directory(Path::new("../../tools/wpt/urlpattern")).await;
     }
 
     let result = RESULT.lock().unwrap();

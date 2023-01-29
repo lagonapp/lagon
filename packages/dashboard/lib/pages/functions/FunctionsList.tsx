@@ -1,15 +1,28 @@
 import { useRouter } from 'next/router';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import FunctionLinks from 'lib/components/FunctionLinks';
 import useFunctions from 'lib/hooks/useFunctions';
 import { Card, Dot, Text, Button, EmptyState } from '@lagon/ui';
 import { useI18n } from 'locales';
+import useFunction from 'lib/hooks/useFunction';
 
 const FunctionsList = () => {
   const { data: functions } = useFunctions();
   const { push } = useRouter();
   const { scopedT } = useI18n();
   const t = scopedT('home');
+
+  // Used to preload the function data
+  const [hoveredFunctions, setHoveredFunctions] = useState<string[]>([]);
+  const [hoverFunction, setHoverFunction] = useState<string | undefined>();
+  useFunction(hoverFunction, false);
+
+  const preloadFunction = (functionId: string) => {
+    if (hoveredFunctions.includes(functionId)) return;
+
+    setHoveredFunctions([...hoveredFunctions, functionId]);
+    setHoverFunction(functionId);
+  };
 
   const navigateToFunction = useCallback(
     (functionId: string) => {
@@ -37,7 +50,12 @@ const FunctionsList = () => {
         />
       ) : null}
       {functions?.map(func => (
-        <Card key={func.id} clickable onClick={() => navigateToFunction(func.id)}>
+        <Card
+          key={func.id}
+          clickable
+          onClick={() => navigateToFunction(func.id)}
+          onHover={() => preloadFunction(func.id)}
+        >
           <div className="flex justify-between items-start whitespace-nowrap gap-4 relative">
             <Text size="lg">
               <Dot status="success" />

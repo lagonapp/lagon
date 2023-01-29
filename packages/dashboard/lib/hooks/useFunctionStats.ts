@@ -2,17 +2,15 @@ import { trpc } from 'lib/trpc';
 import { Timeframe } from 'lib/types';
 
 const useFunctionStats = ({ functionId, timeframe }: { functionId?: string; timeframe: Timeframe }) => {
-  const input = {
-    functionId: functionId || '',
-    timeframe,
-  };
-
-  const options = {
-    enabled: !!functionId,
-    suspense: false,
-  };
-
-  return trpc.stats.useQuery(input, options);
+  return trpc.stats.useQuery(
+    {
+      functionId: functionId || '',
+      timeframe,
+    },
+    {
+      enabled: !!functionId,
+    },
+  );
 };
 
 export default useFunctionStats;
