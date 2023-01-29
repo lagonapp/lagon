@@ -203,7 +203,7 @@ importers:
       '@react-email/container': 0.0.7-canary.1
       '@react-email/head': ^0.0.4
       '@react-email/hr': ^0.0.4
-      '@react-email/html': ^0.0.3
+      '@react-email/html': ^0.0.4
       '@react-email/img': ^0.0.4
       '@react-email/preview': ^0.0.5
       '@react-email/render': ^0.0.6
@@ -257,7 +257,7 @@ importers:
       '@react-email/container': 0.0.7-canary.1
       '@react-email/head': 0.0.4
       '@react-email/hr': 0.0.4
-      '@react-email/html': 0.0.3
+      '@react-email/html': 0.0.4
       '@react-email/img': 0.0.4
       '@react-email/preview': 0.0.5
       '@react-email/render': 0.0.6
@@ -5823,9 +5823,9 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@react-email/html/0.0.3:
-    resolution: {integrity: sha512-NtHzGq38StO95W/rASYy+qdzFEpqUDmEe5RMygxeaV/TTZbtLLRqycwk5B/dxq4DfreZE/GL0vAg6u6sMVLTPA==}
-    engines: {node: '>=18.0.0'}
+  /@react-email/html/0.0.4:
+    resolution: {integrity: sha512-7tRYSnudYAWez+NkPWOM8yLZH7EuYFtYdiLPnzpD+pf4cdk16Gz4up531DaIX6dNBbfbyEFpQxhXZxGeJ5ZkfQ==}
+    engines: {node: '>=16.0.0'}
     dev: false
 
   /@react-email/img/0.0.4:
