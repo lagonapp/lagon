@@ -345,7 +345,7 @@ pub async fn dev(
 
             if should_update {
                 // Clear the screen and put the cursor at first row & first col of the screen.
-                // print!("\x1B[2J\x1B[1;1H");
+                print!("\x1B[2J\x1B[1;1H");
                 println!("{}", info("Found change, updating..."));
 
                 let (index, assets) = bundle_function(&file, &client, &public_dir)?;
