@@ -13,7 +13,8 @@ use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use log::{
     set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,
 };
-use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
+use notify::event::ModifyKind;
+use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::fs;
@@ -71,7 +72,7 @@ fn parse_environment_variables(env: Option<PathBuf>) -> Result<HashMap<String, S
 }
 
 // This function is similar to packages/serverless/src/main.rs,
-// expect that we don't have multiple deployments and such multiple
+// except that we don't have multiple deployments and such multiple
 // threads to manage, and we don't manager logs and metrics.
 async fn handle_request(
     req: HyperRequest<Body>,
@@ -329,14 +330,28 @@ pub async fn dev(
     tokio::spawn(async move {
         let content = watcher_content.clone();
 
-        for _ in rx {
-            // Clear the screen and put the cursor at first row & first col of the screen.
-            print!("\x1B[2J\x1B[1;1H");
-            println!("{}", info("Found change, updating..."));
+        for event in rx.into_iter().flatten() {
+            let mut should_update = false;
 
-            let (index, assets) = bundle_function(&file, &client, &public_dir)?;
+            if let EventKind::Modify(modify) = event.kind {
+                if let ModifyKind::Data(_) = modify {
+                    should_update = true;
+                } else if let ModifyKind::Name(_) = modify {
+                    should_update = true;
+                }
+            } else if event.kind.is_create() || event.kind.is_modify() {
+                should_update = true;
+            }
 
-            *content.lock().await = (index, assets);
+            if should_update {
+                // Clear the screen and put the cursor at first row & first col of the screen.
+                print!("\x1B[2J\x1B[1;1H");
+                println!("{}", info("Found change, updating..."));
+
+                let (index, assets) = bundle_function(&file, &client, &public_dir)?;
+
+                *content.lock().await = (index, assets);
+            }
         }
 
         Ok::<(), Error>(())
