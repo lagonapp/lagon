@@ -14,9 +14,9 @@ const SignIn = () => {
   }
 
   return (
-    <div className="w-screen h-screen flex justify-center items-center bg-stone-50 dark:bg-stone-800">
+    <div className="flex h-screen w-screen items-center justify-center bg-stone-50 dark:bg-stone-800">
       <Card>
-        <div className="w-64 flex flex-col items-center text-center gap-8">
+        <div className="flex w-64 flex-col items-center gap-8 text-center">
           <div className="flex flex-col items-center gap-2">
             <Text size="xl">{t('title')}</Text>
             <Text>{t('description')}</Text>

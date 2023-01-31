@@ -34,7 +34,7 @@ const PlaygroundPage = () => {
 
   return (
     <>
-      <div className="w-screen h-12 flex border-b border-b-stone-200 dark:border-b-stone-700">
+      <div className="flex h-12 w-screen border-b border-b-stone-200 dark:border-b-stone-700">
         <Form
           onSubmit={async () => {
             if (!monaco || !func) {
@@ -80,7 +80,7 @@ const PlaygroundPage = () => {
             toast.error(t('deploy.error'));
           }}
         >
-          <div className="w-[50vw] flex justify-between px-2 items-center h-full">
+          <div className="flex h-full w-[50vw] items-center justify-between px-2">
             <Text>
               {t('title', {
                 functionName: func?.name || '',
@@ -88,23 +88,23 @@ const PlaygroundPage = () => {
             </Text>
             <div className="flex items-center gap-2">
               <Button href={`/functions/${func?.id}`}>{t('back')}</Button>
-              <Button variant="primary" leftIcon={<PlayIcon className="w-4 h-4" />} submit disabled={isLoading}>
+              <Button variant="primary" leftIcon={<PlayIcon className="h-4 w-4" />} submit disabled={isLoading}>
                 {t('deploy')}
               </Button>
             </div>
           </div>
         </Form>
-        <div className="w-[50vw] border-l border-l-stone-200 dark:border-l-stone-700 px-2 flex items-center gap-4">
-          <Button onClick={reloadIframe} leftIcon={<ArrowPathIcon className="w-4 h-4" />}>
+        <div className="flex w-[50vw] items-center gap-4 border-l border-l-stone-200 px-2 dark:border-l-stone-700">
+          <Button onClick={reloadIframe} leftIcon={<ArrowPathIcon className="h-4 w-4" />}>
             {t('reload')}
           </Button>
           {func ? <FunctionLinks func={func} /> : null}
         </div>
       </div>
-      <div className="w-screen flex" style={{ height: 'calc(100vh - 4rem - 3rem)' }}>
+      <div className="flex w-screen" style={{ height: 'calc(100vh - 4rem - 3rem)' }}>
         <Playground defaultValue={functionCode?.code || ''} width="50vw" height="100%" />
         <div className="w-[50vw] border-l border-l-stone-200 dark:border-b-stone-700">
-          {func ? <iframe ref={iframeRef} className="w-full h-full" src={getFullCurrentDomain(func)} /> : null}
+          {func ? <iframe ref={iframeRef} className="h-full w-full" src={getFullCurrentDomain(func)} /> : null}
         </div>
       </div>
     </>

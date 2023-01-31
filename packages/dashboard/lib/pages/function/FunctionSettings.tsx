@@ -52,7 +52,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         }}
       >
         <Card title={t('name.title')} description={t('name.description')}>
-          <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
+          <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
             <Input
               name="name"
               placeholder={t('name.placeholder')}
@@ -91,7 +91,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         }}
       >
         <Card title={t('domains.title')} description={t('domains.description')}>
-          <div className="flex flex-col md:flex-row gap-6 md:gap-0 justify-between items-start">
+          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:gap-0">
             <div className="flex flex-1 flex-col gap-1">
               <Text size="lg">{t('domains.default')}</Text>
               {func ? <Text>{getCurrentDomain(func)}</Text> : null}
@@ -99,7 +99,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
             <div className="flex flex-1 flex-col items-start gap-4">
               <div className="flex flex-col gap-1">
                 <Text size="lg">{t('domains.custom')}</Text>
-                <div className="flex gap-2 items-center">
+                <div className="flex items-center gap-2">
                   <TagsInput
                     name="domains"
                     placeholder={t('domains.custom.placeholder')}
@@ -139,8 +139,8 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
       >
         {({ values, form }) => (
           <Card title={t('cron.title')} description={t('cron.description')}>
-            <div className="flex flex-col md:flex-row gap-6 md:gap-0 justify-between items-start">
-              <div className="flex flex-1 flex-col gap-1 items-start">
+            <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:gap-0">
+              <div className="flex flex-1 flex-col items-start gap-1">
                 <Text size="lg">{t('cron.expression')}</Text>
                 <Input
                   name="cron"
@@ -149,7 +149,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                   validator={cronValidator}
                 />
               </div>
-              <div className="flex flex-1 flex-col gap-1 items-start">
+              <div className="flex flex-1 flex-col items-start gap-1">
                 <Text size="lg">{t('cron.region')}</Text>
                 <Menu>
                   <Menu.Button>
@@ -202,8 +202,8 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
       >
         {({ values, form }) => (
           <Card title={t('env.title')} description={t('env.description')}>
-            <div className="flex flex-col gap-4 items-start">
-              <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
+            <div className="flex flex-col items-start gap-4">
+              <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
                 <Input name="envKey" placeholder={t('env.placeholder.key')} disabled={updateFunction.isLoading} />
                 <Input
                   name="envValue"
@@ -231,7 +231,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
               </div>
               {values.env.map(({ key }: { key: string }) => {
                 return (
-                  <div key={key} className="flex flex-col md:flex-row gap-2 items-start md:items-center">
+                  <div key={key} className="flex flex-col items-start gap-2 md:flex-row md:items-center">
                     <Input name={`${key}-key`} placeholder={key} disabled />
                     <Input name={`${key}-value`} placeholder="*******" disabled />
                     <Button

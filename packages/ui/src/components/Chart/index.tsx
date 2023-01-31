@@ -215,10 +215,10 @@ export const Chart = ({ labels, datasets, axisTransform }: ChartProps) => {
   return (
     <div className="relative" ref={ref}>
       <div
-        className="absolute z-[10000] px-2 py-1 bg-white dark:bg-stone-900 shadow-md text-stone-800 dark:text-stone-200 text-sm rounded hidden pointer-events-none whitespace-pre"
+        className="pointer-events-none absolute z-[10000] hidden whitespace-pre rounded bg-white px-2 py-1 text-sm text-stone-800 shadow-md dark:bg-stone-900 dark:text-stone-200"
         id={tooltipId}
       >
-        <p className="text-xs text-stone-500 dark:text-stone-400 mb-1" id={`${tooltipId}-date`} />
+        <p className="mb-1 text-xs text-stone-500 dark:text-stone-400" id={`${tooltipId}-date`} />
         <div id={`${tooltipId}-content`} />
       </div>
     </div>

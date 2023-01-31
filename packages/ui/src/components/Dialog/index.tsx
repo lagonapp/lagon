@@ -29,7 +29,7 @@ type ButtonsProps = {
 };
 
 const Buttons = ({ children }: ButtonsProps) => {
-  return <div className="flex justify-end items-center mt-6 gap-2">{children}</div>;
+  return <div className="mt-6 flex items-center justify-end gap-2">{children}</div>;
 };
 
 type DialogProps = {
@@ -44,8 +44,8 @@ export const Dialog = ({ title, description, disclosure, children }: DialogProps
     <AlertDialog.Root>
       <AlertDialog.Trigger asChild>{disclosure}</AlertDialog.Trigger>
       <AlertDialog.Portal>
-        <AlertDialog.Overlay className="bg-stone-900/40 fixed inset-0 animate-fade" />
-        <AlertDialog.Content className="bg-white dark:bg-black w-[28rem] p-4 fixed top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[50%] rounded-md shadow-xl animate-fade-translate">
+        <AlertDialog.Overlay className="animate-fade fixed inset-0 bg-stone-900/40" />
+        <AlertDialog.Content className="animate-fade-translate fixed top-[50%] left-[50%] w-[28rem] -translate-x-[50%] -translate-y-[50%] transform rounded-md bg-white p-4 shadow-xl dark:bg-black">
           <div className="mb-6">
             <AlertDialog.Title asChild>
               <Text size="xl" className="mb-2">

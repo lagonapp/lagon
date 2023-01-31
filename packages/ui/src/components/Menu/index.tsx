@@ -26,7 +26,7 @@ type MenuItemsProps = {
 const MenuItems = ({ children }: MenuItemsProps) => {
   return (
     <RadixMenu.Portal>
-      <RadixMenu.Content className="w-56 rounded-md bg-white dark:bg-black shadow-lg shadow-stone-200 dark:shadow-stone-700 focus:outline-none p-2 z-10">
+      <RadixMenu.Content className="z-10 w-56 rounded-md bg-white p-2 shadow-lg shadow-stone-200 focus:outline-none dark:bg-black dark:shadow-stone-700">
         {children}
       </RadixMenu.Content>
     </RadixMenu.Portal>
@@ -48,9 +48,9 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
         <Link
           href={href}
           className={cx([
-            'focus:bg-stone-100 focus:dark:bg-stone-800 focus-visible:outline-none',
+            'focus:bg-stone-100 focus-visible:outline-none focus:dark:bg-stone-800',
             disabled ? 'cursor-not-allowed opacity-50' : '',
-            'select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center',
+            'flex w-full select-none items-center gap-2 rounded-md px-4 py-1 text-left text-sm text-stone-800 dark:text-stone-300',
           ])}
         >
           {icon}
@@ -66,9 +66,9 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
         type="button"
         onClick={onClick}
         className={cx([
-          'focus:bg-stone-100 focus:dark:bg-stone-800 focus-visible:outline-none',
+          'focus:bg-stone-100 focus-visible:outline-none focus:dark:bg-stone-800',
           disabled ? 'cursor-not-allowed opacity-50' : undefined,
-          'select-none text-sm text-stone-800 dark:text-stone-300 px-4 py-1 w-full rounded-md text-left flex gap-2 items-center',
+          'flex w-full select-none items-center gap-2 rounded-md px-4 py-1 text-left text-sm text-stone-800 dark:text-stone-300',
         ])}
       >
         {icon}

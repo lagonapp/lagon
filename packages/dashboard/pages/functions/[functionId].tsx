@@ -32,7 +32,7 @@ const Function = () => {
       <Nav defaultValue="overview">
         <Nav.List
           rightItem={
-            <Button href={`/playground/${func?.id}`} leftIcon={<PlayIcon className="w-4 h-4" />}>
+            <Button href={`/playground/${func?.id}`} leftIcon={<PlayIcon className="h-4 w-4" />}>
               {t('playground')}
             </Button>
           }

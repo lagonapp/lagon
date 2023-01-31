@@ -9,8 +9,8 @@ type NavListProps = {
 
 const NavList = ({ rightItem, children }: NavListProps) => {
   return (
-    <Tabs.List className="flex items-center justify-between border-b-2 border-b-stone-200 dark:border-b-stone-700 mb-8">
-      <div className="flex -mb-[2px] gap-2 overflow-x-scroll md:overflow-x-auto overflow-y-hidden">{children}</div>
+    <Tabs.List className="mb-8 flex items-center justify-between border-b-2 border-b-stone-200 dark:border-b-stone-700">
+      <div className="-mb-[2px] flex gap-2 overflow-y-hidden overflow-x-scroll md:overflow-x-auto">{children}</div>
       {rightItem}
     </Tabs.List>
   );
@@ -25,7 +25,7 @@ const NavLink = ({ value, children }: NavLinkProps) => {
   return (
     <Tabs.Trigger
       value={value}
-      className="select-none px-4 py-2 text-base transition text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
+      className="select-none px-4 py-2 text-base text-stone-500 transition hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
     >
       {children}
     </Tabs.Trigger>

@@ -15,7 +15,7 @@ const HeaderLink = ({ href, target, soon, children }: HeaderLinkProps) => {
     <a
       href={href}
       target={target}
-      className="text-sm text-gray-300 hover:text-white flex gap-1 items-center select-none transition"
+      className="flex select-none items-center gap-1 text-sm text-gray-300 transition hover:text-white"
     >
       {children}
       {soon ? <span className="text-xs text-gray-400">soon</span> : null}
@@ -25,7 +25,7 @@ const HeaderLink = ({ href, target, soon, children }: HeaderLinkProps) => {
 
 const Header = () => {
   return (
-    <header className="flex items-center justify-between max-w-4xl mx-auto mt-6 px-6 flex-col gap-2 md:flex-row md:gap-0">
+    <header className="mx-auto mt-6 flex max-w-4xl flex-col items-center justify-between gap-2 px-6 md:flex-row md:gap-0">
       <Link href="/">
         <Image width="105" height="32" className="h-8" src="/logo-white.png" alt="Lagon logo" />
       </Link>
