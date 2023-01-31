@@ -96,7 +96,7 @@ const SettingsBillingUsage = () => {
   return (
     <div className="flex flex-col gap-8">
       <Card title={t('usage.title')} description={t('usage.description')}>
-        <div className="flex justify-between flex-wrap gap-4">
+        <div className="flex flex-wrap justify-between gap-4">
           <Suspense
             fallback={
               <Description title={t('usage.requests')}>

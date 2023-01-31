@@ -11,9 +11,9 @@ type EmptyStateProps = {
 
 export const EmptyState = ({ title, description, action, image }: EmptyStateProps) => {
   return (
-    <div className="flex flex-col gap-8 text-center p-8 items-center">
+    <div className="flex flex-col items-center gap-8 p-8 text-center">
       {image ? <Image src={image} alt="" width={150} height={150} /> : null}
-      <div className="flex flex-col gap-2 max-w-[300px]">
+      <div className="flex max-w-[300px] flex-col gap-2">
         <Text size="xl">{title}</Text>
         <Text>{description}</Text>
       </div>

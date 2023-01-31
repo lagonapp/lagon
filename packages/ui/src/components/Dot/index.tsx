@@ -27,9 +27,9 @@ export const Dot = ({ status }: DotProps) => {
   }, [status]);
 
   return (
-    <span className="h-3 w-3 relative inline-flex mr-4 align-middle">
-      <span className={cx(['animate-ping absolute inline-flex h-full w-full rounded-full opacity-75', ringColor])} />
-      <span className={cx(['relative inline-flex rounded-full h-3 w-3', centerColor])} />
+    <span className="relative mr-4 inline-flex h-3 w-3 align-middle">
+      <span className={cx(['absolute inline-flex h-full w-full animate-ping rounded-full opacity-75', ringColor])} />
+      <span className={cx(['relative inline-flex h-3 w-3 rounded-full', centerColor])} />
     </span>
   );
 };

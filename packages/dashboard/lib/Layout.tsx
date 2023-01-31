@@ -40,7 +40,7 @@ const HeaderLink = ({ href, selected, target, children }: HeaderLinkProps) => {
     <Link
       href={href}
       target={target}
-      className={`${styles} select-none transition text-md hover:text-stone-800 dark:hover:text-stone-200`}
+      className={`${styles} text-md select-none transition hover:text-stone-800 dark:hover:text-stone-200`}
     >
       {children}
     </Link>
@@ -117,9 +117,9 @@ const Layout = ({ title, anonymous, children }: LayoutProps) => {
         <>
           {session?.organization || asPath === '/new' ? (
             <>
-              <div className="py-4 h-16 w-full bg-white dark:bg-stone-900 border-b border-b-stone-200 dark:border-b-stone-700">
-                <div className="flex justify-between mx-auto px-4 md:max-w-4xl">
-                  <div className="flex gap-6 items-center">
+              <div className="h-16 w-full border-b border-b-stone-200 bg-white py-4 dark:border-b-stone-700 dark:bg-stone-900">
+                <div className="mx-auto flex justify-between px-4 md:max-w-4xl">
+                  <div className="flex items-center gap-6">
                     <Link href="/">
                       <Image
                         src={`/icon-${theme === 'Dark' ? 'white' : 'black'}.png`}
@@ -141,39 +141,39 @@ const Layout = ({ title, anonymous, children }: LayoutProps) => {
                   {session?.organization ? (
                     <Menu>
                       <Menu.Button>
-                        <Button rightIcon={<ChevronDownIcon className="w-4 h-4" />}>{session.organization.name}</Button>
+                        <Button rightIcon={<ChevronDownIcon className="h-4 w-4" />}>{session.organization.name}</Button>
                       </Menu.Button>
                       <Menu.Items>
                         <Suspense fallback={null}>
                           <OrganizationsList />
                         </Suspense>
-                        <Menu.Item icon={<PlusIcon className="w-4 h-4" />} href="/new">
+                        <Menu.Item icon={<PlusIcon className="h-4 w-4" />} href="/new">
                           {t('header.menu.newOrganization')}
                         </Menu.Item>
-                        <Menu.Item icon={<CogIcon className="w-4 h-4" />} href="/settings">
+                        <Menu.Item icon={<CogIcon className="h-4 w-4" />} href="/settings">
                           {t('header.menu.settings')}
                         </Menu.Item>
                         <Menu>
                           <Menu.Button>
-                            <Menu.Item icon={<SunIcon className="w-4 h-4" />}>{t('header.menu.theme')}</Menu.Item>
+                            <Menu.Item icon={<SunIcon className="h-4 w-4" />}>{t('header.menu.theme')}</Menu.Item>
                           </Menu.Button>
                           <Menu.Items>
                             <Menu.Item
-                              icon={<SunIcon className="w-4 h-4" />}
+                              icon={<SunIcon className="h-4 w-4" />}
                               disabled={savedTheme === 'Light'}
                               onClick={() => updateTheme('Light')}
                             >
                               {t('header.menu.theme.light')}
                             </Menu.Item>
                             <Menu.Item
-                              icon={<MoonIcon className="w-4 h-4" />}
+                              icon={<MoonIcon className="h-4 w-4" />}
                               disabled={savedTheme === 'Dark'}
                               onClick={() => updateTheme('Dark')}
                             >
                               {t('header.menu.theme.dark')}
                             </Menu.Item>
                             <Menu.Item
-                              icon={<ComputerDesktopIcon className="w-4 h-4" />}
+                              icon={<ComputerDesktopIcon className="h-4 w-4" />}
                               disabled={savedTheme === 'System'}
                               onClick={() => updateTheme('System')}
                             >
@@ -182,12 +182,12 @@ const Layout = ({ title, anonymous, children }: LayoutProps) => {
                           </Menu.Items>
                         </Menu>
                         <Divider />
-                        <Menu.Item icon={<UserIcon className="w-4 h-4" />} href="/profile">
+                        <Menu.Item icon={<UserIcon className="h-4 w-4" />} href="/profile">
                           {t('header.menu.profile')}
                         </Menu.Item>
                         <Menu>
                           <Menu.Button>
-                            <Menu.Item icon={<LanguageIcon className="w-4 h-4" />}>
+                            <Menu.Item icon={<LanguageIcon className="h-4 w-4" />}>
                               {t('header.menu.language', {
                                 locale: locale as string,
                               })}
@@ -202,7 +202,7 @@ const Layout = ({ title, anonymous, children }: LayoutProps) => {
                             </Menu.Item>
                           </Menu.Items>
                         </Menu>
-                        <Menu.Item icon={<ArrowLeftOnRectangleIcon className="w-4 h-4" />} onClick={() => signOut()}>
+                        <Menu.Item icon={<ArrowLeftOnRectangleIcon className="h-4 w-4" />} onClick={() => signOut()}>
                           {t('header.menu.signOut')}
                         </Menu.Item>
                       </Menu.Items>
@@ -210,10 +210,10 @@ const Layout = ({ title, anonymous, children }: LayoutProps) => {
                   ) : null}
                 </div>
               </div>
-              <div className="bg-stone-50 dark:bg-stone-800 min-h-screen">{children}</div>
+              <div className="min-h-screen bg-stone-50 dark:bg-stone-800">{children}</div>
             </>
           ) : (
-            <div className="w-screen h-screen flex justify-center items-center">
+            <div className="flex h-screen w-screen items-center justify-center">
               <EmptyState
                 title={t('empty.title')}
                 description={t('empty.description')}

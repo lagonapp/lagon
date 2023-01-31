@@ -20,8 +20,8 @@ export const WithIcons: ComponentStory<typeof Menu> = () => (
   <Menu>
     <Menu.Button>Trigger</Menu.Button>
     <Menu.Items>
-      <Menu.Item icon={<UserPlusIcon className="w-4 h-4" />}>Menu item</Menu.Item>
-      <Menu.Item icon={<TrashIcon className="w-4 h-4" />}>Menu item</Menu.Item>
+      <Menu.Item icon={<UserPlusIcon className="h-4 w-4" />}>Menu item</Menu.Item>
+      <Menu.Item icon={<TrashIcon className="h-4 w-4" />}>Menu item</Menu.Item>
     </Menu.Items>
   </Menu>
 );

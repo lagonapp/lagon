@@ -33,7 +33,7 @@ const Tokens = () => {
         {tokens?.map(token => (
           <div key={token.id}>
             <Divider />
-            <div className="flex items-center justify-between px-4 gap-4">
+            <div className="flex items-center justify-between gap-4 px-4">
               <Text strong>********</Text>
               <Text size="sm">
                 {t('tokens.created')}&nbsp;
@@ -94,7 +94,7 @@ const Profile = () => {
               toast.success(t('information.success'));
             }}
           >
-            <div className="flex flex-col md:flex-row justify-between items-start gap-6 md:gap-12 mb-6">
+            <div className="mb-6 flex flex-col items-start justify-between gap-6 md:flex-row md:gap-12">
               <div className="flex flex-1 flex-col gap-1">
                 <Text size="lg">{t('information.name.title')}</Text>
                 <Input name="name" placeholder={t('information.name.placeholder')} validator={requiredValidator} />

@@ -43,7 +43,7 @@ const SettingsGeneral = () => {
         }}
       >
         <Card title={t('name.title')} description={t('name.description')}>
-          <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
+          <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
             <Input
               name="name"
               placeholder={t('name.placeholder')}
@@ -79,7 +79,7 @@ const SettingsGeneral = () => {
         }}
       >
         <Card title={t('description.title')} description={t('description.description')}>
-          <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
+          <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
             <Textarea
               name="description"
               placeholder={t('description.placeholder')}
