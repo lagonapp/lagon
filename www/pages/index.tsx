@@ -24,19 +24,19 @@ const Home = () => {
         )}
       </Head>
       <Header />
-      <div className="flex flex-col gap-8 items-center text-center mt-[8vh] md:mt-[26vh] max-w-2xl mx-auto px-6">
-        <h1 className={`text-white text-5xl leading-[46px] animate-fade z-10 ${poppins.className}`}>
+      <div className="mx-auto mt-[8vh] flex max-w-2xl flex-col items-center gap-8 px-6 text-center md:mt-[26vh]">
+        <h1 className={`animate-fade z-10 text-5xl leading-[46px] text-white ${poppins.className}`}>
           Deploy Serverless Functions at the&nbsp;
-          <span className="bg-clip-text text-transparent bg-gradient-to-br from-blue-500 to-purple-500">Edge</span>
+          <span className="bg-gradient-to-br from-blue-500 to-purple-500 bg-clip-text text-transparent">Edge</span>
         </h1>
-        <h2 className="text-gray-300 text-sm max-w-sm leading-relaxed animate-fade z-10">
+        <h2 className="animate-fade z-10 max-w-sm text-sm leading-relaxed text-gray-300">
           Lagon is an open source platform that allows you to run TypeScript and JavaScript close to your users.
         </h2>
         <div className="z-10 flex flex-col items-center gap-4">
           <a
             href="https://tally.so/r/n9q1Rp"
             target="_blank"
-            className="text-base text-purple-100 px-8 py-2 rounded-full bg-gradient-to-br from-purple-500/70 to-purple-500/0 border border-purple-500 transition duration-300 hover:shadow-purple-500/40 hover:shadow-xl hover:border-purple-400 animate-fade-slow select-none"
+            className="animate-fade-slow select-none rounded-full border border-purple-500 bg-gradient-to-br from-purple-500/70 to-purple-500/0 px-8 py-2 text-base text-purple-100 transition duration-300 hover:border-purple-400 hover:shadow-xl hover:shadow-purple-500/40"
             rel="noreferrer"
           >
             Get email updates
@@ -44,7 +44,7 @@ const Home = () => {
           <a
             href="https://discord.lagon.app"
             target="_blank"
-            className="text-sm text-gray-300 hover:text-white flex gap-1 items-center select-none z-10"
+            className="z-10 flex select-none items-center gap-1 text-sm text-gray-300 hover:text-white"
             rel="noreferrer"
           >
             <DiscordIcon />
