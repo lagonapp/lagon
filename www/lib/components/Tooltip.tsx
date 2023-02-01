@@ -12,7 +12,7 @@ export const Tooltip = ({ content, 'aria-label': ariaLabel, children }: TooltipP
     <RadixTooltip.Root>
       <RadixTooltip.Trigger aria-label={ariaLabel}>{children}</RadixTooltip.Trigger>
       <RadixTooltip.Portal>
-        <RadixTooltip.Content className="bg-dark text-sm px-2 py-1 rounded-md text-grey select-none tooltip">
+        <RadixTooltip.Content className="bg-dark text-grey tooltip select-none rounded-md px-2 py-1 text-sm">
           {content}
           <RadixTooltip.Arrow />
         </RadixTooltip.Content>

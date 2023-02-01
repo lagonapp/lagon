@@ -33,7 +33,7 @@ export const StatusBadge = () => {
 
   return (
     <Text size="a" href="https://status.lagon.app" target="_blank">
-      <i className={`inline-block w-3 h-3 rounded-full mr-2 ${STATUS_TO_COLOR[status]}`} />
+      <i className={`mr-2 inline-block h-3 w-3 rounded-full ${STATUS_TO_COLOR[status]}`} />
       {STATUS_TO_TEXT[status]}
     </Text>
   );

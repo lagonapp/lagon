@@ -19,9 +19,9 @@ const AnimatedBadge = ({ delay, children }: AnimatedBadgeProps) => (
 
 export const FeaturesSection = () => {
   return (
-    <section className="flex flex-col items-center gap-16 relative">
+    <section className="relative flex flex-col items-center gap-16">
       <div
-        className="absolute -top-32 h-[400px] w-full z-0"
+        className="absolute -top-32 z-0 h-[400px] w-full"
         style={{ background: 'radial-gradient(closest-side, rgb(12, 17, 36), transparent)' }}
       >
         {[...Array(20)].map((_, i) => (
@@ -39,19 +39,19 @@ export const FeaturesSection = () => {
       >
         <Text size="h2" className="z-10">
           Build faster&nbsp;
-          <span className="h-[60px] overflow-hidden inline-flex">
+          <span className="inline-flex h-[60px] overflow-hidden">
             <ul style={{ animation: 'text-carousel calc(2s * 4) steps(4) infinite' }}>
               {CATEGORIES.map((category, i) => (
                 <li
                   key={i}
-                  className="h-[60px] text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple"
+                  className="from-green to-purple h-[60px] bg-gradient-to-r via-[#5A7ACB] bg-clip-text text-transparent"
                   style={{ animation: 'text-carousel-line 2s infinite' }}
                 >
                   {category}
                 </li>
               ))}
               <li
-                className="h-[60px] text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple"
+                className="from-green to-purple h-[60px] bg-gradient-to-r via-[#5A7ACB] bg-clip-text text-transparent"
                 style={{ animation: 'text-carousel-line 2s infinite' }}
               >
                 {CATEGORIES[0]}
@@ -60,22 +60,22 @@ export const FeaturesSection = () => {
           </span>
         </Text>
       </motion.div>
-      <div className="flex flex-col gap-2 items-center">
-        <div className="flex gap-2 flex-wrap justify-center">
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-wrap justify-center gap-2">
           <AnimatedBadge delay={0.2}>Open source</AnimatedBadge>
           <AnimatedBadge delay={0.35}>Custom JS Runtime</AnimatedBadge>
         </div>
-        <div className="flex gap-2 flex-wrap justify-center">
+        <div className="flex flex-wrap justify-center gap-2">
           <AnimatedBadge delay={0.5}>Deploy with CLI, Playground, GitHub Action</AnimatedBadge>
           <AnimatedBadge delay={0.65}>HTTP/2</AnimatedBadge>
         </div>
-        <div className="flex gap-2 flex-wrap justify-center">
+        <div className="flex flex-wrap justify-center gap-2">
           <AnimatedBadge delay={0.8}>gzip / Brottli</AnimatedBadge>
           <AnimatedBadge delay={0.95}>Advanced statistics</AnimatedBadge>
           <AnimatedBadge delay={1.1}>Realtime logs</AnimatedBadge>
           <AnimatedBadge delay={1.25}>Cron triggers</AnimatedBadge>
         </div>
-        <div className="flex gap-2 flex-wrap justify-center">
+        <div className="flex flex-wrap justify-center gap-2">
           <AnimatedBadge delay={1.4}>Preview and Production deployments</AnimatedBadge>
           <AnimatedBadge delay={1.55}>Custom domains</AnimatedBadge>
           <AnimatedBadge delay={1.7}>Cloud or self-hosted</AnimatedBadge>

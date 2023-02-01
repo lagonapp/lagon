@@ -10,7 +10,7 @@ type FooterSectionProps = {
 
 const FooterSection = ({ title, children }: FooterSectionProps) => {
   return (
-    <div className="flex flex-col md:gap-4 gap-2">
+    <div className="flex flex-col gap-2 md:gap-4">
       <Text variant="bold">{title}</Text>
       {children}
     </div>
@@ -19,12 +19,12 @@ const FooterSection = ({ title, children }: FooterSectionProps) => {
 
 export const Footer = () => {
   return (
-    <footer className="container mx-auto flex lg:flex-row flex-col lg:gap-0 gap-12 justify-between py-16 px-8 mt-48">
+    <footer className="container mx-auto mt-48 flex flex-col justify-between gap-12 py-16 px-8 lg:flex-row lg:gap-0">
       <div className="flex flex-col justify-between gap-4 md:gap-0">
         <Image src="/logo-small-white.png" width="80" height="24" alt="Lagon Logo" />
         <Text>Copyright © {new Date().getFullYear()} Lagon</Text>
       </div>
-      <div className="flex md:gap-32 gap-12 justify-between flex-wrap">
+      <div className="flex flex-wrap justify-between gap-12 md:gap-32">
         <FooterSection title="Lagon">
           <Text size="a" href="https://docs.lagon.app/cli">
             CLI

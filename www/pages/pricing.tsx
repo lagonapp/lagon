@@ -77,7 +77,7 @@ const Pricing = () => {
         <title>Pricing - Lagon</title>
       </Head>
       <motion.div
-        className="flex flex-col items-center gap-4 z-10 relative"
+        className="relative z-10 flex flex-col items-center gap-4"
         initial={{ opacity: 0, top: 20 }}
         animate={{ opacity: 1, top: 0 }}
         transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
@@ -86,7 +86,7 @@ const Pricing = () => {
         <Text>Simple pricing that grows with you.</Text>
       </motion.div>
       <motion.div
-        className="flex flex-col xl:flex-row gap-4 xl:items-stretch items-center justify-center"
+        className="flex flex-col items-center justify-center gap-4 xl:flex-row xl:items-stretch"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.4 }}
@@ -94,20 +94,20 @@ const Pricing = () => {
         {PLANS.map(plan => (
           <Card
             key={plan.name}
-            className="rounded-2xl md:w-96 w-full flex flex-col justify-between gap-6 md:p-12 p-6"
+            className="flex w-full flex-col justify-between gap-6 rounded-2xl p-6 md:w-96 md:p-12"
             lineAnimation
           >
             <div className="flex flex-col gap-4">
               <Text
-                className={`!text-transparent bg-clip-text bg-gradient-to-r font-semibold ${plan.gradientFrom} ${plan.gradientTo}`}
+                className={`bg-gradient-to-r bg-clip-text font-semibold !text-transparent ${plan.gradientFrom} ${plan.gradientTo}`}
               >
                 {plan.name}
               </Text>
               <Text size="h3">{plan.price}</Text>
-              <div className="flex flex-col gap-4 my-6">
+              <div className="my-6 flex flex-col gap-4">
                 {plan.features.map(feature => (
                   <Text key={feature} className="flex items-center gap-2">
-                    <CheckIcon className="w-4 h-4 text-blue-1" />
+                    <CheckIcon className="text-blue-1 h-4 w-4" />
                     {feature}
                   </Text>
                 ))}
@@ -116,7 +116,7 @@ const Pricing = () => {
             <Button
               variant="primary"
               size="lg"
-              className="justify-self-end justify-center"
+              className="justify-center justify-self-end"
               href={plan.href}
               target={plan.target}
             >
@@ -125,178 +125,178 @@ const Pricing = () => {
           </Card>
         ))}
       </motion.div>
-      <div className="lg:overflow-x-visible overflow-x-scroll whitespace-nowrap">
-        <table className="table-auto text-grey mt-16 w-full">
-          <thead className="text-left sticky top-[74px] bg-dark/50 backdrop-blur">
+      <div className="overflow-x-scroll whitespace-nowrap lg:overflow-x-visible">
+        <table className="text-grey mt-16 w-full table-auto">
+          <thead className="bg-dark/50 sticky top-[74px] text-left backdrop-blur">
             <tr>
               <th></th>
-              <th className="text-2xl text-white font-semibold pb-8">Personal</th>
-              <th className="text-2xl text-white font-semibold pb-8">Pro</th>
-              <th className="text-2xl text-white font-semibold pb-8">Enterprise</th>
+              <th className="pb-8 text-2xl font-semibold text-white">Personal</th>
+              <th className="pb-8 text-2xl font-semibold text-white">Pro</th>
+              <th className="pb-8 text-2xl font-semibold text-white">Enterprise</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td className="text-base text-white font-semibold pt-2">Functions</td>
+              <td className="pt-2 text-base font-semibold text-white">Functions</td>
               <td></td>
               <td></td>
               <td></td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Free requests/month</td>
+              <td className="text-grey mr-8 py-4 text-base">Free requests/month</td>
               <td>3,000,000</td>
               <td>5,000,000</td>
               <td>Custom</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Additional requests/month</td>
+              <td className="text-grey mr-8 py-4 text-base">Additional requests/month</td>
               <td></td>
               <td>$1/million</td>
               <td>Custom</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">CPU time</td>
+              <td className="text-grey mr-8 py-4 text-base">CPU time</td>
               <td>10ms/request</td>
               <td>50ms/request</td>
               <td>Up to 1s/request</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">CPU startup time</td>
+              <td className="text-grey mr-8 py-4 text-base">CPU startup time</td>
               <td>100ms</td>
               <td>200ms</td>
               <td>Up to 1s</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Memory</td>
+              <td className="text-grey mr-8 py-4 text-base">Memory</td>
               <td>128MB</td>
               <td>128MB</td>
               <td>Up to 1GB</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Code size</td>
+              <td className="text-grey mr-8 py-4 text-base">Code size</td>
               <td>10MB</td>
               <td>10MB</td>
               <td>Custom</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Asset size</td>
+              <td className="text-grey mr-8 py-4 text-base">Asset size</td>
               <td>10MB</td>
               <td>10MB</td>
               <td>Custom</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Assets per Deployment</td>
+              <td className="text-grey mr-8 py-4 text-base">Assets per Deployment</td>
               <td>100</td>
               <td>100</td>
               <td>Custom</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Automatic HTTPS</td>
+              <td className="text-grey mr-8 py-4 text-base">Automatic HTTPS</td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Custom domains</td>
+              <td className="text-grey mr-8 py-4 text-base">Custom domains</td>
               <td>10</td>
               <td>10</td>
               <td>Custom</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Environment variables</td>
+              <td className="text-grey mr-8 py-4 text-base">Environment variables</td>
               <td>100</td>
               <td>100</td>
               <td>Custom</td>
             </tr>
             <tr>
-              <td className="text-base text-white font-semibold pt-8 pb-2">Platform</td>
+              <td className="pt-8 pb-2 text-base font-semibold text-white">Platform</td>
               <td></td>
               <td></td>
               <td></td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Regions</td>
+              <td className="text-grey mr-8 py-4 text-base">Regions</td>
               <td>{REGIONS}</td>
               <td>{REGIONS}</td>
               <td>On-demand regions</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Preview deployments</td>
+              <td className="text-grey mr-8 py-4 text-base">Preview deployments</td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
-              </td>
-            </tr>
-            <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Cron triggers</td>
-              <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
-              </td>
-              <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
-              </td>
-              <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Organization members</td>
+              <td className="text-grey mr-8 py-4 text-base">Cron triggers</td>
+              <td>
+                <CheckIcon className="text-blue-1 h-4 w-4" />
+              </td>
+              <td>
+                <CheckIcon className="text-blue-1 h-4 w-4" />
+              </td>
+              <td>
+                <CheckIcon className="text-blue-1 h-4 w-4" />
+              </td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-grey mr-8 py-4 text-base">Organization members</td>
               <td>1</td>
               <td>10</td>
               <td>Unlimited</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Logs</td>
+              <td className="text-grey mr-8 py-4 text-base">Logs</td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-base text-grey py-4 mr-8">Analytics</td>
+              <td className="text-grey mr-8 py-4 text-base">Analytics</td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
               <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
-              </td>
-            </tr>
-            <tr>
-              <td className="text-base text-grey py-4 mr-8">Advanced analytics</td>
-              <td></td>
-              <td></td>
-              <td>
-                <CheckIcon className="w-4 h-4 text-blue-1" />
+                <CheckIcon className="text-blue-1 h-4 w-4" />
               </td>
             </tr>
             <tr>
+              <td className="text-grey mr-8 py-4 text-base">Advanced analytics</td>
+              <td></td>
               <td></td>
               <td>
-                <Button variant="primary" href="https://tally.so/r/n9q1Rp" target="_blank" className="w-48 mr-8">
+                <CheckIcon className="text-blue-1 h-4 w-4" />
+              </td>
+            </tr>
+            <tr>
+              <td></td>
+              <td>
+                <Button variant="primary" href="https://tally.so/r/n9q1Rp" target="_blank" className="mr-8 w-48">
                   Join the waitlist
                 </Button>
               </td>
               <td>
-                <Button variant="primary" href="https://tally.so/r/n9q1Rp" target="_blank" className="w-48 mr-8">
+                <Button variant="primary" href="https://tally.so/r/n9q1Rp" target="_blank" className="mr-8 w-48">
                   Join the waitlist
                 </Button>
               </td>

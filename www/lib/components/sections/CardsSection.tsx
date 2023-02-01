@@ -25,7 +25,7 @@ const CustomCard = ({ icon, title, description, delay }: CustomCardProps) => (
     transition={{ delay }}
     viewport={{ once: true }}
   >
-    <Card lineAnimation className="flex flex-col gap-4 md:p-12 p-6 rounded-2xl">
+    <Card lineAnimation className="flex flex-col gap-4 rounded-2xl p-6 md:p-12">
       {icon}
       <Text size="h3">{title}</Text>
       <Text className="justify-self-end">{description}</Text>
@@ -44,11 +44,11 @@ export const CardsSection = () => {
       >
         <Text size="h2">Packed with features</Text>
       </motion.div>
-      <div className="grid md:gap-6 gap-4 grid-cols-1 grid-rows-6 sm:grid-cols-2 sm:grid-rows-3 lg:grid-cols-3 lg:grid-rows-2">
+      <div className="grid grid-cols-1 grid-rows-6 gap-4 sm:grid-cols-2 sm:grid-rows-3 md:gap-6 lg:grid-cols-3 lg:grid-rows-2">
         <CustomCard
           icon={
-            <div className="rounded-full w-16 h-16 p-[1px] bg-gradient-to-b from-[#8dc2fb] to-[#446EFF]">
-              <div className="rounded-full bg-gradient-to-b from-blue-1 to-[#446EFF] flex items-center justify-center h-full">
+            <div className="h-16 w-16 rounded-full bg-gradient-to-b from-[#8dc2fb] to-[#446EFF] p-[1px]">
+              <div className="from-blue-1 flex h-full items-center justify-center rounded-full bg-gradient-to-b to-[#446EFF]">
                 <WorldIcon />
               </div>
             </div>
@@ -59,8 +59,8 @@ export const CardsSection = () => {
         />
         <CustomCard
           icon={
-            <div className="rounded-full w-16 h-16 p-[1px] bg-gradient-to-b from-[#86fbd5] to-[#14BDB3]">
-              <div className="rounded-full bg-gradient-to-b from-green to-[#14BDB3] flex items-center justify-center h-full">
+            <div className="h-16 w-16 rounded-full bg-gradient-to-b from-[#86fbd5] to-[#14BDB3] p-[1px]">
+              <div className="from-green flex h-full items-center justify-center rounded-full bg-gradient-to-b to-[#14BDB3]">
                 <RollbackIcon />
               </div>
             </div>
@@ -71,8 +71,8 @@ export const CardsSection = () => {
         />
         <CustomCard
           icon={
-            <div className="rounded-full w-16 h-16 p-[1px] bg-gradient-to-b from-[#c797fa] to-[#6C04AC]">
-              <div className="rounded-full bg-gradient-to-b from-purple to-[#6C04AC] flex items-center justify-center h-full">
+            <div className="h-16 w-16 rounded-full bg-gradient-to-b from-[#c797fa] to-[#6C04AC] p-[1px]">
+              <div className="from-purple flex h-full items-center justify-center rounded-full bg-gradient-to-b to-[#6C04AC]">
                 <StatsIcon />
               </div>
             </div>
@@ -83,8 +83,8 @@ export const CardsSection = () => {
         />
         <CustomCard
           icon={
-            <div className="rounded-full w-16 h-16 p-[1px] bg-gradient-to-b from-[#86fbd5] to-[#14BDB3]">
-              <div className="rounded-full bg-gradient-to-b from-green to-[#14BDB3] flex items-center justify-center h-full">
+            <div className="h-16 w-16 rounded-full bg-gradient-to-b from-[#86fbd5] to-[#14BDB3] p-[1px]">
+              <div className="from-green flex h-full items-center justify-center rounded-full bg-gradient-to-b to-[#14BDB3]">
                 <APIsIcon />
               </div>
             </div>
@@ -105,8 +105,8 @@ export const CardsSection = () => {
         />
         <CustomCard
           icon={
-            <div className="rounded-full w-16 h-16 p-[1px] bg-gradient-to-b from-[#c797fa] to-[#6C04AC]">
-              <div className="rounded-full bg-gradient-to-b from-purple to-[#6C04AC] flex items-center justify-center h-full">
+            <div className="h-16 w-16 rounded-full bg-gradient-to-b from-[#c797fa] to-[#6C04AC] p-[1px]">
+              <div className="from-purple flex h-full items-center justify-center rounded-full bg-gradient-to-b to-[#6C04AC]">
                 <DollarIcon />
               </div>
             </div>
@@ -117,8 +117,8 @@ export const CardsSection = () => {
         />
         <CustomCard
           icon={
-            <div className="rounded-full w-16 h-16 p-[1px] bg-gradient-to-b from-[#8dc2fb] to-[#446EFF]">
-              <div className="rounded-full bg-gradient-to-b from-blue-1 to-[#446EFF] flex items-center justify-center h-full">
+            <div className="h-16 w-16 rounded-full bg-gradient-to-b from-[#8dc2fb] to-[#446EFF] p-[1px]">
+              <div className="from-blue-1 flex h-full items-center justify-center rounded-full bg-gradient-to-b to-[#446EFF]">
                 <HeartIcon />
               </div>
             </div>

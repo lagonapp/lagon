@@ -27,14 +27,14 @@ export const Layout = ({ children }: LayoutProps) => {
       </Head>
       <div className={`bg-dark pt-8 ${inter.className}`}>
         <div
-          className="w-full h-64 top-0 left-0 pointer-events-none absolute"
+          className="pointer-events-none absolute top-0 left-0 h-64 w-full"
           style={{
             background:
               'linear-gradient(to bottom, transparent, #050211), repeating-linear-gradient(-45deg, #041F47, #041F47 1px, transparent 1px, transparent 20px)',
           }}
         />
         <Header />
-        <main className="container mx-auto px-4 flex flex-col md:gap-64 gap-32 pt-24">{children}</main>
+        <main className="container mx-auto flex flex-col gap-32 px-4 pt-24 md:gap-64">{children}</main>
         <Footer />
       </div>
     </>

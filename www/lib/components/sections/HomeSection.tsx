@@ -12,12 +12,12 @@ export const HomeSection = () => {
   const animate = [0, undefined].includes(response?.time) ? 'hidden' : 'visible';
 
   return (
-    <section className="flex flex-col gap-8 items-center justify-center relative">
-      <div className="flex flex-col gap-4 text-center items-center">
+    <section className="relative flex flex-col items-center justify-center gap-8">
+      <div className="flex flex-col items-center gap-4 text-center">
         <motion.a
           href="https://docs.lagon.app/blog/alpha"
           target="_blank"
-          className="text-grey text-base px-4 py-2 rounded-full bg-dark-gray hover:bg-blue-3 hover:text-white transition z-10 inline-flex gap-2"
+          className="text-grey bg-dark-gray hover:bg-blue-3 z-10 inline-flex gap-2 rounded-full px-4 py-2 text-base transition hover:text-white"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
@@ -25,14 +25,14 @@ export const HomeSection = () => {
           Lagon is in Alpha! <ArrowRightIcon />
         </motion.a>
         <motion.div
-          className="max-w-2xl relative"
+          className="relative max-w-2xl"
           initial={{ opacity: 0, top: 20 }}
           animate={{ opacity: 1, top: 0 }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
           <Text size="h1" variant="radialGradientWhite">
             Deploy JavaScript Functions at the&nbsp;
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green via-[#5A7ACB] to-purple">
+            <span className="from-green to-purple bg-gradient-to-r via-[#5A7ACB] bg-clip-text text-transparent">
               Edge
             </span>
           </Text>
@@ -47,7 +47,7 @@ export const HomeSection = () => {
         </motion.div>
       </div>
       <motion.div
-        className="flex gap-4 relative"
+        className="relative flex gap-4"
         initial={{ opacity: 0, top: 20 }}
         animate={{ opacity: 1, top: 0 }}
         transition={{ duration: 0.4, delay: 0.4, ease: 'easeOut' }}
@@ -60,7 +60,7 @@ export const HomeSection = () => {
         </Button>
       </motion.div>
       <motion.div
-        className="absolute transform -translate-y-40 pointer-events-none hidden md:block"
+        className="pointer-events-none absolute hidden -translate-y-40 transform md:block"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.6 }}
@@ -68,12 +68,12 @@ export const HomeSection = () => {
         <WorldBottomImage />
       </motion.div>
       <motion.div
-        className="hidden md:flex flex-col items-center mt-44"
+        className="mt-44 hidden flex-col items-center md:flex"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.6 }}
       >
-        <div className="border-l border-dashed border-[#86B6FF] h-12" />
+        <div className="h-12 border-l border-dashed border-[#86B6FF]" />
         <FunctionCode onResponse={setResponse}>
           export function <span className="text-blue-1">handler</span>(request:&nbsp;
           <span className="text-purple">Request</span>) &#123;
@@ -90,7 +90,7 @@ export const HomeSection = () => {
         </FunctionCode>
         {response?.time ? (
           <motion.p
-            className="text-grey opacity-50 text-xs absolute bottom-2"
+            className="text-grey absolute bottom-2 text-xs opacity-50"
             variants={{
               hidden: {
                 opacity: 0,
@@ -105,7 +105,7 @@ export const HomeSection = () => {
           </motion.p>
         ) : null}
         <motion.div
-          className="absolute transform -translate-x-1/2 left-[35%] flex flex-col items-center gap-2"
+          className="absolute left-[35%] flex -translate-x-1/2 transform flex-col items-center gap-2"
           variants={{
             hidden: {
               opacity: 0,
@@ -118,10 +118,10 @@ export const HomeSection = () => {
           }}
           animate={animate}
         >
-          <p className="text-xs font-mono text-green">{response?.text}</p>
+          <p className="text-green font-mono text-xs">{response?.text}</p>
           <div>
-            <div className="w-2 h-2 rounded-full bg-gradient-to-b from-blue-1 to-[#1B76FF]" />
-            <div className="w-[2px] h-1 rounded-full bg-grey ml-[3px] mt-[1px]" />
+            <div className="from-blue-1 h-2 w-2 rounded-full bg-gradient-to-b to-[#1B76FF]" />
+            <div className="bg-grey ml-[3px] mt-[1px] h-1 w-[2px] rounded-full" />
           </div>
         </motion.div>
       </motion.div>

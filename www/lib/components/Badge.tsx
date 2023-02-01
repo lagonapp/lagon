@@ -8,7 +8,7 @@ type BadgeProps = {
 export const Badge = ({ children }: BadgeProps) => {
   return (
     <div
-      className="p-[1px] rounded-full relative"
+      className="relative rounded-full p-[1px]"
       style={{ backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent)' }}
     >
       <div

@@ -69,25 +69,25 @@ export const ExplainSection = () => {
 
   return (
     <section id="features" className="pt-20">
-      <div className="flex flex-col lg:flex-row md:gap-16 gap-12" ref={ref}>
-        <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1 transition duration-300 hover:shadow-2xl hover:shadow-blue-1/40 group">
-          <div className="bg-dark rounded-3xl flex flex-col gap-4 md:p-16 p-6">
+      <div className="flex flex-col gap-12 md:gap-16 lg:flex-row" ref={ref}>
+        <div className="to-blue-1 hover:shadow-blue-1/40 group flex-1 rounded-3xl bg-gradient-to-br from-[#C9E2FF] p-[1px] transition duration-300 hover:shadow-2xl">
+          <div className="bg-dark flex flex-col gap-4 rounded-3xl p-6 md:p-16">
             <div
-              className="p-[1px] rounded-t-2xl"
+              className="rounded-t-2xl p-[1px]"
               style={{ background: 'linear-gradient(rgb(37, 32, 46), rgba(37, 32, 46, 0)' }}
             >
-              <div className="rounded-t-2xl bg-gradient-to-b from-dark-gray to-dark h-80">
-                <div style={{ borderColor: 'rgb(37, 32, 46)' }} className="p-4 flex gap-2 border-b">
-                  <span className="w-4 h-4 bg-red-500 rounded-full" />
-                  <span className="w-4 h-4 bg-yellow-500 rounded-full" />
-                  <span className="w-4 h-4 bg-lime-500 rounded-full" />
+              <div className="from-dark-gray to-dark h-80 rounded-t-2xl bg-gradient-to-b">
+                <div style={{ borderColor: 'rgb(37, 32, 46)' }} className="flex gap-2 border-b p-4">
+                  <span className="h-4 w-4 rounded-full bg-red-500" />
+                  <span className="h-4 w-4 rounded-full bg-yellow-500" />
+                  <span className="h-4 w-4 rounded-full bg-lime-500" />
                 </div>
                 <pre className="p-4">
-                  <code className="font-mono text-sm text-grey">{text}</code>
+                  <code className="text-grey font-mono text-sm">{text}</code>
                 </pre>
               </div>
             </div>
-            <div className="transition duration-300 opacity-0 group-hover:opacity-100 w-80 h-80 absolute rounded-full transform translate-x-[-30%] translate-y-[-30%] pointer-events-none bg-gradient-to-br from-purple/10 to-blue-1/10 blur-3xl" />
+            <div className="from-purple/10 to-blue-1/10 pointer-events-none absolute h-80 w-80 translate-x-[-30%] translate-y-[-30%] transform rounded-full bg-gradient-to-br opacity-0 blur-3xl transition duration-300 group-hover:opacity-100" />
             <Text size="h2">Deploy in seconds</Text>
             <Text paragraph>
               Your Deployments are live all around the world in a few seconds. Deploy with the CLI, the Playground on
@@ -95,8 +95,8 @@ export const ExplainSection = () => {
             </Text>
           </div>
         </div>
-        <div className="flex-1 p-[1px] rounded-3xl bg-gradient-to-br from-[#C9E2FF] to-blue-1 transition duration-300 hover:shadow-2xl hover:shadow-blue-1/40">
-          <div className="bg-dark rounded-3xl flex flex-col md:p-16 p-6 h-full justify-between">
+        <div className="to-blue-1 hover:shadow-blue-1/40 flex-1 rounded-3xl bg-gradient-to-br from-[#C9E2FF] p-[1px] transition duration-300 hover:shadow-2xl">
+          <div className="bg-dark flex h-full flex-col justify-between rounded-3xl p-6 md:p-16">
             <RunButtonImage />
             <div className="flex flex-col gap-4">
               <Text size="h2">2ms cold starts</Text>

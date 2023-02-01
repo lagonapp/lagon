@@ -43,16 +43,16 @@ export const FunctionCode = ({ onResponse, children }: CodeProps) => {
   };
 
   return (
-    <Card className="bg-dark p-6 rounded-2xl pointer-events-auto">
+    <Card className="bg-dark pointer-events-auto rounded-2xl p-6">
       <pre>
-        <code className="font-mono text-sm text-grey">{children}</code>
+        <code className="text-grey font-mono text-sm">{children}</code>
       </pre>
       <div className="absolute -bottom-2 -right-2">
         <Button variant="primary" onClick={handleClick} aria-label="Run example Edge Function to get your IP address">
           {isLoading ? (
-            <ArrowPathIcon className="w-5 h-5" strokeWidth="1" />
+            <ArrowPathIcon className="h-5 w-5" strokeWidth="1" />
           ) : (
-            <PlayIcon className="w-5 h-5" strokeWidth="1" />
+            <PlayIcon className="h-5 w-5" strokeWidth="1" />
           )}
         </Button>
       </div>

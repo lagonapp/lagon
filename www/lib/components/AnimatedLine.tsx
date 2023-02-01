@@ -32,7 +32,7 @@ export const AnimatedLine = ({ size }: AnimatedLineProps) => {
     return (
       <div
         ref={line}
-        className="hidden lg:block absolute transform rotate-45 w-[1px] h-32 opacity-0"
+        className="absolute hidden h-32 w-[1px] rotate-45 transform opacity-0 lg:block"
         style={{ backgroundImage: 'linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.2))' }}
       />
     );
@@ -41,7 +41,7 @@ export const AnimatedLine = ({ size }: AnimatedLineProps) => {
   return (
     <div
       ref={line}
-      className="hidden lg:block absolute transform rotate-[-135deg] w-[2px] h-40 opacity-0"
+      className="absolute hidden h-40 w-[2px] rotate-[-135deg] transform opacity-0 lg:block"
       style={{ backgroundImage: 'linear-gradient(to bottom, transparent, #449AFF)' }}
     />
   );

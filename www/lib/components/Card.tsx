@@ -10,7 +10,7 @@ type CardProps = {
 export const Card = ({ className, lineAnimation, children }: CardProps) => {
   return (
     <div
-      className="p-[1px] rounded-2xl relative"
+      className="relative rounded-2xl p-[1px]"
       style={{ backgroundImage: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent)' }}
     >
       <div
