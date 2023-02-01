@@ -61,7 +61,7 @@ importers:
       '@lagon/astro': workspace:*
       astro: 2.0.0
     dependencies:
-      '@lagon/astro': link:../../packages/astro
+      '@lagon/astro': link:../../packages/integrations/astro
     devDependencies:
       astro: 2.0.0
 
@@ -178,15 +178,6 @@ importers:
       '@trpc/server': 10.0.0
     dependencies:
       '@trpc/server': 10.0.0
-
-  packages/astro:
-    specifiers:
-      astro: 2.0.2
-      esbuild: ^0.17.0
-    dependencies:
-      esbuild: 0.17.3
-    devDependencies:
-      astro: 2.0.2
 
   packages/dashboard:
     specifiers:
@@ -333,6 +324,15 @@ importers:
       postcss: 8.4.14
       tailwindcss: 3.1.4_postcss@8.4.14
       typescript: 4.7.4
+
+  packages/integrations/astro:
+    specifiers:
+      astro: 2.0.2
+      esbuild: ^0.17.0
+    dependencies:
+      esbuild: 0.17.3
+    devDependencies:
+      astro: 2.0.2
 
   packages/js-runtime:
     specifiers:
@@ -10797,7 +10797,7 @@ packages:
       postcss-modules-values: 4.0.0_postcss@8.4.20
       postcss-value-parser: 4.2.0
       schema-utils: 3.1.1
-      semver: 7.3.7
+      semver: 7.3.8
       webpack: 5.73.0
     dev: true
 
@@ -12701,7 +12701,7 @@ packages:
       memfs: 3.4.7
       minimatch: 3.1.2
       schema-utils: 2.7.0
-      semver: 7.3.7
+      semver: 7.3.8
       tapable: 1.1.3
       typescript: 4.7.4
       webpack: 5.73.0
@@ -12732,7 +12732,7 @@ packages:
       memfs: 3.4.7
       minimatch: 3.1.2
       schema-utils: 2.7.0
-      semver: 7.3.7
+      semver: 7.3.8
       tapable: 1.1.3
       typescript: 4.7.4
       webpack: 4.46.0
