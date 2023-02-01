@@ -76,10 +76,10 @@ const FunctionLogs = ({ func }: FunctionLogsProps) => {
     <Card
       title="Live Logs and Errors"
       rightItem={
-        <div className="flex flex-col md:flex-row items-end md:items-center gap-2">
+        <div className="flex flex-col items-end gap-2 md:flex-row md:items-center">
           <Menu>
             <Menu.Button>
-              <Button rightIcon={<ChevronDownIcon className="w-4 h-4" />}>
+              <Button rightIcon={<ChevronDownIcon className="h-4 w-4" />}>
                 {t('logLevel')}&nbsp;{logLevel}
               </Button>
             </Menu.Button>
@@ -97,7 +97,7 @@ const FunctionLogs = ({ func }: FunctionLogsProps) => {
           </Menu>
           <Menu>
             <Menu.Button>
-              <Button rightIcon={<ChevronDownIcon className="w-4 h-4" />}>{timeframe}</Button>
+              <Button rightIcon={<ChevronDownIcon className="h-4 w-4" />}>{timeframe}</Button>
             </Menu.Button>
             <Menu.Items>
               {TIMEFRAMES.map(item => (

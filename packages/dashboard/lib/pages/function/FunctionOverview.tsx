@@ -184,7 +184,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
           rightItem={
             <Menu>
               <Menu.Button>
-                <Button rightIcon={<ChevronDownIcon className="w-4 h-4" />}>{timeframe}</Button>
+                <Button rightIcon={<ChevronDownIcon className="h-4 w-4" />}>{timeframe}</Button>
               </Menu.Button>
               <Menu.Items>
                 {TIMEFRAMES.map(item => (
@@ -196,7 +196,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
             </Menu>
           }
         >
-          <div className="flex justify-between flex-wrap gap-4">
+          <div className="flex flex-wrap justify-between gap-4">
             <Suspense
               fallback={
                 <>

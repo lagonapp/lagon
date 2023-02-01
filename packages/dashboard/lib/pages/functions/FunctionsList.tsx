@@ -36,7 +36,7 @@ const FunctionsList = () => {
   };
 
   return (
-    <div className="flex gap-4 flex-col">
+    <div className="flex flex-col gap-4">
       {functions?.length === 0 ? (
         <EmptyState
           title={t('empty.title')}
@@ -56,7 +56,7 @@ const FunctionsList = () => {
           onClick={() => navigateToFunction(func.id)}
           onHover={() => preloadFunction(func.id)}
         >
-          <div className="flex justify-between items-start whitespace-nowrap gap-4 relative">
+          <div className="relative flex items-start justify-between gap-4 whitespace-nowrap">
             <Text size="lg">
               <Dot status="success" />
               {func.name}

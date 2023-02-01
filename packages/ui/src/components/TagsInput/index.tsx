@@ -37,7 +37,7 @@ export const TagsInput = ({ name, placeholder, disabled, validator }: TagsInputP
             {tags.map(tag => (
               <span
                 key={tag}
-                className="text-xs px-1 py-0.5 rounded text-stone-800 dark:text-stone-200 bg-stone-200 dark:bg-stone-700 mr-1 inline-flex items-center gap-1"
+                className="mr-1 inline-flex items-center gap-1 rounded bg-stone-200 px-1 py-0.5 text-xs text-stone-800 dark:bg-stone-700 dark:text-stone-200"
               >
                 {tag}
                 <button
@@ -47,7 +47,7 @@ export const TagsInput = ({ name, placeholder, disabled, validator }: TagsInputP
                   }}
                   className="text-stone-600 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200"
                 >
-                  <XMarkIcon className="w-3 h-3" />
+                  <XMarkIcon className="h-3 w-3" />
                 </button>
               </span>
             ))}
@@ -89,7 +89,7 @@ export const TagsInput = ({ name, placeholder, disabled, validator }: TagsInputP
               placeholder={placeholder}
               disabled={!!disabled}
               aria-disabled={!!disabled}
-              className="bg-white dark:bg-stone-900 text-sm text-stone-800 dark:text-stone-200 py-0.5 focus-visible:outline-none"
+              className="bg-white py-0.5 text-sm text-stone-800 focus-visible:outline-none dark:bg-stone-900 dark:text-stone-200"
             />
           </div>
           {meta.touched && error ? <Text error>{error}</Text> : null}

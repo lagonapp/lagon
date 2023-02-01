@@ -20,6 +20,7 @@ export const Header = () => {
   }, [asPath]);
 
   return (
+<<<<<<< HEAD
     <header className="container sticky top-0 mx-auto bg-dark/50 backdrop-blur py-4 px-8 z-50">
       <div className="flex items-center justify-between">
         <Link href="/">
@@ -52,6 +53,43 @@ export const Header = () => {
             Sign in
           </Button>
         </div>
+=======
+    <a
+      href={href}
+      target={target}
+      className="flex select-none items-center gap-1 text-sm text-gray-300 transition hover:text-white"
+    >
+      {children}
+      {soon ? <span className="text-xs text-gray-400">soon</span> : null}
+    </a>
+  );
+};
+
+const Header = () => {
+  return (
+    <header className="mx-auto mt-6 flex max-w-4xl flex-col items-center justify-between gap-2 px-6 md:flex-row md:gap-0">
+      <Link href="/">
+        <Image width="105" height="32" className="h-8" src="/logo-white.png" alt="Lagon logo" />
+      </Link>
+      <div className="flex gap-8">
+        <HeaderLink href="#" soon>
+          Features
+        </HeaderLink>
+        <HeaderLink href="#" soon>
+          Pricing
+        </HeaderLink>
+        <HeaderLink href="https://docs.lagon.app">Documentation</HeaderLink>
+      </div>
+      <div className="flex gap-8">
+        <HeaderLink href="https://discord.lagon.app" target="_blank">
+          <DiscordIcon />
+          Discord
+        </HeaderLink>
+        <HeaderLink href="https://github.com/lagonapp/lagon" target="_blank">
+          <GitHubIcon />
+          GitHub
+        </HeaderLink>
+>>>>>>> main
       </div>
       {open ? (
         <div className="flex flex-col gap-4 text-lg text-grey pt-12">

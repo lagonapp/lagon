@@ -10,8 +10,8 @@ type LayoutTitleProps = {
 
 const LayoutTitle = ({ title, titleStatus, rightItem, children }: LayoutTitleProps) => {
   return (
-    <div className="mx-auto px-4 md:max-w-4xl pb-12">
-      <div className="flex justify-between items-center pt-10 mb-4">
+    <div className="mx-auto px-4 pb-12 md:max-w-4xl">
+      <div className="mb-4 flex items-center justify-between pt-10">
         <Text size="2xl">
           {titleStatus ? <Dot status={titleStatus} /> : null}
           {title}

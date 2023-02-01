@@ -46,7 +46,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
   );
 
   return (
-    <div className="flex gap-4 flex-col">
+    <div className="flex flex-col gap-4">
       {!func || func.deployments.length === 0 ? (
         <EmptyState
           title={t('empty.title')}
@@ -64,9 +64,9 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
 
         return (
           <Card key={deployment.id}>
-            <div className="relative flex flex-col md:flex-row items-start justify-between gap-4 md:gap-0 md:items-center">
+            <div className="relative flex flex-col items-start justify-between gap-4 md:flex-row md:items-center md:gap-0">
               {deployment.isProduction ? (
-                <span className="absolute -top-5 -left-5 text-xs bg-blue-500 text-white px-1 rounded">
+                <span className="absolute -top-5 -left-5 rounded bg-blue-500 px-1 text-xs text-white">
                   {t('list.production')}
                 </span>
               ) : null}
@@ -105,7 +105,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                   {t('list.by')}&nbsp;{deployment.triggerer}
                 </Text>
               </div>
-              <div className="flex gap-2 md:justify-end md:w-1/3">
+              <div className="flex gap-2 md:w-1/3 md:justify-end">
                 {!deployment.isProduction ? (
                   <>
                     <Dialog
@@ -113,7 +113,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                       description={t('promote.modal.description')}
                       disclosure={
                         <Button
-                          leftIcon={<ArrowPathIcon className="w-4 h-4" />}
+                          leftIcon={<ArrowPathIcon className="h-4 w-4" />}
                           disabled={undeployDeployment.isLoading}
                         >
                           {t('promote')}

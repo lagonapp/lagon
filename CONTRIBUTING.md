@@ -1,1 +1,1 @@
-packages/docs/pages/contributing.md
+packages/docs/pages/contributing.mdx

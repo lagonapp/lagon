@@ -43,7 +43,7 @@ const SettingsMember = () => {
       >
         <div>
           <Divider />
-          <div className="flex items-center justify-between px-4 gap-4">
+          <div className="flex items-center justify-between gap-4 px-4">
             <Text strong>{session?.user?.email}</Text>
             <Text size="sm">
               {t('members.joined')}&nbsp;
@@ -89,7 +89,7 @@ const SettingsMember = () => {
             <Text strong>{t('transfer.notAvailable')}</Text>
             <Text>{t('transfer.notAvailable.description')}</Text>
           </div>
-          <div className="flex flex-col md:flex-row gap-2 items-start md:items-center">
+          <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
             <Input name="email" placeholder={t('transfer.placeholder')} disabled />
             <Button variant="danger" submit disabled>
               {t('transfer.submit')}
