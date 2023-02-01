@@ -8,7 +8,7 @@ export function createExports(manifest: SSRManifest) {
     const routeData = app.match(request, { matchNotFound: true });
 
     if (routeData) {
-      Reflect.set(request, Symbol.for('astro.clientAddress'), request.headers.get('cf-connecting-ip'));
+      Reflect.set(request, Symbol.for('astro.clientAddress'), request.headers.get('x-forwarded-for'));
       return app.render(request, routeData);
     }
 
