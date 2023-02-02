@@ -152,7 +152,7 @@ async fn handle_request(
                 );
             }
             Err(error) => {
-                println!("Error while parsing request: {}", error);
+                println!("Error while parsing request: {error}");
 
                 tx.send_async(RunResult::Error("Error while parsing request".into()))
                     .await
@@ -368,7 +368,7 @@ pub async fn dev(
     }
 
     println!();
-    println!(" {} http://{}", "➤".black(), format!("{}", addr).blue());
+    println!(" {} http://{}", "➤".black(), format!("{addr}").blue());
     println!();
 
     init_logger()?;

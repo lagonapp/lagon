@@ -1,0 +1,30 @@
+{
+  "name": "@lagon/example-remix",
+  "version": "0.0.1",
+  "private": true,
+  "sideEffects": false,
+  "scripts": {
+    "build": "remix build",
+    "deploy": "wrangler publish",
+    "dev:remix": "remix watch",
+    "dev:lagon": "cross-env NODE_ENV=development lagon dev ./build/index.js",
+    "dev": "remix build && run-p \"dev:*\"",
+    "start": "cross-env NODE_ENV=production lagon dev ./build/index.js",
+    "typecheck": "tsc",
+    "lagon-dev": "pnpm dev:lagon"
+  },
+  "dependencies": {
+    "@remix-run/react": "^1.12.0",
+    "cross-env": "^7.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@lagon/remix": "workspace:*"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^1.12.0",
+    "@types/react": "^18.0.25",
+    "@types/react-dom": "^18.0.8",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^4.8.4"
+  }
+}

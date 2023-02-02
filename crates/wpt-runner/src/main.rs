@@ -152,7 +152,7 @@ export function handler() {{
     isolate.run(Request::default(), tx).await;
 
     if let RunResult::Error(error) = rx.recv().expect("Failed to receive response") {
-        println!("{}", error);
+        println!("{error}");
         exit(1);
     }
 }

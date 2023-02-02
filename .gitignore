@@ -1,8 +1,10 @@
 node_modules/
 dist/
+build/
 coverage/
 .lagon/
 .turbo/
+.cache/
 ssl/
 target/
 crates/serverless/deployments/

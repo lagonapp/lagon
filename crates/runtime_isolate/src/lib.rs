@@ -300,7 +300,7 @@ impl Isolate {
                     let promise = isolate_state
                         .js_promises
                         .remove(&id)
-                        .unwrap_or_else(|| panic!("JS promise {} not found", id));
+                        .unwrap_or_else(|| panic!("JS promise {id} not found"));
 
                     promises.as_mut().unwrap().push((result, promise));
                 }
@@ -472,7 +472,7 @@ impl Isolate {
         self.wait = Some(Arc::new((Mutex::new(true), Condvar::new())));
 
         let running_promises_handle = Arc::clone(&self.running_promises);
-        let wait_handle = Arc::clone(&self.wait.as_ref().unwrap());
+        let wait_handle = Arc::clone(self.wait.as_ref().unwrap());
 
         POOL.spawn_pinned(move || async move {
             let (running, condition) = &*wait_handle;
@@ -483,11 +483,9 @@ impl Isolate {
                 })
                 .unwrap();
 
-            if timer.1.timed_out() {
-                if !thread_safe_handle.is_execution_terminating() {
-                    thread_safe_handle.terminate_execution();
-                    termination_tx.send(RunResult::Timeout).unwrap_or(());
-                }
+            if timer.1.timed_out() && !thread_safe_handle.is_execution_terminating() {
+                thread_safe_handle.terminate_execution();
+                termination_tx.send(RunResult::Timeout).unwrap_or(());
             }
         });
 
@@ -565,14 +563,14 @@ pub fn get_exception_message(
                         location,
                     )
                 } else {
-                    format!("\n  at {}", location)
+                    format!("\n  at {location}")
                 };
 
                 formatted.push_str(&frame);
             }
         }
 
-        return format!("{}{}", message, formatted,);
+        return format!("{message}{formatted}");
     }
 
     if let Some(line) = exception_message.get_source_line(scope) {
