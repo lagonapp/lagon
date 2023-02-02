@@ -61,3 +61,7 @@ This example uses [Astro](https://astro.build), a static site generator, with bo
 ### Rakkas
 
 This example uses [Rakkas](https://rakkasjs.org), a React framework powered by Vite, with SSR via Lagon's adapter. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/rakkas)
+
+### Remix
+
+This example uses [Remix](https://remix.run), a full-stack React framework, with SSR via Lagon's integration. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/remix)
