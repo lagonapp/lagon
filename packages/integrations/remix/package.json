@@ -1,0 +1,39 @@
+{
+  "name": "@lagon/remix",
+  "version": "0.0.1",
+  "description": "Remix integration to deploy your site to Lagon",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./server.js": "./dist/server.js",
+    "./package.json": "./package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lagonapp/lagon"
+  },
+  "homepage": "https://github.com/lagonapp/lagon/tree/main/packages/integrations/remix",
+  "keywords": [
+    "lagon",
+    "serverless",
+    "edge",
+    "integration",
+    "remix"
+  ],
+  "scripts": {
+    "watch": "esbuild src/index.ts --bundle --packages=external --format=esm --outdir=dist  --watch",
+    "build": "esbuild src/index.ts --bundle --packages=external --format=esm --outdir=dist && tsc",
+    "lint": "eslint --cache .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remix-run/server-runtime": "^1.12.0",
+    "esbuild": "^0.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "astro": "2.0.2"
+  }
+}
