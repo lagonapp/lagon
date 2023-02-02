@@ -208,7 +208,7 @@ importers:
     specifiers:
       '@aws-sdk/client-s3': ^3.186.0
       '@aws-sdk/s3-request-presigner': ^3.186.0
-      '@axiomhq/axiom-node': ^0.10.0
+      '@axiomhq/axiom-node': ^0.11.0
       '@headlessui/react': ^1.6.4
       '@heroicons/react': ^2.0.0
       '@lagon/ui': workspace:*
@@ -262,7 +262,7 @@ importers:
     dependencies:
       '@aws-sdk/client-s3': 3.186.0
       '@aws-sdk/s3-request-presigner': 3.186.0
-      '@axiomhq/axiom-node': 0.10.0
+      '@axiomhq/axiom-node': 0.11.0
       '@headlessui/react': 1.7.2_biqbaboplfbrettd7655fr4n2y
       '@heroicons/react': 2.0.13_react@18.2.0
       '@lagon/ui': link:../ui
@@ -1518,11 +1518,11 @@ packages:
       tslib: 2.4.0
     dev: false
 
-  /@axiomhq/axiom-node/0.10.0:
-    resolution: {integrity: sha512-MQEhNBAVDzQkqGG/prg4Rt2J+L0fR8pZ7KO2xUjcfBCn8s11hpms4AgXx5MuETTDbyrE0+up8fLtmo/nNfDxAg==}
+  /@axiomhq/axiom-node/0.11.0:
+    resolution: {integrity: sha512-dweTewyzJk4LlvqGNduqlxoiC4heGbDciPnLa9FDJinMmWaRmZZKe0rJfITDnNTaEKCv3A1WfAfttuTWAzN/qA==}
     engines: {node: '>=14'}
     dependencies:
-      axios: 0.27.2
+      axios: 1.3.1
       axios-retry: 3.3.1
       to-time: 1.0.2
       uuid: 8.3.2
@@ -8674,7 +8674,7 @@ packages:
       eslint: 8.19.0
       eslint-scope: 5.1.1
       eslint-utils: 3.0.0_eslint@8.19.0
-      semver: 7.3.7
+      semver: 7.3.8
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -9849,11 +9849,12 @@ packages:
       - debug
     dev: false
 
-  /axios/0.27.2:
-    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
+  /axios/1.3.1:
+    resolution: {integrity: sha512-78pWJsQTceInlyaeBQeYZ/QgZeWS8hGeKiIJiDKQe3hEyBb7sEMq0K4gjx+Va6WHTYO4zI/RRl8qGRzn0YMadA==}
     dependencies:
       follow-redirects: 1.15.2
       form-data: 4.0.0
+      proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
     dev: false
@@ -17778,7 +17779,7 @@ packages:
       got: 12.5.2
       registry-auth-token: 5.0.1
       registry-url: 6.0.1
-      semver: 7.3.7
+      semver: 7.3.8
     dev: false
 
   /pako/0.2.9:
@@ -18268,7 +18269,7 @@ packages:
       loader-utils: 2.0.2
       postcss: 7.0.39
       schema-utils: 3.1.1
-      semver: 7.3.7
+      semver: 7.3.8
       webpack: 4.46.0
     dev: true
 
@@ -18284,7 +18285,7 @@ packages:
       loader-utils: 2.0.2
       postcss: 7.0.39
       schema-utils: 3.1.1
-      semver: 7.3.7
+      semver: 7.3.8
     dev: true
 
   /postcss-modules-extract-imports/2.0.0:
@@ -20037,7 +20038,7 @@ packages:
     resolution: {integrity: sha512-0Ju4+6A8iOnpL/Thra7dZsSlOHYAHIeMxfhWQRI1/VLcT3WDBZKKtQt/QkBOsiIN9ZpuvHE6cGZ0x4glCMmfiA==}
     engines: {node: '>=12'}
     dependencies:
-      semver: 7.3.7
+      semver: 7.3.8
     dev: false
 
   /semver/5.7.1:
@@ -20067,7 +20068,6 @@ packages:
     hasBin: true
     dependencies:
       lru-cache: 6.0.0
-    dev: true
 
   /send/0.18.0:
     resolution: {integrity: sha512-qqWzuOjSFOuqPjFe4NOsMLafToQQwBSOEpS+FwEt3A2V3vKubTquT3vmLTQpFgMXp8AlFWFuP1qKaJZOtPpVXg==}
