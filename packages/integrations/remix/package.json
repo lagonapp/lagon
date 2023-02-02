@@ -26,7 +26,7 @@
     "watch": "esbuild src/index.ts --bundle --packages=external --format=esm --outdir=dist  --watch",
     "build": "esbuild src/index.ts --bundle --packages=external --format=esm --outdir=dist && tsc",
     "lint": "eslint --cache .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
     "@remix-run/server-runtime": "^1.12.0",
