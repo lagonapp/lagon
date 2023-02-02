@@ -28,7 +28,7 @@ pub fn build(file: PathBuf, client: Option<PathBuf>, public_dir: Option<PathBuf>
     end_progress();
 
     for (path, content) in assets {
-        let message = format!("Writting {}...", path);
+        let message = format!("Writting {path}...");
         let end_progress = print_progress(&message);
 
         let dir = PathBuf::from(".lagon").join("public").join(
@@ -37,7 +37,7 @@ pub fn build(file: PathBuf, client: Option<PathBuf>, public_dir: Option<PathBuf>
                 .ok_or_else(|| anyhow!("Could not find parent of {}", path))?,
         );
         fs::create_dir_all(dir)?;
-        fs::write(format!(".lagon/public/{}", path), content)?;
+        fs::write(format!(".lagon/public/{path}"), content)?;
 
         end_progress();
     }

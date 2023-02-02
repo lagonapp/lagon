@@ -86,7 +86,7 @@ impl IsolateOptions {
         let environment_variables = match environment_variables {
             Some(environment_variables) => environment_variables
                 .iter()
-                .map(|(k, v)| format!("globalThis.process.env.{} = '{}'", k, v))
+                .map(|(k, v)| format!("globalThis.process.env.{k} = '{v}'"))
                 .collect::<Vec<String>>()
                 .join("\n"),
             None => "".to_string(),

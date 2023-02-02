@@ -129,7 +129,7 @@ pub async fn deploy(
                         .interact_text()?;
 
                     println!();
-                    let message = format!("Creating Function {}...", name);
+                    let message = format!("Creating Function {name}...");
                     let end_progress = print_progress(&message);
 
                     let response = trpc_client

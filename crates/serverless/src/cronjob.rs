@@ -32,7 +32,7 @@ impl Cronjob {
         if let Some(cron) = &deployment.cron {
             // Adding a 0 at the beginning because tokio-cron-scheduler's
             // cron format include seconds at the start
-            let cron = format!("0 {}", cron);
+            let cron = format!("0 {cron}");
 
             info!("Registering cron {} for deployment {}", cron, deployment.id);
 
@@ -104,7 +104,7 @@ impl Cronjob {
                             }
                             RunResult::Response(response) => {
                                 let body = String::from_utf8_lossy(&response.body);
-                                let maybe_body = if body == "" { String::from("") } else { format!(": {}", body) };
+                                let maybe_body = if body == "" { String::from("") } else { format!(": {body}") };
 
                                 if response.status == 200 {
                                     info!(
