@@ -49,8 +49,6 @@ pub async fn clear_deployments_cache(
                                         reason
                                     );
                                 }
-                            } else {
-                                warn!(hostname = hostname; "Could not clear deployment from cache");
                             }
                         }
                     }
