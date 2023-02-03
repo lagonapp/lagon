@@ -130,4 +130,4 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export default apiHandler(NextAuth(authOptions), { tokenAuth: false });
+export default apiHandler(NextAuth(authOptions));
