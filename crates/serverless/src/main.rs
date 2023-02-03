@@ -93,7 +93,6 @@ async fn handle_request(
                 "reason" => "No hostname",
                 "region" => REGION.clone(),
             );
-            warn!(request = as_debug!(req), ip = ip; "No hostname found in request");
 
             return Ok(Builder::new().status(404).body(PAGE_404.into())?);
         }
@@ -109,7 +108,6 @@ async fn handle_request(
                 "hostname" => hostname.clone(),
                 "region" => REGION.clone(),
             );
-            warn!(request = as_debug!(req), ip = ip, hostname = hostname; "No deployment found for hostname");
 
             return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
         }
