@@ -313,7 +313,16 @@ async fn main() -> Result<()> {
         .expect("PROMETHEUS_LISTEN_ADDR must be set")
         .parse()?;
 
-    let builder = PrometheusBuilder::new().with_http_listener(prometheus_addr);
+    let mut builder = PrometheusBuilder::new().with_http_listener(prometheus_addr);
+
+    if let Ok(allowed_subnet) = env::var("PROMETHEUS_ALLOWED_SUBNET") {
+        if !allowed_subnet.is_empty() {
+            info!("Allowing Prometheus exporter to be accessed from {allowed_subnet}");
+
+            builder = builder.add_allowed_address(allowed_subnet)?;
+        }
+    }
+
     builder.install().expect("Failed to start metrics exporter");
 
     let url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
