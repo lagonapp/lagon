@@ -1,11 +1,12 @@
 use std::{
     collections::{HashMap, HashSet},
-    env, fs,
+    fs,
     path::Path,
     sync::Arc,
 };
 
 use anyhow::{anyhow, Result};
+use lagon_runtime_utils::Deployment;
 use log::{error, info};
 use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
@@ -17,75 +18,32 @@ use self::filesystem::{
     create_deployments_folder, rm_deployment, write_deployment, write_deployment_asset,
 };
 
-pub mod assets;
 pub mod cache;
 pub mod filesystem;
 pub mod pubsub;
 
-#[derive(Debug, Clone)]
-pub struct Deployment {
-    pub id: String,
-    pub function_id: String,
-    pub function_name: String,
-    pub domains: HashSet<String>,
-    pub assets: HashSet<String>,
-    pub environment_variables: HashMap<String, String>,
-    pub memory: usize,          // in MB (MegaBytes)
-    pub timeout: usize,         // in ms (MilliSeconds)
-    pub startup_timeout: usize, // in ms (MilliSeconds)
-    pub is_production: bool,
-    pub cron: Option<String>,
-}
+pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> Result<()> {
+    match bucket.get_object(deployment.id.clone() + ".js").await {
+        Ok(object) => {
+            write_deployment(&deployment.id, object.bytes())?;
 
-impl Deployment {
-    pub fn get_domains(&self) -> Vec<String> {
-        let mut domains = Vec::new();
-
-        domains.push(format!(
-            "{}.{}",
-            self.id,
-            env::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
-        ));
-
-        // Default domain (function's name) and custom domains are only set in production deployments
-        if self.is_production {
-            domains.push(format!(
-                "{}.{}",
-                self.function_name,
-                env::var("LAGON_ROOT_DOMAIN").expect("LAGON_ROOT_DOMAIN must be set")
-            ));
-
-            domains.extend(self.domains.clone());
-        }
-
-        domains
-    }
-
-    pub fn should_run_cron(&self) -> bool {
-        self.is_production && self.cron.is_some()
-    }
-
-    pub async fn download(&self, bucket: &Bucket) -> Result<()> {
-        match bucket.get_object(self.id.clone() + ".js").await {
-            Ok(object) => {
-                write_deployment(&self.id, object.bytes())?;
-
-                if !self.assets.is_empty() {
-                    for asset in &self.assets {
-                        match bucket
-                            .get_object(self.id.clone() + "/" + asset.as_str())
-                            .await
-                        {
-                            Ok(object) => write_deployment_asset(&self.id, asset, object.bytes())?,
-                            Err(error) => return Err(anyhow!(error)),
-                        };
-                    }
+            if !deployment.assets.is_empty() {
+                for asset in &deployment.assets {
+                    match bucket
+                        .get_object(deployment.id.clone() + "/" + asset.as_str())
+                        .await
+                    {
+                        Ok(object) => {
+                            write_deployment_asset(&deployment.id, asset, object.bytes())?
+                        }
+                        Err(error) => return Err(anyhow!(error)),
+                    };
                 }
-
-                Ok(())
             }
-            Err(error) => Err(anyhow!(error)),
+
+            Ok(())
         }
+        Err(error) => Err(anyhow!(error)),
     }
 }
 
@@ -209,7 +167,7 @@ OR
 
         for deployment in deployments_list {
             if !has_deployment_code(&deployment) {
-                if let Err(error) = deployment.download(&bucket).await {
+                if let Err(error) = download_deployment(&deployment, &bucket).await {
                     error!("Failed to download deployment {}: {}", deployment.id, error);
                     continue;
                 }

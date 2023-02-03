@@ -13,7 +13,7 @@ use tokio_util::task::LocalPoolHandle;
 
 use crate::{cronjob::Cronjob, ISOLATES, POOL_SIZE, REGION};
 
-use super::{filesystem::rm_deployment, Deployment};
+use super::{download_deployment, filesystem::rm_deployment, Deployment};
 
 // The isolate is implicitely dropped when the block after `remove()` ends
 //
@@ -132,7 +132,7 @@ pub fn listen_pub_sub(
 
             match channel {
                 "deploy" => {
-                    match deployment.download(&bucket).await {
+                    match download_deployment(&deployment, &bucket).await {
                         Ok(_) => {
                             increment_counter!(
                                 "lagon_deployments",
