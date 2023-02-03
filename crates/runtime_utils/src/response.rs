@@ -3,9 +3,9 @@ use flume::Receiver;
 use hyper::{body::Bytes, http::response::Builder, Body, Response as HyperResponse};
 use lagon_runtime_http::{RunResult, StreamResult};
 
-const PAGE_404: &str = include_str!("../public/404.html");
-const PAGE_502: &str = include_str!("../public/502.html");
-const PAGE_500: &str = include_str!("../public/500.html");
+pub const PAGE_404: &str = include_str!("../public/404.html");
+pub const PAGE_502: &str = include_str!("../public/502.html");
+pub const PAGE_500: &str = include_str!("../public/500.html");
 
 pub enum ResponseEvent {
     StreamData(usize),
@@ -106,5 +106,104 @@ pub async fn handle_response<T: Send + Clone + 'static>(
             Ok(HyperResponse::builder().status(500).body(PAGE_500.into())?)
         }
         RunResult::NotFound => Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use hyper::body::to_bytes;
+    use lagon_runtime_http::Response;
+
+    use super::*;
+
+    #[tokio::test]
+    async fn sequential() {
+        let (tx, rx) = flume::unbounded::<RunResult>();
+
+        let handle = tokio::spawn(async move {
+            let mut response = handle_response(rx, (), Box::new(|_, _| ())).await.unwrap();
+
+            assert_eq!(response.status(), 200);
+            assert_eq!(
+                to_bytes(response.body_mut()).await.unwrap(),
+                Bytes::from("Hello World")
+            );
+        });
+
+        tx.send_async(RunResult::Response(Response::from("Hello World")))
+            .await
+            .unwrap();
+
+        handle.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn stream() {
+        let (tx, rx) = flume::unbounded::<RunResult>();
+
+        let handle = tokio::spawn(async move {
+            let mut response = handle_response(rx, (), Box::new(|_, _| ())).await.unwrap();
+
+            assert_eq!(response.status(), 200);
+            assert_eq!(
+                to_bytes(response.body_mut()).await.unwrap(),
+                Bytes::from("Hello world")
+            );
+        });
+
+        tx.send_async(RunResult::Stream(StreamResult::Start(Response::from(""))))
+            .await
+            .unwrap();
+
+        tx.send_async(RunResult::Stream(StreamResult::Data(b"Hello".to_vec())))
+            .await
+            .unwrap();
+
+        tx.send_async(RunResult::Stream(StreamResult::Data(b" world".to_vec())))
+            .await
+            .unwrap();
+
+        tx.send_async(RunResult::Stream(StreamResult::Done))
+            .await
+            .unwrap();
+
+        drop(tx);
+
+        handle.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn stream_data_before_response() {
+        let (tx, rx) = flume::unbounded::<RunResult>();
+
+        let handle = tokio::spawn(async move {
+            let mut response = handle_response(rx, (), Box::new(|_, _| ())).await.unwrap();
+
+            assert_eq!(response.status(), 200);
+            assert_eq!(
+                to_bytes(response.body_mut()).await.unwrap(),
+                Bytes::from("Hello world")
+            );
+        });
+
+        tx.send_async(RunResult::Stream(StreamResult::Data(b"Hello".to_vec())))
+            .await
+            .unwrap();
+
+        tx.send_async(RunResult::Stream(StreamResult::Start(Response::from(""))))
+            .await
+            .unwrap();
+
+        tx.send_async(RunResult::Stream(StreamResult::Data(b" world".to_vec())))
+            .await
+            .unwrap();
+
+        tx.send_async(RunResult::Stream(StreamResult::Done))
+            .await
+            .unwrap();
+
+        drop(tx);
+
+        handle.await.unwrap();
     }
 }

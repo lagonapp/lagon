@@ -9,9 +9,11 @@ use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
-use lagon_runtime_utils::assets::find_asset;
-use lagon_runtime_utils::response::{handle_response, ResponseEvent};
-use lagon_runtime_utils::{assets::handle_asset, Deployment};
+use lagon_runtime_utils::response::{handle_response, ResponseEvent, PAGE_404};
+use lagon_runtime_utils::{
+    assets::{find_asset, handle_asset},
+    Deployment,
+};
 use lagon_serverless_logger::init_logger;
 use lazy_static::lazy_static;
 use log::{as_debug, error, info, warn};
@@ -51,9 +53,6 @@ lazy_static! {
 }
 
 pub const POOL_SIZE: usize = 8;
-const PAGE_404: &str = include_str!("../../runtime_utils/public/404.html");
-// const PAGE_502: &str = include_str!("../public/502.html");
-// const PAGE_500: &str = include_str!("../public/500.html");
 const X_FORWARDED_FOR: &str = "x-forwarded-for";
 const X_LAGON_REGION: &str = "x-lagon-region";
 const X_REAL_IP: &str = "x-real-ip";
