@@ -141,6 +141,14 @@ pub fn bundle_function(
         let client_output = esbuild(client)?;
         end_progress();
 
+        let client_path = client.as_path().with_extension("js");
+        let client_path = client_path.file_name().unwrap();
+
+        if public_dir.exists() && public_dir.is_dir() {
+            let client_path = public_dir.join(client_path);
+            fs::write(client_path, &client_output)?;
+        }
+
         assets.insert(
             client
                 .as_path()

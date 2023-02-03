@@ -11,6 +11,7 @@ lagon-runtime = { path = "../runtime" }
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-isolate = { path = "../runtime_isolate" }
 lagon-serverless-logger = { path = "../serverless_logger" }
+lagon-runtime-utils = { path = "../runtime_utils" }
 flume = "0.10.14"
 mysql = "23.0.1"
 dotenv = "0.15.0"

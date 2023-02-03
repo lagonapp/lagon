@@ -26,11 +26,11 @@ impl SimpleLogger {
                         .ingest_stream("serverless", rx.into_stream())
                         .await
                     {
-                        eprintln!("Error ingesting into Axiom: {}", error);
+                        eprintln!("Error ingesting into Axiom: {error}");
                     }
                 });
             }
-            Err(error) => println!("Axiom is not configured: {}", error),
+            Err(error) => println!("Axiom is not configured: {error}"),
         }
 
         Self {

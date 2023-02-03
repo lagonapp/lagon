@@ -1,16 +1,14 @@
 use anyhow::Result;
 use lagon_runtime_http::{Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate, CONSOLE_SOURCE};
+use lagon_runtime_utils::Deployment;
 use log::{error, info, warn};
 use metrics::{decrement_gauge, histogram, increment_gauge};
 use std::{collections::HashMap, sync::Arc};
 use tokio_cron_scheduler::{Job, JobScheduler};
 use uuid::Uuid;
 
-use crate::{
-    deployments::{filesystem::get_deployment_code, Deployment},
-    REGION,
-};
+use crate::{deployments::filesystem::get_deployment_code, REGION};
 
 pub struct Cronjob {
     jobs: HashMap<String, Uuid>,

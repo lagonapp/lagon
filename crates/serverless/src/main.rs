@@ -1,16 +1,19 @@
 use anyhow::Result;
 use cronjob::Cronjob;
 use deployments::cache::run_cache_clear_task;
-use deployments::Deployment;
-use hyper::body::Bytes;
 use hyper::header::HOST;
 use hyper::http::response::Builder;
 use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
-use lagon_runtime_http::{Request, RunResult, StreamResult};
+use lagon_runtime_http::{Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
+use lagon_runtime_utils::response::{handle_response, ResponseEvent, PAGE_404};
+use lagon_runtime_utils::{
+    assets::{find_asset, handle_asset},
+    Deployment,
+};
 use lagon_serverless_logger::init_logger;
 use lazy_static::lazy_static;
 use log::{as_debug, error, info, warn};
@@ -28,6 +31,7 @@ use std::collections::HashMap;
 use std::convert::Infallible;
 use std::env;
 use std::net::SocketAddr;
+use std::path::Path;
 #[cfg(not(debug_assertions))]
 use std::path::Path;
 use std::sync::Arc;
@@ -35,7 +39,6 @@ use std::time::Instant;
 use tokio::sync::{Mutex, RwLock};
 use tokio_util::task::LocalPoolHandle;
 
-use crate::deployments::assets::handle_asset;
 use crate::deployments::filesystem::get_deployment_code;
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
@@ -50,9 +53,6 @@ lazy_static! {
 }
 
 pub const POOL_SIZE: usize = 8;
-const PAGE_404: &str = include_str!("../public/404.html");
-const PAGE_502: &str = include_str!("../public/502.html");
-const PAGE_500: &str = include_str!("../public/500.html");
 const X_FORWARDED_FOR: &str = "x-forwarded-for";
 const X_LAGON_REGION: &str = "x-lagon-region";
 const X_REAL_IP: &str = "x-real-ip";
@@ -83,10 +83,7 @@ async fn handle_request(
     thread_ids: Arc<RwLock<HashMap<String, usize>>>,
     last_requests: Arc<RwLock<HashMap<String, Instant>>>,
 ) -> Result<HyperResponse<Body>> {
-    let url = req.uri().path();
-    // Remove the leading '/' from the url
-    let url = &url[1..];
-    let url = url.to_owned();
+    let url = req.uri().to_string();
 
     let hostname = match req.headers().get(HOST) {
         Some(hostname) => hostname.to_str()?.to_string(),
@@ -130,7 +127,7 @@ async fn handle_request(
         return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
     }
 
-    let deployment_id = &Arc::clone(&deployment).id;
+    let deployment_id = deployment.id.clone();
     let thread_ids_reader = thread_ids.read().await;
 
     let thread_id = match thread_ids_reader.get(&hostname) {
@@ -160,10 +157,12 @@ async fn handle_request(
             async move {
                 increment_counter!("lagon_requests", &thread_labels);
 
-                if let Some(asset) = deployment.assets.iter().find(|asset| {
-                    asset.replace(".html", "") == url || asset.replace("/index.html", "") == url
-                }) {
-                    let run_result = match handle_asset(&deployment, asset) {
+                if let Some(asset) = find_asset(url, &deployment.assets) {
+                    let root = Path::new(env::current_dir().unwrap().as_path())
+                        .join("deployments")
+                        .join(&deployment.id);
+
+                    let run_result = match handle_asset(root, asset) {
                         Ok(response) => RunResult::Response(response),
                         Err(error) => {
                             error!(deployment = &deployment.id, asset = asset; "Error while handing asset: {}", error);
@@ -267,103 +266,35 @@ async fn handle_request(
         thread_id,
     );
 
-    let result = rx.recv_async().await?;
-
-    match result {
-        RunResult::Stream(stream_result) => {
-            let (stream_tx, stream_rx) = flume::unbounded::<Result<Bytes, std::io::Error>>();
-            let body = Body::wrap_stream(stream_rx.into_stream());
-
-            let (response_tx, response_rx) = flume::bounded(1);
-
-            match stream_result {
-                StreamResult::Start(response) => {
-                    response_tx.send_async(response).await.unwrap_or(());
-                }
-                StreamResult::Data(bytes) => {
-                    counter!("lagon_bytes_out", bytes.len() as u64, &labels);
-
-                    let bytes = Bytes::from(bytes);
-                    stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
-                }
-                StreamResult::Done => {
-                    handle_error(
-                        RunResult::Error(
-                            "The stream was done before sending a response/data".into(),
-                        ),
-                        deployment_id,
-                        &labels,
-                    );
-
-                    // Close the stream by sending empty bytes
-                    stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
-                }
+    handle_response(
+        rx,
+        (deployment_id, labels),
+        Box::new(|event, (deployment_id, labels)| match event {
+            ResponseEvent::StreamData(bytes) => {
+                counter!("lagon_bytes_out", bytes as u64, &labels);
             }
-
-            let deployment_id = deployment_id.clone();
-
-            tokio::spawn(async move {
-                let mut done = false;
-
-                while let Ok(result) = rx.recv_async().await {
-                    match result {
-                        RunResult::Stream(StreamResult::Start(response)) => {
-                            response_tx.send_async(response).await.unwrap_or(());
-                        }
-                        RunResult::Stream(StreamResult::Data(bytes)) => {
-                            if done {
-                                handle_error(
-                                    RunResult::Error("Got data after stream was done".into()),
-                                    &deployment_id,
-                                    &labels,
-                                );
-
-                                // Close the stream by sending empty bytes
-                                stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
-                                break;
-                            }
-
-                            let bytes = Bytes::from(bytes);
-                            stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
-                        }
-                        _ => {
-                            done = result == RunResult::Stream(StreamResult::Done);
-
-                            if !done {
-                                handle_error(result, &deployment_id, &labels);
-                            }
-
-                            // Close the stream by sending empty bytes
-                            stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
-                        }
-                    }
-                }
-            });
-
-            let response = response_rx.recv_async().await?;
-            let hyper_response = Builder::try_from(&response)?.body(body)?;
-
-            Ok(hyper_response)
-        }
-        RunResult::Response(response) => {
-            counter!("lagon_bytes_out", response.len() as u64, &labels);
-
-            let hyper_response = Builder::try_from(&response)?.body(response.body.into())?;
-
-            Ok(hyper_response)
-        }
-        RunResult::Timeout | RunResult::MemoryLimit => {
-            handle_error(result, deployment_id, &labels);
-
-            Ok(HyperResponse::builder().status(502).body(PAGE_502.into())?)
-        }
-        RunResult::Error(_) => {
-            handle_error(result, deployment_id, &labels);
-
-            Ok(HyperResponse::builder().status(500).body(PAGE_500.into())?)
-        }
-        RunResult::NotFound => Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?),
-    }
+            ResponseEvent::StreamDoneNoDataError => {
+                handle_error(
+                    RunResult::Error("The stream was done before sending a response/data".into()),
+                    &deployment_id,
+                    &labels,
+                );
+            }
+            ResponseEvent::StreamDoneDataError => {
+                handle_error(
+                    RunResult::Error("Got data after stream was done".into()),
+                    &deployment_id,
+                    &labels,
+                );
+            }
+            ResponseEvent::UnexpectedStreamResult(result)
+            | ResponseEvent::LimitsReached(result)
+            | ResponseEvent::Error(result) => {
+                handle_error(result, &deployment_id, &labels);
+            }
+        }),
+    )
+    .await
 }
 
 #[tokio::main]
