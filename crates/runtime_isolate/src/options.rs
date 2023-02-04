@@ -1,5 +1,5 @@
 use lagon_runtime_v8_utils::v8_string;
-use std::{collections::HashMap, rc::Rc};
+use std::{collections::HashMap, rc::Rc, time::Duration};
 
 use super::IsolateStatistics;
 
@@ -12,9 +12,9 @@ type OnIsolateStatisticsCallback = Box<dyn Fn(Rc<Metadata>, IsolateStatistics)>;
 pub struct IsolateOptions {
     pub code: String,
     pub environment_variables: Option<HashMap<String, String>>,
-    pub memory: usize,          // in MB (MegaBytes)
-    pub timeout: usize,         // in ms (MilliSeconds)
-    pub startup_timeout: usize, // is ms (MilliSeconds)
+    pub memory: usize, // in MB (MegaBytes)
+    pub timeout: Duration,
+    pub startup_timeout: Duration,
     pub metadata: Rc<Metadata>,
     pub on_drop: Option<OnIsolateDropCallback>,
     pub on_statistics: Option<OnIsolateStatisticsCallback>,
@@ -28,8 +28,8 @@ impl IsolateOptions {
         Self {
             code,
             environment_variables: None,
-            timeout: 50,
-            startup_timeout: 200,
+            timeout: Duration::from_millis(50),
+            startup_timeout: Duration::from_millis(200),
             memory: 128,
             metadata: Rc::new(None),
             on_drop: None,
@@ -43,12 +43,12 @@ impl IsolateOptions {
         self
     }
 
-    pub fn timeout(mut self, timeout: usize) -> Self {
+    pub fn timeout(mut self, timeout: Duration) -> Self {
         self.timeout = timeout;
         self
     }
 
-    pub fn startup_timeout(mut self, startup_timeout: usize) -> Self {
+    pub fn startup_timeout(mut self, startup_timeout: Duration) -> Self {
         self.startup_timeout = startup_timeout;
         self
     }

@@ -4,7 +4,7 @@ use lagon_runtime_isolate::{options::IsolateOptions, Isolate, CONSOLE_SOURCE};
 use lagon_runtime_utils::Deployment;
 use log::{error, info, warn};
 use metrics::{decrement_gauge, histogram, increment_gauge};
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 use tokio_cron_scheduler::{Job, JobScheduler};
 use uuid::Uuid;
 
@@ -58,8 +58,8 @@ impl Cronjob {
                         let options = IsolateOptions::new(code)
                             .environment_variables(deployment.environment_variables.clone())
                             .memory(deployment.memory)
-                            .timeout(deployment.timeout)
-                            .startup_timeout(deployment.startup_timeout)
+                            .timeout(Duration::from_millis(deployment.timeout as u64))
+                            .startup_timeout(Duration::from_millis(deployment.startup_timeout as u64))
                             .metadata(Some((deployment.id.clone(), deployment.function_id.clone())))
                             .on_drop_callback(Box::new(|metadata| {
                                 if let Some(metadata) = metadata.as_ref().as_ref() {

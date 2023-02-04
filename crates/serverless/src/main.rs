@@ -32,10 +32,8 @@ use std::convert::Infallible;
 use std::env;
 use std::net::SocketAddr;
 use std::path::Path;
-#[cfg(not(debug_assertions))]
-use std::path::Path;
 use std::sync::Arc;
-use std::time::Instant;
+use std::time::{Duration, Instant};
 use tokio::sync::{Mutex, RwLock};
 use tokio_util::task::LocalPoolHandle;
 
@@ -220,8 +218,8 @@ async fn handle_request(
                                 deployment.environment_variables.clone(),
                             )
                             .memory(deployment.memory)
-                            .timeout(deployment.timeout)
-                            .startup_timeout(deployment.startup_timeout)
+                            .timeout(Duration::from_millis(deployment.timeout as u64))
+                            .startup_timeout(Duration::from_millis(deployment.startup_timeout as u64))
                             .metadata(Some((deployment.id.clone(), deployment.function_id.clone())))
                             .on_drop_callback(Box::new(|metadata| {
                                 if let Some(metadata) = metadata.as_ref().as_ref() {
