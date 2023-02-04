@@ -352,25 +352,25 @@ importers:
 
   packages/integrations/astro:
     specifiers:
-      astro: 2.0.2
+      astro: 2.0.6
       esbuild: ^0.17.0
     dependencies:
       esbuild: 0.17.3
     devDependencies:
-      astro: 2.0.2
+      astro: 2.0.6
 
   packages/integrations/remix:
     specifiers:
       '@remix-run/server-runtime': ^1.12.0
       '@types/node': ^18.0.0
-      astro: 2.0.2
+      astro: 2.0.6
       esbuild: ^0.17.0
     dependencies:
       '@remix-run/server-runtime': 1.12.0
       esbuild: 0.17.3
     devDependencies:
       '@types/node': 18.11.18
-      astro: 2.0.2_@types+node@18.11.18
+      astro: 2.0.6_@types+node@18.11.18
 
   packages/js-runtime:
     specifiers:
@@ -538,13 +538,13 @@ packages:
       - supports-color
     dev: true
 
-  /@astrojs/markdown-remark/2.0.1_astro@2.0.2:
+  /@astrojs/markdown-remark/2.0.1_astro@2.0.6:
     resolution: {integrity: sha512-xQF1rXGJN18m+zZucwRRtmNehuhPMMhZhi6HWKrtpEAKnHSPk8lqf1GXgKH7/Sypglu8ivdECZ+EGs6kOYVasQ==}
     peerDependencies:
       astro: ^2.0.2
     dependencies:
       '@astrojs/prism': 2.0.0
-      astro: 2.0.2
+      astro: 2.0.6
       github-slugger: 1.4.0
       import-meta-resolve: 2.2.0
       rehype-raw: 6.1.1
@@ -9631,14 +9631,14 @@ packages:
       - terser
     dev: true
 
-  /astro/2.0.2:
-    resolution: {integrity: sha512-47N1jLWNxSri7kWfIfgcEnQJZWTvd0gXhNC3P2ZHiiurl4nOxFC5ULsW5MDDTjTzQ1S7y1RoaL9XxYm+Rury7w==}
+  /astro/2.0.6:
+    resolution: {integrity: sha512-aI8Ijy2EpMyP5SpjmDJpEUdNL6CUAxnja6IeaBC1BokD/mNAnijtmMnTyWVI3UeEZ727wYLISQMyqCfEUq8VNA==}
     engines: {node: '>=16.12.0', npm: '>=6.14.0'}
     hasBin: true
     dependencies:
       '@astrojs/compiler': 1.0.1
       '@astrojs/language-server': 0.28.3
-      '@astrojs/markdown-remark': 2.0.1_astro@2.0.2
+      '@astrojs/markdown-remark': 2.0.1_astro@2.0.6
       '@astrojs/telemetry': 2.0.0
       '@astrojs/webapi': 2.0.0
       '@babel/core': 7.20.7
@@ -9698,14 +9698,14 @@ packages:
       - terser
     dev: true
 
-  /astro/2.0.2_@types+node@18.11.18:
-    resolution: {integrity: sha512-47N1jLWNxSri7kWfIfgcEnQJZWTvd0gXhNC3P2ZHiiurl4nOxFC5ULsW5MDDTjTzQ1S7y1RoaL9XxYm+Rury7w==}
+  /astro/2.0.6_@types+node@18.11.18:
+    resolution: {integrity: sha512-aI8Ijy2EpMyP5SpjmDJpEUdNL6CUAxnja6IeaBC1BokD/mNAnijtmMnTyWVI3UeEZ727wYLISQMyqCfEUq8VNA==}
     engines: {node: '>=16.12.0', npm: '>=6.14.0'}
     hasBin: true
     dependencies:
       '@astrojs/compiler': 1.0.1
       '@astrojs/language-server': 0.28.3
-      '@astrojs/markdown-remark': 2.0.1_astro@2.0.2
+      '@astrojs/markdown-remark': 2.0.1_astro@2.0.6
       '@astrojs/telemetry': 2.0.0
       '@astrojs/webapi': 2.0.0
       '@babel/core': 7.20.7
