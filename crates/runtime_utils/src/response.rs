@@ -7,6 +7,8 @@ pub const PAGE_404: &str = include_str!("../public/404.html");
 pub const PAGE_502: &str = include_str!("../public/502.html");
 pub const PAGE_500: &str = include_str!("../public/500.html");
 
+pub const FAVICON_URL: &str = "/favicon.ico";
+
 pub enum ResponseEvent {
     StreamData(usize),
     StreamDoneNoDataError,
@@ -57,6 +59,8 @@ pub async fn handle_response<T: Send + Clone + 'static>(
                             response_tx.send_async(response).await.unwrap_or(());
                         }
                         RunResult::Stream(StreamResult::Data(bytes)) => {
+                            on_event(ResponseEvent::StreamData(bytes.len()), data.clone());
+
                             if done {
                                 on_event(ResponseEvent::StreamDoneDataError, data.clone());
 

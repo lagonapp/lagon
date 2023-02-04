@@ -7,9 +7,9 @@ use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
-use lagon_runtime_http::{Request, RunResult};
+use lagon_runtime_http::{Request, Response, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
-use lagon_runtime_utils::response::{handle_response, ResponseEvent, PAGE_404};
+use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL, PAGE_404};
 use lagon_runtime_utils::{
     assets::{find_asset, handle_asset},
     Deployment,
@@ -153,6 +153,8 @@ async fn handle_request(
             async move {
                 increment_counter!("lagon_requests", &thread_labels);
 
+                let is_favicon = url == FAVICON_URL;
+
                 if let Some(asset) = find_asset(url, &deployment.assets) {
                     let root = Path::new(env::current_dir().unwrap().as_path())
                         .join("deployments")
@@ -168,6 +170,11 @@ async fn handle_request(
                     };
 
                     tx.send_async(run_result).await.unwrap_or(());
+                } else if is_favicon {
+                    tx.send_async(RunResult::Response(Response {
+                        status: 404,
+                        ..Default::default()
+                    })).await.unwrap_or(());
                 } else {
                     last_requests.write().await.insert(hostname.clone(), Instant::now());
                     increment_counter!("lagon_isolate_requests", &thread_labels);
