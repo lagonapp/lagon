@@ -113,6 +113,8 @@ async fn handle_request(
                             IsolateOptions::new(
                                 String::from_utf8(index).expect("Code is not UTF-8"),
                             )
+                            .timeout(Duration::from_secs(1))
+                            .startup_timeout(Duration::from_secs(2))
                             .metadata(Some((String::from(""), String::from(""))))
                             .environment_variables(environment_variables),
                         );
