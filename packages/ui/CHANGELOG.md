@@ -1,5 +1,11 @@
 # @lagon/ui
 
+## 0.2.2
+
+### Patch Changes
+
+- [#526](https://github.com/lagonapp/lagon/pull/526) [`3a9825d`](https://github.com/lagonapp/lagon/commit/3a9825d468aa06302cbddbb78e0a6f339bef8fce) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add text variant to Skeleton
+
 ## 0.2.1
 
 ### Patch Changes
