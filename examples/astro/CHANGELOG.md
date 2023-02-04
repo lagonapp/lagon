@@ -1,5 +1,16 @@
 # @lagon/example-astro
 
+## 0.1.0
+
+### Minor Changes
+
+- [#538](https://github.com/lagonapp/lagon/pull/538) [`d48af93`](https://github.com/lagonapp/lagon/commit/d48af93b3547051a4a93542086e5dff5acafcb67) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `lagon-dev` script to run the example inside Lagon
+
+### Patch Changes
+
+- Updated dependencies [[`1cfb186`](https://github.com/lagonapp/lagon/commit/1cfb186480aaac1598aa6b08cc7606847869e170), [`1cfb186`](https://github.com/lagonapp/lagon/commit/1cfb186480aaac1598aa6b08cc7606847869e170)]:
+  - @lagon/astro@0.2.0
+
 ## 0.0.5
 
 ### Patch Changes

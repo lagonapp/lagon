@@ -1,5 +1,13 @@
 # @lagon/serverless
 
+## 0.1.17
+
+### Patch Changes
+
+- [#557](https://github.com/lagonapp/lagon/pull/557) [`15477b1`](https://github.com/lagonapp/lagon/commit/15477b1b8dfef8076afceaed930044c280175b7c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add IP-based authorization to prometheus exporter
+
+* [#559](https://github.com/lagonapp/lagon/pull/559) [`8e2eaa0`](https://github.com/lagonapp/lagon/commit/8e2eaa0149d0b65e00414f27ff526afa93af78b7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve error pages
+
 ## 0.1.16
 
 ### Patch Changes

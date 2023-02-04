@@ -1,5 +1,15 @@
 # @lagon/astro
 
+## 0.2.0
+
+### Minor Changes
+
+- [#551](https://github.com/lagonapp/lagon/pull/551) [`1cfb186`](https://github.com/lagonapp/lagon/commit/1cfb186480aaac1598aa6b08cc7606847869e170) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Prepare Astro integration for release
+
+### Patch Changes
+
+- [#551](https://github.com/lagonapp/lagon/pull/551) [`1cfb186`](https://github.com/lagonapp/lagon/commit/1cfb186480aaac1598aa6b08cc7606847869e170) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix client IP address injection
+
 ## 0.1.0
 
 ### Minor Changes

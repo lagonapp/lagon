@@ -1,5 +1,18 @@
 # @lagon/dashboard
 
+## 0.2.1
+
+### Patch Changes
+
+- [#524](https://github.com/lagonapp/lagon/pull/524) [`9bd1d92`](https://github.com/lagonapp/lagon/commit/9bd1d92db4e94eff41aa62796a277eded3c64f36) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Functions names blacklist
+
+* [#526](https://github.com/lagonapp/lagon/pull/526) [`3a9825d`](https://github.com/lagonapp/lagon/commit/3a9825d468aa06302cbddbb78e0a6f339bef8fce) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve loading states with Skeletons
+
+- [#539](https://github.com/lagonapp/lagon/pull/539) [`cf31041`](https://github.com/lagonapp/lagon/commit/cf31041647a2599ef1998e5ee7b8f46036faefad) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix error on stats procedure without data
+
+- Updated dependencies [[`3a9825d`](https://github.com/lagonapp/lagon/commit/3a9825d468aa06302cbddbb78e0a6f339bef8fce)]:
+  - @lagon/ui@0.2.2
+
 ## 0.2.0
 
 ### Minor Changes

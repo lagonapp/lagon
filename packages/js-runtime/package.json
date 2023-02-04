@@ -1,6 +1,6 @@
 {
   "name": "@lagon/js-runtime",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "JavaScript Runtime",
   "private": true,
   "type": "module",

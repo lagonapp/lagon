@@ -1,6 +1,6 @@
 {
   "name": "@lagon/example-preact",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "lagon-dev": "lagon dev index.tsx -p public -c App.tsx"

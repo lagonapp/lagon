@@ -1,5 +1,15 @@
 # @lagon/cli
 
+## 0.4.6
+
+### Patch Changes
+
+- [#542](https://github.com/lagonapp/lagon/pull/542) [`04235a1`](https://github.com/lagonapp/lagon/commit/04235a181d62c3f2501c981100694241d24fd4d4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Only update the dev server when files are added/deleted/modified
+
+* [#561](https://github.com/lagonapp/lagon/pull/561) [`8e67150`](https://github.com/lagonapp/lagon/commit/8e671507f1d925a057fd5030c6c5a76be19cdda9) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Increase timeout of isolate for `dev` command
+
+- [#559](https://github.com/lagonapp/lagon/pull/559) [`8e2eaa0`](https://github.com/lagonapp/lagon/commit/8e2eaa0149d0b65e00414f27ff526afa93af78b7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve error pages
+
 ## 0.4.5
 
 ### Patch Changes
