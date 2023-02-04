@@ -462,8 +462,8 @@ impl Isolate {
         // Script parsing may take a long time, so we use the startup_timeout
         // when the isolate has not been used yet.
         let timeout = match self.handler.is_none() && self.compilation_error.is_none() {
-            true => Duration::from_millis(self.options.startup_timeout as u64),
-            false => Duration::from_millis(self.options.timeout as u64),
+            true => self.options.startup_timeout,
+            false => self.options.timeout,
         };
         let (termination_tx, termination_rx) = flume::bounded(1);
 
