@@ -37,7 +37,7 @@ export const FeaturesSection = () => {
         transition={{ delay: 0.2 }}
         viewport={{ once: true }}
       >
-        <Text size="h2" className="z-10">
+        <Text size="h2" className="relative">
           Build faster&nbsp;
           <span className="inline-flex h-[60px] overflow-hidden">
             <ul style={{ animation: 'text-carousel calc(2s * 4) steps(4) infinite' }}>
