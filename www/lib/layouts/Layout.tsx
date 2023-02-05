@@ -34,7 +34,7 @@ export const Layout = ({ children }: LayoutProps) => {
           }}
         />
         <Header />
-        <main className="container mx-auto flex flex-col gap-32 px-4 pt-24 md:gap-64">{children}</main>
+        <main className="container mx-auto flex min-h-screen flex-col gap-32 px-4 pt-24 md:gap-64">{children}</main>
         <Footer />
       </div>
     </>

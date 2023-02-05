@@ -11,12 +11,9 @@ import { useRouter } from 'next/router';
 export const Header = () => {
   const [open, setOpen] = useState(false);
   const { asPath } = useRouter();
-  const [pricing, setPricing] = useState(false);
 
   useEffect(() => {
     setOpen(false);
-
-    setPricing(asPath === '/pricing');
   }, [asPath]);
 
   return (
@@ -35,7 +32,10 @@ export const Header = () => {
           <Text size="a" href="https://docs.lagon.app">
             Documentation
           </Text>
-          <Text size="a" href="/pricing" className={pricing ? '!text-white' : undefined}>
+          <Text size="a" href="/blog" className={asPath.startsWith('/blog') ? '!text-white' : undefined}>
+            Blog
+          </Text>
+          <Text size="a" href="/pricing" className={asPath.startsWith('/pricing') ? '!text-white' : undefined}>
             Pricing
           </Text>
         </div>
@@ -61,7 +61,11 @@ export const Header = () => {
           <div className="border-b-grey/20 border-b" />
           <Link href="https://docs.lagon.app">Documentation</Link>
           <div className="border-b-grey/20 border-b" />
-          <Link href="/pricing" className={pricing ? '!text-white' : undefined}>
+          <Link href="/blog" className={asPath.startsWith('/blog') ? '!text-white' : undefined}>
+            Blog
+          </Link>
+          <div className="border-b-grey/20 border-b" />
+          <Link href="/pricing" className={asPath.startsWith('/pricing') ? '!text-white' : undefined}>
             Pricing
           </Link>
           <div className="mt-6 flex justify-between gap-12">

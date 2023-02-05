@@ -9,6 +9,7 @@ const style = cva('', {
       h2: 'md:text-5xl text-3xl font-semibold tracking-tight leading-tight',
       h3: 'text-2xl font-semibold leading-tight',
       p: 'text-[#7F92AF] text-base',
+      li: 'text-[#7F92AF] text-base list-disc',
       a: 'text-[#7F92AF] text-base hover:text-white transition',
       span: '',
     },

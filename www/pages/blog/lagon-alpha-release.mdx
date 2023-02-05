@@ -1,0 +1,42 @@
+import { BlogLayout } from '../../lib/layouts/BlogLayout';
+
+export const meta = {
+  title: 'Announcing Lagon Alpha',
+  date: '2023/03/01',
+  description: 'Lagon is now available in Alpha, with Lagon Cloud accessible through a waitlist',
+  author: {
+    name: 'Tom Lienard',
+    avatar: '/images/avatars/tom.jpg',
+    bio: 'Founder',
+    handle: 'tomlienard',
+  },
+  tags: ['release', 'announcement'],
+};
+
+Lagon is an [open-source](https://github.com/lagonapp/lagon) runtime and platform that allows developers to run TypeScript and JavaScript Functions at the Edge. Think of it as an open-source alternative to Cloudflare Workers, Deno Deploy, Fastly@Edge, and other similar platforms.
+
+The runtime powering Lagon is written **from scratch** in Rust, using the V8 JavaScript engine.
+
+## Lagon Cloud
+
+Today, we're very excited to announce the Alpha version of Lagon. We'll give access to Lagon Cloud progressively through the waitlist. [Join the waitlist here!](https://tally.so/r/n9q1Rp)
+
+You can deploy JavaScript and TypeScript Functions to Lagon Cloud in a few seconds using the CLI, and run them at the Edge in **14 regions**. That means you and your users always get a fast, low-latency response, anywhere in the world. Read the [get started documentation](https://docs.lagon.app/get-started) to learn more.
+
+## Lagon self-hosted
+
+Lagon is [open-source on GitHub](https://github.com/lagonapp/lagon), and is already built with self-hosting in mind. You'll soon be able to deploy the whole platform (the software embedding Lagon's runtime, and the web dashboard) to your own servers. We're still working on providing great and easy-to-use deployment options, so Lagon self-hosted isn't yet available.
+
+## What's next?
+
+We're working on a lot of things, including:
+
+- Integrations and examples with popular frameworks and libraries, like Next.js, Remix, Nuxt.js, Astro...
+- New regions in Lagon Cloud
+- Improved documentation
+- Lagon self-hosted documentation
+- And fixing bugs!
+
+Join our [Discord](https://discord.lagon.app), follow us on [Twitter](https://twitter.com/lagonapp), and join our [waitlist](https://tally.so/r/n9q1Rp) to stay up to date!
+
+export default ({ children }) => <BlogLayout meta={meta}>{children}</BlogLayout>;

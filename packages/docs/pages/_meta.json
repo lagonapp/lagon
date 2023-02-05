@@ -1,11 +1,4 @@
 {
-    "blog": {
-        "type": "page",
-        "title": "Blog",
-        "theme": {
-            "typesetting": "article"
-        }
-    },
     "index": "Introduction",
     "get-started": "Get started",
     "runtime-apis": "Runtime APIs",

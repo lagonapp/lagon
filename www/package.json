@@ -11,7 +11,10 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.0.13",
+    "@mdx-js/loader": "^2.2.1",
+    "@mdx-js/react": "^2.2.1",
     "@next/font": "13.1.6",
+    "@next/mdx": "^13.1.6",
     "@radix-ui/react-tooltip": "^1.0.3",
     "@vercel/analytics": "0.1.8",
     "class-variance-authority": "^0.3.0",

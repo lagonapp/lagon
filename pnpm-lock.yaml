@@ -326,7 +326,6 @@ importers:
       eslint-config-next: 13.1.6
       next: 13.1.6
       nextra: 2.2.14
-      nextra-theme-blog: ^2.2.14
       nextra-theme-docs: 2.2.14
       postcss: ^8.4.14
       react: 18.2.0
@@ -337,7 +336,6 @@ importers:
       '@vercel/analytics': 0.1.3_react@18.2.0
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       nextra: 2.2.14_3vryta7zmbcsw4rrqf4axjqggm
-      nextra-theme-blog: 2.2.14_u6qwm625rg3t7ll2t4ybomvrai
       nextra-theme-docs: 2.2.14_u6qwm625rg3t7ll2t4ybomvrai
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -445,7 +443,10 @@ importers:
   www:
     specifiers:
       '@heroicons/react': ^2.0.13
+      '@mdx-js/loader': ^2.2.1
+      '@mdx-js/react': ^2.2.1
       '@next/font': 13.1.6
+      '@next/mdx': ^13.1.6
       '@radix-ui/react-tooltip': ^1.0.3
       '@types/node': ^18.0.0
       '@types/react': ^18.0.9
@@ -467,7 +468,10 @@ importers:
       typescript: ^4.6.4
     dependencies:
       '@heroicons/react': 2.0.13_react@18.2.0
+      '@mdx-js/loader': 2.2.1
+      '@mdx-js/react': 2.2.1_react@18.2.0
       '@next/font': 13.1.6
+      '@next/mdx': 13.1.6_vvg67iglxhejglpl7nsv3pjzui
       '@radix-ui/react-tooltip': 1.0.3_twyhzqqpkwvvgrmyeapdo6i4my
       '@vercel/analytics': 0.1.8_react@18.2.0
       class-variance-authority: 0.3.0_typescript@4.7.4
@@ -5228,6 +5232,17 @@ packages:
       read-yaml-file: 1.1.0
     dev: true
 
+  /@mdx-js/loader/2.2.1:
+    resolution: {integrity: sha512-J4E8A5H+xtk4otZiEZ5AXl61Tj04Avm5MqLQazITdI3+puVXVnTTuZUKM1oNHTtfDIfOl0uMt+o/Ij+x6Fvf+g==}
+    peerDependencies:
+      webpack: '>=4'
+    dependencies:
+      '@mdx-js/mdx': 2.2.1
+      source-map: 0.7.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /@mdx-js/mdx/1.6.22:
     resolution: {integrity: sha512-AMxuLxPz2j5/6TpF/XSdKpQP1NlG0z11dFOlq+2IP/lSgl11GY8ji6S/rgsViN/L0BDvHvUMruRb7ub+24LUYA==}
     dependencies:
@@ -5515,6 +5530,17 @@ packages:
 
   /@next/font/13.1.6:
     resolution: {integrity: sha512-AITjmeb1RgX1HKMCiA39ztx2mxeAyxl4ljv2UoSBUGAbFFMg8MO7YAvjHCgFhD39hL7YTbFjol04e/BPBH5RzQ==}
+    dev: false
+
+  /@next/mdx/13.1.6_vvg67iglxhejglpl7nsv3pjzui:
+    resolution: {integrity: sha512-ZLhXXDJeHbudFpSZT68eYQRzOaNwkaw+NuO7Zvnm5XKB6P7hKSj2dS47ZtitrY0JaL3KxR4FoxUSYeLvdoRwtQ==}
+    peerDependencies:
+      '@mdx-js/loader': '>=0.15.0'
+      '@mdx-js/react': '*'
+    dependencies:
+      '@mdx-js/loader': 2.2.1
+      '@mdx-js/react': 2.2.1_react@18.2.0
+      source-map: 0.7.4
     dev: false
 
   /@next/swc-android-arm-eabi/13.1.6:
@@ -17240,25 +17266,6 @@ packages:
     transitivePeerDependencies:
       - '@babel/core'
       - babel-plugin-macros
-
-  /nextra-theme-blog/2.2.14_u6qwm625rg3t7ll2t4ybomvrai:
-    resolution: {integrity: sha512-A/C5q5uje74NUTVY6eb9v7nStMBYU+T7A4TnKDvAjmv10KOp2jTfFkT0pIlKFJ1VTsTSIKz9eIekoS3doU36fA==}
-    peerDependencies:
-      next: '>=9.5.3'
-      nextra: 2.2.14
-      react: '>=16.13.1'
-      react-cusdis: ^2.1.3
-      react-dom: '>=16.13.1'
-    peerDependenciesMeta:
-      react-cusdis:
-        optional: true
-    dependencies:
-      next: 13.1.6_biqbaboplfbrettd7655fr4n2y
-      next-themes: 0.2.1_3vryta7zmbcsw4rrqf4axjqggm
-      nextra: 2.2.14_3vryta7zmbcsw4rrqf4axjqggm
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-    dev: false
 
   /nextra-theme-docs/2.2.14_u6qwm625rg3t7ll2t4ybomvrai:
     resolution: {integrity: sha512-QQcHOcAXSfrpbSX3FqXgcQ2favKLnBAczqKWbSDVEtgHiUG6s7pVpxclpKm5F1c/fP47v19USRq3BL/SZ4JEIQ==}
