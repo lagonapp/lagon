@@ -1,0 +1,39 @@
+{
+  "name": "@lagon/astro",
+  "version": "0.2.0",
+  "description": "Astro integration to deploy your site to Lagon",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./server.js": "./dist/server.js",
+    "./package.json": "./package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lagonapp/lagon"
+  },
+  "homepage": "https://github.com/lagonapp/lagon/tree/main/packages/integrations/astro",
+  "keywords": [
+    "lagon",
+    "serverless",
+    "edge",
+    "integration",
+    "astro",
+    "withastro",
+    "astro-adapter"
+  ],
+  "scripts": {
+    "watch": "esbuild src/index.ts src/server.ts --format=esm --outdir=dist  --watch",
+    "build": "esbuild src/index.ts src/server.ts --format=esm --outdir=dist",
+    "lint": "eslint --cache .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "esbuild": "^0.17.0"
+  },
+  "devDependencies": {
+    "astro": "2.0.6"
+  }
+}

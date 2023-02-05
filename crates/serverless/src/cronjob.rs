@@ -1,16 +1,14 @@
 use anyhow::Result;
 use lagon_runtime_http::{Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate, CONSOLE_SOURCE};
+use lagon_runtime_utils::Deployment;
 use log::{error, info, warn};
 use metrics::{decrement_gauge, histogram, increment_gauge};
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap, sync::Arc, time::Duration};
 use tokio_cron_scheduler::{Job, JobScheduler};
 use uuid::Uuid;
 
-use crate::{
-    deployments::{filesystem::get_deployment_code, Deployment},
-    REGION,
-};
+use crate::{deployments::filesystem::get_deployment_code, REGION};
 
 pub struct Cronjob {
     jobs: HashMap<String, Uuid>,
@@ -32,7 +30,7 @@ impl Cronjob {
         if let Some(cron) = &deployment.cron {
             // Adding a 0 at the beginning because tokio-cron-scheduler's
             // cron format include seconds at the start
-            let cron = format!("0 {}", cron);
+            let cron = format!("0 {cron}");
 
             info!("Registering cron {} for deployment {}", cron, deployment.id);
 
@@ -60,8 +58,8 @@ impl Cronjob {
                         let options = IsolateOptions::new(code)
                             .environment_variables(deployment.environment_variables.clone())
                             .memory(deployment.memory)
-                            .timeout(deployment.timeout)
-                            .startup_timeout(deployment.startup_timeout)
+                            .timeout(Duration::from_millis(deployment.timeout as u64))
+                            .startup_timeout(Duration::from_millis(deployment.startup_timeout as u64))
                             .metadata(Some((deployment.id.clone(), deployment.function_id.clone())))
                             .on_drop_callback(Box::new(|metadata| {
                                 if let Some(metadata) = metadata.as_ref().as_ref() {
@@ -104,7 +102,7 @@ impl Cronjob {
                             }
                             RunResult::Response(response) => {
                                 let body = String::from_utf8_lossy(&response.body);
-                                let maybe_body = if body == "" { String::from("") } else { format!(": {}", body) };
+                                let maybe_body = if body == "" { String::from("") } else { format!(": {body}") };
 
                                 if response.status == 200 {
                                     info!(

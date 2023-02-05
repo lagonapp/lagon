@@ -133,7 +133,7 @@ export const functionsRouter = (t: T) =>
           ownerId: ctx.session.user.id,
         });
 
-        const logs = await axiomClient.datasets.query(
+        const logs = await axiomClient.query(
           `['serverless'] | where ['metadata.source'] == 'console' and ['metadata.function'] == '${input.functionId}' | sort by _time`,
           {
             startTime: new Date(

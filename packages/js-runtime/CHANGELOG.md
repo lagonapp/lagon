@@ -1,5 +1,15 @@
 # @lagon/js-runtime
 
+## 0.3.2
+
+### Patch Changes
+
+- [#538](https://github.com/lagonapp/lagon/pull/538) [`d48af93`](https://github.com/lagonapp/lagon/commit/d48af93b3547051a4a93542086e5dff5acafcb67) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Response/Response#arrayBuffer
+
+* [#529](https://github.com/lagonapp/lagon/pull/529) [`877cf2e`](https://github.com/lagonapp/lagon/commit/877cf2ea0b629c573a39cf6019f7654f52949de4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add URLPattern API
+
+- [#529](https://github.com/lagonapp/lagon/pull/529) [`877cf2e`](https://github.com/lagonapp/lagon/commit/877cf2ea0b629c573a39cf6019f7654f52949de4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Minify js-runtime
+
 ## 0.3.1
 
 ## 0.3.0

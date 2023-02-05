@@ -174,7 +174,7 @@ async fn main() {
     } else {
         match serde_json::from_str(PACKAGE_JSON) {
             Ok(PackageJson { version }) => {
-                println!("{}", version);
+                println!("{version}");
             }
             _ => println!("{}", error("Couldn't extract version from package.json")),
         }

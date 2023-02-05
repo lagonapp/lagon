@@ -2,7 +2,7 @@ use httptest::bytes::Bytes;
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Method, Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
-use std::sync::Once;
+use std::{sync::Once, time::Duration};
 
 fn setup() {
     static START: Once = Once::new();
@@ -153,7 +153,7 @@ async fn memory_reached() {
             .into(),
         )
         // Increase timeout for CI
-        .startup_timeout(10000)
+        .startup_timeout(Duration::from_millis(10000))
         .memory(1),
     );
     let (tx, rx) = flume::unbounded();

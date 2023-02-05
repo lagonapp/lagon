@@ -141,6 +141,14 @@ pub fn bundle_function(
         let client_output = esbuild(client)?;
         end_progress();
 
+        let client_path = client.as_path().with_extension("js");
+        let client_path = client_path.file_name().unwrap();
+
+        if public_dir.exists() && public_dir.is_dir() {
+            let client_path = public_dir.join(client_path);
+            fs::write(client_path, &client_output)?;
+        }
+
         assets.insert(
             client
                 .as_path()
@@ -290,7 +298,7 @@ pub async fn create_deployment(
     for (asset, url) in assets_urls {
         let asset = assets
             .get(&asset)
-            .unwrap_or_else(|| panic!("Couldn't find asset {}", asset));
+            .unwrap_or_else(|| panic!("Couldn't find asset {asset}"));
 
         let request = Request::builder()
             .method(Method::PUT)
