@@ -8,8 +8,8 @@ const config: DocsThemeConfig = {
   },
   docsRepositoryBase: 'https://github.com/lagonapp/lagon/blob/main/packages/docs',
   banner: {
-    key: 'dev',
-    text: '🚧 This documentation is not complete yet as Lagon is in development.',
+    key: 'alpha',
+    text: '🚧 This documentation is not complete yet as Lagon is in Alpha.',
   },
   useNextSeoProps: () => ({ titleTemplate: '%s – Lagon' }),
   darkMode: true,
