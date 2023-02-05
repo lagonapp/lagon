@@ -26,10 +26,13 @@ export const Footer = () => {
       </div>
       <div className="flex flex-wrap justify-between gap-12 md:gap-32">
         <FooterSection title="Lagon">
-          <Text size="a" href="https://docs.lagon.app/cli">
+          <Text size="a" href="https://docs.lagon.app/get-started" target="_blank">
+            Get started
+          </Text>
+          <Text size="a" href="https://docs.lagon.app/cli" target="_blank">
             CLI
           </Text>
-          <Text size="a" href="https://docs.lagon.app/runtime-apis">
+          <Text size="a" href="https://docs.lagon.app/runtime-apis" target="_blank">
             Runtime APIs
           </Text>
         </FooterSection>
@@ -37,8 +40,11 @@ export const Footer = () => {
           <Text size="a" href="/#features" scroll={false}>
             Features
           </Text>
-          <Text size="a" href="https://docs.lagon.app">
+          <Text size="a" href="https://docs.lagon.app" target="_blank">
             Documentation
+          </Text>
+          <Text size="a" href="/blog">
+            Blog
           </Text>
           <Text size="a" href="/pricing">
             Pricing
@@ -46,7 +52,7 @@ export const Footer = () => {
           <StatusBadge />
         </FooterSection>
         <FooterSection title="Community">
-          <Text size="a" href="https://github.com/lagonapp/lagon" target="_blank">
+          <Text size="a" href="https://github.com/lagonapp/lagon" target="_blank" className="flex items-center gap-1">
             GitHub
           </Text>
           <Text size="a" href="https://twitter.com/lagonapp" target="_blank">
