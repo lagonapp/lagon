@@ -18,11 +18,16 @@ pub enum ResponseEvent {
     Error(RunResult),
 }
 
-pub async fn handle_response<T: Send + Clone + 'static>(
+type OnEvent<D> = Box<dyn Fn(ResponseEvent, D) + Send>;
+
+pub async fn handle_response<D>(
     rx: Receiver<RunResult>,
-    data: T,
-    on_event: Box<dyn Fn(ResponseEvent, T) + Send>,
-) -> Result<HyperResponse<Body>> {
+    data: D,
+    on_event: OnEvent<D>,
+) -> Result<HyperResponse<Body>>
+where
+    D: Send + Clone + 'static,
+{
     let result = rx.recv_async().await?;
 
     match result {
