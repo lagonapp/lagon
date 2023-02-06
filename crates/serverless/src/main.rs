@@ -37,7 +37,6 @@ use std::time::{Duration, Instant};
 use tokio::sync::{Mutex, RwLock};
 use tokio_util::task::LocalPoolHandle;
 
-use crate::deployments::filesystem::get_deployment_code;
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
 
@@ -215,7 +214,7 @@ async fn handle_request(
                         info!(deployment = deployment.id, function = deployment.function_id; "Creating new isolate");
 
                         // TODO: handle read error
-                        let code = get_deployment_code(&deployment).unwrap_or_else(|error| {
+                        let code = deployment.get_code().unwrap_or_else(|error| {
                             error!(deployment = deployment.id; "Error while getting deployment code: {}", error);
 
                             "".into()

@@ -26,6 +26,7 @@ impl Runtime {
             flags += " --disallow-code-generation-from-strings";
         }
 
+        // Expose `globalThis.gc()` to trigger garbage collection
         if options.expose_gc {
             flags += " --expose-gc";
         }
@@ -36,7 +37,7 @@ impl Runtime {
         V8::initialize_platform(platform);
         V8::initialize();
 
-        Runtime {}
+        Runtime
     }
 
     pub fn dispose(&self) {

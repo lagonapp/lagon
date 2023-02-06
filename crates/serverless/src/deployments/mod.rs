@@ -12,11 +12,9 @@ use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
 use tokio::sync::{Mutex, RwLock};
 
-use crate::{cronjob::Cronjob, deployments::filesystem::has_deployment_code, REGION};
+use crate::{cronjob::Cronjob, REGION};
 
-use self::filesystem::{
-    create_deployments_folder, rm_deployment, write_deployment, write_deployment_asset,
-};
+use self::filesystem::{create_deployments_folder, rm_deployment};
 
 pub mod cache;
 pub mod filesystem;
@@ -25,7 +23,8 @@ pub mod pubsub;
 pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> Result<()> {
     match bucket.get_object(deployment.id.clone() + ".js").await {
         Ok(object) => {
-            write_deployment(&deployment.id, object.bytes())?;
+            deployment.write_code(object.bytes())?;
+            info!(deployment = deployment.id; "Wrote deployment");
 
             if !deployment.assets.is_empty() {
                 for asset in &deployment.assets {
@@ -34,7 +33,7 @@ pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> Re
                         .await
                     {
                         Ok(object) => {
-                            write_deployment_asset(&deployment.id, asset, object.bytes())?
+                            deployment.write_asset(asset, object.bytes())?;
                         }
                         Err(error) => return Err(anyhow!(error)),
                     };
@@ -166,7 +165,7 @@ OR
         let mut cronjob = cronjob.lock().await;
 
         for deployment in deployments_list {
-            if !has_deployment_code(&deployment) {
+            if !deployment.has_code() {
                 if let Err(error) = download_deployment(&deployment, &bucket).await {
                     error!("Failed to download deployment {}: {}", deployment.id, error);
                     continue;
