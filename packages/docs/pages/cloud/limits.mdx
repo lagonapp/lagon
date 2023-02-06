@@ -38,3 +38,5 @@ Below are the limits for each plan:
 | `fetch()` redirections | 5             | 5             | Custom     |
 
 The CPU time limit only counts the time spent executing your code. For example, that means the time spent waiting for a response from a `fetch` call is not counted.
+
+Additionally, code generation from strings is disabled by default. In the future, you'll be able to enable it on a per-Function basis. That means running `eval` or `new Function` will throw an error.

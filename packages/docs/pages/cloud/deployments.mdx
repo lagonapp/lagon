@@ -28,3 +28,9 @@ To promote a preview Deployment to production, click on the "Promote" button nex
 <Callout type="warning">You can't delete a production Deployment.</Callout>
 
 You can delete a preview Deployment at any time. To do so, click on the "Delete" button next to the preview Deployment you want to delete. You will be asked to confirm, and then this Deployment will be deleted.
+
+## Cold starts
+
+When a Deployment is requested for the first time in a [region](/cloud/regions), Lagon will spin up a new V8 Isolate, triggering a cold start. This might take a few milliseconds, depending on the size of your Deployment.
+
+On subsequent requests, the same Isolate will be reused, allowing for much faster response times. After 15 minutes without any requests, the Isolate is spun down, and the next request will trigger a new cold start.

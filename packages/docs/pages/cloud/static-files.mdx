@@ -2,6 +2,8 @@ Static files are automatically served by Lagon, without additional logic or conf
 
 When deploying a Function, you can add static files using the [`--public` or `-p`](/cli#lagon-deploy) flag. It accepts a path to a directory, which will be then served by Lagon at the root of your Function's URL.
 
+## Automatic static files serving
+
 Let's say you have a Function inside an `index.ts` file, with a favicon and an image:
 
 ```
@@ -29,3 +31,7 @@ In your HTML, you can reference these files using relative paths:
 <!-- ... -->
 <img src="/images/image.png" />
 ```
+
+## Optimizations
+
+All static files are automatically compressed with [Gzip](https://en.wikipedia.org/wiki/Gzip). A `Cache-Control` header is automatically set to `max-age=604800` (7 days) to enable caching by browsers.
