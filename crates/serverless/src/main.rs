@@ -272,7 +272,7 @@ async fn handle_request(
         rx,
         (deployment_id, labels),
         Box::new(|event, (deployment_id, labels)| match event {
-            ResponseEvent::StreamData(bytes) => {
+            ResponseEvent::Bytes(bytes) => {
                 counter!("lagon_bytes_out", bytes as u64, &labels);
             }
             ResponseEvent::StreamDoneNoDataError => {
