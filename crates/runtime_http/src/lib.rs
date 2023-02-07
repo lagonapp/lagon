@@ -1,11 +1,9 @@
-use anyhow::{anyhow, Result};
-use std::error::Error;
+use anyhow::Result;
 
 mod method;
 mod request;
 mod response;
 
-use hyper::body::{to_bytes, Bytes, HttpBody};
 pub use method::*;
 pub use request::*;
 pub use response::*;
@@ -46,21 +44,4 @@ impl RunResult {
 
         panic!("RunResult is not an Error");
     }
-}
-
-const BODY_MAX_SIZE_BYTES: u64 = 1024 * 1024 * 10; // 10MB
-
-pub async fn safe_to_bytes<B>(body: B) -> Result<Bytes>
-where
-    B: HttpBody,
-    B::Error: Error + Send + Sync + 'static,
-{
-    let upper = body.size_hint().upper().unwrap_or(u64::MAX);
-
-    if upper > BODY_MAX_SIZE_BYTES {
-        return Err(anyhow!("Body size is too large"));
-    }
-
-    let full_body = to_bytes(body).await?;
-    Ok(full_body)
 }

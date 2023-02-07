@@ -11,7 +11,7 @@ use lagon_runtime_v8_utils::{
 };
 use std::{collections::HashMap, str::FromStr};
 
-use crate::{safe_to_bytes, FromV8, IntoV8};
+use crate::{FromV8, IntoV8};
 
 static READABLE_STREAM_STR: &[u8] = b"[object ReadableStream]";
 
@@ -169,7 +169,7 @@ impl Response {
         }
 
         let status = response.status().as_u16();
-        let body = safe_to_bytes(response.into_body()).await?;
+        let body = body::to_bytes(response.into_body()).await?;
 
         Ok(Response {
             status,

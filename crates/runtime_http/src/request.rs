@@ -10,8 +10,6 @@ use lagon_runtime_v8_utils::{
 };
 use std::{collections::HashMap, str::FromStr};
 
-use crate::safe_to_bytes;
-
 use super::{FromV8, IntoV8, Method};
 
 #[derive(Debug)]
@@ -171,7 +169,7 @@ impl Request {
             .unwrap_or_default();
         let url = format!("http://{}{}", host, request.uri().to_string().as_str());
 
-        let body = safe_to_bytes(request.into_body()).await?;
+        let body = body::to_bytes(request.into_body()).await?;
 
         Ok(Request {
             headers: if !headers.is_empty() {
