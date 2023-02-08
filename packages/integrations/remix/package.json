@@ -7,7 +7,6 @@
   "types": "dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
-    "./server.js": "./dist/server.js",
     "./package.json": "./package.json"
   },
   "repository": {
@@ -23,17 +22,15 @@
     "remix"
   ],
   "scripts": {
-    "watch": "esbuild src/index.ts --bundle --packages=external --format=esm --outdir=dist  --watch",
-    "build": "esbuild src/index.ts --bundle --packages=external --format=esm --outdir=dist && tsc",
+    "watch": "tsup src/index.ts --format esm --dts --watch",
+    "build": "tsup src/index.ts --format esm --dts",
     "lint": "eslint --cache .",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false"
   },
   "dependencies": {
-    "@remix-run/server-runtime": "^1.12.0",
-    "esbuild": "^0.17.0"
+    "@remix-run/server-runtime": "^1.12.0"
   },
   "devDependencies": {
-    "@types/node": "^18.0.0",
-    "astro": "2.0.6"
+    "@types/node": "^18.0.0"
   }
 }
