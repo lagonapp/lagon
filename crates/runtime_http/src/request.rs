@@ -10,6 +10,8 @@ use lagon_runtime_v8_utils::{
 };
 use std::{collections::HashMap, str::FromStr};
 
+use crate::X_LAGON_ID;
+
 use super::{FromV8, IntoV8, Method};
 
 #[derive(Debug)]
@@ -159,7 +161,9 @@ impl Request {
         let mut headers = HashMap::new();
 
         for (key, value) in request.headers().iter() {
-            headers.insert(key.to_string(), value.to_str().unwrap().to_string());
+            if key != X_LAGON_ID {
+                headers.insert(key.to_string(), value.to_str().unwrap().to_string());
+            }
         }
 
         let method = Method::from(request.method());
