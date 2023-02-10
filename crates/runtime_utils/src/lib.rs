@@ -1,6 +1,11 @@
+use anyhow::{anyhow, Result};
+
 use std::{
     collections::{HashMap, HashSet},
     env,
+    fs::{self, File},
+    io::Write,
+    path::Path,
 };
 
 pub mod assets;
@@ -47,6 +52,46 @@ impl Deployment {
 
     pub fn should_run_cron(&self) -> bool {
         self.is_production && self.cron.is_some()
+    }
+
+    pub fn get_code(&self) -> Result<String> {
+        let path = Path::new(env::current_dir()?.as_path())
+            .join("deployments")
+            .join(self.id.clone() + ".js");
+        let code = fs::read_to_string(path)?;
+
+        Ok(code)
+    }
+
+    pub fn has_code(&self) -> bool {
+        let path = Path::new("deployments").join(self.id.clone() + ".js");
+
+        path.exists()
+    }
+
+    pub fn write_code(&self, code: &[u8]) -> Result<()> {
+        let mut file = File::create(Path::new("deployments").join(self.id.clone() + ".js"))?;
+
+        file.write_all(code)?;
+
+        Ok(())
+    }
+
+    pub fn write_asset(&self, asset: &str, content: &[u8]) -> Result<()> {
+        let asset = asset.replace("public/", "");
+        let asset = asset.as_str();
+
+        let dir = Path::new("deployments").join(self.id.clone()).join(
+            Path::new(asset)
+                .parent()
+                .ok_or_else(|| anyhow!("Could not get parent of {}", asset))?,
+        );
+        fs::create_dir_all(dir)?;
+
+        let mut file = File::create(Path::new("deployments").join(self.id.clone() + "/" + asset))?;
+        file.write_all(content)?;
+
+        Ok(())
     }
 }
 

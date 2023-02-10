@@ -10,7 +10,7 @@ pub const PAGE_500: &str = include_str!("../public/500.html");
 pub const FAVICON_URL: &str = "/favicon.ico";
 
 pub enum ResponseEvent {
-    StreamData(usize),
+    Bytes(usize),
     StreamDoneNoDataError,
     StreamDoneDataError,
     UnexpectedStreamResult(RunResult),
@@ -18,11 +18,16 @@ pub enum ResponseEvent {
     Error(RunResult),
 }
 
-pub async fn handle_response<T: Send + Clone + 'static>(
+type OnEvent<D> = Box<dyn Fn(ResponseEvent, D) + Send>;
+
+pub async fn handle_response<D>(
     rx: Receiver<RunResult>,
-    data: T,
-    on_event: Box<dyn Fn(ResponseEvent, T) + Send>,
-) -> Result<HyperResponse<Body>> {
+    data: D,
+    on_event: OnEvent<D>,
+) -> Result<HyperResponse<Body>>
+where
+    D: Send + Clone + 'static,
+{
     let result = rx.recv_async().await?;
 
     match result {
@@ -37,7 +42,7 @@ pub async fn handle_response<T: Send + Clone + 'static>(
                     response_tx.send_async(response).await.unwrap_or(());
                 }
                 StreamResult::Data(bytes) => {
-                    on_event(ResponseEvent::StreamData(bytes.len()), data.clone());
+                    on_event(ResponseEvent::Bytes(bytes.len()), data.clone());
 
                     let bytes = Bytes::from(bytes);
                     stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
@@ -59,7 +64,7 @@ pub async fn handle_response<T: Send + Clone + 'static>(
                             response_tx.send_async(response).await.unwrap_or(());
                         }
                         RunResult::Stream(StreamResult::Data(bytes)) => {
-                            on_event(ResponseEvent::StreamData(bytes.len()), data.clone());
+                            on_event(ResponseEvent::Bytes(bytes.len()), data.clone());
 
                             if done {
                                 on_event(ResponseEvent::StreamDoneDataError, data.clone());
@@ -95,8 +100,9 @@ pub async fn handle_response<T: Send + Clone + 'static>(
             Ok(hyper_response)
         }
         RunResult::Response(response) => {
-            let hyper_response = Builder::try_from(&response)?.body(response.body.into())?;
+            on_event(ResponseEvent::Bytes(response.len()), data);
 
+            let hyper_response = Builder::try_from(&response)?.body(response.body.into())?;
             Ok(hyper_response)
         }
         RunResult::Timeout | RunResult::MemoryLimit => {

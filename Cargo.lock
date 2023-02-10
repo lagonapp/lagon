@@ -74,9 +74,9 @@ dependencies = [
 
 [[package]]
 name = "anyhow"
-version = "1.0.68"
+version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cb2f989d18dd141ab8ae82f64d1a8cdd37e0840f73a406896cf5e99502fab61"
+checksum = "224afbd727c3d6e4b90103ece64b8d1b67fbb1973b1046c2281eed3f3803f800"
 
 [[package]]
 name = "arrayvec"
@@ -3070,9 +3070,9 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.7.4"
+version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0bb2e075f03b3d66d8d8785356224ba688d2906a371015e225beeb65ca92c740"
+checksum = "7e267c18a719545b481171952a79f8c25c80361463ba44bc7fa9eba7c742ef4f"
 dependencies = [
  "bytes",
  "futures-core",
@@ -3227,9 +3227,9 @@ dependencies = [
 
 [[package]]
 name = "v8"
-version = "0.62.2"
+version = "0.63.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1a317c7a8a25e2cf54acd715038c50f52c0e26aca888b85b62d472f59e221282"
+checksum = "547e58962ac268fe0b1fbfb653ed341a08e3953994f7f7c978e46ec30afdf8f0"
 dependencies = [
  "bitflags",
  "fslock",

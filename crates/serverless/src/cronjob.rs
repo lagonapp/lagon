@@ -8,7 +8,7 @@ use std::{collections::HashMap, sync::Arc, time::Duration};
 use tokio_cron_scheduler::{Job, JobScheduler};
 use uuid::Uuid;
 
-use crate::{deployments::filesystem::get_deployment_code, REGION};
+use crate::REGION;
 
 pub struct Cronjob {
     jobs: HashMap<String, Uuid>,
@@ -48,7 +48,7 @@ impl Cronjob {
                     info!(deployment = deployment.id, function = deployment.function_id; "Creating new isolate");
 
                     let deployment = Arc::clone(&deployment);
-                    let code = get_deployment_code(&deployment).unwrap_or_else(|error| {
+                    let code = deployment.get_code().unwrap_or_else(|error| {
                         error!(deployment = deployment.id; "Error while getting deployment code: {}", error);
 
                         "".into()
