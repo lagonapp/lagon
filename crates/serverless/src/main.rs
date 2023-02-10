@@ -99,7 +99,7 @@ async fn handle_request(
                 "reason" => "No hostname",
                 "region" => REGION.clone(),
             );
-            warn!(request = as_debug!(req), ip = ip, request = request_id; "No Host header found in request");
+            warn!(req = as_debug!(req), ip = ip, request = request_id; "No Host header found in request");
 
             return Ok(Builder::new().status(404).body(PAGE_404.into())?);
         }
@@ -115,7 +115,7 @@ async fn handle_request(
                 "hostname" => hostname.clone(),
                 "region" => REGION.clone(),
             );
-            warn!(request = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "No deployment found for hostname");
+            warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "No deployment found for hostname");
 
             return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
         }
@@ -128,7 +128,7 @@ async fn handle_request(
             "hostname" => hostname.clone(),
             "region" => REGION.clone(),
         );
-        warn!(request = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "Cron deployment cannot be called directly");
+        warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "Cron deployment cannot be called directly");
 
         return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
     }
