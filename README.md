@@ -5,7 +5,7 @@
     <img alt="Lagon logo" height="60px" src="./assets/logo-white.png">
   </picture>
   <p align="center">
-    Deploy JavaScript Functions at the Edge
+    Deploy Serverless Functions at the Edge
     <br />
     <br />
     <a align="center" href="https://discord.lagon.app" alt="Discord"><img src="https://img.shields.io/discord/996005154753093713" /></a>
@@ -19,14 +19,14 @@
 
 ## About
 
-Lagon is an open-source runtime and platform that allows developers to run TypeScript and JavaScript Functions at the Edge, using V8 Isolates. It's also self-hostable.
+Lagon is an open-source runtime and platform that allows developers to run TypeScript and JavaScript Serverless Functions close to users.
 
 > **Warning**: Lagon is still in development. Do not use for production usages.
 
 Current status:
 
 - Dev: In heavy development, features are being added and APIs have breaking changes
-- **Alpha**: Missing features and bugs to fix, limited access to Lagon Cloud ([waitlist](https://tally.so/r/n9q1Rp))
+- **Alpha**: Missing features and bugs to fix, progressive access to Lagon Cloud ([waitlist](https://tally.so/r/n9q1Rp))
 - ~Beta~: Stable APIs, last features are being added, Lagon Cloud available without a waitlist
 - ~General Availability~: Cloud and self-hosted versions available for production usage
 

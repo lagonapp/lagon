@@ -1,7 +1,7 @@
 {
   "name": "lagon",
   "version": "0.0.1",
-  "description": "Deploy JavaScript Functions at the Edge",
+  "description": "Deploy Serverless Functions at the Edge",
   "private": true,
   "scripts": {
     "start:docs": "pnpm --filter @lagon/docs dev",

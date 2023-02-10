@@ -79,5 +79,5 @@ export const ALL_REGIONS: Region[] = [
 
 export const REGIONS = ALL_REGIONS.length;
 
-export const SHORT_DESCRIPTION = 'Deploy JavaScript Functions at the Edge';
-export const DESCRIPTION = `Lagon is an open-source runtime and platform that allows developers to run JavaScript Serverless Functions close to users.`;
+export const SHORT_DESCRIPTION = 'Deploy Serverless Functions at the Edge';
+export const DESCRIPTION = `Lagon is an open-source runtime and platform that allows developers to run TypeScript and JavaScript Serverless Functions at the Edge, close to users.`;

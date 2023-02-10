@@ -30,7 +30,7 @@ export const HomeSection = () => {
           transition={{ duration: 0.8, ease: 'easeOut' }}
         >
           <Text size="h1" variant="radialGradientWhite">
-            Deploy JavaScript Functions at the&nbsp;
+            Deploy Serverless Functions at the&nbsp;
             <span className="from-green to-purple bg-gradient-to-r via-[#5A7ACB] bg-clip-text text-transparent">
               Edge
             </span>

@@ -27,7 +27,7 @@ const Home = () => {
   return (
     <>
       <Head>
-        <title>Deploy JavaScript Functions at the Edge - Lagon</title>
+        <title>Deploy Serverless Functions at the Edge - Lagon</title>
       </Head>
       <div
         className="from-purple/10 to-blue-1/10 pointer-events-none absolute hidden h-80 w-80 translate-x-[-50%] translate-y-[-50%] transform rounded-full bg-gradient-to-br blur-3xl md:block"
