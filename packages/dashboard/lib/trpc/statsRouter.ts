@@ -125,7 +125,10 @@ export const statsRouter = (t: T) =>
             `sum(increase(lagon_isolate_requests{function="${input.functionId}"}[${step}s]))`,
             input.timeframe,
           ),
-          prometheus(`avg(lagon_isolate_cpu_time{function="${input.functionId}",quantile="0.99"})`, input.timeframe),
+          prometheus(
+            `avg(lagon_isolate_cpu_time{function="${input.functionId}",quantile="0.99"} > 0)`,
+            input.timeframe,
+          ),
           prometheus(`sum(increase(lagon_bytes_in{function="${input.functionId}"}[${step}s]))`, input.timeframe),
           prometheus(`sum(increase(lagon_bytes_out{function="${input.functionId}"}[${step}s]))`, input.timeframe),
         ]);
