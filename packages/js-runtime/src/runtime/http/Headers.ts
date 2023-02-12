@@ -1,4 +1,6 @@
 (globalThis => {
+  const SET_COOKIE = 'set-cookie';
+
   globalThis.Headers = class {
     private readonly h: Map<string, string[]> = new Map();
     immutable = false;
@@ -47,6 +49,10 @@
       } else {
         this.h.set(name, [value]);
       }
+    }
+
+    getSetCookie(): string[] {
+      return this.h.get(SET_COOKIE) || [];
     }
 
     append(name: string, value: string) {
