@@ -68,20 +68,20 @@ pub async fn ls(file: PathBuf) -> Result<()> {
                             "{} {} {}{}, {}{}",
                             "•".green(),
                             deployment.id,
-                            "(".black(),
-                            deployment.created_at.black(),
+                            "(".bright_black(),
+                            deployment.created_at.bright_black(),
                             "production".green(),
-                            ")".black()
+                            ")".bright_black()
                         );
                     } else {
                         println!(
                             "{} {} {}{}, {}{}",
                             "•".blue(),
                             deployment.id,
-                            "(".black(),
-                            deployment.created_at.black(),
+                            "(".bright_black(),
+                            deployment.created_at.bright_black(),
                             "preview".blue(),
-                            ")".black()
+                            ")".bright_black()
                         );
                     }
                 }

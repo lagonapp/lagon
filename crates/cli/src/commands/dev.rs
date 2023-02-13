@@ -85,7 +85,7 @@ async fn handle_request(
 
     println!(
         "{} {} {}",
-        format!("{}", Local::now().time()).black(),
+        format!("{}", Local::now().time()).bright_black(),
         req.method().to_string().blue(),
         url
     );
@@ -283,7 +283,11 @@ pub async fn dev(
     }
 
     println!();
-    println!(" {} http://{}", "➤".black(), format!("{addr}").blue());
+    println!(
+        " {} {}",
+        "➤".bright_black(),
+        format!("http://{addr}").blue()
+    );
     println!();
 
     init_logger()?;
