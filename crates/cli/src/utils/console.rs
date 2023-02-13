@@ -6,15 +6,15 @@ pub fn info(message: &str) -> String {
 }
 
 pub fn input(message: &str) -> String {
-    format!(" {} {}", "↳".black(), message.black())
+    format!(" {} {}", "↳".bright_black(), message.bright_black())
 }
 
 pub fn debug(message: &str) -> String {
-    message.black().to_string()
+    message.bright_black().to_string()
 }
 
 pub fn debug_success(message: &str) -> String {
-    format!("{} {}", "✓".green(), message.black())
+    format!("{} {}", "✓".green(), message.bright_black())
 }
 
 pub fn success(message: &str) -> String {

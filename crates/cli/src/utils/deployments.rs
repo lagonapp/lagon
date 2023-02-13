@@ -324,7 +324,11 @@ pub async fn create_deployment(
     println!();
     println!("{}", success("Function deployed!"));
     println!();
-    println!(" {} {}", "➤".black(), response.result.data.url.blue());
+    println!(
+        " {} {}",
+        "➤".bright_black(),
+        response.result.data.url.blue()
+    );
     println!();
 
     Ok(())

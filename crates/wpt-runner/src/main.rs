@@ -69,7 +69,7 @@ impl Log for SimpleLogger {
             } else if content.starts_with("TEST START") {
                 RESULT.lock().unwrap().0 += 1;
             } else {
-                println!("{}", content.black());
+                println!("{}", content.bright_black());
             }
         }
     }
