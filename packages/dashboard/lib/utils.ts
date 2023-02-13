@@ -2,10 +2,10 @@
  * Example:
  *
  * NEXT_PUBLIC_LAGON_ROOT_SCHEM=https
- * NEXT_PUBLIC_LAGON_ROOT_DOMAIN=lagon.app
+ * NEXT_PUBLIC_LAGON_ROOT_DOMAIN=lagon.dev
  * name=hello-world
  *
- * -> https://hello-world.lagon.app
+ * -> https://hello-world.lagon.dev
  */
 
 export function getFullCurrentDomain({ name }: { name: string }): string {

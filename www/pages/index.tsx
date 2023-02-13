@@ -42,7 +42,7 @@ const Home = () => {
             Get email updates
           </a>
           <a
-            href="https://discord.lagon.app"
+            href="https://discord.lagon.dev"
             target="_blank"
             className="z-10 flex select-none items-center gap-1 text-sm text-gray-300 hover:text-white"
             rel="noreferrer"

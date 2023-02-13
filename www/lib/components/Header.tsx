@@ -39,7 +39,7 @@ const Header = () => {
         <HeaderLink href="https://docs.lagon.app">Documentation</HeaderLink>
       </div>
       <div className="flex gap-8">
-        <HeaderLink href="https://discord.lagon.app" target="_blank">
+        <HeaderLink href="https://discord.lagon.dev" target="_blank">
           <DiscordIcon />
           Discord
         </HeaderLink>
