@@ -1,5 +1,17 @@
 # @lagon/serverless
 
+## 0.1.18
+
+### Patch Changes
+
+- [#564](https://github.com/lagonapp/lagon/pull/564) [`8745295`](https://github.com/lagonapp/lagon/commit/87452957505670a0f538505384203d40728da73d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Send 404 if favicon doesn't exists
+
+* [#568](https://github.com/lagonapp/lagon/pull/568) [`867ce0c`](https://github.com/lagonapp/lagon/commit/867ce0ce9e2b97890a385915eaf9ac8474d83188) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix bytes event on sync responses
+
+- [#573](https://github.com/lagonapp/lagon/pull/573) [`90520ae`](https://github.com/lagonapp/lagon/commit/90520ae11497e4b4bf68d8f74fdd627f7fcf33a7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix logging HTTP request
+
+* [#571](https://github.com/lagonapp/lagon/pull/571) [`b2cca7f`](https://github.com/lagonapp/lagon/commit/b2cca7f897bd5f86e8e32a87a119bf5fa6b8d540) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Trace request id in logs
+
 ## 0.1.17
 
 ### Patch Changes

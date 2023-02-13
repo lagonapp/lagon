@@ -1,5 +1,13 @@
 # @lagon/cli
 
+## 0.4.7
+
+### Patch Changes
+
+- [#564](https://github.com/lagonapp/lagon/pull/564) [`8745295`](https://github.com/lagonapp/lagon/commit/87452957505670a0f538505384203d40728da73d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Send 404 if favicon doesn't exists
+
+* [#579](https://github.com/lagonapp/lagon/pull/579) [`1d22c01`](https://github.com/lagonapp/lagon/commit/1d22c01a8455db85a65052dbae78a43136657bed) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve contrast of the colors
+
 ## 0.4.6
 
 ### Patch Changes

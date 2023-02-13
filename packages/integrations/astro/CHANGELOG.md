@@ -1,5 +1,11 @@
 # @lagon/astro
 
+## 0.2.1
+
+### Patch Changes
+
+- [#569](https://github.com/lagonapp/lagon/pull/569) [`334e578`](https://github.com/lagonapp/lagon/commit/334e578717a1c0ff3140ff5398a871ad820fea2d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Bundle using tsup with types
+
 ## 0.2.0
 
 ### Minor Changes
