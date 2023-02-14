@@ -25,5 +25,5 @@ If applicable, add screenshots to help explain your problem.
 
 **Information:**
  - OS: [e.g. macOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+ - Browser: [e.g. Chrome, Safari]
+ - Version: [e.g. 22]
