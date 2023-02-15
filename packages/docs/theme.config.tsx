@@ -47,7 +47,7 @@ const config: DocsThemeConfig = {
     </>
   ),
   chat: {
-    link: 'https://discord.lagon.app/',
+    link: 'https://discord.lagon.dev/',
   },
 };
 

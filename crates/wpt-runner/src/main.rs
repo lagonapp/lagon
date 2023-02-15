@@ -69,7 +69,7 @@ impl Log for SimpleLogger {
             } else if content.starts_with("TEST START") {
                 RESULT.lock().unwrap().0 += 1;
             } else {
-                println!("{}", content.black());
+                println!("{}", content.bright_black());
             }
         }
     }
@@ -82,12 +82,13 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-const SKIP_TESTS: [&str; 15] = [
+const SKIP_TESTS: [&str; 16] = [
     // request
     "request-error.any.js",         // "badRequestArgTests is not defined"
     "request-init-stream.any.js",   // "request.body.getReader is not a function"
     "request-consume-empty.any.js", // "Unexpected end of JSON input"
     "request-consume.any.js",       // "Unexpected end of JSON input"
+    "request-init-priority.any.js", // "idx is not defined"
     // response
     "response-cancel-stream.any.js",           // "undefined"
     "response-error-from-stream.any.js",       // "Start error"

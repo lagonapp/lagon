@@ -8,8 +8,8 @@
     Deploy Serverless Functions at the Edge
     <br />
     <br />
-    <a align="center" href="https://discord.lagon.app" alt="Discord"><img src="https://img.shields.io/discord/996005154753093713" /></a>
-    <a href="https://github.com/lagonapp/lagon/actions/workflows/wpt.yml" alt="web-platform-tests"><img src="https://wpt.lagon.app" /></a>
+    <a align="center" href="https://discord.lagon.dev" alt="Discord"><img src="https://img.shields.io/discord/996005154753093713" /></a>
+    <a href="https://github.com/lagonapp/lagon/actions/workflows/wpt.yml" alt="web-platform-tests"><img src="https://wpt.lagon.dev" /></a>
   </p>
 </p>
 

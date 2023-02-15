@@ -1,5 +1,11 @@
 # @lagon/docs
 
+## 0.2.1
+
+### Patch Changes
+
+- [#578](https://github.com/lagonapp/lagon/pull/578) [`5159a91`](https://github.com/lagonapp/lagon/commit/5159a91a4c2d73fd0f482a60419e68ce055ecfc2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Headers#getSetCookie()
+
 ## 0.2.0
 
 ### Minor Changes

@@ -1,3 +1,25 @@
+Running ../../tools/wpt/fetch/api/headers/header-setcookie.any.js
+TEST DONE 0 Headers.prototype.get combines set-cookie headers in order
+TEST DONE 1 Headers iterator does not combine set-cookie headers
+TEST DONE 0 Headers iterator does not special case set-cookie2 headers
+TEST DONE 1 Headers iterator does not combine set-cookie & set-cookie2 headers
+TEST DONE 1 Headers iterator preserves set-cookie ordering
+TEST DONE 1 Headers iterator preserves per header ordering, but sorts keys alphabetically
+TEST DONE 1 Headers iterator preserves per header ordering, but sorts keys alphabetically (and ignores value ordering)
+TEST DONE 1 Headers iterator is correctly updated with set-cookie changes
+TEST DONE 0 Headers.prototype.has works for set-cookie
+TEST DONE 1 Headers.prototype.append works for set-cookie
+TEST DONE 0 Headers.prototype.set works for set-cookie
+TEST DONE 0 Headers.prototype.delete works for set-cookie
+TEST DONE 0 Headers.prototype.getSetCookie with no headers present
+TEST DONE 0 Headers.prototype.getSetCookie with one header
+TEST DONE 0 Headers.prototype.getSetCookie with one header created from an object
+TEST DONE 0 Headers.prototype.getSetCookie with multiple headers
+TEST DONE 0 Headers.prototype.getSetCookie with an empty header
+TEST DONE 0 Headers.prototype.getSetCookie with two equal headers
+TEST DONE 0 Headers.prototype.getSetCookie ignores set-cookie2 headers
+TEST DONE 0 Headers.prototype.getSetCookie preserves header ordering
+TEST DONE 1 Set-Cookie is a forbidden response header
 Running ../../tools/wpt/fetch/api/headers/header-values-normalize.any.js
 TEST DONE 1 XMLHttpRequest with value %00
 TEST DONE 1 XMLHttpRequest with value %01
@@ -282,6 +304,7 @@ TEST DONE 1 Adding invalid request header "ACCEPT-ENCODING: KO"
 TEST DONE 1 Adding invalid request header "Accept-Encoding: KO"
 TEST DONE 1 Adding invalid request header "Access-Control-Request-Headers: KO"
 TEST DONE 1 Adding invalid request header "Access-Control-Request-Method: KO"
+TEST DONE 1 Adding invalid request header "Access-Control-Request-Private-Network: KO"
 TEST DONE 1 Adding invalid request header "Connection: KO"
 TEST DONE 1 Adding invalid request header "Content-Length: KO"
 TEST DONE 1 Adding invalid request header "Cookie: KO"
@@ -318,6 +341,7 @@ TEST DONE 1 Adding invalid no-cors request header "proxy: KO"
 TEST DONE 1 Adding invalid no-cors request header "proxya: KO"
 TEST DONE 1 Adding invalid no-cors request header "sec: KO"
 TEST DONE 1 Adding invalid no-cors request header "secb: KO"
+TEST DONE 0 Adding invalid no-cors request header "Empty-Value: "
 TEST DONE 1 Check that request constructor is filtering headers provided as init parameter
 TEST DONE 1 Check that no-cors request constructor is filtering headers provided as init parameter
 TEST DONE 0 Check that no-cors request constructor is filtering headers provided as part of request parameter
@@ -356,6 +380,7 @@ TEST DONE 1 Can override Content-Type for Request with URLSearchParams body
 TEST DONE 0 Can override Content-Type for Request with string body
 TEST DONE 0 Can override Content-Type for Request with ReadableStream body
 TEST DONE 1 Default Content-Type for Request with FormData body
+Skipping ../../tools/wpt/fetch/api/request/request-init-priority.any.js
 Skipping ../../tools/wpt/fetch/api/request/request-init-stream.any.js
 Running ../../tools/wpt/fetch/api/request/request-keepalive.any.js
 TEST DONE 1 keepalive flag
@@ -382,6 +407,9 @@ TEST DONE 1 Check isReloadNavigation attribute
 TEST DONE 1 Check isHistoryNavigation attribute
 TEST DONE 1 Check duplex attribute
 TEST DONE 1 Check bodyUsed attribute
+TEST DONE 0 Request does not expose priority attribute
+TEST DONE 0 Request does not expose internalpriority attribute
+TEST DONE 0 Request does not expose blocking attribute
 Running ../../tools/wpt/fetch/api/response/json.any.js
 TEST DONE 1 Ensure the correct JSON parser is used
 Skipping ../../tools/wpt/fetch/api/response/response-cancel-stream.any.js
@@ -412,11 +440,16 @@ TEST DONE 0 Getting an error Response stream
 TEST DONE 0 Getting a redirect Response stream
 TEST DONE 1 Read empty text response's body as readableStream
 TEST DONE 1 Read empty blob response's body as readableStream
-TEST DONE 1 Read blob response's body as readableStream
-TEST DONE 1 Read text response's body as readableStream
-TEST DONE 1 Read URLSearchParams response's body as readableStream
-TEST DONE 1 Read array buffer response's body as readableStream
-TEST DONE 1 Read form data response's body as readableStream
+TEST DONE 1 Read blob response's body as readableStream with mode=undefined
+TEST DONE 1 Read text response's body as readableStream with mode=undefined
+TEST DONE 1 Read URLSearchParams response's body as readableStream with mode=undefined
+TEST DONE 1 Read array buffer response's body as readableStream with mode=undefined
+TEST DONE 1 Read form data response's body as readableStream with mode=undefined
+TEST DONE 1 Read blob response's body as readableStream with mode=byob
+TEST DONE 1 Read text response's body as readableStream with mode=byob
+TEST DONE 1 Read URLSearchParams response's body as readableStream with mode=byob
+TEST DONE 1 Read array buffer response's body as readableStream with mode=byob
+TEST DONE 1 Read form data response's body as readableStream with mode=byob
 Skipping ../../tools/wpt/fetch/api/response/response-error-from-stream.any.js
 Running ../../tools/wpt/fetch/api/response/response-error.any.js
 TEST DONE 1 Throws RangeError when responseInit's status is 0
@@ -475,6 +508,7 @@ TEST DONE 1 Default Content-Type for Response with FormData body
 Running ../../tools/wpt/fetch/api/response/response-static-error.any.js
 TEST DONE 0 Check response returned by static method error()
 TEST DONE 0 the 'guard' of the Headers instance should be immutable
+TEST DONE 1 Ensure response headers are immutable
 Running ../../tools/wpt/fetch/api/response/response-static-json.any.js
 TEST DONE 0 Throws TypeError when calling static json() with a status of 204
 TEST DONE 0 Throws TypeError when calling static json() with a status of 205
@@ -587,6 +621,8 @@ TEST DONE 0 searchParams on location object
 TEST DONE 1 Setting URL's href attribute and base URLs
 TEST DONE 0 URL.domainToASCII should be undefined
 TEST DONE 0 URL.domainToUnicode should be undefined
+TEST DONE 1 URL: no structured serialize/deserialize support
+TEST DONE 1 URLSearchParams: no structured serialize/deserialize support
 Skipping ../../tools/wpt/url/idlharness.any.js
 Running ../../tools/wpt/url/url-constructor.any.js
 TEST DONE 1 Loading data…
@@ -1002,6 +1038,8 @@ TEST DONE 1 Delete basics
 TEST DONE 1 Deleting appended multiple
 TEST DONE 0 Deleting all params removes ? from URL
 TEST DONE 1 Removing non-existent param removes ? from URL
+TEST DONE 1 Changing the query of a URL with an opaque path can impact the path
+TEST DONE 1 Changing the query of a URL with an opaque path can impact the path if the URL has no fragment
 Running ../../tools/wpt/url/urlsearchparams-foreach.any.js
 TEST DONE 0 ForEach Check
 Running ../../tools/wpt/url/urlsearchparams-get.any.js
@@ -1662,5 +1700,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1540 tests, 433 passed, 1098 failed
+1576 tests, 450 passed, 1117 failed
  -> 28% conformance

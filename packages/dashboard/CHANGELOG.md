@@ -1,5 +1,11 @@
 # @lagon/dashboard
 
+## 0.2.2
+
+### Patch Changes
+
+- [#577](https://github.com/lagonapp/lagon/pull/577) [`0ccb085`](https://github.com/lagonapp/lagon/commit/0ccb08513add7d0e15b5829824615e72191fcec3) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix CPU time stats to return average > 0
+
 ## 0.2.1
 
 ### Patch Changes
