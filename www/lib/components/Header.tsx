@@ -29,7 +29,7 @@ export const Header = () => {
           <Text size="a" href="/#features" scroll={false}>
             Features
           </Text>
-          <Text size="a" href="https://docs.lagon.app">
+          <Text size="a" href="https://docs.lagon.app" target="_blank">
             Documentation
           </Text>
           <Text size="a" href="/blog" className={asPath.startsWith('/blog') ? '!text-white' : undefined}>

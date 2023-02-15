@@ -30,7 +30,7 @@ export const BlogLayout = ({ meta, children }: BlogLayoutProps) => {
   return (
     <MDXProvider components={components}>
       <Head>
-        <title>{meta.title} - Lagon Blog</title>
+        <title>{`${meta.title} - Lagon Blog`}</title>
         <meta name="description" content={meta.description} />
       </Head>
       <div className="z-10 mx-auto flex max-w-2xl flex-col">
