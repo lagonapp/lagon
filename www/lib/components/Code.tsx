@@ -18,7 +18,7 @@ export const FunctionCode = ({ onResponse, children }: CodeProps) => {
     setIsLoading(true);
 
     const now = Date.now();
-    const response = await fetch('https://whatismyip.lagon.app');
+    const response = await fetch('https://whatismyip.lagon.dev');
     const region = response.headers.get('x-lagon-region') ?? 'Unknown';
     const text = await response.text();
     const time = Date.now() - now;
