@@ -15,7 +15,7 @@ const TERMINAL: { text: string; write?: boolean }[] = [
     text: 'Done!\n\n',
   },
   {
-    text: '$ curl https://test.lagon.app',
+    text: '$ curl https://test.lagon.dev',
     write: true,
   },
   {

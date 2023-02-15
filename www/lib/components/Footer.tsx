@@ -58,7 +58,7 @@ export const Footer = () => {
           <Text size="a" href="https://twitter.com/lagonapp" target="_blank">
             Twitter
           </Text>
-          <Text size="a" href="https://discord.lagon.app" target="_blank">
+          <Text size="a" href="https://discord.lagon.dev" target="_blank">
             Discord
           </Text>
         </FooterSection>
