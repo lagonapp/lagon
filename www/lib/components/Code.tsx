@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { Button } from './Button';
 import { PlayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { Card } from './Card';
@@ -11,6 +11,11 @@ type CodeProps = {
 export const FunctionCode = ({ onResponse, children }: CodeProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const timeout = useRef<NodeJS.Timeout>();
+
+  useEffect(() => {
+    // Avoid including the DNS + SSL handshake time when clicking the button
+    fetch('https://whatismyip.lagon.dev').catch(null);
+  }, []);
 
   const handleClick = async () => {
     if (isLoading || !!timeout.current) return;
