@@ -220,8 +220,7 @@ async fn handle_request(
                     // deployment and that the isolate should be called.
                     // TODO: read() then write() if not present
                     let mut isolates = ISOLATES.write().await;
-                    // let thread_isolates = isolates.entry(thread_id).or_insert_with(HashMap::new);
-                    let mut thread_isolates = HashMap::new();
+                    let thread_isolates = isolates.entry(thread_id).or_insert_with(HashMap::new);
 
                     let isolate = thread_isolates.entry(hostname).or_insert_with(|| {
                         increment_gauge!("lagon_isolates", 1.0, &thread_labels);
