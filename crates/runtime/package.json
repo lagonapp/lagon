@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "build": "cargo build",
-    "test": "cargo test",
+    "test": "cargo test && cargo test --features ignore-snapshot",
     "lint": "cargo clippy -- -Dwarnings --no-deps"
   }
 }

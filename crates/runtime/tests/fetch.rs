@@ -22,12 +22,15 @@ async fn basic_fetch() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const body = await fetch('{url}').then(res => res.text());
     return new Response(body);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -47,15 +50,18 @@ async fn request_method() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'POST'
     }}).then(res => res.text());
 
     return new Response(body);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -75,15 +81,18 @@ async fn request_method_fallback() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'UNKNOWN'
     }}).then(res => res.text());
 
     return new Response(body);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -106,8 +115,9 @@ async fn request_headers() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const body = await fetch('{url}', {{
         headers: {{
             'x-token': 'hello'
@@ -116,7 +126,9 @@ async fn request_headers() {
 
     return new Response(body);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -139,8 +151,9 @@ async fn request_headers_class() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const body = await fetch('{url}', {{
         headers: new Headers({{
             'x-token': 'hello'
@@ -149,7 +162,9 @@ async fn request_headers_class() {
 
     return new Response(body);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -172,8 +187,9 @@ async fn request_body() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'POST',
         body: 'Hello!'
@@ -181,7 +197,9 @@ async fn request_body() {
 
     return new Response(body);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -201,8 +219,9 @@ async fn response_headers() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const response = await fetch('{url}');
     const body = [];
 
@@ -215,7 +234,9 @@ async fn response_headers() {
 
     return new Response(body.sort((a, b) => a.localeCompare(b)).join(' '));
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -239,14 +260,17 @@ async fn response_status() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.text();
 
     return new Response(`${{body}}: ${{response.status}}`);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -266,14 +290,17 @@ async fn response_json() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.json();
 
     return new Response(`${{typeof body}} ${{JSON.stringify(body)}}`);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -293,14 +320,17 @@ async fn response_array_buffer() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.arrayBuffer();
 
     return new Response(body);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -313,15 +343,18 @@ async fn response_array_buffer() {
 #[tokio::test]
 async fn throw_invalid_url() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export async function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export async function handler() {
     const response = await fetch('doesnotexist');
     const body = await response.text();
 
     return new Response(body);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -334,8 +367,9 @@ async fn throw_invalid_url() {
 #[tokio::test]
 async fn throw_invalid_header() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export async function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export async function handler() {
     const response = await fetch('http://localhost:5555/', {
         headers: {
             'foo': 'bar\\r\\n'
@@ -345,8 +379,10 @@ async fn throw_invalid_header() {
 
     return new Response(body);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -366,8 +402,9 @@ async fn abort_signal() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const controller = new AbortController();
     const signal = controller.signal;
 
@@ -380,7 +417,9 @@ async fn abort_signal() {
 
     return new Response(body);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -400,12 +439,15 @@ async fn redirect() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -429,12 +471,15 @@ async fn redirect_relative_url() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -453,12 +498,15 @@ async fn redirect_without_location_header() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -494,12 +542,15 @@ async fn redirect_loop() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -520,8 +571,9 @@ async fn limit_fetch_calls() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "let pass = false;
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "let pass = false;
 export async function handler() {{
     if (!pass) {{
         pass = true
@@ -533,7 +585,9 @@ export async function handler() {{
     await fetch('{url}');
     return new Response('ok')
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx.clone()).await;
 
@@ -555,13 +609,16 @@ export async function handler() {{
 #[tokio::test]
 async fn fetch_https() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export async function handler() {{
     const status = (await fetch('https://google.com')).status;
     return new Response(status);
 }}"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 

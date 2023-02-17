@@ -80,8 +80,14 @@ impl IsolateOptions {
         self
     }
 
+    #[cfg(not(feature = "ignore-snapshot"))]
     pub fn snapshot_blob(mut self, snapshot_blob: &'static [u8]) -> Self {
         self.snapshot_blob = Some(snapshot_blob);
+        self
+    }
+
+    #[cfg(feature = "ignore-snapshot")]
+    pub fn snapshot_blob(mut self, snapshot_blob: &'static [u8]) -> Self {
         self
     }
 
@@ -106,38 +112,39 @@ impl IsolateOptions {
             None => "".to_string(),
         };
 
-        let code = if snapshot_blob.is_some() {
+        if snapshot_blob.is_some() {
             // If we have a snapshot, only return the isolate's code
             // and the environment variables
-            v8_string(
-                scope,
-                &format!(
-                    r"{environment_variables}
+            (
+                v8_string(
+                    scope,
+                    &format!(
+                        r"{environment_variables}
 {code}
-globalThis.handler = handler"
+globalThis.handler = handler;"
+                    ),
                 ),
+                environment_variables.lines().count() + 1,
             )
         } else if *snapshot {
             // If we are currently making a snapshot, only return
             // the js runtime code
-            v8_string(scope, JS_RUNTIME)
+            (v8_string(scope, JS_RUNTIME), 0)
         } else {
             // Else, that means we don't care about snapshots at all
             // and we can return all the code
-            v8_string(
-                scope,
-                &format!(
-                    r"{JS_RUNTIME}
+            (
+                v8_string(
+                    scope,
+                    &format!(
+                        r"{JS_RUNTIME}
 {environment_variables}
 {code}
-globalThis.handler = handler"
+globalThis.handler = handler;"
+                    ),
                 ),
+                JS_RUNTIME.lines().count() + environment_variables.lines().count() + 2,
             )
-        };
-
-        // We add two lines because of last \n from js-runtime and env variables \n
-        let lines = JS_RUNTIME.lines().count() + environment_variables.lines().count() + 2;
-
-        (code, lines)
+        }
     }
 }

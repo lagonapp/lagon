@@ -14,13 +14,16 @@ fn setup() {
 #[tokio::test]
 async fn disallow_eval() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     const result = eval('1 + 1')
     return new Response(result)
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -35,13 +38,16 @@ async fn disallow_eval() {
 #[tokio::test]
 async fn disallow_function() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     const result = new Function('return 1 + 1')
     return new Response(result())
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 

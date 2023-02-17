@@ -18,3 +18,7 @@ async-recursion = "1.0.2"
 lagon-runtime-v8-utils = { path = "../runtime_v8_utils" }
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-crypto = { path = "../runtime_crypto" }
+
+[features]
+default = []
+ignore-snapshot = []

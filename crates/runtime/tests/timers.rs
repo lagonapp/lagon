@@ -46,8 +46,9 @@ fn setup_logger() -> flume::Receiver<String> {
 #[tokio::test]
 async fn set_timeout() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export async function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export async function handler() {
     const test = await new Promise((resolve) => {
         setTimeout(() => {
             resolve('test');
@@ -55,8 +56,10 @@ async fn set_timeout() {
     });
     return new Response(test);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -85,6 +88,7 @@ async fn set_timeout_not_blocking_response() {
 }"
             .into(),
         )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
     let (tx, rx) = flume::unbounded();
@@ -103,8 +107,9 @@ async fn set_timeout_not_blocking_response() {
 #[tokio::test]
 async fn set_timeout_clear() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export async function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export async function handler() {
     let id;
     const test = await new Promise((resolve) => {
         id = setTimeout(() => {
@@ -117,8 +122,10 @@ async fn set_timeout_clear() {
     });
     return new Response(test);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -132,8 +139,9 @@ async fn set_timeout_clear() {
 #[tokio::test]
 async fn set_timeout_clear_correct() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export async function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export async function handler() {
     const test = await new Promise((resolve) => {
         setTimeout(() => {
             resolve('first');
@@ -145,8 +153,10 @@ async fn set_timeout_clear_correct() {
     });
     return new Response(test);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -183,6 +193,7 @@ async fn set_interval() {
 }"
             .into(),
         )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
     let (tx, rx) = flume::unbounded();
@@ -217,6 +228,7 @@ async fn queue_microtask() {
 }"
             .into(),
         )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
     let (tx, rx) = flume::unbounded();
@@ -243,6 +255,7 @@ async fn queue_microtask_throw_not_function() {
 }"
             .into(),
         )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
     let (tx, rx) = flume::unbounded();
@@ -286,6 +299,7 @@ async fn timers_order() {
 }"
             .into(),
         )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
     let (tx, rx) = flume::unbounded();

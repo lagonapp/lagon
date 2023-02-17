@@ -32,6 +32,10 @@ lazy_static! {
     pub static ref POOL: LocalPoolHandle = LocalPoolHandle::new(1);
 }
 
+const RUNTIME_ONLY_SCRIPT_NAME: &str = "runtime.js";
+const CODE_ONLY_SCRIPT_NAME: &str = "code.js";
+const ISOLATE_SCRIPT_NAME: &str = "isolate.js";
+
 #[derive(Debug, Clone)]
 struct Global(v8::Global<v8::Context>);
 
@@ -224,7 +228,16 @@ impl Isolate {
 
         if self.handler.is_none() && self.compilation_error.is_none() {
             let (code, lines) = self.options.get_runtime_code(try_catch);
-            let resource_name = v8_string(try_catch, "isolate.js");
+            let resource_name = v8_string(
+                try_catch,
+                if self.options.snapshot {
+                    RUNTIME_ONLY_SCRIPT_NAME
+                } else if self.options.snapshot_blob.is_some() {
+                    CODE_ONLY_SCRIPT_NAME
+                } else {
+                    ISOLATE_SCRIPT_NAME
+                },
+            );
             let source_map_url = v8_string(try_catch, "");
 
             isolate_state.borrow_mut().lines = lines;
@@ -237,7 +250,7 @@ impl Isolate {
                     0,
                     0,
                     false,
-                    0,
+                    i32::from(self.options.snapshot_blob.is_some()),
                     source_map_url.into(),
                     false,
                     false,
@@ -245,7 +258,6 @@ impl Isolate {
                 )),
             );
 
-            let now = Instant::now();
             match v8::script_compiler::compile_module(try_catch, source) {
                 Some(module) => {
                     if module
@@ -270,7 +282,6 @@ impl Isolate {
                 }
                 None => return Some(handle_error(try_catch, lines).as_error()),
             };
-            println!("Isolate compiled in {:?}", now.elapsed());
         }
 
         if self.options.snapshot {
@@ -616,8 +627,13 @@ pub fn get_exception_message(
 
         for i in 0..frames {
             if let Some(frame) = stack_trace.get_frame(scope, i) {
-                // Skip frames that are from Lagon's JS runtime
-                if lines > frame.get_line_number() {
+                let script_name = frame
+                    .get_script_name(scope)
+                    .unwrap()
+                    .to_rust_string_lossy(scope);
+
+                // Skip script containg JS runtime, used when generating the snapshot blob
+                if script_name == RUNTIME_ONLY_SCRIPT_NAME || lines > frame.get_line_number() {
                     continue;
                 }
 
