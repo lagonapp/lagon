@@ -38,7 +38,7 @@
     try {
       checkAborted();
 
-      const response = await Lagon.fetch({
+      const response = await LagonAsync.fetch({
         m: init?.method || 'GET',
         u: input.toString(),
         b: body,

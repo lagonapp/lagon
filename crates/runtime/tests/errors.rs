@@ -15,7 +15,10 @@ fn setup() {
 #[tokio::test]
 async fn no_handler() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new("console.log('Hello')".into()));
+    let mut isolate = Isolate::new(
+        IsolateOptions::new("console.log('Hello')".into())
+            .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -30,7 +33,10 @@ async fn no_handler() {
 #[tokio::test]
 async fn handler_not_function() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new("export const handler = 'Hello'".into()));
+    let mut isolate = Isolate::new(
+        IsolateOptions::new("export const handler = 'Hello'".into())
+            .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -45,12 +51,15 @@ async fn handler_not_function() {
 #[tokio::test]
 async fn handler_reject() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     throw new Error('Rejected');
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -63,12 +72,15 @@ async fn handler_reject() {
 #[tokio::test]
 async fn compilation_error() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     this syntax is invalid
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -81,14 +93,17 @@ async fn compilation_error() {
 #[tokio::test]
 async fn import_errors() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "import test from 'test';
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "import test from 'test';
 
 export function handler() {
     return new Response('hello world');
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -104,13 +119,16 @@ export function handler() {
 #[tokio::test]
 async fn execution_timeout_reached() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     while(true) {}
     return new Response('Should not be reached');
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -120,13 +138,16 @@ async fn execution_timeout_reached() {
 #[tokio::test]
 async fn init_timeout_reached() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "while(true) {}
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "while(true) {}
 export function handler() {
     return new Response('Should not be reached');
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -152,6 +173,7 @@ async fn memory_reached() {
 }"
             .into(),
         )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         // Increase timeout for CI
         .startup_timeout(Duration::from_millis(10000))
         .memory(1),
@@ -175,8 +197,9 @@ async fn memory_reached() {
 #[tokio::test]
 async fn stacktrace() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "function test(a) {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "function test(a) {
     return a() / 1;
 }
 
@@ -187,8 +210,10 @@ function first(a) {
 export function handler() {
     return new Response(first('a'));
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
