@@ -3,8 +3,8 @@ import '../';
 
 describe('randomUUID', () => {
   beforeEach(() => {
-    globalThis.Lagon = {
-      ...globalThis.Lagon,
+    globalThis.LagonSync = {
+      ...globalThis.LagonSync,
       uuid: vi.fn(),
     };
   });
@@ -13,9 +13,9 @@ describe('randomUUID', () => {
     vi.resetAllMocks();
   });
 
-  it('should call Lagon.uuid', () => {
-    // @ts-expect-error Lagon is not defined
-    globalThis.Lagon.uuid.mockReturnValueOnce('dff2d1a4-32b8-4a83-b455-88707848227a');
+  it('should call LagonSync.uuid', () => {
+    // @ts-expect-error LagonSync is not defined
+    globalThis.LagonSync.uuid.mockReturnValueOnce('dff2d1a4-32b8-4a83-b455-88707848227a');
 
     const uuid = crypto.randomUUID();
 
@@ -25,8 +25,8 @@ describe('randomUUID', () => {
 
 describe('getRandomValues', () => {
   beforeEach(() => {
-    globalThis.Lagon = {
-      ...globalThis.Lagon,
+    globalThis.LagonSync = {
+      ...globalThis.LagonSync,
       randomValues: vi.fn(),
     };
   });
@@ -35,9 +35,9 @@ describe('getRandomValues', () => {
     vi.resetAllMocks();
   });
 
-  it('should call Lagon.randomValues', () => {
-    // @ts-expect-error Lagon is not defined
-    globalThis.Lagon.randomValues.mockImplementationOnce(typedArray => typedArray);
+  it('should call LagonSync.randomValues', () => {
+    // @ts-expect-error LagonSync is not defined
+    globalThis.LagonSync.randomValues.mockImplementationOnce(typedArray => typedArray);
 
     const uuid = crypto.getRandomValues(new Uint8Array([0, 8, 2]));
 

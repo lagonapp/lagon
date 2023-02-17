@@ -4,8 +4,8 @@ interface CryptoKey {
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 (globalThis => {
-  const getRandomValues = <T extends ArrayBufferView | null>(array: T): T => Lagon.randomValues(array);
-  const randomUUID = () => Lagon.uuid();
+  const getRandomValues = <T extends ArrayBufferView | null>(array: T): T => LagonSync.randomValues(array);
+  const randomUUID = () => LagonSync.uuid();
 
   const SYMMETRIC_ALGORITHMS = ['HMAC', 'AES-CBC', 'AES-CTR', 'AES-GCM', 'AES-KW'];
 
@@ -26,7 +26,7 @@ interface CryptoKey {
       this.type = type!;
       this.usages = usages!;
 
-      this.keyValue = Lagon.getKeyValue();
+      this.keyValue = LagonSync.getKeyValue();
     }
   };
 
@@ -36,7 +36,7 @@ interface CryptoKey {
       key: CryptoKey,
       data: BufferSource,
     ): Promise<ArrayBuffer> {
-      return Lagon.decrypt(algorithm, key, data);
+      return LagonAsync.decrypt(algorithm, key, data);
     }
 
     async deriveBits(
@@ -58,7 +58,7 @@ interface CryptoKey {
     }
 
     async digest(algorithm: AlgorithmIdentifier, data: BufferSource): Promise<ArrayBuffer> {
-      return Lagon.digest(algorithm, data);
+      return LagonAsync.digest(algorithm, data);
     }
 
     async encrypt(
@@ -66,7 +66,7 @@ interface CryptoKey {
       key: CryptoKey,
       data: BufferSource,
     ): Promise<ArrayBuffer> {
-      return Lagon.encrypt(algorithm, key, data);
+      return LagonAsync.encrypt(algorithm, key, data);
     }
 
     async exportKey(format: 'jwk', key: CryptoKey): Promise<JsonWebKey>;
@@ -150,7 +150,7 @@ interface CryptoKey {
       key: CryptoKey,
       data: BufferSource,
     ): Promise<ArrayBuffer> {
-      return Lagon.sign(algorithm, key, data);
+      return LagonAsync.sign(algorithm, key, data);
     }
 
     async unwrapKey(
@@ -184,7 +184,7 @@ interface CryptoKey {
       signature: BufferSource,
       data: BufferSource,
     ): Promise<boolean> {
-      return Lagon.verify(algorithm, key, signature, data);
+      return LagonAsync.verify(algorithm, key, signature, data);
     }
 
     async wrapKey(

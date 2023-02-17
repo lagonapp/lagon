@@ -13,12 +13,12 @@ use sleep::{sleep_binding, sleep_init};
 
 use crate::{bindings::crypto::digest_init, Isolate};
 
-mod console;
-mod crypto;
-mod fetch;
-mod pull_stream;
-mod queue_microtask;
-mod sleep;
+pub mod console;
+pub mod crypto;
+pub mod fetch;
+pub mod pull_stream;
+pub mod queue_microtask;
+pub mod sleep;
 
 pub use console::CONSOLE_SOURCE;
 
@@ -45,6 +45,13 @@ impl PromiseResult {
             PromiseResult::Undefined => v8::undefined(scope).into(),
         }
     }
+}
+
+#[derive(PartialEq, Eq, Debug)]
+pub enum BindStrategy {
+    All,
+    Sync,
+    Async,
 }
 
 macro_rules! binding {
@@ -95,44 +102,55 @@ macro_rules! async_binding {
     };
 }
 
-pub fn bind(scope: &mut v8::HandleScope<()>) -> v8::Global<v8::Context> {
+pub fn bind<'a>(
+    scope: &mut v8::HandleScope<'a, ()>,
+    bind_strategy: BindStrategy,
+) -> v8::Local<'a, v8::Context> {
     let global = v8::ObjectTemplate::new(scope);
 
     let lagon_object = v8::ObjectTemplate::new(scope);
 
-    binding!(scope, lagon_object, "log", console_binding);
-    async_binding!(scope, lagon_object, "fetch", fetch_init, fetch_binding);
-    binding!(scope, lagon_object, "pullStream", pull_stream_binding);
-    binding!(scope, lagon_object, "uuid", uuid_binding);
-    binding!(scope, lagon_object, "randomValues", random_values_binding);
-    async_binding!(scope, lagon_object, "sign", sign_init, sign_binding);
-    async_binding!(scope, lagon_object, "verify", verify_init, verify_binding);
-    binding!(scope, lagon_object, "getKeyValue", get_key_value_binding);
-    async_binding!(scope, lagon_object, "digest", digest_init, digest_binding);
-    async_binding!(
-        scope,
-        lagon_object,
-        "encrypt",
-        encrypt_init,
-        encrypt_binding
-    );
-    async_binding!(
-        scope,
-        lagon_object,
-        "decrypt",
-        decrypt_init,
-        decrypt_binding
-    );
-    async_binding!(scope, lagon_object, "sleep", sleep_init, sleep_binding);
-    binding!(
-        scope,
-        lagon_object,
-        "queueMicrotask",
-        queue_microtask_binding
-    );
+    if bind_strategy == BindStrategy::All || bind_strategy == BindStrategy::Sync {
+        binding!(scope, lagon_object, "log", console_binding);
+        binding!(scope, lagon_object, "pullStream", pull_stream_binding);
+        binding!(scope, lagon_object, "uuid", uuid_binding);
+        binding!(scope, lagon_object, "randomValues", random_values_binding);
+        binding!(scope, lagon_object, "getKeyValue", get_key_value_binding);
+        binding!(
+            scope,
+            lagon_object,
+            "queueMicrotask",
+            queue_microtask_binding
+        );
 
-    global.set(v8_string(scope, "Lagon").into(), lagon_object.into());
+        global.set(v8_string(scope, "LagonSync").into(), lagon_object.into());
+    }
 
-    let context = v8::Context::new_from_template(scope, global);
-    v8::Global::new(scope, context)
+    if bind_strategy == BindStrategy::All || bind_strategy == BindStrategy::Async {
+        let lagon_object = v8::ObjectTemplate::new(scope);
+
+        async_binding!(scope, lagon_object, "fetch", fetch_init, fetch_binding);
+        async_binding!(scope, lagon_object, "sign", sign_init, sign_binding);
+        async_binding!(scope, lagon_object, "verify", verify_init, verify_binding);
+        async_binding!(scope, lagon_object, "digest", digest_init, digest_binding);
+        async_binding!(
+            scope,
+            lagon_object,
+            "encrypt",
+            encrypt_init,
+            encrypt_binding
+        );
+        async_binding!(
+            scope,
+            lagon_object,
+            "decrypt",
+            decrypt_init,
+            decrypt_binding
+        );
+        async_binding!(scope, lagon_object, "sleep", sleep_init, sleep_binding);
+
+        global.set(v8_string(scope, "LagonAsync").into(), lagon_object.into());
+    }
+
+    v8::Context::new_from_template(scope, global)
 }

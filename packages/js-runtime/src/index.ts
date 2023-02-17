@@ -28,16 +28,21 @@ import './runtime/http/fetch';
 // NOTE: we use `var` to that we can refer to these variables
 // using `globalThis.VARIABLE`.
 declare global {
-  var Lagon: {
+  var LagonSync: {
     log: (level: string, message: string) => void;
+    pullStream: (done: boolean, chunk?: Uint8Array) => void;
+    uuid: () => string;
+    randomValues: <T extends ArrayBufferView | null>(array: T) => T;
+    getKeyValue: () => ArrayBuffer;
+    queueMicrotask: (callback: () => void) => void;
+  };
+
+  var LagonAsync: {
     fetch: ({ h, m, b, u }: { h?: Map<string, string>; m: string; b?: string; u: string }) => Promise<{
       b: Uint8Array;
       s: number;
       h?: Record<string, string>;
     }>;
-    pullStream: (done: boolean, chunk?: Uint8Array) => void;
-    uuid: () => string;
-    randomValues: <T extends ArrayBufferView | null>(array: T) => T;
     sign: (
       algorithm: AlgorithmIdentifier | RsaPssParams | EcdsaParams,
       key: CryptoKey,
@@ -49,7 +54,6 @@ declare global {
       signature: BufferSource,
       data: BufferSource,
     ) => Promise<boolean>;
-    getKeyValue: () => ArrayBuffer;
     digest: (algorithm: AlgorithmIdentifier, data: BufferSource) => Promise<ArrayBuffer>;
     encrypt: (
       algorithm: AlgorithmIdentifier | RsaOaepParams | AesCtrParams | AesCbcParams | AesGcmParams,
@@ -62,7 +66,6 @@ declare global {
       data: BufferSource,
     ) => Promise<ArrayBuffer>;
     sleep: (ms: number) => Promise<void>;
-    queueMicrotask: (callback: () => void) => void;
   };
   var __lagon__: {
     isIterable: (value: unknown) => value is ArrayBuffer;
@@ -71,6 +74,16 @@ declare global {
     TEXT_DECODER: TextDecoder;
   };
   var handler: (request: Request) => Promise<Response>;
+  var masterHandler: (request: {
+    i: string;
+    m: RequestInit['method'];
+    h: RequestInit['headers'];
+    b: RequestInit['body'];
+  }) => Promise<{
+    b: string;
+    h: ResponseInit['headers'];
+    s: ResponseInit['status'];
+  }>;
 
   interface Response {
     readonly isStream: boolean;
@@ -85,16 +98,7 @@ declare global {
   }
 }
 
-export async function masterHandler(request: {
-  i: string;
-  m: RequestInit['method'];
-  h: RequestInit['headers'];
-  b: RequestInit['body'];
-}): Promise<{
-  b: string;
-  h: ResponseInit['headers'];
-  s: ResponseInit['status'];
-}> {
+globalThis.masterHandler = async request => {
   if (typeof handler !== 'function') {
     throw new Error('Handler function is not defined or is not a function');
   }
@@ -113,12 +117,12 @@ export async function masterHandler(request: {
     const read = () => {
       reader.read().then(({ done, value }) => {
         if (done) {
-          Lagon.pullStream(done);
+          LagonSync.pullStream(done);
           return;
         }
 
         if (value.byteLength !== 0) {
-          Lagon.pullStream(done, value);
+          LagonSync.pullStream(done, value);
         }
 
         read();
@@ -136,4 +140,4 @@ export async function masterHandler(request: {
     h: response.headers,
     s: response.status,
   };
-}
+};
