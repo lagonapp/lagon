@@ -14,6 +14,11 @@
       ],
       "outputs": []
     },
+    "@lagon/runtime#test": {
+      "dependsOn": [
+        "@lagon/serverless#build"
+      ]
+    },
     "lint": {
       "dependsOn": [
         "@lagon/runtime#build",
