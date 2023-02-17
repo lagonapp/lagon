@@ -441,7 +441,7 @@ importers:
       '@types/node': ^18.0.0
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
-      '@vercel/analytics': 0.1.8
+      '@vercel/analytics': 0.1.10
       autoprefixer: ^10.4.7
       cobe: ^0.6.0
       eslint: ^8.16.0
@@ -456,7 +456,7 @@ importers:
       typescript: ^4.6.4
     dependencies:
       '@next/font': 13.1.6
-      '@vercel/analytics': 0.1.8_react@18.2.0
+      '@vercel/analytics': 0.1.10_react@18.2.0
       cobe: 0.6.2
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       posthog-js: 1.30.0
@@ -8984,16 +8984,16 @@ packages:
       vite: 4.0.3
     dev: true
 
-  /@vercel/analytics/0.1.3_react@18.2.0:
-    resolution: {integrity: sha512-zJuEwzvi0bBmWrMrj9jvyMS+X6iUdW3m/y5P7aOLwJQKHsJyfpdINo/4Rv+wxubz3gl4nRqIQdtOFCe1P1ErXQ==}
+  /@vercel/analytics/0.1.10_react@18.2.0:
+    resolution: {integrity: sha512-jjJ8GzcPnQp0cMxpfYoUycMRBtDiaIeyVjZPiEPe99Dj1PdjMzAFYEASiV/hpNsXHkpcNYCveDFh6jnmh0YSDQ==}
     peerDependencies:
       react: ^16.8||^17||^18
     dependencies:
       react: 18.2.0
     dev: false
 
-  /@vercel/analytics/0.1.8_react@18.2.0:
-    resolution: {integrity: sha512-PQrOI8BJ9qUiVJuQfnKiJd15eDjDJH9TBKsNeMrtelT4NAk7d9mBVz1CoZkvoFnHQ0OW7Xnqmr1F2nScfAnznQ==}
+  /@vercel/analytics/0.1.3_react@18.2.0:
+    resolution: {integrity: sha512-zJuEwzvi0bBmWrMrj9jvyMS+X6iUdW3m/y5P7aOLwJQKHsJyfpdINo/4Rv+wxubz3gl4nRqIQdtOFCe1P1ErXQ==}
     peerDependencies:
       react: ^16.8||^17||^18
     dependencies:
