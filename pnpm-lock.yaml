@@ -227,7 +227,7 @@ importers:
       '@react-email/img': ^0.0.4
       '@react-email/preview': ^0.0.5
       '@react-email/render': ^0.0.6
-      '@react-email/section': 0.0.7-canary.1
+      '@react-email/section': 0.0.8
       '@react-email/text': ^0.0.4
       '@scaleway/use-random-name': ^0.3.0
       '@sentry/nextjs': ^7.1.1
@@ -281,7 +281,7 @@ importers:
       '@react-email/img': 0.0.4
       '@react-email/preview': 0.0.5
       '@react-email/render': 0.0.6
-      '@react-email/section': 0.0.7-canary.1
+      '@react-email/section': 0.0.8
       '@react-email/text': 0.0.4
       '@scaleway/use-random-name': 0.3.1_react@18.2.0
       '@sentry/nextjs': 7.5.0_next@13.1.6+react@18.2.0
@@ -6333,8 +6333,8 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /@react-email/section/0.0.7-canary.1:
-    resolution: {integrity: sha512-6xv5klBn4dIWTG9iEdLMrrrPrB7o4+HFBkrr6njWIGi7qWnFDvFVTAfM5ZNPOnDYinfXcRj5BYD5shynk+R+CQ==}
+  /@react-email/section/0.0.8:
+    resolution: {integrity: sha512-Y3HxwaNkh04UgLx4dsez3uRfFIm5WJMgJB+9zFyHreKa3QwCcm+XSYN2ObsSyCAqISScXNeukgu/z75+BwaJ+g==}
     engines: {node: '>=16.0.0'}
     dependencies:
       react: 18.2.0
