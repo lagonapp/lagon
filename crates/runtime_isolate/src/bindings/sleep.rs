@@ -1,18 +1,10 @@
 use std::time::Duration;
 
 use anyhow::{anyhow, Result};
-use hyper::{client::HttpConnector, Body, Client};
-use hyper_tls::HttpsConnector;
-use lazy_static::lazy_static;
 
 use crate::bindings::PromiseResult;
 
 use super::BindingResult;
-
-lazy_static! {
-    static ref CLIENT: Client<HttpsConnector<HttpConnector>> =
-        Client::builder().build::<_, Body>(HttpsConnector::new());
-}
 
 type Arg = u64;
 
