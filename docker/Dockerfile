@@ -5,7 +5,7 @@ FROM chef AS planner
 COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
-FROM node:19.6.0-bullseye-slim as js-runtime
+FROM node:19.6.1-bullseye-slim as js-runtime
 WORKDIR /app
 COPY ./packages/js-runtime/src/ ./src
 COPY ./packages/js-runtime/package.json ./
