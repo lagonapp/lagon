@@ -1,39 +1,39 @@
-use anyhow::{anyhow, Result};
 use std::path::PathBuf;
+
+use anyhow::{anyhow, Result};
 
 use dialoguer::Select;
 
 use crate::{
     commands::deploy::{FunctionsResponse, OrganizationsResponse},
-    utils::{
-        debug, get_function_config, success, validate_code_file, write_function_config, Config,
-        DeploymentConfig, TrpcClient,
-    },
+    utils::{get_root, info, success, Config, FunctionConfig, TrpcClient},
 };
 
-pub async fn link(file: PathBuf) -> Result<()> {
+pub async fn link(directory: Option<PathBuf>) -> Result<()> {
     let config = Config::new()?;
 
     if config.token.is_none() {
         return Err(anyhow!(
-            "You are not logged in. Please login with `lagon login`",
+            "You are not logged in. Please log in with `lagon login`",
         ));
     }
 
-    validate_code_file(&file)?;
+    let root = get_root(directory);
 
-    match get_function_config(&file)? {
-        None => {
-            println!("{}", debug("No deployment config found..."));
-            println!();
-
+    match root.join(".lagon").join("config.json").exists() {
+        true => Err(anyhow!("This directory is already linked to a Function.")),
+        false => {
             let trpc_client = TrpcClient::new(&config);
             let response = trpc_client
                 .query::<(), OrganizationsResponse>("organizationsList", None)
                 .await?;
             let organizations = response.result.data;
 
-            let index = Select::new().items(&organizations).default(0).interact()?;
+            let index = Select::new()
+                .items(&organizations)
+                .default(0)
+                .with_prompt(info("Select an Organization to link from"))
+                .interact()?;
             let organization = &organizations[index];
 
             let response = trpc_client
@@ -41,22 +41,21 @@ pub async fn link(file: PathBuf) -> Result<()> {
                 .await?;
             let functions = response.result.data;
 
-            let index = Select::new().items(&functions).default(0).interact()?;
+            let index = Select::new()
+                .items(&functions)
+                .default(0)
+                .with_prompt(info("Select a Function to link from"))
+                .interact()?;
             let function = &functions[index];
 
-            write_function_config(
-                &file,
-                DeploymentConfig {
-                    function_id: function.id.clone(),
-                    organization_id: organization.id.clone(),
-                },
-            )?;
+            let mut function_config = FunctionConfig::load(&root, None, None)?;
+            function_config.function_id = function.id.clone();
+            function_config.organization_id = organization.id.clone();
+            function_config.write(&root)?;
 
             println!("{}", success("Function linked!"));
-            println!();
 
             Ok(())
         }
-        Some(_) => Err(anyhow!("This file is already linked to a Function.")),
     }
 }

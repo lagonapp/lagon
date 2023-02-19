@@ -1,4 +1,4 @@
-use anyhow::{Error, Result};
+use anyhow::{anyhow, Error, Result};
 use chrono::offset::Local;
 use colored::Colorize;
 use envfile::EnvFile;
@@ -15,19 +15,16 @@ use log::{
 };
 use notify::event::ModifyKind;
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
+use pathdiff::diff_paths;
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::fs;
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Mutex;
 use tokio_util::task::LocalPoolHandle;
 
-use crate::utils::{
-    bundle_function, error, info, input, success, validate_code_file, validate_public_dir, warn,
-    Assets,
-};
+use crate::utils::{bundle_function, error, info, input, success, warn, Assets, FunctionConfig};
 
 struct SimpleLogger;
 
@@ -75,7 +72,7 @@ fn parse_environment_variables(env: Option<PathBuf>) -> Result<HashMap<String, S
 // threads to manage, and we don't manager logs and metrics.
 async fn handle_request(
     req: HyperRequest<Body>,
-    public_dir: PathBuf,
+    public_dir: Option<PathBuf>,
     ip: String,
     content: Arc<Mutex<(Vec<u8>, Assets)>>,
     environment_variables: HashMap<String, String>,
@@ -98,7 +95,7 @@ async fn handle_request(
     if let Some(asset) = find_asset(url, &assets.keys().cloned().collect()) {
         println!("              {}", input("Asset found"));
 
-        let run_result = match handle_asset(public_dir, asset) {
+        let run_result = match handle_asset(public_dir.unwrap(), asset) {
             Ok(response) => RunResult::Response(response),
             Err(error) => RunResult::Error(format!("Could not retrieve asset ({asset}): {error}")),
         };
@@ -176,7 +173,7 @@ async fn handle_request(
 }
 
 pub async fn dev(
-    file: PathBuf,
+    path: PathBuf,
     client: Option<PathBuf>,
     public_dir: Option<PathBuf>,
     port: Option<u16>,
@@ -184,18 +181,36 @@ pub async fn dev(
     env: Option<PathBuf>,
     allow_code_generation: bool,
 ) -> Result<()> {
-    validate_code_file(&file)?;
+    if !path.exists() {
+        return Err(anyhow!("File or directory not found"));
+    }
 
-    let client = match client {
-        Some(client) => {
-            validate_code_file(&client)?;
-            Some(client)
+    let (root, function_config) = match path.is_file() {
+        true => {
+            let root = PathBuf::from(path.parent().unwrap());
+
+            let index = diff_paths(&path, &root).unwrap();
+            let client = client.map(|client| diff_paths(client, &root).unwrap());
+            let assets = public_dir.map(|public_dir| diff_paths(public_dir, &root).unwrap());
+
+            (
+                root,
+                FunctionConfig {
+                    function_id: String::new(),
+                    organization_id: String::new(),
+                    index,
+                    client,
+                    assets,
+                },
+            )
         }
-        None => None,
+        false => (
+            path.clone(),
+            FunctionConfig::load(&path, client, public_dir)?,
+        ),
     };
 
-    let public_dir = validate_public_dir(public_dir)?;
-    let (index, assets) = bundle_function(&file, &client, &public_dir)?;
+    let (index, assets) = bundle_function(&function_config, &root)?;
 
     let content = Arc::new(Mutex::new((index, assets)));
 
@@ -208,7 +223,10 @@ pub async fn dev(
     )
     .parse()?;
 
-    let server_public_dir = public_dir.clone();
+    let server_public_dir = function_config
+        .assets
+        .as_ref()
+        .map(|assets| root.join(assets));
     let server_content = content.clone();
     let environment_variables = parse_environment_variables(env)?;
     let pool = LocalPoolHandle::new(1);
@@ -242,11 +260,12 @@ pub async fn dev(
         Config::default().with_poll_interval(Duration::from_secs(1)),
     )?;
 
-    let path = fs::canonicalize(&file)?;
-    watcher.watch(&path, RecursiveMode::NonRecursive)?;
+    watcher.watch(
+        &root.join(function_config.index.clone()),
+        RecursiveMode::NonRecursive,
+    )?;
 
     let watcher_content = content.clone();
-    let watcher_public_dir = public_dir.clone();
 
     tokio::spawn(async move {
         let content = watcher_content.clone();
@@ -263,7 +282,7 @@ pub async fn dev(
                 print!("\x1B[2J\x1B[1;1H");
                 println!("{}", info("Found change, updating..."));
 
-                let (index, assets) = bundle_function(&file, &client, &watcher_public_dir)?;
+                let (index, assets) = bundle_function(&function_config, &root)?;
 
                 *content.lock().await = (index, assets);
             }
@@ -288,7 +307,6 @@ pub async fn dev(
         "➤".bright_black(),
         format!("http://{addr}").blue()
     );
-    println!();
 
     init_logger()?;
     server.await?;
