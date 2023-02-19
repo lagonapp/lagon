@@ -4,9 +4,7 @@ use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
-use crate::utils::{
-    get_function_config, info, print_progress, success, validate_code_file, Config, TrpcClient,
-};
+use crate::utils::{get_root, info, print_progress, success, Config, FunctionConfig, TrpcClient};
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -21,44 +19,42 @@ struct PromoteDeploymentResponse {
     ok: bool,
 }
 
-pub async fn promote(file: PathBuf, deployment_id: String) -> Result<()> {
+pub async fn promote(deployment_id: String, directory: Option<PathBuf>) -> Result<()> {
     let config = Config::new()?;
 
     if config.token.is_none() {
         return Err(anyhow!(
-            "You are not logged in. Please login with `lagon login`",
+            "You are not logged in. Please log in with `lagon login`",
         ));
     }
 
-    validate_code_file(&file)?;
+    let root = get_root(directory);
+    let function_config = FunctionConfig::load(&root, None, None)?;
 
-    match get_function_config(&file)? {
-        None => Err(anyhow!("No configuration found for this file.")),
-        Some(function_config) => match Confirm::new()
-            .with_prompt(info(
-                "Are you sure you want to promote this Deployment to production?",
-            ))
-            .interact()?
-        {
-            true => {
-                let end_progress = print_progress("Promoting Deployment...");
-                TrpcClient::new(&config)
-                    .mutation::<PromoteDeploymentRequest, PromoteDeploymentResponse>(
-                        "deploymentPromote",
-                        PromoteDeploymentRequest {
-                            function_id: function_config.function_id,
-                            deployment_id,
-                        },
-                    )
-                    .await?;
-                end_progress();
+    match Confirm::new()
+        .with_prompt(info(
+            "Are you sure you want to promote this Deployment to production?",
+        ))
+        .interact()?
+    {
+        true => {
+            let end_progress = print_progress("Promoting Deployment...");
+            TrpcClient::new(&config)
+                .mutation::<PromoteDeploymentRequest, PromoteDeploymentResponse>(
+                    "deploymentPromote",
+                    PromoteDeploymentRequest {
+                        function_id: function_config.function_id,
+                        deployment_id,
+                    },
+                )
+                .await?;
+            end_progress();
 
-                println!();
-                println!("{}", success("Deployment promoted to production!"));
+            println!();
+            println!("{}", success("Deployment promoted to production!"));
 
-                Ok(())
-            }
-            false => Err(anyhow!("Promotion aborted.")),
-        },
+            Ok(())
+        }
+        false => Err(anyhow!("Promotion aborted.")),
     }
 }

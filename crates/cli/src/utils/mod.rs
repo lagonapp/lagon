@@ -15,12 +15,14 @@ pub const MAX_FUNCTION_SIZE_MB: usize = 10 * 1024 * 1024; // 10MB
 pub const MAX_ASSET_SIZE_MB: u64 = 10 * 1024 * 1024; // 10MB
 pub const MAX_ASSETS_PER_FUNCTION: usize = 100;
 
-pub fn validate_code_file(file: &Path) -> Result<()> {
-    if !file.exists() || !file.is_file() {
-        return Err(anyhow!("{} is not a file", file.to_str().unwrap()));
+pub fn validate_code_file(file: &Path, root: &Path) -> Result<()> {
+    let path = root.join(file);
+
+    if !path.exists() || !path.is_file() {
+        return Err(anyhow!("{:?} is not a file", path));
     }
 
-    match file.extension() {
+    match path.extension() {
         Some(ext) => {
             let validate = ext == "js"
                 || ext == "jsx"
@@ -38,17 +40,14 @@ pub fn validate_code_file(file: &Path) -> Result<()> {
     }
 }
 
-pub fn validate_public_dir(public_dir: Option<PathBuf>) -> Result<PathBuf> {
-    if let Some(dir) = public_dir {
-        if !dir.is_dir() {
-            return Err(anyhow!(
-                "Public directory {} does not exist.",
-                dir.to_str().unwrap()
-            ));
-        }
+pub fn validate_assets_dir(assets_dir: &Option<PathBuf>, root: &Path) -> Result<()> {
+    if let Some(dir) = assets_dir {
+        let path = root.join(dir);
 
-        return Ok(dir);
+        if !path.is_dir() {
+            return Err(anyhow!("Public directory {:?} does not exist.", path));
+        }
     }
 
-    Ok(PathBuf::from("./public"))
+    Ok(())
 }

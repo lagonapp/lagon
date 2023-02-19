@@ -33,34 +33,34 @@ enum Commands {
     Logout,
     /// Deploy a new or existing Function
     Deploy {
-        /// Path to the file containing the Function
-        #[clap(value_parser)]
-        file: PathBuf,
         /// Path to a client-side script
         #[clap(short, long, value_parser)]
         client: Option<PathBuf>,
-        /// Path to the public directory to serve assets from
+        /// Path to a public directory to serve assets from
         #[clap(short, long, value_parser)]
         public_dir: Option<PathBuf>,
         /// Deploy as a production deployment
         #[clap(visible_alias = "production", long)]
         prod: bool,
+        /// Path to a directory containing a Function
+        #[clap(value_parser)]
+        directory: Option<PathBuf>,
     },
     /// Delete an existing Function
     Rm {
-        /// Path to the file containing the Function
+        /// Path to a directory containing a Function
         #[clap(value_parser)]
-        file: PathBuf,
+        directory: Option<PathBuf>,
     },
     /// Start a local dev server to test a Functon
     Dev {
-        /// Path to the file containing the Function
+        /// Path to a file or a directory containing a Function
         #[clap(value_parser)]
-        file: PathBuf,
+        path: PathBuf,
         /// Path to a client-side script
         #[clap(short, long, value_parser)]
         client: Option<PathBuf>,
-        /// Path to the public directory to serve assets from
+        /// Path to a public directory to serve assets from
         #[clap(short, long, value_parser)]
         public_dir: Option<PathBuf>,
         /// Port to start dev server on
@@ -78,43 +78,43 @@ enum Commands {
     },
     /// Build a Function without deploying it
     Build {
-        /// Path to the file containing the Function
-        #[clap(value_parser)]
-        file: PathBuf,
         /// Path to a client-side script
         #[clap(short, long, value_parser)]
         client: Option<PathBuf>,
-        /// Path to the public directory to serve assets from
+        /// Path to a public directory to serve assets from
         #[clap(short, long, value_parser)]
         public_dir: Option<PathBuf>,
+        /// Path to a directory containing a Function
+        #[clap(value_parser)]
+        directory: Option<PathBuf>,
     },
     /// Link a local Function file to an already deployed Function
     Link {
-        /// Path to the file containing the Function
+        /// Path to a directory containing a Function
         #[clap(value_parser)]
-        file: PathBuf,
+        directory: Option<PathBuf>,
     },
     /// List all the Deployments for a Function
     Ls {
-        /// Path to the file containing the Function
+        /// Path to a directory containing a Function
         #[clap(value_parser)]
-        file: PathBuf,
+        directory: Option<PathBuf>,
     },
     /// Undeploy the given Deployment
     Undeploy {
-        /// Path to the file containing the Function
-        #[clap(value_parser)]
-        file: PathBuf,
         /// ID of the Deployment to undeploy
         deployment_id: String,
+        /// Path to a directory containing a Function
+        #[clap(value_parser)]
+        directory: Option<PathBuf>,
     },
     /// Promote the given preview Deployment to production
     Promote {
-        /// Path to the file containing the Function
-        #[clap(value_parser)]
-        file: PathBuf,
         /// ID of the Deployment to promote
         deployment_id: String,
+        /// Path to a directory containing a Function
+        #[clap(value_parser)]
+        directory: Option<PathBuf>,
     },
 }
 
@@ -127,14 +127,14 @@ async fn main() {
             Commands::Login => commands::login().await,
             Commands::Logout => commands::logout(),
             Commands::Deploy {
-                file,
                 client,
                 public_dir,
                 prod,
-            } => commands::deploy(file, client, public_dir, prod).await,
-            Commands::Rm { file } => commands::rm(file).await,
+                directory,
+            } => commands::deploy(client, public_dir, prod, directory).await,
+            Commands::Rm { directory } => commands::rm(directory).await,
             Commands::Dev {
-                file,
+                path,
                 client,
                 public_dir,
                 port,
@@ -143,7 +143,7 @@ async fn main() {
                 allow_code_generation,
             } => {
                 commands::dev(
-                    file,
+                    path,
                     client,
                     public_dir,
                     port,
@@ -154,20 +154,20 @@ async fn main() {
                 .await
             }
             Commands::Build {
-                file,
                 client,
                 public_dir,
-            } => commands::build(file, client, public_dir),
-            Commands::Link { file } => commands::link(file).await,
-            Commands::Ls { file } => commands::ls(file).await,
+                directory,
+            } => commands::build(client, public_dir, directory),
+            Commands::Link { directory } => commands::link(directory).await,
+            Commands::Ls { directory } => commands::ls(directory).await,
             Commands::Undeploy {
-                file,
                 deployment_id,
-            } => commands::undeploy(file, deployment_id).await,
+                directory,
+            } => commands::undeploy(deployment_id, directory).await,
             Commands::Promote {
-                file,
                 deployment_id,
-            } => commands::promote(file, deployment_id).await,
+                directory,
+            } => commands::promote(deployment_id, directory).await,
         } {
             println!("{}", error(&err.to_string()));
         }
