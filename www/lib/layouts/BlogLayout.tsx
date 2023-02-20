@@ -9,6 +9,7 @@ import Link from 'next/link';
 
 const components: ComponentProps<typeof MDXProvider>['components'] = {
   // @ts-expect-error missing children
+  // eslint-disable-next-line jsx-a11y/alt-text
   img: props => <Image {...props} />,
   // @ts-expect-error missing children
   h2: props => <Text size="h3" className="mt-8 mb-6" {...props} />,

@@ -450,6 +450,7 @@ importers:
       '@types/react-dom': ^18.0.5
       '@vercel/analytics': 0.1.10
       autoprefixer: ^10.4.7
+      class-variance-authority: ^0.4.0
       cobe: ^0.6.0
       eslint: ^8.16.0
       eslint-config-next: 13.1.6
@@ -471,6 +472,7 @@ importers:
       '@next/mdx': 13.1.6_bh4mxjirejtsr2ma3dim5k3lfi
       '@radix-ui/react-tooltip': 1.0.3_twyhzqqpkwvvgrmyeapdo6i4my
       '@vercel/analytics': 0.1.10_react@18.2.0
+      class-variance-authority: 0.4.0_typescript@4.7.4
       cobe: 0.6.2
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       next-sitemap: 3.1.52_next@13.1.6
@@ -11241,7 +11243,6 @@ packages:
         optional: true
     dependencies:
       typescript: 4.7.4
-    dev: true
 
   /clean-css/4.2.4:
     resolution: {integrity: sha512-EJUDT7nDVFDvaQgAo2G/PJvxmp1o/c6iXLbswsBbUFXi1Nr+AjA2cKmfbKDMjMvzEe75g3P6JkaDDAKk96A85A==}
@@ -22161,7 +22162,6 @@ packages:
     resolution: {integrity: sha512-C0WQT0gezHuw6AdY1M2jxUO83Rjf0HP7Sk1DtXj6j1EwkQNZrHAg2XPWlq62oqEhYvONq5pkC2Y9oPljWToLmQ==}
     engines: {node: '>=4.2.0'}
     hasBin: true
-    dev: true
 
   /typescript/4.9.4:
     resolution: {integrity: sha512-Uz+dTXYzxXXbsFpM86Wh3dKCxrQqUcVMxwU54orwlJjOpO3ao8L7j5lH+dWfTwgCwIuM9GQ2kvVotzYJMXTBZg==}
