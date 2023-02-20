@@ -416,7 +416,11 @@ pub async fn create_deployment(
 
     println!();
     println!("{}", success("Function deployed!"));
-    println!("{}", debug("Use --prod to deploy to production"));
+
+    if !prod {
+        println!("{}", debug("Use --prod to deploy to production"));
+    }
+
     println!();
     println!(
         " {} {}",
