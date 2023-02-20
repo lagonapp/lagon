@@ -60,7 +60,14 @@ impl FunctionConfig {
                 }
                 None => {
                     let index = Input::<String>::new()
-                        .with_prompt(info("Path to your Function's entrypoint?"))
+                        .with_prompt(format!(
+                            "{} {}",
+                            info("Path to your Function's entrypoint?"),
+                            debug(
+                                format!("(relative to {:?})", root.canonicalize().unwrap())
+                                    .as_str()
+                            ),
+                        ))
                         .interact_text()?;
                     PathBuf::from(index)
                 }
@@ -79,7 +86,14 @@ impl FunctionConfig {
                 {
                     true => {
                         let assets = Input::<String>::new()
-                            .with_prompt(info("Path to your Function's public directory?"))
+                            .with_prompt(format!(
+                                "{} {}",
+                                info("Path to your Function's public directory?"),
+                                debug(
+                                    format!("(relative to {:?})", root.canonicalize().unwrap())
+                                        .as_str()
+                                ),
+                            ))
                             .interact_text()?;
                         let assets = PathBuf::from(assets);
 
@@ -243,10 +257,14 @@ pub fn bundle_function(function_config: &FunctionConfig, root: &Path) -> Result<
     }
 
     if let Some(assets) = &function_config.assets {
-        let msg = format!("Found public directory ({:?}), bundling assets...", assets);
+        let assets = root.join(assets);
+        let msg = format!(
+            "Found public directory ({:?}), bundling assets...",
+            assets.canonicalize().unwrap()
+        );
         let end_progress = print_progress(&msg);
 
-        let files = WalkDir::new(root.join(assets))
+        let files = WalkDir::new(&assets)
             .into_iter()
             .collect::<Vec<walkdir::Result<DirEntry>>>();
 
@@ -270,7 +288,7 @@ pub fn bundle_function(function_config: &FunctionConfig, root: &Path) -> Result<
                     ));
                 }
 
-                let diff = diff_paths(path, root.join(assets))
+                let diff = diff_paths(path, &assets)
                     .unwrap()
                     .to_str()
                     .unwrap()
@@ -398,6 +416,11 @@ pub async fn create_deployment(
 
     println!();
     println!("{}", success("Function deployed!"));
+
+    if !prod {
+        println!("{}", debug("Use --prod to deploy to production"));
+    }
+
     println!();
     println!(
         " {} {}",
