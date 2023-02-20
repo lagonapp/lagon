@@ -10,8 +10,8 @@ pub extern "C" fn heap_limit_callback(
     _initial_heap_limit: usize,
 ) -> usize {
     let isolate = unsafe { &mut *(data as *mut Isolate) };
+    isolate.terminate();
 
-    isolate.heap_limit_reached();
     // Avoid OOM killer by increasing the limit, since we kill
     // the isolate above.
     current_heap_limit * 2

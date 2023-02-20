@@ -18,7 +18,8 @@ pub struct IsolateOptions {
     pub metadata: Rc<Metadata>,
     pub on_drop: Option<OnIsolateDropCallback>,
     pub on_statistics: Option<OnIsolateStatisticsCallback>,
-    // pub snapshot_blob: Option<Box<dyn Allocated<[u8]>>>,
+    pub snapshot: bool,
+    pub snapshot_blob: Option<&'static [u8]>,
 }
 
 unsafe impl Send for IsolateOptions {}
@@ -34,7 +35,8 @@ impl IsolateOptions {
             metadata: Rc::new(None),
             on_drop: None,
             on_statistics: None,
-            // snapshot_blob: None,
+            snapshot: false,
+            snapshot_blob: None,
         }
     }
 
@@ -73,6 +75,22 @@ impl IsolateOptions {
         self
     }
 
+    pub fn snapshot(mut self, snapshot: bool) -> Self {
+        self.snapshot = snapshot;
+        self
+    }
+
+    #[cfg(not(feature = "ignore-snapshot"))]
+    pub fn snapshot_blob(mut self, snapshot_blob: &'static [u8]) -> Self {
+        self.snapshot_blob = Some(snapshot_blob);
+        self
+    }
+
+    #[cfg(feature = "ignore-snapshot")]
+    pub fn snapshot_blob(mut self, snapshot_blob: &'static [u8]) -> Self {
+        self
+    }
+
     pub fn get_runtime_code<'a>(
         &self,
         scope: &mut v8::HandleScope<'a>,
@@ -80,6 +98,8 @@ impl IsolateOptions {
         let IsolateOptions {
             code,
             environment_variables,
+            snapshot,
+            snapshot_blob,
             ..
         } = self;
 
@@ -92,18 +112,39 @@ impl IsolateOptions {
             None => "".to_string(),
         };
 
-        let code = v8_string(
-            scope,
-            &format!(
-                r"{JS_RUNTIME}
+        if snapshot_blob.is_some() {
+            // If we have a snapshot, only return the isolate's code
+            // and the environment variables
+            (
+                v8_string(
+                    scope,
+                    &format!(
+                        r"{environment_variables}
+{code}
+globalThis.handler = handler;"
+                    ),
+                ),
+                environment_variables.lines().count() + 1,
+            )
+        } else if *snapshot {
+            // If we are currently making a snapshot, only return
+            // the js runtime code
+            (v8_string(scope, JS_RUNTIME), 0)
+        } else {
+            // Else, that means we don't care about snapshots at all
+            // and we can return all the code
+            (
+                v8_string(
+                    scope,
+                    &format!(
+                        r"{JS_RUNTIME}
 {environment_variables}
-{code}"
-            ),
-        );
-
-        // We add two lines because of last \n from js-runtime and env variables \n
-        let lines = JS_RUNTIME.lines().count() + environment_variables.lines().count() + 2;
-
-        (code, lines)
+{code}
+globalThis.handler = handler;"
+                    ),
+                ),
+                JS_RUNTIME.lines().count() + environment_variables.lines().count() + 2,
+            )
+        }
     }
 }

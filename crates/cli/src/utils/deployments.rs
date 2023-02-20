@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Result};
 use colored::Colorize;
+use dialoguer::{Confirm, Input};
 use hyper::{Body, Method, Request};
 use std::{
     collections::HashMap,
@@ -13,9 +14,12 @@ use walkdir::{DirEntry, WalkDir};
 use pathdiff::diff_paths;
 use serde::{Deserialize, Serialize};
 
-use crate::utils::{debug, print_progress, success, TrpcClient};
+use crate::utils::{debug, info, print_progress, success, TrpcClient};
 
-use super::{Config, MAX_ASSETS_PER_FUNCTION, MAX_ASSET_SIZE_MB, MAX_FUNCTION_SIZE_MB};
+use super::{
+    validate_assets_dir, validate_code_file, Config, MAX_ASSETS_PER_FUNCTION, MAX_ASSET_SIZE_MB,
+    MAX_FUNCTION_SIZE_MB,
+};
 
 pub type Assets = HashMap<String, Vec<u8>>;
 
@@ -26,62 +30,156 @@ const ESBUILD: &str = "C:\\Program Files\\nodejs\\esbuild.cmd";
 const ESBUILD: &str = "esbuild";
 
 #[derive(Serialize, Deserialize, Debug)]
-pub struct DeploymentConfig {
+pub struct FunctionConfig {
     pub function_id: String,
     pub organization_id: String,
+    pub index: PathBuf,
+    pub client: Option<PathBuf>,
+    pub assets: Option<PathBuf>,
 }
 
-pub fn get_function_config(file: &Path) -> Result<Option<DeploymentConfig>> {
-    let path = format!(
-        ".lagon/{}.json",
-        file.file_name().unwrap().to_str().unwrap()
-    );
-    let path = Path::new(&path);
+impl FunctionConfig {
+    pub fn load(
+        root: &Path,
+        client_override: Option<PathBuf>,
+        assets_override: Option<PathBuf>,
+    ) -> Result<FunctionConfig> {
+        let path = get_function_config_path(root);
 
-    if !path.exists() {
-        return Ok(None);
+        if !path.exists() {
+            println!(
+                "{}",
+                debug("No configuration found in current directory...")
+            );
+            println!();
+
+            let index = match client_override {
+                Some(index) => {
+                    println!("{}", debug("Using custom entrypoint..."));
+                    index
+                }
+                None => {
+                    let index = Input::<String>::new()
+                        .with_prompt(format!(
+                            "{} {}",
+                            info("Path to your Function's entrypoint?"),
+                            debug(
+                                format!("(relative to {:?})", root.canonicalize().unwrap())
+                                    .as_str()
+                            ),
+                        ))
+                        .interact_text()?;
+                    PathBuf::from(index)
+                }
+            };
+
+            validate_code_file(&root.join(&index), root)?;
+
+            let assets = match assets_override {
+                Some(assets) => {
+                    println!("{}", debug("Using custom public directory..."));
+                    Some(assets)
+                }
+                None => match Confirm::new()
+                    .with_prompt(info("Do you have a public directory to serve assets from?"))
+                    .interact()?
+                {
+                    true => {
+                        let assets = Input::<String>::new()
+                            .with_prompt(format!(
+                                "{} {}",
+                                info("Path to your Function's public directory?"),
+                                debug(
+                                    format!("(relative to {:?})", root.canonicalize().unwrap())
+                                        .as_str()
+                                ),
+                            ))
+                            .interact_text()?;
+                        let assets = PathBuf::from(assets);
+
+                        validate_assets_dir(&Some(root.join(&assets)), root)?;
+
+                        Some(assets)
+                    }
+                    false => None,
+                },
+            };
+
+            let config = FunctionConfig {
+                function_id: String::from(""),
+                organization_id: String::from(""),
+                index,
+                client: None,
+                assets,
+            };
+
+            config.write(root)?;
+
+            return Ok(config);
+        }
+
+        let content = fs::read_to_string(path)?;
+        let mut config = serde_json::from_str::<FunctionConfig>(&content)?;
+
+        if let Some(client_override) = client_override {
+            println!("{}", debug("Using custom entrypoint..."));
+            config.client = Some(client_override);
+        }
+
+        if let Some(assets_override) = assets_override {
+            println!("{}", debug("Using custom public directory..."));
+            config.assets = Some(assets_override);
+        }
+
+        validate_code_file(&config.index, root)?;
+
+        if let Some(client) = &config.client {
+            validate_code_file(client, root)?;
+        }
+
+        validate_assets_dir(&config.assets, root)?;
+
+        Ok(config)
     }
 
-    let content = fs::read_to_string(path)?;
-    let config = serde_json::from_str::<DeploymentConfig>(&content)?;
+    pub fn write(&self, root: &Path) -> Result<()> {
+        let path = get_function_config_path(root);
 
-    Ok(Some(config))
-}
+        if !path.exists() {
+            fs::create_dir_all(root.join(".lagon"))?;
+        }
 
-pub fn write_function_config(file: &Path, config: DeploymentConfig) -> Result<()> {
-    let path = format!(
-        ".lagon/{}.json",
-        file.file_name().unwrap().to_str().unwrap()
-    );
-    let path = Path::new(&path);
-
-    if !path.exists() {
-        fs::create_dir_all(".lagon")?;
+        let content = serde_json::to_string(self)?;
+        fs::write(path, content)?;
+        Ok(())
     }
 
-    let content = serde_json::to_string(&config)?;
-    fs::write(path, content)?;
-    Ok(())
-}
+    pub fn delete(&self, root: &Path) -> Result<()> {
+        let path = get_function_config_path(root);
 
-pub fn delete_function_config(file: &Path) -> Result<()> {
-    let path = format!(
-        ".lagon/{}.json",
-        file.file_name().unwrap().to_str().unwrap()
-    );
-    let path = Path::new(&path);
+        if !path.exists() {
+            return Err(anyhow!("No configuration found in this directory.",));
+        }
 
-    if !path.exists() {
-        return Err(anyhow!("No configuration found in this directory.",));
+        fs::remove_file(path)?;
+        Ok(())
     }
-
-    fs::remove_file(path)?;
-    Ok(())
 }
 
-fn esbuild(file: &PathBuf) -> Result<Vec<u8>> {
+pub fn get_root(root: Option<PathBuf>) -> PathBuf {
+    match root {
+        Some(path) => path,
+        None => std::env::current_dir().unwrap(),
+    }
+}
+
+pub fn get_function_config_path(root: &Path) -> PathBuf {
+    root.join(".lagon").join("config.json")
+}
+
+fn esbuild(file: &Path, root: &Path) -> Result<Vec<u8>> {
     let result = Command::new(ESBUILD)
-        .arg(file)
+        .arg(root.join(file))
         .arg("--define:process.env.NODE_ENV=\"production\"")
         .arg("--bundle")
         .arg("--format=esm")
@@ -112,11 +210,7 @@ fn esbuild(file: &PathBuf) -> Result<Vec<u8>> {
     ))
 }
 
-pub fn bundle_function(
-    index: &PathBuf,
-    client: &Option<PathBuf>,
-    public_dir: &PathBuf,
-) -> Result<(Vec<u8>, Assets)> {
+pub fn bundle_function(function_config: &FunctionConfig, root: &Path) -> Result<(Vec<u8>, Assets)> {
     if let Err(error) = Command::new(ESBUILD).arg("--version").output() {
         return if error.kind() == ErrorKind::NotFound {
             Err(anyhow!(
@@ -131,25 +225,25 @@ pub fn bundle_function(
     }
 
     let end_progress = print_progress("Bundling Function handler...");
-    let index_output = esbuild(index)?;
+    let index_output = esbuild(&function_config.index, root)?;
     end_progress();
 
-    let mut assets = Assets::new();
+    let mut final_assets = Assets::new();
 
-    if let Some(client) = client {
+    if let Some(client) = &function_config.client {
         let end_progress = print_progress("Bundling client file...");
-        let client_output = esbuild(client)?;
+        let client_output = esbuild(client, root)?;
         end_progress();
 
         let client_path = client.as_path().with_extension("js");
         let client_path = client_path.file_name().unwrap();
 
-        if public_dir.exists() && public_dir.is_dir() {
-            let client_path = public_dir.join(client_path);
+        if let Some(assets) = &function_config.assets {
+            let client_path = assets.join(client_path);
             fs::write(client_path, &client_output)?;
         }
 
-        assets.insert(
+        final_assets.insert(
             client
                 .as_path()
                 .file_stem()
@@ -162,14 +256,15 @@ pub fn bundle_function(
         );
     }
 
-    if public_dir.exists() && public_dir.is_dir() {
+    if let Some(assets) = &function_config.assets {
+        let assets = root.join(assets);
         let msg = format!(
-            "Found public directory ({}), bundling assets...",
-            public_dir.display()
+            "Found public directory ({:?}), bundling assets...",
+            assets.canonicalize().unwrap()
         );
         let end_progress = print_progress(&msg);
 
-        let files = WalkDir::new(public_dir)
+        let files = WalkDir::new(&assets)
             .into_iter()
             .collect::<Vec<walkdir::Result<DirEntry>>>();
 
@@ -193,14 +288,14 @@ pub fn bundle_function(
                     ));
                 }
 
-                let diff = diff_paths(path, public_dir)
+                let diff = diff_paths(path, &assets)
                     .unwrap()
                     .to_str()
                     .unwrap()
                     .to_string();
                 let file_content = fs::read(path)?;
 
-                assets.insert(diff, file_content);
+                final_assets.insert(diff, file_content);
             }
         }
 
@@ -209,7 +304,7 @@ pub fn bundle_function(
         println!("{}", debug("No public directory found, skipping..."));
     }
 
-    Ok((index_output, assets))
+    Ok((index_output, final_assets))
 }
 
 #[derive(Serialize, Debug)]
@@ -248,14 +343,12 @@ struct DeployDeploymentResponse {
 }
 
 pub async fn create_deployment(
-    function_id: String,
-    file: &PathBuf,
-    client: &Option<PathBuf>,
-    public_dir: &PathBuf,
     config: &Config,
+    function_config: &FunctionConfig,
     prod: bool,
+    root: &Path,
 ) -> Result<()> {
-    let (index, assets) = bundle_function(file, client, public_dir)?;
+    let (index, assets) = bundle_function(function_config, root)?;
 
     let end_progress = print_progress("Creating deployment...");
 
@@ -264,7 +357,7 @@ pub async fn create_deployment(
         .mutation::<CreateDeploymentRequest, CreateDeploymentResponse>(
             "deploymentCreate",
             CreateDeploymentRequest {
-                function_id: function_id.clone(),
+                function_id: function_config.function_id.clone(),
                 function_size: index.len(),
                 assets: assets
                     .iter()
@@ -314,7 +407,7 @@ pub async fn create_deployment(
         .mutation::<DeployDeploymentRequest, DeployDeploymentResponse>(
             "deploymentDeploy",
             DeployDeploymentRequest {
-                function_id,
+                function_id: function_config.function_id.clone(),
                 deployment_id,
                 is_production: prod,
             },
@@ -323,13 +416,17 @@ pub async fn create_deployment(
 
     println!();
     println!("{}", success("Function deployed!"));
+
+    if !prod {
+        println!("{}", debug("Use --prod to deploy to production"));
+    }
+
     println!();
     println!(
         " {} {}",
         "➤".bright_black(),
         response.result.data.url.blue()
     );
-    println!();
 
     Ok(())
 }

@@ -15,12 +15,15 @@ fn setup() {
 #[tokio::test]
 async fn execute_function() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     return new Response('Hello world');
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -33,12 +36,15 @@ async fn execute_function() {
 #[tokio::test]
 async fn execute_function_twice() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     return new Response('Hello world');
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx.clone()).await;
 
@@ -65,6 +71,7 @@ async fn environment_variables() {
 }"
             .into(),
         )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .environment_variables(
             vec![("TEST".into(), "Hello world".into())]
                 .into_iter()
@@ -83,12 +90,15 @@ async fn environment_variables() {
 #[tokio::test]
 async fn get_body() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler(request) {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler(request) {
     return new Response(request.body);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate
         .run(
@@ -111,12 +121,15 @@ async fn get_body() {
 #[tokio::test]
 async fn get_input() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler(request) {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler(request) {
     return new Response(request.url);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate
         .run(
@@ -139,12 +152,15 @@ async fn get_input() {
 #[tokio::test]
 async fn get_method() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler(request) {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler(request) {
     return new Response(request.method);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate
         .run(
@@ -167,12 +183,15 @@ async fn get_method() {
 #[tokio::test]
 async fn get_headers() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler(request) {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler(request) {
     return new Response(request.headers.get('x-auth'));
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
 
     let mut headers = HashMap::new();
     headers.insert("x-auth".into(), "token".into());
@@ -199,8 +218,9 @@ async fn get_headers() {
 #[tokio::test]
 async fn return_headers() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     return new Response('Hello world', {
         headers: {
             'Content-Type': 'text/html',
@@ -208,8 +228,10 @@ async fn return_headers() {
         }
     });
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
 
     let mut headers = HashMap::new();
     headers.insert("content-type".into(), "text/html".into());
@@ -231,8 +253,9 @@ async fn return_headers() {
 #[tokio::test]
 async fn return_headers_from_headers_api() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     return new Response('Hello world', {
         headers: new Headers({
             'Content-Type': 'text/html',
@@ -240,8 +263,10 @@ async fn return_headers_from_headers_api() {
         })
     });
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
 
     let mut headers = HashMap::new();
     headers.insert("content-type".into(), "text/html".into());
@@ -263,14 +288,17 @@ async fn return_headers_from_headers_api() {
 #[tokio::test]
 async fn return_status() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     return new Response('Moved permanently', {
         status: 302,
     });
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -287,14 +315,17 @@ async fn return_status() {
 #[tokio::test]
 async fn return_uint8array() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     // TextEncoder#encode returns a Uint8Array
     const body = new TextEncoder().encode('Hello world');
     return new Response(body);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -307,8 +338,9 @@ async fn return_uint8array() {
 #[tokio::test]
 async fn console_log() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     const types = ['log', 'info', 'debug', 'error', 'warn'];
 
     types.forEach(type => {
@@ -317,8 +349,10 @@ async fn console_log() {
 
     return new Response('');
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -331,12 +365,15 @@ async fn console_log() {
 #[tokio::test]
 async fn atob() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     return new Response(atob('SGVsbG8='));
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -349,12 +386,15 @@ async fn atob() {
 #[tokio::test]
 async fn btoa() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     return new Response(btoa('Hello'));
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 

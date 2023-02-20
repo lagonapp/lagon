@@ -15,12 +15,15 @@ fn setup() {
 #[tokio::test]
 async fn execute_async_handler() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export async function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export async function handler() {
     return new Response('Async handler');
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -40,12 +43,15 @@ async fn execute_promise() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export async function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export async function handler() {{
     const body = await fetch('{url}').then((res) => res.text());
     return new Response(body);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 

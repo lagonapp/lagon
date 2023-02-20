@@ -15,6 +15,7 @@ use std::{
     time::{Duration, Instant},
 };
 use tokio_util::task::LocalPoolHandle;
+use v8::MapFnTo;
 
 use self::{
     bindings::{BindingResult, PromiseResult},
@@ -31,12 +32,16 @@ lazy_static! {
     pub static ref POOL: LocalPoolHandle = LocalPoolHandle::new(1);
 }
 
+const RUNTIME_ONLY_SCRIPT_NAME: &str = "runtime.js";
+const CODE_ONLY_SCRIPT_NAME: &str = "code.js";
+const ISOLATE_SCRIPT_NAME: &str = "isolate.js";
+
 #[derive(Debug, Clone)]
 struct Global(v8::Global<v8::Context>);
 
 #[derive(Debug)]
 pub struct IsolateState {
-    global: Global,
+    global: Option<Global>,
     promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
     js_promises: HashMap<usize, v8::Global<v8::PromiseResolver>>,
     handler_result: Option<v8::Global<v8::Promise>>,
@@ -68,7 +73,7 @@ impl StreamStatus {
 
 pub struct Isolate {
     options: IsolateOptions,
-    isolate: v8::OwnedIsolate,
+    isolate: Option<v8::OwnedIsolate>,
     handler: Option<v8::Global<v8::Function>>,
     compilation_error: Option<String>,
     stream_receiver: flume::Receiver<StreamResult>,
@@ -90,15 +95,46 @@ unsafe impl Sync for Isolate {}
 impl Isolate {
     pub fn new(options: IsolateOptions) -> Self {
         let memory_mb = options.memory * 1024 * 1024;
+        let mut params = v8::CreateParams::default().heap_limits(0, memory_mb);
 
-        let params = v8::CreateParams::default().heap_limits(0, memory_mb);
+        let references = vec![
+            v8::ExternalReference {
+                function: bindings::console::console_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::pull_stream::pull_stream_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::crypto::uuid_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::crypto::random_values_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::crypto::get_key_value_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::queue_microtask::queue_microtask_binding.map_fn_to(),
+            },
+        ];
 
-        // TODO
-        // if let Some(snapshot_blob) = self.options.snapshot_blob {
-        //     params = params.snapshot_blob(snapshot_blob.as_mut());
-        // }
+        let refs = v8::ExternalReferences::new(&references);
+        std::mem::forget(references);
+        let refs: &'static v8::ExternalReferences = Box::leak(Box::new(refs));
 
-        let mut isolate = v8::Isolate::new(params);
+        let mut isolate = match options.snapshot {
+            true => v8::Isolate::snapshot_creator(Some(refs)),
+            false => {
+                if let Some(snapshot_blob) = options.snapshot_blob {
+                    params = params
+                        .external_references(&**refs)
+                        .snapshot_blob(snapshot_blob);
+                }
+
+                v8::Isolate::new(params)
+            }
+        };
+
         isolate.set_capture_stack_trace_for_uncaught_exceptions(true, 4);
         isolate.set_promise_reject_callback(promise_reject_callback);
 
@@ -106,10 +142,21 @@ impl Isolate {
 
         let state: IsolateState = {
             let isolate_scope = &mut v8::HandleScope::new(&mut isolate);
-            let global = bindings::bind(isolate_scope);
+            let global = if options.snapshot {
+                let context = bindings::bind(isolate_scope, bindings::BindStrategy::Sync);
+                let global = v8::Global::new(isolate_scope, context);
+                isolate_scope.set_default_context(context);
+                global
+            } else if options.snapshot_blob.is_some() {
+                let context = bindings::bind(isolate_scope, bindings::BindStrategy::Async);
+                v8::Global::new(isolate_scope, context)
+            } else {
+                let context = bindings::bind(isolate_scope, bindings::BindStrategy::All);
+                v8::Global::new(isolate_scope, context)
+            };
 
             IsolateState {
-                global: Global(global),
+                global: Some(Global(global)),
                 promises: FuturesUnordered::new(),
                 js_promises: HashMap::new(),
                 handler_result: None,
@@ -125,7 +172,7 @@ impl Isolate {
 
         let mut this = Self {
             options,
-            isolate,
+            isolate: Some(isolate),
             handler: None,
             compilation_error: None,
             stream_receiver,
@@ -139,6 +186,8 @@ impl Isolate {
 
         let isolate_ptr = &mut this as *mut _ as *mut std::ffi::c_void;
         this.isolate
+            .as_mut()
+            .unwrap()
             .add_near_heap_limit_callback(heap_limit_callback, isolate_ptr);
 
         this
@@ -148,15 +197,11 @@ impl Isolate {
         Rc::clone(&self.options.metadata)
     }
 
-    fn heap_limit_reached(&mut self) {
-        self.termination_tx
-            .as_ref()
-            .unwrap()
-            .send(RunResult::MemoryLimit)
-            .unwrap_or(());
-
-        if !self.isolate.is_execution_terminating() {
-            self.isolate.terminate_execution();
+    fn terminate(&mut self) {
+        if let Some(isolate) = &self.isolate {
+            if !isolate.is_execution_terminating() {
+                isolate.terminate_execution();
+            }
         }
     }
 
@@ -166,7 +211,7 @@ impl Isolate {
     }
 
     fn evaluate(&mut self, request: Request) -> Option<String> {
-        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
 
         // Reset the stream status after each `run()`
         self.stream_status = StreamStatus::None;
@@ -174,15 +219,25 @@ impl Isolate {
 
         let global = {
             let state = isolate_state.borrow();
-            state.global.0.clone()
+            state.global.as_ref().unwrap().0.clone()
         };
 
-        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global.clone());
+        let scope =
+            &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global.clone());
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if self.handler.is_none() && self.compilation_error.is_none() {
             let (code, lines) = self.options.get_runtime_code(try_catch);
-            let resource_name = v8_string(try_catch, "isolate.js");
+            let resource_name = v8_string(
+                try_catch,
+                if self.options.snapshot {
+                    RUNTIME_ONLY_SCRIPT_NAME
+                } else if self.options.snapshot_blob.is_some() {
+                    CODE_ONLY_SCRIPT_NAME
+                } else {
+                    ISOLATE_SCRIPT_NAME
+                },
+            );
             let source_map_url = v8_string(try_catch, "");
 
             isolate_state.borrow_mut().lines = lines;
@@ -195,7 +250,7 @@ impl Isolate {
                     0,
                     0,
                     false,
-                    0,
+                    i32::from(self.options.snapshot_blob.is_some()),
                     source_map_url.into(),
                     false,
                     false,
@@ -214,18 +269,23 @@ impl Isolate {
 
                     module.evaluate(try_catch)?;
 
-                    let namespace = module.get_module_namespace();
-                    let namespace = v8::Local::<v8::Object>::try_from(namespace).unwrap();
+                    if !self.options.snapshot {
+                        let global = global.open(try_catch);
+                        let global = global.global(try_catch);
+                        let handler_key = v8_string(try_catch, "masterHandler");
+                        let handler = global.get(try_catch, handler_key.into()).unwrap();
+                        let handler = v8::Local::<v8::Function>::try_from(handler).unwrap();
+                        let handler = v8::Global::new(try_catch, handler);
 
-                    let handler_key = v8_string(try_catch, "masterHandler");
-                    let handler = namespace.get(try_catch, handler_key.into()).unwrap();
-                    let handler = v8::Local::<v8::Function>::try_from(handler).unwrap();
-                    let handler = v8::Global::new(try_catch, handler);
-
-                    self.handler = Some(handler);
+                        self.handler = Some(handler);
+                    }
                 }
                 None => return Some(handle_error(try_catch, lines).as_error()),
             };
+        }
+
+        if self.options.snapshot {
+            return None;
         }
 
         let request = request.into_v8(try_catch);
@@ -252,16 +312,20 @@ impl Isolate {
                 isolate_state.borrow_mut().handler_result = Some(promise);
             }
             None => {
-                // We might have already sent a termination result, e.g if timeout was reached
-                if self.termination_tx.as_ref().unwrap().is_empty() {
-                    let run_result = handle_error(try_catch, 0);
+                let mut run_result = match try_catch.is_execution_terminating() {
+                    true => RunResult::MemoryLimit,
+                    false => handle_error(try_catch, 0),
+                };
 
-                    self.termination_tx
-                        .as_ref()
-                        .unwrap()
-                        .send(run_result)
-                        .unwrap_or(());
+                if let Ok(prev_run_result) = self.termination_rx.as_ref().unwrap().try_recv() {
+                    run_result = prev_run_result;
                 }
+
+                self.termination_tx
+                    .as_ref()
+                    .unwrap()
+                    .send(run_result)
+                    .unwrap_or(());
             }
         };
 
@@ -269,19 +333,19 @@ impl Isolate {
     }
 
     fn poll_v8(&mut self) {
-        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
         let global = {
             let isolate_state = isolate_state.borrow();
-            isolate_state.global.0.clone()
+            isolate_state.global.as_ref().unwrap().0.clone()
         };
-        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
+        let scope = &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global);
 
         while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), scope, false) {}
         scope.perform_microtask_checkpoint();
     }
 
     fn resolve_promises(&mut self, cx: &mut Context) {
-        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
         let mut promises = None;
 
         {
@@ -313,9 +377,9 @@ impl Isolate {
         if let Some(promises) = promises {
             let global = {
                 let isolate_state = isolate_state.borrow();
-                isolate_state.global.0.clone()
+                isolate_state.global.as_ref().unwrap().0.clone()
             };
-            let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
+            let scope = &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global);
 
             for (result, promise) in promises {
                 let promise = promise.open(scope);
@@ -359,7 +423,7 @@ impl Isolate {
             return Poll::Ready(());
         }
 
-        let isolate_state = Isolate::state(&self.isolate);
+        let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
         let mut state = isolate_state.borrow_mut();
 
         if !state.rejected_promises.is_empty() {
@@ -379,8 +443,8 @@ impl Isolate {
             return Poll::Pending;
         }
 
-        let global = state.global.0.clone();
-        let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
+        let global = state.global.as_ref().unwrap().0.clone();
+        let scope = &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global);
         let try_catch = &mut v8::TryCatch::new(scope);
 
         if let Some(promise) = state.handler_result.as_ref() {
@@ -456,7 +520,7 @@ impl Isolate {
             return;
         }
 
-        let thread_safe_handle = self.isolate.thread_safe_handle();
+        let thread_safe_handle = self.isolate.as_ref().unwrap().thread_safe_handle();
 
         let now = Instant::now();
         // Script parsing may take a long time, so we use the startup_timeout
@@ -484,8 +548,8 @@ impl Isolate {
                 .unwrap();
 
             if timer.1.timed_out() && !thread_safe_handle.is_execution_terminating() {
-                thread_safe_handle.terminate_execution();
                 termination_tx.send(RunResult::Timeout).unwrap_or(());
+                thread_safe_handle.terminate_execution();
             }
         });
 
@@ -504,10 +568,10 @@ impl Isolate {
         condvar.notify_one();
 
         if let Some(on_isolate_statistics) = &self.options.on_statistics {
-            let isolate_state = Isolate::state(&self.isolate);
+            let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
             let state = isolate_state.borrow();
-            let global = state.global.0.clone();
-            let scope = &mut v8::HandleScope::with_context(&mut self.isolate, global);
+            let global = state.global.as_ref().unwrap().0.clone();
+            let scope = &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global);
 
             let mut heap_statistics = v8::HeapStatistics::default();
             scope.get_heap_statistics(&mut heap_statistics);
@@ -520,13 +584,28 @@ impl Isolate {
             on_isolate_statistics(Rc::clone(&self.options.metadata), statistics);
         }
     }
+
+    pub fn snapshot(&mut self) -> v8::StartupData {
+        self.evaluate(Request::default());
+
+        let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
+        let mut state = isolate_state.borrow_mut();
+
+        state.promises.clear();
+        state.js_promises.clear();
+        state.global.take();
+
+        self.isolate
+            .take()
+            .unwrap()
+            .create_blob(v8::FunctionCodeHandling::Keep)
+            .unwrap()
+    }
 }
 
 impl Drop for Isolate {
     fn drop(&mut self) {
-        if !self.isolate.is_execution_terminating() {
-            self.isolate.terminate_execution();
-        }
+        self.terminate();
 
         if let Some(on_drop) = &self.options.on_drop {
             on_drop(Rc::clone(&self.options.metadata));
@@ -548,8 +627,13 @@ pub fn get_exception_message(
 
         for i in 0..frames {
             if let Some(frame) = stack_trace.get_frame(scope, i) {
-                // Skip frames that are from Lagon's JS runtime
-                if lines > frame.get_line_number() {
+                let script_name = frame
+                    .get_script_name(scope)
+                    .unwrap()
+                    .to_rust_string_lossy(scope);
+
+                // Skip script containg JS runtime, used when generating the snapshot blob
+                if script_name == RUNTIME_ONLY_SCRIPT_NAME || lines > frame.get_line_number() {
                     continue;
                 }
 

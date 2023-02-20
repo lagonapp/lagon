@@ -15,8 +15,9 @@ fn setup() {
 #[tokio::test]
 async fn sync_streaming() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     return new Response(
         new ReadableStream({
             pull(controller) {
@@ -26,8 +27,10 @@ async fn sync_streaming() {
         }),
     );
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -51,8 +54,9 @@ async fn sync_streaming() {
 #[tokio::test]
 async fn queue_multiple() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     let count = 0;
     return new Response(
         new ReadableStream({
@@ -68,8 +72,10 @@ async fn queue_multiple() {
         }),
     );
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -96,8 +102,9 @@ async fn queue_multiple() {
 #[tokio::test]
 async fn custom_response() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     return new Response(
         new ReadableStream({
             pull(controller) {
@@ -113,8 +120,10 @@ async fn custom_response() {
         },
     );
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -142,8 +151,9 @@ async fn custom_response() {
 #[tokio::test]
 async fn start_and_pull() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     return new Response(
         new ReadableStream({
             start(controller) {
@@ -156,8 +166,10 @@ async fn start_and_pull() {
         }),
     );
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -194,8 +206,9 @@ async fn response_before_write() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(IsolateOptions::new(format!(
-        "export function handler() {{
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(format!(
+            "export function handler() {{
     const transformStream = new TransformStream({{
         start(controller) {{
             controller.enqueue(new TextEncoder().encode('Loading...'));
@@ -214,7 +227,9 @@ async fn response_before_write() {
 
     return new Response(readableStream);
 }}"
-    )));
+        ))
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -244,14 +259,17 @@ async fn response_before_write() {
 #[tokio::test]
 async fn timeout_infinite_streaming() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     const { readable } = new TransformStream()
 
     return new Response(readable);
 }"
-        .to_owned(),
-    ));
+            .to_owned(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -267,8 +285,9 @@ async fn timeout_infinite_streaming() {
 #[tokio::test]
 async fn promise_reject_callback() {
     setup();
-    let mut isolate = Isolate::new(IsolateOptions::new(
-        "export function handler() {
+    let mut isolate = Isolate::new(
+        IsolateOptions::new(
+            "export function handler() {
     const { readable } = new TransformStream()
 
     async function trigger() {
@@ -279,8 +298,10 @@ async fn promise_reject_callback() {
 
     return new Response(readable);
 }"
-        .to_owned(),
-    ));
+            .to_owned(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 
@@ -318,7 +339,7 @@ async fn promise_reject_callback_after_response() {
     return new Response(readable);
 }"
         .to_owned(),
-    ));
+    ).snapshot_blob(include_bytes!("../../serverless/snapshot.bin")));
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
 

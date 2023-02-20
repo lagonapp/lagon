@@ -1,4 +1,5 @@
 import Editor, { useMonaco } from '@monaco-editor/react';
+import useTheme from 'lib/hooks/useTheme';
 import { useEffect } from 'react';
 
 type PlaygroundProps = {
@@ -9,6 +10,13 @@ type PlaygroundProps = {
 
 const Playground = ({ defaultValue, width, height }: PlaygroundProps) => {
   const monaco = useMonaco();
+  const { theme } = useTheme();
+
+  useEffect(() => {
+    if (monaco) {
+      monaco.editor.setTheme(theme === 'Dark' ? 'vs-dark' : 'vs-light');
+    }
+  }, [theme, monaco]);
 
   useEffect(() => {
     if (monaco) {

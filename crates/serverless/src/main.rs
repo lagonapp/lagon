@@ -51,6 +51,7 @@ lazy_static! {
     pub static ref REGION: String = env::var("LAGON_REGION").expect("LAGON_REGION must be set");
 }
 
+const SNAPSHOT_BLOB: &[u8] = include_bytes!("../snapshot.bin");
 pub const POOL_SIZE: usize = 8;
 
 fn handle_error(
@@ -268,7 +269,8 @@ async fn handle_request(
                                         &labels
                                     );
                                 }
-                            }));
+                            }))
+                            .snapshot_blob(SNAPSHOT_BLOB);
 
                         Isolate::new(options)
                     });
