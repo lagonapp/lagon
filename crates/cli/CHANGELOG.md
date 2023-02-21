@@ -1,5 +1,19 @@
 # @lagon/cli
 
+## 0.5.0
+
+### Minor Changes
+
+- [#604](https://github.com/lagonapp/lagon/pull/604) [`73856f5`](https://github.com/lagonapp/lagon/commit/73856f599f623288cd855209dcf1426564dee83f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve functions configuration by saving parameters into a local config file.
+
+  When using `lagon dev`, `lagon build` or `lagon deploy`, you don't need anymore to specify the function's entrypoint and the public directory. These configuration are saved into a local `.lagon/config.json` file.
+
+  Note that `lagon dev` still allows to specify an entrypoint and public directory as before using arguments and options, making it easy to test locally.
+
+### Patch Changes
+
+- [#606](https://github.com/lagonapp/lagon/pull/606) [`cde118f`](https://github.com/lagonapp/lagon/commit/cde118f85ca523db0b9a5ebc02cacf4b6c57ce22) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve DX by showing more information when deploying
+
 ## 0.4.7
 
 ### Patch Changes

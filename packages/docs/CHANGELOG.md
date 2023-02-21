@@ -1,5 +1,19 @@
 # @lagon/docs
 
+## 0.3.0
+
+### Minor Changes
+
+- [#604](https://github.com/lagonapp/lagon/pull/604) [`73856f5`](https://github.com/lagonapp/lagon/commit/73856f599f623288cd855209dcf1426564dee83f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve functions configuration by saving parameters into a local config file.
+
+  When using `lagon dev`, `lagon build` or `lagon deploy`, you don't need anymore to specify the function's entrypoint and the public directory. These configuration are saved into a local `.lagon/config.json` file.
+
+  Note that `lagon dev` still allows to specify an entrypoint and public directory as before using arguments and options, making it easy to test locally.
+
+### Patch Changes
+
+- [#580](https://github.com/lagonapp/lagon/pull/580) [`74efd18`](https://github.com/lagonapp/lagon/commit/74efd186f97b86dd085c7a90e1f35c78507f5bbe) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use lagon.dev for Lagon-hosted functions
+
 ## 0.2.1
 
 ### Patch Changes

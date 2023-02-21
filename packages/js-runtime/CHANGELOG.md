@@ -1,5 +1,11 @@
 # @lagon/js-runtime
 
+## 0.3.4
+
+### Patch Changes
+
+- [#591](https://github.com/lagonapp/lagon/pull/591) [`0b422d6`](https://github.com/lagonapp/lagon/commit/0b422d698d80a77c5ed92bbb213078292092776f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Split sync and async bindings into LagonSync/LagonAsync
+
 ## 0.3.3
 
 ### Patch Changes

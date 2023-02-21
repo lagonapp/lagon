@@ -1,5 +1,17 @@
 # @lagon/dashboard
 
+## 0.2.3
+
+### Patch Changes
+
+- [#605](https://github.com/lagonapp/lagon/pull/605) [`a89bc08`](https://github.com/lagonapp/lagon/commit/a89bc08ef2e260d21fb1fa2a569764a1c6fb86be) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Hide CLI auth code
+
+* [#580](https://github.com/lagonapp/lagon/pull/580) [`74efd18`](https://github.com/lagonapp/lagon/commit/74efd186f97b86dd085c7a90e1f35c78507f5bbe) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use lagon.dev for Lagon-hosted functions
+
+- [#605](https://github.com/lagonapp/lagon/pull/605) [`a89bc08`](https://github.com/lagonapp/lagon/commit/a89bc08ef2e260d21fb1fa2a569764a1c6fb86be) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Set the current theme for the editor inside the playground
+
+* [#605](https://github.com/lagonapp/lagon/pull/605) [`a89bc08`](https://github.com/lagonapp/lagon/commit/a89bc08ef2e260d21fb1fa2a569764a1c6fb86be) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use DOM types for the playground
+
 ## 0.2.2
 
 ### Patch Changes

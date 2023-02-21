@@ -1,5 +1,15 @@
 # @lagon/runtime
 
+## 0.3.4
+
+### Patch Changes
+
+- [#591](https://github.com/lagonapp/lagon/pull/591) [`0b422d6`](https://github.com/lagonapp/lagon/commit/0b422d698d80a77c5ed92bbb213078292092776f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Split sync and async bindings into LagonSync/LagonAsync
+
+* [#591](https://github.com/lagonapp/lagon/pull/591) [`0b422d6`](https://github.com/lagonapp/lagon/commit/0b422d698d80a77c5ed92bbb213078292092776f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add option to load V8 heap snapshot
+
+- [#603](https://github.com/lagonapp/lagon/pull/603) [`f1271d4`](https://github.com/lagonapp/lagon/commit/f1271d475554ceff750e46cac0f48cef9e91d4e2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Remove unused HTTP client instance
+
 ## 0.3.3
 
 ## 0.3.2
