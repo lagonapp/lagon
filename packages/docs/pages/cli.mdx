@@ -154,12 +154,12 @@ This command accepts the following arguments and options:
 Examples:
 
 ```bash
-# Run a local dev server on the current directory
+# Run a local dev server in the current directory
 lagon dev
+# Run a local dev server with a file entrypoint and some assets
+lagon dev ./server.tsx --public ./assets
 # Run a local dev server inside the my-project directory using a custom port
 lagon dev ./my-project --port 56565
-# Run a local dev server with a client file and some assets
-lagon dev ./server.tsx --client App.tsx --public ./assets
 ```
 
 ### `lagon build`

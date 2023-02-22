@@ -18,7 +18,7 @@ use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use pathdiff::diff_paths;
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Mutex;
@@ -53,11 +53,14 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-fn parse_environment_variables(env: Option<PathBuf>) -> Result<HashMap<String, String>> {
+fn parse_environment_variables(
+    root: &Path,
+    env: Option<PathBuf>,
+) -> Result<HashMap<String, String>> {
     let mut environment_variables = HashMap::new();
 
     if let Some(path) = env {
-        let envfile = EnvFile::new(path)?;
+        let envfile = EnvFile::new(root.join(path))?;
 
         for (key, value) in envfile.store {
             environment_variables.insert(key, value);
@@ -181,7 +184,7 @@ async fn handle_request(
 }
 
 pub async fn dev(
-    path: PathBuf,
+    path: Option<PathBuf>,
     client: Option<PathBuf>,
     public_dir: Option<PathBuf>,
     port: Option<u16>,
@@ -189,6 +192,8 @@ pub async fn dev(
     env: Option<PathBuf>,
     allow_code_generation: bool,
 ) -> Result<()> {
+    let path = path.unwrap_or_else(|| PathBuf::from("."));
+
     if !path.exists() {
         return Err(anyhow!("File or directory not found"));
     }
@@ -236,7 +241,7 @@ pub async fn dev(
         .as_ref()
         .map(|assets| root.join(assets));
     let server_content = Arc::clone(&content);
-    let environment_variables = parse_environment_variables(env)?;
+    let environment_variables = parse_environment_variables(&root, env)?;
     let isolate_lock = Arc::new(Mutex::new(None));
     let server_isolate_lock = Arc::clone(&isolate_lock);
     let pool = LocalPoolHandle::new(1);
