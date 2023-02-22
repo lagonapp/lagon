@@ -76,6 +76,7 @@ async fn handle_request(
     ip: String,
     content: Arc<Mutex<(Vec<u8>, Assets)>>,
     environment_variables: HashMap<String, String>,
+    isolate_lock: Arc<Mutex<Option<Isolate>>>,
     pool: LocalPoolHandle,
 ) -> Result<HyperResponse<Body>> {
     let url = req.uri().to_string();
@@ -115,15 +116,22 @@ async fn handle_request(
 
                 pool.spawn_pinned_by_idx(
                     move || async move {
-                        let mut isolate = Isolate::new(
-                            IsolateOptions::new(
-                                String::from_utf8(index).expect("Code is not UTF-8"),
-                            )
-                            .timeout(Duration::from_secs(1))
-                            .startup_timeout(Duration::from_secs(2))
-                            .metadata(Some((String::from(""), String::from(""))))
-                            .environment_variables(environment_variables),
-                        );
+                        if isolate_lock.lock().await.is_none() {
+                            let isolate = Isolate::new(
+                                IsolateOptions::new(
+                                    String::from_utf8(index).expect("Code is not UTF-8"),
+                                )
+                                .timeout(Duration::from_secs(1))
+                                .startup_timeout(Duration::from_secs(2))
+                                .metadata(Some((String::from(""), String::from(""))))
+                                .environment_variables(environment_variables),
+                            );
+
+                            *isolate_lock.lock().await = Some(isolate);
+                        }
+
+                        let mut isolate = isolate_lock.lock().await;
+                        let isolate = isolate.as_mut().unwrap();
 
                         isolate.run(request, tx).await;
                     },
@@ -227,14 +235,17 @@ pub async fn dev(
         .assets
         .as_ref()
         .map(|assets| root.join(assets));
-    let server_content = content.clone();
+    let server_content = Arc::clone(&content);
     let environment_variables = parse_environment_variables(env)?;
+    let isolate_lock = Arc::new(Mutex::new(None));
+    let server_isolate_lock = Arc::clone(&isolate_lock);
     let pool = LocalPoolHandle::new(1);
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let public_dir = server_public_dir.clone();
-        let content = server_content.clone();
+        let content = Arc::clone(&server_content);
         let environment_variables = environment_variables.clone();
+        let isolate_lock = Arc::clone(&server_isolate_lock);
         let pool = pool.clone();
 
         let addr = conn.remote_addr();
@@ -246,8 +257,9 @@ pub async fn dev(
                     req,
                     public_dir.clone(),
                     ip.clone(),
-                    content.clone(),
+                    Arc::clone(&content),
                     environment_variables.clone(),
+                    Arc::clone(&isolate_lock),
                     pool.clone(),
                 )
             }))
@@ -265,11 +277,7 @@ pub async fn dev(
         RecursiveMode::NonRecursive,
     )?;
 
-    let watcher_content = content.clone();
-
     tokio::spawn(async move {
-        let content = watcher_content.clone();
-
         for event in rx.into_iter().flatten() {
             let should_update = if let EventKind::Modify(modify) = event.kind {
                 matches!(modify, ModifyKind::Name(_)) || matches!(modify, ModifyKind::Data(_))
@@ -285,6 +293,7 @@ pub async fn dev(
                 let (index, assets) = bundle_function(&function_config, &root)?;
 
                 *content.lock().await = (index, assets);
+                *isolate_lock.lock().await = None;
             }
         }
 
