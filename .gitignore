@@ -10,6 +10,9 @@ target/
 crates/serverless/deployments/
 .vercel/
 storybook-static/
+.nitro/
+.output/
+.nuxt/
 
 .eslintcache
 .DS_Store
