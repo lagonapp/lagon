@@ -1,5 +1,11 @@
 # @lagon/serverless
 
+## 0.1.20
+
+### Patch Changes
+
+- [#614](https://github.com/lagonapp/lagon/pull/614) [`909ff4b`](https://github.com/lagonapp/lagon/commit/909ff4b12ff8dd2f2b282b0c913b14a27ebf7baa) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Reconnect Redis Pub/Sub on error
+
 ## 0.1.19
 
 ### Patch Changes

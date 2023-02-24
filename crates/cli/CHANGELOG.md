@@ -1,5 +1,15 @@
 # @lagon/cli
 
+## 0.5.1
+
+### Patch Changes
+
+- [#610](https://github.com/lagonapp/lagon/pull/610) [`8e70413`](https://github.com/lagonapp/lagon/commit/8e70413015c333e04a0e77d62fa0b6154be22b42) Thanks [@QuiiBz](https://github.com/QuiiBz)! - `lagon dev --env PATH` is relative to the root
+
+* [#610](https://github.com/lagonapp/lagon/pull/610) [`8e70413`](https://github.com/lagonapp/lagon/commit/8e70413015c333e04a0e77d62fa0b6154be22b42) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow using `lagon dev` without any argument to use the current directory configuration
+
+- [#608](https://github.com/lagonapp/lagon/pull/608) [`066c24e`](https://github.com/lagonapp/lagon/commit/066c24e18ce1289beb3083ddd84063abd28f96f2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Re-use the same isolate between requests to keep server-side state
+
 ## 0.5.0
 
 ### Minor Changes
