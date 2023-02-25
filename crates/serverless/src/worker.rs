@@ -39,8 +39,8 @@ pub async fn start_workers(workers: Workers) {
                 let mut isolates = HashMap::new();
 
                 loop {
-                    match receiver.recv_async().await.unwrap() {
-                        WorkerEvent::Request { deployment, request, sender, labels, request_id } => {
+                    match receiver.recv_async().await {
+                        Ok(WorkerEvent::Request { deployment, request, sender, labels, request_id }) => {
                             let deployment_id = deployment.id.clone();
 
                             let isolate = isolates.entry(deployment_id.clone()).or_insert_with(|| {
@@ -98,7 +98,7 @@ pub async fn start_workers(workers: Workers) {
 
                             isolate.run(request, sender).await;
                         },
-                        WorkerEvent::Drop { deployment_id, reason } => {
+                        Ok(WorkerEvent::Drop { deployment_id, reason }) => {
                             if let Some(isolate) = isolates.remove(&deployment_id) {
                                 let metadata = isolate.get_metadata();
 
@@ -112,6 +112,7 @@ pub async fn start_workers(workers: Workers) {
                                 }
                             }
                         },
+                        _ => {},
                     }
                 }
             },
