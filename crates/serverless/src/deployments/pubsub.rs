@@ -9,66 +9,31 @@ use tokio::{
     sync::{Mutex, RwLock},
     task::JoinHandle,
 };
-use tokio_util::task::LocalPoolHandle;
 
-use crate::{cronjob::Cronjob, ISOLATES, POOL_SIZE, REGION};
+use crate::{
+    cronjob::Cronjob,
+    worker::{WorkerEvent, Workers},
+    REGION,
+};
 
 use super::{download_deployment, filesystem::rm_deployment, Deployment};
 
-// The isolate is implicitely dropped when the block after `remove()` ends
-//
-// An isolate must be dropped (which will call `exit()` and terminate the
-// execution) in the same thread as it was created in
-pub async fn clear_deployments_cache(
-    hostnames: Vec<String>,
-    pool: &LocalPoolHandle,
-    reason: &'static str,
-) {
-    for thread_id in 0..POOL_SIZE {
-        let hostnames = hostnames.clone();
-
-        // Spawn early the task and loop the hostnames inside, instead
-        // of looping outside and spawning hostnames * threads tasks
-        match pool
-            .spawn_pinned_by_idx(
-                move || async move {
-                    let mut thread_isolates = ISOLATES.write().await;
-
-                    for hostname in hostnames {
-                        // We might not have yet created the isolates map for this thread
-                        if let Some(thread_isolates) = thread_isolates.get_mut(&thread_id) {
-                            if let Some(isolate) = thread_isolates.remove(&hostname) {
-                                let metadata = isolate.get_metadata();
-
-                                if let Some((deployment, function)) = metadata.as_ref() {
-                                    info!(
-                                        deployment = deployment,
-                                        function = function,
-                                        hostname = hostname;
-                                        "Clearing deployment from cache due to {}",
-                                        reason
-                                    );
-                                }
-                            }
-                        }
-                    }
-                },
-                thread_id,
-            )
+pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, reason: String) {
+    for (sender, _) in workers.read().await.values() {
+        sender
+            .send_async(WorkerEvent::Drop {
+                deployment_id: deployment_id.clone(),
+                reason: reason.clone(),
+            })
             .await
-        {
-            Ok(_) => {}
-            Err(err) => {
-                error!("Failed to clear deployments from cache: {}", err);
-            }
-        };
+            .unwrap_or(());
     }
 }
 
 async fn run(
     bucket: &Bucket,
     deployments: &Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
-    pool: &LocalPoolHandle,
+    workers: Workers,
     cronjob: &Arc<Mutex<Cronjob>>,
     client: &redis::Client,
 ) -> Result<()> {
@@ -128,6 +93,8 @@ async fn run(
             cron,
         };
 
+        let workers = Arc::clone(&workers);
+
         match channel {
             "deploy" => {
                 match download_deployment(&deployment, bucket).await {
@@ -148,7 +115,12 @@ async fn run(
                             deployments.insert(domain.clone(), Arc::clone(&deployment));
                         }
 
-                        clear_deployments_cache(domains, pool, "deployment").await;
+                        clear_deployment_cache(
+                            deployment.id.clone(),
+                            workers,
+                            String::from("deployment"),
+                        )
+                        .await;
 
                         if deployment.should_run_cron() {
                             let mut cronjob = cronjob.lock().await;
@@ -192,7 +164,12 @@ async fn run(
                             deployments.remove(domain);
                         }
 
-                        clear_deployments_cache(domains, pool, "undeployment").await;
+                        clear_deployment_cache(
+                            deployment.id.clone(),
+                            workers,
+                            String::from("undeployment"),
+                        )
+                        .await;
 
                         if deployment.should_run_cron() {
                             let mut cronjob = cronjob.lock().await;
@@ -247,7 +224,8 @@ async fn run(
                     deployments.insert(domain.clone(), Arc::clone(&deployment));
                 }
 
-                clear_deployments_cache(domains, pool, "promotion").await;
+                clear_deployment_cache(deployment.id.clone(), workers, String::from("promotion"))
+                    .await;
 
                 if deployment.should_run_cron() {
                     let mut cronjob = cronjob.lock().await;
@@ -266,7 +244,7 @@ async fn run(
 pub fn listen_pub_sub(
     bucket: Bucket,
     deployments: Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
-    pool: LocalPoolHandle,
+    workers: Workers,
     cronjob: Arc<Mutex<Cronjob>>,
 ) -> JoinHandle<Result<()>> {
     tokio::spawn(async move {
@@ -274,7 +252,15 @@ pub fn listen_pub_sub(
         let client = redis::Client::open(url)?;
 
         loop {
-            if let Err(error) = run(&bucket, &deployments, &pool, &cronjob, &client).await {
+            if let Err(error) = run(
+                &bucket,
+                &deployments,
+                Arc::clone(&workers),
+                &cronjob,
+                &client,
+            )
+            .await
+            {
                 error!("Pub/sub error: {}", error);
             }
         }

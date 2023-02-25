@@ -10,7 +10,6 @@ use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{
     Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP,
 };
-use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL, PAGE_404};
 use lagon_runtime_utils::{
     assets::{find_asset, handle_asset},
@@ -19,7 +18,7 @@ use lagon_runtime_utils::{
 use lagon_serverless_logger::init_logger;
 use lazy_static::lazy_static;
 use log::{as_debug, error, info, warn};
-use metrics::{counter, decrement_gauge, histogram, increment_counter, increment_gauge};
+use metrics::{counter, increment_counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
 #[cfg(not(debug_assertions))]
@@ -35,21 +34,19 @@ use std::env;
 use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use tokio::sync::{Mutex, RwLock};
-use tokio_util::task::LocalPoolHandle;
-use worker::{start_workers, WorkerRequest};
+use worker::{start_workers, Workers};
 
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
+use crate::worker::WorkerEvent;
 
 mod cronjob;
 mod deployments;
 mod worker;
 
 lazy_static! {
-    pub static ref ISOLATES: RwLock<HashMap<usize, HashMap<String, Isolate>>> =
-        RwLock::new(HashMap::new());
     pub static ref REGION: String = env::var("LAGON_REGION").expect("LAGON_REGION must be set");
 }
 
@@ -82,18 +79,15 @@ fn handle_error(
 async fn handle_request(
     req: HyperRequest<Body>,
     ip: String,
-    pool: LocalPoolHandle,
     deployments: Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
     thread_ids: Arc<RwLock<HashMap<String, usize>>>,
     last_requests: Arc<RwLock<HashMap<String, Instant>>>,
-    workers: Arc<
-        RwLock<HashMap<usize, (flume::Sender<WorkerRequest>, flume::Receiver<WorkerRequest>)>>,
-    >,
+    workers: Workers,
 ) -> Result<HyperResponse<Body>> {
     let url = req.uri().to_string();
 
     let request_id = match req.headers().get(X_LAGON_ID) {
-        Some(x_lagon_id) => x_lagon_id.to_str().unwrap_or("none").to_string(),
+        Some(x_lagon_id) => x_lagon_id.to_str().unwrap_or("").to_string(),
         None => String::new(),
     };
 
@@ -141,20 +135,6 @@ async fn handle_request(
 
     let deployment_id = deployment.id.clone();
     let request_id_handle = request_id.clone();
-    let thread_ids_reader = thread_ids.read().await;
-
-    let thread_id = match thread_ids_reader.get(&hostname) {
-        Some(thread_id) => *thread_id,
-        None => {
-            let mut rng = rand::rngs::StdRng::from_entropy();
-            let id = rng.gen_range(0..POOL_SIZE);
-
-            drop(thread_ids_reader);
-
-            thread_ids.write().await.insert(hostname.clone(), id);
-            id
-        }
-    };
 
     let (sender, receiver) = flume::unbounded();
 
@@ -163,9 +143,6 @@ async fn handle_request(
         ("function", deployment.function_id.clone()),
         ("region", REGION.clone()),
     ];
-
-    let workers = workers.read().await;
-    let worker = workers.get(&thread_id).unwrap();
 
     increment_counter!("lagon_requests", &labels);
 
@@ -198,7 +175,8 @@ async fn handle_request(
         last_requests
             .write()
             .await
-            .insert(hostname.clone(), Instant::now());
+            .insert(deployment_id.clone(), Instant::now());
+
         increment_counter!("lagon_isolate_requests", &labels);
 
         match Request::from_hyper(req).await {
@@ -215,16 +193,35 @@ async fn handle_request(
                 request.add_header(X_FORWARDED_FOR.to_string(), ip);
                 request.add_header(X_LAGON_REGION.to_string(), REGION.to_string());
 
+                let thread_ids_reader = thread_ids.read().await;
+
+                let thread_id = match thread_ids_reader.get(&hostname) {
+                    Some(thread_id) => *thread_id,
+                    None => {
+                        let mut rng = rand::rngs::StdRng::from_entropy();
+                        let id = rng.gen_range(0..POOL_SIZE);
+
+                        drop(thread_ids_reader);
+
+                        thread_ids.write().await.insert(hostname.clone(), id);
+                        id
+                    }
+                };
+
+                let workers = workers.read().await;
+                let worker = workers.get(&thread_id).unwrap();
+
                 worker
                     .0
-                    .send_async(WorkerRequest {
+                    .send_async(WorkerEvent::Request {
                         deployment,
                         request,
                         sender,
                         labels: labels.clone(),
                         request_id,
                     })
-                    .await?;
+                    .await
+                    .unwrap_or(());
             }
             Err(error) => {
                 error!(deployment = &deployment.id, request = request_id; "Error while parsing request: {}", error);
@@ -273,7 +270,7 @@ async fn handle_request(
 #[tokio::main]
 async fn main() -> Result<()> {
     // Only load a .env file on development
-    // #[cfg(debug_assertions)]
+    #[cfg(debug_assertions)]
     dotenv::dotenv().expect("Failed to load .env file");
 
     let _flush_guard = init_logger(REGION.clone()).expect("Failed to init logger");
@@ -301,10 +298,10 @@ async fn main() -> Result<()> {
     let url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
-    // #[cfg(not(debug_assertions))]
-    // let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(SslOpts::default().with_root_cert_path(
-    //     Some(Cow::from(Path::new("/etc/ssl/certs/ca-certificates.crt"))),
-    // )));
+    #[cfg(not(debug_assertions))]
+    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(SslOpts::default().with_root_cert_path(
+        Some(Cow::from(Path::new("/etc/ssl/certs/ca-certificates.crt"))),
+    )));
     let pool = Pool::new(opts)?;
     let conn = pool.get_conn()?;
 
@@ -323,29 +320,27 @@ async fn main() -> Result<()> {
 
     let deployments = get_deployments(conn, bucket.clone(), Arc::clone(&cronjob)).await?;
     let last_requests = Arc::new(RwLock::new(HashMap::new()));
-    let pool = LocalPoolHandle::new(POOL_SIZE);
     let thread_ids = Arc::new(RwLock::new(HashMap::new()));
-
-    let redis = listen_pub_sub(
-        bucket.clone(),
-        Arc::clone(&deployments),
-        pool.clone(),
-        Arc::clone(&cronjob),
-    );
-    run_cache_clear_task(Arc::clone(&last_requests), pool.clone());
 
     let workers = Arc::new(RwLock::new(HashMap::new()));
 
     for i in 0..POOL_SIZE {
-        let worker = flume::unbounded::<WorkerRequest>();
+        let worker = flume::unbounded();
         workers.write().await.insert(i, worker);
     }
 
     start_workers(Arc::clone(&workers)).await;
 
+    let redis = listen_pub_sub(
+        bucket.clone(),
+        Arc::clone(&deployments),
+        Arc::clone(&workers),
+        Arc::clone(&cronjob),
+    );
+    run_cache_clear_task(Arc::clone(&last_requests), Arc::clone(&workers));
+
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let deployments = Arc::clone(&deployments);
-        let pool = pool.clone();
         let thread_ids = Arc::clone(&thread_ids);
         let last_requests = Arc::clone(&last_requests);
         let workers = Arc::clone(&workers);
@@ -358,7 +353,6 @@ async fn main() -> Result<()> {
                 handle_request(
                     req,
                     ip.clone(),
-                    pool.clone(),
                     Arc::clone(&deployments),
                     Arc::clone(&thread_ids),
                     Arc::clone(&last_requests),
