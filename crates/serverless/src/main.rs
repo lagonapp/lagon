@@ -23,7 +23,6 @@ use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
 #[cfg(not(debug_assertions))]
 use mysql::{OptsBuilder, SslOpts};
-use rand::prelude::*;
 use s3::creds::Credentials;
 use s3::Bucket;
 #[cfg(not(debug_assertions))]
@@ -36,11 +35,11 @@ use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::{Mutex, RwLock};
-use worker::{start_workers, Workers};
+use worker::{create_workers, start_workers, Workers};
 
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
-use crate::worker::WorkerEvent;
+use crate::worker::{get_thread_id, WorkerEvent};
 
 mod cronjob;
 mod deployments;
@@ -48,10 +47,13 @@ mod worker;
 
 lazy_static! {
     pub static ref REGION: String = env::var("LAGON_REGION").expect("LAGON_REGION must be set");
+    pub static ref WORKERS: usize = env::var("LAGON_WORKERS")
+        .expect("LAGON_WORKERS must be set")
+        .parse::<usize>()
+        .expect("LAGON_WORKERS must be a number");
 }
 
 const SNAPSHOT_BLOB: &[u8] = include_bytes!("../snapshot.bin");
-pub const POOL_SIZE: usize = 8;
 
 fn handle_error(
     result: RunResult,
@@ -193,20 +195,7 @@ async fn handle_request(
                 request.add_header(X_FORWARDED_FOR.to_string(), ip);
                 request.add_header(X_LAGON_REGION.to_string(), REGION.to_string());
 
-                let thread_ids_reader = thread_ids.read().await;
-
-                let thread_id = match thread_ids_reader.get(&hostname) {
-                    Some(thread_id) => *thread_id,
-                    None => {
-                        let mut rng = rand::rngs::StdRng::from_entropy();
-                        let id = rng.gen_range(0..POOL_SIZE);
-
-                        drop(thread_ids_reader);
-
-                        thread_ids.write().await.insert(hostname.clone(), id);
-                        id
-                    }
-                };
+                let thread_id = get_thread_id(thread_ids, &hostname).await;
 
                 let workers = workers.read().await;
                 let worker = workers.get(&thread_id).unwrap();
@@ -322,13 +311,7 @@ async fn main() -> Result<()> {
     let last_requests = Arc::new(RwLock::new(HashMap::new()));
     let thread_ids = Arc::new(RwLock::new(HashMap::new()));
 
-    let workers = Arc::new(RwLock::new(HashMap::new()));
-
-    for i in 0..POOL_SIZE {
-        let worker = flume::unbounded();
-        workers.write().await.insert(i, worker);
-    }
-
+    let workers = create_workers().await;
     start_workers(Arc::clone(&workers)).await;
 
     let redis = listen_pub_sub(
