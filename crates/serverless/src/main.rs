@@ -38,12 +38,14 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::{Mutex, RwLock};
 use tokio_util::task::LocalPoolHandle;
+use worker::{start_workers, WorkerRequest};
 
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
 
 mod cronjob;
 mod deployments;
+mod worker;
 
 lazy_static! {
     pub static ref ISOLATES: RwLock<HashMap<usize, HashMap<String, Isolate>>> =
@@ -84,6 +86,9 @@ async fn handle_request(
     deployments: Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
     thread_ids: Arc<RwLock<HashMap<String, usize>>>,
     last_requests: Arc<RwLock<HashMap<String, Instant>>>,
+    workers: Arc<
+        RwLock<HashMap<usize, (flume::Sender<WorkerRequest>, flume::Receiver<WorkerRequest>)>>,
+    >,
 ) -> Result<HyperResponse<Body>> {
     let url = req.uri().to_string();
 
@@ -151,139 +156,89 @@ async fn handle_request(
         }
     };
 
-    let (tx, rx) = flume::unbounded();
+    let (sender, receiver) = flume::unbounded();
 
     let labels = [
         ("deployment", deployment.id.clone()),
         ("function", deployment.function_id.clone()),
         ("region", REGION.clone()),
     ];
-    let thread_labels = labels.clone();
 
-    pool.spawn_pinned_by_idx(
-        move || {
-            async move {
-                increment_counter!("lagon_requests", &thread_labels);
+    let workers = workers.read().await;
+    let worker = workers.get(&thread_id).unwrap();
 
-                let is_favicon = url == FAVICON_URL;
+    increment_counter!("lagon_requests", &labels);
 
-                if let Some(asset) = find_asset(url, &deployment.assets) {
-                    let root = Path::new(env::current_dir().unwrap().as_path())
-                        .join("deployments")
-                        .join(&deployment.id);
+    let is_favicon = url == FAVICON_URL;
 
-                    let run_result = match handle_asset(root, asset) {
-                        Ok(response) => RunResult::Response(response),
-                        Err(error) => {
-                            error!(deployment = &deployment.id, asset = asset, request = request_id; "Error while handing asset: {}", error);
+    if let Some(asset) = find_asset(url, &deployment.assets) {
+        let root = Path::new(env::current_dir().unwrap().as_path())
+            .join("deployments")
+            .join(&deployment.id);
 
-                            RunResult::Error("Could not retrieve asset.".into())
-                        }
-                    };
+        let run_result = match handle_asset(root, asset) {
+            Ok(response) => RunResult::Response(response),
+            Err(error) => {
+                error!(deployment = &deployment.id, asset = asset, request = request_id; "Error while handing asset: {}", error);
 
-                    tx.send_async(run_result).await.unwrap_or(());
-                } else if is_favicon {
-                    tx.send_async(RunResult::Response(Response {
-                        status: 404,
-                        ..Default::default()
-                    })).await.unwrap_or(());
-                } else {
-                    last_requests.write().await.insert(hostname.clone(), Instant::now());
-                    increment_counter!("lagon_isolate_requests", &thread_labels);
-
-                    let mut request = match Request::from_hyper(req).await {
-                        Ok(request) => request,
-                        Err(error) => {
-                            error!(deployment = &deployment.id, request = request_id; "Error while parsing request: {}", error);
-
-                            tx.send_async(RunResult::Error(
-                                "Error while parsing request".into(),
-                            ))
-                            .await
-                            .unwrap_or(());
-
-                            return;
-                        }
-                    };
-
-                    counter!("lagon_bytes_in", request.len() as u64, &thread_labels);
-
-                    // Try to Extract the X-Real-Ip header or fallback to remote addr IP
-                    let ip = request.headers
-                        .as_ref()
-                        .map_or(&ip, |headers| headers.get(X_REAL_IP).unwrap_or(&ip)).to_string();
-
-                    request.add_header(X_FORWARDED_FOR.to_string(), ip);
-                    request.add_header(X_LAGON_REGION.to_string(), REGION.to_string());
-
-                    // Only acquire the lock when we are sure we have a
-                    // deployment and that the isolate should be called.
-                    // TODO: read() then write() if not present
-                    let mut isolates = ISOLATES.write().await;
-                    let thread_isolates = isolates.entry(thread_id).or_insert_with(HashMap::new);
-
-                    let isolate = thread_isolates.entry(hostname).or_insert_with(|| {
-                        increment_gauge!("lagon_isolates", 1.0, &thread_labels);
-                        info!(deployment = deployment.id, function = deployment.function_id, request = request_id; "Creating new isolate");
-
-                        // TODO: handle read error
-                        let code = deployment.get_code().unwrap_or_else(|error| {
-                            error!(deployment = deployment.id, request = request_id; "Error while getting deployment code: {}", error);
-
-                            "".into()
-                        });
-                        let options = IsolateOptions::new(code)
-                            .environment_variables(
-                                deployment.environment_variables.clone(),
-                            )
-                            .memory(deployment.memory)
-                            .timeout(Duration::from_millis(deployment.timeout as u64))
-                            .startup_timeout(Duration::from_millis(deployment.startup_timeout as u64))
-                            .metadata(Some((deployment.id.clone(), deployment.function_id.clone())))
-                            .on_drop_callback(Box::new(|metadata| {
-                                if let Some(metadata) = metadata.as_ref().as_ref() {
-
-
-                                    let labels = [
-                                        ("deployment", metadata.0.clone()),
-                                        ("function", metadata.1.clone()),
-                                        ("region", REGION.clone()),
-                                    ];
-
-                                    decrement_gauge!("lagon_isolates", 1.0, &labels);
-                                    info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
-                                }
-                            }))
-                            .on_statistics_callback(Box::new(|metadata, statistics| {
-                                if let Some(metadata) = metadata.as_ref().as_ref() {
-                                    let labels = [
-                                        ("deployment", metadata.0.clone()),
-                                        ("function", metadata.1.clone()),
-                                        ("region", REGION.clone()),
-                                    ];
-
-                                    histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
-                                    histogram!(
-                                        "lagon_isolate_memory_usage",
-                                        statistics.memory_usage as f64,
-                                        &labels
-                                    );
-                                }
-                            }))
-                            .snapshot_blob(SNAPSHOT_BLOB);
-
-                        Isolate::new(options)
-                    });
-
-                    isolate.run(request, tx.clone()).await;
-                }
+                RunResult::Error("Could not retrieve asset.".into())
             }
-        },
-        thread_id,
-    );
+        };
+
+        sender.send_async(run_result).await.unwrap_or(());
+    } else if is_favicon {
+        sender
+            .send_async(RunResult::Response(Response {
+                status: 404,
+                ..Default::default()
+            }))
+            .await
+            .unwrap_or(());
+    } else {
+        last_requests
+            .write()
+            .await
+            .insert(hostname.clone(), Instant::now());
+        increment_counter!("lagon_isolate_requests", &labels);
+
+        match Request::from_hyper(req).await {
+            Ok(mut request) => {
+                counter!("lagon_bytes_in", request.len() as u64, &labels);
+
+                // Try to Extract the X-Real-Ip header or fallback to remote addr IP
+                let ip = request
+                    .headers
+                    .as_ref()
+                    .map_or(&ip, |headers| headers.get(X_REAL_IP).unwrap_or(&ip))
+                    .to_string();
+
+                request.add_header(X_FORWARDED_FOR.to_string(), ip);
+                request.add_header(X_LAGON_REGION.to_string(), REGION.to_string());
+
+                worker
+                    .0
+                    .send_async(WorkerRequest {
+                        deployment,
+                        request,
+                        sender,
+                        labels: labels.clone(),
+                        request_id,
+                    })
+                    .await?;
+            }
+            Err(error) => {
+                error!(deployment = &deployment.id, request = request_id; "Error while parsing request: {}", error);
+
+                sender
+                    .send_async(RunResult::Error("Error while parsing request".into()))
+                    .await
+                    .unwrap_or(());
+            }
+        }
+    }
 
     handle_response(
-        rx,
+        receiver,
         (deployment_id, request_id_handle, labels),
         Box::new(|event, (deployment_id, request_id, labels)| match event {
             ResponseEvent::Bytes(bytes) => {
@@ -318,7 +273,7 @@ async fn handle_request(
 #[tokio::main]
 async fn main() -> Result<()> {
     // Only load a .env file on development
-    #[cfg(debug_assertions)]
+    // #[cfg(debug_assertions)]
     dotenv::dotenv().expect("Failed to load .env file");
 
     let _flush_guard = init_logger(REGION.clone()).expect("Failed to init logger");
@@ -346,10 +301,10 @@ async fn main() -> Result<()> {
     let url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
-    #[cfg(not(debug_assertions))]
-    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(SslOpts::default().with_root_cert_path(
-        Some(Cow::from(Path::new("/etc/ssl/certs/ca-certificates.crt"))),
-    )));
+    // #[cfg(not(debug_assertions))]
+    // let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(SslOpts::default().with_root_cert_path(
+    //     Some(Cow::from(Path::new("/etc/ssl/certs/ca-certificates.crt"))),
+    // )));
     let pool = Pool::new(opts)?;
     let conn = pool.get_conn()?;
 
@@ -379,11 +334,21 @@ async fn main() -> Result<()> {
     );
     run_cache_clear_task(Arc::clone(&last_requests), pool.clone());
 
+    let workers = Arc::new(RwLock::new(HashMap::new()));
+
+    for i in 0..POOL_SIZE {
+        let worker = flume::unbounded::<WorkerRequest>();
+        workers.write().await.insert(i, worker);
+    }
+
+    start_workers(Arc::clone(&workers)).await;
+
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let deployments = Arc::clone(&deployments);
         let pool = pool.clone();
         let thread_ids = Arc::clone(&thread_ids);
         let last_requests = Arc::clone(&last_requests);
+        let workers = Arc::clone(&workers);
 
         let addr = conn.remote_addr();
         let ip = addr.ip().to_string();
@@ -397,6 +362,7 @@ async fn main() -> Result<()> {
                     Arc::clone(&deployments),
                     Arc::clone(&thread_ids),
                     Arc::clone(&last_requests),
+                    Arc::clone(&workers),
                 )
             }))
         }
