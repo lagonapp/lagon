@@ -1,5 +1,13 @@
 # @lagon/serverless
 
+## 0.1.21
+
+### Patch Changes
+
+- [#616](https://github.com/lagonapp/lagon/pull/616) [`16b0a43`](https://github.com/lagonapp/lagon/commit/16b0a43cd0df659f360448befa9ca22285728f0a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `LAGON_WORKERS` environment variable to customize the size of the worker's pool
+
+* [#616](https://github.com/lagonapp/lagon/pull/616) [`16b0a43`](https://github.com/lagonapp/lagon/commit/16b0a43cd0df659f360448befa9ca22285728f0a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow concurrent requests of isolates
+
 ## 0.1.20
 
 ### Patch Changes
