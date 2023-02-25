@@ -1,5 +1,11 @@
 # @lagon/astro
 
+## 0.2.2
+
+### Patch Changes
+
+- [#619](https://github.com/lagonapp/lagon/pull/619) [`2495126`](https://github.com/lagonapp/lagon/commit/2495126a8d8f4c8c67149b50d41d51912cb2dec6) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Bundle for Node.js by excluding all dependencies
+
 ## 0.2.1
 
 ### Patch Changes
