@@ -25,12 +25,13 @@ pub fn run_cache_clear_task(
     );
 
     tokio::spawn(async move {
+        let mut deployments_to_clear = Vec::new();
+
         loop {
             tokio::time::sleep(CACHE_TASK_INTERVAL).await;
 
-            let now = Instant::now();
-            let mut deployments_to_clear = Vec::new();
             let last_requests_reader = last_requests.read().await;
+            let now = Instant::now();
 
             for (deployment_id, last_request) in last_requests_reader.iter() {
                 if now.duration_since(*last_request) > isolates_cache_seconds {
@@ -48,16 +49,18 @@ pub fn run_cache_clear_task(
             // Clear everything
             let mut last_requests = last_requests.write().await;
 
-            for deployment_id in deployments_to_clear {
-                last_requests.remove(&deployment_id);
+            for deployment_id in &deployments_to_clear {
+                last_requests.remove(deployment_id);
 
                 clear_deployment_cache(
-                    deployment_id,
+                    deployment_id.clone(),
                     Arc::clone(&workers),
                     String::from("expiration"),
                 )
                 .await;
             }
+
+            deployments_to_clear.clear();
         }
     });
 }
