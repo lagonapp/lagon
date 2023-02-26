@@ -16,7 +16,7 @@ use super::{FromV8, IntoV8, Method};
 
 #[derive(Debug)]
 pub struct Request {
-    pub headers: Option<HashMap<String, String>>,
+    pub headers: Option<HashMap<String, Vec<String>>>,
     pub method: Method,
     pub body: Bytes,
     pub url: String,
@@ -139,7 +139,10 @@ impl TryFrom<&Request> for http::request::Builder {
 
         if let Some(headers) = &request.headers {
             for (key, value) in headers {
-                builder_headers.insert(HeaderName::from_str(key)?, HeaderValue::from_str(value)?);
+                for value in value {
+                    builder_headers
+                        .append(HeaderName::from_str(key)?, HeaderValue::from_str(value)?);
+                }
             }
         }
 
@@ -158,19 +161,22 @@ impl Request {
     }
 
     pub async fn from_hyper(request: HyperRequest<Body>) -> Result<Self> {
-        let mut headers = HashMap::new();
+        let mut headers = HashMap::<String, Vec<String>>::new();
 
         for (key, value) in request.headers().iter() {
             if key != X_LAGON_ID {
-                headers.insert(key.to_string(), value.to_str().unwrap().to_string());
+                headers
+                    .entry(key.to_string())
+                    .or_default()
+                    .push(value.to_str()?.to_string());
             }
         }
 
         let method = Method::from(request.method());
-        let host = headers
-            .get("host")
-            .map(|host| host.to_string())
-            .unwrap_or_default();
+        let host = headers.get("host").map_or_else(String::new, |host| {
+            host.get(0)
+                .map_or_else(String::new, |value| value.to_string())
+        });
         let url = format!("http://{}{}", host, request.uri().to_string().as_str());
 
         let body = body::to_bytes(request.into_body()).await?;
@@ -187,9 +193,9 @@ impl Request {
         })
     }
 
-    pub fn add_header(&mut self, key: String, value: String) {
+    pub fn set_header(&mut self, key: String, value: String) {
         if let Some(ref mut headers) = self.headers {
-            headers.insert(key, value);
+            headers.insert(key, vec![value]);
         }
     }
 }
