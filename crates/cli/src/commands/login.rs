@@ -46,7 +46,7 @@ pub async fn login() -> Result<()> {
 
     config.set_token(Some(code.clone()));
 
-    let client = TrpcClient::new(&config);
+    let client = TrpcClient::new(config.clone());
     let request = CliRequest { code };
 
     match client
