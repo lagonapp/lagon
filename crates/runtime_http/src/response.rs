@@ -7,7 +7,7 @@ use hyper::{
 };
 use lagon_runtime_v8_utils::{
     extract_v8_headers_object, extract_v8_integer, extract_v8_string, v8_headers_object,
-    v8_integer, v8_string_onebyte, v8_uint8array,
+    v8_integer, v8_string, v8_uint8array,
 };
 use std::{collections::HashMap, str::FromStr};
 
@@ -51,14 +51,14 @@ impl IntoV8 for Response {
         let mut names = Vec::with_capacity(len);
         let mut values = Vec::with_capacity(len);
 
-        names.push(v8_string_onebyte(scope, "b").into());
+        names.push(v8_string(scope, "b").into());
         values.push(v8_uint8array(scope, self.body.to_vec()).into());
 
-        names.push(v8_string_onebyte(scope, "s").into());
+        names.push(v8_string(scope, "s").into());
         values.push(v8_integer(scope, self.status.into()).into());
 
         if let Some(headers) = self.headers {
-            names.push(v8_string_onebyte(scope, "h").into());
+            names.push(v8_string(scope, "h").into());
             values.push(v8_headers_object(scope, headers).into());
         }
 
@@ -78,7 +78,7 @@ impl FromV8 for Response {
         };
 
         let body;
-        let body_key = v8_string_onebyte(scope, "b");
+        let body_key = v8_string(scope, "b");
 
         if let Some(body_value) = response.get(scope, body_key.into()) {
             body = extract_v8_string(body_value, scope)?;
@@ -87,7 +87,7 @@ impl FromV8 for Response {
         }
 
         let mut headers = None;
-        let headers_key = v8_string_onebyte(scope, "h");
+        let headers_key = v8_string(scope, "h");
 
         if let Some(headers_object) = response.get(scope, headers_key.into()) {
             if let Some(headers_object) = headers_object.to_object(scope) {
@@ -104,7 +104,7 @@ impl FromV8 for Response {
         }
 
         let status;
-        let status_key = v8_string_onebyte(scope, "s");
+        let status_key = v8_string(scope, "s");
 
         if let Some(status_value) = response.get(scope, status_key.into()) {
             status = extract_v8_integer(status_value, scope)? as u16;

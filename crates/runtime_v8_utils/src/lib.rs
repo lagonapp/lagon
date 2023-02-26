@@ -100,13 +100,6 @@ pub fn v8_string<'a>(
     v8::String::new(scope, value).unwrap()
 }
 
-pub fn v8_string_onebyte<'a>(
-    scope: &mut v8::HandleScope<'a, ()>,
-    value: &str,
-) -> v8::Local<'a, v8::String> {
-    v8::String::new_from_one_byte(scope, value.as_bytes(), v8::NewStringType::Normal).unwrap()
-}
-
 pub fn v8_integer<'a>(scope: &mut v8::HandleScope<'a>, value: i32) -> v8::Local<'a, v8::Integer> {
     v8::Integer::new(scope, value)
 }

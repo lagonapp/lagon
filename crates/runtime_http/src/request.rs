@@ -6,7 +6,7 @@ use hyper::{
     Body, Request as HyperRequest,
 };
 use lagon_runtime_v8_utils::{
-    extract_v8_headers_object, extract_v8_string, v8_headers_object, v8_string, v8_string_onebyte,
+    extract_v8_headers_object, extract_v8_string, v8_headers_object, v8_string,
 };
 use std::{collections::HashMap, str::FromStr};
 
@@ -47,19 +47,19 @@ impl IntoV8 for Request {
         let mut names = Vec::with_capacity(len);
         let mut values = Vec::with_capacity(len);
 
-        names.push(v8_string_onebyte(scope, "i").into());
+        names.push(v8_string(scope, "i").into());
         values.push(v8_string(scope, &self.url).into());
 
-        names.push(v8_string_onebyte(scope, "m").into());
+        names.push(v8_string(scope, "m").into());
         values.push(v8_string(scope, self.method.into()).into());
 
         if body_exists {
-            names.push(v8_string_onebyte(scope, "b").into());
+            names.push(v8_string(scope, "b").into());
             values.push(v8_string(scope, &String::from_utf8(self.body.to_vec()).unwrap()).into());
         }
 
         if let Some(headers) = self.headers {
-            names.push(v8_string_onebyte(scope, "h").into());
+            names.push(v8_string(scope, "h").into());
             values.push(v8_headers_object(scope, headers).into());
         }
 
@@ -79,7 +79,7 @@ impl FromV8 for Request {
         };
 
         let mut body = Bytes::new();
-        let body_key = v8_string_onebyte(scope, "b");
+        let body_key = v8_string(scope, "b");
 
         if let Some(body_value) = request.get(scope, body_key.into()) {
             if !body_value.is_null_or_undefined() {
@@ -88,7 +88,7 @@ impl FromV8 for Request {
         }
 
         let mut headers = None;
-        let headers_key = v8_string_onebyte(scope, "h");
+        let headers_key = v8_string(scope, "h");
 
         if let Some(headers_value) = request.get(scope, headers_key.into()) {
             if !headers_value.is_null_or_undefined() {
@@ -97,14 +97,14 @@ impl FromV8 for Request {
         }
 
         let mut method = Method::GET;
-        let method_key = v8_string_onebyte(scope, "m");
+        let method_key = v8_string(scope, "m");
 
         if let Some(method_value) = request.get(scope, method_key.into()) {
             method = Method::from(extract_v8_string(method_value, scope)?.as_str());
         }
 
         let url;
-        let url_key = v8_string_onebyte(scope, "u");
+        let url_key = v8_string(scope, "u");
 
         if let Some(url_value) = request.get(scope, url_key.into()) {
             url = extract_v8_string(url_value, scope)?;
