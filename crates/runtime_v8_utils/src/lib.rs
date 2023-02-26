@@ -121,22 +121,28 @@ pub fn v8_headers_object<'a>(
     scope: &mut v8::HandleScope<'a>,
     value: HashMap<String, Vec<String>>,
 ) -> v8::Local<'a, v8::Object> {
-    let headers = v8::Object::new(scope);
+    let len = value.len();
 
-    for (key, values) in value.iter() {
+    let mut names = Vec::with_capacity(len);
+    let mut values = Vec::with_capacity(len);
+
+    for (key, headers) in value.iter() {
         let key = v8_string(scope, key);
 
-        let array = v8::Array::new(scope, values.len() as i32);
+        let mut elements = Vec::with_capacity(headers.len());
 
-        for (i, value) in values.iter().enumerate() {
-            let value = v8_string(scope, value);
-            array.set_index(scope, i as u32, value.into());
+        for header in headers.iter() {
+            elements.push(v8_string(scope, header).into())
         }
 
-        headers.set(scope, key.into(), array.into());
+        let array = v8::Array::new_with_elements(scope, &elements);
+
+        names.push(key.into());
+        values.push(array.into());
     }
 
-    headers
+    let null = v8::null(scope).into();
+    v8::Object::with_prototype_and_properties(scope, null, &names, &values)
 }
 
 pub fn v8_boolean<'a>(scope: &mut v8::HandleScope<'a>, value: bool) -> v8::Local<'a, v8::Boolean> {

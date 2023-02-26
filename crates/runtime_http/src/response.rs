@@ -46,30 +46,24 @@ impl From<&str> for Response {
 // We can safely use unwrap here because set only return Just(true) or Empty(), so if it should never fail
 impl IntoV8 for Response {
     fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
-        let response = v8::Object::new(scope);
+        let len = if self.headers.is_some() { 3 } else { 2 };
 
-        let body_key = v8_string(scope, "b");
-        let body_value = v8_uint8array(scope, self.body.to_vec());
-        response
-            .set(scope, body_key.into(), body_value.into())
-            .unwrap();
+        let mut names = Vec::with_capacity(len);
+        let mut values = Vec::with_capacity(len);
 
-        let status_key = v8_string(scope, "s");
-        let status_value = v8_integer(scope, self.status.into());
-        response
-            .set(scope, status_key.into(), status_value.into())
-            .unwrap();
+        names.push(v8_string(scope, "b").into());
+        values.push(v8_uint8array(scope, self.body.to_vec()).into());
+
+        names.push(v8_string(scope, "s").into());
+        values.push(v8_integer(scope, self.status.into()).into());
 
         if let Some(headers) = self.headers {
-            let headers_value = v8_headers_object(scope, headers);
-            let headers_key = v8_string(scope, "h");
-
-            response
-                .set(scope, headers_key.into(), headers_value.into())
-                .unwrap();
+            names.push(v8_string(scope, "h").into());
+            values.push(v8_headers_object(scope, headers).into());
         }
 
-        response
+        let null = v8::null(scope).into();
+        v8::Object::with_prototype_and_properties(scope, null, &names, &values)
     }
 }
 
