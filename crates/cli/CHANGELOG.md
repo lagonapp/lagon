@@ -1,5 +1,13 @@
 # @lagon/cli
 
+## 0.5.2
+
+### Patch Changes
+
+- [#622](https://github.com/lagonapp/lagon/pull/622) [`c0cd90f`](https://github.com/lagonapp/lagon/commit/c0cd90fa08c4861def6196b6527af6cd9aa96ed5) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support multiple request/response headers for set-cookie
+
+* [#620](https://github.com/lagonapp/lagon/pull/620) [`82621bd`](https://github.com/lagonapp/lagon/commit/82621bdb09330febf1db7d5fc21ad70f184b7319) Thanks [@ming535](https://github.com/ming535)! - Allow parallel upload for assets in lagon deploy command.
+
 ## 0.5.1
 
 ### Patch Changes

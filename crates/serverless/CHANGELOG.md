@@ -1,5 +1,11 @@
 # @lagon/serverless
 
+## 0.1.22
+
+### Patch Changes
+
+- [#622](https://github.com/lagonapp/lagon/pull/622) [`c0cd90f`](https://github.com/lagonapp/lagon/commit/c0cd90fa08c4861def6196b6527af6cd9aa96ed5) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support multiple request/response headers for set-cookie
+
 ## 0.1.21
 
 ### Patch Changes
