@@ -17,7 +17,7 @@ static READABLE_STREAM_STR: &[u8] = b"[object ReadableStream]";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Response {
-    pub headers: Option<HashMap<String, String>>,
+    pub headers: Option<HashMap<String, Vec<String>>>,
     pub body: Bytes,
     pub status: u16,
 }
@@ -139,7 +139,10 @@ impl TryFrom<&Response> for http::response::Builder {
 
         if let Some(headers) = &response.headers {
             for (key, value) in headers {
-                builder_headers.insert(HeaderName::from_str(key)?, HeaderValue::from_str(value)?);
+                for value in value {
+                    builder_headers
+                        .append(HeaderName::from_str(key)?, HeaderValue::from_str(value)?);
+                }
             }
         }
 
@@ -162,10 +165,13 @@ impl Response {
     }
 
     pub async fn from_hyper(response: HyperResponse<Body>) -> Result<Self> {
-        let mut headers = HashMap::new();
+        let mut headers = HashMap::<String, Vec<String>>::new();
 
         for (key, value) in response.headers().iter() {
-            headers.insert(key.to_string(), value.to_str().unwrap().to_string());
+            headers
+                .entry(key.to_string())
+                .or_default()
+                .push(value.to_str()?.to_string());
         }
 
         let status = response.status().as_u16();

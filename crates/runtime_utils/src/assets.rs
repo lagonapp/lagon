@@ -40,7 +40,7 @@ pub fn handle_asset(root: PathBuf, asset: &String) -> Result<Response> {
     );
 
     let mut headers = HashMap::new();
-    headers.insert("content-type".into(), content_type.into());
+    headers.insert("content-type".into(), vec![content_type.into()]);
 
     Ok(Response {
         status: 200,

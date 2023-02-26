@@ -189,11 +189,15 @@ async fn handle_request(
                 let ip = request
                     .headers
                     .as_ref()
-                    .map_or(&ip, |headers| headers.get(X_REAL_IP).unwrap_or(&ip))
+                    .map_or(&ip, |headers| {
+                        headers
+                            .get(X_REAL_IP)
+                            .map_or(&ip, |x_real_ip| x_real_ip.get(0).unwrap_or(&ip))
+                    })
                     .to_string();
 
-                request.add_header(X_FORWARDED_FOR.to_string(), ip);
-                request.add_header(X_LAGON_REGION.to_string(), REGION.to_string());
+                request.set_header(X_FORWARDED_FOR.to_string(), ip);
+                request.set_header(X_LAGON_REGION.to_string(), REGION.to_string());
 
                 let thread_id = get_thread_id(thread_ids, &hostname).await;
 

@@ -24,7 +24,7 @@ pub fn extract_v8_integer(value: v8::Local<v8::Value>, scope: &mut v8::HandleSco
 pub fn extract_v8_headers_object(
     value: v8::Local<v8::Value>,
     scope: &mut v8::HandleScope,
-) -> Result<Option<HashMap<String, String>>> {
+) -> Result<Option<HashMap<String, Vec<String>>>> {
     if !value.is_map() {
         return Err(anyhow!("Value is not of type 'Map'"));
     }
@@ -42,13 +42,37 @@ pub fn extract_v8_headers_object(
 
             let key = headers_keys
                 .get_index(scope, index)
-                .map_or_else(|| "".to_string(), |key| key.to_rust_string_lossy(scope));
-            index += 1;
-            let value = headers_keys
-                .get_index(scope, index)
-                .map_or_else(|| "".to_string(), |value| value.to_rust_string_lossy(scope));
+                .map_or_else(String::new, |key| key.to_rust_string_lossy(scope));
 
-            headers.insert(key, value);
+            index += 1;
+
+            let values = headers_keys
+                .get_index(scope, index)
+                .map_or_else(Vec::new, |value| {
+                    let mut result = Vec::new();
+
+                    if value.is_array() {
+                        let values = unsafe { v8::Local::<v8::Array>::cast(value) };
+
+                        for i in 0..values.length() {
+                            let value = values
+                                .get_index(scope, i)
+                                .map_or_else(String::new, |value| {
+                                    value.to_rust_string_lossy(scope)
+                                });
+
+                            result.push(value);
+                        }
+                    } else {
+                        let value = value.to_rust_string_lossy(scope);
+
+                        result.push(value);
+                    }
+
+                    result
+                });
+
+            headers.insert(key, values);
         }
 
         return Ok(Some(headers));
@@ -95,15 +119,21 @@ pub fn v8_uint8array<'a>(
 
 pub fn v8_headers_object<'a>(
     scope: &mut v8::HandleScope<'a>,
-    value: HashMap<String, String>,
+    value: HashMap<String, Vec<String>>,
 ) -> v8::Local<'a, v8::Object> {
     let headers = v8::Object::new(scope);
 
-    for (key, value) in value.iter() {
+    for (key, values) in value.iter() {
         let key = v8_string(scope, key);
-        let value = v8_string(scope, value);
 
-        headers.set(scope, key.into(), value.into());
+        let array = v8::Array::new(scope, values.len() as i32);
+
+        for (i, value) in values.iter().enumerate() {
+            let value = v8_string(scope, value);
+            array.set_index(scope, i as u32, value.into());
+        }
+
+        headers.set(scope, key.into(), array.into());
     }
 
     headers
