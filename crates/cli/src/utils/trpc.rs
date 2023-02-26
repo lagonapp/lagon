@@ -26,13 +26,13 @@ pub struct TrpcErrorResult {
     error: TrpcError,
 }
 
-pub struct TrpcClient<'a> {
+pub struct TrpcClient {
     pub client: Client<HttpsConnector<HttpConnector>>,
-    config: &'a Config,
+    config:  Config,
 }
 
-impl<'a> TrpcClient<'a> {
-    pub fn new(config: &'a Config) -> Self {
+impl TrpcClient {
+    pub fn new(config: Config) -> Self {
         let client = Client::builder().build::<_, Body>(HttpsConnector::new());
 
         Self { client, config }

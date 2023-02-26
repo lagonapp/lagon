@@ -20,7 +20,7 @@ fn get_config_path() -> Result<PathBuf> {
         .join("config.json"))
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Config {
     pub token: Option<String>,
     pub site_url: String,
