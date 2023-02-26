@@ -398,7 +398,7 @@ pub async fn create_deployment(
     }
 
     while let Some(res) = join_set.join_next().await {
-        res?.expect("Couldn't upload asset {asset} to url {url}");
+        res?.expect("Couldn't upload asset");
     }
 
     end_progress();
