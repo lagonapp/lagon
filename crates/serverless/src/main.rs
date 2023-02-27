@@ -10,6 +10,7 @@ use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{
     Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP,
 };
+use lagon_runtime_isolate::CONSOLE_SOURCE;
 use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL, PAGE_404};
 use lagon_runtime_utils::{
     assets::{find_asset, handle_asset},
@@ -64,15 +65,15 @@ fn handle_error(
     match result {
         RunResult::Timeout => {
             increment_counter!("lagon_isolate_timeouts", labels);
-            warn!(deployment = deployment_id, request = request_id; "Function execution timed out")
+            warn!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution timed out")
         }
         RunResult::MemoryLimit => {
             increment_counter!("lagon_isolate_memory_limits", labels);
-            warn!(deployment = deployment_id, request = request_id; "Function execution memory limit reached")
+            warn!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution memory limit reached")
         }
         RunResult::Error(error) => {
             increment_counter!("lagon_isolate_errors", labels);
-            error!(deployment = deployment_id, request = request_id; "Function execution error: {}", error);
+            error!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution error: {}", error);
         }
         _ => {}
     };
