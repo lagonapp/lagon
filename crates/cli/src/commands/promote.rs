@@ -39,7 +39,7 @@ pub async fn promote(deployment_id: String, directory: Option<PathBuf>) -> Resul
     {
         true => {
             let end_progress = print_progress("Promoting Deployment...");
-            TrpcClient::new(&config)
+            TrpcClient::new(config)
                 .mutation::<PromoteDeploymentRequest, PromoteDeploymentResponse>(
                     "deploymentPromote",
                     PromoteDeploymentRequest {

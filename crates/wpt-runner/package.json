@@ -1,6 +1,6 @@
 {
   "name": "@lagon/wpt-runner",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "web-platform-tests runner for Lagon Runtime",
   "private": true,
   "scripts": {

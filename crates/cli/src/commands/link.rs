@@ -23,7 +23,7 @@ pub async fn link(directory: Option<PathBuf>) -> Result<()> {
     match root.join(".lagon").join("config.json").exists() {
         true => Err(anyhow!("This directory is already linked to a Function.")),
         false => {
-            let trpc_client = TrpcClient::new(&config);
+            let trpc_client = TrpcClient::new(config);
             let response = trpc_client
                 .query::<(), OrganizationsResponse>("organizationsList", None)
                 .await?;

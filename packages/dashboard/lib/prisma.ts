@@ -1,11 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 
-// @ts-expect-error NodeJS.Global does not exists
-interface CustomNodeJsGlobal extends NodeJS.Global {
+declare const global: typeof globalThis & {
   prisma: PrismaClient;
-}
-
-declare const global: CustomNodeJsGlobal;
+};
 
 const prisma = global.prisma || new PrismaClient();
 

@@ -1,14 +1,14 @@
 Running ../../tools/wpt/fetch/api/headers/header-setcookie.any.js
 TEST DONE 0 Headers.prototype.get combines set-cookie headers in order
-TEST DONE 1 Headers iterator does not combine set-cookie headers
+TEST DONE 0 Headers iterator does not combine set-cookie headers
 TEST DONE 0 Headers iterator does not special case set-cookie2 headers
-TEST DONE 1 Headers iterator does not combine set-cookie & set-cookie2 headers
-TEST DONE 1 Headers iterator preserves set-cookie ordering
-TEST DONE 1 Headers iterator preserves per header ordering, but sorts keys alphabetically
-TEST DONE 1 Headers iterator preserves per header ordering, but sorts keys alphabetically (and ignores value ordering)
+TEST DONE 0 Headers iterator does not combine set-cookie & set-cookie2 headers
+TEST DONE 0 Headers iterator preserves set-cookie ordering
+TEST DONE 0 Headers iterator preserves per header ordering, but sorts keys alphabetically
+TEST DONE 0 Headers iterator preserves per header ordering, but sorts keys alphabetically (and ignores value ordering)
 TEST DONE 1 Headers iterator is correctly updated with set-cookie changes
 TEST DONE 0 Headers.prototype.has works for set-cookie
-TEST DONE 1 Headers.prototype.append works for set-cookie
+TEST DONE 0 Headers.prototype.append works for set-cookie
 TEST DONE 0 Headers.prototype.set works for set-cookie
 TEST DONE 0 Headers.prototype.delete works for set-cookie
 TEST DONE 0 Headers.prototype.getSetCookie with no headers present
@@ -1700,5 +1700,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1576 tests, 450 passed, 1117 failed
+1576 tests, 456 passed, 1111 failed
  -> 28% conformance

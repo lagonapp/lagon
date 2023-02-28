@@ -6,15 +6,16 @@ use std::{
 };
 
 use tokio::sync::RwLock;
-use tokio_util::task::LocalPoolHandle;
 
-use super::pubsub::clear_deployments_cache;
+use crate::worker::Workers;
+
+use super::pubsub::clear_deployment_cache;
 
 const CACHE_TASK_INTERVAL: Duration = Duration::from_secs(1);
 
 pub fn run_cache_clear_task(
     last_requests: Arc<RwLock<HashMap<String, Instant>>>,
-    pool: LocalPoolHandle,
+    workers: Workers,
 ) {
     let isolates_cache_seconds = Duration::from_secs(
         env::var("LAGON_ISOLATES_CACHE_SECONDS")
@@ -24,20 +25,21 @@ pub fn run_cache_clear_task(
     );
 
     tokio::spawn(async move {
+        let mut deployments_to_clear = Vec::new();
+
         loop {
             tokio::time::sleep(CACHE_TASK_INTERVAL).await;
 
-            let now = Instant::now();
-            let mut hostnames_to_clear = Vec::new();
             let last_requests_reader = last_requests.read().await;
+            let now = Instant::now();
 
-            for (hostname, last_request) in last_requests_reader.iter() {
+            for (deployment_id, last_request) in last_requests_reader.iter() {
                 if now.duration_since(*last_request) > isolates_cache_seconds {
-                    hostnames_to_clear.push(hostname.clone());
+                    deployments_to_clear.push(deployment_id.clone());
                 }
             }
 
-            if hostnames_to_clear.is_empty() {
+            if deployments_to_clear.is_empty() {
                 continue;
             }
 
@@ -47,11 +49,18 @@ pub fn run_cache_clear_task(
             // Clear everything
             let mut last_requests = last_requests.write().await;
 
-            for hostname in &hostnames_to_clear {
-                last_requests.remove(hostname);
+            for deployment_id in &deployments_to_clear {
+                last_requests.remove(deployment_id);
+
+                clear_deployment_cache(
+                    deployment_id.clone(),
+                    Arc::clone(&workers),
+                    String::from("expiration"),
+                )
+                .await;
             }
 
-            clear_deployments_cache(hostnames_to_clear, &pool, "expiration").await;
+            deployments_to_clear.clear();
         }
     });
 }

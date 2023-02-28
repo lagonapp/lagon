@@ -194,7 +194,7 @@ async fn get_headers() {
     );
 
     let mut headers = HashMap::new();
-    headers.insert("x-auth".into(), "token".into());
+    headers.insert("x-auth".into(), vec!["token".into()]);
 
     let (tx, rx) = flume::unbounded();
     isolate
@@ -234,8 +234,8 @@ async fn return_headers() {
     );
 
     let mut headers = HashMap::new();
-    headers.insert("content-type".into(), "text/html".into());
-    headers.insert("x-test".into(), "test".into());
+    headers.insert("content-type".into(), vec!["text/html".into()]);
+    headers.insert("x-test".into(), vec!["test".into()]);
 
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;
@@ -269,8 +269,8 @@ async fn return_headers_from_headers_api() {
     );
 
     let mut headers = HashMap::new();
-    headers.insert("content-type".into(), "text/html".into());
-    headers.insert("x-test".into(), "test".into());
+    headers.insert("content-type".into(), vec!["text/html".into()]);
+    headers.insert("x-test".into(), vec!["test".into()]);
 
     let (tx, rx) = flume::unbounded();
     isolate.run(Request::default(), tx).await;

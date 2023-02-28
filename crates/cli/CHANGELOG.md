@@ -1,5 +1,23 @@
 # @lagon/cli
 
+## 0.5.2
+
+### Patch Changes
+
+- [#622](https://github.com/lagonapp/lagon/pull/622) [`c0cd90f`](https://github.com/lagonapp/lagon/commit/c0cd90fa08c4861def6196b6527af6cd9aa96ed5) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support multiple request/response headers for set-cookie
+
+* [#620](https://github.com/lagonapp/lagon/pull/620) [`82621bd`](https://github.com/lagonapp/lagon/commit/82621bdb09330febf1db7d5fc21ad70f184b7319) Thanks [@ming535](https://github.com/ming535)! - Allow parallel upload for assets in lagon deploy command.
+
+## 0.5.1
+
+### Patch Changes
+
+- [#610](https://github.com/lagonapp/lagon/pull/610) [`8e70413`](https://github.com/lagonapp/lagon/commit/8e70413015c333e04a0e77d62fa0b6154be22b42) Thanks [@QuiiBz](https://github.com/QuiiBz)! - `lagon dev --env PATH` is relative to the root
+
+* [#610](https://github.com/lagonapp/lagon/pull/610) [`8e70413`](https://github.com/lagonapp/lagon/commit/8e70413015c333e04a0e77d62fa0b6154be22b42) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow using `lagon dev` without any argument to use the current directory configuration
+
+- [#608](https://github.com/lagonapp/lagon/pull/608) [`066c24e`](https://github.com/lagonapp/lagon/commit/066c24e18ce1289beb3083ddd84063abd28f96f2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Re-use the same isolate between requests to keep server-side state
+
 ## 0.5.0
 
 ### Minor Changes
