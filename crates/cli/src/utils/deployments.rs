@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 use colored::Colorize;
 use dialoguer::{Confirm, Input};
 use hyper::{Body, Method, Request};
+use std::sync::Arc;
 use std::{
     collections::HashMap,
     fs,
@@ -9,7 +10,6 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
 };
-use std::sync::Arc;
 use walkdir::{DirEntry, WalkDir};
 
 use pathdiff::diff_paths;
