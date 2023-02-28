@@ -7,7 +7,7 @@ use std::{
 
 use anyhow::{anyhow, Result};
 use lagon_runtime_utils::Deployment;
-use log::{error, info};
+use log::{error, info, warn};
 use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
 use tokio::sync::{Mutex, RwLock};
@@ -35,7 +35,9 @@ pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> Re
                         Ok(object) => {
                             deployment.write_asset(asset, object.bytes())?;
                         }
-                        Err(error) => return Err(anyhow!(error)),
+                        Err(error) => {
+                            warn!(deployment = deployment.id, asset = asset; "Failed to download deployment asset: {}", error)
+                        }
                     };
                 }
             }
