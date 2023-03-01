@@ -34,6 +34,10 @@ export function handler(request: Request) {
 
 The `X-Lagon-Region` header is also automatically added to each response, making it easy to identify which Region served the request.
 
+<Callout type="info">
+  When developing locally using [`lagon dev`](/cli#lagon-dev), the `X-Lagon-Region` header will be set to `local`.
+</Callout>
+
 ## Global objects
 
 ### `AbortController`
