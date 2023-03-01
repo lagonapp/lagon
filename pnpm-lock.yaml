@@ -334,7 +334,7 @@ importers:
       '@types/node': ^18.0.0
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
-      '@vercel/analytics': 0.1.10
+      '@vercel/analytics': 0.1.11
       autoprefixer: ^10.4.7
       eslint: ^8.16.0
       eslint-config-next: 13.1.6
@@ -347,7 +347,7 @@ importers:
       tailwindcss: ^3.0.24
       typescript: ^4.6.4
     dependencies:
-      '@vercel/analytics': 0.1.10_react@18.2.0
+      '@vercel/analytics': 0.1.11_react@18.2.0
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       nextra: 2.2.14_3vryta7zmbcsw4rrqf4axjqggm
       nextra-theme-docs: 2.2.14_u6qwm625rg3t7ll2t4ybomvrai
@@ -453,7 +453,7 @@ importers:
       '@types/node': ^18.0.0
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
-      '@vercel/analytics': 0.1.10
+      '@vercel/analytics': 0.1.11
       autoprefixer: ^10.4.7
       cobe: ^0.6.0
       eslint: ^8.16.0
@@ -468,7 +468,7 @@ importers:
       typescript: ^4.6.4
     dependencies:
       '@next/font': 13.1.6
-      '@vercel/analytics': 0.1.10_react@18.2.0
+      '@vercel/analytics': 0.1.11_react@18.2.0
       cobe: 0.6.2
       next: 13.1.6_biqbaboplfbrettd7655fr4n2y
       posthog-js: 1.30.0
@@ -9943,8 +9943,8 @@ packages:
       vite: 4.0.3
     dev: true
 
-  /@vercel/analytics/0.1.10_react@18.2.0:
-    resolution: {integrity: sha512-jjJ8GzcPnQp0cMxpfYoUycMRBtDiaIeyVjZPiEPe99Dj1PdjMzAFYEASiV/hpNsXHkpcNYCveDFh6jnmh0YSDQ==}
+  /@vercel/analytics/0.1.11_react@18.2.0:
+    resolution: {integrity: sha512-mj5CPR02y0BRs1tN3oZcBNAX9a8NxsIUl9vElDPcqxnMfP0RbRc9fI9Ud7+QDg/1Izvt5uMumsr+6YsmVHcyuw==}
     peerDependencies:
       react: ^16.8||^17||^18
     dependencies:
@@ -18756,7 +18756,6 @@ packages:
     resolution: {integrity: sha512-udKGtCCUafD3nQtJg9wBhRP3KMbPglUsgV5JVsXhvyBs/oefqb4sqMEhKBBgqZncYowu58p1prsZQBYvAj/Gww==}
     engines: {node: ^14 || ^16 || >=18}
     hasBin: true
-    dev: false
 
   /nanomatch/1.2.13:
     resolution: {integrity: sha512-fpoe2T0RbHwBTBUOftAfBPaDEi06ufaUai0mE6Yn1kacc3SnTErfb/h+X94VXzI64rKFHYImXSvdwGGCmwOqCA==}

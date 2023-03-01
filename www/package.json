@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@next/font": "13.1.6",
-    "@vercel/analytics": "0.1.10",
+    "@vercel/analytics": "0.1.11",
     "cobe": "^0.6.0",
     "next": "13.1.6",
     "posthog-js": "^1.30.0",
