@@ -6,7 +6,7 @@ use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
-use lagon_runtime_http::{Request, Response, RunResult, X_FORWARDED_FOR};
+use lagon_runtime_http::{Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_REGION};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use lagon_runtime_utils::assets::{find_asset, handle_asset};
 use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL};
@@ -25,6 +25,8 @@ use tokio::sync::Mutex;
 use tokio_util::task::LocalPoolHandle;
 
 use crate::utils::{bundle_function, error, info, input, success, warn, Assets, FunctionConfig};
+
+const LOCAL_REGION: &str = "local";
 
 struct SimpleLogger;
 
@@ -116,6 +118,7 @@ async fn handle_request(
         match Request::from_hyper(req).await {
             Ok(mut request) => {
                 request.set_header(X_FORWARDED_FOR.to_string(), ip);
+                request.set_header(X_LAGON_REGION.to_string(), LOCAL_REGION.to_string());
 
                 pool.spawn_pinned_by_idx(
                     move || async move {
