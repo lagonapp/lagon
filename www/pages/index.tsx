@@ -3,7 +3,7 @@ import Header from '../lib/components/Header';
 import Globe from '../lib/components/Globe';
 import useSystemTheme from '../lib/hooks/useSystemTheme';
 import { DiscordIcon } from '../lib/components/Icons';
-import { Poppins } from '@next/font/google';
+import { Poppins } from 'next/font/google';
 
 const poppins = Poppins({
   weight: '600',
