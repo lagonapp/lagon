@@ -25,7 +25,7 @@ use super::{
 pub type Assets = HashMap<String, Vec<u8>>;
 
 #[cfg(windows)]
-const ESBUILD: &str = "C:\\Program Files\\nodejs\\esbuild.cmd";
+const ESBUILD: &str = "esbuild.cmd";
 
 #[cfg(not(windows))]
 const ESBUILD: &str = "esbuild";
