@@ -1,5 +1,11 @@
 # @lagon/cli
 
+## 0.5.3
+
+### Patch Changes
+
+- [#636](https://github.com/lagonapp/lagon/pull/636) [`0744125`](https://github.com/lagonapp/lagon/commit/074412555d46ff36f16dcde1e03d4c083d344d3c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix ESBuild path on Windows
+
 ## 0.5.2
 
 ### Patch Changes

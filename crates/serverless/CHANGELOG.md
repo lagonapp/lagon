@@ -1,5 +1,13 @@
 # @lagon/serverless
 
+## 0.1.23
+
+### Patch Changes
+
+- [#627](https://github.com/lagonapp/lagon/pull/627) [`7671236`](https://github.com/lagonapp/lagon/commit/7671236956bb23f954caed45bd10543ca60f78b5) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Don't skip deployment when asset failed to download
+
+* [#626](https://github.com/lagonapp/lagon/pull/626) [`06093d0`](https://github.com/lagonapp/lagon/commit/06093d051898d7603f356b9cae5e3f14078d480a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Send error messages to logs
+
 ## 0.1.22
 
 ### Patch Changes

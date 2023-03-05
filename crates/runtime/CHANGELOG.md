@@ -1,5 +1,11 @@
 # @lagon/runtime
 
+## 0.3.6
+
+### Patch Changes
+
+- [#624](https://github.com/lagonapp/lagon/pull/624) [`046d04f`](https://github.com/lagonapp/lagon/commit/046d04f9cb5d6510fec61057a33614b4e1352f37) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Avoid thread panicking when promise id is not found
+
 ## 0.3.5
 
 ### Patch Changes
