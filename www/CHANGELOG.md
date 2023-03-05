@@ -1,5 +1,11 @@
 # @lagon/www
 
+## 0.1.3
+
+### Patch Changes
+
+- [#580](https://github.com/lagonapp/lagon/pull/580) [`74efd18`](https://github.com/lagonapp/lagon/commit/74efd186f97b86dd085c7a90e1f35c78507f5bbe) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use lagon.dev for Lagon-hosted functions
+
 ## 0.1.2
 
 ### Patch Changes

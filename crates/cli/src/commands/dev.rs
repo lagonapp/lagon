@@ -6,7 +6,7 @@ use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
-use lagon_runtime_http::{Request, Response, RunResult};
+use lagon_runtime_http::{Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_REGION};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use lagon_runtime_utils::assets::{find_asset, handle_asset};
 use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL};
@@ -18,13 +18,15 @@ use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use pathdiff::diff_paths;
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::Mutex;
 use tokio_util::task::LocalPoolHandle;
 
 use crate::utils::{bundle_function, error, info, input, success, warn, Assets, FunctionConfig};
+
+const LOCAL_REGION: &str = "local";
 
 struct SimpleLogger;
 
@@ -53,11 +55,14 @@ fn init_logger() -> Result<(), SetLoggerError> {
     Ok(())
 }
 
-fn parse_environment_variables(env: Option<PathBuf>) -> Result<HashMap<String, String>> {
+fn parse_environment_variables(
+    root: &Path,
+    env: Option<PathBuf>,
+) -> Result<HashMap<String, String>> {
     let mut environment_variables = HashMap::new();
 
     if let Some(path) = env {
-        let envfile = EnvFile::new(path)?;
+        let envfile = EnvFile::new(root.join(path))?;
 
         for (key, value) in envfile.store {
             environment_variables.insert(key, value);
@@ -76,6 +81,7 @@ async fn handle_request(
     ip: String,
     content: Arc<Mutex<(Vec<u8>, Assets)>>,
     environment_variables: HashMap<String, String>,
+    isolate_lock: Arc<Mutex<Option<Isolate>>>,
     pool: LocalPoolHandle,
 ) -> Result<HyperResponse<Body>> {
     let url = req.uri().to_string();
@@ -111,19 +117,27 @@ async fn handle_request(
     } else {
         match Request::from_hyper(req).await {
             Ok(mut request) => {
-                request.add_header("X-Forwarded-For".into(), ip);
+                request.set_header(X_FORWARDED_FOR.to_string(), ip);
+                request.set_header(X_LAGON_REGION.to_string(), LOCAL_REGION.to_string());
 
                 pool.spawn_pinned_by_idx(
                     move || async move {
-                        let mut isolate = Isolate::new(
-                            IsolateOptions::new(
-                                String::from_utf8(index).expect("Code is not UTF-8"),
-                            )
-                            .timeout(Duration::from_secs(1))
-                            .startup_timeout(Duration::from_secs(2))
-                            .metadata(Some((String::from(""), String::from(""))))
-                            .environment_variables(environment_variables),
-                        );
+                        if isolate_lock.lock().await.is_none() {
+                            let isolate = Isolate::new(
+                                IsolateOptions::new(
+                                    String::from_utf8(index).expect("Code is not UTF-8"),
+                                )
+                                .timeout(Duration::from_secs(1))
+                                .startup_timeout(Duration::from_secs(2))
+                                .metadata(Some((String::from(""), String::from(""))))
+                                .environment_variables(environment_variables),
+                            );
+
+                            *isolate_lock.lock().await = Some(isolate);
+                        }
+
+                        let mut isolate = isolate_lock.lock().await;
+                        let isolate = isolate.as_mut().unwrap();
 
                         isolate.run(request, tx).await;
                     },
@@ -173,7 +187,7 @@ async fn handle_request(
 }
 
 pub async fn dev(
-    path: PathBuf,
+    path: Option<PathBuf>,
     client: Option<PathBuf>,
     public_dir: Option<PathBuf>,
     port: Option<u16>,
@@ -181,6 +195,8 @@ pub async fn dev(
     env: Option<PathBuf>,
     allow_code_generation: bool,
 ) -> Result<()> {
+    let path = path.unwrap_or_else(|| PathBuf::from("."));
+
     if !path.exists() {
         return Err(anyhow!("File or directory not found"));
     }
@@ -227,14 +243,17 @@ pub async fn dev(
         .assets
         .as_ref()
         .map(|assets| root.join(assets));
-    let server_content = content.clone();
-    let environment_variables = parse_environment_variables(env)?;
+    let server_content = Arc::clone(&content);
+    let environment_variables = parse_environment_variables(&root, env)?;
+    let isolate_lock = Arc::new(Mutex::new(None));
+    let server_isolate_lock = Arc::clone(&isolate_lock);
     let pool = LocalPoolHandle::new(1);
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let public_dir = server_public_dir.clone();
-        let content = server_content.clone();
+        let content = Arc::clone(&server_content);
         let environment_variables = environment_variables.clone();
+        let isolate_lock = Arc::clone(&server_isolate_lock);
         let pool = pool.clone();
 
         let addr = conn.remote_addr();
@@ -246,8 +265,9 @@ pub async fn dev(
                     req,
                     public_dir.clone(),
                     ip.clone(),
-                    content.clone(),
+                    Arc::clone(&content),
                     environment_variables.clone(),
+                    Arc::clone(&isolate_lock),
                     pool.clone(),
                 )
             }))
@@ -265,11 +285,7 @@ pub async fn dev(
         RecursiveMode::NonRecursive,
     )?;
 
-    let watcher_content = content.clone();
-
     tokio::spawn(async move {
-        let content = watcher_content.clone();
-
         for event in rx.into_iter().flatten() {
             let should_update = if let EventKind::Modify(modify) = event.kind {
                 matches!(modify, ModifyKind::Name(_)) || matches!(modify, ModifyKind::Data(_))
@@ -285,6 +301,7 @@ pub async fn dev(
                 let (index, assets) = bundle_function(&function_config, &root)?;
 
                 *content.lock().await = (index, assets);
+                *isolate_lock.lock().await = None;
             }
         }
 

@@ -10,7 +10,7 @@ use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{
     Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP,
 };
-use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
+use lagon_runtime_isolate::CONSOLE_SOURCE;
 use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL, PAGE_404};
 use lagon_runtime_utils::{
     assets::{find_asset, handle_asset},
@@ -19,12 +19,11 @@ use lagon_runtime_utils::{
 use lagon_serverless_logger::init_logger;
 use lazy_static::lazy_static;
 use log::{as_debug, error, info, warn};
-use metrics::{counter, decrement_gauge, histogram, increment_counter, increment_gauge};
+use metrics::{counter, increment_counter};
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
 #[cfg(not(debug_assertions))]
 use mysql::{OptsBuilder, SslOpts};
-use rand::prelude::*;
 use s3::creds::Credentials;
 use s3::Bucket;
 #[cfg(not(debug_assertions))]
@@ -35,24 +34,27 @@ use std::env;
 use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use tokio::sync::{Mutex, RwLock};
-use tokio_util::task::LocalPoolHandle;
+use worker::{create_workers, start_workers, Workers};
 
 use crate::deployments::get_deployments;
 use crate::deployments::pubsub::listen_pub_sub;
+use crate::worker::{get_thread_id, WorkerEvent};
 
 mod cronjob;
 mod deployments;
+mod worker;
 
 lazy_static! {
-    pub static ref ISOLATES: RwLock<HashMap<usize, HashMap<String, Isolate>>> =
-        RwLock::new(HashMap::new());
     pub static ref REGION: String = env::var("LAGON_REGION").expect("LAGON_REGION must be set");
+    pub static ref WORKERS: usize = env::var("LAGON_WORKERS")
+        .expect("LAGON_WORKERS must be set")
+        .parse::<usize>()
+        .expect("LAGON_WORKERS must be a number");
 }
 
 const SNAPSHOT_BLOB: &[u8] = include_bytes!("../snapshot.bin");
-pub const POOL_SIZE: usize = 8;
 
 fn handle_error(
     result: RunResult,
@@ -63,15 +65,15 @@ fn handle_error(
     match result {
         RunResult::Timeout => {
             increment_counter!("lagon_isolate_timeouts", labels);
-            warn!(deployment = deployment_id, request = request_id; "Function execution timed out")
+            warn!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution timed out")
         }
         RunResult::MemoryLimit => {
             increment_counter!("lagon_isolate_memory_limits", labels);
-            warn!(deployment = deployment_id, request = request_id; "Function execution memory limit reached")
+            warn!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution memory limit reached")
         }
         RunResult::Error(error) => {
             increment_counter!("lagon_isolate_errors", labels);
-            error!(deployment = deployment_id, request = request_id; "Function execution error: {}", error);
+            error!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution error: {}", error);
         }
         _ => {}
     };
@@ -80,15 +82,15 @@ fn handle_error(
 async fn handle_request(
     req: HyperRequest<Body>,
     ip: String,
-    pool: LocalPoolHandle,
     deployments: Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
     thread_ids: Arc<RwLock<HashMap<String, usize>>>,
     last_requests: Arc<RwLock<HashMap<String, Instant>>>,
+    workers: Workers,
 ) -> Result<HyperResponse<Body>> {
     let url = req.uri().to_string();
 
     let request_id = match req.headers().get(X_LAGON_ID) {
-        Some(x_lagon_id) => x_lagon_id.to_str().unwrap_or("none").to_string(),
+        Some(x_lagon_id) => x_lagon_id.to_str().unwrap_or("").to_string(),
         None => String::new(),
     };
 
@@ -136,154 +138,98 @@ async fn handle_request(
 
     let deployment_id = deployment.id.clone();
     let request_id_handle = request_id.clone();
-    let thread_ids_reader = thread_ids.read().await;
 
-    let thread_id = match thread_ids_reader.get(&hostname) {
-        Some(thread_id) => *thread_id,
-        None => {
-            let mut rng = rand::rngs::StdRng::from_entropy();
-            let id = rng.gen_range(0..POOL_SIZE);
-
-            drop(thread_ids_reader);
-
-            thread_ids.write().await.insert(hostname.clone(), id);
-            id
-        }
-    };
-
-    let (tx, rx) = flume::unbounded();
+    let (sender, receiver) = flume::unbounded();
 
     let labels = [
         ("deployment", deployment.id.clone()),
         ("function", deployment.function_id.clone()),
         ("region", REGION.clone()),
     ];
-    let thread_labels = labels.clone();
 
-    pool.spawn_pinned_by_idx(
-        move || {
-            async move {
-                increment_counter!("lagon_requests", &thread_labels);
+    increment_counter!("lagon_requests", &labels);
 
-                let is_favicon = url == FAVICON_URL;
+    let is_favicon = url == FAVICON_URL;
 
-                if let Some(asset) = find_asset(url, &deployment.assets) {
-                    let root = Path::new(env::current_dir().unwrap().as_path())
-                        .join("deployments")
-                        .join(&deployment.id);
+    if let Some(asset) = find_asset(url, &deployment.assets) {
+        let root = Path::new(env::current_dir().unwrap().as_path())
+            .join("deployments")
+            .join(&deployment.id);
 
-                    let run_result = match handle_asset(root, asset) {
-                        Ok(response) => RunResult::Response(response),
-                        Err(error) => {
-                            error!(deployment = &deployment.id, asset = asset, request = request_id; "Error while handing asset: {}", error);
+        let run_result = match handle_asset(root, asset) {
+            Ok(response) => RunResult::Response(response),
+            Err(error) => {
+                error!(deployment = &deployment.id, asset = asset, request = request_id; "Error while handing asset: {}", error);
 
-                            RunResult::Error("Could not retrieve asset.".into())
-                        }
-                    };
-
-                    tx.send_async(run_result).await.unwrap_or(());
-                } else if is_favicon {
-                    tx.send_async(RunResult::Response(Response {
-                        status: 404,
-                        ..Default::default()
-                    })).await.unwrap_or(());
-                } else {
-                    last_requests.write().await.insert(hostname.clone(), Instant::now());
-                    increment_counter!("lagon_isolate_requests", &thread_labels);
-
-                    let mut request = match Request::from_hyper(req).await {
-                        Ok(request) => request,
-                        Err(error) => {
-                            error!(deployment = &deployment.id, request = request_id; "Error while parsing request: {}", error);
-
-                            tx.send_async(RunResult::Error(
-                                "Error while parsing request".into(),
-                            ))
-                            .await
-                            .unwrap_or(());
-
-                            return;
-                        }
-                    };
-
-                    counter!("lagon_bytes_in", request.len() as u64, &thread_labels);
-
-                    // Try to Extract the X-Real-Ip header or fallback to remote addr IP
-                    let ip = request.headers
-                        .as_ref()
-                        .map_or(&ip, |headers| headers.get(X_REAL_IP).unwrap_or(&ip)).to_string();
-
-                    request.add_header(X_FORWARDED_FOR.to_string(), ip);
-                    request.add_header(X_LAGON_REGION.to_string(), REGION.to_string());
-
-                    // Only acquire the lock when we are sure we have a
-                    // deployment and that the isolate should be called.
-                    // TODO: read() then write() if not present
-                    let mut isolates = ISOLATES.write().await;
-                    let thread_isolates = isolates.entry(thread_id).or_insert_with(HashMap::new);
-
-                    let isolate = thread_isolates.entry(hostname).or_insert_with(|| {
-                        increment_gauge!("lagon_isolates", 1.0, &thread_labels);
-                        info!(deployment = deployment.id, function = deployment.function_id, request = request_id; "Creating new isolate");
-
-                        // TODO: handle read error
-                        let code = deployment.get_code().unwrap_or_else(|error| {
-                            error!(deployment = deployment.id, request = request_id; "Error while getting deployment code: {}", error);
-
-                            "".into()
-                        });
-                        let options = IsolateOptions::new(code)
-                            .environment_variables(
-                                deployment.environment_variables.clone(),
-                            )
-                            .memory(deployment.memory)
-                            .timeout(Duration::from_millis(deployment.timeout as u64))
-                            .startup_timeout(Duration::from_millis(deployment.startup_timeout as u64))
-                            .metadata(Some((deployment.id.clone(), deployment.function_id.clone())))
-                            .on_drop_callback(Box::new(|metadata| {
-                                if let Some(metadata) = metadata.as_ref().as_ref() {
-
-
-                                    let labels = [
-                                        ("deployment", metadata.0.clone()),
-                                        ("function", metadata.1.clone()),
-                                        ("region", REGION.clone()),
-                                    ];
-
-                                    decrement_gauge!("lagon_isolates", 1.0, &labels);
-                                    info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
-                                }
-                            }))
-                            .on_statistics_callback(Box::new(|metadata, statistics| {
-                                if let Some(metadata) = metadata.as_ref().as_ref() {
-                                    let labels = [
-                                        ("deployment", metadata.0.clone()),
-                                        ("function", metadata.1.clone()),
-                                        ("region", REGION.clone()),
-                                    ];
-
-                                    histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
-                                    histogram!(
-                                        "lagon_isolate_memory_usage",
-                                        statistics.memory_usage as f64,
-                                        &labels
-                                    );
-                                }
-                            }))
-                            .snapshot_blob(SNAPSHOT_BLOB);
-
-                        Isolate::new(options)
-                    });
-
-                    isolate.run(request, tx.clone()).await;
-                }
+                RunResult::Error("Could not retrieve asset.".into())
             }
-        },
-        thread_id,
-    );
+        };
+
+        sender.send_async(run_result).await.unwrap_or(());
+    } else if is_favicon {
+        sender
+            .send_async(RunResult::Response(Response {
+                status: 404,
+                ..Default::default()
+            }))
+            .await
+            .unwrap_or(());
+    } else {
+        last_requests
+            .write()
+            .await
+            .insert(deployment_id.clone(), Instant::now());
+
+        increment_counter!("lagon_isolate_requests", &labels);
+
+        match Request::from_hyper(req).await {
+            Ok(mut request) => {
+                counter!("lagon_bytes_in", request.len() as u64, &labels);
+
+                // Try to Extract the X-Real-Ip header or fallback to remote addr IP
+                let ip = request
+                    .headers
+                    .as_ref()
+                    .map_or(&ip, |headers| {
+                        headers
+                            .get(X_REAL_IP)
+                            .map_or(&ip, |x_real_ip| x_real_ip.get(0).unwrap_or(&ip))
+                    })
+                    .to_string();
+
+                request.set_header(X_FORWARDED_FOR.to_string(), ip);
+                request.set_header(X_LAGON_REGION.to_string(), REGION.to_string());
+
+                let thread_id = get_thread_id(thread_ids, &hostname).await;
+
+                let workers = workers.read().await;
+                let worker = workers.get(&thread_id).unwrap();
+
+                worker
+                    .0
+                    .send_async(WorkerEvent::Request {
+                        deployment,
+                        request,
+                        sender,
+                        labels: labels.clone(),
+                        request_id,
+                    })
+                    .await
+                    .unwrap_or(());
+            }
+            Err(error) => {
+                error!(deployment = &deployment.id, request = request_id; "Error while parsing request: {}", error);
+
+                sender
+                    .send_async(RunResult::Error("Error while parsing request".into()))
+                    .await
+                    .unwrap_or(());
+            }
+        }
+    }
 
     handle_response(
-        rx,
+        receiver,
         (deployment_id, request_id_handle, labels),
         Box::new(|event, (deployment_id, request_id, labels)| match event {
             ResponseEvent::Bytes(bytes) => {
@@ -368,22 +314,24 @@ async fn main() -> Result<()> {
 
     let deployments = get_deployments(conn, bucket.clone(), Arc::clone(&cronjob)).await?;
     let last_requests = Arc::new(RwLock::new(HashMap::new()));
-    let pool = LocalPoolHandle::new(POOL_SIZE);
     let thread_ids = Arc::new(RwLock::new(HashMap::new()));
+
+    let workers = create_workers().await;
+    start_workers(Arc::clone(&workers)).await;
 
     let redis = listen_pub_sub(
         bucket.clone(),
         Arc::clone(&deployments),
-        pool.clone(),
+        Arc::clone(&workers),
         Arc::clone(&cronjob),
     );
-    run_cache_clear_task(Arc::clone(&last_requests), pool.clone());
+    run_cache_clear_task(Arc::clone(&last_requests), Arc::clone(&workers));
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let deployments = Arc::clone(&deployments);
-        let pool = pool.clone();
         let thread_ids = Arc::clone(&thread_ids);
         let last_requests = Arc::clone(&last_requests);
+        let workers = Arc::clone(&workers);
 
         let addr = conn.remote_addr();
         let ip = addr.ip().to_string();
@@ -393,10 +341,10 @@ async fn main() -> Result<()> {
                 handle_request(
                     req,
                     ip.clone(),
-                    pool.clone(),
                     Arc::clone(&deployments),
                     Arc::clone(&thread_ids),
                     Arc::clone(&last_requests),
+                    Arc::clone(&workers),
                 )
             }))
         }

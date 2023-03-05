@@ -56,7 +56,7 @@ enum Commands {
     Dev {
         /// Path to a file or a directory containing a Function
         #[clap(value_parser)]
-        path: PathBuf,
+        path: Option<PathBuf>,
         /// Path to a client-side script
         #[clap(short, long, value_parser)]
         client: Option<PathBuf>,

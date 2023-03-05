@@ -16,13 +16,17 @@ This example replies with JSON, setting the proper `Content-Type` header. [See t
 
 ## Libraries
 
+### HatTip
+
+This example uses [HatTip](https://github.com/hattipjs/hattip), a minimalist express-like library that runs anywhere, via Lagon's adapter. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/hattip)
+
 ### Hono
 
 This example uses [Hono](https://honojs.dev), a small, simple, and ultrafast web framework, via Lagon's adapter. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/hono)
 
-### HatTip
+### Nitro
 
-This example uses [HatTip](https://github.com/hattipjs/hattip), a minimalist express-like library that runs anywhere, via Lagon's adapter. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/hattip)
+This example uses [Nitro](https://nitro.unjs.io/), a library to build and deploy universal JavaScript servers, via Lagon's preset. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/nitro)
 
 ### Preact client-side rendering
 
@@ -57,6 +61,10 @@ This example uses [tRPC](https://trpc.io) server, to build typesafe APIs. [See t
 ### Astro
 
 This example uses [Astro](https://astro.build), a static site generator, with both SSR via Lagon's adapter and prerendering. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/astro)
+
+### Nuxt
+
+This example uses [Nuxt](https://nuxt.com), the intuitive web framework for Vue, with SSR via Lagon's preset. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/nuxt)
 
 ### Rakkas
 

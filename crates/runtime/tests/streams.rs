@@ -136,7 +136,7 @@ async fn custom_response() {
         RunResult::Stream(StreamResult::Done)
     );
     let mut headers = HashMap::new();
-    headers.insert("x-lagon".into(), "test".into());
+    headers.insert("x-lagon".into(), vec!["test".into()]);
     assert_eq!(
         rx.recv_async().await.unwrap(),
         RunResult::Stream(StreamResult::Start(Response {

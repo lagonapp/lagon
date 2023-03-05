@@ -361,12 +361,9 @@ impl Isolate {
                 while let Poll::Ready(Some(BindingResult { id, result })) =
                     isolate_state.promises.poll_next_unpin(cx)
                 {
-                    let promise = isolate_state
-                        .js_promises
-                        .remove(&id)
-                        .unwrap_or_else(|| panic!("JS promise {id} not found"));
-
-                    promises.as_mut().unwrap().push((result, promise));
+                    if let Some(promise) = isolate_state.js_promises.remove(&id) {
+                        promises.as_mut().unwrap().push((result, promise));
+                    }
                 }
 
                 self.running_promises.store(false, Ordering::SeqCst);

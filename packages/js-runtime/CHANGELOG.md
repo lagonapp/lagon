@@ -1,5 +1,17 @@
 # @lagon/js-runtime
 
+## 0.3.5
+
+### Patch Changes
+
+- [#622](https://github.com/lagonapp/lagon/pull/622) [`c0cd90f`](https://github.com/lagonapp/lagon/commit/c0cd90fa08c4861def6196b6527af6cd9aa96ed5) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve getSetCookie conformance
+
+## 0.3.4
+
+### Patch Changes
+
+- [#591](https://github.com/lagonapp/lagon/pull/591) [`0b422d6`](https://github.com/lagonapp/lagon/commit/0b422d698d80a77c5ed92bbb213078292092776f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Split sync and async bindings into LagonSync/LagonAsync
+
 ## 0.3.3
 
 ### Patch Changes

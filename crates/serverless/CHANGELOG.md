@@ -1,5 +1,33 @@
 # @lagon/serverless
 
+## 0.1.22
+
+### Patch Changes
+
+- [#622](https://github.com/lagonapp/lagon/pull/622) [`c0cd90f`](https://github.com/lagonapp/lagon/commit/c0cd90fa08c4861def6196b6527af6cd9aa96ed5) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support multiple request/response headers for set-cookie
+
+## 0.1.21
+
+### Patch Changes
+
+- [#616](https://github.com/lagonapp/lagon/pull/616) [`16b0a43`](https://github.com/lagonapp/lagon/commit/16b0a43cd0df659f360448befa9ca22285728f0a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `LAGON_WORKERS` environment variable to customize the size of the worker's pool
+
+* [#616](https://github.com/lagonapp/lagon/pull/616) [`16b0a43`](https://github.com/lagonapp/lagon/commit/16b0a43cd0df659f360448befa9ca22285728f0a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow concurrent requests of isolates
+
+## 0.1.20
+
+### Patch Changes
+
+- [#614](https://github.com/lagonapp/lagon/pull/614) [`909ff4b`](https://github.com/lagonapp/lagon/commit/909ff4b12ff8dd2f2b282b0c913b14a27ebf7baa) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Reconnect Redis Pub/Sub on error
+
+## 0.1.19
+
+### Patch Changes
+
+- [#591](https://github.com/lagonapp/lagon/pull/591) [`0b422d6`](https://github.com/lagonapp/lagon/commit/0b422d698d80a77c5ed92bbb213078292092776f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add option to load V8 heap snapshot
+
+* [#580](https://github.com/lagonapp/lagon/pull/580) [`74efd18`](https://github.com/lagonapp/lagon/commit/74efd186f97b86dd085c7a90e1f35c78507f5bbe) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use lagon.dev for Lagon-hosted functions
+
 ## 0.1.18
 
 ### Patch Changes

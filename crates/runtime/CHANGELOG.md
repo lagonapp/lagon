@@ -1,5 +1,23 @@
 # @lagon/runtime
 
+## 0.3.5
+
+### Patch Changes
+
+- [#622](https://github.com/lagonapp/lagon/pull/622) [`c0cd90f`](https://github.com/lagonapp/lagon/commit/c0cd90fa08c4861def6196b6527af6cd9aa96ed5) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support multiple request/response headers for set-cookie
+
+* [#623](https://github.com/lagonapp/lagon/pull/623) [`72c78d1`](https://github.com/lagonapp/lagon/commit/72c78d18537cca86aa0106683dcd6ffb9bda1c3c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve objects creation speed
+
+## 0.3.4
+
+### Patch Changes
+
+- [#591](https://github.com/lagonapp/lagon/pull/591) [`0b422d6`](https://github.com/lagonapp/lagon/commit/0b422d698d80a77c5ed92bbb213078292092776f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Split sync and async bindings into LagonSync/LagonAsync
+
+* [#591](https://github.com/lagonapp/lagon/pull/591) [`0b422d6`](https://github.com/lagonapp/lagon/commit/0b422d698d80a77c5ed92bbb213078292092776f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add option to load V8 heap snapshot
+
+- [#603](https://github.com/lagonapp/lagon/pull/603) [`f1271d4`](https://github.com/lagonapp/lagon/commit/f1271d475554ceff750e46cac0f48cef9e91d4e2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Remove unused HTTP client instance
+
 ## 0.3.3
 
 ## 0.3.2

@@ -2,6 +2,7 @@ use anyhow::{anyhow, Result};
 use colored::Colorize;
 use dialoguer::{Confirm, Input};
 use hyper::{Body, Method, Request};
+use std::sync::Arc;
 use std::{
     collections::HashMap,
     fs,
@@ -343,7 +344,7 @@ struct DeployDeploymentResponse {
 }
 
 pub async fn create_deployment(
-    config: &Config,
+    config: Config,
     function_config: &FunctionConfig,
     prod: bool,
     root: &Path,
@@ -352,7 +353,7 @@ pub async fn create_deployment(
 
     let end_progress = print_progress("Creating deployment...");
 
-    let trpc_client = TrpcClient::new(config);
+    let trpc_client = Arc::new(TrpcClient::new(config));
     let response = trpc_client
         .mutation::<CreateDeploymentRequest, CreateDeploymentResponse>(
             "deploymentCreate",
@@ -387,18 +388,17 @@ pub async fn create_deployment(
 
     trpc_client.client.request(request).await?;
 
-    // TODO upload in parallel
+    let mut join_set = tokio::task::JoinSet::new();
     for (asset, url) in assets_urls {
         let asset = assets
             .get(&asset)
             .unwrap_or_else(|| panic!("Couldn't find asset {asset}"));
 
-        let request = Request::builder()
-            .method(Method::PUT)
-            .uri(url)
-            .body(Body::from(asset.clone()))?;
+        join_set.spawn(upload_asset(trpc_client.clone(), asset.clone(), url));
+    }
 
-        trpc_client.client.request(request).await?;
+    while let Some(res) = join_set.join_next().await {
+        res?.expect("Couldn't upload asset");
     }
 
     end_progress();
@@ -428,5 +428,15 @@ pub async fn create_deployment(
         response.result.data.url.blue()
     );
 
+    Ok(())
+}
+
+async fn upload_asset(trpc_client: Arc<TrpcClient>, asset: Vec<u8>, url: String) -> Result<()> {
+    let request = Request::builder()
+        .method(Method::PUT)
+        .uri(url)
+        .body(Body::from(asset))?;
+
+    trpc_client.client.request(request).await?;
     Ok(())
 }

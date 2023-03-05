@@ -73,7 +73,7 @@ pub async fn deploy(
         println!("{}", debug("No deployment config found..."));
         println!();
 
-        let trpc_client = TrpcClient::new(&config);
+        let trpc_client = TrpcClient::new(config.clone());
         let response = trpc_client
             .query::<(), OrganizationsResponse>("organizationsList", None)
             .await?;
@@ -107,7 +107,7 @@ pub async fn deploy(
                 function_config.organization_id = organization.id.clone();
                 function_config.write(&root)?;
 
-                create_deployment(&config, &function_config, prod, &root).await?;
+                create_deployment(config, &function_config, prod, &root).await?;
             }
             false => {
                 let name = Input::<String>::new()
@@ -137,11 +137,11 @@ pub async fn deploy(
                 function_config.organization_id = organization.id.clone();
                 function_config.write(&root)?;
 
-                create_deployment(&config, &function_config, prod, &root).await?;
+                create_deployment(config, &function_config, prod, &root).await?;
             }
         }
     } else {
-        create_deployment(&config, &function_config, prod, &root).await?;
+        create_deployment(config, &function_config, prod, &root).await?;
     }
 
     Ok(())

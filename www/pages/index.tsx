@@ -5,6 +5,19 @@ import { CardsSection } from '../lib/components/sections/CardsSection';
 import { FeaturesSection } from '../lib/components/sections/FeaturesSection';
 import { EdgeNetworkSection } from '../lib/components/sections/EdgeNetworkSection';
 import Head from 'next/head';
+<<<<<<< HEAD
+=======
+import Header from '../lib/components/Header';
+import Globe from '../lib/components/Globe';
+import useSystemTheme from '../lib/hooks/useSystemTheme';
+import { DiscordIcon } from '../lib/components/Icons';
+import { Poppins } from 'next/font/google';
+
+const poppins = Poppins({
+  weight: '600',
+  subsets: ['latin'],
+});
+>>>>>>> main
 
 const Home = () => {
   const ball = useRef<HTMLDivElement>(null);

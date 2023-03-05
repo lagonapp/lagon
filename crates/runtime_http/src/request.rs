@@ -16,7 +16,7 @@ use super::{FromV8, IntoV8, Method};
 
 #[derive(Debug)]
 pub struct Request {
-    pub headers: Option<HashMap<String, String>>,
+    pub headers: Option<HashMap<String, Vec<String>>>,
     pub method: Method,
     pub body: Bytes,
     pub url: String,
@@ -37,37 +37,34 @@ impl Default for Request {
 // We can safely use unwrap here because set only return Just(true) or Empty(), so if it should never fail
 impl IntoV8 for Request {
     fn into_v8<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Object> {
-        let request = v8::Object::new(scope);
+        let mut len = if self.headers.is_some() { 3 } else { 2 };
+        let body_exists = !self.body.is_empty();
 
-        let input_key = v8_string(scope, "i");
-        let input_value = v8_string(scope, &self.url);
-        request
-            .set(scope, input_key.into(), input_value.into())
-            .unwrap();
+        if body_exists {
+            len += 1;
+        }
 
-        let method_key = v8_string(scope, "m");
-        let method_value = v8_string(scope, self.method.into());
-        request
-            .set(scope, method_key.into(), method_value.into())
-            .unwrap();
+        let mut names = Vec::with_capacity(len);
+        let mut values = Vec::with_capacity(len);
 
-        if !self.body.is_empty() {
-            let body_key = v8_string(scope, "b");
-            let body_value = v8_string(scope, &String::from_utf8(self.body.to_vec()).unwrap());
-            request
-                .set(scope, body_key.into(), body_value.into())
-                .unwrap();
+        names.push(v8_string(scope, "i").into());
+        values.push(v8_string(scope, &self.url).into());
+
+        names.push(v8_string(scope, "m").into());
+        values.push(v8_string(scope, self.method.into()).into());
+
+        if body_exists {
+            names.push(v8_string(scope, "b").into());
+            values.push(v8_string(scope, &String::from_utf8(self.body.to_vec()).unwrap()).into());
         }
 
         if let Some(headers) = self.headers {
-            let headers_key = v8_string(scope, "h");
-            let headers_value = v8_headers_object(scope, headers);
-            request
-                .set(scope, headers_key.into(), headers_value.into())
-                .unwrap();
+            names.push(v8_string(scope, "h").into());
+            values.push(v8_headers_object(scope, headers).into());
         }
 
-        request
+        let null = v8::null(scope);
+        v8::Object::with_prototype_and_properties(scope, null.into(), &names, &values)
     }
 }
 
@@ -139,7 +136,10 @@ impl TryFrom<&Request> for http::request::Builder {
 
         if let Some(headers) = &request.headers {
             for (key, value) in headers {
-                builder_headers.insert(HeaderName::from_str(key)?, HeaderValue::from_str(value)?);
+                for value in value {
+                    builder_headers
+                        .append(HeaderName::from_str(key)?, HeaderValue::from_str(value)?);
+                }
             }
         }
 
@@ -158,19 +158,22 @@ impl Request {
     }
 
     pub async fn from_hyper(request: HyperRequest<Body>) -> Result<Self> {
-        let mut headers = HashMap::new();
+        let mut headers = HashMap::<String, Vec<String>>::new();
 
         for (key, value) in request.headers().iter() {
             if key != X_LAGON_ID {
-                headers.insert(key.to_string(), value.to_str().unwrap().to_string());
+                headers
+                    .entry(key.to_string())
+                    .or_default()
+                    .push(value.to_str()?.to_string());
             }
         }
 
         let method = Method::from(request.method());
-        let host = headers
-            .get("host")
-            .map(|host| host.to_string())
-            .unwrap_or_default();
+        let host = headers.get("host").map_or_else(String::new, |host| {
+            host.get(0)
+                .map_or_else(String::new, |value| value.to_string())
+        });
         let url = format!("http://{}{}", host, request.uri().to_string().as_str());
 
         let body = body::to_bytes(request.into_body()).await?;
@@ -187,9 +190,9 @@ impl Request {
         })
     }
 
-    pub fn add_header(&mut self, key: String, value: String) {
+    pub fn set_header(&mut self, key: String, value: String) {
         if let Some(ref mut headers) = self.headers {
-            headers.insert(key, value);
+            headers.insert(key, vec![value]);
         }
     }
 }

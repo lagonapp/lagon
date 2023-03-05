@@ -77,7 +77,13 @@
       const sorted = [...this.h.entries()].sort(([a], [b]) => a.localeCompare(b));
 
       for (const [key, values] of sorted) {
-        yield [key, values.join(', ')];
+        if (key == SET_COOKIE) {
+          for (const value of values) {
+            yield [key, value];
+          }
+        } else {
+          yield [key, values.join(', ')];
+        }
       }
     }
 

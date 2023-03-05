@@ -1,0 +1,16 @@
+{
+  "name": "@lagon/example-nuxt",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "lagon-dev": "pnpm build && lagon dev .output/server/index.mjs -p .output/public"
+  },
+  "devDependencies": {
+    "nuxt": "^3.2.2"
+  }
+}

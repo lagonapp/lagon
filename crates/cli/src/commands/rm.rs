@@ -39,7 +39,7 @@ pub async fn rm(directory: Option<PathBuf>) -> Result<()> {
     {
         true => {
             let end_progress = print_progress("Deleting Function...");
-            TrpcClient::new(&config)
+            TrpcClient::new(config)
                 .mutation::<DeleteFunctionRequest, DeleteFunctionResponse>(
                     "functionDelete",
                     DeleteFunctionRequest {

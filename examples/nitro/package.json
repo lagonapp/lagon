@@ -1,0 +1,13 @@
+{
+  "name": "@lagon/example-nitro",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "nitropack dev",
+    "build": "nitropack build",
+    "lagon-dev": "pnpm build && lagon dev .output/server/index.mjs -p .output/public"
+  },
+  "dependencies": {
+    "nitropack": "^2.2.3"
+  }
+}

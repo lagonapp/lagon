@@ -8,7 +8,7 @@
     "start": "node dist/server",
     "test": "pnpm test:typecheck",
     "test:typecheck": "tsc -p tsconfig.json --noEmit",
-    "lagon-dev": "nr build && lagon dev dist/server/entry-lagon.js -p dist/client"
+    "lagon-dev": "pnpm build && lagon dev dist/server/entry-lagon.js -p dist/client"
   },
   "devDependencies": {
     "@types/react": "^18.0.26",

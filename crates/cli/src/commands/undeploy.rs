@@ -38,7 +38,7 @@ pub async fn undeploy(deployment_id: String, directory: Option<PathBuf>) -> Resu
     {
         true => {
             let end_progress = print_progress("Deleting Deployment...");
-            TrpcClient::new(&config)
+            TrpcClient::new(config)
                 .mutation::<UndeployDeploymentRequest, UndeployDeploymentResponse>(
                     "deploymentUndeploy",
                     UndeployDeploymentRequest {

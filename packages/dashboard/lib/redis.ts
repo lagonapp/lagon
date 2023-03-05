@@ -1,11 +1,8 @@
 import { createClient, RedisClientType } from 'redis';
 
-// @ts-expect-error NodeJS.Global does not exists
-interface CustomNodeJsGlobal extends NodeJS.Global {
+declare const global: typeof globalThis & {
   redis: RedisClientType;
-}
-
-declare const global: CustomNodeJsGlobal;
+};
 
 let redis = global.redis;
 

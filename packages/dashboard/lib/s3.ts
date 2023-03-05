@@ -1,11 +1,8 @@
 import { S3Client } from '@aws-sdk/client-s3';
 
-// @ts-expect-error NodeJS.Global does not exists
-interface CustomNodeJsGlobal extends NodeJS.Global {
+declare const global: typeof globalThis & {
   s3: S3Client;
-}
-
-declare const global: CustomNodeJsGlobal;
+};
 
 const s3 =
   global.s3 ||
