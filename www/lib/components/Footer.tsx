@@ -21,7 +21,7 @@ export const Footer = () => {
   return (
     <footer className="container mx-auto mt-48 flex flex-col justify-between gap-12 py-16 px-8 lg:flex-row lg:gap-0">
       <div className="flex flex-col justify-between gap-4 md:gap-0">
-        <Image src="/logo-small-white.png" width="80" height="24" alt="Lagon Logo" />
+        <Image src="/logo-white.png" width="80" height="24" alt="Lagon Logo" />
         <Text>Copyright © {new Date().getFullYear()} Lagon</Text>
       </div>
       <div className="flex flex-wrap justify-between gap-12 md:gap-32">

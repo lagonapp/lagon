@@ -20,7 +20,7 @@ export const Header = () => {
     <header className="bg-dark/50 container sticky top-0 z-50 mx-auto rounded-md py-4 px-8 backdrop-blur md:rounded-full">
       <div className="flex items-center justify-between">
         <Link href="/">
-          <Image src="/logo-small-white.png" width="80" height="24" alt="Lagon Logo" />
+          <Image src="/logo-white.png" width="80" height="24" alt="Lagon Logo" />
         </Link>
         <button className="px-4 md:hidden" onClick={() => setOpen(!open)} aria-label="Open menu">
           {open ? <CloseIcon /> : <BurgerIcon />}
