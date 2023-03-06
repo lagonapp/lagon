@@ -1,3 +1,5 @@
+// alt attribute is set by props
+/* eslint-disable jsx-a11y/alt-text */
 import Image from 'next/image';
 import { MDXProvider } from '@mdx-js/react';
 import { Text } from '../components/Text';
