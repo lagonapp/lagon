@@ -1,0 +1,36 @@
+import { BlogLayout } from '../../lib/layouts/BlogLayout';
+
+export const meta = {
+  title: 'Unveiling the new website',
+  date: '03/06/2023',
+  description: '',
+  author: {
+    name: 'Tom Lienard',
+    avatar: '/images/avatars/tom.jpg',
+    bio: 'Founder',
+    handle: 'tomlienard',
+  },
+  tags: ['announcement', 'website'],
+};
+
+Lagon is an [open-source](https://github.com/lagonapp/lagon) runtime and platform that allows developers to run TypeScript and JavaScript Serverless Functions at the Edge, close to users. Think of it as an open-source alternative to Cloudflare Workers, Deno Deploy, Fastly@Edge, and other similar platforms.
+
+## Unveiling the new website
+
+Today, we're excited to release a completely new website for Lagon. The design is inspired by the current trend that we observe in the developer space and align with our vision for computing at the edge. We hope that you like it!
+
+As a reminder, here is what the website looked like before:
+
+![Lagon's old website](/images/blog/unveiling-the-new-website/old-website.png)
+
+As you can see, it was very simple - _too simple_ - only a single page with some text and links. We wanted to make it more appealing and easier to understand what Lagon is, by highlighting important features. You can even test your latency to Lagon Cloud by pressing the "Play" button on the homepage!
+
+Of course, this new website is open-source and available on [GitHub](https://github.com/lagonapp/lagon/tree/main/www). Please let us know if you found any bugs or if you have any feedback.
+
+## What's next?
+
+We're working on releasing a public alpha for Lagon Cloud. You can [join the waitlist](https://tally.so/r/n9q1Rp) to be notified when it's ready.
+
+In the meantime, you can join our [Discord](https://discord.lagon.app) and follow us on [Twitter](https://twitter.com/lagonapp) to stay up to date!
+
+export default ({ children }) => <BlogLayout meta={meta}>{children}</BlogLayout>;

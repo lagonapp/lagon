@@ -15,13 +15,13 @@ export const HomeSection = () => {
     <section className="relative flex flex-col items-center justify-center gap-8">
       <div className="flex flex-col items-center gap-4 text-center">
         <motion.a
-          href="/blog/announcing-lagon-alpha"
+          href="/blog/unveiling-the-new-website"
           className="text-grey bg-dark-gray hover:bg-blue-3 z-10 inline-flex gap-2 rounded-full px-4 py-2 text-base transition hover:text-white"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
         >
-          Lagon is in Alpha! <ArrowRightIcon />
+          Unveiling the new website <ArrowRightIcon />
         </motion.a>
         <motion.div
           className="relative max-w-2xl"
@@ -37,7 +37,7 @@ export const HomeSection = () => {
           </Text>
         </motion.div>
         <motion.div
-          className="relative max-w-sm"
+          className="relative max-w-md"
           initial={{ opacity: 0, top: 20 }}
           animate={{ opacity: 1, top: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
