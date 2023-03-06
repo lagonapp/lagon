@@ -454,8 +454,7 @@ importers:
       '@heroicons/react': ^2.0.13
       '@mdx-js/loader': ^2.2.1
       '@mdx-js/react': ^2.2.1
-      '@next/font': 13.1.6
-      '@next/mdx': ^13.1.6
+      '@next/mdx': 13.2.3
       '@radix-ui/react-tooltip': ^1.0.3
       '@types/node': ^18.0.0
       '@types/react': ^18.0.9
@@ -480,7 +479,6 @@ importers:
       '@heroicons/react': 2.0.13_react@18.2.0
       '@mdx-js/loader': 2.3.0
       '@mdx-js/react': 2.2.1_react@18.2.0
-      '@next/font': 13.1.6
       '@next/mdx': 13.2.3_bh4mxjirejtsr2ma3dim5k3lfi
       '@radix-ui/react-tooltip': 1.0.4_twyhzqqpkwvvgrmyeapdo6i4my
       '@vercel/analytics': 0.1.10_react@18.2.0
@@ -6333,10 +6331,6 @@ packages:
     dependencies:
       glob: 7.1.7
     dev: true
-
-  /@next/font/13.1.6:
-    resolution: {integrity: sha512-AITjmeb1RgX1HKMCiA39ztx2mxeAyxl4ljv2UoSBUGAbFFMg8MO7YAvjHCgFhD39hL7YTbFjol04e/BPBH5RzQ==}
-    dev: false
 
   /@next/mdx/13.2.3_bh4mxjirejtsr2ma3dim5k3lfi:
     resolution: {integrity: sha512-4xo0wF6FMrtQI7587Z6pbXd6crtGJI3axZ2kxbxCNC0osjlLUSeCNg2lahi8JTEpyc0+KH6B0e0bhsymTMkw7Q==}

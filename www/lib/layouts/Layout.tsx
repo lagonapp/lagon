@@ -1,4 +1,4 @@
-import { Inter } from '@next/font/google';
+import { Inter } from 'next/font/google';
 import { Header } from '../components/Header';
 import useSystemTheme from '../hooks/useSystemTheme';
 import { ReactNode } from 'react';
