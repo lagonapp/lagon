@@ -2,6 +2,105 @@
 @tailwind components;
 @tailwind utilities;
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  @apply bg-neutral-900
+  overflow-x: hidden;
+}
+
+*::selection {
+  background-color: #A449FF;
+  color: #fff;
+}
+
+.bg-radial-gradient-white {
+  background-image: radial-gradient(circle at center, #FFFFFF, rgba(255, 255, 255, 0.75))
+}
+
+.bg-gradient-tertiary-button {
+  background: linear-gradient(#050211, #050211) padding-box, radial-gradient(circle at 20% 0%, rgb(135, 157, 188), rgb(31, 32, 47) 40%) border-box;
+}
+
+.bg-gradient-secondary-button {
+  background: linear-gradient(#050211, #050211) padding-box, radial-gradient(circle at 20% 0%, rgb(199, 225, 253), #449aff 40%) border-box;
+}
+
+.bg-gradient-primary-button {
+  background: linear-gradient(to bottom, #449aff 50%, #446dff) padding-box, radial-gradient(circle at 20% 0%, rgb(199, 225, 253), #449aff 40%) border-box;
+}
+
+.bg-gradient-tertiary-button:hover,
+.bg-gradient-secondary-button:hover,
+.bg-gradient-primary-button:hover {
+  background-position: 60px 0;
+}
+
+.tooltip {
+  animation: 300ms ease;
+}
+
+.tooltip[data-state='delayed-open'] {
+  animation-name: slide-up-fade;
+}
+
+@keyframes line-bottom-left {
+  0% {
+    transform: rotate(-135deg) translateY(0);
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 0;
+  }
+
+  100% {
+    transform: rotate(-135deg) translateY(200%);
+    opacity: 0;
+  }
+}
+
+@keyframes star {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes text-carousel {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(0, calc(4 * 60 * -1px));
+  }
+}
+
+@keyframes text-carousel-line {
+  0% {
+    transform: translate(0, 0);
+  }
+  50%,
+  100%  {
+    transform: translate(0, -60px);
+  }
+}
+
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

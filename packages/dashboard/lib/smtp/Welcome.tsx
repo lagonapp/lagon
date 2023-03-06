@@ -18,7 +18,7 @@ export function Welcome({ name }: WelcomeProps) {
       <Head />
       <Preview>
         Welcome to Lagon, an open-source runtime and platform that allows developers to run TypeScript and JavaScript
-        Functions at the Edge.
+        Serverless Functions at the Edge, close to users.
       </Preview>
       <Section style={main}>
         <Container style={container}>
@@ -26,7 +26,7 @@ export function Welcome({ name }: WelcomeProps) {
           <Text style={paragraph}>Hi {name},</Text>
           <Text style={paragraph}>
             Welcome to Lagon, an open-source runtime and platform that allows developers to run TypeScript and
-            JavaScript Functions at the Edge.
+            JavaScript Serverless Functions at the Edge, close to users.
           </Text>
           <Text style={paragraph}>
             We are excited to have you on board! Start your journey by deploying your first Function:

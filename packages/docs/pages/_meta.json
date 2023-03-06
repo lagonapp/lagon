@@ -1,10 +1,10 @@
 {
-  "index": "Introduction",
-  "get-started": "Get started",
-  "runtime-apis": "Runtime APIs",
-  "cli": "CLI",
-  "examples": "Examples",
-  "cloud": "Cloud",
-  "self-hosted": "Self-hosted",
-  "contributing": "Contributing"
+    "index": "Introduction",
+    "get-started": "Get started",
+    "runtime-apis": "Runtime APIs",
+    "cli": "CLI",
+    "examples": "Examples",
+    "cloud": "Cloud",
+    "self-hosted": "Self-hosted",
+    "contributing": "Contributing"
 }

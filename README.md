@@ -10,13 +10,6 @@
     <br />
     <a align="center" href="https://discord.lagon.dev" alt="Discord"><img src="https://img.shields.io/discord/996005154753093713" /></a>
     <a href="https://github.com/lagonapp/lagon/actions/workflows/wpt.yml" alt="web-platform-tests"><img src="https://wpt.lagon.dev" /></a>
-    <br />
-    <br />
-    Open Source • TypeScript • Web APIs
-    <br />
-    Cron triggers • Instant deployments
-    <br />
-    Interactive Playground
   </p>
 </p>
 
@@ -26,15 +19,15 @@
 
 ## About
 
-Lagon is an open-source runtime and platform that allows developers to run TypeScript and JavaScript Functions at the Edge, using V8 Isolates. It's also self-hostable.
+Lagon is an open-source runtime and platform that allows developers to run TypeScript and JavaScript Serverless Functions close to users.
 
-> **Warning**: Lagon is still in heavy development. Do not use for production usages.
+> **Warning**: Lagon is still in development. Do not use for production usages.
 
 Current status:
 
 - **Dev**: In heavy development, features are being added and APIs have breaking changes
-- ~Alpha~: Missing features and bugs to fix, not ready for production usage
-- ~Beta~: Stable APIs, last bugs are being fixed and last features are being added
+- ~Alpha~: Missing features and bugs to fix, progressive access to Lagon Cloud ([waitlist](https://tally.so/r/n9q1Rp))
+- ~Beta~: Stable APIs, last features are being added, Lagon Cloud available without a waitlist
 - ~General Availability~: Cloud and self-hosted versions available for production usage
 
 ## Packages
@@ -60,15 +53,13 @@ Current status:
 
 ## Roadmap
 
-Lagon is a fairly recent project. It is still in heavy development, so expect breaking changes and buggy features.
+The roadmap is accessible to anyone on GitHub. Feel free to open an issue to discuss new features that you would like to see implemented.
 
 [See the roadmap on GitHub](https://github.com/orgs/lagonapp/projects/1)
 
 ## Contributing
 
-The roadmap is accessible to anyone on GitHub. Feel free to open an issue to discuss new features that you would like to see implemented.
-
-[See the roadmap on GitHub](https://github.com/orgs/lagonapp/projects/1)
+[See the contributing guide](https://docs.lagon.app/contributing)
 
 ## How it works
 

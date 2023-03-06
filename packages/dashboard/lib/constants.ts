@@ -25,7 +25,7 @@ export const REGIONS = {
   'ashburn-us-east': 'Ashburn (us-east)',
   'hillsboro-us-west': 'Hillsboro (us-west)',
   'san-francisco-us-west': 'San Francisco (us-west)',
-  'montreal-ca-east': 'Montreal (ca-east)',
+  'beauharnois-ca-east': 'Beauharnois (ca-east)',
   'london-eu-west': 'Londo (eu-west)',
   'paris-eu-west': 'Paris (eu-west)',
   'nuremberg-eu-central': 'Nuremberg (eu-central)',
