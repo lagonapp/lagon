@@ -40,8 +40,6 @@ async fn run(
     let mut conn = client.get_connection()?;
     let mut pub_sub = conn.as_pubsub();
 
-    info!("Redis Pub/Sub connected");
-
     pub_sub.subscribe("deploy")?;
     pub_sub.subscribe("undeploy")?;
     pub_sub.subscribe("promote")?;
