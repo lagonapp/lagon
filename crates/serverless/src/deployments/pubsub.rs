@@ -47,6 +47,8 @@ async fn run(
     pub_sub.subscribe("promote")?;
 
     loop {
+        tokio::task::yield_now().await;
+
         let msg = pub_sub.get_message()?;
         let channel = msg.get_channel_name();
         let payload: String = msg.get_payload()?;
