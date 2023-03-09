@@ -1,7 +1,7 @@
 use std::{collections::HashMap, env, sync::Arc};
 
 use anyhow::Result;
-use log::{error, info, warn};
+use log::{error, warn};
 use metrics::increment_counter;
 use s3::Bucket;
 use serde_json::Value;
