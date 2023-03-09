@@ -1,7 +1,7 @@
 use std::{collections::HashMap, env, sync::Arc};
 
 use anyhow::Result;
-use log::{error, warn};
+use log::{error, info, warn};
 use metrics::increment_counter;
 use s3::Bucket;
 use serde_json::Value;
@@ -40,11 +40,15 @@ async fn run(
     let mut conn = client.get_connection()?;
     let mut pub_sub = conn.as_pubsub();
 
+    info!("Redis Pub/Sub connected");
+
     pub_sub.subscribe("deploy")?;
     pub_sub.subscribe("undeploy")?;
     pub_sub.subscribe("promote")?;
 
     loop {
+        tokio::task::yield_now().await;
+
         let msg = pub_sub.get_message()?;
         let channel = msg.get_channel_name();
         let payload: String = msg.get_payload()?;
