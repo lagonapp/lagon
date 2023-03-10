@@ -465,7 +465,7 @@ importers:
       cobe: ^0.6.0
       eslint: ^8.16.0
       eslint-config-next: 13.2.3
-      framer-motion: ^9.1.7
+      framer-motion: ^10.0.0
       next: 13.2.3
       next-sitemap: ^3.1.52
       postcss: ^8.4.14
@@ -497,7 +497,7 @@ importers:
       autoprefixer: 10.4.7_postcss@8.4.14
       eslint: 8.19.0
       eslint-config-next: 13.2.3_4x5o4skxv6sl53vpwefgt23khm
-      framer-motion: 9.1.7_biqbaboplfbrettd7655fr4n2y
+      framer-motion: 10.2.4_biqbaboplfbrettd7655fr4n2y
       postcss: 8.4.14
       tailwindcss: 3.1.4_postcss@8.4.14
       typescript: 4.7.4
@@ -15249,11 +15249,16 @@ packages:
       map-cache: 0.2.2
     dev: true
 
-  /framer-motion/9.1.7_biqbaboplfbrettd7655fr4n2y:
-    resolution: {integrity: sha512-nKxBkIO4IPkMEqcBbbATxsVjwPYShKl051yhBv9628iAH6JLeHD0siBHxkL62oQzMC1+GNX73XtPjgP753ufuw==}
+  /framer-motion/10.2.4_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-0a5yR1jwOfSO0jJEpZUrgWYEa1EPU2yGVmytSu+uMYWV7bcFHwaHVYz2GchzWPH1rW7nXg8zmw8cp4+zNJJaUA==}
     peerDependencies:
       react: ^18.0.0
       react-dom: ^18.0.0
+    peerDependenciesMeta:
+      react:
+        optional: true
+      react-dom:
+        optional: true
     dependencies:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
