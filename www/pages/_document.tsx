@@ -1,5 +1,6 @@
 import Document, { Html, Head, Main, NextScript } from 'next/document';
 import { DESCRIPTION, SHORT_DESCRIPTION } from '../lib/constants';
+import { theme } from '../tailwind.config';
 
 class MyDocument extends Document {
   render() {
@@ -7,6 +8,7 @@ class MyDocument extends Document {
       <Html lang="en">
         <Head>
           <meta name="description" content={`${SHORT_DESCRIPTION}. ${DESCRIPTION}`} />
+          <meta name="theme-color" content={theme.colors.dark} />
 
           <meta property="og:url" content="https://lagon.app" />
           <meta property="og:type" content="website" />
