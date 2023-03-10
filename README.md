@@ -35,7 +35,7 @@ Current status:
 - **[cli](./crates/cli)** CLI to manage Functions
 - **[dashboard](./packages/dashboard)** Dashboard and API
 - **[docs](./packages/docs)** Documentation website
-- **[js-runtime](./packages/runtime)** JavaScript code for the Runtime, containing the Web APIs
+- **[js-runtime](./packages/js-runtime)** JavaScript code for the Runtime, containing the Web APIs
 - **[runtime](./crates/runtime)** Rust JavaScript Runtime, using V8 Isolates
 - **[serverless](./crates/serverless)** HTTP entrypoint for Functions, using the Runtime and exporting metrics
 - **[ui](./packages/ui)** Design system
