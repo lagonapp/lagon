@@ -70,6 +70,10 @@ export default {
   'settings.members.invite.success': 'Member has been invited.',
   'settings.members.joined': 'Joined at:',
   'settings.members.remove': 'Remove member',
+  'settings.members.remove.modal.title': 'Remove member from your Organization',
+  'settings.members.remove.modal.description': 'Are you sure you want to remove {member} from {organization}?',
+  'settings.members.remove.modal.submit': 'Remove member',
+  'settings.members.remove.success': 'User removed from your Organization successfully.',
 
   'settings.transfer.title': 'Transfer',
   'settings.transfer.description': 'Transfer the ownership of this Organization to another user.',

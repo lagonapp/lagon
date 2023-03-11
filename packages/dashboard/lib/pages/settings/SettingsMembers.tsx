@@ -1,12 +1,84 @@
-import { Card, Text, Input, Button, Form, Dialog, Divider } from '@lagon/ui';
+import { Card, Text, Input, Button, Form, Dialog, Divider, Skeleton } from '@lagon/ui';
+import useOrganizationMembers from 'lib/hooks/useOrganizationMembers';
+import { trpc } from 'lib/trpc';
 import { useI18n } from 'locales';
 import { useSession } from 'next-auth/react';
+import { Suspense } from 'react';
 import toast from 'react-hot-toast';
+
+const Members = () => {
+  const { scopedT } = useI18n();
+  const t = scopedT('settings.members');
+  const { data: session } = useSession();
+  const { data: organizationMembers } = useOrganizationMembers();
+
+  const isOrganizationOwner = session?.user.id === organizationMembers?.owner.id;
+
+  const organizationRemoveMember = trpc.organizationRemoveMember.useMutation();
+
+  const removeMember = async (userId: string) => {
+    await organizationRemoveMember.mutateAsync({
+      userId,
+    });
+
+    toast.success(t('remove.success'));
+  };
+
+  return (
+    <>
+      <Divider />
+      <div className="flex items-center justify-between gap-4 px-4">
+        <Text strong>{organizationMembers?.owner.email}</Text>
+        <Button variant="danger" disabled>
+          {t('remove')}
+        </Button>
+      </div>
+      {organizationMembers?.members.map(member => (
+        <>
+          <Divider />
+          <div className="flex items-center justify-between gap-4 px-4" key={member.user.id}>
+            <Text>{member.user.email}</Text>
+            <Text size="sm">
+              {t('joined')}&nbsp;
+              {new Date(member.createdAt).toLocaleString('en-US', {
+                minute: 'numeric',
+                hour: 'numeric',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </Text>
+            <Dialog
+              title={t('remove.modal.title')}
+              description={t('remove.modal.description', {
+                member: member.user.email,
+                organization: session?.organization.name,
+              })}
+              disclosure={
+                <Button variant="danger" disabled={!isOrganizationOwner}>
+                  {t('remove')}
+                </Button>
+              }
+            >
+              <Dialog.Buttons>
+                <Dialog.Cancel disabled />
+                <Dialog.Action variant="danger" onClick={async () => removeMember(member.user.id)} disabled>
+                  {t('remove.modal.submit')}
+                </Dialog.Action>
+              </Dialog.Buttons>
+            </Dialog>
+          </div>
+        </>
+      ))}
+    </>
+  );
+};
 
 const SettingsMember = () => {
   const { scopedT } = useI18n();
   const t = scopedT('settings');
-  const { data: session } = useSession();
+
+  const organizationAddMember = trpc.organizationAddMember.useMutation();
 
   return (
     <div className="flex flex-col gap-8">
@@ -20,15 +92,18 @@ const SettingsMember = () => {
             disclosure={<Button variant="primary">{t('members.invite')}</Button>}
           >
             <Form
-              // TODO
-              onSubmit={async () => null}
+              onSubmit={async ({ email }) => {
+                await organizationAddMember.mutateAsync({
+                  email,
+                });
+              }}
               onSubmitSuccess={() => {
                 toast.success(t('members.invite.success'));
               }}
             >
               {({ handleSubmit }) => (
                 <>
-                  <Input name="confirm" type="email" placeholder="john@doe.com" />
+                  <Input name="email" type="email" placeholder="john@doe.com" />
                   <Dialog.Buttons>
                     <Dialog.Cancel disabled={false} />
                     <Dialog.Action variant="primary" onClick={handleSubmit} disabled={false}>
@@ -42,40 +117,9 @@ const SettingsMember = () => {
         }
       >
         <div>
-          <Divider />
-          <div className="flex items-center justify-between gap-4 px-4">
-            <Text strong>{session?.user?.email}</Text>
-            <Text size="sm">
-              {t('members.joined')}&nbsp;
-              {new Date().toLocaleString('en-US', {
-                minute: 'numeric',
-                hour: 'numeric',
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </Text>
-            <Button variant="danger" disabled>
-              {t('members.remove')}
-            </Button>
-            {/* TODO: map over the users */}
-            {/* <Dialog
-              title={t('tokens.delete.modal.title')}
-              description={t('tokens.delete.modal.description')}
-              disclosure={
-                <Button variant="danger" disabled={deleteToken.isLoading}>
-                  {t('tokens.delete.submit')}
-                </Button>
-              }
-            >
-              <Dialog.Buttons>
-                <Dialog.Cancel disabled={deleteToken.isLoading} />
-                <Dialog.Action variant="danger" onClick={() => removeToken(token)} disabled={deleteToken.isLoading}>
-                  {t('tokens.delete.modal.submit')}
-                </Dialog.Action>
-              </Dialog.Buttons>
-            </Dialog> */}
-          </div>
+          <Suspense fallback={<Skeleton variant="text" />}>
+            <Members />
+          </Suspense>
         </div>
       </Card>
       <Form

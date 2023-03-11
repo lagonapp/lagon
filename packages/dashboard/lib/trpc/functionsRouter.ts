@@ -23,6 +23,7 @@ import {
   isFunctionNameUnique,
 } from 'lib/api/functions';
 import { getPlanFromPriceId } from 'lib/plans';
+import { checkIsOrganizationOwner } from 'lib/api/organizations';
 
 const axiomClient = new Client({
   orgId: process.env.AXIOM_ORG_ID,
@@ -443,6 +444,11 @@ export const functionsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input, ctx }) => {
+        await checkIsOrganizationOwner({
+          organizationId: ctx.session.organization.id,
+          ownerId: ctx.session.user.id,
+        });
+
         await checkCanQueryFunction({
           functionId: input.functionId,
           ownerId: ctx.session.user.id,
