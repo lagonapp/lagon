@@ -1,6 +1,6 @@
 import { inferAsyncReturnType, initTRPC, TRPCError } from '@trpc/server';
 import * as trpcNext from '@trpc/server/adapters/next';
-import { unstable_getServerSession } from 'next-auth/next';
+import { getServerSession } from 'next-auth/next';
 import { functionsRouter } from 'lib/trpc/functionsRouter';
 import { organizationsRouter } from 'lib/trpc/organizationsRouter';
 import { tokensRouter } from 'lib/trpc/tokensRouter';
@@ -78,7 +78,7 @@ const createContext = async ({
       },
     };
   } else {
-    const session = await unstable_getServerSession(req, res, authOptions);
+    const session = await getServerSession(req, res, authOptions);
 
     if (!session) {
       throw new TRPCError({

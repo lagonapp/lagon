@@ -2,12 +2,14 @@ import { Text, Card, Button } from '@lagon/ui';
 import { useI18n } from 'locales';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import { useState } from 'react';
 
 const SignIn = () => {
   const { scopedT } = useI18n();
   const t = scopedT('signin');
   const { push } = useRouter();
   const { status } = useSession();
+  const [isLoading, setIsLoading] = useState(false);
 
   if (status === 'authenticated') {
     push('/');
@@ -23,11 +25,13 @@ const SignIn = () => {
           </div>
           <Button
             variant="primary"
-            onClick={() =>
+            disabled={isLoading}
+            onClick={() => {
+              setIsLoading(true);
               signIn('github', {
                 callbackUrl: '/',
-              })
-            }
+              });
+            }}
           >
             {t('github')}
           </Button>
