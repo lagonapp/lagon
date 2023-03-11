@@ -74,6 +74,10 @@ export default defineLocale({
   'settings.members.invite.success': 'Le membre a été invité.',
   'settings.members.joined': 'Rejoins le :',
   'settings.members.remove': 'Supprimer le membre',
+  'settings.members.remove.modal.title': 'Supprimer ce membre de cette Organisation',
+  'settings.members.remove.modal.description': 'Etes-vous sûr de vouloir supprimer {member} de {organization} ?',
+  'settings.members.remove.modal.submit': 'Supprimer le membre',
+  'settings.members.remove.success': "Membre supprimé de l'Organisation",
 
   'settings.transfer.title': 'Transférer',
   'settings.transfer.description': "Transférer la propriété de l'Organisation a un autre utilisateur.",

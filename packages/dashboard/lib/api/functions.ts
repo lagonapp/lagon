@@ -59,7 +59,7 @@ export async function checkCanCreateFunction({
   if (functions >= plan.maxFunctions) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
-      message: `You can only have ${plan.maxFunctions} Functions per Organization`,
+      message: `You can only have ${plan.maxFunctions} Functions per Organization in your current plan`,
     });
   }
 }

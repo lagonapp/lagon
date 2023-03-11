@@ -2,7 +2,6 @@ import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
 import fetch from 'node-fetch';
-import * as Sentry from '@sentry/nextjs';
 import { checkCanQueryFunction } from 'lib/api/functions';
 
 const getStep = (timeframe: Timeframe) => {

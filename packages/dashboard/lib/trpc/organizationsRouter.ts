@@ -1,10 +1,16 @@
 import { removeFunction } from 'lib/api/deployments';
-import { checkCanCreateOrganization, checkIsOrganizationOwner } from 'lib/api/organizations';
+import {
+  checkCanAddMember,
+  checkCanCreateOrganization,
+  checkIsOrganizationOwner,
+  hasOrganizationMember,
+} from 'lib/api/organizations';
 import {
   ORGANIZATION_DESCRIPTION_MAX_LENGTH,
   ORGANIZATION_NAME_MAX_LENGTH,
   ORGANIZATION_NAME_MIN_LENGTH,
 } from 'lib/constants';
+import { getPlanFromPriceId } from 'lib/plans';
 import prisma from 'lib/prisma';
 import { stripe } from 'lib/stripe';
 import { T } from 'pages/api/trpc/[trpc]';
@@ -13,7 +19,7 @@ import { z } from 'zod';
 export const organizationsRouter = (t: T) =>
   t.router({
     organizationsList: t.procedure.query(async ({ ctx }) => {
-      return prisma.organization.findMany({
+      const ownerOrganizations = await prisma.organization.findMany({
         where: {
           ownerId: ctx.session.user.id,
         },
@@ -22,6 +28,22 @@ export const organizationsRouter = (t: T) =>
           name: true,
         },
       });
+
+      const memberOrganizations = await prisma.organization.findMany({
+        where: {
+          members: {
+            some: {
+              userId: ctx.session.user.id,
+            },
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+        },
+      });
+
+      return [...ownerOrganizations, ...memberOrganizations];
     }),
     organizationCreate: t.procedure
       .input(
@@ -164,6 +186,133 @@ export const organizationsRouter = (t: T) =>
 
         return { ok: true };
       }),
+    organizationMembers: t.procedure.query(async ({ ctx }) => {
+      return prisma.organization.findFirst({
+        where: {
+          id: ctx.session.organization.id,
+        },
+        select: {
+          owner: {
+            select: {
+              id: true,
+              email: true,
+            },
+          },
+          members: {
+            select: {
+              user: {
+                select: {
+                  id: true,
+                  email: true,
+                },
+              },
+              createdAt: true,
+            },
+          },
+        },
+      });
+    }),
+    organizationAddMember: t.procedure
+      .input(
+        z.object({
+          email: z.string().email(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        const plan = getPlanFromPriceId({
+          priceId: ctx.session.organization.stripePriceId,
+          currentPeriodEnd: ctx.session.organization.stripeCurrentPeriodEnd,
+        });
+
+        await checkCanAddMember({
+          organizationId: ctx.session.organization.id,
+          plan,
+        });
+
+        await checkIsOrganizationOwner({
+          organizationId: ctx.session.organization.id,
+          ownerId: ctx.session.user.id,
+        });
+
+        const hasMember = await hasOrganizationMember({
+          email: input.email,
+          organizationId: ctx.session.organization.id,
+        });
+
+        if (hasMember) {
+          throw new Error('User is already a member of this organization');
+        }
+
+        const user = await prisma.user.count({
+          where: {
+            email: input.email,
+          },
+        });
+
+        if (user === 0) {
+          throw new Error('User does not exist');
+        }
+
+        await prisma.organizationMember.create({
+          data: {
+            user: {
+              connect: {
+                email: input.email,
+              },
+            },
+            organization: {
+              connect: {
+                id: ctx.session.organization.id,
+              },
+            },
+          },
+        });
+
+        return { ok: true };
+      }),
+    organizationRemoveMember: t.procedure
+      .input(
+        z.object({
+          userId: z.string(),
+        }),
+      )
+      .mutation(async ({ ctx, input }) => {
+        await checkIsOrganizationOwner({
+          organizationId: ctx.session.organization.id,
+          ownerId: ctx.session.user.id,
+        });
+
+        const hasMember = await hasOrganizationMember({
+          id: input.userId,
+          organizationId: ctx.session.organization.id,
+        });
+
+        if (!hasMember) {
+          throw new Error('User is not a member of this organization');
+        }
+
+        const organizationMember = await prisma.organizationMember.findFirst({
+          where: {
+            organizationId: ctx.session.organization.id,
+            userId: input.userId,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        if (!organizationMember) {
+          throw new Error('Could not find organization member');
+        }
+
+        await prisma.organizationMember.delete({
+          where: {
+            id: organizationMember.id,
+          },
+        });
+
+        return { ok: true };
+      }),
     organizationSetCurrent: t.procedure
       .input(
         z.object({
@@ -171,11 +320,6 @@ export const organizationsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        await checkIsOrganizationOwner({
-          organizationId: input.organizationId,
-          ownerId: ctx.session.user.id,
-        });
-
         await prisma.user.update({
           where: {
             id: ctx.session.user.id,
@@ -194,6 +338,11 @@ export const organizationsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input, ctx }) => {
+        await checkIsOrganizationOwner({
+          organizationId: ctx.session.organization.id,
+          ownerId: ctx.session.user.id,
+        });
+
         const session = await stripe.checkout.sessions.create({
           billing_address_collection: 'auto',
           line_items: [
@@ -221,7 +370,12 @@ export const organizationsRouter = (t: T) =>
           stripeCustomerId: z.string(),
         }),
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        await checkIsOrganizationOwner({
+          organizationId: ctx.session.organization.id,
+          ownerId: ctx.session.user.id,
+        });
+
         const session = await stripe.billingPortal.sessions.create({
           customer: input.stripeCustomerId,
           return_url: `${process.env.NEXTAUTH_URL}/settings`,

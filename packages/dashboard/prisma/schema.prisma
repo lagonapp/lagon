@@ -46,27 +46,29 @@ model Session {
 }
 
 model User {
-  id                    String         @id @default(cuid())
+  id                    String               @id @default(cuid())
   name                  String?
-  email                 String?        @unique
+  email                 String?              @unique
   emailVerified         DateTime?
   image                 String?
   verificationCode      String?
   currentOrganizationId String?
   accounts              Account[]
   sessions              Session[]
-  organizations         Organization[]
+  organizationsOwner    Organization[]
   tokens                Token[]
+  organizationsMember   OrganizationMember[]
 }
 
 model Organization {
-  id          String     @id @default(cuid())
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id          String               @id @default(cuid())
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
   name        String
   description String?
   ownerId     String
-  owner       User       @relation(fields: [ownerId], references: [id])
+  owner       User                 @relation(fields: [ownerId], references: [id])
+  members     OrganizationMember[]
   functions   Function[]
 
   stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
@@ -75,6 +77,19 @@ model Organization {
   stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
 
   @@index([ownerId])
+}
+
+model OrganizationMember {
+  id             String       @id @default(cuid())
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  userId         String
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId])
+  @@index([userId])
 }
 
 model Function {
