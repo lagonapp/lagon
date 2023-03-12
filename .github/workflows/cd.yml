@@ -1,10 +1,8 @@
 name: CD
 on:
-  workflow_run:
-    workflows:
-      - Release
-    types:
-      - completed
+  push:
+    tags:
+      - '@lagon/cli@*'
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -96,7 +94,7 @@ jobs:
           path: crates/cli/${{ matrix.asset_name }}.tar.gz
       - name: Upload to release
         uses: softprops/action-gh-release@v1
-        if: github.event_name == 'workflow_run'
+        if: github.event_name == 'push'
         with:
           files: crates/cli/${{ matrix.asset_name }}.tar.gz
           token: ${{ secrets.GITHUB_TOKEN }}
