@@ -1,5 +1,17 @@
 # @lagon/dashboard
 
+## 0.3.0
+
+### Minor Changes
+
+- [#657](https://github.com/lagonapp/lagon/pull/657) [`3116800`](https://github.com/lagonapp/lagon/commit/3116800f9af3b28fce8af558023e04d4c2a1742c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add organization members
+
+### Patch Changes
+
+- [#658](https://github.com/lagonapp/lagon/pull/658) [`ca78f3a`](https://github.com/lagonapp/lagon/commit/ca78f3a829f2fa34e02c9e5df0d22ca72e9f2386) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Disable Sign In button while loading
+
+* [#251](https://github.com/lagonapp/lagon/pull/251) [`a3b73c6`](https://github.com/lagonapp/lagon/commit/a3b73c623136db5a4840e1d43138ecd96b66059e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Update Montreal region to Beauharnois
+
 ## 0.2.3
 
 ### Patch Changes
