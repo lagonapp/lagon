@@ -87,7 +87,9 @@ Navigate to `crates/cli` and run `cargo run` to start the CLI. You can pass argu
 
 Make sure you've followed the [Requirements](#requirements) and the [JS Runtime](#js-runtime) setup.
 
-Navigate to `crates/wpt-runner` and run `cargo run` to start the WPT Runner. You can optionally pass a path to a specific file or directory to run the tests on. For example, `cargo run -- ../../tools/wpt/fetch/api/headers/header-setcookie.any.js`
+First, you'll need to update the WPT submodule. Navigate to `tools/wpt` and run `git submodule update --init`.
+
+Then, navigate to `crates/wpt-runner` and run `cargo run` to start the WPT Runner. You can optionally pass a path to a specific file or directory to run the tests on. For example, `cargo run -- ../../tools/wpt/fetch/api/headers/header-setcookie.any.js`
 
 Every time you update the js-runtime code, you will need to rebuild it. We recommend running the `dev` script of js-runtime to watch for changes and automatically rebuild.
 
