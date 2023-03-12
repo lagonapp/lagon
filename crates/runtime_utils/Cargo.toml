@@ -12,3 +12,7 @@ tokio = { version = "1", features = ["rt-multi-thread"] }
 
 [dev-dependencies]
 tokio = { version = "1", features = ["macros"] }
+
+[features]
+default = []
+test = []

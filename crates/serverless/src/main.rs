@@ -1,24 +1,12 @@
 use anyhow::Result;
-use cronjob::Cronjob;
-use dashmap::DashMap;
-use deployments::cache::run_cache_clear_task;
-use deployments::Deployments;
-use hyper::header::HOST;
-use hyper::http::response::Builder;
-use hyper::server::conn::AddrStream;
-use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
-use lagon_runtime_http::{
-    Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP,
-};
-use lagon_runtime_isolate::CONSOLE_SOURCE;
-use lagon_runtime_utils::assets::{find_asset, handle_asset};
-use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL, PAGE_404};
+use lagon_serverless::cronjob::Cronjob;
+use lagon_serverless::deployments::downloader::S3BucketDownloader;
+use lagon_serverless::deployments::get_deployments;
+use lagon_serverless::serverless::start;
+use lagon_serverless::REGION;
 use lagon_serverless_logger::init_logger;
-use lazy_static::lazy_static;
-use log::{as_debug, error, info, warn};
-use metrics::{counter, increment_counter};
+use log::info;
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
 #[cfg(not(debug_assertions))]
@@ -27,231 +15,10 @@ use s3::creds::Credentials;
 use s3::Bucket;
 #[cfg(not(debug_assertions))]
 use std::borrow::Cow;
-use std::convert::Infallible;
 use std::env;
 use std::net::SocketAddr;
-use std::path::Path;
 use std::sync::Arc;
-use std::time::Instant;
 use tokio::sync::Mutex;
-use worker::{create_workers, start_workers, Workers};
-
-use crate::deployments::get_deployments;
-use crate::deployments::pubsub::listen_pub_sub;
-use crate::worker::{get_thread_id, WorkerEvent};
-
-mod cronjob;
-mod deployments;
-mod worker;
-
-lazy_static! {
-    pub static ref REGION: String = env::var("LAGON_REGION").expect("LAGON_REGION must be set");
-    pub static ref WORKERS: usize = env::var("LAGON_WORKERS")
-        .expect("LAGON_WORKERS must be set")
-        .parse::<usize>()
-        .expect("LAGON_WORKERS must be a number");
-}
-
-const SNAPSHOT_BLOB: &[u8] = include_bytes!("../snapshot.bin");
-
-fn handle_error(
-    result: RunResult,
-    deployment_id: &String,
-    request_id: &String,
-    labels: &[(&'static str, String); 3],
-) {
-    match result {
-        RunResult::Timeout => {
-            increment_counter!("lagon_isolate_timeouts", labels);
-            warn!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution timed out")
-        }
-        RunResult::MemoryLimit => {
-            increment_counter!("lagon_isolate_memory_limits", labels);
-            warn!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution memory limit reached")
-        }
-        RunResult::Error(error) => {
-            increment_counter!("lagon_isolate_errors", labels);
-            error!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution error: {}", error);
-        }
-        _ => {}
-    };
-}
-
-async fn handle_request(
-    req: HyperRequest<Body>,
-    ip: String,
-    deployments: Deployments,
-    thread_ids: Arc<DashMap<String, usize>>,
-    last_requests: Arc<DashMap<String, Instant>>,
-    workers: Workers,
-) -> Result<HyperResponse<Body>> {
-    let url = req.uri().to_string();
-
-    let request_id = match req.headers().get(X_LAGON_ID) {
-        Some(x_lagon_id) => x_lagon_id.to_str().unwrap_or("").to_string(),
-        None => String::new(),
-    };
-
-    let hostname = match req.headers().get(HOST) {
-        Some(hostname) => hostname.to_str()?.to_string(),
-        None => {
-            increment_counter!(
-                "lagon_ignored_requests",
-                "reason" => "No hostname",
-                "region" => REGION.clone(),
-            );
-            warn!(req = as_debug!(req), ip = ip, request = request_id; "No Host header found in request");
-
-            return Ok(Builder::new().status(404).body(PAGE_404.into())?);
-        }
-    };
-
-    let deployment = match deployments.get(&hostname) {
-        Some(entry) => Arc::clone(entry.value()),
-        None => {
-            increment_counter!(
-                "lagon_ignored_requests",
-                "reason" => "No deployment",
-                "hostname" => hostname.clone(),
-                "region" => REGION.clone(),
-            );
-            warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "No deployment found for hostname");
-
-            return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
-        }
-    };
-
-    if deployment.cron.is_some() {
-        increment_counter!(
-            "lagon_ignored_requests",
-            "reason" => "Cron",
-            "hostname" => hostname.clone(),
-            "region" => REGION.clone(),
-        );
-        warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "Cron deployment cannot be called directly");
-
-        return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
-    }
-
-    let deployment_id = deployment.id.clone();
-    let request_id_handle = request_id.clone();
-
-    let (sender, receiver) = flume::unbounded();
-
-    let labels = [
-        ("deployment", deployment.id.clone()),
-        ("function", deployment.function_id.clone()),
-        ("region", REGION.clone()),
-    ];
-
-    increment_counter!("lagon_requests", &labels);
-
-    let is_favicon = url == FAVICON_URL;
-
-    if let Some(asset) = find_asset(url, &deployment.assets) {
-        let root = Path::new(env::current_dir().unwrap().as_path())
-            .join("deployments")
-            .join(&deployment.id);
-
-        let run_result = match handle_asset(root, asset) {
-            Ok(response) => RunResult::Response(response),
-            Err(error) => {
-                error!(deployment = &deployment.id, asset = asset, request = request_id; "Error while handing asset: {}", error);
-
-                RunResult::Error("Could not retrieve asset.".into())
-            }
-        };
-
-        sender.send_async(run_result).await.unwrap_or(());
-    } else if is_favicon {
-        sender
-            .send_async(RunResult::Response(Response {
-                status: 404,
-                ..Default::default()
-            }))
-            .await
-            .unwrap_or(());
-    } else {
-        last_requests.insert(deployment_id.clone(), Instant::now());
-
-        increment_counter!("lagon_isolate_requests", &labels);
-
-        match Request::from_hyper_with_capacity(req, 2).await {
-            Ok(mut request) => {
-                counter!("lagon_bytes_in", request.len() as u64, &labels);
-
-                // Try to Extract the X-Real-Ip header or fallback to remote addr IP
-                let ip = request
-                    .headers
-                    .as_ref()
-                    .map_or(&ip, |headers| {
-                        headers
-                            .get(X_REAL_IP)
-                            .map_or(&ip, |x_real_ip| x_real_ip.get(0).unwrap_or(&ip))
-                    })
-                    .to_string();
-
-                request.set_header(X_FORWARDED_FOR.to_string(), ip);
-                request.set_header(X_LAGON_REGION.to_string(), REGION.to_string());
-
-                let thread_id = get_thread_id(thread_ids, hostname);
-                let worker = workers.get(&thread_id).unwrap();
-
-                worker
-                    .0
-                    .send_async(WorkerEvent::Request {
-                        deployment,
-                        request,
-                        sender,
-                        labels: labels.clone(),
-                        request_id,
-                    })
-                    .await
-                    .unwrap_or(());
-            }
-            Err(error) => {
-                error!(deployment = &deployment.id, request = request_id; "Error while parsing request: {}", error);
-
-                sender
-                    .send_async(RunResult::Error("Error while parsing request".into()))
-                    .await
-                    .unwrap_or(());
-            }
-        }
-    }
-
-    handle_response(
-        receiver,
-        (deployment_id, request_id_handle, labels),
-        Box::new(|event, (deployment_id, request_id, labels)| match event {
-            ResponseEvent::Bytes(bytes) => {
-                counter!("lagon_bytes_out", bytes as u64, &labels);
-            }
-            ResponseEvent::StreamDoneNoDataError => {
-                handle_error(
-                    RunResult::Error("The stream was done before sending a response/data".into()),
-                    &deployment_id,
-                    &request_id,
-                    &labels,
-                );
-            }
-            ResponseEvent::StreamDoneDataError => {
-                handle_error(
-                    RunResult::Error("Got data after stream was done".into()),
-                    &deployment_id,
-                    &request_id,
-                    &labels,
-                );
-            }
-            ResponseEvent::UnexpectedStreamResult(result)
-            | ResponseEvent::LimitsReached(result)
-            | ResponseEvent::Error(result) => {
-                handle_error(result, &deployment_id, &request_id, &labels);
-            }
-        }),
-    )
-    .await
-}
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -301,56 +68,13 @@ async fn main() -> Result<()> {
         None,
     )?;
 
-    let bucket = Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?;
     let cronjob = Arc::new(Mutex::new(Cronjob::new().await));
+    let bucket = Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?;
+    let downloader = S3BucketDownloader::new(bucket);
 
-    let deployments = get_deployments(conn, bucket.clone(), Arc::clone(&cronjob)).await?;
-    let last_requests = Arc::new(DashMap::new());
-    let thread_ids = Arc::new(DashMap::new());
-
-    let workers = create_workers();
-    start_workers(Arc::clone(&workers)).await;
-
-    let redis = listen_pub_sub(
-        bucket.clone(),
-        Arc::clone(&deployments),
-        Arc::clone(&workers),
-        Arc::clone(&cronjob),
-    );
-    run_cache_clear_task(Arc::clone(&last_requests), Arc::clone(&workers));
-
-    let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
-        let deployments = Arc::clone(&deployments);
-        let thread_ids = Arc::clone(&thread_ids);
-        let last_requests = Arc::clone(&last_requests);
-        let workers = Arc::clone(&workers);
-
-        let addr = conn.remote_addr();
-        let ip = addr.ip().to_string();
-
-        async move {
-            Ok::<_, Infallible>(service_fn(move |req| {
-                handle_request(
-                    req,
-                    ip.clone(),
-                    Arc::clone(&deployments),
-                    Arc::clone(&thread_ids),
-                    Arc::clone(&last_requests),
-                    Arc::clone(&workers),
-                )
-            }))
-        }
-    }));
-
-    let result = tokio::join!(server, redis);
-
-    if let Err(error) = result.0 {
-        error!("{}", error);
-    }
-
-    if let Err(error) = result.1 {
-        error!("{}", error);
-    }
+    let deployments = get_deployments(conn, downloader.clone(), Arc::clone(&cronjob)).await?;
+    let serverless = start(deployments, addr, downloader, cronjob).await?;
+    tokio::spawn(serverless).await?;
 
     runtime.dispose();
 

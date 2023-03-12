@@ -1,0 +1,9 @@
+{
+    "name": "@lagon/runtime-utils",
+    "version": "0.1.0",
+    "description": "JavaScript Serverless Runtime for Lagon",
+    "private": true,
+    "scripts": {
+        "test": "cargo test -F test"
+    }
+}

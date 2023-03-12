@@ -3,7 +3,6 @@ use std::{collections::HashMap, env, sync::Arc};
 use anyhow::Result;
 use log::{error, info, warn};
 use metrics::increment_counter;
-use s3::Bucket;
 use serde_json::Value;
 use tokio::{sync::Mutex, task::JoinHandle};
 
@@ -13,7 +12,9 @@ use crate::{
     REGION,
 };
 
-use super::{download_deployment, filesystem::rm_deployment, Deployment, Deployments};
+use super::{
+    download_deployment, downloader::Downloader, filesystem::rm_deployment, Deployment, Deployments,
+};
 
 pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, reason: String) {
     for worker in workers.iter() {
@@ -29,13 +30,16 @@ pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, rea
     }
 }
 
-async fn run(
-    bucket: &Bucket,
+async fn run<D>(
+    downloader: D,
     deployments: Deployments,
     workers: Workers,
     cronjob: Arc<Mutex<Cronjob>>,
     client: &redis::Client,
-) -> Result<()> {
+) -> Result<()>
+where
+    D: Downloader,
+{
     let mut conn = client.get_connection()?;
     let mut pub_sub = conn.as_pubsub();
 
@@ -98,7 +102,7 @@ async fn run(
 
         match channel {
             "deploy" => {
-                match download_deployment(&deployment, bucket).await {
+                match download_deployment(&deployment, downloader.clone()).await {
                     Ok(_) => {
                         increment_counter!(
                             "lagon_deployments",
@@ -239,19 +243,22 @@ async fn run(
     }
 }
 
-pub fn listen_pub_sub(
-    bucket: Bucket,
+pub fn listen_pub_sub<D>(
+    downloader: D,
     deployments: Deployments,
     workers: Workers,
     cronjob: Arc<Mutex<Cronjob>>,
-) -> JoinHandle<Result<()>> {
+) -> JoinHandle<Result<()>>
+where
+    D: Downloader + Send + Sync + 'static,
+{
     tokio::spawn(async move {
         let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
         let client = redis::Client::open(url)?;
 
         loop {
             if let Err(error) = run(
-                &bucket,
+                downloader.clone(),
                 Arc::clone(&deployments),
                 Arc::clone(&workers),
                 Arc::clone(&cronjob),
