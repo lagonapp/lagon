@@ -6,7 +6,7 @@ use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use lagon_runtime_utils::Deployment;
 use log::{error, info};
 use metrics::{decrement_gauge, histogram, increment_gauge};
-use rand::{Rng, SeedableRng};
+use rand::{thread_rng, Rng};
 use tokio_util::task::LocalPoolHandle;
 
 use crate::{REGION, SNAPSHOT_BLOB, WORKERS};
@@ -41,10 +41,7 @@ pub fn create_workers() -> Workers {
 pub fn get_thread_id(thread_ids: Arc<DashMap<String, usize>>, hostname: String) -> usize {
     *thread_ids
         .entry(hostname)
-        .or_insert_with(|| {
-            let mut rng = rand::rngs::StdRng::from_entropy();
-            rng.gen_range(0..*WORKERS)
-        })
+        .or_insert_with(|| thread_rng().gen_range(0..*WORKERS))
         .value()
 }
 
