@@ -334,7 +334,7 @@ importers:
       '@types/node': ^18.0.0
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
-      '@vercel/analytics': 0.1.10
+      '@vercel/analytics': 0.1.11
       autoprefixer: ^10.4.7
       eslint: ^8.16.0
       eslint-config-next: 13.2.4
@@ -348,7 +348,7 @@ importers:
       tailwindcss: ^3.0.24
       typescript: ^4.6.4
     dependencies:
-      '@vercel/analytics': 0.1.10_react@18.2.0
+      '@vercel/analytics': 0.1.11_react@18.2.0
       next: 13.2.4_biqbaboplfbrettd7655fr4n2y
       next-sitemap: 3.1.55_next@13.2.4
       nextra: 2.2.19_ld2jel3hspngo3u5lti2kgl2sq
@@ -459,7 +459,7 @@ importers:
       '@types/node': ^18.0.0
       '@types/react': ^18.0.9
       '@types/react-dom': ^18.0.5
-      '@vercel/analytics': 0.1.10
+      '@vercel/analytics': 0.1.11
       autoprefixer: ^10.4.7
       class-variance-authority: ^0.4.0
       cobe: ^0.6.0
@@ -481,7 +481,7 @@ importers:
       '@mdx-js/react': 2.2.1_react@18.2.0
       '@next/mdx': 13.2.4_bh4mxjirejtsr2ma3dim5k3lfi
       '@radix-ui/react-tooltip': 1.0.4_twyhzqqpkwvvgrmyeapdo6i4my
-      '@vercel/analytics': 0.1.10_react@18.2.0
+      '@vercel/analytics': 0.1.11_react@18.2.0
       class-variance-authority: 0.4.0_typescript@4.7.4
       cobe: 0.6.2
       next: 13.2.4_biqbaboplfbrettd7655fr4n2y
@@ -11030,8 +11030,8 @@ packages:
       vite: 4.0.3
     dev: true
 
-  /@vercel/analytics/0.1.10_react@18.2.0:
-    resolution: {integrity: sha512-jjJ8GzcPnQp0cMxpfYoUycMRBtDiaIeyVjZPiEPe99Dj1PdjMzAFYEASiV/hpNsXHkpcNYCveDFh6jnmh0YSDQ==}
+  /@vercel/analytics/0.1.11_react@18.2.0:
+    resolution: {integrity: sha512-mj5CPR02y0BRs1tN3oZcBNAX9a8NxsIUl9vElDPcqxnMfP0RbRc9fI9Ud7+QDg/1Izvt5uMumsr+6YsmVHcyuw==}
     peerDependencies:
       react: ^16.8||^17||^18
     dependencies:
