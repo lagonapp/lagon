@@ -1,18 +1,17 @@
 use std::{collections::HashMap, sync::Arc, time::Duration};
 
+use dashmap::DashMap;
 use lagon_runtime_http::{Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use lagon_runtime_utils::Deployment;
 use log::{error, info};
 use metrics::{decrement_gauge, histogram, increment_gauge};
-use rand::{Rng, SeedableRng};
-use tokio::sync::RwLock;
+use rand::{thread_rng, Rng};
 use tokio_util::task::LocalPoolHandle;
 
 use crate::{REGION, SNAPSHOT_BLOB, WORKERS};
 
-pub type Workers =
-    Arc<RwLock<HashMap<usize, (flume::Sender<WorkerEvent>, flume::Receiver<WorkerEvent>)>>>;
+pub type Workers = Arc<DashMap<usize, (flume::Sender<WorkerEvent>, flume::Receiver<WorkerEvent>)>>;
 
 pub enum WorkerEvent {
     Request {
@@ -28,43 +27,29 @@ pub enum WorkerEvent {
     },
 }
 
-pub async fn create_workers() -> Workers {
-    let workers = Arc::new(RwLock::new(HashMap::new()));
+pub fn create_workers() -> Workers {
+    let workers = Arc::new(DashMap::new());
 
     for i in 0..*WORKERS {
         let worker = flume::unbounded();
-        workers.write().await.insert(i, worker);
+        workers.insert(i, worker);
     }
 
     workers
 }
 
-pub async fn get_thread_id(
-    thread_ids: Arc<RwLock<HashMap<String, usize>>>,
-    hostname: &String,
-) -> usize {
-    let thread_ids_reader = thread_ids.read().await;
-
-    let thread_id = match thread_ids_reader.get(hostname) {
-        Some(thread_id) => *thread_id,
-        None => {
-            let mut rng = rand::rngs::StdRng::from_entropy();
-            let id = rng.gen_range(0..*WORKERS);
-
-            drop(thread_ids_reader);
-
-            thread_ids.write().await.insert(hostname.clone(), id);
-            id
-        }
-    };
-
-    thread_id
+pub fn get_thread_id(thread_ids: Arc<DashMap<String, usize>>, hostname: String) -> usize {
+    *thread_ids
+        .entry(hostname)
+        .or_insert_with(|| thread_rng().gen_range(0..*WORKERS))
+        .value()
 }
 
 pub async fn start_workers(workers: Workers) {
     let pool = LocalPoolHandle::new(*WORKERS);
 
-    for (id, worker) in workers.read().await.iter() {
+    for worker in workers.iter() {
+        let (id, worker) = worker.pair();
         let id = *id;
         let receiver = worker.1.clone();
 

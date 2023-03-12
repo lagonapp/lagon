@@ -5,10 +5,7 @@ use log::{error, info, warn};
 use metrics::increment_counter;
 use s3::Bucket;
 use serde_json::Value;
-use tokio::{
-    sync::{Mutex, RwLock},
-    task::JoinHandle,
-};
+use tokio::{sync::Mutex, task::JoinHandle};
 
 use crate::{
     cronjob::Cronjob,
@@ -16,10 +13,12 @@ use crate::{
     REGION,
 };
 
-use super::{download_deployment, filesystem::rm_deployment, Deployment};
+use super::{download_deployment, filesystem::rm_deployment, Deployment, Deployments};
 
 pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, reason: String) {
-    for (sender, _) in workers.read().await.values() {
+    for worker in workers.iter() {
+        let sender = &worker.0;
+
         sender
             .send_async(WorkerEvent::Drop {
                 deployment_id: deployment_id.clone(),
@@ -32,9 +31,9 @@ pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, rea
 
 async fn run(
     bucket: &Bucket,
-    deployments: &Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
+    deployments: Deployments,
     workers: Workers,
-    cronjob: &Arc<Mutex<Cronjob>>,
+    cronjob: Arc<Mutex<Cronjob>>,
     client: &redis::Client,
 ) -> Result<()> {
     let mut conn = client.get_connection()?;
@@ -109,7 +108,6 @@ async fn run(
                             "region" => REGION.clone(),
                         );
 
-                        let mut deployments = deployments.write().await;
                         let domains = deployment.get_domains();
                         let deployment = Arc::new(deployment);
 
@@ -159,7 +157,6 @@ async fn run(
                             "region" => REGION.clone(),
                         );
 
-                        let mut deployments = deployments.write().await;
                         let domains = deployment.get_domains();
 
                         for domain in &domains {
@@ -202,7 +199,6 @@ async fn run(
                 );
 
                 let previous_id = value["previousDeploymentId"].as_str().unwrap();
-                let mut deployments = deployments.write().await;
 
                 if let Some(deployment) = deployments.get(previous_id) {
                     let mut unpromoted_deployment = deployment.as_ref().clone();
@@ -245,7 +241,7 @@ async fn run(
 
 pub fn listen_pub_sub(
     bucket: Bucket,
-    deployments: Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
+    deployments: Deployments,
     workers: Workers,
     cronjob: Arc<Mutex<Cronjob>>,
 ) -> JoinHandle<Result<()>> {
@@ -256,9 +252,9 @@ pub fn listen_pub_sub(
         loop {
             if let Err(error) = run(
                 &bucket,
-                &deployments,
+                Arc::clone(&deployments),
                 Arc::clone(&workers),
-                &cronjob,
+                Arc::clone(&cronjob),
                 &client,
             )
             .await

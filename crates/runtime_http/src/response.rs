@@ -159,7 +159,8 @@ impl Response {
     }
 
     pub async fn from_hyper(response: HyperResponse<Body>) -> Result<Self> {
-        let mut headers = HashMap::<String, Vec<String>>::new();
+        let mut headers =
+            HashMap::<String, Vec<String>>::with_capacity(response.headers().keys_len());
 
         for (key, value) in response.headers().iter() {
             headers

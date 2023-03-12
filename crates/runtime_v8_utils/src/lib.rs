@@ -32,10 +32,11 @@ pub fn extract_v8_headers_object(
     let map = unsafe { v8::Local::<v8::Map>::cast(value) };
 
     if map.size() > 0 {
-        let mut headers = HashMap::new();
         let headers_keys = map.as_array(scope);
+        let length = headers_keys.length();
+        let mut headers = HashMap::with_capacity((length / 2) as usize);
 
-        for mut index in 0..headers_keys.length() {
+        for mut index in 0..length {
             if index % 2 != 0 {
                 continue;
             }

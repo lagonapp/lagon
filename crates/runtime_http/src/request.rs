@@ -158,7 +158,15 @@ impl Request {
     }
 
     pub async fn from_hyper(request: HyperRequest<Body>) -> Result<Self> {
-        let mut headers = HashMap::<String, Vec<String>>::new();
+        Self::from_hyper_with_capacity(request, 0).await
+    }
+
+    pub async fn from_hyper_with_capacity(
+        request: HyperRequest<Body>,
+        capacity: usize,
+    ) -> Result<Self> {
+        let mut headers =
+            HashMap::<String, Vec<String>>::with_capacity(request.headers().keys_len() + capacity);
 
         for (key, value) in request.headers().iter() {
             if key != X_LAGON_ID {
