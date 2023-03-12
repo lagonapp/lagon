@@ -39,7 +39,7 @@ pub fn handle_asset(root: PathBuf, asset: &String) -> Result<Response> {
         },
     );
 
-    let mut headers = HashMap::new();
+    let mut headers = HashMap::with_capacity(1);
     headers.insert("content-type".into(), vec![content_type.into()]);
 
     Ok(Response {

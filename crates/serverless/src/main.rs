@@ -1,6 +1,8 @@
 use anyhow::Result;
 use cronjob::Cronjob;
+use dashmap::DashMap;
 use deployments::cache::run_cache_clear_task;
+use deployments::Deployments;
 use hyper::header::HOST;
 use hyper::http::response::Builder;
 use hyper::server::conn::AddrStream;
@@ -11,11 +13,8 @@ use lagon_runtime_http::{
     Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP,
 };
 use lagon_runtime_isolate::CONSOLE_SOURCE;
+use lagon_runtime_utils::assets::{find_asset, handle_asset};
 use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL, PAGE_404};
-use lagon_runtime_utils::{
-    assets::{find_asset, handle_asset},
-    Deployment,
-};
 use lagon_serverless_logger::init_logger;
 use lazy_static::lazy_static;
 use log::{as_debug, error, info, warn};
@@ -28,14 +27,13 @@ use s3::creds::Credentials;
 use s3::Bucket;
 #[cfg(not(debug_assertions))]
 use std::borrow::Cow;
-use std::collections::HashMap;
 use std::convert::Infallible;
 use std::env;
 use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::Mutex;
 use worker::{create_workers, start_workers, Workers};
 
 use crate::deployments::get_deployments;
@@ -82,9 +80,9 @@ fn handle_error(
 async fn handle_request(
     req: HyperRequest<Body>,
     ip: String,
-    deployments: Arc<RwLock<HashMap<String, Arc<Deployment>>>>,
-    thread_ids: Arc<RwLock<HashMap<String, usize>>>,
-    last_requests: Arc<RwLock<HashMap<String, Instant>>>,
+    deployments: Deployments,
+    thread_ids: Arc<DashMap<String, usize>>,
+    last_requests: Arc<DashMap<String, Instant>>,
     workers: Workers,
 ) -> Result<HyperResponse<Body>> {
     let url = req.uri().to_string();
@@ -108,9 +106,8 @@ async fn handle_request(
         }
     };
 
-    let deployments = deployments.read().await;
     let deployment = match deployments.get(&hostname) {
-        Some(deployment) => Arc::clone(deployment),
+        Some(entry) => Arc::clone(entry.value()),
         None => {
             increment_counter!(
                 "lagon_ignored_requests",
@@ -175,14 +172,11 @@ async fn handle_request(
             .await
             .unwrap_or(());
     } else {
-        last_requests
-            .write()
-            .await
-            .insert(deployment_id.clone(), Instant::now());
+        last_requests.insert(deployment_id.clone(), Instant::now());
 
         increment_counter!("lagon_isolate_requests", &labels);
 
-        match Request::from_hyper(req).await {
+        match Request::from_hyper_with_capacity(req, 2).await {
             Ok(mut request) => {
                 counter!("lagon_bytes_in", request.len() as u64, &labels);
 
@@ -200,9 +194,7 @@ async fn handle_request(
                 request.set_header(X_FORWARDED_FOR.to_string(), ip);
                 request.set_header(X_LAGON_REGION.to_string(), REGION.to_string());
 
-                let thread_id = get_thread_id(thread_ids, &hostname).await;
-
-                let workers = workers.read().await;
+                let thread_id = get_thread_id(thread_ids, hostname);
                 let worker = workers.get(&thread_id).unwrap();
 
                 worker
@@ -313,10 +305,10 @@ async fn main() -> Result<()> {
     let cronjob = Arc::new(Mutex::new(Cronjob::new().await));
 
     let deployments = get_deployments(conn, bucket.clone(), Arc::clone(&cronjob)).await?;
-    let last_requests = Arc::new(RwLock::new(HashMap::new()));
-    let thread_ids = Arc::new(RwLock::new(HashMap::new()));
+    let last_requests = Arc::new(DashMap::new());
+    let thread_ids = Arc::new(DashMap::new());
 
-    let workers = create_workers().await;
+    let workers = create_workers();
     start_workers(Arc::clone(&workers)).await;
 
     let redis = listen_pub_sub(

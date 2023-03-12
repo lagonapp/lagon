@@ -1,11 +1,10 @@
 use std::{
-    collections::HashMap,
     env,
     sync::Arc,
     time::{Duration, Instant},
 };
 
-use tokio::sync::RwLock;
+use dashmap::DashMap;
 
 use crate::worker::Workers;
 
@@ -13,10 +12,7 @@ use super::pubsub::clear_deployment_cache;
 
 const CACHE_TASK_INTERVAL: Duration = Duration::from_secs(1);
 
-pub fn run_cache_clear_task(
-    last_requests: Arc<RwLock<HashMap<String, Instant>>>,
-    workers: Workers,
-) {
+pub fn run_cache_clear_task(last_requests: Arc<DashMap<String, Instant>>, workers: Workers) {
     let isolates_cache_seconds = Duration::from_secs(
         env::var("LAGON_ISOLATES_CACHE_SECONDS")
             .expect("LAGON_ISOLATES_CACHE_SECONDS is not set")
@@ -30,10 +26,11 @@ pub fn run_cache_clear_task(
         loop {
             tokio::time::sleep(CACHE_TASK_INTERVAL).await;
 
-            let last_requests_reader = last_requests.read().await;
             let now = Instant::now();
 
-            for (deployment_id, last_request) in last_requests_reader.iter() {
+            for last_request in last_requests.iter() {
+                let (deployment_id, last_request) = last_request.pair();
+
                 if now.duration_since(*last_request) > isolates_cache_seconds {
                     deployments_to_clear.push(deployment_id.clone());
                 }
@@ -42,12 +39,6 @@ pub fn run_cache_clear_task(
             if deployments_to_clear.is_empty() {
                 continue;
             }
-
-            // Drop the read lock because we now acquire a write lock
-            drop(last_requests_reader);
-
-            // Clear everything
-            let mut last_requests = last_requests.write().await;
 
             for deployment_id in &deployments_to_clear {
                 last_requests.remove(deployment_id);

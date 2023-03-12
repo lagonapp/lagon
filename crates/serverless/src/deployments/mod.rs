@@ -6,11 +6,12 @@ use std::{
 };
 
 use anyhow::{anyhow, Result};
+use dashmap::DashMap;
 use lagon_runtime_utils::Deployment;
 use log::{error, info, warn};
 use mysql::{prelude::Queryable, PooledConn};
 use s3::Bucket;
-use tokio::sync::{Mutex, RwLock};
+use tokio::sync::Mutex;
 
 use crate::{cronjob::Cronjob, REGION};
 
@@ -19,6 +20,8 @@ use self::filesystem::{create_deployments_folder, rm_deployment};
 pub mod cache;
 pub mod filesystem;
 pub mod pubsub;
+
+pub type Deployments = Arc<DashMap<String, Arc<Deployment>>>;
 
 pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> Result<()> {
     match bucket.get_object(deployment.id.clone() + ".js").await {
@@ -65,8 +68,8 @@ pub async fn get_deployments(
     mut conn: PooledConn,
     bucket: Bucket,
     cronjob: Arc<Mutex<Cronjob>>,
-) -> Result<Arc<RwLock<HashMap<String, Arc<Deployment>>>>> {
-    let deployments = Arc::new(RwLock::new(HashMap::new()));
+) -> Result<Deployments> {
+    let deployments = Arc::new(DashMap::new());
 
     let mut deployments_list: HashMap<String, Deployment> = HashMap::new();
 
@@ -163,7 +166,6 @@ OR
     }
 
     {
-        let mut deployments = deployments.write().await;
         let mut cronjob = cronjob.lock().await;
 
         for deployment in deployments_list {
