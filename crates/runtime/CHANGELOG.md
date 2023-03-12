@@ -1,5 +1,11 @@
 # @lagon/runtime
 
+## 0.3.7
+
+### Patch Changes
+
+- [#663](https://github.com/lagonapp/lagon/pull/663) [`822db09`](https://github.com/lagonapp/lagon/commit/822db09957b439cf548dd5bac85e7325e6a468c8) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Create HashMap with_capacity to avoid reallocations
+
 ## 0.3.6
 
 ### Patch Changes

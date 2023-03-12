@@ -1,5 +1,15 @@
 # @lagon/docs
 
+## 0.3.1
+
+### Patch Changes
+
+- [#251](https://github.com/lagonapp/lagon/pull/251) [`a3b73c6`](https://github.com/lagonapp/lagon/commit/a3b73c623136db5a4840e1d43138ecd96b66059e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve documentation for deployments, static files, npm support
+
+* [#251](https://github.com/lagonapp/lagon/pull/251) [`a3b73c6`](https://github.com/lagonapp/lagon/commit/a3b73c623136db5a4840e1d43138ecd96b66059e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add sitemap
+
+- [#251](https://github.com/lagonapp/lagon/pull/251) [`a3b73c6`](https://github.com/lagonapp/lagon/commit/a3b73c623136db5a4840e1d43138ecd96b66059e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Update Montreal region to Beauharnois
+
 ## 0.3.0
 
 ### Minor Changes

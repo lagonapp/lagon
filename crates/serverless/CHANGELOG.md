@@ -1,5 +1,15 @@
 # @lagon/serverless
 
+## 0.1.24
+
+### Patch Changes
+
+- [#648](https://github.com/lagonapp/lagon/pull/648) [`0a1dcce`](https://github.com/lagonapp/lagon/commit/0a1dcce63e90e38104b48f9957e4578996089d72) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix logs not streaming to Axiom
+
+* [#663](https://github.com/lagonapp/lagon/pull/663) [`822db09`](https://github.com/lagonapp/lagon/commit/822db09957b439cf548dd5bac85e7325e6a468c8) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use ThreadRng instead of creating a new StdRng every time
+
+- [#663](https://github.com/lagonapp/lagon/pull/663) [`822db09`](https://github.com/lagonapp/lagon/commit/822db09957b439cf548dd5bac85e7325e6a468c8) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use DashMap instead of RwLock<HashMap>
+
 ## 0.1.23
 
 ### Patch Changes
