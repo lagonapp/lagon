@@ -248,7 +248,7 @@ where
     let workers = create_workers();
     start_workers(Arc::clone(&workers)).await;
 
-    let redis = listen_pub_sub(
+    listen_pub_sub(
         downloader.clone(),
         Arc::clone(&deployments),
         Arc::clone(&workers),
@@ -280,14 +280,8 @@ where
     }));
 
     Ok(async move {
-        let result = tokio::join!(server, redis);
-
-        if let Err(error) = result.0 {
+        if let Err(error) = server.await {
             error!("Server error: {}", error);
-        }
-
-        if let Err(error) = result.1 {
-            error!("Redis error: {}", error);
         }
     })
 }

@@ -4,7 +4,7 @@ use anyhow::Result;
 use log::{error, info, warn};
 use metrics::increment_counter;
 use serde_json::Value;
-use tokio::{sync::Mutex, task::JoinHandle};
+use tokio::{runtime::Handle, sync::Mutex};
 
 use crate::{
     cronjob::Cronjob,
@@ -38,7 +38,7 @@ async fn run<D>(
     client: &redis::Client,
 ) -> Result<()>
 where
-    D: Downloader,
+    D: Downloader + Send + 'static,
 {
     let mut conn = client.get_connection()?;
     let mut pub_sub = conn.as_pubsub();
@@ -50,10 +50,8 @@ where
     pub_sub.subscribe("promote")?;
 
     loop {
-        tokio::task::yield_now().await;
-
         let msg = pub_sub.get_message()?;
-        let channel = msg.get_channel_name();
+        let channel = msg.get_channel_name().to_owned();
         let payload: String = msg.get_payload()?;
 
         let value: Value = serde_json::from_str(&payload)?;
@@ -100,7 +98,7 @@ where
 
         let workers = Arc::clone(&workers);
 
-        match channel {
+        match channel.as_str() {
             "deploy" => {
                 match download_deployment(&deployment, downloader.clone()).await {
                     Ok(_) => {
@@ -248,26 +246,28 @@ pub fn listen_pub_sub<D>(
     deployments: Deployments,
     workers: Workers,
     cronjob: Arc<Mutex<Cronjob>>,
-) -> JoinHandle<Result<()>>
-where
+) where
     D: Downloader + Send + Sync + 'static,
 {
-    tokio::spawn(async move {
-        let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
-        let client = redis::Client::open(url)?;
+    let handle = Handle::current();
+    std::thread::spawn(move || {
+        handle.block_on(async {
+            let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
+            let client = redis::Client::open(url).expect("Failed to open Redis Client");
 
-        loop {
-            if let Err(error) = run(
-                downloader.clone(),
-                Arc::clone(&deployments),
-                Arc::clone(&workers),
-                Arc::clone(&cronjob),
-                &client,
-            )
-            .await
-            {
-                error!("Pub/sub error: {}", error);
+            loop {
+                if let Err(error) = run(
+                    downloader.clone(),
+                    Arc::clone(&deployments),
+                    Arc::clone(&workers),
+                    Arc::clone(&cronjob),
+                    &client,
+                )
+                .await
+                {
+                    error!("Pub/sub error: {}", error);
+                }
             }
-        }
-    })
+        });
+    });
 }

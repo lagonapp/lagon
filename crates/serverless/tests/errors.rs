@@ -25,7 +25,7 @@ fn setup() {
     });
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 #[serial]
 async fn return_404_no_deployment_found() -> Result<()> {
     setup();
@@ -45,7 +45,7 @@ async fn return_404_no_deployment_found() -> Result<()> {
     Ok(())
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 #[serial]
 async fn return_404_cron_deployment() -> Result<()> {
     setup();
@@ -82,7 +82,7 @@ async fn return_404_cron_deployment() -> Result<()> {
     Ok(())
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 #[serial]
 async fn return_500_unknown_code() -> Result<()> {
     setup();
