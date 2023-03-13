@@ -22,11 +22,31 @@ mod redis;
 
 pub use self::redis::RedisPubSub;
 
+#[derive(Debug)]
+pub enum PubSubMessage {
+    Deploy,
+    Undeploy,
+    Promote,
+    Unknown,
+}
+
+impl From<String> for PubSubMessage {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "deploy" => Self::Deploy,
+            "undeploy" => Self::Undeploy,
+            "promote" => Self::Promote,
+            _ => Self::Unknown,
+        }
+    }
+}
+
 #[async_trait]
 pub trait PubSubListener: Send + Sized {
     async fn connect(&mut self) -> Result<()>;
 
-    fn get_next_message(&mut self) -> Box<dyn Stream<Item = (String, String)> + Unpin + Send + '_>;
+    fn get_stream(&mut self)
+        -> Box<dyn Stream<Item = (PubSubMessage, String)> + Unpin + Send + '_>;
 }
 
 pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, reason: String) {
@@ -57,9 +77,9 @@ where
     let mut pubsub = pubsub.lock().await;
     pubsub.connect().await?;
 
-    let mut stream = pubsub.get_next_message();
+    let mut stream = pubsub.get_stream();
 
-    while let Some((channel, payload)) = stream.next().await {
+    while let Some((message, payload)) = stream.next().await {
         let value: Value = serde_json::from_str(&payload)?;
 
         let cron = value["cron"].as_str();
@@ -104,8 +124,8 @@ where
 
         let workers = Arc::clone(&workers);
 
-        match channel.as_str() {
-            "deploy" => {
+        match message {
+            PubSubMessage::Deploy => {
                 match download_deployment(&deployment, downloader.clone()).await {
                     Ok(_) => {
                         increment_counter!(
@@ -154,7 +174,7 @@ where
                     }
                 };
             }
-            "undeploy" => {
+            PubSubMessage::Undeploy => {
                 match rm_deployment(&deployment.id) {
                     Ok(_) => {
                         increment_counter!(
@@ -198,7 +218,7 @@ where
                     }
                 };
             }
-            "promote" => {
+            PubSubMessage::Promote => {
                 increment_counter!(
                     "lagon_promotion",
                     "deployment" => deployment.id.clone(),
@@ -242,7 +262,7 @@ where
                     }
                 }
             }
-            _ => warn!("Unknown channel: {}", channel),
+            _ => warn!("Unknown channel: {:?}", message),
         };
     }
 

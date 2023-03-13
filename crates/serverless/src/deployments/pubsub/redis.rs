@@ -1,4 +1,4 @@
-use super::PubSubListener;
+use super::{PubSubListener, PubSubMessage};
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::{Stream, StreamExt};
@@ -41,9 +41,11 @@ impl PubSubListener for RedisPubSub {
         Ok(())
     }
 
-    fn get_next_message(&mut self) -> Box<dyn Stream<Item = (String, String)> + Unpin + Send + '_> {
+    fn get_stream(
+        &mut self,
+    ) -> Box<dyn Stream<Item = (PubSubMessage, String)> + Unpin + Send + '_> {
         Box::new(self.pubsub.as_mut().unwrap().on_message().map(|msg| {
-            let channel = msg.get_channel_name().to_string();
+            let channel = msg.get_channel_name().to_string().into();
             let payload = msg.get_payload::<String>().unwrap();
 
             (channel, payload)
