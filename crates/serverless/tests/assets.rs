@@ -1,6 +1,5 @@
 use anyhow::Result;
 use dashmap::DashMap;
-use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_utils::Deployment;
 use lagon_serverless::{
     cronjob::Cronjob, deployments::downloader::FakeDownloader, serverless::start,
@@ -8,24 +7,16 @@ use lagon_serverless::{
 use serial_test::serial;
 use std::{
     collections::{HashMap, HashSet},
-    sync::{Arc, Once},
+    sync::Arc,
 };
 use tokio::sync::Mutex;
 
-fn setup() {
-    static START: Once = Once::new();
-
-    START.call_once(|| {
-        dotenv::dotenv().expect("Failed to load .env file");
-
-        Runtime::new(RuntimeOptions::default());
-    });
-}
+mod utils;
 
 #[tokio::test]
 #[serial]
 async fn html_assets() -> Result<()> {
-    setup();
+    utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -79,7 +70,7 @@ async fn html_assets() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn assets_nested() -> Result<()> {
-    setup();
+    utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -126,7 +117,7 @@ async fn assets_nested() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn set_content_type() -> Result<()> {
-    setup();
+    utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),

@@ -1,20 +1,13 @@
 use httptest::{bytes::Bytes, matchers::*, responders::*, Expectation, Server};
-use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult, StreamResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
-use std::{collections::HashMap, sync::Once};
+use std::collections::HashMap;
 
-fn setup() {
-    static START: Once = Once::new();
-
-    START.call_once(|| {
-        Runtime::new(RuntimeOptions::default());
-    });
-}
+mod utils;
 
 #[tokio::test]
 async fn sync_streaming() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -53,7 +46,7 @@ async fn sync_streaming() {
 
 #[tokio::test]
 async fn queue_multiple() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -101,7 +94,7 @@ async fn queue_multiple() {
 
 #[tokio::test]
 async fn custom_response() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -150,7 +143,7 @@ async fn custom_response() {
 
 #[tokio::test]
 async fn start_and_pull() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -198,7 +191,7 @@ async fn start_and_pull() {
 
 #[tokio::test]
 async fn response_before_write() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -258,7 +251,7 @@ async fn response_before_write() {
 
 #[tokio::test]
 async fn timeout_infinite_streaming() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -284,7 +277,7 @@ async fn timeout_infinite_streaming() {
 
 #[tokio::test]
 async fn promise_reject_callback() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -314,7 +307,7 @@ async fn promise_reject_callback() {
 
 #[tokio::test]
 async fn promise_reject_callback_after_response() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export function handler() {
     const output = new TextEncoder().encode('This is rendered as binary stream with non-ASCII chars 😊');

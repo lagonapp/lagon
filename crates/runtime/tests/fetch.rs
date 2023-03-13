@@ -1,20 +1,12 @@
 use httptest::{matchers::*, responders::*, Expectation, Server};
-use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
-use std::sync::Once;
 
-fn setup() {
-    static START: Once = Once::new();
-
-    START.call_once(|| {
-        Runtime::new(RuntimeOptions::default());
-    });
-}
+mod utils;
 
 #[tokio::test]
 async fn basic_fetch() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -42,7 +34,7 @@ async fn basic_fetch() {
 
 #[tokio::test]
 async fn request_method() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("POST", "/"))
@@ -73,7 +65,7 @@ async fn request_method() {
 
 #[tokio::test]
 async fn request_method_fallback() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -104,7 +96,7 @@ async fn request_method_fallback() {
 
 #[tokio::test]
 async fn request_headers() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(all_of![
@@ -140,7 +132,7 @@ async fn request_headers() {
 
 #[tokio::test]
 async fn request_headers_class() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(all_of![
@@ -176,7 +168,7 @@ async fn request_headers_class() {
 
 #[tokio::test]
 async fn request_body() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(all_of![
@@ -211,7 +203,7 @@ async fn request_body() {
 
 #[tokio::test]
 async fn response_headers() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -248,7 +240,7 @@ async fn response_headers() {
 
 #[tokio::test]
 async fn response_status() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -282,7 +274,7 @@ async fn response_status() {
 
 #[tokio::test]
 async fn response_json() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -312,7 +304,7 @@ async fn response_json() {
 
 #[tokio::test]
 async fn response_array_buffer() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -342,7 +334,7 @@ async fn response_array_buffer() {
 
 #[tokio::test]
 async fn throw_invalid_url() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -366,7 +358,7 @@ async fn throw_invalid_url() {
 
 #[tokio::test]
 async fn throw_invalid_header() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -394,7 +386,7 @@ async fn throw_invalid_header() {
 
 #[tokio::test]
 async fn abort_signal() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -431,7 +423,7 @@ async fn abort_signal() {
 
 #[tokio::test]
 async fn redirect() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -459,7 +451,7 @@ async fn redirect() {
 
 #[tokio::test]
 async fn redirect_relative_url() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -491,7 +483,7 @@ async fn redirect_relative_url() {
 
 #[tokio::test]
 async fn redirect_without_location_header() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/")).respond_with(status_code(301)),
@@ -518,7 +510,7 @@ async fn redirect_without_location_header() {
 
 #[tokio::test]
 async fn redirect_loop() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -562,7 +554,7 @@ async fn redirect_loop() {
 
 #[tokio::test]
 async fn limit_fetch_calls() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))
@@ -608,7 +600,7 @@ export async function handler() {{
 
 #[tokio::test]
 async fn fetch_https() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {{

@@ -1,51 +1,12 @@
-use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use serial_test::serial;
-use std::sync::Once;
 
-fn setup() {
-    static START: Once = Once::new();
-
-    START.call_once(|| {
-        Runtime::new(RuntimeOptions::default());
-    });
-}
-
-static mut RX: Option<flume::Receiver<String>> = None;
-
-fn setup_logger() -> flume::Receiver<String> {
-    static START: Once = Once::new();
-
-    START.call_once(|| {
-        let (tx, rx) = flume::unbounded();
-
-        struct Logger {
-            tx: flume::Sender<String>,
-        }
-
-        impl log::Log for Logger {
-            fn enabled(&self, _metadata: &log::Metadata) -> bool {
-                true
-            }
-            fn log(&self, record: &log::Record) {
-                self.tx.send(record.args().to_string()).unwrap();
-            }
-            fn flush(&self) {}
-        }
-
-        log::set_boxed_logger(Box::new(Logger { tx })).unwrap();
-        log::set_max_level(log::LevelFilter::Info);
-
-        unsafe { RX = Some(rx) };
-    });
-
-    unsafe { RX.clone() }.unwrap()
-}
+mod utils;
 
 #[tokio::test]
 async fn set_timeout() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -73,8 +34,8 @@ async fn set_timeout() {
 #[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn set_timeout_not_blocking_response() {
-    setup();
-    let log_rx = setup_logger();
+    utils::setup();
+    let log_rx = utils::setup_logger();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -106,7 +67,7 @@ async fn set_timeout_not_blocking_response() {
 
 #[tokio::test]
 async fn set_timeout_clear() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -138,7 +99,7 @@ async fn set_timeout_clear() {
 
 #[tokio::test]
 async fn set_timeout_clear_correct() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -170,8 +131,8 @@ async fn set_timeout_clear_correct() {
 #[tokio::test(flavor = "multi_thread")]
 #[serial]
 async fn set_interval() {
-    let log_rx = setup_logger();
-    setup();
+    let log_rx = utils::setup_logger();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -213,8 +174,8 @@ async fn set_interval() {
 #[tokio::test]
 #[serial]
 async fn queue_microtask() {
-    let log_rx = setup_logger();
-    setup();
+    let log_rx = utils::setup_logger();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -246,7 +207,7 @@ async fn queue_microtask() {
 #[tokio::test]
 #[serial]
 async fn queue_microtask_throw_not_function() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -273,8 +234,8 @@ async fn queue_microtask_throw_not_function() {
 #[tokio::test]
 #[serial]
 async fn timers_order() {
-    let log_rx = setup_logger();
-    setup();
+    let log_rx = utils::setup_logger();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {

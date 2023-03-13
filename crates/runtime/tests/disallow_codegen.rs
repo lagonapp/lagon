@@ -1,19 +1,11 @@
-use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
-use std::sync::Once;
 
-fn setup() {
-    static START: Once = Once::new();
-
-    START.call_once(|| {
-        Runtime::new(RuntimeOptions::default());
-    });
-}
+mod utils;
 
 #[tokio::test]
 async fn disallow_eval() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -37,7 +29,7 @@ async fn disallow_eval() {
 
 #[tokio::test]
 async fn disallow_function() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {

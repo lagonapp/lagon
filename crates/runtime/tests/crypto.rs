@@ -1,19 +1,11 @@
-use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
-use std::sync::Once;
 
-fn setup() {
-    static START: Once = Once::new();
-
-    START.call_once(|| {
-        Runtime::new(RuntimeOptions::default());
-    });
-}
+mod utils;
 
 #[tokio::test]
 async fn crypto_random_uuid() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -36,7 +28,7 @@ async fn crypto_random_uuid() {
 
 #[tokio::test]
 async fn crypto_get_random_values() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -59,7 +51,7 @@ async fn crypto_get_random_values() {
 
 #[tokio::test]
 async fn crypto_get_random_values_throw_not_typedarray() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -84,7 +76,7 @@ async fn crypto_get_random_values_throw_not_typedarray() {
 
 #[tokio::test]
 async fn crypto_key_value() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -113,7 +105,7 @@ async fn crypto_key_value() {
 
 #[tokio::test]
 async fn crypto_unique_key_value() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -149,7 +141,7 @@ async fn crypto_unique_key_value() {
 
 #[tokio::test]
 async fn crypto_sign() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -182,7 +174,7 @@ async fn crypto_sign() {
 
 #[tokio::test]
 async fn crypto_verify() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -219,7 +211,7 @@ async fn crypto_verify() {
 
 #[tokio::test]
 async fn crypto_digest_sha1() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -244,7 +236,7 @@ async fn crypto_digest_sha1() {
 
 #[tokio::test]
 async fn crypto_digest_string() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -267,7 +259,7 @@ async fn crypto_digest_string() {
 
 #[tokio::test]
 async fn crypto_digest_object() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(IsolateOptions::new(
         "export async function handler() {
     const digest = await crypto.subtle.digest({ name: 'SHA-256' }, new TextEncoder().encode('hello, world'));
@@ -287,7 +279,7 @@ async fn crypto_digest_object() {
 
 #[tokio::test]
 async fn crypto_encrypt() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -323,7 +315,7 @@ async fn crypto_encrypt() {
 
 #[tokio::test]
 async fn crypto_decrypt() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {

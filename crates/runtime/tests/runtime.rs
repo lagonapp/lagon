@@ -1,20 +1,13 @@
 use httptest::bytes::Bytes;
-use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Method, Request, Response, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
-use std::{collections::HashMap, sync::Once};
+use std::collections::HashMap;
 
-fn setup() {
-    static START: Once = Once::new();
-
-    START.call_once(|| {
-        Runtime::new(RuntimeOptions::default());
-    });
-}
+mod utils;
 
 #[tokio::test]
 async fn execute_function() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -35,7 +28,7 @@ async fn execute_function() {
 
 #[tokio::test]
 async fn execute_function_twice() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -63,7 +56,7 @@ async fn execute_function_twice() {
 
 #[tokio::test]
 async fn environment_variables() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -89,7 +82,7 @@ async fn environment_variables() {
 
 #[tokio::test]
 async fn get_body() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler(request) {
@@ -120,7 +113,7 @@ async fn get_body() {
 
 #[tokio::test]
 async fn get_input() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler(request) {
@@ -151,7 +144,7 @@ async fn get_input() {
 
 #[tokio::test]
 async fn get_method() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler(request) {
@@ -182,7 +175,7 @@ async fn get_method() {
 
 #[tokio::test]
 async fn get_headers() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler(request) {
@@ -217,7 +210,7 @@ async fn get_headers() {
 
 #[tokio::test]
 async fn return_headers() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -252,7 +245,7 @@ async fn return_headers() {
 
 #[tokio::test]
 async fn return_headers_from_headers_api() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -287,7 +280,7 @@ async fn return_headers_from_headers_api() {
 
 #[tokio::test]
 async fn return_status() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -314,7 +307,7 @@ async fn return_status() {
 
 #[tokio::test]
 async fn return_uint8array() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -337,7 +330,7 @@ async fn return_uint8array() {
 
 #[tokio::test]
 async fn console_log() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -364,7 +357,7 @@ async fn console_log() {
 
 #[tokio::test]
 async fn atob() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -385,7 +378,7 @@ async fn atob() {
 
 #[tokio::test]
 async fn btoa() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {

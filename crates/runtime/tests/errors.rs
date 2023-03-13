@@ -1,20 +1,13 @@
 use httptest::bytes::Bytes;
-use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Method, Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
-use std::{sync::Once, time::Duration};
+use std::time::Duration;
 
-fn setup() {
-    static START: Once = Once::new();
-
-    START.call_once(|| {
-        Runtime::new(RuntimeOptions::default());
-    });
-}
+mod utils;
 
 #[tokio::test]
 async fn no_handler() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new("console.log('Hello')".into())
             .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
@@ -32,7 +25,7 @@ async fn no_handler() {
 
 #[tokio::test]
 async fn handler_not_function() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new("export const handler = 'Hello'".into())
             .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
@@ -50,7 +43,7 @@ async fn handler_not_function() {
 
 #[tokio::test]
 async fn handler_reject() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -71,7 +64,7 @@ async fn handler_reject() {
 
 #[tokio::test]
 async fn compilation_error() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -92,7 +85,7 @@ async fn compilation_error() {
 
 #[tokio::test]
 async fn import_errors() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "import test from 'test';
@@ -118,7 +111,7 @@ export function handler() {
 
 #[tokio::test]
 async fn execution_timeout_reached() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -137,7 +130,7 @@ async fn execution_timeout_reached() {
 
 #[tokio::test]
 async fn init_timeout_reached() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "while(true) {}
@@ -156,7 +149,7 @@ export function handler() {
 
 #[tokio::test]
 async fn memory_reached() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export function handler() {
@@ -196,7 +189,7 @@ async fn memory_reached() {
 
 #[tokio::test]
 async fn stacktrace() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "function test(a) {
