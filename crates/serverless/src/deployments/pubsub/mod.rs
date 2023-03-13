@@ -1,7 +1,9 @@
-use std::{collections::HashMap, env, sync::Arc};
+use std::{collections::HashMap, sync::Arc};
 
 use anyhow::Result;
-use log::{error, info, warn};
+use async_trait::async_trait;
+use futures::{Stream, StreamExt};
+use log::{error, warn};
 use metrics::increment_counter;
 use serde_json::Value;
 use tokio::{runtime::Handle, sync::Mutex};
@@ -15,6 +17,17 @@ use crate::{
 use super::{
     download_deployment, downloader::Downloader, filesystem::rm_deployment, Deployment, Deployments,
 };
+
+mod redis;
+
+pub use self::redis::RedisPubSub;
+
+#[async_trait]
+pub trait PubSubListener: Send + Sized {
+    async fn connect(&mut self) -> Result<()>;
+
+    fn get_next_message(&mut self) -> Box<dyn Stream<Item = (String, String)> + Unpin + Send + '_>;
+}
 
 pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, reason: String) {
     for worker in workers.iter() {
@@ -30,30 +43,23 @@ pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, rea
     }
 }
 
-async fn run<D>(
+async fn run<D, P>(
     downloader: D,
     deployments: Deployments,
     workers: Workers,
     cronjob: Arc<Mutex<Cronjob>>,
-    client: &redis::Client,
+    pubsub: Arc<Mutex<P>>,
 ) -> Result<()>
 where
     D: Downloader + Send + 'static,
+    P: PubSubListener + Unpin + Send,
 {
-    let mut conn = client.get_connection()?;
-    let mut pub_sub = conn.as_pubsub();
+    let mut pubsub = pubsub.lock().await;
+    pubsub.connect().await?;
 
-    info!("Redis Pub/Sub connected");
+    let mut stream = pubsub.get_next_message();
 
-    pub_sub.subscribe("deploy")?;
-    pub_sub.subscribe("undeploy")?;
-    pub_sub.subscribe("promote")?;
-
-    loop {
-        let msg = pub_sub.get_message()?;
-        let channel = msg.get_channel_name().to_owned();
-        let payload: String = msg.get_payload()?;
-
+    while let Some((channel, payload)) = stream.next().await {
         let value: Value = serde_json::from_str(&payload)?;
 
         let cron = value["cron"].as_str();
@@ -239,29 +245,30 @@ where
             _ => warn!("Unknown channel: {}", channel),
         };
     }
+
+    Ok(())
 }
 
-pub fn listen_pub_sub<D>(
+pub fn listen_pub_sub<D, P>(
     downloader: D,
     deployments: Deployments,
     workers: Workers,
     cronjob: Arc<Mutex<Cronjob>>,
+    pubsub: Arc<Mutex<P>>,
 ) where
     D: Downloader + Send + Sync + 'static,
+    P: PubSubListener + Unpin + Send + 'static,
 {
     let handle = Handle::current();
     std::thread::spawn(move || {
         handle.block_on(async {
-            let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
-            let client = redis::Client::open(url).expect("Failed to open Redis Client");
-
             loop {
                 if let Err(error) = run(
                     downloader.clone(),
                     Arc::clone(&deployments),
                     Arc::clone(&workers),
                     Arc::clone(&cronjob),
-                    &client,
+                    Arc::clone(&pubsub),
                 )
                 .await
                 {

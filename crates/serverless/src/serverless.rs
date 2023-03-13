@@ -27,7 +27,10 @@ use tokio::sync::Mutex;
 use crate::{
     cronjob::Cronjob,
     deployments::{
-        cache::run_cache_clear_task, downloader::Downloader, pubsub::listen_pub_sub, Deployments,
+        cache::run_cache_clear_task,
+        downloader::Downloader,
+        pubsub::{listen_pub_sub, RedisPubSub},
+        Deployments,
     },
     worker::{create_workers, get_thread_id, start_workers, WorkerEvent, Workers},
     REGION,
@@ -247,11 +250,15 @@ where
     let workers = create_workers();
     start_workers(Arc::clone(&workers)).await;
 
+    let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
+    let pubsub = Arc::new(Mutex::new(RedisPubSub::new(url)));
+
     listen_pub_sub(
         downloader.clone(),
         Arc::clone(&deployments),
         Arc::clone(&workers),
         Arc::clone(&cronjob),
+        pubsub,
     );
     run_cache_clear_task(Arc::clone(&last_requests), Arc::clone(&workers));
 
