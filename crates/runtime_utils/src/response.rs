@@ -102,8 +102,7 @@ where
         RunResult::Response(response) => {
             on_event(ResponseEvent::Bytes(response.len()), data);
 
-            let hyper_response = Builder::try_from(&response)?.body(response.body.into())?;
-            Ok(hyper_response)
+            Ok(Builder::try_from(&response)?.body(response.body.into())?)
         }
         RunResult::Timeout | RunResult::MemoryLimit => {
             on_event(ResponseEvent::LimitsReached(result), data);

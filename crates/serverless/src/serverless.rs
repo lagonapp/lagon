@@ -65,8 +65,6 @@ async fn handle_request(
     last_requests: Arc<DashMap<String, Instant>>,
     workers: Workers,
 ) -> Result<HyperResponse<Body>> {
-    let url = req.uri().to_string();
-
     let request_id = match req.headers().get(X_LAGON_ID) {
         Some(x_lagon_id) => x_lagon_id.to_str().unwrap_or("").to_string(),
         None => String::new(),
@@ -126,6 +124,7 @@ async fn handle_request(
 
     increment_counter!("lagon_requests", &labels);
 
+    let url = req.uri().path();
     let is_favicon = url == FAVICON_URL;
 
     if let Some(asset) = find_asset(url, &deployment.assets) {

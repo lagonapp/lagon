@@ -84,7 +84,7 @@ async fn handle_request(
     isolate_lock: Arc<Mutex<Option<Isolate>>>,
     pool: LocalPoolHandle,
 ) -> Result<HyperResponse<Body>> {
-    let url = req.uri().to_string();
+    let url = req.uri().path();
 
     println!(
         "{} {} {}",

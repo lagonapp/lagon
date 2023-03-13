@@ -1504,6 +1504,7 @@ dependencies = [
  "dashmap",
  "dotenv",
  "flume",
+ "futures",
  "hyper",
  "lagon-runtime",
  "lagon-runtime-http",
