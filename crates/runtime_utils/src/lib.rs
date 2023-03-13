@@ -64,7 +64,6 @@ impl Deployment {
         let path = Path::new(env::current_dir()?.as_path())
             .join(DEPLOYMENTS_DIR)
             .join(self.id.clone() + ".js");
-        println!("path: {:?}", path);
         let code = fs::read_to_string(path)?;
 
         Ok(code)
