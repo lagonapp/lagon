@@ -2,7 +2,7 @@ use anyhow::Result;
 use dashmap::DashMap;
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_utils::{
-    response::{PAGE_404, PAGE_500},
+    response::{PAGE_404, PAGE_500, PAGE_502},
     Deployment,
 };
 use lagon_serverless::{
@@ -91,6 +91,117 @@ async fn return_500_unknown_code() -> Result<()> {
         "127.0.0.1:4000".into(),
         Arc::new(Deployment {
             id: "unknown".into(),
+            function_id: "function_id".into(),
+            function_name: "function_name".into(),
+            domains: HashSet::new(),
+            assets: HashSet::new(),
+            environment_variables: HashMap::new(),
+            memory: 128,
+            timeout: 1000,
+            startup_timeout: 1000,
+            is_production: true,
+            cron: None,
+        }),
+    );
+    let serverless = start(
+        deployments,
+        "127.0.0.1:4000".parse().unwrap(),
+        FakeDownloader,
+        Arc::new(Mutex::new(Cronjob::new().await)),
+    )
+    .await?;
+    tokio::spawn(serverless);
+
+    let response = reqwest::get("http://127.0.0.1:4000").await?;
+    assert_eq!(response.status(), 500);
+    assert_eq!(response.text().await?, PAGE_500);
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn return_502_timeout() -> Result<()> {
+    setup();
+    let deployments = Arc::new(DashMap::new());
+    deployments.insert(
+        "127.0.0.1:4000".into(),
+        Arc::new(Deployment {
+            id: "timeout".into(),
+            function_id: "function_id".into(),
+            function_name: "function_name".into(),
+            domains: HashSet::new(),
+            assets: HashSet::new(),
+            environment_variables: HashMap::new(),
+            memory: 128,
+            timeout: 1000,
+            startup_timeout: 1000,
+            is_production: true,
+            cron: None,
+        }),
+    );
+    let serverless = start(
+        deployments,
+        "127.0.0.1:4000".parse().unwrap(),
+        FakeDownloader,
+        Arc::new(Mutex::new(Cronjob::new().await)),
+    )
+    .await?;
+    tokio::spawn(serverless);
+
+    let response = reqwest::get("http://127.0.0.1:4000").await?;
+    assert_eq!(response.status(), 502);
+    assert_eq!(response.text().await?, PAGE_502);
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn return_500_code_invalid() -> Result<()> {
+    setup();
+    let deployments = Arc::new(DashMap::new());
+    deployments.insert(
+        "127.0.0.1:4000".into(),
+        Arc::new(Deployment {
+            id: "code-invalid".into(),
+            function_id: "function_id".into(),
+            function_name: "function_name".into(),
+            domains: HashSet::new(),
+            assets: HashSet::new(),
+            environment_variables: HashMap::new(),
+            memory: 128,
+            timeout: 1000,
+            startup_timeout: 1000,
+            is_production: true,
+            cron: None,
+        }),
+    );
+    let serverless = start(
+        deployments,
+        "127.0.0.1:4000".parse().unwrap(),
+        FakeDownloader,
+        Arc::new(Mutex::new(Cronjob::new().await)),
+    )
+    .await?;
+    tokio::spawn(serverless);
+
+    let response = reqwest::get("http://127.0.0.1:4000").await?;
+    assert_eq!(response.status(), 500);
+    assert_eq!(response.text().await?, PAGE_500);
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn return_500_throw_error() -> Result<()> {
+    setup();
+    let deployments = Arc::new(DashMap::new());
+    deployments.insert(
+        "127.0.0.1:4000".into(),
+        Arc::new(Deployment {
+            id: "throw-error".into(),
             function_id: "function_id".into(),
             function_name: "function_name".into(),
             domains: HashSet::new(),
