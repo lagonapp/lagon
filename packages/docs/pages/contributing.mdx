@@ -31,49 +31,70 @@ If you want to preview your changes, you can run the documentation website local
 
 ### Requirements
 
-You will need [Node.js](https://nodejs.org/en/) >= 16 and [PNPM](https://pnpm.io/) >= 7.3.0 (as of writing). You will also need [Docker](https://www.docker.com/) installed, and if you want to contribute to any Rust code, you will need [Rust](https://www.rust-lang.org/) >= 1.63 installed.
+You will need [Node.js](https://nodejs.org/en/) >= 16 and [PNPM](https://pnpm.io/) >= 7 (as of writing). You will also need [Docker](https://www.docker.com/) installed, and if you want to contribute to any Rust code, you will need [Rust](https://www.rust-lang.org/) >= 1.67 installed.
 
 1. Fork and clone the repository
 2. Install all NPM dependencies: `pnpm install`
 
-And if you want to contribute to the Dashboard / Serverless:
+If you want to contribute to the Dashboard / Serverless / CLI:
 
 3. Run the local docker-compose: `docker-compose up -d`
 
+4. Copy `packages/dashboard/.env.example` to `packages/dashboard/.env`, and `crates/serverless/.env.example` to `crates/serverless/.env`
+
+5. Fill in the following environment variables:
+
+##### In `packages/dashboard/.env` and `crates/serverless/.env`:
+
+- `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` are credentials to an S3 bucket you own
+- (optional) `AXIOM_ORG_ID`, `AXIOM_TOKEN` to send and get logs to Axiom
+
+##### In `packages/dashboard/.env`:
+
+- `NEXTAUTH_SECRET` is a random secret for [NextAuth.js](https://authjs.dev/getting-started/oauth-tutorial#adding-environment-variables). Generate one using `$ openssl rand -base64 32`
+- `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` are GitHub OAuth credentials. [Create a GitHub OAuth App](https://github.com/settings/developers)
+- (optional) `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` are SMTP credentials to send emails
+
+#### www
+
+Navigate to `www` and run `pnpm dev` to start the website.
+
 #### UI
 
-The UI package is our design system. Navigate to `packages/ui` and run `pnpm dev` to start the Storybook on [http://localhost:6006](http://localhost:6006).
+Navigate to `packages/ui` and run `pnpm dev` to start the Storybook server.
 
 #### Dashboard
 
-The first step is to copy the `.env.example` file and rename it to `.env`. You will need to fill in the following environment variables:
-
-```bash
-NEXTAUTH_SECRET= # Random secret
-S3_REGION= # S3 credentials to a bucket you own
-S3_BUCKET=
-S3_ACCESS_KEY_ID=
-S3_SECRET_ACCESS_KEY=
-GITHUB_CLIENT_ID= # Create a new GitHub OAuth app: https://github.com/settings/developers
-GITHUB_CLIENT_SECRET=
-```
-
-Then, navigate to `packages/dashboard` and run `pnpm prisma migrate dev` to generate the database tables. You can now start the dashboard using `pnpm dev`.
+Navigate to `packages/dashboard` and run `pnpm prisma migrate dev` to generate the database tables. You can now start the dashboard using `pnpm dev`.
 
 #### JS Runtime
 
-Work in progress...
+Navigate to `packages/js-runtime` and run `pnpm build` to build the JavaScript runtime. You can also run `pnpm dev` to watch for changes and automatically rebuild.
 
-#### Runtime / Serverless
+#### Serverless
 
-Work in progress...
+Make sure you've followed the [Requirements](#requirements) and the [JS Runtime](#js-runtime) setup.
+
+Navigate to `crates/serverless` and run `cargo run` to start the Serverless process. You can also run `cargo test` at the root of the project to run all tests.
 
 #### CLI
 
-Work in progress...
+Make sure you've followed the [Requirements](#requirements) and the [JS Runtime](#js-runtime) setup.
+
+Navigate to `crates/cli` and run `cargo run` to start the CLI. You can pass arguments to the CLI using `cargo run -- <args>`. For example, `cargo run -- dev index.ts`.
+
+#### WPT Runner
+
+Make sure you've followed the [Requirements](#requirements) and the [JS Runtime](#js-runtime) setup.
+
+First, you'll need to update the WPT submodule. Navigate to `tools/wpt` and run `git submodule update --init`.
+
+Then, navigate to `crates/wpt-runner` and run `cargo run` to start the WPT Runner. You can optionally pass a path to a specific file or directory to run the tests on. For example, `cargo run -- ../../tools/wpt/fetch/api/headers/header-setcookie.any.js`
+
+Every time you update the js-runtime code, you will need to rebuild it. We recommend running the `dev` script of js-runtime to watch for changes and automatically rebuild.
 
 ### Before submitting a PR
 
 We have some checks in place to ensure we don't introduce bugs or regressions in PRs. You can run `pnpm lint` and `pnpm typecheck` at the project's root to ensure there are no lint and type errors.
 
-Finally, run `pnpm changeset` to generate a [changeset file](https://github.com/changesets/changesets#how-do-we-do-that). Select the modified packages and choose the SemVer increment "major", "minor", or "patch".
+Finally, run `pnpm changeset` to generate a [changeset file](https://github.com/changesets/changesets#how-do-we-do-that). Select the modified packages and choose the SemVer increment "major", "minor", or "patch", then write a short description of the changes.
