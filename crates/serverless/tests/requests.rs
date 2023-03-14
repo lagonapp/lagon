@@ -4,7 +4,9 @@ use futures::StreamExt;
 use hyper::body::Bytes;
 use lagon_runtime_utils::Deployment;
 use lagon_serverless::{
-    cronjob::Cronjob, deployments::downloader::FakeDownloader, serverless::start,
+    cronjob::Cronjob,
+    deployments::{downloader::FakeDownloader, pubsub::FakePubSub},
+    serverless::start,
 };
 use serial_test::serial;
 use std::{
@@ -40,6 +42,7 @@ async fn returns_correct_http() -> Result<()> {
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -80,6 +83,7 @@ async fn returns_correct_path() -> Result<()> {
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -128,6 +132,7 @@ async fn forwards_headers() -> Result<()> {
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -167,6 +172,7 @@ async fn stream_sequentially() -> Result<()> {
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;

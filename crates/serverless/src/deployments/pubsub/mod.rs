@@ -1,26 +1,25 @@
-use std::{collections::HashMap, sync::Arc};
-
+use super::{
+    download_deployment, downloader::Downloader, filesystem::rm_deployment, Deployment, Deployments,
+};
+use crate::{
+    cronjob::Cronjob,
+    worker::{WorkerEvent, Workers},
+    REGION,
+};
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::{Stream, StreamExt};
 use log::{error, warn};
 use metrics::increment_counter;
 use serde_json::Value;
+use std::{collections::HashMap, sync::Arc};
 use tokio::{runtime::Handle, sync::Mutex};
 
-use crate::{
-    cronjob::Cronjob,
-    worker::{WorkerEvent, Workers},
-    REGION,
-};
-
-use super::{
-    download_deployment, downloader::Downloader, filesystem::rm_deployment, Deployment, Deployments,
-};
-
+mod fake;
 mod redis;
 
 pub use self::redis::RedisPubSub;
+pub use fake::FakePubSub;
 
 #[derive(Debug)]
 pub enum PubSubMessage {

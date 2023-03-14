@@ -2,7 +2,9 @@ use anyhow::Result;
 use dashmap::DashMap;
 use lagon_runtime_utils::Deployment;
 use lagon_serverless::{
-    cronjob::Cronjob, deployments::downloader::FakeDownloader, serverless::start,
+    cronjob::Cronjob,
+    deployments::{downloader::FakeDownloader, pubsub::FakePubSub},
+    serverless::start,
 };
 use serial_test::serial;
 use std::{
@@ -38,6 +40,7 @@ async fn simple() -> Result<()> {
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -75,6 +78,7 @@ async fn reuse_isolate() -> Result<()> {
         deployments,
         "127.0.0.1:4001".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -115,6 +119,7 @@ async fn reuse_isolate_across_domains() -> Result<()> {
         deployments,
         "127.0.0.1:4002".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;

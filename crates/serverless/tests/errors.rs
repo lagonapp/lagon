@@ -5,7 +5,9 @@ use lagon_runtime_utils::{
     Deployment,
 };
 use lagon_serverless::{
-    cronjob::Cronjob, deployments::downloader::FakeDownloader, serverless::start,
+    cronjob::Cronjob,
+    deployments::{downloader::FakeDownloader, pubsub::FakePubSub},
+    serverless::start,
 };
 use serial_test::serial;
 use std::{
@@ -24,6 +26,7 @@ async fn return_404_no_deployment_found() -> Result<()> {
         Arc::new(DashMap::new()),
         "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -61,6 +64,7 @@ async fn return_404_cron_deployment() -> Result<()> {
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -98,6 +102,7 @@ async fn return_500_unknown_code() -> Result<()> {
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -135,6 +140,7 @@ async fn return_502_timeout() -> Result<()> {
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -172,6 +178,7 @@ async fn return_500_code_invalid() -> Result<()> {
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -209,6 +216,7 @@ async fn return_500_throw_error() -> Result<()> {
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
+        FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;

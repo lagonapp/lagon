@@ -2,6 +2,17 @@ use std::{
     convert::Infallible, env, future::Future, net::SocketAddr, path::Path, sync::Arc, time::Instant,
 };
 
+use crate::{
+    cronjob::Cronjob,
+    deployments::{
+        cache::run_cache_clear_task,
+        downloader::Downloader,
+        pubsub::{listen_pub_sub, PubSubListener},
+        Deployments,
+    },
+    worker::{create_workers, get_thread_id, start_workers, WorkerEvent, Workers},
+    REGION,
+};
 use anyhow::Result;
 use dashmap::DashMap;
 use hyper::{
@@ -23,18 +34,6 @@ use lagon_runtime_utils::{
 use log::{as_debug, error, warn};
 use metrics::{counter, increment_counter};
 use tokio::sync::Mutex;
-
-use crate::{
-    cronjob::Cronjob,
-    deployments::{
-        cache::run_cache_clear_task,
-        downloader::Downloader,
-        pubsub::{listen_pub_sub, RedisPubSub},
-        Deployments,
-    },
-    worker::{create_workers, get_thread_id, start_workers, WorkerEvent, Workers},
-    REGION,
-};
 
 fn handle_error(
     result: RunResult,
@@ -235,14 +234,16 @@ async fn handle_request(
     .await
 }
 
-pub async fn start<D>(
+pub async fn start<D, P>(
     deployments: Deployments,
     addr: SocketAddr,
     downloader: D,
+    pubsub: P,
     cronjob: Arc<Mutex<Cronjob>>,
 ) -> Result<impl Future<Output = ()> + Send>
 where
     D: Downloader + Send + 'static,
+    P: PubSubListener + Unpin + 'static,
 {
     let last_requests = Arc::new(DashMap::new());
     let thread_ids = Arc::new(DashMap::new());
@@ -250,8 +251,7 @@ where
     let workers = create_workers();
     start_workers(Arc::clone(&workers)).await;
 
-    let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
-    let pubsub = Arc::new(Mutex::new(RedisPubSub::new(url)));
+    let pubsub = Arc::new(Mutex::new(pubsub));
 
     listen_pub_sub(
         downloader.clone(),

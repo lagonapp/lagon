@@ -3,6 +3,7 @@ use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_serverless::cronjob::Cronjob;
 use lagon_serverless::deployments::downloader::S3BucketDownloader;
 use lagon_serverless::deployments::get_deployments;
+use lagon_serverless::deployments::pubsub::RedisPubSub;
 use lagon_serverless::serverless::start;
 use lagon_serverless::REGION;
 use lagon_serverless_logger::init_logger;
@@ -72,8 +73,11 @@ async fn main() -> Result<()> {
     let bucket = Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?;
     let downloader = S3BucketDownloader::new(bucket);
 
+    let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
+    let pubsub = RedisPubSub::new(url);
+
     let deployments = get_deployments(conn, downloader.clone(), Arc::clone(&cronjob)).await?;
-    let serverless = start(deployments, addr, downloader, cronjob).await?;
+    let serverless = start(deployments, addr, downloader, pubsub, cronjob).await?;
     tokio::spawn(serverless).await?;
 
     runtime.dispose();
