@@ -26,7 +26,7 @@ pub mod pubsub;
 
 pub type Deployments = Arc<DashMap<String, Arc<Deployment>>>;
 
-pub async fn download_deployment<D>(deployment: &Deployment, downloader: D) -> Result<()>
+pub async fn download_deployment<D>(deployment: &Deployment, downloader: Arc<D>) -> Result<()>
 where
     D: Downloader,
 {
@@ -72,7 +72,7 @@ type QueryResult = (
 
 pub async fn get_deployments<D>(
     mut conn: PooledConn,
-    downloader: D,
+    downloader: Arc<D>,
     cronjob: Arc<Mutex<Cronjob>>,
 ) -> Result<Deployments>
 where
@@ -179,7 +179,8 @@ OR
 
         for deployment in deployments_list {
             if !deployment.has_code() {
-                if let Err(error) = download_deployment(&deployment, downloader.clone()).await {
+                if let Err(error) = download_deployment(&deployment, Arc::clone(&downloader)).await
+                {
                     error!("Failed to download deployment {}: {}", deployment.id, error);
                     continue;
                 }

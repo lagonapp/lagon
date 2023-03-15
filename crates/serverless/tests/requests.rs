@@ -41,7 +41,7 @@ async fn returns_correct_http() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -82,7 +82,7 @@ async fn returns_correct_path() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -131,7 +131,7 @@ async fn forwards_headers() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -171,7 +171,7 @@ async fn stream_sequentially() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )

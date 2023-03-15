@@ -71,12 +71,12 @@ async fn main() -> Result<()> {
 
     let cronjob = Arc::new(Mutex::new(Cronjob::new().await));
     let bucket = Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?;
-    let downloader = S3BucketDownloader::new(bucket);
+    let downloader = Arc::new(S3BucketDownloader::new(bucket));
 
     let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
     let pubsub = RedisPubSub::new(url);
 
-    let deployments = get_deployments(conn, downloader.clone(), Arc::clone(&cronjob)).await?;
+    let deployments = get_deployments(conn, Arc::clone(&downloader), Arc::clone(&cronjob)).await?;
     let serverless = start(deployments, addr, downloader, pubsub, cronjob).await?;
     tokio::spawn(serverless).await?;
 

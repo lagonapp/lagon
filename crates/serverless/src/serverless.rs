@@ -237,7 +237,7 @@ async fn handle_request(
 pub async fn start<D, P>(
     deployments: Deployments,
     addr: SocketAddr,
-    downloader: D,
+    downloader: Arc<D>,
     pubsub: P,
     cronjob: Arc<Mutex<Cronjob>>,
 ) -> Result<impl Future<Output = ()> + Send>
@@ -254,7 +254,7 @@ where
     let pubsub = Arc::new(Mutex::new(pubsub));
 
     listen_pub_sub(
-        downloader.clone(),
+        Arc::clone(&downloader),
         Arc::clone(&deployments),
         Arc::clone(&workers),
         Arc::clone(&cronjob),

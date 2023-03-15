@@ -5,7 +5,7 @@ use lagon_serverless::{
     cronjob::Cronjob,
     deployments::{
         downloader::FakeDownloader,
-        pubsub::{FakePubSub, PubSubMessage},
+        pubsub::{FakePubSub, PubSubMessage, PubSubMessageKind},
     },
     serverless::start,
 };
@@ -24,7 +24,7 @@ async fn deploy_undeploy() -> Result<()> {
     let serverless = start(
         Arc::new(DashMap::new()),
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         pubsub,
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -35,8 +35,8 @@ async fn deploy_undeploy() -> Result<()> {
     assert_eq!(response.status(), 404);
     assert_eq!(response.text().await?, PAGE_404);
 
-    tx.send_async((
-        PubSubMessage::Deploy,
+    tx.send_async(PubSubMessage::new(
+        PubSubMessageKind::Deploy,
         r#"{
     "functionId": "function_id",
     "functionName": "function_name",
@@ -60,8 +60,8 @@ async fn deploy_undeploy() -> Result<()> {
     assert_eq!(response.status(), 200);
     assert_eq!(response.text().await?, "Hello world");
 
-    tx.send_async((
-        PubSubMessage::Undeploy,
+    tx.send_async(PubSubMessage::new(
+        PubSubMessageKind::Undeploy,
         r#"{
     "functionId": "function_id",
     "functionName": "function_name",
@@ -97,15 +97,15 @@ async fn assign_correct_domains_prod() -> Result<()> {
     let serverless = start(
         Arc::new(DashMap::new()),
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         pubsub,
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
 
-    tx.send_async((
-        PubSubMessage::Deploy,
+    tx.send_async(PubSubMessage::new(
+        PubSubMessageKind::Deploy,
         r#"{
     "functionId": "function_id",
     "functionName": "function_name",
@@ -158,15 +158,15 @@ async fn assign_correct_domains_dev() -> Result<()> {
     let serverless = start(
         Arc::new(DashMap::new()),
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         pubsub,
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
 
-    tx.send_async((
-        PubSubMessage::Deploy,
+    tx.send_async(PubSubMessage::new(
+        PubSubMessageKind::Deploy,
         r#"{
     "functionId": "function_id",
     "functionName": "function_name",
@@ -219,15 +219,15 @@ async fn skip_cron_not_same_region() -> Result<()> {
     let serverless = start(
         Arc::new(DashMap::new()),
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         pubsub,
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
 
-    tx.send_async((
-        PubSubMessage::Deploy,
+    tx.send_async(PubSubMessage::new(
+        PubSubMessageKind::Deploy,
         r#"{
     "functionId": "function_id",
     "functionName": "function_name",
@@ -263,15 +263,15 @@ async fn warn_cron_direct_access() -> Result<()> {
     let serverless = start(
         Arc::new(DashMap::new()),
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         pubsub,
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
 
-    tx.send_async((
-        PubSubMessage::Deploy,
+    tx.send_async(PubSubMessage::new(
+        PubSubMessageKind::Deploy,
         r#"{
     "functionId": "function_id",
     "functionName": "function_name",

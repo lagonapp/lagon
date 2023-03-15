@@ -25,7 +25,7 @@ async fn return_404_no_deployment_found() -> Result<()> {
     let serverless = start(
         Arc::new(DashMap::new()),
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -63,7 +63,7 @@ async fn return_403_cron_deployment() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -101,7 +101,7 @@ async fn return_500_unknown_code() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -139,7 +139,7 @@ async fn return_502_timeout() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -177,7 +177,7 @@ async fn return_500_code_invalid() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -215,7 +215,7 @@ async fn return_500_throw_error() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
