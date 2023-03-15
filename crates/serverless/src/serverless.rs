@@ -28,7 +28,7 @@ use lagon_runtime_http::{
 use lagon_runtime_isolate::CONSOLE_SOURCE;
 use lagon_runtime_utils::{
     assets::{find_asset, handle_asset},
-    response::{handle_response, ResponseEvent, FAVICON_URL, PAGE_404},
+    response::{handle_response, ResponseEvent, FAVICON_URL, PAGE_403, PAGE_404},
     DEPLOYMENTS_DIR,
 };
 use log::{as_debug, error, warn};
@@ -110,7 +110,7 @@ async fn handle_request(
         );
         warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "Cron deployment cannot be called directly");
 
-        return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
+        return Ok(HyperResponse::builder().status(403).body(PAGE_403.into())?);
     }
 
     let deployment_id = deployment.id.clone();

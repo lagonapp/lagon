@@ -1,7 +1,7 @@
 use anyhow::Result;
 use dashmap::DashMap;
 use lagon_runtime_utils::{
-    response::{PAGE_404, PAGE_500, PAGE_502},
+    response::{PAGE_403, PAGE_404, PAGE_500, PAGE_502},
     Deployment,
 };
 use lagon_serverless::{
@@ -41,7 +41,7 @@ async fn return_404_no_deployment_found() -> Result<()> {
 
 #[tokio::test]
 #[serial]
-async fn return_404_cron_deployment() -> Result<()> {
+async fn return_403_cron_deployment() -> Result<()> {
     utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
@@ -71,8 +71,8 @@ async fn return_404_cron_deployment() -> Result<()> {
     tokio::spawn(serverless);
 
     let response = reqwest::get("http://127.0.0.1:4000").await?;
-    assert_eq!(response.status(), 404);
-    assert_eq!(response.text().await?, PAGE_404);
+    assert_eq!(response.status(), 403);
+    assert_eq!(response.text().await?, PAGE_403);
 
     Ok(())
 }
