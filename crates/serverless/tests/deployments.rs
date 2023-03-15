@@ -55,16 +55,62 @@ async fn simple() -> Result<()> {
 
 #[tokio::test]
 #[serial]
+async fn custom_domains() -> Result<()> {
+    utils::setup();
+    let deployments = Arc::new(DashMap::new());
+    let deployment = Arc::new(Deployment {
+        id: "simple".into(),
+        function_id: "function_id".into(),
+        function_name: "function_name".into(),
+        domains: HashSet::from(["127.0.0.1:4000".into(), "custom.domain".into()]),
+        assets: HashSet::new(),
+        environment_variables: HashMap::new(),
+        memory: 128,
+        timeout: 1000,
+        startup_timeout: 1000,
+        is_production: true,
+        cron: None,
+    });
+    deployments.insert("127.0.0.1:4000".into(), Arc::clone(&deployment));
+    deployments.insert("custom.domain".into(), Arc::clone(&deployment));
+    let serverless = start(
+        deployments,
+        "127.0.0.1:4000".parse().unwrap(),
+        FakeDownloader,
+        FakePubSub::default(),
+        Arc::new(Mutex::new(Cronjob::new().await)),
+    )
+    .await?;
+    tokio::spawn(serverless);
+
+    let response = reqwest::get("http://127.0.0.1:4000").await?;
+    assert_eq!(response.status(), 200);
+    assert_eq!(response.text().await?, "Hello world");
+
+    let client = reqwest::Client::new();
+    let response = client
+        .get("http://127.0.0.1:4000")
+        .header("host", "custom.domain")
+        .send()
+        .await?;
+    assert_eq!(response.status(), 200);
+    assert_eq!(response.text().await?, "Hello world");
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
 async fn reuse_isolate() -> Result<()> {
     utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
-        "127.0.0.1:4001".into(),
+        "127.0.0.1:4000".into(),
         Arc::new(Deployment {
             id: "counter".into(),
             function_id: "function_id".into(),
             function_name: "function_name".into(),
-            domains: HashSet::from(["127.0.0.1:4001".into()]),
+            domains: HashSet::from(["127.0.0.1:4000".into()]),
             assets: HashSet::new(),
             environment_variables: HashMap::new(),
             memory: 128,
@@ -76,7 +122,7 @@ async fn reuse_isolate() -> Result<()> {
     );
     let serverless = start(
         deployments,
-        "127.0.0.1:4001".parse().unwrap(),
+        "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
@@ -84,11 +130,11 @@ async fn reuse_isolate() -> Result<()> {
     .await?;
     tokio::spawn(serverless);
 
-    let response = reqwest::get("http://127.0.0.1:4001").await?;
+    let response = reqwest::get("http://127.0.0.1:4000").await?;
     assert_eq!(response.status(), 200);
     assert_eq!(response.text().await?, "1");
 
-    let response = reqwest::get("http://127.0.0.1:4001").await?;
+    let response = reqwest::get("http://127.0.0.1:4000").await?;
     assert_eq!(response.status(), 200);
     assert_eq!(response.text().await?, "2");
 
@@ -104,7 +150,7 @@ async fn reuse_isolate_across_domains() -> Result<()> {
         id: "counter".into(),
         function_id: "function_id".into(),
         function_name: "function_name".into(),
-        domains: HashSet::from(["127.0.0.1:4002".into(), "another.domain".into()]),
+        domains: HashSet::from(["127.0.0.1:4000".into(), "another.domain".into()]),
         assets: HashSet::new(),
         environment_variables: HashMap::new(),
         memory: 128,
@@ -113,11 +159,11 @@ async fn reuse_isolate_across_domains() -> Result<()> {
         is_production: true,
         cron: None,
     });
-    deployments.insert("127.0.0.1:4002".into(), Arc::clone(&deployment));
+    deployments.insert("127.0.0.1:4000".into(), Arc::clone(&deployment));
     deployments.insert("another.domain".into(), deployment);
     let serverless = start(
         deployments,
-        "127.0.0.1:4002".parse().unwrap(),
+        "127.0.0.1:4000".parse().unwrap(),
         FakeDownloader,
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
@@ -125,13 +171,13 @@ async fn reuse_isolate_across_domains() -> Result<()> {
     .await?;
     tokio::spawn(serverless);
 
-    let response = reqwest::get("http://127.0.0.1:4002").await?;
+    let response = reqwest::get("http://127.0.0.1:4000").await?;
     assert_eq!(response.status(), 200);
     assert_eq!(response.text().await?, "1");
 
     let client = reqwest::Client::new();
     let response = client
-        .get("http://127.0.0.1:4002")
+        .get("http://127.0.0.1:4000")
         .header("host", "another.domain")
         .send()
         .await?;
