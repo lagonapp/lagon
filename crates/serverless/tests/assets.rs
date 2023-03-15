@@ -39,7 +39,7 @@ async fn html_assets() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -94,7 +94,7 @@ async fn assets_nested() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -146,7 +146,7 @@ async fn set_content_type() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )

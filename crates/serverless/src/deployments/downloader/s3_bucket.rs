@@ -14,14 +14,6 @@ impl S3BucketDownloader {
     }
 }
 
-impl Clone for S3BucketDownloader {
-    fn clone(&self) -> Self {
-        Self {
-            bucket: self.bucket.clone(),
-        }
-    }
-}
-
 #[async_trait]
 impl Downloader for S3BucketDownloader {
     async fn download(&self, path: String) -> Result<Vec<u8>> {

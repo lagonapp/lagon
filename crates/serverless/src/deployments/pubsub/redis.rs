@@ -41,14 +41,12 @@ impl PubSubListener for RedisPubSub {
         Ok(())
     }
 
-    fn get_stream(
-        &mut self,
-    ) -> Box<dyn Stream<Item = (PubSubMessage, String)> + Unpin + Send + '_> {
+    fn get_stream(&mut self) -> Box<dyn Stream<Item = PubSubMessage> + Unpin + Send + '_> {
         Box::new(self.pubsub.as_mut().unwrap().on_message().map(|msg| {
-            let channel = msg.get_channel_name().to_string().into();
+            let kind = msg.get_channel_name().to_string().into();
             let payload = msg.get_payload::<String>().unwrap();
 
-            (channel, payload)
+            PubSubMessage { kind, payload }
         }))
     }
 }

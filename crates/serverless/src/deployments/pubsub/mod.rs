@@ -22,14 +22,25 @@ pub use self::redis::RedisPubSub;
 pub use fake::FakePubSub;
 
 #[derive(Debug)]
-pub enum PubSubMessage {
+pub enum PubSubMessageKind {
     Deploy,
     Undeploy,
     Promote,
     Unknown,
 }
 
-impl From<String> for PubSubMessage {
+pub struct PubSubMessage {
+    kind: PubSubMessageKind,
+    payload: String,
+}
+
+impl PubSubMessage {
+    pub fn new(kind: PubSubMessageKind, payload: String) -> Self {
+        Self { kind, payload }
+    }
+}
+
+impl From<String> for PubSubMessageKind {
     fn from(value: String) -> Self {
         match value.as_str() {
             "deploy" => Self::Deploy,
@@ -44,8 +55,7 @@ impl From<String> for PubSubMessage {
 pub trait PubSubListener: Send + Sized {
     async fn connect(&mut self) -> Result<()>;
 
-    fn get_stream(&mut self)
-        -> Box<dyn Stream<Item = (PubSubMessage, String)> + Unpin + Send + '_>;
+    fn get_stream(&mut self) -> Box<dyn Stream<Item = PubSubMessage> + Unpin + Send + '_>;
 }
 
 pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, reason: String) {
@@ -63,7 +73,7 @@ pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, rea
 }
 
 async fn run<D, P>(
-    downloader: D,
+    downloader: Arc<D>,
     deployments: Deployments,
     workers: Workers,
     cronjob: Arc<Mutex<Cronjob>>,
@@ -78,7 +88,7 @@ where
 
     let mut stream = pubsub.get_stream();
 
-    while let Some((message, payload)) = stream.next().await {
+    while let Some(PubSubMessage { kind, payload }) = stream.next().await {
         let value: Value = serde_json::from_str(&payload)?;
 
         let cron = value["cron"].as_str();
@@ -123,9 +133,9 @@ where
 
         let workers = Arc::clone(&workers);
 
-        match message {
-            PubSubMessage::Deploy => {
-                match download_deployment(&deployment, downloader.clone()).await {
+        match kind {
+            PubSubMessageKind::Deploy => {
+                match download_deployment(&deployment, Arc::clone(&downloader)).await {
                     Ok(_) => {
                         increment_counter!(
                             "lagon_deployments",
@@ -173,7 +183,7 @@ where
                     }
                 };
             }
-            PubSubMessage::Undeploy => {
+            PubSubMessageKind::Undeploy => {
                 match rm_deployment(&deployment.id) {
                     Ok(_) => {
                         increment_counter!(
@@ -217,7 +227,7 @@ where
                     }
                 };
             }
-            PubSubMessage::Promote => {
+            PubSubMessageKind::Promote => {
                 increment_counter!(
                     "lagon_promotion",
                     "deployment" => deployment.id.clone(),
@@ -261,7 +271,7 @@ where
                     }
                 }
             }
-            _ => warn!("Unknown channel: {:?}", message),
+            _ => warn!("Unknown message kind: {:?}, {}", kind, payload),
         };
     }
 
@@ -269,7 +279,7 @@ where
 }
 
 pub fn listen_pub_sub<D, P>(
-    downloader: D,
+    downloader: Arc<D>,
     deployments: Deployments,
     workers: Workers,
     cronjob: Arc<Mutex<Cronjob>>,
@@ -283,7 +293,7 @@ pub fn listen_pub_sub<D, P>(
         handle.block_on(async {
             loop {
                 if let Err(error) = run(
-                    downloader.clone(),
+                    Arc::clone(&downloader),
                     Arc::clone(&deployments),
                     Arc::clone(&workers),
                     Arc::clone(&cronjob),

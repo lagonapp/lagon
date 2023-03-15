@@ -39,7 +39,7 @@ async fn simple() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -76,7 +76,7 @@ async fn custom_domains() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -123,7 +123,7 @@ async fn reuse_isolate() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )
@@ -164,7 +164,7 @@ async fn reuse_isolate_across_domains() -> Result<()> {
     let serverless = start(
         deployments,
         "127.0.0.1:4000".parse().unwrap(),
-        FakeDownloader,
+        Arc::new(FakeDownloader),
         FakePubSub::default(),
         Arc::new(Mutex::new(Cronjob::new().await)),
     )

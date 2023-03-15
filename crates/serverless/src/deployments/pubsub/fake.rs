@@ -4,8 +4,8 @@ use async_trait::async_trait;
 use futures::{Stream, StreamExt};
 
 pub struct FakePubSub {
-    tx: flume::Sender<(PubSubMessage, String)>,
-    rx: flume::Receiver<(PubSubMessage, String)>,
+    tx: flume::Sender<PubSubMessage>,
+    rx: flume::Receiver<PubSubMessage>,
 }
 
 impl FakePubSub {
@@ -15,7 +15,7 @@ impl FakePubSub {
         Self { tx, rx }
     }
 
-    pub fn get_tx(&self) -> flume::Sender<(PubSubMessage, String)> {
+    pub fn get_tx(&self) -> flume::Sender<PubSubMessage> {
         self.tx.clone()
     }
 }
@@ -32,9 +32,7 @@ impl PubSubListener for FakePubSub {
         Ok(())
     }
 
-    fn get_stream(
-        &mut self,
-    ) -> Box<dyn Stream<Item = (PubSubMessage, String)> + Unpin + Send + '_> {
+    fn get_stream(&mut self) -> Box<dyn Stream<Item = PubSubMessage> + Unpin + Send + '_> {
         Box::new(self.rx.clone().into_stream().boxed())
     }
 }
