@@ -8,6 +8,6 @@ pub use fake::FakeDownloader;
 pub use s3_bucket::S3BucketDownloader;
 
 #[async_trait]
-pub trait Downloader: Sync + Clone {
+pub trait Downloader {
     async fn download(&self, path: String) -> Result<Vec<u8>>;
 }

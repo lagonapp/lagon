@@ -15,9 +15,3 @@ impl Downloader for FakeDownloader {
         Ok(bytes)
     }
 }
-
-impl Clone for FakeDownloader {
-    fn clone(&self) -> Self {
-        Self {}
-    }
-}

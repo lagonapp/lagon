@@ -242,7 +242,7 @@ pub async fn start<D, P>(
     cronjob: Arc<Mutex<Cronjob>>,
 ) -> Result<impl Future<Output = ()> + Send>
 where
-    D: Downloader + Send + 'static,
+    D: Downloader + Send + Sync + 'static,
     P: PubSubListener + Unpin + 'static,
 {
     let last_requests = Arc::new(DashMap::new());
