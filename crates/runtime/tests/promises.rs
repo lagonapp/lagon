@@ -1,20 +1,12 @@
 use httptest::{matchers::*, responders::*, Expectation, Server};
-use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
-use std::sync::Once;
 
-fn setup() {
-    static START: Once = Once::new();
-
-    START.call_once(|| {
-        Runtime::new(RuntimeOptions::default());
-    });
-}
+mod utils;
 
 #[tokio::test]
 async fn execute_async_handler() {
-    setup();
+    utils::setup();
     let mut isolate = Isolate::new(
         IsolateOptions::new(
             "export async function handler() {
@@ -35,7 +27,7 @@ async fn execute_async_handler() {
 
 #[tokio::test]
 async fn execute_promise() {
-    setup();
+    utils::setup();
     let server = Server::run();
     server.expect(
         Expectation::matching(request::method_path("GET", "/"))

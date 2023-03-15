@@ -7,36 +7,42 @@ use std::{
 
 use anyhow::{anyhow, Result};
 use dashmap::DashMap;
-use lagon_runtime_utils::Deployment;
+use lagon_runtime_utils::{Deployment, DEPLOYMENTS_DIR};
 use log::{error, info, warn};
 use mysql::{prelude::Queryable, PooledConn};
-use s3::Bucket;
 use tokio::sync::Mutex;
 
 use crate::{cronjob::Cronjob, REGION};
 
-use self::filesystem::{create_deployments_folder, rm_deployment};
+use self::{
+    downloader::Downloader,
+    filesystem::{create_deployments_folder, rm_deployment},
+};
 
 pub mod cache;
+pub mod downloader;
 pub mod filesystem;
 pub mod pubsub;
 
 pub type Deployments = Arc<DashMap<String, Arc<Deployment>>>;
 
-pub async fn download_deployment(deployment: &Deployment, bucket: &Bucket) -> Result<()> {
-    match bucket.get_object(deployment.id.clone() + ".js").await {
+pub async fn download_deployment<D>(deployment: &Deployment, downloader: D) -> Result<()>
+where
+    D: Downloader,
+{
+    match downloader.download(deployment.id.clone() + ".js").await {
         Ok(object) => {
-            deployment.write_code(object.bytes())?;
+            deployment.write_code(&object)?;
             info!(deployment = deployment.id; "Wrote deployment");
 
             if !deployment.assets.is_empty() {
                 for asset in &deployment.assets {
-                    match bucket
-                        .get_object(deployment.id.clone() + "/" + asset.as_str())
+                    match downloader
+                        .download(deployment.id.clone() + "/" + asset.as_str())
                         .await
                     {
                         Ok(object) => {
-                            deployment.write_asset(asset, object.bytes())?;
+                            deployment.write_asset(asset, &object)?;
                         }
                         Err(error) => {
                             warn!(deployment = deployment.id, asset = asset; "Failed to download deployment asset: {}", error)
@@ -64,11 +70,14 @@ type QueryResult = (
     Option<String>,
 );
 
-pub async fn get_deployments(
+pub async fn get_deployments<D>(
     mut conn: PooledConn,
-    bucket: Bucket,
+    downloader: D,
     cronjob: Arc<Mutex<Cronjob>>,
-) -> Result<Deployments> {
+) -> Result<Deployments>
+where
+    D: Downloader,
+{
     let deployments = Arc::new(DashMap::new());
 
     let mut deployments_list: HashMap<String, Deployment> = HashMap::new();
@@ -170,7 +179,7 @@ OR
 
         for deployment in deployments_list {
             if !deployment.has_code() {
-                if let Err(error) = download_deployment(&deployment, &bucket).await {
+                if let Err(error) = download_deployment(&deployment, downloader.clone()).await {
                     error!("Failed to download deployment {}: {}", deployment.id, error);
                     continue;
                 }
@@ -195,7 +204,7 @@ OR
 
 async fn delete_old_deployments(deployments: &[Deployment]) -> Result<()> {
     info!("Deleting old deployments");
-    let local_deployments_files = fs::read_dir(Path::new("deployments"))?;
+    let local_deployments_files = fs::read_dir(Path::new(DEPLOYMENTS_DIR))?;
 
     for local_deployment_file in local_deployments_files {
         let local_deployment_file_name = local_deployment_file?

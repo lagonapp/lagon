@@ -11,6 +11,12 @@ use std::{
 pub mod assets;
 pub mod response;
 
+#[cfg(not(feature = "test"))]
+pub const DEPLOYMENTS_DIR: &str = "deployments";
+
+#[cfg(feature = "test")]
+pub const DEPLOYMENTS_DIR: &str = "deployments_test";
+
 #[derive(Debug, Clone)]
 pub struct Deployment {
     pub id: String,
@@ -56,7 +62,7 @@ impl Deployment {
 
     pub fn get_code(&self) -> Result<String> {
         let path = Path::new(env::current_dir()?.as_path())
-            .join("deployments")
+            .join(DEPLOYMENTS_DIR)
             .join(self.id.clone() + ".js");
         let code = fs::read_to_string(path)?;
 
@@ -64,13 +70,13 @@ impl Deployment {
     }
 
     pub fn has_code(&self) -> bool {
-        let path = Path::new("deployments").join(self.id.clone() + ".js");
+        let path = Path::new(DEPLOYMENTS_DIR).join(self.id.clone() + ".js");
 
         path.exists()
     }
 
     pub fn write_code(&self, code: &[u8]) -> Result<()> {
-        let mut file = File::create(Path::new("deployments").join(self.id.clone() + ".js"))?;
+        let mut file = File::create(Path::new(DEPLOYMENTS_DIR).join(self.id.clone() + ".js"))?;
 
         file.write_all(code)?;
 
@@ -81,14 +87,15 @@ impl Deployment {
         let asset = asset.replace("public/", "");
         let asset = asset.as_str();
 
-        let dir = Path::new("deployments").join(self.id.clone()).join(
+        let dir = Path::new(DEPLOYMENTS_DIR).join(self.id.clone()).join(
             Path::new(asset)
                 .parent()
                 .ok_or_else(|| anyhow!("Could not get parent of {}", asset))?,
         );
         fs::create_dir_all(dir)?;
 
-        let mut file = File::create(Path::new("deployments").join(self.id.clone() + "/" + asset))?;
+        let mut file =
+            File::create(Path::new(DEPLOYMENTS_DIR).join(self.id.clone() + "/" + asset))?;
         file.write_all(content)?;
 
         Ok(())

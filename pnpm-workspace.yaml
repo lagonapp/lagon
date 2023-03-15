@@ -7,3 +7,4 @@ packages:
   - 'crates/runtime'
   - 'crates/serverless'
   - 'crates/wpt-runner'
+  - 'crates/runtime_utils'

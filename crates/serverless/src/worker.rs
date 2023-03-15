@@ -38,9 +38,9 @@ pub fn create_workers() -> Workers {
     workers
 }
 
-pub fn get_thread_id(thread_ids: Arc<DashMap<String, usize>>, hostname: String) -> usize {
+pub fn get_thread_id(thread_ids: Arc<DashMap<String, usize>>, deployment_id: String) -> usize {
     *thread_ids
-        .entry(hostname)
+        .entry(deployment_id)
         .or_insert_with(|| thread_rng().gen_range(0..*WORKERS))
         .value()
 }

@@ -1,19 +1,52 @@
-use std::{collections::HashMap, env, sync::Arc};
-
-use anyhow::Result;
-use log::{error, info, warn};
-use metrics::increment_counter;
-use s3::Bucket;
-use serde_json::Value;
-use tokio::{sync::Mutex, task::JoinHandle};
-
+use super::{
+    download_deployment, downloader::Downloader, filesystem::rm_deployment, Deployment, Deployments,
+};
 use crate::{
     cronjob::Cronjob,
     worker::{WorkerEvent, Workers},
     REGION,
 };
+use anyhow::Result;
+use async_trait::async_trait;
+use futures::{Stream, StreamExt};
+use log::{error, warn};
+use metrics::increment_counter;
+use serde_json::Value;
+use std::{collections::HashMap, sync::Arc};
+use tokio::{runtime::Handle, sync::Mutex};
 
-use super::{download_deployment, filesystem::rm_deployment, Deployment, Deployments};
+mod fake;
+mod redis;
+
+pub use self::redis::RedisPubSub;
+pub use fake::FakePubSub;
+
+#[derive(Debug)]
+pub enum PubSubMessage {
+    Deploy,
+    Undeploy,
+    Promote,
+    Unknown,
+}
+
+impl From<String> for PubSubMessage {
+    fn from(value: String) -> Self {
+        match value.as_str() {
+            "deploy" => Self::Deploy,
+            "undeploy" => Self::Undeploy,
+            "promote" => Self::Promote,
+            _ => Self::Unknown,
+        }
+    }
+}
+
+#[async_trait]
+pub trait PubSubListener: Send + Sized {
+    async fn connect(&mut self) -> Result<()>;
+
+    fn get_stream(&mut self)
+        -> Box<dyn Stream<Item = (PubSubMessage, String)> + Unpin + Send + '_>;
+}
 
 pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, reason: String) {
     for worker in workers.iter() {
@@ -29,29 +62,23 @@ pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, rea
     }
 }
 
-async fn run(
-    bucket: &Bucket,
+async fn run<D, P>(
+    downloader: D,
     deployments: Deployments,
     workers: Workers,
     cronjob: Arc<Mutex<Cronjob>>,
-    client: &redis::Client,
-) -> Result<()> {
-    let mut conn = client.get_connection()?;
-    let mut pub_sub = conn.as_pubsub();
+    pubsub: Arc<Mutex<P>>,
+) -> Result<()>
+where
+    D: Downloader + Send + 'static,
+    P: PubSubListener + Unpin + Send,
+{
+    let mut pubsub = pubsub.lock().await;
+    pubsub.connect().await?;
 
-    info!("Redis Pub/Sub connected");
+    let mut stream = pubsub.get_stream();
 
-    pub_sub.subscribe("deploy")?;
-    pub_sub.subscribe("undeploy")?;
-    pub_sub.subscribe("promote")?;
-
-    loop {
-        tokio::task::yield_now().await;
-
-        let msg = pub_sub.get_message()?;
-        let channel = msg.get_channel_name();
-        let payload: String = msg.get_payload()?;
-
+    while let Some((message, payload)) = stream.next().await {
         let value: Value = serde_json::from_str(&payload)?;
 
         let cron = value["cron"].as_str();
@@ -96,9 +123,9 @@ async fn run(
 
         let workers = Arc::clone(&workers);
 
-        match channel {
-            "deploy" => {
-                match download_deployment(&deployment, bucket).await {
+        match message {
+            PubSubMessage::Deploy => {
+                match download_deployment(&deployment, downloader.clone()).await {
                     Ok(_) => {
                         increment_counter!(
                             "lagon_deployments",
@@ -146,7 +173,7 @@ async fn run(
                     }
                 };
             }
-            "undeploy" => {
+            PubSubMessage::Undeploy => {
                 match rm_deployment(&deployment.id) {
                     Ok(_) => {
                         increment_counter!(
@@ -190,7 +217,7 @@ async fn run(
                     }
                 };
             }
-            "promote" => {
+            PubSubMessage::Promote => {
                 increment_counter!(
                     "lagon_promotion",
                     "deployment" => deployment.id.clone(),
@@ -234,33 +261,39 @@ async fn run(
                     }
                 }
             }
-            _ => warn!("Unknown channel: {}", channel),
+            _ => warn!("Unknown channel: {:?}", message),
         };
     }
+
+    Ok(())
 }
 
-pub fn listen_pub_sub(
-    bucket: Bucket,
+pub fn listen_pub_sub<D, P>(
+    downloader: D,
     deployments: Deployments,
     workers: Workers,
     cronjob: Arc<Mutex<Cronjob>>,
-) -> JoinHandle<Result<()>> {
-    tokio::spawn(async move {
-        let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
-        let client = redis::Client::open(url)?;
-
-        loop {
-            if let Err(error) = run(
-                &bucket,
-                Arc::clone(&deployments),
-                Arc::clone(&workers),
-                Arc::clone(&cronjob),
-                &client,
-            )
-            .await
-            {
-                error!("Pub/sub error: {}", error);
+    pubsub: Arc<Mutex<P>>,
+) where
+    D: Downloader + Send + Sync + 'static,
+    P: PubSubListener + Unpin + Send + 'static,
+{
+    let handle = Handle::current();
+    std::thread::spawn(move || {
+        handle.block_on(async {
+            loop {
+                if let Err(error) = run(
+                    downloader.clone(),
+                    Arc::clone(&deployments),
+                    Arc::clone(&workers),
+                    Arc::clone(&cronjob),
+                    Arc::clone(&pubsub),
+                )
+                .await
+                {
+                    error!("Pub/sub error: {}", error);
+                }
             }
-        }
-    })
+        });
+    });
 }

@@ -63,6 +63,8 @@ jobs:
         with:
           node-version: 16
           cache: 'pnpm'
+      - name: Copy .env.example to .env
+        run: cp crates/serverless/.env.example crates/serverless/.env
       - name: Install dependencies
         run: pnpm install
       - name: Test

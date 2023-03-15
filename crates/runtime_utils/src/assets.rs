@@ -7,9 +7,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-pub fn find_asset(mut url: String, assets: &'_ HashSet<String>) -> Option<&'_ String> {
+pub fn find_asset<'a>(url: &'a str, assets: &'a HashSet<String>) -> Option<&'a String> {
     // Remove the leading '/' from the url
-    url.remove(0);
+    let url = &url[1..];
 
     assets.iter().find(|asset| {
         **asset == url
@@ -64,17 +64,14 @@ mod tests {
         .into_iter()
         .collect::<HashSet<String>>();
 
-        assert_eq!(find_asset("/".into(), &assets), Some(&"index.html".into()));
+        assert_eq!(find_asset("/", &assets), Some(&"index.html".into()));
+        assert_eq!(find_asset("/about", &assets), Some(&"about.html".into()));
         assert_eq!(
-            find_asset("/about".into(), &assets),
-            Some(&"about.html".into())
-        );
-        assert_eq!(
-            find_asset("/hello".into(), &assets),
+            find_asset("/hello", &assets),
             Some(&"hello/index.html".into())
         );
         assert_eq!(
-            find_asset("/hello/world".into(), &assets),
+            find_asset("/hello/world", &assets),
             Some(&"hello/world.html".into())
         );
     }
@@ -91,19 +88,19 @@ mod tests {
         .collect::<HashSet<String>>();
 
         assert_eq!(
-            find_asset("/index.html".into(), &assets),
+            find_asset("/index.html", &assets),
             Some(&"index.html".into())
         );
         assert_eq!(
-            find_asset("/about.html".into(), &assets),
+            find_asset("/about.html", &assets),
             Some(&"about.html".into())
         );
         assert_eq!(
-            find_asset("/hello/index.html".into(), &assets),
+            find_asset("/hello/index.html", &assets),
             Some(&"hello/index.html".into())
         );
         assert_eq!(
-            find_asset("/hello/world.html".into(), &assets),
+            find_asset("/hello/world.html", &assets),
             Some(&"hello/world.html".into())
         );
     }
@@ -118,11 +115,11 @@ mod tests {
         .into_iter()
         .collect::<HashSet<String>>();
 
-        assert_eq!(find_asset("/".into(), &assets), None);
-        assert_eq!(find_asset("/index".into(), &assets), None);
-        assert_eq!(find_asset("/index.html".into(), &assets), None);
-        assert_eq!(find_asset("/about2".into(), &assets), None);
-        assert_eq!(find_asset("/hello/none".into(), &assets), None);
-        assert_eq!(find_asset("/hello/world/none".into(), &assets), None);
+        assert_eq!(find_asset("/", &assets), None);
+        assert_eq!(find_asset("/index", &assets), None);
+        assert_eq!(find_asset("/index.html", &assets), None);
+        assert_eq!(find_asset("/about2", &assets), None);
+        assert_eq!(find_asset("/hello/none", &assets), None);
+        assert_eq!(find_asset("/hello/world/none", &assets), None);
     }
 }

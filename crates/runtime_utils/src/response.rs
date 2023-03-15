@@ -4,6 +4,7 @@ use hyper::{body::Bytes, http::response::Builder, Body, Response as HyperRespons
 use lagon_runtime_http::{RunResult, StreamResult};
 
 pub const PAGE_404: &str = include_str!("../public/404.html");
+pub const PAGE_403: &str = include_str!("../public/403.html");
 pub const PAGE_502: &str = include_str!("../public/502.html");
 pub const PAGE_500: &str = include_str!("../public/500.html");
 
@@ -102,8 +103,7 @@ where
         RunResult::Response(response) => {
             on_event(ResponseEvent::Bytes(response.len()), data);
 
-            let hyper_response = Builder::try_from(&response)?.body(response.body.into())?;
-            Ok(hyper_response)
+            Ok(Builder::try_from(&response)?.body(response.body.into())?)
         }
         RunResult::Timeout | RunResult::MemoryLimit => {
             on_event(ResponseEvent::LimitsReached(result), data);
