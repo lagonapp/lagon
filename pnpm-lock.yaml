@@ -342,7 +342,7 @@ importers:
       eslint: ^8.16.0
       eslint-config-next: 13.2.4
       next: 13.2.4
-      next-sitemap: ^3.1.52
+      next-sitemap: ^4.0.0
       nextra: 2.2.19
       nextra-theme-docs: 2.2.19
       postcss: ^8.4.14
@@ -353,7 +353,7 @@ importers:
     dependencies:
       '@vercel/analytics': 0.1.11_react@18.2.0
       next: 13.2.4_biqbaboplfbrettd7655fr4n2y
-      next-sitemap: 3.1.55_next@13.2.4
+      next-sitemap: 4.0.5_next@13.2.4
       nextra: 2.2.19_ld2jel3hspngo3u5lti2kgl2sq
       nextra-theme-docs: 2.2.19_i765vautotixoofbdi6dinfkwe
       react: 18.2.0
@@ -470,7 +470,7 @@ importers:
       eslint-config-next: 13.2.4
       framer-motion: ^10.0.0
       next: 13.2.4
-      next-sitemap: ^3.1.52
+      next-sitemap: ^4.0.0
       postcss: ^8.4.14
       posthog-js: ^1.30.0
       react: 18.2.0
@@ -488,7 +488,7 @@ importers:
       class-variance-authority: 0.4.0_typescript@4.7.4
       cobe: 0.6.2
       next: 13.2.4_biqbaboplfbrettd7655fr4n2y
-      next-sitemap: 3.1.55_next@13.2.4
+      next-sitemap: 4.0.5_next@13.2.4
       posthog-js: 1.30.0
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
@@ -14419,7 +14419,7 @@ packages:
     dependencies:
       acorn-node: 1.8.2
       defined: 1.0.0
-      minimist: 1.2.6
+      minimist: 1.2.8
     dev: true
 
   /devalue/4.2.0:
@@ -19800,9 +19800,6 @@ packages:
       kind-of: 6.0.3
     dev: true
 
-  /minimist/1.2.6:
-    resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
-
   /minimist/1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
@@ -20077,8 +20074,8 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /next-sitemap/3.1.55_next@13.2.4:
-    resolution: {integrity: sha512-ZjkRfkqoSLbU+e8W9TWWe0zfOGNA47lpvm35kNcUCmj73gpLX2PIn51gwHT/B6bgGVAFYY0OXixJDrxIIwcEHw==}
+  /next-sitemap/4.0.5_next@13.2.4:
+    resolution: {integrity: sha512-kIABX4n8wJqY2sttRjivBF2r1MgQ1pg12y87qGT+5meippq0ivxaNSRldMDOj8pIGhXW6uFAsCxyH/JftqkwWQ==}
     engines: {node: '>=14.18'}
     hasBin: true
     peerDependencies:
@@ -22573,7 +22570,7 @@ packages:
     dependencies:
       deep-extend: 0.6.0
       ini: 1.3.8
-      minimist: 1.2.6
+      minimist: 1.2.8
       strip-json-comments: 2.0.1
     dev: false
 
