@@ -19,7 +19,7 @@ tokio-util = { version = "0.7.7", features = ["rt"] }
 hyper = { version = "0.14", features = ["client", "server", "http1", "runtime", "stream"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-walkdir = "2.3.2"
+walkdir = "2.3.3"
 pathdiff = "0.2.1"
 hyper-tls = { version = "0.5.0", features = ["vendored"] }
 flume = "0.10.14"
