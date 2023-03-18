@@ -7,6 +7,7 @@ use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_REGION};
+use lagon_runtime_isolate::IsolateRequest;
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use lagon_runtime_utils::assets::{find_asset, handle_asset};
 use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL};
@@ -21,8 +22,8 @@ use std::convert::Infallible;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::time::Duration;
+use tokio::runtime::Handle;
 use tokio::sync::Mutex;
-use tokio_util::task::LocalPoolHandle;
 
 use crate::utils::{bundle_function, error, info, input, success, warn, Assets, FunctionConfig};
 
@@ -79,10 +80,8 @@ async fn handle_request(
     req: HyperRequest<Body>,
     public_dir: Option<PathBuf>,
     ip: String,
-    content: Arc<Mutex<(Vec<u8>, Assets)>>,
-    environment_variables: HashMap<String, String>,
-    isolate_lock: Arc<Mutex<Option<Isolate>>>,
-    pool: LocalPoolHandle,
+    assets: Arc<Mutex<Assets>>,
+    isolate_tx: flume::Sender<IsolateRequest>,
 ) -> Result<HyperResponse<Body>> {
     let url = req.uri().path();
 
@@ -94,7 +93,7 @@ async fn handle_request(
     );
 
     let (tx, rx) = flume::unbounded();
-    let (index, assets) = content.lock().await.to_owned();
+    let assets = assets.lock().await.to_owned();
 
     let is_favicon = url == FAVICON_URL;
 
@@ -120,32 +119,13 @@ async fn handle_request(
                 request.set_header(X_FORWARDED_FOR.to_string(), ip);
                 request.set_header(X_LAGON_REGION.to_string(), LOCAL_REGION.to_string());
 
-                pool.spawn_pinned_by_idx(
-                    move || async move {
-                        if isolate_lock.lock().await.is_none() {
-                            let mut isolate = Isolate::new(
-                                IsolateOptions::new(
-                                    String::from_utf8(index).expect("Code is not UTF-8"),
-                                )
-                                .timeout(Duration::from_secs(1))
-                                .startup_timeout(Duration::from_secs(2))
-                                .metadata(Some((String::from(""), String::from(""))))
-                                .environment_variables(environment_variables),
-                                tx,
-                            );
-                            isolate.evaluate();
-                            isolate.run_event_loop().await;
-
-                            *isolate_lock.lock().await = Some(isolate);
-                        }
-
-                        let mut isolate = isolate_lock.lock().await;
-                        let isolate = isolate.as_mut().unwrap();
-
-                        isolate.run(request, tx).await;
-                    },
-                    0,
-                );
+                isolate_tx
+                    .send_async(IsolateRequest {
+                        request,
+                        sender: tx,
+                    })
+                    .await
+                    .unwrap_or(());
             }
             Err(error) => {
                 println!("Error while parsing request: {error}");
@@ -231,7 +211,8 @@ pub async fn dev(
 
     let (index, assets) = bundle_function(&function_config, &root)?;
 
-    let content = Arc::new(Mutex::new((index, assets)));
+    let server_index = index.clone();
+    let assets = Arc::new(Mutex::new(assets));
 
     let runtime =
         Runtime::new(RuntimeOptions::default().allow_code_generation(allow_code_generation));
@@ -246,18 +227,45 @@ pub async fn dev(
         .assets
         .as_ref()
         .map(|assets| root.join(assets));
-    let server_content = Arc::clone(&content);
     let environment_variables = parse_environment_variables(&root, env)?;
-    let isolate_lock = Arc::new(Mutex::new(None));
-    let server_isolate_lock = Arc::clone(&isolate_lock);
-    let pool = LocalPoolHandle::new(1);
 
+    let (tx, rx) = flume::unbounded();
+    let (index_tx, index_rx) = flume::unbounded();
+    let handle = Handle::current();
+
+    std::thread::spawn(move || {
+        handle.block_on(async move {
+            let mut index = server_index;
+
+            loop {
+                let mut isolate = Isolate::new(
+                    IsolateOptions::new(
+                        String::from_utf8(index.clone()).expect("Code is not UTF-8"),
+                    )
+                    .timeout(Duration::from_secs(1))
+                    .startup_timeout(Duration::from_secs(2))
+                    .metadata(Some((String::from(""), String::from(""))))
+                    .environment_variables(environment_variables.clone()),
+                    rx.clone(),
+                );
+
+                isolate.evaluate();
+
+                tokio::select! {
+                    _ = isolate.run_event_loop() => {},
+                    new_index = index_rx.recv_async() => {
+                        index = new_index.unwrap();
+                    }
+                }
+            }
+        });
+    });
+
+    let server_assets = Arc::clone(&assets);
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let public_dir = server_public_dir.clone();
-        let content = Arc::clone(&server_content);
-        let environment_variables = environment_variables.clone();
-        let isolate_lock = Arc::clone(&server_isolate_lock);
-        let pool = pool.clone();
+        let assets = Arc::clone(&server_assets);
+        let tx = tx.clone();
 
         let addr = conn.remote_addr();
         let ip = addr.ip().to_string();
@@ -268,10 +276,8 @@ pub async fn dev(
                     req,
                     public_dir.clone(),
                     ip.clone(),
-                    Arc::clone(&content),
-                    environment_variables.clone(),
-                    Arc::clone(&isolate_lock),
-                    pool.clone(),
+                    Arc::clone(&assets),
+                    tx.clone(),
                 )
             }))
         }
@@ -301,10 +307,10 @@ pub async fn dev(
                 print!("\x1B[2J\x1B[1;1H");
                 println!("{}", info("Found change, updating..."));
 
-                let (index, assets) = bundle_function(&function_config, &root)?;
+                let (new_index, new_assets) = bundle_function(&function_config, &root)?;
 
-                *content.lock().await = (index, assets);
-                *isolate_lock.lock().await = None;
+                *assets.lock().await = new_assets;
+                index_tx.send_async(new_index).await.unwrap();
             }
         }
 

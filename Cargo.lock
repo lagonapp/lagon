@@ -1414,7 +1414,6 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
- "tokio-util",
  "urlencoding",
  "walkdir",
  "webbrowser",
