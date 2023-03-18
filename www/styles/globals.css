@@ -8,6 +8,7 @@ html {
 
 body {
   overflow-x: hidden;
+  background-color: #050211;
 }
 
 *::selection {
