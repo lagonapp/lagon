@@ -12,7 +12,7 @@ use std::{
         Arc, Condvar, Mutex,
     },
     task::{Context, Poll},
-    time::{Duration, Instant},
+    time::Duration,
 };
 use tokio_util::task::LocalPoolHandle;
 use v8::MapFnTo;
@@ -97,8 +97,6 @@ pub struct Isolate {
     handler: Option<v8::Global<v8::Function>>,
     compilation_error: Option<String>,
     stream_receiver: flume::Receiver<(u32, StreamResult)>,
-    stream_status: StreamStatus,
-    stream_response_sent: bool,
     termination_tx: Option<flume::Sender<RunResult>>,
     termination_rx: Option<flume::Receiver<RunResult>>,
     running_promises: Arc<AtomicBool>,
@@ -198,8 +196,6 @@ impl Isolate {
             handler: None,
             compilation_error: None,
             stream_receiver,
-            stream_status: StreamStatus::None,
-            stream_response_sent: false,
             termination_tx: None,
             termination_rx: None,
             running_promises: Arc::new(AtomicBool::new(false)),
@@ -235,11 +231,6 @@ impl Isolate {
 
     pub fn evaluate(&mut self) {
         let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
-
-        // Reset the stream status after each `run()`
-        self.stream_status = StreamStatus::None;
-        self.stream_response_sent = false;
-
         let global = {
             let state = isolate_state.borrow();
             state.global.as_ref().unwrap().0.clone()
@@ -249,7 +240,6 @@ impl Isolate {
             &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global.clone());
         let try_catch = &mut v8::TryCatch::new(scope);
 
-        // if self.handler.is_none() && self.compilation_error.is_none() {
         let (code, lines) = self.options.get_runtime_code(try_catch);
         let resource_name = v8_string(
             try_catch,
@@ -262,7 +252,6 @@ impl Isolate {
             },
         );
         let source_map_url = v8_string(try_catch, "");
-
         isolate_state.borrow_mut().lines = lines;
 
         let source = v8::script_compiler::Source::new(
@@ -311,49 +300,6 @@ impl Isolate {
                 self.compilation_error = Some(handle_error(try_catch, lines).as_error());
             }
         };
-
-        // let request = request.into_v8(try_catch);
-
-        // let handler = self.handler.as_ref().unwrap();
-        // let handler = handler.open(try_catch);
-
-        // let global = global.open(try_catch);
-        // let global = global.global(try_catch);
-
-        // {
-        //     let mut state = isolate_state.borrow_mut();
-        //     state.handler_result = None;
-        //     state.rejected_promises.clear();
-        //     state.fetch_calls = 0;
-        // }
-
-        // match handler.call(try_catch, global.into(), &[request.into()]) {
-        //     Some(response) => {
-        //         let promise = v8::Local::<v8::Promise>::try_from(response)
-        //             .expect("Handler did not return a promise");
-        //         let promise = v8::Global::new(try_catch, promise);
-
-        //         isolate_state.borrow_mut().handler_result = Some(promise);
-        //     }
-        //     None => {
-        //         let mut run_result = match try_catch.is_execution_terminating() {
-        //             true => RunResult::MemoryLimit,
-        //             false => handle_error(try_catch, 0),
-        //         };
-
-        //         if let Ok(prev_run_result) = self.termination_rx.as_ref().unwrap().try_recv() {
-        //             run_result = prev_run_result;
-        //         }
-
-        //         self.termination_tx
-        //             .as_ref()
-        //             .unwrap()
-        //             .send(run_result)
-        //             .unwrap_or(());
-        //     }
-        // };
-
-        // None
     }
 
     fn poll_new_requests(&mut self) {
@@ -545,15 +491,6 @@ impl Isolate {
             }
         }
 
-        // if self.stream_response_sent {
-        //     if self.stream_status.is_done() {
-        //         return Poll::Ready(());
-        //     }
-
-        //     cx.waker().wake_by_ref();
-        //     return Poll::Pending;
-        // }
-
         let global = state.global.as_ref().unwrap().0.clone();
         let scope = &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global);
         let try_catch = &mut v8::TryCatch::new(scope);
@@ -590,20 +527,6 @@ impl Isolate {
                             *handler_result.stream_response_sent.borrow_mut() = true;
 
                             return true;
-
-                            // if !self.stream_response_sent {
-                            //     tx.send(RunResult::Stream(StreamResult::Start(response.clone())))
-                            //         .unwrap_or(());
-                            // }
-
-                            // self.stream_response_sent = true;
-
-                            // return if self.stream_status.is_done() {
-                            //     Poll::Ready(())
-                            // } else {
-                            //     cx.waker().wake_by_ref();
-                            //     Poll::Pending
-                            // };
                         }
                     }
 
@@ -633,88 +556,6 @@ impl Isolate {
 
     pub async fn run_event_loop(&mut self) {
         poll_fn(|cx| self.poll_event_loop(cx)).await;
-    }
-
-    fn check_for_compilation_error(&self, tx: &flume::Sender<RunResult>) -> bool {
-        if let Some(compilation_error) = &self.compilation_error {
-            tx.send(RunResult::Error(compilation_error.to_string()))
-                .unwrap_or(());
-
-            return true;
-        }
-
-        false
-    }
-
-    pub async fn run(&mut self, request: Request, tx: flume::Sender<RunResult>) {
-        // We might have a compilation error from the initial evaluate call
-        if self.check_for_compilation_error(&tx) {
-            return;
-        }
-
-        let thread_safe_handle = self.isolate.as_ref().unwrap().thread_safe_handle();
-
-        let now = Instant::now();
-        // Script parsing may take a long time, so we use the startup_timeout
-        // when the isolate has not been used yet.
-        let timeout = match self.handler.is_none() && self.compilation_error.is_none() {
-            true => self.options.startup_timeout,
-            false => self.options.timeout,
-        };
-        let (termination_tx, termination_rx) = flume::bounded(1);
-
-        self.termination_tx = Some(termination_tx.clone());
-        self.termination_rx = Some(termination_rx);
-        self.wait = Some(Arc::new((Mutex::new(true), Condvar::new())));
-
-        let running_promises_handle = Arc::clone(&self.running_promises);
-        let wait_handle = Arc::clone(self.wait.as_ref().unwrap());
-
-        POOL.spawn_pinned(move || async move {
-            let (running, condition) = &*wait_handle;
-
-            let timer = condition
-                .wait_timeout_while(running.lock().unwrap(), timeout, |running| {
-                    *running && !running_promises_handle.load(Ordering::SeqCst)
-                })
-                .unwrap();
-
-            if timer.1.timed_out() && !thread_safe_handle.is_execution_terminating() {
-                termination_tx.send(RunResult::Timeout).unwrap_or(());
-                thread_safe_handle.terminate_execution();
-            }
-        });
-
-        // self.compilation_error = self.evaluate(request);
-
-        // We can also have a compilation error when calling this function
-        // for the first time
-        if self.check_for_compilation_error(&tx) {
-            return;
-        }
-
-        // self.run_event_loop(&tx).await;
-
-        let (running, condvar) = &**self.wait.as_ref().unwrap();
-        *running.lock().unwrap() = false;
-        condvar.notify_one();
-
-        if let Some(on_isolate_statistics) = &self.options.on_statistics {
-            let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
-            let state = isolate_state.borrow();
-            let global = state.global.as_ref().unwrap().0.clone();
-            let scope = &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global);
-
-            let mut heap_statistics = v8::HeapStatistics::default();
-            scope.get_heap_statistics(&mut heap_statistics);
-
-            let statistics = IsolateStatistics {
-                cpu_time: now.elapsed(),
-                memory_usage: heap_statistics.used_heap_size(),
-            };
-
-            on_isolate_statistics(Rc::clone(&self.options.metadata), statistics);
-        }
     }
 
     pub fn snapshot(&mut self) -> v8::StartupData {
