@@ -33,6 +33,7 @@ futures = "0.3.26"
 [build-dependencies]
 lagon-runtime = { path = "../runtime" }
 lagon-runtime-isolate = { path = "../runtime_isolate" }
+flume = "0.10.14"
 
 [dev-dependencies]
 reqwest = "0.11.14"

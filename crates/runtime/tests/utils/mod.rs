@@ -1,4 +1,6 @@
 use lagon_runtime::{options::RuntimeOptions, Runtime};
+use lagon_runtime_http::RunResult;
+use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateRequest};
 use std::sync::Once;
 
 #[allow(dead_code)]
@@ -50,4 +52,21 @@ pub fn setup_logger() -> flume::Receiver<String> {
     });
 
     unsafe { RX.clone() }.unwrap()
+}
+
+#[allow(dead_code)]
+pub fn create_isolate(
+    options: IsolateOptions,
+) -> (
+    Isolate,
+    flume::Sender<IsolateRequest>,
+    flume::Sender<RunResult>,
+    flume::Receiver<RunResult>,
+) {
+    let (request_tx, request_rx) = flume::unbounded();
+    let (sender, receiver) = flume::unbounded();
+    let mut isolate = Isolate::new(options, request_rx);
+    isolate.evaluate();
+
+    (isolate, request_tx, sender, receiver)
 }

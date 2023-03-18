@@ -59,17 +59,17 @@ pub trait PubSubListener: Send + Sized {
 }
 
 pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, reason: String) {
-    for worker in workers.iter() {
-        let sender = &worker.0;
+    // for worker in workers.iter() {
+    //     let sender = &worker.0;
 
-        sender
-            .send_async(WorkerEvent::Drop {
-                deployment_id: deployment_id.clone(),
-                reason: reason.clone(),
-            })
-            .await
-            .unwrap_or(());
-    }
+    //     sender
+    //         .send_async(WorkerEvent::Drop {
+    //             deployment_id: deployment_id.clone(),
+    //             reason: reason.clone(),
+    //         })
+    //         .await
+    //         .unwrap_or(());
+    // }
 }
 
 async fn run<D, P>(

@@ -1,0 +1,415 @@
+<?xml version="1.0" standalone="no"?><!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd"><svg version="1.1" width="1200" height="758" onload="init(evt)" viewBox="0 0 1200 758" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fg="http://github.com/jonhoo/inferno"><!--Flame graph stack visualization. See https://github.com/brendangregg/FlameGraph for latest version, and http://www.brendangregg.com/flamegraphs.html for examples.--><!--NOTES: --><defs><linearGradient id="background" y1="0" y2="1" x1="0" x2="0"><stop stop-color="#eeeeee" offset="5%"/><stop stop-color="#eeeeb0" offset="95%"/></linearGradient></defs><style type="text/css">
+text { font-family:"Verdana"; font-size:12px; fill:rgb(0,0,0); }
+#title { text-anchor:middle; font-size:17px; }
+#matched { text-anchor:end; }
+#search { text-anchor:end; opacity:0.1; cursor:pointer; }
+#search:hover, #search.show { opacity:1; }
+#subtitle { text-anchor:middle; font-color:rgb(160,160,160); }
+#unzoom { cursor:pointer; }
+#frames > *:hover { stroke:black; stroke-width:0.5; cursor:pointer; }
+.hide { display:none; }
+.parent { opacity:0.5; }
+</style><script type="text/ecmascript"><![CDATA[
+        var nametype = 'Function:';
+        var fontsize = 12;
+        var fontwidth = 0.59;
+        var xpad = 10;
+        var inverted = false;
+        var searchcolor = 'rgb(230,0,230)';
+        var fluiddrawing = true;
+        var truncate_text_right = false;
+    ]]><![CDATA["use strict";
+var details, searchbtn, unzoombtn, matchedtxt, svg, searching, frames;
+function init(evt) {
+    details = document.getElementById("details").firstChild;
+    searchbtn = document.getElementById("search");
+    unzoombtn = document.getElementById("unzoom");
+    matchedtxt = document.getElementById("matched");
+    svg = document.getElementsByTagName("svg")[0];
+    frames = document.getElementById("frames");
+    total_samples = parseInt(frames.attributes.total_samples.value);
+    searching = 0;
+
+    // Use GET parameters to restore a flamegraph's state.
+    var restore_state = function() {
+        var params = get_params();
+        if (params.x && params.y)
+            zoom(find_group(document.querySelector('[*|x="' + params.x + '"][y="' + params.y + '"]')));
+        if (params.s)
+            search(params.s);
+    };
+
+    if (fluiddrawing) {
+        // Make width dynamic so the SVG fits its parent's width.
+        svg.removeAttribute("width");
+        // Edge requires us to have a viewBox that gets updated with size changes.
+        var isEdge = /Edge\/\d./i.test(navigator.userAgent);
+        var update_for_width_change = function() {
+            if (isEdge) {
+                svg.attributes.viewBox.value = "0 0 " + svg.width.baseVal.value + " " + svg.height.baseVal.value;
+            }
+
+            // Keep consistent padding on left and right of frames container.
+            frames.attributes.width.value = svg.width.baseVal.value - xpad * 2;
+
+            // Text truncation needs to be adjusted for the current width.
+            var el = frames.children;
+            for(var i = 0; i < el.length; i++) {
+                update_text(el[i]);
+            }
+
+            // Keep search elements at a fixed distance from right edge.
+            var svgWidth = svg.width.baseVal.value;
+            searchbtn.attributes.x.value = svgWidth - xpad;
+            matchedtxt.attributes.x.value = svgWidth - xpad;
+        };
+        window.addEventListener('resize', function() {
+            update_for_width_change();
+        });
+        // This needs to be done asynchronously for Safari to work.
+        setTimeout(function() {
+            unzoom();
+            update_for_width_change();
+            restore_state();
+            if (!isEdge) {
+                svg.removeAttribute("viewBox");
+            }
+        }, 0);
+    } else {
+        restore_state();
+    }
+}
+// event listeners
+window.addEventListener("click", function(e) {
+    var target = find_group(e.target);
+    if (target) {
+        if (target.nodeName == "a") {
+            if (e.ctrlKey === false) return;
+            e.preventDefault();
+        }
+        if (target.classList.contains("parent")) unzoom();
+        zoom(target);
+
+        // set parameters for zoom state
+        var el = target.querySelector("rect");
+        if (el && el.attributes && el.attributes.y && el.attributes["fg:x"]) {
+            var params = get_params()
+            params.x = el.attributes["fg:x"].value;
+            params.y = el.attributes.y.value;
+            history.replaceState(null, null, parse_params(params));
+        }
+    }
+    else if (e.target.id == "unzoom") {
+        unzoom();
+
+        // remove zoom state
+        var params = get_params();
+        if (params.x) delete params.x;
+        if (params.y) delete params.y;
+        history.replaceState(null, null, parse_params(params));
+    }
+    else if (e.target.id == "search") search_prompt();
+}, false)
+// mouse-over for info
+// show
+window.addEventListener("mouseover", function(e) {
+    var target = find_group(e.target);
+    if (target) details.nodeValue = nametype + " " + g_to_text(target);
+}, false)
+// clear
+window.addEventListener("mouseout", function(e) {
+    var target = find_group(e.target);
+    if (target) details.nodeValue = ' ';
+}, false)
+// ctrl-F for search
+window.addEventListener("keydown",function (e) {
+    if (e.keyCode === 114 || (e.ctrlKey && e.keyCode === 70)) {
+        e.preventDefault();
+        search_prompt();
+    }
+}, false)
+// functions
+function get_params() {
+    var params = {};
+    var paramsarr = window.location.search.substr(1).split('&');
+    for (var i = 0; i < paramsarr.length; ++i) {
+        var tmp = paramsarr[i].split("=");
+        if (!tmp[0] || !tmp[1]) continue;
+        params[tmp[0]]  = decodeURIComponent(tmp[1]);
+    }
+    return params;
+}
+function parse_params(params) {
+    var uri = "?";
+    for (var key in params) {
+        uri += key + '=' + encodeURIComponent(params[key]) + '&';
+    }
+    if (uri.slice(-1) == "&")
+        uri = uri.substring(0, uri.length - 1);
+    if (uri == '?')
+        uri = window.location.href.split('?')[0];
+    return uri;
+}
+function find_child(node, selector) {
+    var children = node.querySelectorAll(selector);
+    if (children.length) return children[0];
+    return;
+}
+function find_group(node) {
+    var parent = node.parentElement;
+    if (!parent) return;
+    if (parent.id == "frames") return node;
+    return find_group(parent);
+}
+function orig_save(e, attr, val) {
+    if (e.attributes["fg:orig_" + attr] != undefined) return;
+    if (e.attributes[attr] == undefined) return;
+    if (val == undefined) val = e.attributes[attr].value;
+    e.setAttribute("fg:orig_" + attr, val);
+}
+function orig_load(e, attr) {
+    if (e.attributes["fg:orig_"+attr] == undefined) return;
+    e.attributes[attr].value = e.attributes["fg:orig_" + attr].value;
+    e.removeAttribute("fg:orig_" + attr);
+}
+function g_to_text(e) {
+    var text = find_child(e, "title").firstChild.nodeValue;
+    return (text)
+}
+function g_to_func(e) {
+    var func = g_to_text(e);
+    // if there's any manipulation we want to do to the function
+    // name before it's searched, do it here before returning.
+    return (func);
+}
+function update_text(e) {
+    var r = find_child(e, "rect");
+    var t = find_child(e, "text");
+    var w = parseFloat(r.attributes.width.value) * frames.attributes.width.value / 100 - 3;
+    var txt = find_child(e, "title").textContent.replace(/\([^(]*\)$/,"");
+    t.attributes.x.value = format_percent((parseFloat(r.attributes.x.value) + (100 * 3 / frames.attributes.width.value)));
+    // Smaller than this size won't fit anything
+    if (w < 2 * fontsize * fontwidth) {
+        t.textContent = "";
+        return;
+    }
+    t.textContent = txt;
+    // Fit in full text width
+    if (/^ *\$/.test(txt) || t.getComputedTextLength() < w)
+        return;
+    if (truncate_text_right) {
+        // Truncate the right side of the text.
+        for (var x = txt.length - 2; x > 0; x--) {
+            if (t.getSubStringLength(0, x + 2) <= w) {
+                t.textContent = txt.substring(0, x) + "..";
+                return;
+            }
+        }
+    } else {
+        // Truncate the left side of the text.
+        for (var x = 2; x < txt.length; x++) {
+            if (t.getSubStringLength(x - 2, txt.length) <= w) {
+                t.textContent = ".." + txt.substring(x, txt.length);
+                return;
+            }
+        }
+    }
+    t.textContent = "";
+}
+// zoom
+function zoom_reset(e) {
+    if (e.tagName == "rect") {
+        e.attributes.x.value = format_percent(100 * parseInt(e.attributes["fg:x"].value) / total_samples);
+        e.attributes.width.value = format_percent(100 * parseInt(e.attributes["fg:w"].value) / total_samples);
+    }
+    if (e.childNodes == undefined) return;
+    for(var i = 0, c = e.childNodes; i < c.length; i++) {
+        zoom_reset(c[i]);
+    }
+}
+function zoom_child(e, x, zoomed_width_samples) {
+    if (e.tagName == "text") {
+        var parent_x = parseFloat(find_child(e.parentNode, "rect[x]").attributes.x.value);
+        e.attributes.x.value = format_percent(parent_x + (100 * 3 / frames.attributes.width.value));
+    } else if (e.tagName == "rect") {
+        e.attributes.x.value = format_percent(100 * (parseInt(e.attributes["fg:x"].value) - x) / zoomed_width_samples);
+        e.attributes.width.value = format_percent(100 * parseInt(e.attributes["fg:w"].value) / zoomed_width_samples);
+    }
+    if (e.childNodes == undefined) return;
+    for(var i = 0, c = e.childNodes; i < c.length; i++) {
+        zoom_child(c[i], x, zoomed_width_samples);
+    }
+}
+function zoom_parent(e) {
+    if (e.attributes) {
+        if (e.attributes.x != undefined) {
+            e.attributes.x.value = "0.0%";
+        }
+        if (e.attributes.width != undefined) {
+            e.attributes.width.value = "100.0%";
+        }
+    }
+    if (e.childNodes == undefined) return;
+    for(var i = 0, c = e.childNodes; i < c.length; i++) {
+        zoom_parent(c[i]);
+    }
+}
+function zoom(node) {
+    var attr = find_child(node, "rect").attributes;
+    var width = parseInt(attr["fg:w"].value);
+    var xmin = parseInt(attr["fg:x"].value);
+    var xmax = xmin + width;
+    var ymin = parseFloat(attr.y.value);
+    unzoombtn.classList.remove("hide");
+    var el = frames.children;
+    for (var i = 0; i < el.length; i++) {
+        var e = el[i];
+        var a = find_child(e, "rect").attributes;
+        var ex = parseInt(a["fg:x"].value);
+        var ew = parseInt(a["fg:w"].value);
+        // Is it an ancestor
+        if (!inverted) {
+            var upstack = parseFloat(a.y.value) > ymin;
+        } else {
+            var upstack = parseFloat(a.y.value) < ymin;
+        }
+        if (upstack) {
+            // Direct ancestor
+            if (ex <= xmin && (ex+ew) >= xmax) {
+                e.classList.add("parent");
+                zoom_parent(e);
+                update_text(e);
+            }
+            // not in current path
+            else
+                e.classList.add("hide");
+        }
+        // Children maybe
+        else {
+            // no common path
+            if (ex < xmin || ex >= xmax) {
+                e.classList.add("hide");
+            }
+            else {
+                zoom_child(e, xmin, width);
+                update_text(e);
+            }
+        }
+    }
+}
+function unzoom() {
+    unzoombtn.classList.add("hide");
+    var el = frames.children;
+    for(var i = 0; i < el.length; i++) {
+        el[i].classList.remove("parent");
+        el[i].classList.remove("hide");
+        zoom_reset(el[i]);
+        update_text(el[i]);
+    }
+}
+// search
+function reset_search() {
+    var el = document.querySelectorAll("#frames rect");
+    for (var i = 0; i < el.length; i++) {
+        orig_load(el[i], "fill")
+    }
+    var params = get_params();
+    delete params.s;
+    history.replaceState(null, null, parse_params(params));
+}
+function search_prompt() {
+    if (!searching) {
+        var term = prompt("Enter a search term (regexp " +
+            "allowed, eg: ^ext4_)", "");
+        if (term != null) {
+            search(term)
+        }
+    } else {
+        reset_search();
+        searching = 0;
+        searchbtn.classList.remove("show");
+        searchbtn.firstChild.nodeValue = "Search"
+        matchedtxt.classList.add("hide");
+        matchedtxt.firstChild.nodeValue = ""
+    }
+}
+function search(term) {
+    var re = new RegExp(term);
+    var el = frames.children;
+    var matches = new Object();
+    var maxwidth = 0;
+    for (var i = 0; i < el.length; i++) {
+        var e = el[i];
+        // Skip over frames which are either not visible, or below the zoomed-to frame
+        if (e.classList.contains("hide") || e.classList.contains("parent")) {
+            continue;
+        }
+        var func = g_to_func(e);
+        var rect = find_child(e, "rect");
+        if (func == null || rect == null)
+            continue;
+        // Save max width. Only works as we have a root frame
+        var w = parseInt(rect.attributes["fg:w"].value);
+        if (w > maxwidth)
+            maxwidth = w;
+        if (func.match(re)) {
+            // highlight
+            var x = parseInt(rect.attributes["fg:x"].value);
+            orig_save(rect, "fill");
+            rect.attributes.fill.value = searchcolor;
+            // remember matches
+            if (matches[x] == undefined) {
+                matches[x] = w;
+            } else {
+                if (w > matches[x]) {
+                    // overwrite with parent
+                    matches[x] = w;
+                }
+            }
+            searching = 1;
+        }
+    }
+    if (!searching)
+        return;
+    var params = get_params();
+    params.s = term;
+    history.replaceState(null, null, parse_params(params));
+
+    searchbtn.classList.add("show");
+    searchbtn.firstChild.nodeValue = "Reset Search";
+    // calculate percent matched, excluding vertical overlap
+    var count = 0;
+    var lastx = -1;
+    var lastw = 0;
+    var keys = Array();
+    for (k in matches) {
+        if (matches.hasOwnProperty(k))
+            keys.push(k);
+    }
+    // sort the matched frames by their x location
+    // ascending, then width descending
+    keys.sort(function(a, b){
+        return a - b;
+    });
+    // Step through frames saving only the biggest bottom-up frames
+    // thanks to the sort order. This relies on the tree property
+    // where children are always smaller than their parents.
+    for (var k in keys) {
+        var x = parseInt(keys[k]);
+        var w = matches[keys[k]];
+        if (x >= lastx + lastw) {
+            count += w;
+            lastx = x;
+            lastw = w;
+        }
+    }
+    // display matched percent
+    matchedtxt.classList.remove("hide");
+    var pct = 100 * count / maxwidth;
+    if (pct != 100) pct = pct.toFixed(1);
+    matchedtxt.firstChild.nodeValue = "Matched: " + pct + "%";
+}
+function format_percent(n) {
+    return n.toFixed(4) + "%";
+}
+]]></script><rect x="0" y="0" width="100%" height="758" fill="url(#background)"/><text id="title" x="50.0000%" y="24.00">Flame Graph</text><text id="details" x="10" y="741.00"> </text><text id="unzoom" class="hide" x="10" y="24.00">Reset Zoom</text><text id="search" x="1190" y="24.00">Search</text><text id="matched" x="1190" y="741.00"> </text><svg id="frames" x="10" width="1180" total_samples="70"><g><title>lagon-serverless`tokio::runtime::builder::Builder::build (1 samples, 1.43%)</title><rect x="0.0000%" y="597" width="1.4286%" height="15" fill="rgb(227,0,7)" fg:x="0" fg:w="1"/><text x="0.2500%" y="607.50"></text></g><g><title>lagon-serverless`tokio::runtime::scheduler::multi_thread::worker::Launch::launch (1 samples, 1.43%)</title><rect x="0.0000%" y="581" width="1.4286%" height="15" fill="rgb(217,0,24)" fg:x="0" fg:w="1"/><text x="0.2500%" y="591.50"></text></g><g><title>lagon-serverless`tokio::runtime::blocking::pool::spawn_blocking (1 samples, 1.43%)</title><rect x="0.0000%" y="565" width="1.4286%" height="15" fill="rgb(221,193,54)" fg:x="0" fg:w="1"/><text x="0.2500%" y="575.50"></text></g><g><title>lagon-serverless`tokio::runtime::blocking::pool::Spawner::spawn_blocking (1 samples, 1.43%)</title><rect x="0.0000%" y="549" width="1.4286%" height="15" fill="rgb(248,212,6)" fg:x="0" fg:w="1"/><text x="0.2500%" y="559.50"></text></g><g><title>lagon-serverless`tokio::runtime::blocking::pool::Spawner::spawn_task (1 samples, 1.43%)</title><rect x="0.0000%" y="533" width="1.4286%" height="15" fill="rgb(208,68,35)" fg:x="0" fg:w="1"/><text x="0.2500%" y="543.50"></text></g><g><title>libsystem_pthread.dylib`_pthread_mutex_firstfit_unlock_slow (1 samples, 1.43%)</title><rect x="0.0000%" y="517" width="1.4286%" height="15" fill="rgb(232,128,0)" fg:x="0" fg:w="1"/><text x="0.2500%" y="527.50"></text></g><g><title>libsystem_kernel.dylib`__psynch_mutexdrop (1 samples, 1.43%)</title><rect x="0.0000%" y="501" width="1.4286%" height="15" fill="rgb(207,160,47)" fg:x="0" fg:w="1"/><text x="0.2500%" y="511.50"></text></g><g><title>lagon-serverless`&lt;std::fs::ReadDir as core::iter::traits::iterator::Iterator&gt;::next (1 samples, 1.43%)</title><rect x="1.4286%" y="549" width="1.4286%" height="15" fill="rgb(228,23,34)" fg:x="1" fg:w="1"/><text x="1.6786%" y="559.50"></text></g><g><title>lagon-serverless`&lt;std::sys::unix::fs::ReadDir as core::iter::traits::iterator::Iterator&gt;::next (1 samples, 1.43%)</title><rect x="1.4286%" y="533" width="1.4286%" height="15" fill="rgb(218,30,26)" fg:x="1" fg:w="1"/><text x="1.6786%" y="543.50"></text></g><g><title>libsystem_c.dylib`readdir_r (1 samples, 1.43%)</title><rect x="1.4286%" y="517" width="1.4286%" height="15" fill="rgb(220,122,19)" fg:x="1" fg:w="1"/><text x="1.6786%" y="527.50"></text></g><g><title>libsystem_kernel.dylib`__getdirentries64 (1 samples, 1.43%)</title><rect x="1.4286%" y="501" width="1.4286%" height="15" fill="rgb(250,228,42)" fg:x="1" fg:w="1"/><text x="1.6786%" y="511.50"></text></g><g><title>lagon-serverless`&lt;tokio_cron_scheduler::simple::to_code::SimpleJobCode as core::default::Default&gt;::default (1 samples, 1.43%)</title><rect x="2.8571%" y="549" width="1.4286%" height="15" fill="rgb(240,193,28)" fg:x="2" fg:w="1"/><text x="3.1071%" y="559.50"></text></g><g><title>lagon-serverless`lagon_runtime::Runtime::new (1 samples, 1.43%)</title><rect x="4.2857%" y="549" width="1.4286%" height="15" fill="rgb(216,20,37)" fg:x="3" fg:w="1"/><text x="4.5357%" y="559.50"></text></g><g><title>lagon-serverless`v8::V8::initialize (1 samples, 1.43%)</title><rect x="4.2857%" y="533" width="1.4286%" height="15" fill="rgb(206,188,39)" fg:x="3" fg:w="1"/><text x="4.5357%" y="543.50"></text></g><g><title>lagon-serverless`v8::V8::Initialize (1 samples, 1.43%)</title><rect x="4.2857%" y="517" width="1.4286%" height="15" fill="rgb(217,207,13)" fg:x="3" fg:w="1"/><text x="4.5357%" y="527.50"></text></g><g><title>lagon-serverless`v8::internal::V8::Initialize (1 samples, 1.43%)</title><rect x="4.2857%" y="501" width="1.4286%" height="15" fill="rgb(231,73,38)" fg:x="3" fg:w="1"/><text x="4.5357%" y="511.50"></text></g><g><title>lagon-serverless`v8::internal::wasm::WasmEngine::InitializeOncePerProcess (1 samples, 1.43%)</title><rect x="4.2857%" y="485" width="1.4286%" height="15" fill="rgb(225,20,46)" fg:x="3" fg:w="1"/><text x="4.5357%" y="495.50"></text></g><g><title>lagon-serverless`v8::internal::AccountingAllocator::AccountingAllocator (1 samples, 1.43%)</title><rect x="4.2857%" y="469" width="1.4286%" height="15" fill="rgb(210,31,41)" fg:x="3" fg:w="1"/><text x="4.5357%" y="479.50"></text></g><g><title>lagon-serverless`mysql::conn::Conn::get_system_var (1 samples, 1.43%)</title><rect x="5.7143%" y="469" width="1.4286%" height="15" fill="rgb(221,200,47)" fg:x="4" fg:w="1"/><text x="5.9643%" y="479.50"></text></g><g><title>lagon-serverless`&lt;mysql::conn::Conn as mysql::conn::queryable::Queryable&gt;::query_iter (1 samples, 1.43%)</title><rect x="5.7143%" y="453" width="1.4286%" height="15" fill="rgb(226,26,5)" fg:x="4" fg:w="1"/><text x="5.9643%" y="463.50"></text></g><g><title>lagon-serverless`mysql::conn::Conn::handle_result_set (1 samples, 1.43%)</title><rect x="5.7143%" y="437" width="1.4286%" height="15" fill="rgb(249,33,26)" fg:x="4" fg:w="1"/><text x="5.9643%" y="447.50"></text></g><g><title>lagon-serverless`mysql::conn::Conn::read_packet (1 samples, 1.43%)</title><rect x="5.7143%" y="421" width="1.4286%" height="15" fill="rgb(235,183,28)" fg:x="4" fg:w="1"/><text x="5.9643%" y="431.50"></text></g><g><title>lagon-serverless`mysql_common::proto::sync_framed::MySyncFramed&lt;T&gt;::next_packet (1 samples, 1.43%)</title><rect x="5.7143%" y="405" width="1.4286%" height="15" fill="rgb(221,5,38)" fg:x="4" fg:w="1"/><text x="5.9643%" y="415.50"></text></g><g><title>libsystem_kernel.dylib`__recvfrom (1 samples, 1.43%)</title><rect x="5.7143%" y="389" width="1.4286%" height="15" fill="rgb(247,18,42)" fg:x="4" fg:w="1"/><text x="5.9643%" y="399.50"></text></g><g><title>lagon-serverless`mysql::conn::Conn::connect (2 samples, 2.86%)</title><rect x="5.7143%" y="485" width="2.8571%" height="15" fill="rgb(241,131,45)" fg:x="4" fg:w="2"/><text x="5.9643%" y="495.50">la..</text></g><g><title>lagon-serverless`mysql::conn::Conn::read_packet (1 samples, 1.43%)</title><rect x="7.1429%" y="469" width="1.4286%" height="15" fill="rgb(249,31,29)" fg:x="5" fg:w="1"/><text x="7.3929%" y="479.50"></text></g><g><title>lagon-serverless`mysql_common::proto::sync_framed::MySyncFramed&lt;T&gt;::next_packet (1 samples, 1.43%)</title><rect x="7.1429%" y="453" width="1.4286%" height="15" fill="rgb(225,111,53)" fg:x="5" fg:w="1"/><text x="7.3929%" y="463.50"></text></g><g><title>libsystem_kernel.dylib`__recvfrom (1 samples, 1.43%)</title><rect x="7.1429%" y="437" width="1.4286%" height="15" fill="rgb(238,160,17)" fg:x="5" fg:w="1"/><text x="7.3929%" y="447.50"></text></g><g><title>libsystem_info.dylib`si_addrinfo (1 samples, 1.43%)</title><rect x="8.5714%" y="389" width="1.4286%" height="15" fill="rgb(214,148,48)" fg:x="6" fg:w="1"/><text x="8.8214%" y="399.50"></text></g><g><title>libsystem_info.dylib`search_addrinfo (1 samples, 1.43%)</title><rect x="8.5714%" y="373" width="1.4286%" height="15" fill="rgb(232,36,49)" fg:x="6" fg:w="1"/><text x="8.8214%" y="383.50"></text></g><g><title>libsystem_info.dylib`mdns_addrinfo (1 samples, 1.43%)</title><rect x="8.5714%" y="357" width="1.4286%" height="15" fill="rgb(209,103,24)" fg:x="6" fg:w="1"/><text x="8.8214%" y="367.50"></text></g><g><title>libsystem_info.dylib`_mdns_search_ex (1 samples, 1.43%)</title><rect x="8.5714%" y="341" width="1.4286%" height="15" fill="rgb(229,88,8)" fg:x="6" fg:w="1"/><text x="8.8214%" y="351.50"></text></g><g><title>libsystem_info.dylib`_mdns_query_start (1 samples, 1.43%)</title><rect x="8.5714%" y="325" width="1.4286%" height="15" fill="rgb(213,181,19)" fg:x="6" fg:w="1"/><text x="8.8214%" y="335.50"></text></g><g><title>libsystem_dnssd.dylib`DNSServiceQueryRecordInternal (1 samples, 1.43%)</title><rect x="8.5714%" y="309" width="1.4286%" height="15" fill="rgb(254,191,54)" fg:x="6" fg:w="1"/><text x="8.8214%" y="319.50"></text></g><g><title>libsystem_kernel.dylib`__select_nocancel (1 samples, 1.43%)</title><rect x="8.5714%" y="293" width="1.4286%" height="15" fill="rgb(241,83,37)" fg:x="6" fg:w="1"/><text x="8.8214%" y="303.50"></text></g><g><title>dyld`start (8 samples, 11.43%)</title><rect x="0.0000%" y="693" width="11.4286%" height="15" fill="rgb(233,36,39)" fg:x="0" fg:w="8"/><text x="0.2500%" y="703.50">dyld`start</text></g><g><title>lagon-serverless`main (8 samples, 11.43%)</title><rect x="0.0000%" y="677" width="11.4286%" height="15" fill="rgb(226,3,54)" fg:x="0" fg:w="8"/><text x="0.2500%" y="687.50">lagon-serverless`..</text></g><g><title>lagon-serverless`std::rt::lang_start_internal (8 samples, 11.43%)</title><rect x="0.0000%" y="661" width="11.4286%" height="15" fill="rgb(245,192,40)" fg:x="0" fg:w="8"/><text x="0.2500%" y="671.50">lagon-serverless`..</text></g><g><title>lagon-serverless`std::rt::lang_start::_{{closure}} (8 samples, 11.43%)</title><rect x="0.0000%" y="645" width="11.4286%" height="15" fill="rgb(238,167,29)" fg:x="0" fg:w="8"/><text x="0.2500%" y="655.50">lagon-serverless`..</text></g><g><title>lagon-serverless`std::sys_common::backtrace::__rust_begin_short_backtrace (8 samples, 11.43%)</title><rect x="0.0000%" y="629" width="11.4286%" height="15" fill="rgb(232,182,51)" fg:x="0" fg:w="8"/><text x="0.2500%" y="639.50">lagon-serverless`..</text></g><g><title>lagon-serverless`lagon_serverless::main (8 samples, 11.43%)</title><rect x="0.0000%" y="613" width="11.4286%" height="15" fill="rgb(231,60,39)" fg:x="0" fg:w="8"/><text x="0.2500%" y="623.50">lagon-serverless`..</text></g><g><title>lagon-serverless`tokio::runtime::scheduler::multi_thread::MultiThread::block_on (7 samples, 10.00%)</title><rect x="1.4286%" y="597" width="10.0000%" height="15" fill="rgb(208,69,12)" fg:x="1" fg:w="7"/><text x="1.6786%" y="607.50">lagon-serverle..</text></g><g><title>lagon-serverless`tokio::runtime::park::CachedParkThread::block_on (7 samples, 10.00%)</title><rect x="1.4286%" y="581" width="10.0000%" height="15" fill="rgb(235,93,37)" fg:x="1" fg:w="7"/><text x="1.6786%" y="591.50">lagon-serverle..</text></g><g><title>lagon-serverless`lagon_serverless::main::_{{closure}} (7 samples, 10.00%)</title><rect x="1.4286%" y="565" width="10.0000%" height="15" fill="rgb(213,116,39)" fg:x="1" fg:w="7"/><text x="1.6786%" y="575.50">lagon-serverle..</text></g><g><title>lagon-serverless`mysql::conn::pool::Pool::new (4 samples, 5.71%)</title><rect x="5.7143%" y="549" width="5.7143%" height="15" fill="rgb(222,207,29)" fg:x="4" fg:w="4"/><text x="5.9643%" y="559.50">lagon-s..</text></g><g><title>lagon-serverless`mysql::conn::pool::InnerPool::new (4 samples, 5.71%)</title><rect x="5.7143%" y="533" width="5.7143%" height="15" fill="rgb(206,96,30)" fg:x="4" fg:w="4"/><text x="5.9643%" y="543.50">lagon-s..</text></g><g><title>lagon-serverless`mysql::conn::pool::InnerPool::new_conn (4 samples, 5.71%)</title><rect x="5.7143%" y="517" width="5.7143%" height="15" fill="rgb(218,138,4)" fg:x="4" fg:w="4"/><text x="5.9643%" y="527.50">lagon-s..</text></g><g><title>lagon-serverless`mysql::conn::Conn::new (4 samples, 5.71%)</title><rect x="5.7143%" y="501" width="5.7143%" height="15" fill="rgb(250,191,14)" fg:x="4" fg:w="4"/><text x="5.9643%" y="511.50">lagon-s..</text></g><g><title>lagon-serverless`mysql::conn::Conn::connect_stream (2 samples, 2.86%)</title><rect x="8.5714%" y="485" width="2.8571%" height="15" fill="rgb(239,60,40)" fg:x="6" fg:w="2"/><text x="8.8214%" y="495.50">la..</text></g><g><title>lagon-serverless`mysql::io::Stream::connect_tcp (2 samples, 2.86%)</title><rect x="8.5714%" y="469" width="2.8571%" height="15" fill="rgb(206,27,48)" fg:x="6" fg:w="2"/><text x="8.8214%" y="479.50">la..</text></g><g><title>lagon-serverless`mysql::io::tcp::MyTcpBuilder&lt;T&gt;::connect (2 samples, 2.86%)</title><rect x="8.5714%" y="453" width="2.8571%" height="15" fill="rgb(225,35,8)" fg:x="6" fg:w="2"/><text x="8.8214%" y="463.50">la..</text></g><g><title>lagon-serverless`&lt;(&amp;str,u16) as std::net::socket_addr::ToSocketAddrs&gt;::to_socket_addrs (2 samples, 2.86%)</title><rect x="8.5714%" y="437" width="2.8571%" height="15" fill="rgb(250,213,24)" fg:x="6" fg:w="2"/><text x="8.8214%" y="447.50">la..</text></g><g><title>lagon-serverless`&lt;std::sys_common::net::LookupHost as core::convert::TryFrom&lt;(&amp;str,u16)&gt;&gt;::try_from::_{{closure}} (2 samples, 2.86%)</title><rect x="8.5714%" y="421" width="2.8571%" height="15" fill="rgb(247,123,22)" fg:x="6" fg:w="2"/><text x="8.8214%" y="431.50">la..</text></g><g><title>libsystem_info.dylib`getaddrinfo (2 samples, 2.86%)</title><rect x="8.5714%" y="405" width="2.8571%" height="15" fill="rgb(231,138,38)" fg:x="6" fg:w="2"/><text x="8.8214%" y="415.50">li..</text></g><g><title>libsystem_info.dylib`si_module_with_name (1 samples, 1.43%)</title><rect x="10.0000%" y="389" width="1.4286%" height="15" fill="rgb(231,145,46)" fg:x="7" fg:w="1"/><text x="10.2500%" y="399.50"></text></g><g><title>libsystem_info.dylib`si_module_static_search (1 samples, 1.43%)</title><rect x="10.0000%" y="373" width="1.4286%" height="15" fill="rgb(251,118,11)" fg:x="7" fg:w="1"/><text x="10.2500%" y="383.50"></text></g><g><title>libdispatch.dylib`_dispatch_once_callout (1 samples, 1.43%)</title><rect x="10.0000%" y="357" width="1.4286%" height="15" fill="rgb(217,147,25)" fg:x="7" fg:w="1"/><text x="10.2500%" y="367.50"></text></g><g><title>libdispatch.dylib`_dispatch_client_callout (1 samples, 1.43%)</title><rect x="10.0000%" y="341" width="1.4286%" height="15" fill="rgb(247,81,37)" fg:x="7" fg:w="1"/><text x="10.2500%" y="351.50"></text></g><g><title>libsystem_info.dylib`__si_module_static_search_block_invoke (1 samples, 1.43%)</title><rect x="10.0000%" y="325" width="1.4286%" height="15" fill="rgb(209,12,38)" fg:x="7" fg:w="1"/><text x="10.2500%" y="335.50"></text></g><g><title>libsystem_info.dylib`si_module_config_modules_for_category (1 samples, 1.43%)</title><rect x="10.0000%" y="309" width="1.4286%" height="15" fill="rgb(227,1,9)" fg:x="7" fg:w="1"/><text x="10.2500%" y="319.50"></text></g><g><title>libsystem_info.dylib`si_module_with_name (1 samples, 1.43%)</title><rect x="10.0000%" y="293" width="1.4286%" height="15" fill="rgb(248,47,43)" fg:x="7" fg:w="1"/><text x="10.2500%" y="303.50"></text></g><g><title>libsystem_info.dylib`si_module_static_ds (1 samples, 1.43%)</title><rect x="10.0000%" y="277" width="1.4286%" height="15" fill="rgb(221,10,30)" fg:x="7" fg:w="1"/><text x="10.2500%" y="287.50"></text></g><g><title>libdispatch.dylib`_dispatch_once_callout (1 samples, 1.43%)</title><rect x="10.0000%" y="261" width="1.4286%" height="15" fill="rgb(210,229,1)" fg:x="7" fg:w="1"/><text x="10.2500%" y="271.50"></text></g><g><title>libdispatch.dylib`_dispatch_client_callout (1 samples, 1.43%)</title><rect x="10.0000%" y="245" width="1.4286%" height="15" fill="rgb(222,148,37)" fg:x="7" fg:w="1"/><text x="10.2500%" y="255.50"></text></g><g><title>libsystem_info.dylib`__si_module_static_ds_block_invoke (1 samples, 1.43%)</title><rect x="10.0000%" y="229" width="1.4286%" height="15" fill="rgb(234,67,33)" fg:x="7" fg:w="1"/><text x="10.2500%" y="239.50"></text></g><g><title>libsystem_notify.dylib`notify_register_check (1 samples, 1.43%)</title><rect x="10.0000%" y="213" width="1.4286%" height="15" fill="rgb(247,98,35)" fg:x="7" fg:w="1"/><text x="10.2500%" y="223.50"></text></g><g><title>libsystem_kernel.dylib`__shm_open (1 samples, 1.43%)</title><rect x="10.0000%" y="197" width="1.4286%" height="15" fill="rgb(247,138,52)" fg:x="7" fg:w="1"/><text x="10.2500%" y="207.50"></text></g><g><title>lagon-serverless`tokio::runtime::scheduler::multi_thread::idle::Idle::is_parked (1 samples, 1.43%)</title><rect x="11.4286%" y="517" width="1.4286%" height="15" fill="rgb(213,79,30)" fg:x="8" fg:w="1"/><text x="11.6786%" y="527.50"></text></g><g><title>lagon-serverless`std::time::Instant::now (1 samples, 1.43%)</title><rect x="14.2857%" y="485" width="1.4286%" height="15" fill="rgb(246,177,23)" fg:x="10" fg:w="1"/><text x="14.5357%" y="495.50"></text></g><g><title>lagon-serverless`DYLD-STUB$$clock_gettime (2 samples, 2.86%)</title><rect x="17.1429%" y="469" width="2.8571%" height="15" fill="rgb(230,62,27)" fg:x="12" fg:w="2"/><text x="17.3929%" y="479.50">la..</text></g><g><title>libsystem_c.dylib`clock_gettime_nsec_np (1 samples, 1.43%)</title><rect x="20.0000%" y="437" width="1.4286%" height="15" fill="rgb(216,154,8)" fg:x="14" fg:w="1"/><text x="20.2500%" y="447.50"></text></g><g><title>libsystem_kernel.dylib`mach_timebase_info (1 samples, 1.43%)</title><rect x="20.0000%" y="421" width="1.4286%" height="15" fill="rgb(244,35,45)" fg:x="14" fg:w="1"/><text x="20.2500%" y="431.50"></text></g><g><title>lagon-serverless`std::sys::unix::time::inner::_&lt;impl std::sys::unix::time::Timespec&gt;::now (2 samples, 2.86%)</title><rect x="20.0000%" y="469" width="2.8571%" height="15" fill="rgb(251,115,12)" fg:x="14" fg:w="2"/><text x="20.2500%" y="479.50">la..</text></g><g><title>libsystem_c.dylib`clock_gettime (2 samples, 2.86%)</title><rect x="20.0000%" y="453" width="2.8571%" height="15" fill="rgb(240,54,50)" fg:x="14" fg:w="2"/><text x="20.2500%" y="463.50">li..</text></g><g><title>libsystem_kernel.dylib`mach_absolute_time (1 samples, 1.43%)</title><rect x="21.4286%" y="437" width="1.4286%" height="15" fill="rgb(233,84,52)" fg:x="15" fg:w="1"/><text x="21.6786%" y="447.50"></text></g><g><title>lagon-serverless`mio::poll::Poll::poll (1 samples, 1.43%)</title><rect x="25.7143%" y="453" width="1.4286%" height="15" fill="rgb(207,117,47)" fg:x="18" fg:w="1"/><text x="25.9643%" y="463.50"></text></g><g><title>lagon-serverless`tokio::runtime::io::scheduled_io::ScheduledIo::wake (1 samples, 1.43%)</title><rect x="27.1429%" y="453" width="1.4286%" height="15" fill="rgb(249,43,39)" fg:x="19" fg:w="1"/><text x="27.3929%" y="463.50"></text></g><g><title>lagon-serverless`tokio::runtime::task::waker::wake_by_val (1 samples, 1.43%)</title><rect x="27.1429%" y="437" width="1.4286%" height="15" fill="rgb(209,38,44)" fg:x="19" fg:w="1"/><text x="27.3929%" y="447.50"></text></g><g><title>lagon-serverless`tokio::runtime::scheduler::multi_thread::worker::_&lt;impl tokio::runtime::task::Schedule for alloc::sync::Arc&lt;tokio::runtime::scheduler::multi_thread::handle::Handle&gt;&gt;::schedule (1 samples, 1.43%)</title><rect x="27.1429%" y="421" width="1.4286%" height="15" fill="rgb(236,212,23)" fg:x="19" fg:w="1"/><text x="27.3929%" y="431.50"></text></g><g><title>lagon-serverless`tokio::macros::scoped_tls::ScopedKey&lt;T&gt;::with (1 samples, 1.43%)</title><rect x="27.1429%" y="405" width="1.4286%" height="15" fill="rgb(242,79,21)" fg:x="19" fg:w="1"/><text x="27.3929%" y="415.50"></text></g><g><title>lagon-serverless`tokio::runtime::scheduler::multi_thread::worker::_&lt;impl tokio::runtime::scheduler::multi_thread::handle::Handle&gt;::schedule_task::_{{closure}} (1 samples, 1.43%)</title><rect x="27.1429%" y="389" width="1.4286%" height="15" fill="rgb(211,96,35)" fg:x="19" fg:w="1"/><text x="27.3929%" y="399.50"></text></g><g><title>lagon-serverless`tokio::runtime::scheduler::multi_thread::worker::_&lt;impl tokio::runtime::scheduler::multi_thread::handle::Handle&gt;::schedule_local (1 samples, 1.43%)</title><rect x="27.1429%" y="373" width="1.4286%" height="15" fill="rgb(253,215,40)" fg:x="19" fg:w="1"/><text x="27.3929%" y="383.50"></text></g><g><title>lagon-serverless`tokio::runtime::io::Driver::turn (21 samples, 30.00%)</title><rect x="22.8571%" y="469" width="30.0000%" height="15" fill="rgb(211,81,21)" fg:x="16" fg:w="21"/><text x="23.1071%" y="479.50">lagon-serverless`tokio::runtime::io::Driver::turn</text></g><g><title>libsystem_kernel.dylib`kevent (17 samples, 24.29%)</title><rect x="28.5714%" y="453" width="24.2857%" height="15" fill="rgb(208,190,38)" fg:x="20" fg:w="17"/><text x="28.8214%" y="463.50">libsystem_kernel.dylib`kevent</text></g><g><title>lagon-serverless`tokio::runtime::task::raw::schedule (1 samples, 1.43%)</title><rect x="57.1429%" y="453" width="1.4286%" height="15" fill="rgb(235,213,38)" fg:x="40" fg:w="1"/><text x="57.3929%" y="463.50"></text></g><g><title>lagon-serverless`tokio::runtime::time::_&lt;impl tokio::runtime::time::handle::Handle&gt;::process_at_time (6 samples, 8.57%)</title><rect x="52.8571%" y="469" width="8.5714%" height="15" fill="rgb(237,122,38)" fg:x="37" fg:w="6"/><text x="53.1071%" y="479.50">lagon-server..</text></g><g><title>lagon-serverless`tokio::runtime::time::wheel::level::Level::next_expiration (2 samples, 2.86%)</title><rect x="58.5714%" y="453" width="2.8571%" height="15" fill="rgb(244,218,35)" fg:x="41" fg:w="2"/><text x="58.8214%" y="463.50">la..</text></g><g><title>lagon-serverless`tokio::runtime::scheduler::multi_thread::worker::Context::park_timeout (36 samples, 51.43%)</title><rect x="12.8571%" y="517" width="51.4286%" height="15" fill="rgb(240,68,47)" fg:x="9" fg:w="36"/><text x="13.1071%" y="527.50">lagon-serverless`tokio::runtime::scheduler::multi_thread::worker::Context::park_timeo..</text></g><g><title>lagon-serverless`tokio::runtime::scheduler::multi_thread::park::Parker::park (36 samples, 51.43%)</title><rect x="12.8571%" y="501" width="51.4286%" height="15" fill="rgb(210,16,53)" fg:x="9" fg:w="36"/><text x="13.1071%" y="511.50">lagon-serverless`tokio::runtime::scheduler::multi_thread::park::Parker::park</text></g><g><title>lagon-serverless`tokio::runtime::time::Driver::park_internal (34 samples, 48.57%)</title><rect x="15.7143%" y="485" width="48.5714%" height="15" fill="rgb(235,124,12)" fg:x="11" fg:w="34"/><text x="15.9643%" y="495.50">lagon-serverless`tokio::runtime::time::Driver::park_internal</text></g><g><title>libsystem_c.dylib`clock_gettime (2 samples, 2.86%)</title><rect x="61.4286%" y="469" width="2.8571%" height="15" fill="rgb(224,169,11)" fg:x="43" fg:w="2"/><text x="61.6786%" y="479.50">li..</text></g><g><title>lagon-serverless`&lt;hyper::body::body::Body as http_body::Body&gt;::is_end_stream (1 samples, 1.43%)</title><rect x="64.2857%" y="437" width="1.4286%" height="15" fill="rgb(250,166,2)" fg:x="45" fg:w="1"/><text x="64.5357%" y="447.50"></text></g><g><title>lagon-serverless`&lt;hyper::proto::h1::role::Server as hyper::proto::h1::Http1Transaction&gt;::update_date (1 samples, 1.43%)</title><rect x="65.7143%" y="437" width="1.4286%" height="15" fill="rgb(242,216,29)" fg:x="46" fg:w="1"/><text x="65.9643%" y="447.50"></text></g><g><title>lagon-serverless`hyper::body::body::Body::new (1 samples, 1.43%)</title><rect x="67.1429%" y="437" width="1.4286%" height="15" fill="rgb(230,116,27)" fg:x="47" fg:w="1"/><text x="67.3929%" y="447.50"></text></g><g><title>lagon-serverless`hyper::proto::h1::io::Buffered&lt;T,B&gt;::poll_read_from_io (1 samples, 1.43%)</title><rect x="68.5714%" y="389" width="1.4286%" height="15" fill="rgb(228,99,48)" fg:x="48" fg:w="1"/><text x="68.8214%" y="399.50"></text></g><g><title>lagon-serverless`tokio::io::poll_evented::PollEvented&lt;E&gt;::poll_read (1 samples, 1.43%)</title><rect x="68.5714%" y="373" width="1.4286%" height="15" fill="rgb(253,11,6)" fg:x="48" fg:w="1"/><text x="68.8214%" y="383.50"></text></g><g><title>lagon-serverless`&lt;&amp;mio::net::tcp::stream::TcpStream as std::io::Read&gt;::read (1 samples, 1.43%)</title><rect x="68.5714%" y="357" width="1.4286%" height="15" fill="rgb(247,143,39)" fg:x="48" fg:w="1"/><text x="68.8214%" y="367.50"></text></g><g><title>libsystem_kernel.dylib`__recvfrom (1 samples, 1.43%)</title><rect x="68.5714%" y="341" width="1.4286%" height="15" fill="rgb(236,97,10)" fg:x="48" fg:w="1"/><text x="68.8214%" y="351.50"></text></g><g><title>lagon-serverless`http::header::name::HeaderName::from_bytes (1 samples, 1.43%)</title><rect x="70.0000%" y="357" width="1.4286%" height="15" fill="rgb(233,208,19)" fg:x="49" fg:w="1"/><text x="70.2500%" y="367.50"></text></g><g><title>libsystem_platform.dylib`_platform_memmove (1 samples, 1.43%)</title><rect x="70.0000%" y="341" width="1.4286%" height="15" fill="rgb(216,164,2)" fg:x="49" fg:w="1"/><text x="70.2500%" y="351.50"></text></g><g><title>lagon-serverless`hyper::proto::h1::conn::Conn&lt;I,B,T&gt;::poll_read_head (3 samples, 4.29%)</title><rect x="68.5714%" y="421" width="4.2857%" height="15" fill="rgb(220,129,5)" fg:x="48" fg:w="3"/><text x="68.8214%" y="431.50">lagon..</text></g><g><title>lagon-serverless`hyper::proto::h1::io::Buffered&lt;T,B&gt;::parse (3 samples, 4.29%)</title><rect x="68.5714%" y="405" width="4.2857%" height="15" fill="rgb(242,17,10)" fg:x="48" fg:w="3"/><text x="68.8214%" y="415.50">lagon..</text></g><g><title>lagon-serverless`hyper::proto::h1::role::parse_headers (2 samples, 2.86%)</title><rect x="70.0000%" y="389" width="2.8571%" height="15" fill="rgb(242,107,0)" fg:x="49" fg:w="2"/><text x="70.2500%" y="399.50">la..</text></g><g><title>lagon-serverless`&lt;hyper::proto::h1::role::Server as hyper::proto::h1::Http1Transaction&gt;::parse (2 samples, 2.86%)</title><rect x="70.0000%" y="373" width="2.8571%" height="15" fill="rgb(251,28,31)" fg:x="49" fg:w="2"/><text x="70.2500%" y="383.50">la..</text></g><g><title>lagon-serverless`http::uri::path::PathAndQuery::from_shared (1 samples, 1.43%)</title><rect x="71.4286%" y="357" width="1.4286%" height="15" fill="rgb(233,223,10)" fg:x="50" fg:w="1"/><text x="71.6786%" y="367.50"></text></g><g><title>lagon-serverless`hyper::proto::h1::conn::Conn&lt;I,B,T&gt;::write_full_msg (1 samples, 1.43%)</title><rect x="72.8571%" y="421" width="1.4286%" height="15" fill="rgb(215,21,27)" fg:x="51" fg:w="1"/><text x="73.1071%" y="431.50"></text></g><g><title>lagon-serverless`hyper::proto::h1::conn::Conn&lt;I,B,T&gt;::encode_head (1 samples, 1.43%)</title><rect x="72.8571%" y="405" width="1.4286%" height="15" fill="rgb(232,23,21)" fg:x="51" fg:w="1"/><text x="73.1071%" y="415.50"></text></g><g><title>lagon-serverless`hyper::proto::h1::role::encode_headers (1 samples, 1.43%)</title><rect x="72.8571%" y="389" width="1.4286%" height="15" fill="rgb(244,5,23)" fg:x="51" fg:w="1"/><text x="73.1071%" y="399.50"></text></g><g><title>lagon-serverless`&lt;hyper::proto::h1::role::Server as hyper::proto::h1::Http1Transaction&gt;::encode (1 samples, 1.43%)</title><rect x="72.8571%" y="373" width="1.4286%" height="15" fill="rgb(226,81,46)" fg:x="51" fg:w="1"/><text x="73.1071%" y="383.50"></text></g><g><title>lagon-serverless`&lt;http::header::map::Drain&lt;T&gt; as core::ops::drop::Drop&gt;::drop (1 samples, 1.43%)</title><rect x="72.8571%" y="357" width="1.4286%" height="15" fill="rgb(247,70,30)" fg:x="51" fg:w="1"/><text x="73.1071%" y="367.50"></text></g><g><title>lagon-serverless`metrics_exporter_prometheus::formatting::key_to_parts (1 samples, 1.43%)</title><rect x="74.2857%" y="421" width="1.4286%" height="15" fill="rgb(212,68,19)" fg:x="52" fg:w="1"/><text x="74.5357%" y="431.50"></text></g><g><title>lagon-serverless`hashbrown::rustc_entry::_&lt;impl hashbrown::map::HashMap&lt;K,V,S,A&gt;&gt;::rustc_entry (1 samples, 1.43%)</title><rect x="75.7143%" y="405" width="1.4286%" height="15" fill="rgb(240,187,13)" fg:x="53" fg:w="1"/><text x="75.9643%" y="415.50"></text></g><g><title>lagon-serverless`hashbrown::raw::RawTable&lt;T,A&gt;::reserve_rehash (1 samples, 1.43%)</title><rect x="75.7143%" y="389" width="1.4286%" height="15" fill="rgb(223,113,26)" fg:x="53" fg:w="1"/><text x="75.9643%" y="399.50"></text></g><g><title>lagon-serverless`metrics_exporter_prometheus::formatting::key_to_parts (1 samples, 1.43%)</title><rect x="77.1429%" y="405" width="1.4286%" height="15" fill="rgb(206,192,2)" fg:x="54" fg:w="1"/><text x="77.3929%" y="415.50"></text></g><g><title>libsystem_malloc.dylib`nanov2_malloc (1 samples, 1.43%)</title><rect x="77.1429%" y="389" width="1.4286%" height="15" fill="rgb(241,108,4)" fg:x="54" fg:w="1"/><text x="77.3929%" y="399.50"></text></g><g><title>lagon-serverless`&lt;metrics::key::Key as core::clone::Clone&gt;::clone (1 samples, 1.43%)</title><rect x="78.5714%" y="389" width="1.4286%" height="15" fill="rgb(247,173,49)" fg:x="55" fg:w="1"/><text x="78.8214%" y="399.50"></text></g><g><title>lagon-serverless`&lt;[metrics::label::Label] as metrics::cow::Cowable&gt;::clone_from_parts (1 samples, 1.43%)</title><rect x="78.5714%" y="373" width="1.4286%" height="15" fill="rgb(224,114,35)" fg:x="55" fg:w="1"/><text x="78.8214%" y="383.50"></text></g><g><title>lagon-serverless`metrics_exporter_prometheus::recorder::Inner::render (4 samples, 5.71%)</title><rect x="75.7143%" y="421" width="5.7143%" height="15" fill="rgb(245,159,27)" fg:x="53" fg:w="4"/><text x="75.9643%" y="431.50">lagon-s..</text></g><g><title>lagon-serverless`metrics_util::registry::Registry&lt;K,S&gt;::get_counter_handles (2 samples, 2.86%)</title><rect x="78.5714%" y="405" width="2.8571%" height="15" fill="rgb(245,172,44)" fg:x="55" fg:w="2"/><text x="78.8214%" y="415.50">la..</text></g><g><title>lagon-serverless`hashbrown::map::HashMap&lt;K,V,S,A&gt;::insert (1 samples, 1.43%)</title><rect x="80.0000%" y="389" width="1.4286%" height="15" fill="rgb(236,23,11)" fg:x="56" fg:w="1"/><text x="80.2500%" y="399.50"></text></g><g><title>lagon-serverless`&lt;hyper::server::server::new_svc::NewSvcTask&lt;I,N,S,E,W&gt; as core::future::future::Future&gt;::poll (13 samples, 18.57%)</title><rect x="64.2857%" y="469" width="18.5714%" height="15" fill="rgb(205,117,38)" fg:x="45" fg:w="13"/><text x="64.5357%" y="479.50">lagon-serverless`&lt;hyper::serv..</text></g><g><title>lagon-serverless`&lt;hyper::server::conn::upgrades::UpgradeableConnection&lt;I,S,E&gt; as core::future::future::Future&gt;::poll (13 samples, 18.57%)</title><rect x="64.2857%" y="453" width="18.5714%" height="15" fill="rgb(237,72,25)" fg:x="45" fg:w="13"/><text x="64.5357%" y="463.50">lagon-serverless`&lt;hyper::serv..</text></g><g><title>lagon-serverless`hyper::proto::h1::dispatch::Dispatcher&lt;D,Bs,I,T&gt;::poll_catch (10 samples, 14.29%)</title><rect x="68.5714%" y="437" width="14.2857%" height="15" fill="rgb(244,70,9)" fg:x="48" fg:w="10"/><text x="68.8214%" y="447.50">lagon-serverless`hyper..</text></g><g><title>lagon-serverless`metrics_util::registry::recency::Recency&lt;K&gt;::should_store_counter (1 samples, 1.43%)</title><rect x="81.4286%" y="421" width="1.4286%" height="15" fill="rgb(217,125,39)" fg:x="57" fg:w="1"/><text x="81.6786%" y="431.50"></text></g><g><title>lagon-serverless`tokio::runtime::task::raw::poll (51 samples, 72.86%)</title><rect x="11.4286%" y="597" width="72.8571%" height="15" fill="rgb(235,36,10)" fg:x="8" fg:w="51"/><text x="11.6786%" y="607.50">lagon-serverless`tokio::runtime::task::raw::poll</text></g><g><title>lagon-serverless`tokio::loom::std::unsafe_cell::UnsafeCell&lt;T&gt;::with_mut (51 samples, 72.86%)</title><rect x="11.4286%" y="581" width="72.8571%" height="15" fill="rgb(251,123,47)" fg:x="8" fg:w="51"/><text x="11.6786%" y="591.50">lagon-serverless`tokio::loom::std::unsafe_cell::UnsafeCell&lt;T&gt;::with_mut</text></g><g><title>lagon-serverless`tokio::runtime::scheduler::multi_thread::worker::run (51 samples, 72.86%)</title><rect x="11.4286%" y="565" width="72.8571%" height="15" fill="rgb(221,13,13)" fg:x="8" fg:w="51"/><text x="11.6786%" y="575.50">lagon-serverless`tokio::runtime::scheduler::multi_thread::worker::run</text></g><g><title>lagon-serverless`tokio::macros::scoped_tls::ScopedKey&lt;T&gt;::set (51 samples, 72.86%)</title><rect x="11.4286%" y="549" width="72.8571%" height="15" fill="rgb(238,131,9)" fg:x="8" fg:w="51"/><text x="11.6786%" y="559.50">lagon-serverless`tokio::macros::scoped_tls::ScopedKey&lt;T&gt;::set</text></g><g><title>lagon-serverless`tokio::runtime::scheduler::multi_thread::worker::Context::run (51 samples, 72.86%)</title><rect x="11.4286%" y="533" width="72.8571%" height="15" fill="rgb(211,50,8)" fg:x="8" fg:w="51"/><text x="11.6786%" y="543.50">lagon-serverless`tokio::runtime::scheduler::multi_thread::worker::Context::run</text></g><g><title>lagon-serverless`tokio::runtime::scheduler::multi_thread::worker::Context::run_task (14 samples, 20.00%)</title><rect x="64.2857%" y="517" width="20.0000%" height="15" fill="rgb(245,182,24)" fg:x="45" fg:w="14"/><text x="64.5357%" y="527.50">lagon-serverless`tokio::runtime..</text></g><g><title>lagon-serverless`tokio::runtime::task::harness::Harness&lt;T,S&gt;::poll (14 samples, 20.00%)</title><rect x="64.2857%" y="501" width="20.0000%" height="15" fill="rgb(242,14,37)" fg:x="45" fg:w="14"/><text x="64.5357%" y="511.50">lagon-serverless`tokio::runtime..</text></g><g><title>lagon-serverless`tokio::runtime::task::core::Core&lt;T,S&gt;::poll (14 samples, 20.00%)</title><rect x="64.2857%" y="485" width="20.0000%" height="15" fill="rgb(246,228,12)" fg:x="45" fg:w="14"/><text x="64.5357%" y="495.50">lagon-serverless`tokio::runtime..</text></g><g><title>lagon-serverless`lagon_serverless::serverless::start::_{{closure}}::_{{closure}} (1 samples, 1.43%)</title><rect x="82.8571%" y="469" width="1.4286%" height="15" fill="rgb(213,55,15)" fg:x="58" fg:w="1"/><text x="83.1071%" y="479.50"></text></g><g><title>lagon-serverless`&lt;hyper::server::server::Server&lt;I,S,E&gt; as core::future::future::Future&gt;::poll (1 samples, 1.43%)</title><rect x="82.8571%" y="453" width="1.4286%" height="15" fill="rgb(209,9,3)" fg:x="58" fg:w="1"/><text x="83.1071%" y="463.50"></text></g><g><title>lagon-serverless`&lt;hyper::server::tcp::AddrIncoming as hyper::server::accept::Accept&gt;::poll_accept (1 samples, 1.43%)</title><rect x="82.8571%" y="437" width="1.4286%" height="15" fill="rgb(230,59,30)" fg:x="58" fg:w="1"/><text x="83.1071%" y="447.50"></text></g><g><title>lagon-serverless`tokio::net::tcp::listener::TcpListener::poll_accept (1 samples, 1.43%)</title><rect x="82.8571%" y="421" width="1.4286%" height="15" fill="rgb(209,121,21)" fg:x="58" fg:w="1"/><text x="83.1071%" y="431.50"></text></g><g><title>lagon-serverless`tokio::io::poll_evented::PollEvented&lt;E&gt;::new (1 samples, 1.43%)</title><rect x="82.8571%" y="405" width="1.4286%" height="15" fill="rgb(220,109,13)" fg:x="58" fg:w="1"/><text x="83.1071%" y="415.50"></text></g><g><title>lagon-serverless`tokio::runtime::io::registration::Registration::new_with_interest_and_handle (1 samples, 1.43%)</title><rect x="82.8571%" y="389" width="1.4286%" height="15" fill="rgb(232,18,1)" fg:x="58" fg:w="1"/><text x="83.1071%" y="399.50"></text></g><g><title>lagon-serverless`tokio::runtime::io::Handle::add_source (1 samples, 1.43%)</title><rect x="82.8571%" y="373" width="1.4286%" height="15" fill="rgb(215,41,42)" fg:x="58" fg:w="1"/><text x="83.1071%" y="383.50"></text></g><g><title>libsystem_kernel.dylib`kevent (1 samples, 1.43%)</title><rect x="82.8571%" y="357" width="1.4286%" height="15" fill="rgb(224,123,36)" fg:x="58" fg:w="1"/><text x="83.1071%" y="367.50"></text></g><g><title>libsystem_pthread.dylib`_pthread_mutex_firstfit_lock_slow (1 samples, 1.43%)</title><rect x="84.2857%" y="597" width="1.4286%" height="15" fill="rgb(240,125,3)" fg:x="59" fg:w="1"/><text x="84.5357%" y="607.50"></text></g><g><title>libsystem_kernel.dylib`__psynch_mutexwait (1 samples, 1.43%)</title><rect x="84.2857%" y="581" width="1.4286%" height="15" fill="rgb(205,98,50)" fg:x="59" fg:w="1"/><text x="84.5357%" y="591.50"></text></g><g><title>lagon-serverless`tokio::runtime::blocking::pool::Inner::run (54 samples, 77.14%)</title><rect x="11.4286%" y="613" width="77.1429%" height="15" fill="rgb(205,185,37)" fg:x="8" fg:w="54"/><text x="11.6786%" y="623.50">lagon-serverless`tokio::runtime::blocking::pool::Inner::run</text></g><g><title>libsystem_pthread.dylib`_pthread_mutex_firstfit_unlock_slow (2 samples, 2.86%)</title><rect x="85.7143%" y="597" width="2.8571%" height="15" fill="rgb(238,207,15)" fg:x="60" fg:w="2"/><text x="85.9643%" y="607.50">li..</text></g><g><title>libsystem_kernel.dylib`__psynch_mutexdrop (2 samples, 2.86%)</title><rect x="85.7143%" y="581" width="2.8571%" height="15" fill="rgb(213,199,42)" fg:x="60" fg:w="2"/><text x="85.9643%" y="591.50">li..</text></g><g><title>lagon-serverless`alloc::slice::_&lt;impl [T]&gt;::join (1 samples, 1.43%)</title><rect x="88.5714%" y="581" width="1.4286%" height="15" fill="rgb(235,201,11)" fg:x="62" fg:w="1"/><text x="88.8214%" y="591.50"></text></g><g><title>lagon-serverless`lagon_runtime_isolate::Isolate::evaluate (2 samples, 2.86%)</title><rect x="88.5714%" y="597" width="2.8571%" height="15" fill="rgb(207,46,11)" fg:x="62" fg:w="2"/><text x="88.8214%" y="607.50">la..</text></g><g><title>lagon-serverless`v8__Module__InstantiateModule (1 samples, 1.43%)</title><rect x="90.0000%" y="581" width="1.4286%" height="15" fill="rgb(241,35,35)" fg:x="63" fg:w="1"/><text x="90.2500%" y="591.50"></text></g><g><title>lagon-serverless`v8::Module::InstantiateModule(v8::Local&lt;v8::Context&gt;, v8::MaybeLocal&lt;v8::Module&gt; (*)(v8::Local&lt;v8::Context&gt;, v8::Local&lt;v8::String&gt;, v8::Local&lt;v8::FixedArray&gt;, v8::Local (1 samples, 1.43%)</title><rect x="90.0000%" y="565" width="1.4286%" height="15" fill="rgb(243,32,47)" fg:x="63" fg:w="1"/><text x="90.2500%" y="575.50"></text></g><g><title>lagon-serverless`v8::internal::Module::Instantiate(v8::internal::Isolate*, v8::internal::Handle&lt;v8::internal::Module&gt;, v8::Local&lt;v8::Context&gt;, v8::MaybeLocal&lt;v8::Module&gt; (*)(v8::Local&lt;v8::Context&gt;, v8::Local&lt;v8::String&gt;, v8::Local&lt;v8::FixedArray&gt;, v8::Local&lt;v8::Module&gt;), v8::MaybeLocal&lt;v8::Module&gt; (*)(v8::Local&lt;v8::Context&gt;, v8::Local&lt;v8::String&gt;, v8::Local (1 samples, 1.43%)</title><rect x="90.0000%" y="549" width="1.4286%" height="15" fill="rgb(247,202,23)" fg:x="63" fg:w="1"/><text x="90.2500%" y="559.50"></text></g><g><title>lagon-serverless`v8::internal::SourceTextModule::FinishInstantiate(v8::internal::Isolate*, v8::internal::Handle&lt;v8::internal::SourceTextModule&gt;, v8::internal::ZoneForwardList&lt;v8::internal::Handle (1 samples, 1.43%)</title><rect x="90.0000%" y="533" width="1.4286%" height="15" fill="rgb(219,102,11)" fg:x="63" fg:w="1"/><text x="90.2500%" y="543.50"></text></g><g><title>lagon-serverless`v8::internal::SourceTextModule::RunInitializationCode(v8::internal::Isolate*, v8::internal::Handle (1 samples, 1.43%)</title><rect x="90.0000%" y="517" width="1.4286%" height="15" fill="rgb(243,110,44)" fg:x="63" fg:w="1"/><text x="90.2500%" y="527.50"></text></g><g><title>lagon-serverless`v8::internal::Execution::Call(v8::internal::Isolate*, v8::internal::Handle&lt;v8::internal::Object&gt;, v8::internal::Handle&lt;v8::internal::Object&gt;, int, v8::internal::Handle (1 samples, 1.43%)</title><rect x="90.0000%" y="501" width="1.4286%" height="15" fill="rgb(222,74,54)" fg:x="63" fg:w="1"/><text x="90.2500%" y="511.50"></text></g><g><title>lagon-serverless`v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal:: (1 samples, 1.43%)</title><rect x="90.0000%" y="485" width="1.4286%" height="15" fill="rgb(216,99,12)" fg:x="63" fg:w="1"/><text x="90.2500%" y="495.50"></text></g><g><title>lagon-serverless`Builtins_JSEntry (1 samples, 1.43%)</title><rect x="90.0000%" y="469" width="1.4286%" height="15" fill="rgb(226,22,26)" fg:x="63" fg:w="1"/><text x="90.2500%" y="479.50"></text></g><g><title>lagon-serverless`Builtins_JSEntryTrampoline (1 samples, 1.43%)</title><rect x="90.0000%" y="453" width="1.4286%" height="15" fill="rgb(217,163,10)" fg:x="63" fg:w="1"/><text x="90.2500%" y="463.50"></text></g><g><title>lagon-serverless`Builtins_InterpreterEntryTrampoline (1 samples, 1.43%)</title><rect x="90.0000%" y="437" width="1.4286%" height="15" fill="rgb(213,25,53)" fg:x="63" fg:w="1"/><text x="90.2500%" y="447.50"></text></g><g><title>lagon-serverless`Builtins_CallRuntimeHandler (1 samples, 1.43%)</title><rect x="90.0000%" y="421" width="1.4286%" height="15" fill="rgb(252,105,26)" fg:x="63" fg:w="1"/><text x="90.2500%" y="431.50"></text></g><g><title>lagon-serverless`Builtins_CEntry_Return1_DontSaveFPRegs_ArgvInRegister_NoBuiltinExit (1 samples, 1.43%)</title><rect x="90.0000%" y="405" width="1.4286%" height="15" fill="rgb(220,39,43)" fg:x="63" fg:w="1"/><text x="90.2500%" y="415.50"></text></g><g><title>lagon-serverless`v8::internal::Runtime_DeclareModuleExports (1 samples, 1.43%)</title><rect x="90.0000%" y="389" width="1.4286%" height="15" fill="rgb(229,68,48)" fg:x="63" fg:w="1"/><text x="90.2500%" y="399.50"></text></g><g><title>lagon-serverless`lagon_runtime_isolate::bindings::bind (1 samples, 1.43%)</title><rect x="91.4286%" y="581" width="1.4286%" height="15" fill="rgb(252,8,32)" fg:x="64" fg:w="1"/><text x="91.6786%" y="591.50"></text></g><g><title>lagon-serverless`v8::NewContext(v8::Isolate*, v8::ExtensionConfiguration*, v8::MaybeLocal&lt;v8::ObjectTemplate&gt;, v8::MaybeLocal (1 samples, 1.43%)</title><rect x="91.4286%" y="565" width="1.4286%" height="15" fill="rgb(223,20,43)" fg:x="64" fg:w="1"/><text x="91.6786%" y="575.50"></text></g><g><title>lagon-serverless`v8::internal::Bootstrapper::CreateEnvironment(v8::internal::MaybeHandle&lt;v8::internal::JSGlobalProxy&gt;, v8::Local (1 samples, 1.43%)</title><rect x="91.4286%" y="549" width="1.4286%" height="15" fill="rgb(229,81,49)" fg:x="64" fg:w="1"/><text x="91.6786%" y="559.50"></text></g><g><title>lagon-serverless`v8::internal::Genesis::Genesis(v8::internal::Isolate*, v8::internal::MaybeHandle&lt;v8::internal::JSGlobalProxy&gt;, v8::Local (1 samples, 1.43%)</title><rect x="91.4286%" y="533" width="1.4286%" height="15" fill="rgb(236,28,36)" fg:x="64" fg:w="1"/><text x="91.6786%" y="543.50"></text></g><g><title>lagon-serverless`v8::internal::Snapshot::NewContextFromSnapshot(v8::internal::Isolate*, v8::internal::Handle (1 samples, 1.43%)</title><rect x="91.4286%" y="517" width="1.4286%" height="15" fill="rgb(249,185,26)" fg:x="64" fg:w="1"/><text x="91.6786%" y="527.50"></text></g><g><title>lagon-serverless`v8::internal::ContextDeserializer::DeserializeContext(v8::internal::Isolate*, v8::internal::SnapshotData const*, bool, v8::internal::Handle (1 samples, 1.43%)</title><rect x="91.4286%" y="501" width="1.4286%" height="15" fill="rgb(249,174,33)" fg:x="64" fg:w="1"/><text x="91.6786%" y="511.50"></text></g><g><title>lagon-serverless`v8::internal::ContextDeserializer::Deserialize(v8::internal::Isolate*, v8::internal::Handle (1 samples, 1.43%)</title><rect x="91.4286%" y="485" width="1.4286%" height="15" fill="rgb(233,201,37)" fg:x="64" fg:w="1"/><text x="91.6786%" y="495.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="469" width="1.4286%" height="15" fill="rgb(221,78,26)" fg:x="64" fg:w="1"/><text x="91.6786%" y="479.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHandle&lt;v8::internal::Isolate&gt; &gt;(unsigned char, v8::internal::SlotAccessorForHandle (1 samples, 1.43%)</title><rect x="91.4286%" y="453" width="1.4286%" height="15" fill="rgb(250,127,30)" fg:x="64" fg:w="1"/><text x="91.6786%" y="463.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="437" width="1.4286%" height="15" fill="rgb(230,49,44)" fg:x="64" fg:w="1"/><text x="91.6786%" y="447.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="91.4286%" y="421" width="1.4286%" height="15" fill="rgb(229,67,23)" fg:x="64" fg:w="1"/><text x="91.6786%" y="431.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="405" width="1.4286%" height="15" fill="rgb(249,83,47)" fg:x="64" fg:w="1"/><text x="91.6786%" y="415.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHandle&lt;v8::internal::Isolate&gt; &gt;(unsigned char, v8::internal::SlotAccessorForHandle (1 samples, 1.43%)</title><rect x="91.4286%" y="389" width="1.4286%" height="15" fill="rgb(215,43,3)" fg:x="64" fg:w="1"/><text x="91.6786%" y="399.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="373" width="1.4286%" height="15" fill="rgb(238,154,13)" fg:x="64" fg:w="1"/><text x="91.6786%" y="383.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="91.4286%" y="357" width="1.4286%" height="15" fill="rgb(219,56,2)" fg:x="64" fg:w="1"/><text x="91.6786%" y="367.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="341" width="1.4286%" height="15" fill="rgb(233,0,4)" fg:x="64" fg:w="1"/><text x="91.6786%" y="351.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHandle&lt;v8::internal::Isolate&gt; &gt;(unsigned char, v8::internal::SlotAccessorForHandle (1 samples, 1.43%)</title><rect x="91.4286%" y="325" width="1.4286%" height="15" fill="rgb(235,30,7)" fg:x="64" fg:w="1"/><text x="91.6786%" y="335.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="309" width="1.4286%" height="15" fill="rgb(250,79,13)" fg:x="64" fg:w="1"/><text x="91.6786%" y="319.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="91.4286%" y="293" width="1.4286%" height="15" fill="rgb(211,146,34)" fg:x="64" fg:w="1"/><text x="91.6786%" y="303.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="277" width="1.4286%" height="15" fill="rgb(228,22,38)" fg:x="64" fg:w="1"/><text x="91.6786%" y="287.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHandle&lt;v8::internal::Isolate&gt; &gt;(unsigned char, v8::internal::SlotAccessorForHandle (1 samples, 1.43%)</title><rect x="91.4286%" y="261" width="1.4286%" height="15" fill="rgb(235,168,5)" fg:x="64" fg:w="1"/><text x="91.6786%" y="271.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="245" width="1.4286%" height="15" fill="rgb(221,155,16)" fg:x="64" fg:w="1"/><text x="91.6786%" y="255.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="91.4286%" y="229" width="1.4286%" height="15" fill="rgb(215,215,53)" fg:x="64" fg:w="1"/><text x="91.6786%" y="239.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="213" width="1.4286%" height="15" fill="rgb(223,4,10)" fg:x="64" fg:w="1"/><text x="91.6786%" y="223.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="91.4286%" y="197" width="1.4286%" height="15" fill="rgb(234,103,6)" fg:x="64" fg:w="1"/><text x="91.6786%" y="207.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="181" width="1.4286%" height="15" fill="rgb(227,97,0)" fg:x="64" fg:w="1"/><text x="91.6786%" y="191.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="91.4286%" y="165" width="1.4286%" height="15" fill="rgb(234,150,53)" fg:x="64" fg:w="1"/><text x="91.6786%" y="175.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="149" width="1.4286%" height="15" fill="rgb(228,201,54)" fg:x="64" fg:w="1"/><text x="91.6786%" y="159.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="91.4286%" y="133" width="1.4286%" height="15" fill="rgb(222,22,37)" fg:x="64" fg:w="1"/><text x="91.6786%" y="143.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="117" width="1.4286%" height="15" fill="rgb(237,53,32)" fg:x="64" fg:w="1"/><text x="91.6786%" y="127.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="91.4286%" y="101" width="1.4286%" height="15" fill="rgb(233,25,53)" fg:x="64" fg:w="1"/><text x="91.6786%" y="111.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="85" width="1.4286%" height="15" fill="rgb(210,40,34)" fg:x="64" fg:w="1"/><text x="91.6786%" y="95.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="91.4286%" y="69" width="1.4286%" height="15" fill="rgb(241,220,44)" fg:x="64" fg:w="1"/><text x="91.6786%" y="79.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="91.4286%" y="53" width="1.4286%" height="15" fill="rgb(235,28,35)" fg:x="64" fg:w="1"/><text x="91.6786%" y="63.50"></text></g><g><title>lagon-serverless`v8::internal::Heap::AllocateRawOrFail (1 samples, 1.43%)</title><rect x="91.4286%" y="37" width="1.4286%" height="15" fill="rgb(210,56,17)" fg:x="64" fg:w="1"/><text x="91.6786%" y="47.50"></text></g><g><title>lagon-serverless`v8::Isolate::CreateParams::CreateParams (1 samples, 1.43%)</title><rect x="92.8571%" y="581" width="1.4286%" height="15" fill="rgb(224,130,29)" fg:x="65" fg:w="1"/><text x="93.1071%" y="591.50"></text></g><g><title>lagon-serverless`v8::internal::GCTracer::GCTracer (1 samples, 1.43%)</title><rect x="94.2857%" y="485" width="1.4286%" height="15" fill="rgb(235,212,8)" fg:x="66" fg:w="1"/><text x="94.5357%" y="495.50"></text></g><g><title>lagon-serverless`v8::internal::LocalIsolate::LocalIsolate (1 samples, 1.43%)</title><rect x="95.7143%" y="485" width="1.4286%" height="15" fill="rgb(223,33,50)" fg:x="67" fg:w="1"/><text x="95.9643%" y="495.50"></text></g><g><title>lagon-serverless`v8::internal::Isolate::DefaultLocale (1 samples, 1.43%)</title><rect x="95.7143%" y="469" width="1.4286%" height="15" fill="rgb(219,149,13)" fg:x="67" fg:w="1"/><text x="95.9643%" y="479.50"></text></g><g><title>lagon-serverless`icu_72::Locale::init (1 samples, 1.43%)</title><rect x="95.7143%" y="453" width="1.4286%" height="15" fill="rgb(250,156,29)" fg:x="67" fg:w="1"/><text x="95.9643%" y="463.50"></text></g><g><title>lagon-serverless`uprv_getDefaultLocaleID_72 (1 samples, 1.43%)</title><rect x="95.7143%" y="437" width="1.4286%" height="15" fill="rgb(216,193,19)" fg:x="67" fg:w="1"/><text x="95.9643%" y="447.50"></text></g><g><title>lagon-serverless`lagon_runtime_isolate::Isolate::new (5 samples, 7.14%)</title><rect x="91.4286%" y="597" width="7.1429%" height="15" fill="rgb(216,135,14)" fg:x="64" fg:w="5"/><text x="91.6786%" y="607.50">lagon-serv..</text></g><g><title>lagon-serverless`v8::isolate::Isolate::new (3 samples, 4.29%)</title><rect x="94.2857%" y="581" width="4.2857%" height="15" fill="rgb(241,47,5)" fg:x="66" fg:w="3"/><text x="94.5357%" y="591.50">lagon..</text></g><g><title>lagon-serverless`v8::Isolate::New (3 samples, 4.29%)</title><rect x="94.2857%" y="565" width="4.2857%" height="15" fill="rgb(233,42,35)" fg:x="66" fg:w="3"/><text x="94.5357%" y="575.50">lagon..</text></g><g><title>lagon-serverless`v8::Isolate::Initialize (3 samples, 4.29%)</title><rect x="94.2857%" y="549" width="4.2857%" height="15" fill="rgb(231,13,6)" fg:x="66" fg:w="3"/><text x="94.5357%" y="559.50">lagon..</text></g><g><title>lagon-serverless`v8::internal::Snapshot::Initialize (3 samples, 4.29%)</title><rect x="94.2857%" y="533" width="4.2857%" height="15" fill="rgb(207,181,40)" fg:x="66" fg:w="3"/><text x="94.5357%" y="543.50">lagon..</text></g><g><title>lagon-serverless`v8::internal::Isolate::InitWithSnapshot (3 samples, 4.29%)</title><rect x="94.2857%" y="517" width="4.2857%" height="15" fill="rgb(254,173,49)" fg:x="66" fg:w="3"/><text x="94.5357%" y="527.50">lagon..</text></g><g><title>lagon-serverless`v8::internal::Isolate::Init (3 samples, 4.29%)</title><rect x="94.2857%" y="501" width="4.2857%" height="15" fill="rgb(221,1,38)" fg:x="66" fg:w="3"/><text x="94.5357%" y="511.50">lagon..</text></g><g><title>lagon-serverless`v8::internal::StartupDeserializer::DeserializeIntoIsolate (1 samples, 1.43%)</title><rect x="97.1429%" y="485" width="1.4286%" height="15" fill="rgb(206,124,46)" fg:x="68" fg:w="1"/><text x="97.3929%" y="495.50"></text></g><g><title>lagon-serverless`v8::internal::Heap::IterateRoots(v8::internal::RootVisitor*, v8::base::EnumSet (1 samples, 1.43%)</title><rect x="97.1429%" y="469" width="1.4286%" height="15" fill="rgb(249,21,11)" fg:x="68" fg:w="1"/><text x="97.3929%" y="479.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::VisitRootPointers (1 samples, 1.43%)</title><rect x="97.1429%" y="453" width="1.4286%" height="15" fill="rgb(222,201,40)" fg:x="68" fg:w="1"/><text x="97.3929%" y="463.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForRootSlots&gt; (1 samples, 1.43%)</title><rect x="97.1429%" y="437" width="1.4286%" height="15" fill="rgb(235,61,29)" fg:x="68" fg:w="1"/><text x="97.3929%" y="447.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="97.1429%" y="421" width="1.4286%" height="15" fill="rgb(219,207,3)" fg:x="68" fg:w="1"/><text x="97.3929%" y="431.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="97.1429%" y="405" width="1.4286%" height="15" fill="rgb(222,56,46)" fg:x="68" fg:w="1"/><text x="97.3929%" y="415.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="97.1429%" y="389" width="1.4286%" height="15" fill="rgb(239,76,54)" fg:x="68" fg:w="1"/><text x="97.3929%" y="399.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="97.1429%" y="373" width="1.4286%" height="15" fill="rgb(231,124,27)" fg:x="68" fg:w="1"/><text x="97.3929%" y="383.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="97.1429%" y="357" width="1.4286%" height="15" fill="rgb(249,195,6)" fg:x="68" fg:w="1"/><text x="97.3929%" y="367.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="97.1429%" y="341" width="1.4286%" height="15" fill="rgb(237,174,47)" fg:x="68" fg:w="1"/><text x="97.3929%" y="351.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="97.1429%" y="325" width="1.4286%" height="15" fill="rgb(206,201,31)" fg:x="68" fg:w="1"/><text x="97.3929%" y="335.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="97.1429%" y="309" width="1.4286%" height="15" fill="rgb(231,57,52)" fg:x="68" fg:w="1"/><text x="97.3929%" y="319.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="97.1429%" y="293" width="1.4286%" height="15" fill="rgb(248,177,22)" fg:x="68" fg:w="1"/><text x="97.3929%" y="303.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="97.1429%" y="277" width="1.4286%" height="15" fill="rgb(215,211,37)" fg:x="68" fg:w="1"/><text x="97.3929%" y="287.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="97.1429%" y="261" width="1.4286%" height="15" fill="rgb(241,128,51)" fg:x="68" fg:w="1"/><text x="97.3929%" y="271.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="97.1429%" y="245" width="1.4286%" height="15" fill="rgb(227,165,31)" fg:x="68" fg:w="1"/><text x="97.3929%" y="255.50"></text></g><g><title>lagon-serverless`v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadObject (1 samples, 1.43%)</title><rect x="97.1429%" y="229" width="1.4286%" height="15" fill="rgb(228,167,24)" fg:x="68" fg:w="1"/><text x="97.3929%" y="239.50"></text></g><g><title>lagon-serverless`int v8::internal::Deserializer&lt;v8::internal::Isolate&gt;::ReadSingleBytecodeData&lt;v8::internal::SlotAccessorForHeapObject&gt; (1 samples, 1.43%)</title><rect x="97.1429%" y="213" width="1.4286%" height="15" fill="rgb(228,143,12)" fg:x="68" fg:w="1"/><text x="97.3929%" y="223.50"></text></g><g><title>all (70 samples, 100%)</title><rect x="0.0000%" y="709" width="100.0000%" height="15" fill="rgb(249,149,8)" fg:x="0" fg:w="70"/><text x="0.2500%" y="719.50"></text></g><g><title>libsystem_pthread.dylib`thread_start (62 samples, 88.57%)</title><rect x="11.4286%" y="693" width="88.5714%" height="15" fill="rgb(243,35,44)" fg:x="8" fg:w="62"/><text x="11.6786%" y="703.50">libsystem_pthread.dylib`thread_start</text></g><g><title>libsystem_pthread.dylib`_pthread_start (62 samples, 88.57%)</title><rect x="11.4286%" y="677" width="88.5714%" height="15" fill="rgb(246,89,9)" fg:x="8" fg:w="62"/><text x="11.6786%" y="687.50">libsystem_pthread.dylib`_pthread_start</text></g><g><title>lagon-serverless`std::sys::unix::thread::Thread::new::thread_start (62 samples, 88.57%)</title><rect x="11.4286%" y="661" width="88.5714%" height="15" fill="rgb(233,213,13)" fg:x="8" fg:w="62"/><text x="11.6786%" y="671.50">lagon-serverless`std::sys::unix::thread::Thread::new::thread_start</text></g><g><title>lagon-serverless`core::ops::function::FnOnce::call_once{{vtable.shim}} (62 samples, 88.57%)</title><rect x="11.4286%" y="645" width="88.5714%" height="15" fill="rgb(233,141,41)" fg:x="8" fg:w="62"/><text x="11.6786%" y="655.50">lagon-serverless`core::ops::function::FnOnce::call_once{{vtable.shim}}</text></g><g><title>lagon-serverless`std::sys_common::backtrace::__rust_begin_short_backtrace (62 samples, 88.57%)</title><rect x="11.4286%" y="629" width="88.5714%" height="15" fill="rgb(239,167,4)" fg:x="8" fg:w="62"/><text x="11.6786%" y="639.50">lagon-serverless`std::sys_common::backtrace::__rust_begin_short_backtrace</text></g><g><title>lagon-serverless`tokio::runtime::park::CachedParkThread::block_on (8 samples, 11.43%)</title><rect x="88.5714%" y="613" width="11.4286%" height="15" fill="rgb(209,217,16)" fg:x="62" fg:w="8"/><text x="88.8214%" y="623.50">lagon-serverless`..</text></g><g><title>lagon-serverless`lagon_runtime_isolate::Isolate::poll_event_loop (1 samples, 1.43%)</title><rect x="98.5714%" y="597" width="1.4286%" height="15" fill="rgb(219,88,35)" fg:x="69" fg:w="1"/><text x="98.8214%" y="607.50"></text></g><g><title>lagon-serverless`v8::Function::Call(v8::Local&lt;v8::Context&gt;, v8::Local&lt;v8::Value&gt;, int, v8::Local (1 samples, 1.43%)</title><rect x="98.5714%" y="581" width="1.4286%" height="15" fill="rgb(220,193,23)" fg:x="69" fg:w="1"/><text x="98.8214%" y="591.50"></text></g><g><title>lagon-serverless`v8::internal::Isolate::FireCallCompletedCallbackInternal (1 samples, 1.43%)</title><rect x="98.5714%" y="565" width="1.4286%" height="15" fill="rgb(230,90,52)" fg:x="69" fg:w="1"/><text x="98.8214%" y="575.50"></text></g><g><title>lagon-serverless`v8::internal::MicrotaskQueue::PerformCheckpointInternal (1 samples, 1.43%)</title><rect x="98.5714%" y="549" width="1.4286%" height="15" fill="rgb(252,106,19)" fg:x="69" fg:w="1"/><text x="98.8214%" y="559.50"></text></g><g><title>lagon-serverless`v8::internal::MicrotaskQueue::RunMicrotasks (1 samples, 1.43%)</title><rect x="98.5714%" y="533" width="1.4286%" height="15" fill="rgb(206,74,20)" fg:x="69" fg:w="1"/><text x="98.8214%" y="543.50"></text></g><g><title>lagon-serverless`v8::internal::Execution::TryRunMicrotasks (1 samples, 1.43%)</title><rect x="98.5714%" y="517" width="1.4286%" height="15" fill="rgb(230,138,44)" fg:x="69" fg:w="1"/><text x="98.8214%" y="527.50"></text></g><g><title>lagon-serverless`v8::internal::(anonymous namespace)::InvokeWithTryCatch(v8::internal::Isolate*, v8::internal:: (1 samples, 1.43%)</title><rect x="98.5714%" y="501" width="1.4286%" height="15" fill="rgb(235,182,43)" fg:x="69" fg:w="1"/><text x="98.8214%" y="511.50"></text></g><g><title>lagon-serverless`v8::internal::(anonymous namespace)::Invoke(v8::internal::Isolate*, v8::internal:: (1 samples, 1.43%)</title><rect x="98.5714%" y="485" width="1.4286%" height="15" fill="rgb(242,16,51)" fg:x="69" fg:w="1"/><text x="98.8214%" y="495.50"></text></g><g><title>lagon-serverless`Builtins_JSRunMicrotasksEntry (1 samples, 1.43%)</title><rect x="98.5714%" y="469" width="1.4286%" height="15" fill="rgb(248,9,4)" fg:x="69" fg:w="1"/><text x="98.8214%" y="479.50"></text></g><g><title>lagon-serverless`Builtins_RunMicrotasks (1 samples, 1.43%)</title><rect x="98.5714%" y="453" width="1.4286%" height="15" fill="rgb(210,31,22)" fg:x="69" fg:w="1"/><text x="98.8214%" y="463.50"></text></g><g><title>lagon-serverless`Builtins_PromiseFulfillReactionJob (1 samples, 1.43%)</title><rect x="98.5714%" y="437" width="1.4286%" height="15" fill="rgb(239,54,39)" fg:x="69" fg:w="1"/><text x="98.8214%" y="447.50"></text></g><g><title>lagon-serverless`Builtins_AsyncFunctionAwaitResolveClosure (1 samples, 1.43%)</title><rect x="98.5714%" y="421" width="1.4286%" height="15" fill="rgb(230,99,41)" fg:x="69" fg:w="1"/><text x="98.8214%" y="431.50"></text></g><g><title>lagon-serverless`Builtins_InterpreterEntryTrampoline (1 samples, 1.43%)</title><rect x="98.5714%" y="405" width="1.4286%" height="15" fill="rgb(253,106,12)" fg:x="69" fg:w="1"/><text x="98.8214%" y="415.50"></text></g><g><title>lagon-serverless`Builtins_GetNamedPropertyHandler (1 samples, 1.43%)</title><rect x="98.5714%" y="389" width="1.4286%" height="15" fill="rgb(213,46,41)" fg:x="69" fg:w="1"/><text x="98.8214%" y="399.50"></text></g><g><title>lagon-serverless`Builtins_LoadIC_NoFeedback (1 samples, 1.43%)</title><rect x="98.5714%" y="373" width="1.4286%" height="15" fill="rgb(215,133,35)" fg:x="69" fg:w="1"/><text x="98.8214%" y="383.50"></text></g><g><title>lagon-serverless`Builtins_InterpreterEntryTrampoline (1 samples, 1.43%)</title><rect x="98.5714%" y="357" width="1.4286%" height="15" fill="rgb(213,28,5)" fg:x="69" fg:w="1"/><text x="98.8214%" y="367.50"></text></g><g><title>lagon-serverless`Builtins_ConstructHandler (1 samples, 1.43%)</title><rect x="98.5714%" y="341" width="1.4286%" height="15" fill="rgb(215,77,49)" fg:x="69" fg:w="1"/><text x="98.8214%" y="351.50"></text></g><g><title>lagon-serverless`construct_stub_create_deopt_addr (1 samples, 1.43%)</title><rect x="98.5714%" y="325" width="1.4286%" height="15" fill="rgb(248,100,22)" fg:x="69" fg:w="1"/><text x="98.8214%" y="335.50"></text></g><g><title>lagon-serverless`Builtins_InterpreterEntryTrampoline (1 samples, 1.43%)</title><rect x="98.5714%" y="309" width="1.4286%" height="15" fill="rgb(208,67,9)" fg:x="69" fg:w="1"/><text x="98.8214%" y="319.50"></text></g><g><title>lagon-serverless`Builtins_ObjectEntries (1 samples, 1.43%)</title><rect x="98.5714%" y="293" width="1.4286%" height="15" fill="rgb(219,133,21)" fg:x="69" fg:w="1"/><text x="98.8214%" y="303.50"></text></g><g><title>lagon-serverless`Builtins_CEntry_Return1_DontSaveFPRegs_ArgvOnStack_NoBuiltinExit (1 samples, 1.43%)</title><rect x="98.5714%" y="277" width="1.4286%" height="15" fill="rgb(246,46,29)" fg:x="69" fg:w="1"/><text x="98.8214%" y="287.50"></text></g><g><title>lagon-serverless`v8::internal::Runtime_ObjectEntries (1 samples, 1.43%)</title><rect x="98.5714%" y="261" width="1.4286%" height="15" fill="rgb(246,185,52)" fg:x="69" fg:w="1"/><text x="98.8214%" y="271.50"></text></g><g><title>lagon-serverless`v8::internal::GetOwnValuesOrEntries(v8::internal::Isolate*, v8::internal::Handle (1 samples, 1.43%)</title><rect x="98.5714%" y="245" width="1.4286%" height="15" fill="rgb(252,136,11)" fg:x="69" fg:w="1"/><text x="98.8214%" y="255.50"></text></g><g><title>lagon-serverless`v8::internal::(anonymous namespace)::ElementsAccessorBase&lt;v8::internal::(anonymous namespace)::FastHoleyObjectElementsAccessor, v8::internal::(anonymous namespace)::ElementsKindTraits&lt;(v8::internal::ElementsKind)3&gt; &gt;::GetCapacity (1 samples, 1.43%)</title><rect x="98.5714%" y="229" width="1.4286%" height="15" fill="rgb(219,138,53)" fg:x="69" fg:w="1"/><text x="98.8214%" y="239.50"></text></g></svg></svg>

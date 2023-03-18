@@ -123,7 +123,7 @@ async fn handle_request(
                 pool.spawn_pinned_by_idx(
                     move || async move {
                         if isolate_lock.lock().await.is_none() {
-                            let isolate = Isolate::new(
+                            let mut isolate = Isolate::new(
                                 IsolateOptions::new(
                                     String::from_utf8(index).expect("Code is not UTF-8"),
                                 )
@@ -131,7 +131,10 @@ async fn handle_request(
                                 .startup_timeout(Duration::from_secs(2))
                                 .metadata(Some((String::from(""), String::from(""))))
                                 .environment_variables(environment_variables),
+                                tx,
                             );
+                            isolate.evaluate();
+                            isolate.run_event_loop().await;
 
                             *isolate_lock.lock().await = Some(isolate);
                         }

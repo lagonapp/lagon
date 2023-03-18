@@ -1,5 +1,5 @@
 use lagon_runtime_http::{Request, Response, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
+use lagon_runtime_isolate::{options::IsolateOptions, IsolateRequest};
 use serial_test::serial;
 
 mod utils;
@@ -7,7 +7,7 @@ mod utils;
 #[tokio::test]
 async fn set_timeout() {
     utils::setup();
-    let mut isolate = Isolate::new(
+    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     const test = await new Promise((resolve) => {
@@ -21,22 +21,28 @@ async fn set_timeout() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    request_tx
+        .send_async(IsolateRequest {
+            request: Request::default(),
+            sender,
+        })
+        .await
+        .unwrap();
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("test"))
-    );
-    assert!(rx.recv_async().await.is_err());
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("test")));
+        }
+    }
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 #[serial]
 async fn set_timeout_not_blocking_response() {
     utils::setup();
     let log_rx = utils::setup_logger();
-    let mut isolate = Isolate::new(
+    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     console.log('before')
@@ -52,23 +58,38 @@ async fn set_timeout_not_blocking_response() {
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    request_tx
+        .send_async(IsolateRequest {
+            request: Request::default(),
+            sender,
+        })
+        .await
+        .unwrap();
 
-    assert_eq!(log_rx.recv_async().await.unwrap(), "before".to_string());
-    assert_eq!(log_rx.recv_async().await.unwrap(), "after".to_string());
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello!"))
-    );
-    assert!(rx.recv_async().await.is_err());
-    assert!(log_rx.try_recv().is_err());
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "before".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello!")));
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "after".to_string());
+        }
+    }
 }
 
 #[tokio::test]
 async fn set_timeout_clear() {
     utils::setup();
-    let mut isolate = Isolate::new(
+    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     let id;
@@ -87,20 +108,26 @@ async fn set_timeout_clear() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    request_tx
+        .send_async(IsolateRequest {
+            request: Request::default(),
+            sender,
+        })
+        .await
+        .unwrap();
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("second"))
-    );
-    assert!(rx.recv_async().await.is_err());
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("second")));
+        }
+    }
 }
 
 #[tokio::test]
 async fn set_timeout_clear_correct() {
     utils::setup();
-    let mut isolate = Isolate::new(
+    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     const test = await new Promise((resolve) => {
@@ -118,22 +145,28 @@ async fn set_timeout_clear_correct() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    request_tx
+        .send_async(IsolateRequest {
+            request: Request::default(),
+            sender,
+        })
+        .await
+        .unwrap();
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("first"))
-    );
-    assert!(rx.recv_async().await.is_err());
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("first")));
+        }
+    }
 }
 
-#[tokio::test(flavor = "multi_thread")]
+#[tokio::test]
 #[serial]
 async fn set_interval() {
     let log_rx = utils::setup_logger();
     utils::setup();
-    let mut isolate = Isolate::new(
+    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     await new Promise(resolve => {
@@ -157,18 +190,44 @@ async fn set_interval() {
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    request_tx
+        .send_async(IsolateRequest {
+            request: Request::default(),
+            sender,
+        })
+        .await
+        .unwrap();
 
-    assert_eq!(log_rx.recv_async().await.unwrap(), "interval 1".to_string());
-    assert_eq!(log_rx.recv_async().await.unwrap(), "interval 2".to_string());
-    assert_eq!(log_rx.recv_async().await.unwrap(), "interval 3".to_string());
-    assert_eq!(log_rx.recv_async().await.unwrap(), "res".to_string());
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello world"))
-    );
-    assert!(rx.recv_async().await.is_err());
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "interval 1".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "interval 2".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "interval 3".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "res".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello world")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -176,7 +235,7 @@ async fn set_interval() {
 async fn queue_microtask() {
     let log_rx = utils::setup_logger();
     utils::setup();
-    let mut isolate = Isolate::new(
+    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     queueMicrotask(() => {
@@ -192,23 +251,38 @@ async fn queue_microtask() {
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    request_tx
+        .send_async(IsolateRequest {
+            request: Request::default(),
+            sender,
+        })
+        .await
+        .unwrap();
 
-    assert_eq!(log_rx.recv_async().await.unwrap(), "before".to_string());
-    assert_eq!(log_rx.recv_async().await.unwrap(), "microtask".to_string());
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello world"))
-    );
-    assert!(rx.recv_async().await.is_err());
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "before".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "microtask".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello world")));
+        }
+    }
 }
 
 #[tokio::test]
-#[serial]
 async fn queue_microtask_throw_not_function() {
     utils::setup();
-    let mut isolate = Isolate::new(
+    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     queueMicrotask(true);
@@ -219,16 +293,20 @@ async fn queue_microtask_throw_not_function() {
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    request_tx
+        .send_async(IsolateRequest {
+            request: Request::default(),
+            sender,
+        })
+        .await
+        .unwrap();
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Error(
-            "Uncaught TypeError: Parameter 1 is not of type 'Function'\n  at handler (2:5)".into()
-        )
-    );
-    assert!(rx.recv_async().await.is_err());
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Error("Uncaught TypeError: Parameter 1 is not of type 'Function'\n  at handler (2:5)".into()));
+        }
+    }
 }
 
 #[tokio::test]
@@ -236,7 +314,7 @@ async fn queue_microtask_throw_not_function() {
 async fn timers_order() {
     let log_rx = utils::setup_logger();
     utils::setup();
-    let mut isolate = Isolate::new(
+    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     queueMicrotask(() => {
@@ -263,17 +341,48 @@ async fn timers_order() {
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    request_tx
+        .send_async(IsolateRequest {
+            request: Request::default(),
+            sender,
+        })
+        .await
+        .unwrap();
 
-    assert_eq!(log_rx.recv_async().await.unwrap(), "main".to_string());
-    assert_eq!(log_rx.recv_async().await.unwrap(), "microtask".to_string());
-    assert_eq!(log_rx.recv_async().await.unwrap(), "promise".to_string());
-    assert_eq!(log_rx.recv_async().await.unwrap(), "timeout".to_string());
-    assert_eq!(log_rx.recv_async().await.unwrap(), "main 2".to_string());
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello world"))
-    );
-    assert!(rx.recv_async().await.is_err());
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "main".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "microtask".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "promise".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "timeout".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = log_rx.recv_async() => {
+            assert_eq!(result.unwrap(), "main 2".to_string());
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello world")));
+        }
+    }
 }

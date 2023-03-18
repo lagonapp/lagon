@@ -1,5 +1,11 @@
 use std::{
-    convert::Infallible, env, future::Future, net::SocketAddr, path::Path, sync::Arc, time::Instant,
+    convert::Infallible,
+    env,
+    future::Future,
+    net::SocketAddr,
+    path::Path,
+    sync::Arc,
+    time::{Duration, Instant},
 };
 
 use crate::{
@@ -10,8 +16,8 @@ use crate::{
         pubsub::{listen_pub_sub, PubSubListener},
         Deployments,
     },
-    worker::{create_workers, get_thread_id, start_workers, WorkerEvent, Workers},
-    REGION,
+    worker::{WorkerEvent, Workers},
+    REGION, SNAPSHOT_BLOB,
 };
 use anyhow::Result;
 use dashmap::DashMap;
@@ -25,15 +31,15 @@ use hyper::{
 use lagon_runtime_http::{
     Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP,
 };
-use lagon_runtime_isolate::CONSOLE_SOURCE;
+use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateRequest, CONSOLE_SOURCE};
 use lagon_runtime_utils::{
     assets::{find_asset, handle_asset},
     response::{handle_response, ResponseEvent, FAVICON_URL, PAGE_403, PAGE_404},
     DEPLOYMENTS_DIR,
 };
-use log::{as_debug, error, warn};
-use metrics::{counter, increment_counter};
-use tokio::sync::Mutex;
+use log::{as_debug, error, info, warn};
+use metrics::{counter, decrement_gauge, histogram, increment_counter, increment_gauge};
+use tokio::{runtime::Handle, sync::Mutex};
 
 fn handle_error(
     result: RunResult,
@@ -175,18 +181,72 @@ async fn handle_request(
                 request.set_header(X_FORWARDED_FOR.to_string(), ip);
                 request.set_header(X_LAGON_REGION.to_string(), REGION.to_string());
 
-                let thread_id = get_thread_id(thread_ids, deployment_id.clone());
-                let worker = workers.get(&thread_id).unwrap();
+                let isolate_sender = workers.entry(deployment_id.clone()).or_insert_with(|| {
+                    let handle = Handle::current();
+                    let (sender, receiver) = flume::unbounded();
 
-                worker
-                    .0
-                    .send_async(WorkerEvent::Request {
-                        deployment,
-                        request,
-                        sender,
-                        labels: labels.clone(),
-                        request_id,
-                    })
+                    std::thread::spawn(move || {
+                        handle.block_on(async move {
+                            // increment_gauge!("lagon_isolates", 1.0, &labels);
+                            // info!(deployment = deployment.id, function = deployment.function_id, request = request_id; "Creating new isolate");
+
+                            let code = deployment.get_code().unwrap_or_else(|error| {
+                                error!(deployment = deployment.id, request = request_id; "Error while getting deployment code: {}", error);
+
+                                "".into()
+                            });
+                            let options = IsolateOptions::new(code)
+                                .environment_variables(deployment.environment_variables.clone())
+                                .memory(deployment.memory)
+                                .timeout(Duration::from_millis(deployment.timeout as u64))
+                                .startup_timeout(Duration::from_millis(
+                                    deployment.startup_timeout as u64,
+                                ))
+                                .metadata(Some((
+                                    deployment.id.clone(),
+                                    deployment.function_id.clone(),
+                                )))
+                                .on_drop_callback(Box::new(|metadata| {
+                                    if let Some(metadata) = metadata.as_ref().as_ref() {
+                                        let labels = [
+                                            ("deployment", metadata.0.clone()),
+                                            ("function", metadata.1.clone()),
+                                            ("region", REGION.clone()),
+                                        ];
+
+                                        // decrement_gauge!("lagon_isolates", 1.0, &labels);
+                                        // info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
+                                    }
+                                }))
+                                .on_statistics_callback(Box::new(|metadata, statistics| {
+                                    if let Some(metadata) = metadata.as_ref().as_ref() {
+                                        let labels = [
+                                            ("deployment", metadata.0.clone()),
+                                            ("function", metadata.1.clone()),
+                                            ("region", REGION.clone()),
+                                        ];
+
+                                        // histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
+                                        // histogram!(
+                                        //     "lagon_isolate_memory_usage",
+                                        //     statistics.memory_usage as f64,
+                                        //     &labels
+                                        // );
+                                    }
+                                }))
+                                .snapshot_blob(SNAPSHOT_BLOB);
+
+                            let mut isolate = Isolate::new(options, receiver);
+                            isolate.evaluate();
+                            isolate.run_event_loop().await;
+                        });
+                    });
+
+                    sender
+                });
+
+                isolate_sender
+                    .send_async(IsolateRequest { request, sender })
                     .await
                     .unwrap_or(());
             }
@@ -248,9 +308,7 @@ where
     let last_requests = Arc::new(DashMap::new());
     let thread_ids = Arc::new(DashMap::new());
 
-    let workers = create_workers();
-    start_workers(Arc::clone(&workers)).await;
-
+    let workers = Arc::new(DashMap::new());
     let pubsub = Arc::new(Mutex::new(pubsub));
 
     listen_pub_sub(

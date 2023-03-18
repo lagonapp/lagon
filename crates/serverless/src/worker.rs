@@ -2,7 +2,7 @@ use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use dashmap::DashMap;
 use lagon_runtime_http::{Request, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
+use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateRequest};
 use lagon_runtime_utils::Deployment;
 use log::{error, info};
 use metrics::{decrement_gauge, histogram, increment_gauge};
@@ -11,7 +11,7 @@ use tokio_util::task::LocalPoolHandle;
 
 use crate::{REGION, SNAPSHOT_BLOB, WORKERS};
 
-pub type Workers = Arc<DashMap<usize, (flume::Sender<WorkerEvent>, flume::Receiver<WorkerEvent>)>>;
+pub type Workers = Arc<DashMap<String, flume::Sender<IsolateRequest>>>;
 
 pub enum WorkerEvent {
     Request {
@@ -27,115 +27,115 @@ pub enum WorkerEvent {
     },
 }
 
-pub fn create_workers() -> Workers {
-    let workers = Arc::new(DashMap::new());
+// pub fn create_workers() -> Workers {
+//     let workers = Arc::new(DashMap::new());
 
-    for i in 0..*WORKERS {
-        let worker = flume::unbounded();
-        workers.insert(i, worker);
-    }
+//     for i in 0..*WORKERS {
+//         let worker = flume::unbounded();
+//         workers.insert(i, worker);
+//     }
 
-    workers
-}
+//     workers
+// }
 
-pub fn get_thread_id(thread_ids: Arc<DashMap<String, usize>>, deployment_id: String) -> usize {
-    *thread_ids
-        .entry(deployment_id)
-        .or_insert_with(|| thread_rng().gen_range(0..*WORKERS))
-        .value()
-}
+// pub fn get_thread_id(thread_ids: Arc<DashMap<String, usize>>, deployment_id: String) -> usize {
+//     *thread_ids
+//         .entry(deployment_id)
+//         .or_insert_with(|| thread_rng().gen_range(0..*WORKERS))
+//         .value()
+// }
 
-pub async fn start_workers(workers: Workers) {
-    let pool = LocalPoolHandle::new(*WORKERS);
+// pub async fn start_workers(workers: Workers) {
+//     let pool = LocalPoolHandle::new(*WORKERS);
 
-    for worker in workers.iter() {
-        let (id, worker) = worker.pair();
-        let id = *id;
-        let receiver = worker.1.clone();
+//     for worker in workers.iter() {
+//         let (id, worker) = worker.pair();
+//         let id = *id;
+//         let receiver = worker.1.clone();
 
-        pool.spawn_pinned_by_idx(
-            move || async move {
-                let mut isolates = HashMap::new();
+//         pool.spawn_pinned_by_idx(
+//             move || async move {
+//                 let mut isolates = HashMap::new();
 
-                loop {
-                    match receiver.recv_async().await {
-                        Ok(WorkerEvent::Request { deployment, request, sender, labels, request_id }) => {
-                            let deployment_id = deployment.id.clone();
+//                 loop {
+//                     match receiver.recv_async().await {
+//                         Ok(WorkerEvent::Request { deployment, request, sender, labels, request_id }) => {
+//                             let deployment_id = deployment.id.clone();
 
-                            let isolate = isolates.entry(deployment_id.clone()).or_insert_with(|| {
-                                increment_gauge!("lagon_isolates", 1.0, &labels);
-                                info!(deployment = deployment.id, function = deployment.function_id, request = request_id; "Creating new isolate");
+//                             let isolate = isolates.entry(deployment_id.clone()).or_insert_with(|| {
+//                                 increment_gauge!("lagon_isolates", 1.0, &labels);
+//                                 info!(deployment = deployment.id, function = deployment.function_id, request = request_id; "Creating new isolate");
 
-                                let code = deployment.get_code().unwrap_or_else(|error| {
-                                    error!(deployment = deployment.id, request = request_id; "Error while getting deployment code: {}", error);
+//                                 let code = deployment.get_code().unwrap_or_else(|error| {
+//                                     error!(deployment = deployment.id, request = request_id; "Error while getting deployment code: {}", error);
 
-                                    "".into()
-                                });
-                                let options = IsolateOptions::new(code)
-                                    .environment_variables(deployment.environment_variables.clone())
-                                    .memory(deployment.memory)
-                                    .timeout(Duration::from_millis(deployment.timeout as u64))
-                                    .startup_timeout(Duration::from_millis(
-                                        deployment.startup_timeout as u64,
-                                    ))
-                                    .metadata(Some((
-                                        deployment.id.clone(),
-                                        deployment.function_id.clone(),
-                                    )))
-                                    .on_drop_callback(Box::new(|metadata| {
-                                        if let Some(metadata) = metadata.as_ref().as_ref() {
-                                            let labels = [
-                                                ("deployment", metadata.0.clone()),
-                                                ("function", metadata.1.clone()),
-                                                ("region", REGION.clone()),
-                                            ];
+//                                     "".into()
+//                                 });
+//                                 let options = IsolateOptions::new(code)
+//                                     .environment_variables(deployment.environment_variables.clone())
+//                                     .memory(deployment.memory)
+//                                     .timeout(Duration::from_millis(deployment.timeout as u64))
+//                                     .startup_timeout(Duration::from_millis(
+//                                         deployment.startup_timeout as u64,
+//                                     ))
+//                                     .metadata(Some((
+//                                         deployment.id.clone(),
+//                                         deployment.function_id.clone(),
+//                                     )))
+//                                     .on_drop_callback(Box::new(|metadata| {
+//                                         if let Some(metadata) = metadata.as_ref().as_ref() {
+//                                             let labels = [
+//                                                 ("deployment", metadata.0.clone()),
+//                                                 ("function", metadata.1.clone()),
+//                                                 ("region", REGION.clone()),
+//                                             ];
 
-                                            decrement_gauge!("lagon_isolates", 1.0, &labels);
-                                            info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
-                                        }
-                                    }))
-                                    .on_statistics_callback(Box::new(|metadata, statistics| {
-                                        if let Some(metadata) = metadata.as_ref().as_ref() {
-                                            let labels = [
-                                                ("deployment", metadata.0.clone()),
-                                                ("function", metadata.1.clone()),
-                                                ("region", REGION.clone()),
-                                            ];
+//                                             decrement_gauge!("lagon_isolates", 1.0, &labels);
+//                                             info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
+//                                         }
+//                                     }))
+//                                     .on_statistics_callback(Box::new(|metadata, statistics| {
+//                                         if let Some(metadata) = metadata.as_ref().as_ref() {
+//                                             let labels = [
+//                                                 ("deployment", metadata.0.clone()),
+//                                                 ("function", metadata.1.clone()),
+//                                                 ("region", REGION.clone()),
+//                                             ];
 
-                                            histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
-                                            histogram!(
-                                                "lagon_isolate_memory_usage",
-                                                statistics.memory_usage as f64,
-                                                &labels
-                                            );
-                                        }
-                                    }))
-                                    .snapshot_blob(SNAPSHOT_BLOB);
+//                                             histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
+//                                             histogram!(
+//                                                 "lagon_isolate_memory_usage",
+//                                                 statistics.memory_usage as f64,
+//                                                 &labels
+//                                             );
+//                                         }
+//                                     }))
+//                                     .snapshot_blob(SNAPSHOT_BLOB);
 
-                                Isolate::new(options)
-                            });
+//                                 Isolate::new(options)
+//                             });
 
-                            isolate.run(request, sender).await;
-                        },
-                        Ok(WorkerEvent::Drop { deployment_id, reason }) => {
-                            if let Some(isolate) = isolates.remove(&deployment_id) {
-                                let metadata = isolate.get_metadata();
+//                             isolate.run(request, sender).await;
+//                         },
+//                         Ok(WorkerEvent::Drop { deployment_id, reason }) => {
+//                             if let Some(isolate) = isolates.remove(&deployment_id) {
+//                                 let metadata = isolate.get_metadata();
 
-                                if let Some((deployment, function)) = metadata.as_ref() {
-                                    info!(
-                                        deployment = deployment,
-                                        function = function;
-                                        "Clearing deployment from cache due to {}",
-                                        reason,
-                                    );
-                                }
-                            }
-                        },
-                        _ => {},
-                    }
-                }
-            },
-            id,
-        );
-    }
-}
+//                                 if let Some((deployment, function)) = metadata.as_ref() {
+//                                     info!(
+//                                         deployment = deployment,
+//                                         function = function;
+//                                         "Clearing deployment from cache due to {}",
+//                                         reason,
+//                                     );
+//                                 }
+//                             }
+//                         },
+//                         _ => {},
+//                     }
+//                 }
+//             },
+//             id,
+//         );
+//     }
+// }

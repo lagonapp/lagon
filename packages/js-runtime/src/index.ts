@@ -30,7 +30,7 @@ import './runtime/http/fetch';
 declare global {
   var LagonSync: {
     log: (level: string, message: string) => void;
-    pullStream: (done: boolean, chunk?: Uint8Array) => void;
+    pullStream: (id: number, done: boolean, chunk?: Uint8Array) => void;
     uuid: () => string;
     randomValues: <T extends ArrayBufferView | null>(array: T) => T;
     getKeyValue: () => ArrayBuffer;
@@ -74,12 +74,15 @@ declare global {
     TEXT_DECODER: TextDecoder;
   };
   var handler: (request: Request) => Promise<Response>;
-  var masterHandler: (request: {
-    i: string;
-    m: RequestInit['method'];
-    h: RequestInit['headers'];
-    b: RequestInit['body'];
-  }) => Promise<{
+  var masterHandler: (
+    id: number,
+    request: {
+      i: string;
+      m: RequestInit['method'];
+      h: RequestInit['headers'];
+      b: RequestInit['body'];
+    },
+  ) => Promise<{
     b: string;
     h: ResponseInit['headers'];
     s: ResponseInit['status'];
@@ -98,7 +101,7 @@ declare global {
   }
 }
 
-globalThis.masterHandler = async request => {
+globalThis.masterHandler = async (id, request) => {
   if (typeof handler !== 'function') {
     throw new Error('Handler function is not defined or is not a function');
   }
@@ -117,12 +120,12 @@ globalThis.masterHandler = async request => {
     const read = () => {
       reader.read().then(({ done, value }) => {
         if (done) {
-          LagonSync.pullStream(done);
+          LagonSync.pullStream(id, done);
           return;
         }
 
         if (value.byteLength !== 0) {
-          LagonSync.pullStream(done, value);
+          LagonSync.pullStream(id, done, value);
         }
 
         read();

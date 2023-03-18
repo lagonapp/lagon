@@ -24,6 +24,7 @@ pub fn fetch_init(scope: &mut v8::HandleScope, args: v8::FunctionCallbackArgumen
     let state = Isolate::state(scope);
     let fetch_calls = {
         let mut state = state.borrow_mut();
+        // TODO get RequestContext and increment here
         state.fetch_calls += 1;
         state.fetch_calls
     };
