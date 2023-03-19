@@ -13,7 +13,7 @@ dialoguer = "0.10.3"
 indicatif = "0.17.3"
 colored = "2.0.0"
 dirs = "4.0.0"
-webbrowser = "0.8.7"
+webbrowser = "0.8.8"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync"] }
 tokio-util = { version = "0.7.7", features = ["rt"] }
 hyper = { version = "0.14", features = ["client", "server", "http1", "runtime", "stream"] }
