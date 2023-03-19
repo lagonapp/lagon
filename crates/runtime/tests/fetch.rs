@@ -552,11 +552,15 @@ export async function handler() {{
         }
     }
 
-    assert!(receiver.try_recv().is_err());
-
     // Test if we can still call fetch in subsequent requests
     send(Request::default());
 
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: fetch() can only be called 20 times per requests".into()));
+        }
+    }
     tokio::select! {
         _ = isolate.run_event_loop() => {}
         result = receiver.recv_async() => {

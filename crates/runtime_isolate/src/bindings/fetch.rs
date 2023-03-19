@@ -21,15 +21,25 @@ lazy_static! {
 type Arg = Request;
 
 pub fn fetch_init(scope: &mut v8::HandleScope, args: v8::FunctionCallbackArguments) -> Result<Arg> {
+    let id = scope
+        .get_continuation_preserved_embedder_data()
+        .to_uint32(scope)
+        .map_or(0, |value| value.value());
+
     let state = Isolate::state(scope);
     let fetch_calls = {
         let mut state = state.borrow_mut();
-        // TODO get RequestContext and increment here
-        state.fetch_calls += 1;
-        state.fetch_calls
+
+        if let Some(mut handler_result) = state.handler_results.get_mut(&id) {
+            handler_result.context.fetch_calls += 1;
+            handler_result.context.fetch_calls
+        } else {
+            0
+        }
     };
 
     if fetch_calls > 20 {
+        println!("return err");
         return Err(anyhow!("fetch() can only be called 20 times per requests"));
     }
 

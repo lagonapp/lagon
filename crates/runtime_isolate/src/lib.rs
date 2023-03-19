@@ -55,7 +55,7 @@ pub enum IsolateEvent {
 
 #[derive(Debug)]
 pub struct HandlerResult {
-    promise: v8::Global<v8::Promise>,
+    promise: Option<v8::Global<v8::Promise>>,
     sender: flume::Sender<RunResult>,
     stream_response_sent: RefCell<bool>,
     stream_status: RefCell<StreamStatus>,
@@ -76,8 +76,6 @@ pub struct IsolateState {
     metadata: Rc<Metadata>,
     rejected_promises: LinkedHashMap<v8::Global<v8::Promise>, String>,
     lines: usize,
-    // TODO use request context
-    fetch_calls: usize,
     requests_count: u32,
 }
 
@@ -194,7 +192,6 @@ impl Isolate {
                 metadata: Rc::clone(&options.metadata),
                 rejected_promises: LinkedHashMap::new(),
                 lines: 0,
-                fetch_calls: 0,
                 requests_count: 0,
             }
         };
@@ -382,6 +379,18 @@ impl Isolate {
 
                     let request = request.into_v8(try_catch);
                     let id = v8::Integer::new(try_catch, requests_count as i32);
+                    try_catch.set_continuation_preserved_embedder_data(id.into());
+
+                    isolate_state.borrow_mut().handler_results.insert(
+                        requests_count,
+                        HandlerResult {
+                            promise: None,
+                            sender,
+                            stream_response_sent: RefCell::new(false),
+                            stream_status: RefCell::new(StreamStatus::None),
+                            context: RequestContext::default(),
+                        },
+                    );
 
                     match handler.call(try_catch, global.into(), &[id.into(), request.into()]) {
                         Some(response) => {
@@ -389,16 +398,13 @@ impl Isolate {
                                 .expect("Handler did not return a promise");
                             let promise = v8::Global::new(try_catch, promise);
 
-                            isolate_state.borrow_mut().handler_results.insert(
-                                requests_count,
-                                HandlerResult {
-                                    promise,
-                                    sender,
-                                    stream_response_sent: RefCell::new(false),
-                                    stream_status: RefCell::new(StreamStatus::None),
-                                    context: RequestContext::default(),
-                                },
-                            );
+                            if let Some(handler_result) = isolate_state
+                                .borrow_mut()
+                                .handler_results
+                                .get_mut(&requests_count)
+                            {
+                                handler_result.promise = Some(promise);
+                            }
                         }
                         None => {
                             let run_result = match try_catch.is_execution_terminating() {
@@ -563,7 +569,7 @@ impl Isolate {
             }
 
             let promise = &handler_result.promise;
-            let promise = promise.open(try_catch);
+            let promise = promise.as_ref().unwrap().open(try_catch);
 
             match promise.state() {
                 v8::PromiseState::Fulfilled => {
