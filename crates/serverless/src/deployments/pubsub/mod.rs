@@ -143,13 +143,6 @@ where
                             deployments.insert(domain.clone(), Arc::clone(&deployment));
                         }
 
-                        clear_deployment_cache(
-                            deployment.id.clone(),
-                            workers,
-                            String::from("deployment"),
-                        )
-                        .await;
-
                         // if deployment.should_run_cron() {
                         //     let mut cronjob = cronjob.lock().await;
                         //     let id = deployment.id.clone();
@@ -250,7 +243,7 @@ where
                     deployments.insert(domain.clone(), Arc::clone(&deployment));
                 }
 
-                clear_deployment_cache(deployment.id.clone(), workers, String::from("promotion"))
+                clear_deployment_cache(previous_id.to_string(), workers, String::from("promotion"))
                     .await;
 
                 // if deployment.should_run_cron() {
