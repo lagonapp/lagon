@@ -16,7 +16,7 @@ use crate::{
         pubsub::{listen_pub_sub, PubSubListener},
         Deployments,
     },
-    worker::{WorkerEvent, Workers},
+    worker::Workers,
     REGION, SNAPSHOT_BLOB,
 };
 use anyhow::Result;
@@ -69,7 +69,6 @@ async fn handle_request(
     req: HyperRequest<Body>,
     ip: String,
     deployments: Deployments,
-    thread_ids: Arc<DashMap<String, usize>>,
     last_requests: Arc<DashMap<String, Instant>>,
     workers: Workers,
 ) -> Result<HyperResponse<Body>> {
@@ -184,11 +183,12 @@ async fn handle_request(
                 let isolate_sender = workers.entry(deployment_id.clone()).or_insert_with(|| {
                     let handle = Handle::current();
                     let (sender, receiver) = flume::unbounded();
+                    let labels = labels.clone();
 
                     std::thread::spawn(move || {
                         handle.block_on(async move {
-                            // increment_gauge!("lagon_isolates", 1.0, &labels);
-                            // info!(deployment = deployment.id, function = deployment.function_id, request = request_id; "Creating new isolate");
+                            increment_gauge!("lagon_isolates", 1.0, &labels);
+                            info!(deployment = deployment.id, function = deployment.function_id, request = request_id; "Creating new isolate");
 
                             let code = deployment.get_code().unwrap_or_else(|error| {
                                 error!(deployment = deployment.id, request = request_id; "Error while getting deployment code: {}", error);
@@ -214,8 +214,8 @@ async fn handle_request(
                                             ("region", REGION.clone()),
                                         ];
 
-                                        // decrement_gauge!("lagon_isolates", 1.0, &labels);
-                                        // info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
+                                        decrement_gauge!("lagon_isolates", 1.0, &labels);
+                                        info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
                                     }
                                 }))
                                 .on_statistics_callback(Box::new(|metadata, statistics| {
@@ -226,12 +226,12 @@ async fn handle_request(
                                             ("region", REGION.clone()),
                                         ];
 
-                                        // histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
-                                        // histogram!(
-                                        //     "lagon_isolate_memory_usage",
-                                        //     statistics.memory_usage as f64,
-                                        //     &labels
-                                        // );
+                                        histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
+                                        histogram!(
+                                            "lagon_isolate_memory_usage",
+                                            statistics.memory_usage as f64,
+                                            &labels
+                                        );
                                     }
                                 }))
                                 .snapshot_blob(SNAPSHOT_BLOB);
@@ -306,7 +306,6 @@ where
     P: PubSubListener + Unpin + 'static,
 {
     let last_requests = Arc::new(DashMap::new());
-    let thread_ids = Arc::new(DashMap::new());
 
     let workers = Arc::new(DashMap::new());
     let pubsub = Arc::new(Mutex::new(pubsub));
@@ -322,7 +321,6 @@ where
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let deployments = Arc::clone(&deployments);
-        let thread_ids = Arc::clone(&thread_ids);
         let last_requests = Arc::clone(&last_requests);
         let workers = Arc::clone(&workers);
 
@@ -335,7 +333,6 @@ where
                     req,
                     ip.clone(),
                     Arc::clone(&deployments),
-                    Arc::clone(&thread_ids),
                     Arc::clone(&last_requests),
                     Arc::clone(&workers),
                 )

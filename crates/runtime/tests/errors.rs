@@ -147,25 +147,34 @@ export function handler() {
     }
 }
 
-// TODO
-// #[tokio::test]
-// async fn execution_timeout_reached() {
-//     utils::setup();
-//     let mut isolate = Isolate::new(
-//         IsolateOptions::new(
-//             "export function handler() {
-//     while(true) {}
-//     return new Response('Should not be reached');
-// }"
-//             .into(),
-//         )
-//         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-//     );
-//     let (tx, rx) = flume::unbounded();
-//     isolate.run(Request::default(), tx).await;
+#[tokio::test]
+async fn execution_timeout_reached() {
+    utils::setup();
+    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "export function handler() {
+    while(true) {}
+    return new Response('Should not be reached');
+}"
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
+    request_tx
+        .send_async(IsolateRequest {
+            request: Request::default(),
+            sender,
+        })
+        .await
+        .unwrap();
 
-//     assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
-// }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Timeout);
+        }
+    }
+}
 
 // TODO
 // #[tokio::test]
