@@ -123,7 +123,6 @@ unsafe impl Sync for Isolate {}
 // That's why we use .unwrap_or(()) to silently discard any error.
 impl Isolate {
     pub fn new(options: IsolateOptions, rx: flume::Receiver<IsolateEvent>) -> Self {
-        // TODO use options.memory
         let memory_mb = options.memory * 1024 * 1024;
         let mut params = v8::CreateParams::default().heap_limits(0, memory_mb);
 

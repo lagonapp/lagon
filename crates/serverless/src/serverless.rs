@@ -187,7 +187,6 @@ async fn handle_request(
                     let labels = labels.clone();
 
                     std::thread::spawn(move || {
-                        // TODO spawn again when event loop stops
                         handle.block_on(async move {
                             increment_gauge!("lagon_isolates", 1.0, &labels);
                             info!(deployment = deployment.id, function = deployment.function_id, request = request_id; "Creating new isolate");
