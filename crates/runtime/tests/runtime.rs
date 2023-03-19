@@ -1,6 +1,6 @@
 use httptest::bytes::Bytes;
 use lagon_runtime_http::{Method, Request, Response, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, IsolateRequest};
+use lagon_runtime_isolate::options::IsolateOptions;
 use std::collections::HashMap;
 
 mod utils;
@@ -8,7 +8,7 @@ mod utils;
 #[tokio::test]
 async fn execute_function() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response('Hello world');
@@ -17,13 +17,7 @@ async fn execute_function() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -36,7 +30,7 @@ async fn execute_function() {
 #[tokio::test]
 async fn execute_function_twice() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response('Hello world');
@@ -45,13 +39,7 @@ async fn execute_function_twice() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender: sender.clone(),
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -60,13 +48,7 @@ async fn execute_function_twice() {
         }
     }
 
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -79,7 +61,7 @@ async fn execute_function_twice() {
 #[tokio::test]
 async fn environment_variables() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response(process.env.TEST);
@@ -93,13 +75,7 @@ async fn environment_variables() {
                 .collect(),
         ),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -112,7 +88,7 @@ async fn environment_variables() {
 #[tokio::test]
 async fn get_body() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler(request) {
     return new Response(request.body);
@@ -121,18 +97,12 @@ async fn get_body() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request {
-                body: Bytes::from("Hello world"),
-                headers: None,
-                method: Method::GET,
-                url: "".into(),
-            },
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request {
+        body: Bytes::from("Hello world"),
+        headers: None,
+        method: Method::GET,
+        url: "".into(),
+    });
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -145,7 +115,7 @@ async fn get_body() {
 #[tokio::test]
 async fn get_input() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler(request) {
     return new Response(request.url);
@@ -154,18 +124,12 @@ async fn get_input() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request {
-                body: Bytes::new(),
-                headers: None,
-                method: Method::GET,
-                url: "https://hello.world".into(),
-            },
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request {
+        body: Bytes::new(),
+        headers: None,
+        method: Method::GET,
+        url: "https://hello.world".into(),
+    });
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -178,7 +142,7 @@ async fn get_input() {
 #[tokio::test]
 async fn get_method() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler(request) {
     return new Response(request.method);
@@ -187,18 +151,12 @@ async fn get_method() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request {
-                body: Bytes::new(),
-                headers: None,
-                method: Method::POST,
-                url: "".into(),
-            },
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request {
+        body: Bytes::new(),
+        headers: None,
+        method: Method::POST,
+        url: "".into(),
+    });
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -211,7 +169,7 @@ async fn get_method() {
 #[tokio::test]
 async fn get_headers() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler(request) {
     return new Response(request.headers.get('x-auth'));
@@ -224,18 +182,12 @@ async fn get_headers() {
     let mut headers = HashMap::new();
     headers.insert("x-auth".into(), vec!["token".into()]);
 
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request {
-                body: Bytes::new(),
-                headers: Some(headers),
-                method: Method::POST,
-                url: "".into(),
-            },
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request {
+        body: Bytes::new(),
+        headers: Some(headers),
+        method: Method::POST,
+        url: "".into(),
+    });
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -248,7 +200,7 @@ async fn get_headers() {
 #[tokio::test]
 async fn return_headers() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response('Hello world', {
@@ -267,13 +219,7 @@ async fn return_headers() {
     headers.insert("content-type".into(), vec!["text/html".into()]);
     headers.insert("x-test".into(), vec!["test".into()]);
 
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -290,7 +236,7 @@ async fn return_headers() {
 #[tokio::test]
 async fn return_headers_from_headers_api() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response('Hello world', {
@@ -309,13 +255,7 @@ async fn return_headers_from_headers_api() {
     headers.insert("content-type".into(), vec!["text/html".into()]);
     headers.insert("x-test".into(), vec!["test".into()]);
 
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -332,7 +272,7 @@ async fn return_headers_from_headers_api() {
 #[tokio::test]
 async fn return_status() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response('Moved permanently', {
@@ -343,13 +283,7 @@ async fn return_status() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -366,7 +300,7 @@ async fn return_status() {
 #[tokio::test]
 async fn return_uint8array() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     // TextEncoder#encode returns a Uint8Array
@@ -377,13 +311,7 @@ async fn return_uint8array() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -396,7 +324,7 @@ async fn return_uint8array() {
 #[tokio::test]
 async fn console_log() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     const types = ['log', 'info', 'debug', 'error', 'warn'];
@@ -411,13 +339,7 @@ async fn console_log() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -430,7 +352,7 @@ async fn console_log() {
 #[tokio::test]
 async fn atob() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response(atob('SGVsbG8='));
@@ -439,13 +361,7 @@ async fn atob() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -458,7 +374,7 @@ async fn atob() {
 #[tokio::test]
 async fn btoa() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response(btoa('Hello'));
@@ -467,13 +383,7 @@ async fn btoa() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}

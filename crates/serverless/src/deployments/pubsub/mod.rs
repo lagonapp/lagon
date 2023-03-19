@@ -1,14 +1,11 @@
 use super::{
     download_deployment, downloader::Downloader, filesystem::rm_deployment, Deployment, Deployments,
 };
-use crate::{
-    cronjob::Cronjob,
-    worker::{WorkerEvent, Workers},
-    REGION,
-};
+use crate::{cronjob::Cronjob, serverless::Workers, REGION};
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::{Stream, StreamExt};
+use lagon_runtime_isolate::IsolateEvent;
 use log::{error, warn};
 use metrics::increment_counter;
 use serde_json::Value;
@@ -59,17 +56,11 @@ pub trait PubSubListener: Send + Sized {
 }
 
 pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, reason: String) {
-    // for worker in workers.iter() {
-    //     let sender = &worker.0;
-
-    //     sender
-    //         .send_async(WorkerEvent::Drop {
-    //             deployment_id: deployment_id.clone(),
-    //             reason: reason.clone(),
-    //         })
-    //         .await
-    //         .unwrap_or(());
-    // }
+    if let Some((_, tx)) = workers.remove(&deployment_id) {
+        tx.send_async(IsolateEvent::Terminate(reason))
+            .await
+            .unwrap_or(());
+    }
 }
 
 async fn run<D, P>(

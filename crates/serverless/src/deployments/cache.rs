@@ -4,11 +4,9 @@ use std::{
     time::{Duration, Instant},
 };
 
-use dashmap::DashMap;
-
-use crate::worker::Workers;
-
 use super::pubsub::clear_deployment_cache;
+use crate::serverless::Workers;
+use dashmap::DashMap;
 
 const CACHE_TASK_INTERVAL: Duration = Duration::from_secs(1);
 

@@ -1,12 +1,12 @@
 use lagon_runtime_http::{Request, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, IsolateRequest};
+use lagon_runtime_isolate::{options::IsolateOptions, IsolateEvent, IsolateRequest};
 
 mod utils;
 
 #[tokio::test]
 async fn disallow_eval() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     const result = eval('1 + 1')
@@ -16,14 +16,7 @@ async fn disallow_eval() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -38,7 +31,7 @@ async fn disallow_eval() {
 #[tokio::test]
 async fn disallow_function() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     const result = new Function('return 1 + 1')
@@ -48,14 +41,7 @@ async fn disallow_function() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}

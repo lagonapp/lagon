@@ -1,7 +1,7 @@
 use colored::*;
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateRequest};
+use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateEvent, IsolateRequest};
 use lazy_static::lazy_static;
 use log::{
     set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,
@@ -154,10 +154,10 @@ export function handler() {{
 
     let (request_tx, request_rx) = flume::unbounded();
 
-    tx.send_async(IsolateRequest {
+    tx.send_async(IsolateEvent::Request(IsolateRequest {
         request: Request::default(),
         sender: request_tx,
-    })
+    }))
     .await
     .unwrap();
 

@@ -7,8 +7,8 @@ use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_REGION};
-use lagon_runtime_isolate::IsolateRequest;
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
+use lagon_runtime_isolate::{IsolateEvent, IsolateRequest};
 use lagon_runtime_utils::assets::{find_asset, handle_asset};
 use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL};
 use log::{
@@ -120,10 +120,10 @@ async fn handle_request(
                 request.set_header(X_LAGON_REGION.to_string(), LOCAL_REGION.to_string());
 
                 isolate_tx
-                    .send_async(IsolateRequest {
+                    .send_async(IsolateEvent::Request(IsolateRequest {
                         request,
                         sender: tx,
-                    })
+                    }))
                     .await
                     .unwrap_or(());
             }

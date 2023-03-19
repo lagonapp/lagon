@@ -1,5 +1,5 @@
 use lagon_runtime_http::{Request, Response, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, IsolateRequest};
+use lagon_runtime_isolate::options::IsolateOptions;
 use serial_test::serial;
 
 mod utils;
@@ -7,7 +7,7 @@ mod utils;
 #[tokio::test]
 async fn set_timeout() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     const test = await new Promise((resolve) => {
@@ -21,13 +21,7 @@ async fn set_timeout() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -42,7 +36,7 @@ async fn set_timeout() {
 async fn set_timeout_not_blocking_response() {
     utils::setup();
     let log_rx = utils::setup_logger();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     console.log('before')
@@ -58,13 +52,7 @@ async fn set_timeout_not_blocking_response() {
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -89,7 +77,7 @@ async fn set_timeout_not_blocking_response() {
 #[tokio::test]
 async fn set_timeout_clear() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     let id;
@@ -108,13 +96,7 @@ async fn set_timeout_clear() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -127,7 +109,7 @@ async fn set_timeout_clear() {
 #[tokio::test]
 async fn set_timeout_clear_correct() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     const test = await new Promise((resolve) => {
@@ -145,13 +127,7 @@ async fn set_timeout_clear_correct() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -166,7 +142,7 @@ async fn set_timeout_clear_correct() {
 async fn set_interval() {
     let log_rx = utils::setup_logger();
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     await new Promise(resolve => {
@@ -190,13 +166,7 @@ async fn set_interval() {
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -235,7 +205,7 @@ async fn set_interval() {
 async fn queue_microtask() {
     let log_rx = utils::setup_logger();
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     queueMicrotask(() => {
@@ -251,13 +221,7 @@ async fn queue_microtask() {
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -282,7 +246,7 @@ async fn queue_microtask() {
 #[tokio::test]
 async fn queue_microtask_throw_not_function() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     queueMicrotask(true);
@@ -293,13 +257,7 @@ async fn queue_microtask_throw_not_function() {
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -314,7 +272,7 @@ async fn queue_microtask_throw_not_function() {
 async fn timers_order() {
     let log_rx = utils::setup_logger();
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     queueMicrotask(() => {
@@ -341,13 +299,7 @@ async fn timers_order() {
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         .metadata(Some(("".to_owned(), "".to_owned()))),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}

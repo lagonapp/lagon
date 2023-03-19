@@ -1,13 +1,3 @@
-use std::{
-    convert::Infallible,
-    env,
-    future::Future,
-    net::SocketAddr,
-    path::Path,
-    sync::Arc,
-    time::{Duration, Instant},
-};
-
 use crate::{
     cronjob::Cronjob,
     deployments::{
@@ -16,7 +6,6 @@ use crate::{
         pubsub::{listen_pub_sub, PubSubListener},
         Deployments,
     },
-    worker::Workers,
     REGION, SNAPSHOT_BLOB,
 };
 use anyhow::Result;
@@ -31,7 +20,9 @@ use hyper::{
 use lagon_runtime_http::{
     Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP,
 };
-use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateRequest, CONSOLE_SOURCE};
+use lagon_runtime_isolate::{
+    options::IsolateOptions, Isolate, IsolateEvent, IsolateRequest, CONSOLE_SOURCE,
+};
 use lagon_runtime_utils::{
     assets::{find_asset, handle_asset},
     response::{handle_response, ResponseEvent, FAVICON_URL, PAGE_403, PAGE_404},
@@ -39,7 +30,18 @@ use lagon_runtime_utils::{
 };
 use log::{as_debug, error, info, warn};
 use metrics::{counter, decrement_gauge, histogram, increment_counter, increment_gauge};
+use std::{
+    convert::Infallible,
+    env,
+    future::Future,
+    net::SocketAddr,
+    path::Path,
+    sync::Arc,
+    time::{Duration, Instant},
+};
 use tokio::{runtime::Handle, sync::Mutex};
+
+pub type Workers = Arc<DashMap<String, flume::Sender<IsolateEvent>>>;
 
 fn handle_error(
     result: RunResult,
@@ -247,7 +249,7 @@ async fn handle_request(
                 });
 
                 isolate_sender
-                    .send_async(IsolateRequest { request, sender })
+                    .send_async(IsolateEvent::Request(IsolateRequest { request, sender }))
                     .await
                     .unwrap_or(());
             }

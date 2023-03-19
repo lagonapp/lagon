@@ -47,6 +47,11 @@ pub struct IsolateRequest {
     pub sender: flume::Sender<RunResult>,
 }
 
+pub enum IsolateEvent {
+    Request(IsolateRequest),
+    Terminate(String),
+}
+
 #[derive(Debug)]
 pub struct HandlerResult {
     promise: v8::Global<v8::Promise>,
@@ -102,7 +107,7 @@ pub struct Isolate {
     termination_rx: flume::Receiver<RunResult>,
     heartbeat: Arc<AtomicBool>,
     running_promises: Arc<AtomicBool>,
-    rx: flume::Receiver<IsolateRequest>,
+    rx: flume::Receiver<IsolateEvent>,
     near_heap_limit_callback_data: Option<Box<RefCell<dyn std::any::Any>>>,
 }
 
@@ -114,7 +119,7 @@ unsafe impl Sync for Isolate {}
 // or the connection closed on the other side, meaning the channel is now closed.
 // That's why we use .unwrap_or(()) to silently discard any error.
 impl Isolate {
-    pub fn new(options: IsolateOptions, rx: flume::Receiver<IsolateRequest>) -> Self {
+    pub fn new(options: IsolateOptions, rx: flume::Receiver<IsolateEvent>) -> Self {
         // TODO use options.memory
         let memory_mb = options.memory * 1024 * 1024;
         let mut params = v8::CreateParams::default().heap_limits(0, memory_mb);
@@ -349,55 +354,67 @@ impl Isolate {
     }
 
     fn poll_new_requests(&mut self) {
-        if let Ok(IsolateRequest { request, sender }) = self.rx.try_recv() {
-            let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
-            let (global, requests_count) = {
-                let mut isolate_state = isolate_state.borrow_mut();
-                let global = isolate_state.global.as_ref().unwrap().0.clone();
+        if let Ok(event) = self.rx.try_recv() {
+            match event {
+                IsolateEvent::Request(IsolateRequest { request, sender }) => {
+                    let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
+                    let (global, requests_count) = {
+                        let mut isolate_state = isolate_state.borrow_mut();
+                        let global = isolate_state.global.as_ref().unwrap().0.clone();
 
-                isolate_state.requests_count += 1;
+                        isolate_state.requests_count += 1;
 
-                (global, isolate_state.requests_count)
-            };
-            let scope =
-                &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global.clone());
-            let try_catch = &mut v8::TryCatch::new(scope);
-
-            let handler = self.handler.as_ref().unwrap();
-            let handler = handler.open(try_catch);
-
-            let global = global.open(try_catch);
-            let global = global.global(try_catch);
-
-            let request = request.into_v8(try_catch);
-            let id = v8::Integer::new(try_catch, requests_count as i32);
-
-            match handler.call(try_catch, global.into(), &[id.into(), request.into()]) {
-                Some(response) => {
-                    let promise = v8::Local::<v8::Promise>::try_from(response)
-                        .expect("Handler did not return a promise");
-                    let promise = v8::Global::new(try_catch, promise);
-
-                    isolate_state.borrow_mut().handler_results.insert(
-                        requests_count,
-                        HandlerResult {
-                            promise,
-                            sender,
-                            stream_response_sent: RefCell::new(false),
-                            stream_status: RefCell::new(StreamStatus::None),
-                            context: RequestContext::default(),
-                        },
-                    );
-                }
-                None => {
-                    let run_result = match try_catch.is_execution_terminating() {
-                        true => RunResult::MemoryLimit,
-                        false => handle_error(try_catch, 0),
+                        (global, isolate_state.requests_count)
                     };
+                    let scope = &mut v8::HandleScope::with_context(
+                        self.isolate.as_mut().unwrap(),
+                        global.clone(),
+                    );
+                    let try_catch = &mut v8::TryCatch::new(scope);
 
-                    self.termination_tx.send(run_result).unwrap_or(());
+                    let handler = self.handler.as_ref().unwrap();
+                    let handler = handler.open(try_catch);
+
+                    let global = global.open(try_catch);
+                    let global = global.global(try_catch);
+
+                    let request = request.into_v8(try_catch);
+                    let id = v8::Integer::new(try_catch, requests_count as i32);
+
+                    match handler.call(try_catch, global.into(), &[id.into(), request.into()]) {
+                        Some(response) => {
+                            let promise = v8::Local::<v8::Promise>::try_from(response)
+                                .expect("Handler did not return a promise");
+                            let promise = v8::Global::new(try_catch, promise);
+
+                            isolate_state.borrow_mut().handler_results.insert(
+                                requests_count,
+                                HandlerResult {
+                                    promise,
+                                    sender,
+                                    stream_response_sent: RefCell::new(false),
+                                    stream_status: RefCell::new(StreamStatus::None),
+                                    context: RequestContext::default(),
+                                },
+                            );
+                        }
+                        None => {
+                            let run_result = match try_catch.is_execution_terminating() {
+                                true => RunResult::MemoryLimit,
+                                false => handle_error(try_catch, 0),
+                            };
+
+                            self.termination_tx.send(run_result).unwrap_or(());
+                        }
+                    };
                 }
-            };
+                IsolateEvent::Terminate(reason) => {
+                    self.termination_tx
+                        .send(RunResult::Error(reason))
+                        .unwrap_or(());
+                    self.terminate();
+                }
+            }
         }
     }
 
@@ -485,13 +502,13 @@ impl Isolate {
 
     fn poll_event_loop(&mut self, cx: &mut Context) -> Poll<()> {
         if let Some(compilation_error) = &self.compilation_error {
-            if let Ok(isolate_request) = self.rx.try_recv() {
+            if let Ok(IsolateEvent::Request(IsolateRequest { sender, .. })) = self.rx.try_recv() {
                 let run_result = match self.termination_rx.try_recv() {
                     Ok(run_result) => run_result,
                     Err(_) => RunResult::Error(compilation_error.to_string()),
                 };
 
-                isolate_request.sender.send(run_result).unwrap_or(());
+                sender.send(run_result).unwrap_or(());
             }
 
             return Poll::Pending;

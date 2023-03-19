@@ -1,6 +1,6 @@
 use httptest::{bytes::Bytes, matchers::*, responders::*, Expectation, Server};
 use lagon_runtime_http::{Request, Response, RunResult, StreamResult};
-use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateRequest};
+use lagon_runtime_isolate::options::IsolateOptions;
 use std::collections::HashMap;
 
 mod utils;
@@ -8,7 +8,7 @@ mod utils;
 #[tokio::test]
 async fn sync_streaming() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response(
@@ -24,13 +24,7 @@ async fn sync_streaming() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -55,7 +49,7 @@ async fn sync_streaming() {
 #[tokio::test]
 async fn queue_multiple() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     let count = 0;
@@ -77,13 +71,7 @@ async fn queue_multiple() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     for _ in 0..3 {
         tokio::select! {
@@ -110,7 +98,7 @@ async fn queue_multiple() {
 #[tokio::test]
 async fn custom_response() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response(
@@ -132,13 +120,7 @@ async fn custom_response() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
     let mut headers = HashMap::new();
     headers.insert("x-lagon".into(), vec!["test".into()]);
 
@@ -169,7 +151,7 @@ async fn custom_response() {
 #[tokio::test]
 async fn start_and_pull() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response(
@@ -188,13 +170,7 @@ async fn start_and_pull() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -232,7 +208,7 @@ async fn response_before_write() {
     );
     let url = server.url("/");
 
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(format!(
             "export function handler() {{
     const transformStream = new TransformStream({{
@@ -256,13 +232,7 @@ async fn response_before_write() {
         ))
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -294,7 +264,7 @@ async fn response_before_write() {
 // #[tokio::test]
 // async fn timeout_infinite_streaming() {
 //     utils::setup();
-//     let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+//     let (mut isolate, send, receiver) = utils::create_isolate(
 //         IsolateOptions::new(
 //             "export function handler() {
 //     const { readable } = new TransformStream()
@@ -330,7 +300,7 @@ async fn response_before_write() {
 #[tokio::test]
 async fn promise_reject_callback() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     const { readable } = new TransformStream()
@@ -347,13 +317,7 @@ async fn promise_reject_callback() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -366,7 +330,7 @@ async fn promise_reject_callback() {
 #[tokio::test]
 async fn promise_reject_callback_after_response() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     const output = new TextEncoder().encode('This is rendered as binary stream with non-ASCII chars 😊');
 
@@ -391,13 +355,7 @@ async fn promise_reject_callback_after_response() {
 }"
         .to_owned(),
     ).snapshot_blob(include_bytes!("../../serverless/snapshot.bin")));
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}

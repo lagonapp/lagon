@@ -1,13 +1,13 @@
 use httptest::{matchers::*, responders::*, Expectation, Server};
 use lagon_runtime_http::{Request, Response, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, IsolateRequest};
+use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
 
 #[tokio::test]
 async fn execute_async_handler() {
     utils::setup();
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export async function handler() {
     return new Response('Async handler');
@@ -16,13 +16,7 @@ async fn execute_async_handler() {
         )
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
@@ -42,7 +36,7 @@ async fn execute_promise() {
     );
     let url = server.url("/");
 
-    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+    let (mut isolate, send, receiver) = utils::create_isolate(
         IsolateOptions::new(format!(
             "export async function handler() {{
     const body = await fetch('{url}').then((res) => res.text());
@@ -51,13 +45,7 @@ async fn execute_promise() {
         ))
         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
     );
-    request_tx
-        .send_async(IsolateRequest {
-            request: Request::default(),
-            sender,
-        })
-        .await
-        .unwrap();
+    send(Request::default());
 
     tokio::select! {
         _ = isolate.run_event_loop() => {}
