@@ -2,7 +2,6 @@ use anyhow::Result;
 use dashmap::DashMap;
 use lagon_runtime_utils::Deployment;
 use lagon_serverless::{
-    cronjob::Cronjob,
     deployments::{downloader::FakeDownloader, pubsub::FakePubSub},
     serverless::start,
 };
@@ -11,7 +10,6 @@ use std::{
     collections::{HashMap, HashSet},
     sync::Arc,
 };
-use tokio::sync::Mutex;
 
 mod utils;
 
@@ -41,7 +39,7 @@ async fn html_assets() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -96,7 +94,7 @@ async fn assets_nested() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -148,7 +146,7 @@ async fn set_content_type() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);

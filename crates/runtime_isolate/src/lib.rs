@@ -39,6 +39,7 @@ const ISOLATE_SCRIPT_NAME: &str = "isolate.js";
 
 #[derive(Debug, Default)]
 pub struct RequestContext {
+    #[allow(dead_code)]
     fetch_calls: usize,
 }
 
@@ -58,6 +59,7 @@ pub struct HandlerResult {
     sender: flume::Sender<RunResult>,
     stream_response_sent: RefCell<bool>,
     stream_status: RefCell<StreamStatus>,
+    #[allow(dead_code)]
     context: RequestContext,
 }
 
@@ -74,6 +76,7 @@ pub struct IsolateState {
     metadata: Rc<Metadata>,
     rejected_promises: LinkedHashMap<v8::Global<v8::Promise>, String>,
     lines: usize,
+    // TODO use request context
     fetch_calls: usize,
     requests_count: u32,
 }

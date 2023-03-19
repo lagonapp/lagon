@@ -1,5 +1,4 @@
 use crate::{
-    cronjob::Cronjob,
     deployments::{
         cache::run_cache_clear_task,
         downloader::Downloader,
@@ -302,7 +301,7 @@ pub async fn start<D, P>(
     addr: SocketAddr,
     downloader: Arc<D>,
     pubsub: P,
-    cronjob: Arc<Mutex<Cronjob>>,
+    // cronjob: Arc<Mutex<Cronjob>>,
 ) -> Result<impl Future<Output = ()> + Send>
 where
     D: Downloader + Send + Sync + 'static,
@@ -317,7 +316,7 @@ where
         Arc::clone(&downloader),
         Arc::clone(&deployments),
         Arc::clone(&workers),
-        Arc::clone(&cronjob),
+        // Arc::clone(&cronjob),
         pubsub,
     );
     run_cache_clear_task(Arc::clone(&last_requests), Arc::clone(&workers));

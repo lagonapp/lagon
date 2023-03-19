@@ -5,7 +5,6 @@ use lagon_runtime_utils::{
     Deployment,
 };
 use lagon_serverless::{
-    cronjob::Cronjob,
     deployments::{downloader::FakeDownloader, pubsub::FakePubSub},
     serverless::start,
 };
@@ -14,7 +13,6 @@ use std::{
     collections::{HashMap, HashSet},
     sync::Arc,
 };
-use tokio::sync::Mutex;
 
 mod utils;
 
@@ -27,7 +25,7 @@ async fn return_404_no_deployment_found() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -65,7 +63,7 @@ async fn return_403_cron_deployment() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -103,7 +101,7 @@ async fn return_500_unknown_code() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -141,7 +139,7 @@ async fn return_502_timeout_execution() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -179,7 +177,7 @@ async fn return_502_timeout_init() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -217,7 +215,7 @@ async fn return_500_code_invalid() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -255,7 +253,7 @@ async fn return_500_throw_error() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);

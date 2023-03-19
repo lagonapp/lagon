@@ -5,14 +5,12 @@ use std::{
     sync::Arc,
 };
 
+use crate::REGION;
 use anyhow::{anyhow, Result};
 use dashmap::DashMap;
 use lagon_runtime_utils::{Deployment, DEPLOYMENTS_DIR};
 use log::{error, info, warn};
 use mysql::{prelude::Queryable, PooledConn};
-use tokio::sync::Mutex;
-
-use crate::{cronjob::Cronjob, REGION};
 
 use self::{
     downloader::Downloader,
@@ -73,7 +71,7 @@ type QueryResult = (
 pub async fn get_deployments<D>(
     mut conn: PooledConn,
     downloader: Arc<D>,
-    cronjob: Arc<Mutex<Cronjob>>,
+    // cronjob: Arc<Mutex<Cronjob>>,
 ) -> Result<Deployments>
 where
     D: Downloader,
@@ -175,7 +173,7 @@ OR
     }
 
     {
-        let mut cronjob = cronjob.lock().await;
+        // let mut cronjob = cronjob.lock().await;
 
         for deployment in deployments_list {
             if !deployment.has_code() {
@@ -192,11 +190,11 @@ OR
                 deployments.insert(domain, Arc::clone(&deployment));
             }
 
-            if deployment.should_run_cron() {
-                if let Err(error) = cronjob.add(deployment).await {
-                    error!("Failed to register cron: {}", error);
-                }
-            }
+            // if deployment.should_run_cron() {
+            //     if let Err(error) = cronjob.add(deployment).await {
+            //         error!("Failed to register cron: {}", error);
+            //     }
+            // }
         }
     }
 

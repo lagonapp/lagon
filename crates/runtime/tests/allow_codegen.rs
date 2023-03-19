@@ -6,13 +6,14 @@ mod utils;
 #[tokio::test]
 async fn allow_eval() {
     utils::setup_allow_codegen();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
-        "export function handler() {
+    let (mut isolate, send, receiver) =
+        utils::create_isolate_without_snapshot(IsolateOptions::new(
+            "export function handler() {
 const result = eval('1 + 1')
 return new Response(result)
 }"
-        .into(),
-    ));
+            .into(),
+        ));
     send(Request::default());
 
     tokio::select! {
@@ -26,13 +27,14 @@ return new Response(result)
 #[tokio::test]
 async fn allow_function() {
     utils::setup_allow_codegen();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
-        "export function handler() {
+    let (mut isolate, send, receiver) =
+        utils::create_isolate_without_snapshot(IsolateOptions::new(
+            "export function handler() {
     const result = new Function('return 1 + 1')
     return new Response(result())
 }"
-        .into(),
-    ));
+            .into(),
+        ));
     send(Request::default());
 
     tokio::select! {

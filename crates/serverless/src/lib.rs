@@ -1,7 +1,8 @@
 use lazy_static::lazy_static;
 use std::env;
 
-pub mod cronjob;
+// TODO add back cron jobs
+// pub mod cronjob;
 pub mod deployments;
 pub mod serverless;
 

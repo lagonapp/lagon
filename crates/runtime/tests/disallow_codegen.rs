@@ -1,21 +1,18 @@
 use lagon_runtime_http::{Request, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, IsolateEvent, IsolateRequest};
+use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
 
 #[tokio::test]
 async fn disallow_eval() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     const result = eval('1 + 1')
     return new Response(result)
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -31,16 +28,13 @@ async fn disallow_eval() {
 #[tokio::test]
 async fn disallow_function() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     const result = new Function('return 1 + 1')
     return new Response(result())
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {

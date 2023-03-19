@@ -8,9 +8,8 @@ mod utils;
 #[tokio::test]
 async fn sync_streaming() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     return new Response(
         new ReadableStream({
             pull(controller) {
@@ -20,10 +19,8 @@ async fn sync_streaming() {
         }),
     );
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -49,9 +46,8 @@ async fn sync_streaming() {
 #[tokio::test]
 async fn queue_multiple() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     let count = 0;
     return new Response(
         new ReadableStream({
@@ -67,10 +63,8 @@ async fn queue_multiple() {
         }),
     );
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     for _ in 0..3 {
@@ -98,9 +92,8 @@ async fn queue_multiple() {
 #[tokio::test]
 async fn custom_response() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     return new Response(
         new ReadableStream({
             pull(controller) {
@@ -116,10 +109,8 @@ async fn custom_response() {
         },
     );
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
     let mut headers = HashMap::new();
     headers.insert("x-lagon".into(), vec!["test".into()]);
@@ -151,9 +142,8 @@ async fn custom_response() {
 #[tokio::test]
 async fn start_and_pull() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     return new Response(
         new ReadableStream({
             start(controller) {
@@ -166,10 +156,8 @@ async fn start_and_pull() {
         }),
     );
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -208,9 +196,8 @@ async fn response_before_write() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(format!(
-            "export function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export function handler() {{
     const transformStream = new TransformStream({{
         start(controller) {{
             controller.enqueue(new TextEncoder().encode('Loading...'));
@@ -229,9 +216,7 @@ async fn response_before_write() {
 
     return new Response(readableStream);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+    )));
     send(Request::default());
 
     tokio::select! {
@@ -273,7 +258,7 @@ async fn response_before_write() {
 // }"
 //             .to_owned(),
 //         )
-//         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+//         ,
 //     );
 //     request_tx
 //         .send_async(IsolateRequest {
@@ -300,9 +285,8 @@ async fn response_before_write() {
 #[tokio::test]
 async fn promise_reject_callback() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     const { readable } = new TransformStream()
 
     async function trigger() {
@@ -313,10 +297,8 @@ async fn promise_reject_callback() {
 
     return new Response(readable);
 }"
-            .to_owned(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .to_owned(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -354,7 +336,7 @@ async fn promise_reject_callback_after_response() {
     return new Response(readable);
 }"
         .to_owned(),
-    ).snapshot_blob(include_bytes!("../../serverless/snapshot.bin")));
+    ));
     send(Request::default());
 
     tokio::select! {

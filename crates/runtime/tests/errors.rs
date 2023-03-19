@@ -1,6 +1,5 @@
-use httptest::bytes::Bytes;
-use lagon_runtime_http::{Method, Request, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, IsolateRequest};
+use lagon_runtime_http::{Request, RunResult};
+use lagon_runtime_isolate::options::IsolateOptions;
 use std::time::Duration;
 
 mod utils;
@@ -8,10 +7,8 @@ mod utils;
 #[tokio::test]
 async fn no_handler() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new("console.log('Hello')".into())
-            .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+    let (mut isolate, send, receiver) =
+        utils::create_isolate(IsolateOptions::new("console.log('Hello')".into()));
     send(Request::default());
 
     tokio::select! {
@@ -27,10 +24,8 @@ async fn no_handler() {
 #[tokio::test]
 async fn handler_not_function() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new("export const handler = 'Hello'".into())
-            .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+    let (mut isolate, send, receiver) =
+        utils::create_isolate(IsolateOptions::new("export const handler = 'Hello'".into()));
     send(Request::default());
 
     tokio::select! {
@@ -46,15 +41,12 @@ async fn handler_not_function() {
 #[tokio::test]
 async fn handler_reject() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     throw new Error('Rejected');
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -70,15 +62,12 @@ async fn handler_reject() {
 #[tokio::test]
 async fn compilation_error() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     this syntax is invalid
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -94,17 +83,14 @@ async fn compilation_error() {
 #[tokio::test]
 async fn import_errors() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "import test from 'test';
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "import test from 'test';
 
 export function handler() {
     return new Response('hello world');
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -120,16 +106,13 @@ export function handler() {
 #[tokio::test]
 async fn execution_timeout_reached() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     while(true) {}
     return new Response('Should not be reached');
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -143,16 +126,13 @@ async fn execution_timeout_reached() {
 #[tokio::test]
 async fn init_timeout_reached() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "while(true) {}
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "while(true) {}
 export function handler() {
     return new Response('Should not be reached');
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -182,7 +162,6 @@ async fn memory_reached() {
 }"
             .into(),
         )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
         // Increase timeout for CI
         .startup_timeout(Duration::from_millis(10000))
         .memory(1),
@@ -200,9 +179,8 @@ async fn memory_reached() {
 #[tokio::test]
 async fn stacktrace() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "function test(a) {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "function test(a) {
     return a() / 1;
 }
 
@@ -213,10 +191,8 @@ function first(a) {
 export function handler() {
     return new Response(first('a'));
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {

@@ -81,7 +81,7 @@ async fn handle_request(
     public_dir: Option<PathBuf>,
     ip: String,
     assets: Arc<Mutex<Assets>>,
-    isolate_tx: flume::Sender<IsolateRequest>,
+    isolate_tx: flume::Sender<IsolateEvent>,
 ) -> Result<HyperResponse<Body>> {
     let url = req.uri().path();
 

@@ -6,17 +6,14 @@ mod utils;
 #[tokio::test]
 async fn crypto_random_uuid() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     const uuid = crypto.randomUUID();
     const secondUuid = crypto.randomUUID();
     return new Response(`${typeof uuid} ${uuid.length} ${uuid === secondUuid}`);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -30,17 +27,14 @@ async fn crypto_random_uuid() {
 #[tokio::test]
 async fn crypto_get_random_values() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     const typedArray = new Uint8Array([0, 8, 2]);
     const result = crypto.getRandomValues(typedArray);
     return new Response(`${result == typedArray} ${typedArray.length} ${result.length}`);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -54,16 +48,13 @@ async fn crypto_get_random_values() {
 #[tokio::test]
 async fn crypto_get_random_values_throw_not_typedarray() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
     const result = crypto.getRandomValues(true);
     return new Response(`${result == typedArray} ${typedArray.length} ${result.length}`);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -80,9 +71,8 @@ async fn crypto_get_random_values_throw_not_typedarray() {
 #[tokio::test]
 async fn crypto_key_value() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export async function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
     const { keyValue } = await crypto.subtle.importKey(
         'raw',
         new TextEncoder().encode('secret'),
@@ -93,10 +83,8 @@ async fn crypto_key_value() {
 
     return new Response(`${typeof keyValue} ${keyValue.length}`);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -110,9 +98,8 @@ async fn crypto_key_value() {
 #[tokio::test]
 async fn crypto_unique_key_value() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export async function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
     const { keyValue: first } = await crypto.subtle.importKey(
         'raw',
         new TextEncoder().encode('secret'),
@@ -130,10 +117,8 @@ async fn crypto_unique_key_value() {
 
     return new Response(first == second);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -147,9 +132,8 @@ async fn crypto_unique_key_value() {
 #[tokio::test]
 async fn crypto_sign() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export async function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
     const key = await crypto.subtle.importKey(
         'raw',
         new TextEncoder().encode('secret'),
@@ -164,10 +148,8 @@ async fn crypto_sign() {
 
     return new Response(`${signed instanceof Uint8Array} ${signed.length}`);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -181,9 +163,8 @@ async fn crypto_sign() {
 #[tokio::test]
 async fn crypto_verify() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export async function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
     const key = await crypto.subtle.importKey(
         'raw',
         new TextEncoder().encode('secret'),
@@ -202,10 +183,8 @@ async fn crypto_verify() {
 
     return new Response(verified);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -219,17 +198,14 @@ async fn crypto_verify() {
 #[tokio::test]
 async fn crypto_digest_sha1() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export async function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
     const digest = await crypto.subtle.digest('SHA-1', new TextEncoder().encode('hello, world'));
 
     return new Response(`${digest.length} ${digest}`);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -243,17 +219,14 @@ async fn crypto_digest_sha1() {
 #[tokio::test]
 async fn crypto_digest_string() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export async function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
     const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('hello, world'));
 
     return new Response(`${digest.length} ${digest}`);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -274,7 +247,7 @@ async fn crypto_digest_object() {
     return new Response(`${digest.length} ${digest}`);
 }"
         .into(),
-    ).snapshot_blob(include_bytes!("../../serverless/snapshot.bin")));
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -288,9 +261,8 @@ async fn crypto_digest_object() {
 #[tokio::test]
 async fn crypto_encrypt() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export async function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
     const key = await crypto.subtle.importKey(
         'raw',
         new TextEncoder().encode('secret'),
@@ -308,10 +280,8 @@ async fn crypto_encrypt() {
 
     return new Response(`${ciphertext instanceof Uint8Array} ${ciphertext.length}`);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {
@@ -325,9 +295,8 @@ async fn crypto_encrypt() {
 #[tokio::test]
 async fn crypto_decrypt() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export async function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
     const key = await crypto.subtle.importKey(
         'raw',
         new TextEncoder().encode('secret'),
@@ -351,10 +320,8 @@ async fn crypto_decrypt() {
 
     return new Response(text);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
+        .into(),
+    ));
     send(Request::default());
 
     tokio::select! {

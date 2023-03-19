@@ -62,6 +62,30 @@ pub fn create_isolate(
 ) -> (Isolate, SendRequest, flume::Receiver<RunResult>) {
     let (request_tx, request_rx) = flume::unbounded();
     let (sender, receiver) = flume::unbounded();
+    let mut isolate = Isolate::new(
+        options.snapshot_blob(include_bytes!("../../../serverless/snapshot.bin")),
+        request_rx,
+    );
+    isolate.evaluate();
+
+    let send_isolate_event = Box::new(move |request: Request| {
+        request_tx
+            .send(IsolateEvent::Request(IsolateRequest {
+                request,
+                sender: sender.clone(),
+            }))
+            .unwrap();
+    });
+
+    (isolate, send_isolate_event, receiver)
+}
+
+#[allow(dead_code)]
+pub fn create_isolate_without_snapshot(
+    options: IsolateOptions,
+) -> (Isolate, SendRequest, flume::Receiver<RunResult>) {
+    let (request_tx, request_rx) = flume::unbounded();
+    let (sender, receiver) = flume::unbounded();
     let mut isolate = Isolate::new(options, request_rx);
     isolate.evaluate();
 
