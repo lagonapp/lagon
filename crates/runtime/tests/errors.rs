@@ -176,25 +176,34 @@ async fn execution_timeout_reached() {
     }
 }
 
-// TODO
-// #[tokio::test]
-// async fn init_timeout_reached() {
-//     utils::setup();
-//     let mut isolate = Isolate::new(
-//         IsolateOptions::new(
-//             "while(true) {}
-// export function handler() {
-//     return new Response('Should not be reached');
-// }"
-//             .into(),
-//         )
-//         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-//     );
-//     let (tx, rx) = flume::unbounded();
-//     isolate.run(Request::default(), tx).await;
+#[tokio::test]
+async fn init_timeout_reached() {
+    utils::setup();
+    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "while(true) {}
+export function handler() {
+    return new Response('Should not be reached');
+}"
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
+    );
+    request_tx
+        .send_async(IsolateRequest {
+            request: Request::default(),
+            sender,
+        })
+        .await
+        .unwrap();
 
-//     assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
-// }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Timeout);
+        }
+    }
+}
 
 #[tokio::test]
 async fn memory_reached() {

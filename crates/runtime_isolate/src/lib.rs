@@ -100,6 +100,7 @@ pub struct Isolate {
     stream_receiver: flume::Receiver<(u32, StreamResult)>,
     termination_tx: flume::Sender<RunResult>,
     termination_rx: flume::Receiver<RunResult>,
+    heartbeat: Arc<AtomicBool>,
     running_promises: Arc<AtomicBool>,
     rx: flume::Receiver<IsolateRequest>,
     near_heap_limit_callback_data: Option<Box<RefCell<dyn std::any::Any>>>,
@@ -201,6 +202,7 @@ impl Isolate {
             stream_receiver,
             termination_tx,
             termination_rx,
+            heartbeat: Arc::new(AtomicBool::new(false)),
             running_promises: Arc::new(AtomicBool::new(false)),
             rx,
             near_heap_limit_callback_data: None,
@@ -292,6 +294,27 @@ impl Isolate {
                 true,
             )),
         );
+
+        let thread_safe_handle = try_catch.thread_safe_handle();
+        let termination_tx = self.termination_tx.clone();
+        let duration = self.options.timeout;
+        let heartbeat = Arc::clone(&self.heartbeat);
+
+        std::thread::spawn(move || loop {
+            std::thread::sleep(duration);
+
+            if !heartbeat.load(Ordering::SeqCst) {
+                termination_tx.send(RunResult::Timeout).unwrap_or(());
+
+                if !thread_safe_handle.is_execution_terminating() {
+                    thread_safe_handle.terminate_execution();
+                }
+
+                break;
+            } else {
+                heartbeat.store(false, Ordering::SeqCst);
+            }
+        });
 
         match v8::script_compiler::compile_module(try_catch, source) {
             Some(module) => {
@@ -463,14 +486,18 @@ impl Isolate {
     fn poll_event_loop(&mut self, cx: &mut Context) -> Poll<()> {
         if let Some(compilation_error) = &self.compilation_error {
             if let Ok(isolate_request) = self.rx.try_recv() {
-                isolate_request
-                    .sender
-                    .send(RunResult::Error(compilation_error.to_string()))
-                    .unwrap_or(());
+                let run_result = match self.termination_rx.try_recv() {
+                    Ok(run_result) => run_result,
+                    Err(_) => RunResult::Error(compilation_error.to_string()),
+                };
+
+                isolate_request.sender.send(run_result).unwrap_or(());
             }
 
             return Poll::Pending;
         }
+
+        self.heartbeat.store(true, Ordering::SeqCst);
 
         self.poll_new_requests();
         self.poll_v8();
@@ -481,8 +508,6 @@ impl Isolate {
 
         self.poll_stream(&state);
 
-        // Handle termination results like timeouts and memory limit before
-        // checking the streaming status and promise state.
         if let Ok(run_result) = self.termination_rx.try_recv() {
             for handler_result in state.handler_results.values() {
                 handler_result.sender.send(run_result.clone()).unwrap_or(());

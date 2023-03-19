@@ -294,7 +294,7 @@ async fn response_before_write() {
 // #[tokio::test]
 // async fn timeout_infinite_streaming() {
 //     utils::setup();
-//     let mut isolate = Isolate::new(
+//     let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
 //         IsolateOptions::new(
 //             "export function handler() {
 //     const { readable } = new TransformStream()
@@ -305,16 +305,26 @@ async fn response_before_write() {
 //         )
 //         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
 //     );
-//     let (tx, rx) = flume::unbounded();
-//     isolate.run(Request::default(), tx).await;
+//     request_tx
+//         .send_async(IsolateRequest {
+//             request: Request::default(),
+//             sender,
+//         })
+//         .await
+//         .unwrap();
 
-//     assert_eq!(
-//         rx.recv_async().await.unwrap(),
-//         RunResult::Stream(StreamResult::Start(Response::from(
-//             "[object ReadableStream]"
-//         )))
-//     );
-//     assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
+//     tokio::select! {
+//         _ = isolate.run_event_loop() => {}
+//         result = receiver.recv_async() => {
+//             assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Start(Response::from("[object ReadableStream]"))));
+//         }
+//     }
+//     tokio::select! {
+//         _ = isolate.run_event_loop() => {}
+//         result = receiver.recv_async() => {
+//             assert_eq!(result.unwrap(), RunResult::Timeout);
+//         }
+//     }
 // }
 
 #[tokio::test]

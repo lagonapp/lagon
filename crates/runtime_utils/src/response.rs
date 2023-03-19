@@ -29,7 +29,7 @@ pub async fn handle_response<D>(
 where
     D: Send + Clone + 'static,
 {
-    let result = rx.recv_async().await?;
+    let result = rx.recv_async().await.unwrap_or(RunResult::Timeout);
 
     match result {
         RunResult::Stream(stream_result) => {
