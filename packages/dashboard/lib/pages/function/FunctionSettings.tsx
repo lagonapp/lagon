@@ -184,7 +184,10 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
 
           await updateFunction.mutateAsync({
             functionId: func.id,
-            env: (env as string[]).map(currentEnv => {
+            env: (env as Array<string | Record<'key' | 'value', string>>).map(currentEnv => {
+              // return already-normalised env
+              if (typeof currentEnv !== 'string') return currentEnv;
+
               const [key, value] = currentEnv.split('=');
 
               return {
