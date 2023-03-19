@@ -2,6 +2,7 @@ use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
 use lagon_runtime_http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult};
 use lagon_runtime_v8_utils::v8_string;
 use lazy_static::lazy_static;
+use linked_hash_map::LinkedHashMap;
 use std::{
     cell::{RefCell, RefMut},
     collections::HashMap,
@@ -9,7 +10,7 @@ use std::{
     rc::Rc,
     sync::{
         atomic::{AtomicBool, Ordering},
-        Arc, Condvar, Mutex,
+        Arc,
     },
     task::{Context, Poll},
     time::Duration,
@@ -66,7 +67,7 @@ pub struct IsolateState {
     handler_results: HashMap<u32, HandlerResult>,
     stream_sender: flume::Sender<(u32, StreamResult)>,
     metadata: Rc<Metadata>,
-    rejected_promises: HashMap<v8::Global<v8::Promise>, String>,
+    rejected_promises: LinkedHashMap<v8::Global<v8::Promise>, String>,
     lines: usize,
     fetch_calls: usize,
     requests_count: u32,
@@ -97,11 +98,11 @@ pub struct Isolate {
     handler: Option<v8::Global<v8::Function>>,
     compilation_error: Option<String>,
     stream_receiver: flume::Receiver<(u32, StreamResult)>,
-    termination_tx: Option<flume::Sender<RunResult>>,
-    termination_rx: Option<flume::Receiver<RunResult>>,
+    termination_tx: flume::Sender<RunResult>,
+    termination_rx: flume::Receiver<RunResult>,
     running_promises: Arc<AtomicBool>,
-    wait: Option<Arc<(Mutex<bool>, Condvar)>>,
     rx: flume::Receiver<IsolateRequest>,
+    near_heap_limit_callback_data: Option<Box<RefCell<dyn std::any::Any>>>,
 }
 
 unsafe impl Send for Isolate {}
@@ -113,6 +114,7 @@ unsafe impl Sync for Isolate {}
 // That's why we use .unwrap_or(()) to silently discard any error.
 impl Isolate {
     pub fn new(options: IsolateOptions, rx: flume::Receiver<IsolateRequest>) -> Self {
+        // TODO use options.memory
         let memory_mb = options.memory * 1024 * 1024;
         let mut params = v8::CreateParams::default().heap_limits(0, memory_mb);
 
@@ -158,6 +160,7 @@ impl Isolate {
         isolate.set_promise_reject_callback(promise_reject_callback);
 
         let (stream_sender, stream_receiver) = flume::unbounded();
+        let (termination_tx, termination_rx) = flume::unbounded();
 
         let state: IsolateState = {
             let isolate_scope = &mut v8::HandleScope::new(&mut isolate);
@@ -181,7 +184,7 @@ impl Isolate {
                 handler_results: HashMap::new(),
                 stream_sender,
                 metadata: Rc::clone(&options.metadata),
-                rejected_promises: HashMap::new(),
+                rejected_promises: LinkedHashMap::new(),
                 lines: 0,
                 fetch_calls: 0,
                 requests_count: 0,
@@ -196,20 +199,40 @@ impl Isolate {
             handler: None,
             compilation_error: None,
             stream_receiver,
-            termination_tx: None,
-            termination_rx: None,
+            termination_tx,
+            termination_rx,
             running_promises: Arc::new(AtomicBool::new(false)),
-            wait: None,
             rx,
+            near_heap_limit_callback_data: None,
         };
 
-        let isolate_ptr = &mut this as *mut _ as *mut std::ffi::c_void;
-        this.isolate
-            .as_mut()
-            .unwrap()
-            .add_near_heap_limit_callback(heap_limit_callback, isolate_ptr);
+        let thread_safe_handle = this.isolate.as_ref().unwrap().thread_safe_handle();
+
+        this.set_heap_limit_callback(move |current: usize| {
+            if !thread_safe_handle.is_execution_terminating() {
+                thread_safe_handle.terminate_execution();
+            }
+
+            // Avoid OOM killer by increasing the limit, since we kill
+            // the isolate above.
+            current * 2
+        });
 
         this
+    }
+
+    fn set_heap_limit_callback<C>(&mut self, callback: C)
+    where
+        C: FnMut(usize) -> usize + 'static,
+    {
+        let callback = Box::new(RefCell::new(callback));
+        let data = callback.as_ptr() as *mut std::ffi::c_void;
+
+        self.near_heap_limit_callback_data = Some(callback);
+        self.isolate
+            .as_mut()
+            .unwrap()
+            .add_near_heap_limit_callback(heap_limit_callback::<C>, data);
     }
 
     pub fn get_metadata(&self) -> Rc<Metadata> {
@@ -344,20 +367,12 @@ impl Isolate {
                     );
                 }
                 None => {
-                    let mut run_result = match try_catch.is_execution_terminating() {
+                    let run_result = match try_catch.is_execution_terminating() {
                         true => RunResult::MemoryLimit,
                         false => handle_error(try_catch, 0),
                     };
 
-                    if let Ok(prev_run_result) = self.termination_rx.as_ref().unwrap().try_recv() {
-                        run_result = prev_run_result;
-                    }
-
-                    self.termination_tx
-                        .as_ref()
-                        .unwrap()
-                        .send(run_result)
-                        .unwrap_or(());
+                    self.termination_tx.send(run_result).unwrap_or(());
                 }
             };
         }
@@ -386,8 +401,6 @@ impl Isolate {
                 promises = Some(Vec::new());
 
                 self.running_promises.store(true, Ordering::SeqCst);
-                // let condvar = &self.wait.as_ref().unwrap().1;
-                // condvar.notify_one();
 
                 while let Poll::Ready(Some(BindingResult { id, result })) =
                     isolate_state.promises.poll_next_unpin(cx)
@@ -398,7 +411,6 @@ impl Isolate {
                 }
 
                 self.running_promises.store(false, Ordering::SeqCst);
-                // condvar.notify_one();
             }
         }
 
@@ -444,8 +456,6 @@ impl Isolate {
                     .sender
                     .send(RunResult::Stream(stream_result))
                     .unwrap_or(());
-            } else {
-                println!("not found");
             }
         }
     }
@@ -466,20 +476,23 @@ impl Isolate {
         self.poll_v8();
         self.resolve_promises(cx);
 
-        // Handle termination results like timeouts and memory limit before
-        // checking the streaming status and promise state.
-        // if let Ok(run_result) = self.termination_rx.as_ref().unwrap().try_recv() {
-        //     tx.send(run_result).unwrap_or(());
-        //     return Poll::Ready(());
-        // }
-
         let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
         let mut state = isolate_state.borrow_mut();
 
         self.poll_stream(&state);
 
+        // Handle termination results like timeouts and memory limit before
+        // checking the streaming status and promise state.
+        if let Ok(run_result) = self.termination_rx.try_recv() {
+            for handler_result in state.handler_results.values() {
+                handler_result.sender.send(run_result.clone()).unwrap_or(());
+            }
+
+            return Poll::Ready(());
+        }
+
         if !state.rejected_promises.is_empty() {
-            let key = state.rejected_promises.keys().next().unwrap().clone();
+            let key = state.rejected_promises.keys().last().unwrap().clone();
             let content = state.rejected_promises.remove(&key).unwrap();
 
             // TODO: only send the error to the request that caused it

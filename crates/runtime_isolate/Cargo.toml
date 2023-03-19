@@ -15,6 +15,7 @@ anyhow = "1.0.69"
 log = { version = "0.4.17", features = ["std", "kv_unstable"] }
 lazy_static = "1.4.0"
 async-recursion = "1.0.2"
+linked-hash-map = "0.5.6"
 lagon-runtime-v8-utils = { path = "../runtime_v8_utils" }
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-crypto = { path = "../runtime_crypto" }

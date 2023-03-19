@@ -4,17 +4,16 @@ use crate::get_exception_message;
 
 use super::Isolate;
 
-pub extern "C" fn heap_limit_callback(
+pub extern "C" fn heap_limit_callback<F>(
     data: *mut std::ffi::c_void,
     current_heap_limit: usize,
     _initial_heap_limit: usize,
-) -> usize {
-    let isolate = unsafe { &mut *(data as *mut Isolate) };
-    isolate.terminate();
-
-    // Avoid OOM killer by increasing the limit, since we kill
-    // the isolate above.
-    current_heap_limit * 2
+) -> usize
+where
+    F: FnMut(usize) -> usize,
+{
+    let callback = unsafe { &mut *(data as *mut F) };
+    callback(current_heap_limit)
 }
 
 pub extern "C" fn promise_reject_callback(message: v8::PromiseRejectMessage) {

@@ -167,6 +167,7 @@ export function handler() {
 //     assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
 // }
 
+// TODO
 // #[tokio::test]
 // async fn init_timeout_reached() {
 //     utils::setup();
@@ -186,45 +187,45 @@ export function handler() {
 //     assert_eq!(rx.recv_async().await.unwrap(), RunResult::Timeout);
 // }
 
-// #[tokio::test]
-// async fn memory_reached() {
-//     utils::setup();
-//     let mut isolate = Isolate::new(
-//         IsolateOptions::new(
-//             "export function handler() {
-//     const storage = [];
-//     const twoMegabytes = 1024 * 1024 * 2;
-//     while (true) {
-//         const array = new Uint8Array(twoMegabytes);
-//         for (let ii = 0; ii < twoMegabytes; ii += 4096) {
-//         array[ii] = 1; // we have to put something in the array to flush to real memory
-//         }
-//         storage.push(array);
-//     }
-//     return new Response('Should not be reached');
-// }"
-//             .into(),
-//         )
-//         .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
-//         // Increase timeout for CI
-//         .startup_timeout(Duration::from_millis(10000))
-//         .memory(1),
-//     );
-//     let (tx, rx) = flume::unbounded();
-//     isolate
-//         .run(
-//             Request {
-//                 body: Bytes::new(),
-//                 headers: None,
-//                 method: Method::GET,
-//                 url: "".into(),
-//             },
-//             tx,
-//         )
-//         .await;
+#[tokio::test]
+async fn memory_reached() {
+    utils::setup();
+    let (mut isolate, request_tx, sender, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "export function handler() {
+    const storage = [];
+    const twoMegabytes = 1024 * 1024 * 2;
+    while (true) {
+        const array = new Uint8Array(twoMegabytes);
+        for (let ii = 0; ii < twoMegabytes; ii += 4096) {
+        array[ii] = 1; // we have to put something in the array to flush to real memory
+        }
+        storage.push(array);
+    }
+    return new Response('Should not be reached');
+}"
+            .into(),
+        )
+        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin"))
+        // Increase timeout for CI
+        .startup_timeout(Duration::from_millis(10000))
+        .memory(1),
+    );
+    request_tx
+        .send_async(IsolateRequest {
+            request: Request::default(),
+            sender,
+        })
+        .await
+        .unwrap();
 
-//     assert_eq!(rx.recv_async().await.unwrap(), RunResult::MemoryLimit);
-// }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Timeout);
+        }
+    }
+}
 
 #[tokio::test]
 async fn stacktrace() {
