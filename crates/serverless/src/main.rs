@@ -17,6 +17,8 @@ use s3::Bucket;
 use std::borrow::Cow;
 use std::env;
 use std::net::SocketAddr;
+#[cfg(not(debug_assertions))]
+use std::path::Path;
 use std::sync::Arc;
 
 #[tokio::main]
