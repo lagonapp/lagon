@@ -5,7 +5,6 @@ use lagon_runtime_utils::{
     Deployment,
 };
 use lagon_serverless::{
-    cronjob::Cronjob,
     deployments::{downloader::FakeDownloader, pubsub::FakePubSub},
     serverless::start,
 };
@@ -14,7 +13,6 @@ use std::{
     collections::{HashMap, HashSet},
     sync::Arc,
 };
-use tokio::sync::Mutex;
 
 mod utils;
 
@@ -27,7 +25,7 @@ async fn return_404_no_deployment_found() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -65,7 +63,7 @@ async fn return_403_cron_deployment() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -103,7 +101,7 @@ async fn return_500_unknown_code() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -117,13 +115,13 @@ async fn return_500_unknown_code() -> Result<()> {
 
 #[tokio::test]
 #[serial]
-async fn return_502_timeout() -> Result<()> {
+async fn return_502_timeout_execution() -> Result<()> {
     utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
         Arc::new(Deployment {
-            id: "timeout".into(),
+            id: "timeout-execution".into(),
             function_id: "function_id".into(),
             function_name: "function_name".into(),
             domains: HashSet::new(),
@@ -141,7 +139,45 @@ async fn return_502_timeout() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
+    )
+    .await?;
+    tokio::spawn(serverless);
+
+    let response = reqwest::get("http://127.0.0.1:4000").await?;
+    assert_eq!(response.status(), 502);
+    assert_eq!(response.text().await?, PAGE_502);
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn return_502_timeout_init() -> Result<()> {
+    utils::setup();
+    let deployments = Arc::new(DashMap::new());
+    deployments.insert(
+        "127.0.0.1:4000".into(),
+        Arc::new(Deployment {
+            id: "timeout-init".into(),
+            function_id: "function_id".into(),
+            function_name: "function_name".into(),
+            domains: HashSet::new(),
+            assets: HashSet::new(),
+            environment_variables: HashMap::new(),
+            memory: 128,
+            timeout: 1000,
+            startup_timeout: 1000,
+            is_production: true,
+            cron: None,
+        }),
+    );
+    let serverless = start(
+        deployments,
+        "127.0.0.1:4000".parse().unwrap(),
+        Arc::new(FakeDownloader),
+        FakePubSub::default(),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -179,7 +215,7 @@ async fn return_500_code_invalid() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -217,7 +253,7 @@ async fn return_500_throw_error() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);

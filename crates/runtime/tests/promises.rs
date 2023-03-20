@@ -1,28 +1,26 @@
 use httptest::{matchers::*, responders::*, Expectation, Server};
 use lagon_runtime_http::{Request, Response, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
+use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
 
 #[tokio::test]
 async fn execute_async_handler() {
     utils::setup();
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(
-            "export async function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
     return new Response('Async handler');
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+        .into(),
+    ));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Async handler"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Async handler")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -35,20 +33,18 @@ async fn execute_promise() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const body = await fetch('{url}').then((res) => res.text());
     return new Response(body);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
+        }
+    }
 }

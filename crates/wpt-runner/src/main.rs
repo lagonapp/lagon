@@ -1,7 +1,7 @@
 use colored::*;
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
+use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateEvent, IsolateRequest};
 use lazy_static::lazy_static;
 use log::{
     set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,
@@ -145,16 +145,30 @@ export function handler() {{
     )
     .replace("self.", "globalThis.");
 
+    let (tx, rx) = flume::unbounded();
     let mut isolate = Isolate::new(
         IsolateOptions::new(code).metadata(Some((String::from(""), String::from("")))),
+        rx,
     );
+    isolate.evaluate();
 
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    let (request_tx, request_rx) = flume::unbounded();
 
-    if let RunResult::Error(error) = rx.recv().expect("Failed to receive response") {
-        println!("{error}");
-        exit(1);
+    tx.send_async(IsolateEvent::Request(IsolateRequest {
+        request: Request::default(),
+        sender: request_tx,
+    }))
+    .await
+    .unwrap();
+
+    tokio::select! {
+            _ = isolate.run_event_loop() => {},
+            run_result = request_rx.recv_async() => {
+                if let RunResult::Error(error) = run_result.unwrap() {
+                    println!("{error}");
+                    exit(1);
+            }
+        }
     }
 }
 

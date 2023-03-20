@@ -1,6 +1,5 @@
 use anyhow::Result;
 use lagon_runtime::{options::RuntimeOptions, Runtime};
-use lagon_serverless::cronjob::Cronjob;
 use lagon_serverless::deployments::downloader::S3BucketDownloader;
 use lagon_serverless::deployments::get_deployments;
 use lagon_serverless::deployments::pubsub::RedisPubSub;
@@ -18,8 +17,9 @@ use s3::Bucket;
 use std::borrow::Cow;
 use std::env;
 use std::net::SocketAddr;
+#[cfg(not(debug_assertions))]
+use std::path::Path;
 use std::sync::Arc;
-use tokio::sync::Mutex;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -69,15 +69,19 @@ async fn main() -> Result<()> {
         None,
     )?;
 
-    let cronjob = Arc::new(Mutex::new(Cronjob::new().await));
+    // let cronjob = Arc::new(Mutex::new(Cronjob::new().await));
     let bucket = Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?;
     let downloader = Arc::new(S3BucketDownloader::new(bucket));
 
     let url = env::var("REDIS_URL").expect("REDIS_URL must be set");
     let pubsub = RedisPubSub::new(url);
 
-    let deployments = get_deployments(conn, Arc::clone(&downloader), Arc::clone(&cronjob)).await?;
-    let serverless = start(deployments, addr, downloader, pubsub, cronjob).await?;
+    let deployments = get_deployments(
+        conn,
+        Arc::clone(&downloader), /*, Arc::clone(&cronjob)*/
+    )
+    .await?;
+    let serverless = start(deployments, addr, downloader, pubsub /*, cronjob*/).await?;
     tokio::spawn(serverless).await?;
 
     runtime.dispose();

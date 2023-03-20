@@ -2,7 +2,6 @@ use anyhow::Result;
 use dashmap::DashMap;
 use lagon_runtime_utils::response::{PAGE_403, PAGE_404};
 use lagon_serverless::{
-    cronjob::Cronjob,
     deployments::{
         downloader::FakeDownloader,
         pubsub::{FakePubSub, PubSubMessage, PubSubMessageKind},
@@ -11,7 +10,6 @@ use lagon_serverless::{
 };
 use serial_test::serial;
 use std::{sync::Arc, time::Duration};
-use tokio::sync::Mutex;
 
 mod utils;
 
@@ -26,7 +24,7 @@ async fn deploy_undeploy() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         pubsub,
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -99,7 +97,7 @@ async fn assign_correct_domains_prod() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         pubsub,
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -160,7 +158,7 @@ async fn assign_correct_domains_dev() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         pubsub,
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -221,7 +219,7 @@ async fn skip_cron_not_same_region() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         pubsub,
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -265,7 +263,7 @@ async fn warn_cron_direct_access() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         pubsub,
-        Arc::new(Mutex::new(Cronjob::new().await)),
+        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);

@@ -11,14 +11,20 @@ pub fn pull_stream_binding(
     let isolate_state = Isolate::state(scope);
     let state = isolate_state.borrow();
 
-    let done = args.get(0).to_boolean(scope);
+    let id = args.get(0).uint32_value(scope).unwrap_or(0);
+    let done = args.get(1).to_boolean(scope);
 
-    if done.is_false() {
-        match extract_v8_uint8array(args.get(1)) {
+    if done.is_true() {
+        state
+            .stream_sender
+            .send((id, StreamResult::Done))
+            .unwrap_or(());
+    } else {
+        match extract_v8_uint8array(args.get(2)) {
             Ok(buf) => {
                 state
                     .stream_sender
-                    .send(StreamResult::Data(buf))
+                    .send((id, StreamResult::Data(buf)))
                     .unwrap_or(());
             }
             Err(error) => {
@@ -26,7 +32,5 @@ pub fn pull_stream_binding(
                 scope.throw_exception(exception);
             }
         }
-    } else {
-        state.stream_sender.send(StreamResult::Done).unwrap_or(());
     }
 }

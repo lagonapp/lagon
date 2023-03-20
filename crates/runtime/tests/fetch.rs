@@ -1,6 +1,6 @@
 use httptest::{matchers::*, responders::*, Expectation, Server};
 use lagon_runtime_http::{Request, Response, RunResult};
-use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
+use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
 
@@ -14,22 +14,20 @@ async fn basic_fetch() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const body = await fetch('{url}').then(res => res.text());
     return new Response(body);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -42,25 +40,23 @@ async fn request_method() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'POST'
     }}).then(res => res.text());
 
     return new Response(body);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -73,25 +69,23 @@ async fn request_method_fallback() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'UNKNOWN'
     }}).then(res => res.text());
 
     return new Response(body);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -107,9 +101,8 @@ async fn request_headers() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const body = await fetch('{url}', {{
         headers: {{
             'x-token': 'hello'
@@ -118,16 +111,15 @@ async fn request_headers() {
 
     return new Response(body);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -143,9 +135,8 @@ async fn request_headers_class() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const body = await fetch('{url}', {{
         headers: new Headers({{
             'x-token': 'hello'
@@ -154,16 +145,15 @@ async fn request_headers_class() {
 
     return new Response(body);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -179,9 +169,8 @@ async fn request_body() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'POST',
         body: 'Hello!'
@@ -189,16 +178,15 @@ async fn request_body() {
 
     return new Response(body);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -211,9 +199,8 @@ async fn response_headers() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const response = await fetch('{url}');
     const body = [];
 
@@ -226,16 +213,15 @@ async fn response_headers() {
 
     return new Response(body.sort((a, b) => a.localeCompare(b)).join(' '));
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("content-length: 0 x-token: hello"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("content-length: 0 x-token: hello")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -252,24 +238,22 @@ async fn response_status() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.text();
 
     return new Response(`${{body}}: ${{response.status}}`);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Moved: 200"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Moved: 200")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -282,24 +266,22 @@ async fn response_json() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.json();
 
     return new Response(`${{typeof body}} ${{JSON.stringify(body)}}`);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from(r#"object {"hello":"world"}"#))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from(r#"object {"hello":"world"}"#)));
+        }
+    }
 }
 
 #[tokio::test]
@@ -312,56 +294,51 @@ async fn response_array_buffer() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.arrayBuffer();
 
     return new Response(body);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
+        }
+    }
 }
 
 #[tokio::test]
 async fn throw_invalid_url() {
     utils::setup();
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(
-            "export async function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
     const response = await fetch('doesnotexist');
     const body = await response.text();
 
     return new Response(body);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+        .into(),
+    ));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: client requires absolute-form URIs".into())
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: client requires absolute-form URIs".into()));
+        }
+    }
 }
 
 #[tokio::test]
 async fn throw_invalid_header() {
     utils::setup();
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(
-            "export async function handler() {
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
     const response = await fetch('http://localhost:5555/', {
         headers: {
             'foo': 'bar\\r\\n'
@@ -371,17 +348,16 @@ async fn throw_invalid_header() {
 
     return new Response(body);
 }"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+        .into(),
+    ));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: failed to parse header value".into())
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: failed to parse header value".into()));
+        }
+    }
 }
 
 #[tokio::test]
@@ -394,9 +370,8 @@ async fn abort_signal() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const controller = new AbortController();
     const signal = controller.signal;
 
@@ -409,16 +384,15 @@ async fn abort_signal() {
 
     return new Response(body);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Aborted"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Aborted")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -431,22 +405,20 @@ async fn redirect() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("200"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("200")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -463,22 +435,20 @@ async fn redirect_relative_url() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("200"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("200")));
+        }
+    }
 }
 
 #[tokio::test]
@@ -490,22 +460,20 @@ async fn redirect_without_location_header() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: Got a redirect without Location header".into())
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: Got a redirect without Location header".into()));
+        }
+    }
 }
 
 #[tokio::test]
@@ -534,22 +502,20 @@ async fn redirect_loop() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: Too many redirects".into())
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: Too many redirects".into()));
+        }
+    }
 }
 
 #[tokio::test]
@@ -563,9 +529,8 @@ async fn limit_fetch_calls() {
     );
     let url = server.url("/");
 
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(format!(
-            "let pass = false;
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "let pass = false;
 export async function handler() {{
     if (!pass) {{
         pass = true
@@ -577,45 +542,49 @@ export async function handler() {{
     await fetch('{url}');
     return new Response('ok')
 }}"
-        ))
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx.clone()).await;
+    )));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: fetch() can only be called 20 times per requests".into())
-    );
-    assert!(rx.try_recv().is_err());
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: fetch() can only be called 20 times per requests".into()));
+        }
+    }
 
     // Test if we can still call fetch in subsequent requests
-    isolate.run(Request::default(), tx).await;
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("ok"))
-    );
-    assert!(rx.try_recv().is_err());
+    send(Request::default());
+
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: fetch() can only be called 20 times per requests".into()));
+        }
+    }
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("ok")));
+        }
+    }
 }
 
 #[tokio::test]
 async fn fetch_https() {
     utils::setup();
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(
-            "export async function handler() {{
+    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {{
     const status = (await fetch('https://google.com')).status;
     return new Response(status);
 }}"
-            .into(),
-        )
-        .snapshot_blob(include_bytes!("../../serverless/snapshot.bin")),
-    );
-    let (tx, rx) = flume::unbounded();
-    isolate.run(Request::default(), tx).await;
+        .into(),
+    ));
+    send(Request::default());
 
-    assert_eq!(
-        rx.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("200"))
-    );
+    tokio::select! {
+        _ = isolate.run_event_loop() => {}
+        result = receiver.recv_async() => {
+            assert_eq!(result.unwrap(), RunResult::Response(Response::from("200")));
+        }
+    }
 }

@@ -1414,7 +1414,6 @@ dependencies = [
  "serde",
  "serde_json",
  "tokio",
- "tokio-util",
  "urlencoding",
  "walkdir",
  "webbrowser",
@@ -1474,6 +1473,7 @@ dependencies = [
  "lagon-runtime-http",
  "lagon-runtime-v8-utils",
  "lazy_static",
+ "linked-hash-map",
  "log",
  "tokio",
  "tokio-util",
@@ -1669,6 +1669,12 @@ dependencies = [
  "pkg-config",
  "vcpkg",
 ]
+
+[[package]]
+name = "linked-hash-map"
+version = "0.5.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0717cef1bc8b636c6e1c1bbdefc09e6322da8a9321966e8928ef80d20f7f770f"
 
 [[package]]
 name = "linux-raw-sys"
