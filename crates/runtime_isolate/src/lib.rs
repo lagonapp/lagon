@@ -13,7 +13,7 @@ use std::{
         Arc,
     },
     task::{Context, Poll},
-    time::Duration,
+    time::{Duration, Instant},
 };
 use tokio_util::task::LocalPoolHandle;
 use v8::MapFnTo;
@@ -39,7 +39,6 @@ const ISOLATE_SCRIPT_NAME: &str = "isolate.js";
 
 #[derive(Debug, Default)]
 pub struct RequestContext {
-    #[allow(dead_code)]
     fetch_calls: usize,
 }
 
@@ -57,9 +56,9 @@ pub enum IsolateEvent {
 pub struct HandlerResult {
     promise: Option<v8::Global<v8::Promise>>,
     sender: flume::Sender<RunResult>,
+    start_time: Instant,
     stream_response_sent: RefCell<bool>,
     stream_status: RefCell<StreamStatus>,
-    #[allow(dead_code)]
     context: RequestContext,
 }
 
@@ -354,22 +353,6 @@ impl Isolate {
 
     fn poll_new_requests(&mut self) {
         if let Ok(event) = self.rx.try_recv() {
-            if let Some(on_statistics) = &self.options.on_statistics {
-                let mut statistics = v8::HeapStatistics::default();
-                self.isolate
-                    .as_mut()
-                    .unwrap()
-                    .get_heap_statistics(&mut statistics);
-
-                on_statistics(
-                    self.get_metadata(),
-                    IsolateStatistics {
-                        cpu_time: Duration::from_secs(0),
-                        memory_usage: statistics.total_heap_size(),
-                    },
-                );
-            }
-
             match event {
                 IsolateEvent::Request(IsolateRequest { request, sender }) => {
                     let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
@@ -402,6 +385,7 @@ impl Isolate {
                         HandlerResult {
                             promise: None,
                             sender,
+                            start_time: Instant::now(),
                             stream_response_sent: RefCell::new(false),
                             stream_status: RefCell::new(StreamStatus::None),
                             context: RequestContext::default(),
@@ -574,10 +558,12 @@ impl Isolate {
         let scope = &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global);
         let try_catch = &mut v8::TryCatch::new(scope);
         let lines = state.lines;
+        let options = &self.options;
 
         state.handler_results.retain(|_, handler_result| {
             if *handler_result.stream_response_sent.borrow() {
                 if handler_result.stream_status.borrow().is_done() {
+                    send_statistics(options, try_catch, handler_result.start_time);
                     return false;
                 }
 
@@ -609,7 +595,10 @@ impl Isolate {
                         }
                     }
 
+                    // It's important to send the response before sending the statistics
+                    // because calculating the statistics can take a long time
                     handler_result.sender.send(run_result).unwrap_or(());
+                    send_statistics(options, try_catch, handler_result.start_time);
 
                     false
                 }
@@ -622,6 +611,7 @@ impl Isolate {
                             try_catch, exception, lines,
                         )))
                         .unwrap_or(());
+                    send_statistics(options, try_catch, handler_result.start_time);
 
                     false
                 }
@@ -662,6 +652,25 @@ impl Drop for Isolate {
         if let Some(on_drop) = &self.options.on_drop {
             on_drop(Rc::clone(&self.options.metadata));
         }
+    }
+}
+
+pub fn send_statistics(options: &IsolateOptions, isolate: &mut v8::Isolate, start_time: Instant) {
+    if let Some(on_statistics) = &options.on_statistics {
+        // We calculate the elapsed time before getting the
+        // heap statistics because it can take a long time
+        let cpu_time = start_time.elapsed();
+
+        let mut statistics = v8::HeapStatistics::default();
+        isolate.get_heap_statistics(&mut statistics);
+
+        on_statistics(
+            Rc::clone(&options.metadata),
+            IsolateStatistics {
+                cpu_time,
+                memory_usage: statistics.used_heap_size(),
+            },
+        )
     }
 }
 
