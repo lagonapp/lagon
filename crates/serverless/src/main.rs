@@ -22,7 +22,7 @@ use std::sync::Arc;
 #[tokio::main]
 async fn main() -> Result<()> {
     // Only load a .env file on development
-    // #[cfg(debug_assertions)]
+    #[cfg(debug_assertions)]
     dotenv::dotenv().expect("Failed to load .env file");
 
     let _flush_guard = init_logger(REGION.clone()).expect("Failed to init logger");
@@ -50,10 +50,10 @@ async fn main() -> Result<()> {
     let url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let url = url.as_str();
     let opts = Opts::from_url(url).expect("Failed to parse DATABASE_URL");
-    // #[cfg(not(debug_assertions))]
-    // let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(SslOpts::default().with_root_cert_path(
-    //     Some(Cow::from(Path::new("/etc/ssl/certs/ca-certificates.crt"))),
-    // )));
+    #[cfg(not(debug_assertions))]
+    let opts = OptsBuilder::from_opts(opts).ssl_opts(Some(SslOpts::default().with_root_cert_path(
+        Some(Cow::from(Path::new("/etc/ssl/certs/ca-certificates.crt"))),
+    )));
     let pool = Pool::new(opts)?;
     let conn = pool.get_conn()?;
 

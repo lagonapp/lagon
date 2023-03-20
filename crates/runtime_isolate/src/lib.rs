@@ -354,6 +354,22 @@ impl Isolate {
 
     fn poll_new_requests(&mut self) {
         if let Ok(event) = self.rx.try_recv() {
+            if let Some(on_statistics) = &self.options.on_statistics {
+                let mut statistics = v8::HeapStatistics::default();
+                self.isolate
+                    .as_mut()
+                    .unwrap()
+                    .get_heap_statistics(&mut statistics);
+
+                on_statistics(
+                    self.get_metadata(),
+                    IsolateStatistics {
+                        cpu_time: Duration::from_secs(0),
+                        memory_usage: statistics.total_heap_size(),
+                    },
+                );
+            }
+
             match event {
                 IsolateEvent::Request(IsolateRequest { request, sender }) => {
                     let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
