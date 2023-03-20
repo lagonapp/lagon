@@ -60,7 +60,6 @@ fn handle_error(
         RunResult::Error(error) => {
             increment_counter!("lagon_isolate_errors", labels);
             error!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution error: {}", error);
-            println!("{error:?}");
         }
         _ => {}
     };
@@ -181,12 +180,13 @@ async fn handle_request(
                 request.set_header(X_FORWARDED_FOR.to_string(), ip);
                 request.set_header(X_LAGON_REGION.to_string(), REGION.to_string());
 
+                let isolate_workers = Arc::clone(&workers);
                 let isolate_sender = workers.entry(deployment_id.clone()).or_insert_with(|| {
                     let handle = Handle::current();
                     let (sender, receiver) = flume::unbounded();
                     let labels = labels.clone();
 
-                    std::thread::spawn(move || {
+                    std::thread::Builder::new().name(String::from("isolate-") + deployment.id.as_str()).spawn(move || {
                         handle.block_on(async move {
                             increment_gauge!("lagon_isolates", 1.0, &labels);
                             info!(deployment = deployment.id, function = deployment.function_id, request = request_id; "Creating new isolate");
@@ -240,8 +240,13 @@ async fn handle_request(
                             let mut isolate = Isolate::new(options, receiver);
                             isolate.evaluate();
                             isolate.run_event_loop().await;
+
+                            // When the event loop is completed, that means a) the isolate was terminate due to limits
+                            // or b) the isolate was dropped because of cache expiration. In the first case, the isolate
+                            // isn't removed from the workers map
+                            isolate_workers.remove(&deployment.id);
                         });
-                    });
+                    }).unwrap();
 
                     sender
                 });

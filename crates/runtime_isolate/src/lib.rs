@@ -10,7 +10,7 @@ use std::{
     rc::Rc,
     sync::{
         atomic::{AtomicBool, Ordering},
-        Arc,
+        Arc, RwLock,
     },
     task::{Context, Poll},
     time::{Duration, Instant},
@@ -103,10 +103,8 @@ pub struct Isolate {
     handler: Option<v8::Global<v8::Function>>,
     compilation_error: Option<String>,
     stream_receiver: flume::Receiver<(u32, StreamResult)>,
-    termination_tx: flume::Sender<RunResult>,
-    termination_rx: flume::Receiver<RunResult>,
+    termination_result: Arc<RwLock<Option<RunResult>>>,
     heartbeat: Arc<AtomicBool>,
-    running_promises: Arc<AtomicBool>,
     rx: flume::Receiver<IsolateEvent>,
     near_heap_limit_callback_data: Option<Box<RefCell<dyn std::any::Any>>>,
 }
@@ -165,7 +163,6 @@ impl Isolate {
         isolate.set_promise_reject_callback(promise_reject_callback);
 
         let (stream_sender, stream_receiver) = flume::unbounded();
-        let (termination_tx, termination_rx) = flume::unbounded();
 
         let state: IsolateState = {
             let isolate_scope = &mut v8::HandleScope::new(&mut isolate);
@@ -203,10 +200,8 @@ impl Isolate {
             handler: None,
             compilation_error: None,
             stream_receiver,
-            termination_tx,
-            termination_rx,
+            termination_result: Arc::new(RwLock::new(None)),
             heartbeat: Arc::new(AtomicBool::new(false)),
-            running_promises: Arc::new(AtomicBool::new(false)),
             rx,
             near_heap_limit_callback_data: None,
         };
@@ -299,15 +294,25 @@ impl Isolate {
         );
 
         let thread_safe_handle = try_catch.thread_safe_handle();
-        let termination_tx = self.termination_tx.clone();
+        let termination_result = Arc::clone(&self.termination_result);
+        let startup_duration = self.options.startup_timeout;
         let duration = self.options.timeout;
         let heartbeat = Arc::clone(&self.heartbeat);
+        let evaluating = Arc::new(AtomicBool::new(true));
+        let evaluating_handle = Arc::clone(&evaluating);
 
         std::thread::spawn(move || loop {
-            std::thread::sleep(duration);
+            std::thread::sleep(if evaluating_handle.load(Ordering::SeqCst) {
+                startup_duration
+            } else {
+                duration
+            });
 
             if !heartbeat.load(Ordering::SeqCst) {
-                termination_tx.send(RunResult::Timeout).unwrap_or(());
+                termination_result
+                    .write()
+                    .unwrap()
+                    .replace(RunResult::Timeout);
 
                 if !thread_safe_handle.is_execution_terminating() {
                     thread_safe_handle.terminate_execution();
@@ -349,6 +354,8 @@ impl Isolate {
                 self.compilation_error = Some(handle_error(try_catch, lines).as_error());
             }
         };
+
+        evaluating.store(false, Ordering::SeqCst);
     }
 
     fn poll_new_requests(&mut self) {
@@ -412,14 +419,15 @@ impl Isolate {
                                 false => handle_error(try_catch, 0),
                             };
 
-                            self.termination_tx.send(run_result).unwrap_or(());
+                            self.termination_result.write().unwrap().replace(run_result);
                         }
                     };
                 }
                 IsolateEvent::Terminate(reason) => {
-                    self.termination_tx
-                        .send(RunResult::Error(reason))
-                        .unwrap_or(());
+                    self.termination_result
+                        .write()
+                        .unwrap()
+                        .replace(RunResult::Error(reason));
                     self.terminate();
                 }
             }
@@ -448,8 +456,6 @@ impl Isolate {
             if !isolate_state.promises.is_empty() {
                 promises = Some(Vec::new());
 
-                self.running_promises.store(true, Ordering::SeqCst);
-
                 while let Poll::Ready(Some(BindingResult { id, result })) =
                     isolate_state.promises.poll_next_unpin(cx)
                 {
@@ -457,8 +463,6 @@ impl Isolate {
                         promises.as_mut().unwrap().push((result, promise));
                     }
                 }
-
-                self.running_promises.store(false, Ordering::SeqCst);
             }
         }
 
@@ -511,15 +515,15 @@ impl Isolate {
     fn poll_event_loop(&mut self, cx: &mut Context) -> Poll<()> {
         if let Some(compilation_error) = &self.compilation_error {
             if let Ok(IsolateEvent::Request(IsolateRequest { sender, .. })) = self.rx.try_recv() {
-                let run_result = match self.termination_rx.try_recv() {
-                    Ok(run_result) => run_result,
-                    Err(_) => RunResult::Error(compilation_error.to_string()),
+                let termination_result = match self.termination_result.read().unwrap().as_ref() {
+                    Some(termination_result) => termination_result.clone(),
+                    None => RunResult::Error(compilation_error.to_string()),
                 };
 
-                sender.send(run_result).unwrap_or(());
+                sender.send(termination_result).unwrap_or(());
             }
 
-            return Poll::Pending;
+            return Poll::Ready(());
         }
 
         self.heartbeat.store(true, Ordering::SeqCst);
@@ -533,9 +537,12 @@ impl Isolate {
 
         self.poll_stream(&state);
 
-        if let Ok(run_result) = self.termination_rx.try_recv() {
+        if let Some(termination_result) = self.termination_result.read().unwrap().as_ref() {
             for handler_result in state.handler_results.values() {
-                handler_result.sender.send(run_result.clone()).unwrap_or(());
+                handler_result
+                    .sender
+                    .send(termination_result.clone())
+                    .unwrap_or(());
             }
 
             return Poll::Ready(());

@@ -39,7 +39,6 @@ pub fn fetch_init(scope: &mut v8::HandleScope, args: v8::FunctionCallbackArgumen
     };
 
     if fetch_calls > 20 {
-        println!("return err");
         return Err(anyhow!("fetch() can only be called 20 times per requests"));
     }
 
