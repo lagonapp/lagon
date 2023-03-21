@@ -301,26 +301,41 @@ impl Isolate {
         let evaluating = Arc::new(AtomicBool::new(true));
         let evaluating_handle = Arc::clone(&evaluating);
 
-        std::thread::spawn(move || loop {
-            std::thread::sleep(if evaluating_handle.load(Ordering::SeqCst) {
-                startup_duration
-            } else {
-                duration
-            });
+        std::thread::spawn(move || {
+            // Isolates are terminated when they miss at least two heartbeats. The heartbeat
+            // missed count isn't reset to zero when a heartbeat has been successfully received:
+            // instead, the heartbeat missed count is decremented by one, allowing to safely
+            // terminate faulty isolates that are stuck in an infinite loop, and not randomly
+            // terminate isolates that just happen to be "slow"
+            let mut missed_heartbeat = 0;
 
-            if !heartbeat.load(Ordering::SeqCst) {
-                termination_result
-                    .write()
-                    .unwrap()
-                    .replace(RunResult::Timeout);
+            loop {
+                std::thread::sleep(if evaluating_handle.load(Ordering::SeqCst) {
+                    startup_duration
+                } else {
+                    duration
+                });
 
-                if !thread_safe_handle.is_execution_terminating() {
-                    thread_safe_handle.terminate_execution();
+                if !heartbeat.load(Ordering::SeqCst) {
+                    missed_heartbeat += 1;
+                } else if missed_heartbeat > 0 {
+                    missed_heartbeat -= 1;
                 }
 
-                break;
-            } else {
-                heartbeat.store(false, Ordering::SeqCst);
+                if missed_heartbeat >= 2 {
+                    termination_result
+                        .write()
+                        .unwrap()
+                        .replace(RunResult::Timeout);
+
+                    if !thread_safe_handle.is_execution_terminating() {
+                        thread_safe_handle.terminate_execution();
+                    }
+
+                    break;
+                } else {
+                    heartbeat.store(false, Ordering::SeqCst);
+                }
             }
         });
 
