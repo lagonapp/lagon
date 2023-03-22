@@ -97,6 +97,23 @@ impl StreamStatus {
     }
 }
 
+#[derive(Debug)]
+enum Heartbeat {
+    None,
+    Some,
+    Waiting,
+}
+
+impl Heartbeat {
+    pub fn is_waiting(&self) -> bool {
+        matches!(self, Heartbeat::Waiting)
+    }
+
+    pub fn is_none(&self) -> bool {
+        matches!(self, Heartbeat::None)
+    }
+}
+
 pub struct Isolate {
     options: IsolateOptions,
     isolate: Option<v8::OwnedIsolate>,
@@ -104,7 +121,7 @@ pub struct Isolate {
     compilation_error: Option<String>,
     stream_receiver: flume::Receiver<(u32, StreamResult)>,
     termination_result: Arc<RwLock<Option<RunResult>>>,
-    heartbeat: Arc<AtomicBool>,
+    heartbeat: Arc<RwLock<Heartbeat>>,
     rx: flume::Receiver<IsolateEvent>,
     near_heap_limit_callback_data: Option<Box<RefCell<dyn std::any::Any>>>,
 }
@@ -201,14 +218,20 @@ impl Isolate {
             compilation_error: None,
             stream_receiver,
             termination_result: Arc::new(RwLock::new(None)),
-            heartbeat: Arc::new(AtomicBool::new(false)),
+            heartbeat: Arc::new(RwLock::new(Heartbeat::None)),
             rx,
             near_heap_limit_callback_data: None,
         };
 
         let thread_safe_handle = this.isolate.as_ref().unwrap().thread_safe_handle();
+        let termination_result_handle = Arc::clone(&this.termination_result);
 
         this.set_heap_limit_callback(move |current: usize| {
+            termination_result_handle
+                .write()
+                .unwrap()
+                .replace(RunResult::MemoryLimit);
+
             if !thread_safe_handle.is_execution_terminating() {
                 thread_safe_handle.terminate_execution();
             }
@@ -239,7 +262,9 @@ impl Isolate {
         Rc::clone(&self.options.metadata)
     }
 
-    fn terminate(&mut self) {
+    fn terminate(&mut self, run_result: RunResult) {
+        self.termination_result.write().unwrap().replace(run_result);
+
         if let Some(isolate) = &self.isolate {
             if !isolate.is_execution_terminating() {
                 isolate.terminate_execution();
@@ -316,7 +341,13 @@ impl Isolate {
                     duration
                 });
 
-                if !heartbeat.load(Ordering::SeqCst) {
+                let heartbeat_value = heartbeat.read().unwrap();
+
+                if heartbeat_value.is_waiting() {
+                    continue;
+                }
+
+                if heartbeat_value.is_none() {
                     missed_heartbeat += 1;
                 } else if missed_heartbeat > 0 {
                     missed_heartbeat -= 1;
@@ -334,7 +365,8 @@ impl Isolate {
 
                     break;
                 } else {
-                    heartbeat.store(false, Ordering::SeqCst);
+                    drop(heartbeat_value);
+                    *heartbeat.write().unwrap() = Heartbeat::None;
                 }
             }
         });
@@ -373,78 +405,72 @@ impl Isolate {
         evaluating.store(false, Ordering::SeqCst);
     }
 
-    fn poll_new_requests(&mut self) {
-        if let Ok(event) = self.rx.try_recv() {
-            match event {
-                IsolateEvent::Request(IsolateRequest { request, sender }) => {
-                    let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
-                    let (global, requests_count) = {
-                        let mut isolate_state = isolate_state.borrow_mut();
-                        let global = isolate_state.global.as_ref().unwrap().0.clone();
+    pub fn handle_event(&mut self, event: IsolateEvent) {
+        match event {
+            IsolateEvent::Request(IsolateRequest { request, sender }) => {
+                let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
+                let (global, requests_count) = {
+                    let mut isolate_state = isolate_state.borrow_mut();
+                    let global = isolate_state.global.as_ref().unwrap().0.clone();
 
-                        isolate_state.requests_count += 1;
+                    isolate_state.requests_count += 1;
 
-                        (global, isolate_state.requests_count)
-                    };
-                    let scope = &mut v8::HandleScope::with_context(
-                        self.isolate.as_mut().unwrap(),
-                        global.clone(),
-                    );
-                    let try_catch = &mut v8::TryCatch::new(scope);
+                    (global, isolate_state.requests_count)
+                };
+                let scope = &mut v8::HandleScope::with_context(
+                    self.isolate.as_mut().unwrap(),
+                    global.clone(),
+                );
+                let try_catch = &mut v8::TryCatch::new(scope);
 
-                    let handler = self.handler.as_ref().unwrap();
-                    let handler = handler.open(try_catch);
+                let handler = self.handler.as_ref().unwrap();
+                let handler = handler.open(try_catch);
 
-                    let global = global.open(try_catch);
-                    let global = global.global(try_catch);
+                let global = global.open(try_catch);
+                let global = global.global(try_catch);
 
-                    let request = request.into_v8(try_catch);
-                    let id = v8::Integer::new(try_catch, requests_count as i32);
-                    try_catch.set_continuation_preserved_embedder_data(id.into());
+                let request = request.into_v8(try_catch);
+                let id = v8::Integer::new(try_catch, requests_count as i32);
+                try_catch.set_continuation_preserved_embedder_data(id.into());
 
-                    isolate_state.borrow_mut().handler_results.insert(
-                        requests_count,
-                        HandlerResult {
-                            promise: None,
-                            sender,
-                            start_time: Instant::now(),
-                            stream_response_sent: RefCell::new(false),
-                            stream_status: RefCell::new(StreamStatus::None),
-                            context: RequestContext::default(),
-                        },
-                    );
+                isolate_state.borrow_mut().handler_results.insert(
+                    requests_count,
+                    HandlerResult {
+                        promise: None,
+                        sender,
+                        start_time: Instant::now(),
+                        stream_response_sent: RefCell::new(false),
+                        stream_status: RefCell::new(StreamStatus::None),
+                        context: RequestContext::default(),
+                    },
+                );
 
-                    match handler.call(try_catch, global.into(), &[id.into(), request.into()]) {
-                        Some(response) => {
-                            let promise = v8::Local::<v8::Promise>::try_from(response)
-                                .expect("Handler did not return a promise");
-                            let promise = v8::Global::new(try_catch, promise);
+                match handler.call(try_catch, global.into(), &[id.into(), request.into()]) {
+                    Some(response) => {
+                        let promise = v8::Local::<v8::Promise>::try_from(response)
+                            .expect("Handler did not return a promise");
+                        let promise = v8::Global::new(try_catch, promise);
 
-                            if let Some(handler_result) = isolate_state
-                                .borrow_mut()
-                                .handler_results
-                                .get_mut(&requests_count)
-                            {
-                                handler_result.promise = Some(promise);
-                            }
+                        if let Some(handler_result) = isolate_state
+                            .borrow_mut()
+                            .handler_results
+                            .get_mut(&requests_count)
+                        {
+                            handler_result.promise = Some(promise);
                         }
-                        None => {
-                            let run_result = match try_catch.is_execution_terminating() {
-                                true => RunResult::MemoryLimit,
-                                false => handle_error(try_catch, 0),
-                            };
-
-                            self.termination_result.write().unwrap().replace(run_result);
-                        }
-                    };
-                }
-                IsolateEvent::Terminate(reason) => {
-                    self.termination_result
-                        .write()
-                        .unwrap()
-                        .replace(RunResult::Error(reason));
-                    self.terminate();
-                }
+                    }
+                    None => {
+                        // Use the current termination result (e.g timeout or memory),
+                        // or try to handle an error
+                        self.termination_result
+                            .write()
+                            .unwrap()
+                            .get_or_insert_with(|| handle_error(try_catch, 0));
+                    }
+                };
+            }
+            IsolateEvent::Terminate(reason) => {
+                self.terminate(RunResult::Error(reason));
             }
         }
     }
@@ -541,13 +567,30 @@ impl Isolate {
             return Poll::Ready(());
         }
 
-        self.heartbeat.store(true, Ordering::SeqCst);
+        let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
 
-        self.poll_new_requests();
+        // If no requests are being processed, we can block this thread (`rx.recv`)
+        // while we wait for a new request. The heartbeat status is set to Waiting
+        // to avoid the isolate being terminated. If we are already processing requests,
+        // try to receive any other request
+        if isolate_state.borrow().handler_results.is_empty() {
+            *self.heartbeat.write().unwrap() = Heartbeat::Waiting;
+
+            if let Ok(event) = self.rx.recv() {
+                *self.heartbeat.write().unwrap() = Heartbeat::Some;
+                self.handle_event(event);
+            }
+        } else {
+            *self.heartbeat.write().unwrap() = Heartbeat::Some;
+
+            while let Ok(event) = self.rx.try_recv() {
+                self.handle_event(event);
+            }
+        }
+
         self.poll_v8();
         self.resolve_promises(cx);
 
-        let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
         let mut state = isolate_state.borrow_mut();
 
         self.poll_stream(&state);
@@ -669,7 +712,7 @@ impl Isolate {
 
 impl Drop for Isolate {
     fn drop(&mut self) {
-        self.terminate();
+        self.terminate(RunResult::Error(String::from("Dropped")));
 
         if let Some(on_drop) = &self.options.on_drop {
             on_drop(Rc::clone(&self.options.metadata));

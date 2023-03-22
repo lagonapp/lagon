@@ -8,7 +8,7 @@ mod utils;
 #[tokio::test]
 async fn sync_streaming() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     return new Response(
         new ReadableStream({
@@ -23,30 +23,28 @@ async fn sync_streaming() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Data(vec![65, 66, 67])));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Done));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Start(Response::from("[object ReadableStream]"))));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Data(vec![65, 66, 67]))
+    );
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Done)
+    );
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response::from(
+            "[object ReadableStream]"
+        )))
+    );
 }
 
 #[tokio::test]
 async fn queue_multiple() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     let count = 0;
     return new Response(
@@ -68,31 +66,28 @@ async fn queue_multiple() {
     send(Request::default());
 
     for _ in 0..3 {
-        tokio::select! {
-            _ = isolate.run_event_loop() => {}
-            result = receiver.recv_async() => {
-                assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Data(vec![65])));
-            }
-        }
+        assert_eq!(
+            receiver.recv_async().await.unwrap(),
+            RunResult::Stream(StreamResult::Data(vec![65]))
+        );
     }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Done));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Start(Response::from("[object ReadableStream]"))));
-        }
-    }
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Done)
+    );
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response::from(
+            "[object ReadableStream]"
+        )))
+    );
 }
 
 #[tokio::test]
 async fn custom_response() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     return new Response(
         new ReadableStream({
@@ -115,34 +110,30 @@ async fn custom_response() {
     let mut headers = HashMap::new();
     headers.insert("x-lagon".into(), vec!["test".into()]);
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Data(vec![65, 66, 67])));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Done));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Start(Response {
-                body: Bytes::from("[object ReadableStream]"),
-                status: 201,
-                headers: Some(headers),
-            })));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Data(vec![65, 66, 67]))
+    );
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Done)
+    );
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response {
+            body: Bytes::from("[object ReadableStream]"),
+            status: 201,
+            headers: Some(headers),
+        }))
+    );
 }
 
 #[tokio::test]
 async fn start_and_pull() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     return new Response(
         new ReadableStream({
@@ -160,30 +151,29 @@ async fn start_and_pull() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Data(vec![76, 111, 97, 100, 105, 110, 103, 46, 46, 46])));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111])));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Done));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Start(Response::from("[object ReadableStream]"))));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Data(vec![
+            76, 111, 97, 100, 105, 110, 103, 46, 46, 46
+        ]))
+    );
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111]))
+    );
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Done)
+    );
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response::from(
+            "[object ReadableStream]"
+        )))
+    );
 }
 
 #[tokio::test]
@@ -196,7 +186,7 @@ async fn response_before_write() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export function handler() {{
     const transformStream = new TransformStream({{
         start(controller) {{
@@ -219,37 +209,36 @@ async fn response_before_write() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Data(vec![76, 111, 97, 100, 105, 110, 103, 46, 46, 46])));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Start(Response::from("[object ReadableStream]"))));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111])));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Done));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Data(vec![
+            76, 111, 97, 100, 105, 110, 103, 46, 46, 46
+        ]))
+    );
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response::from(
+            "[object ReadableStream]"
+        )))
+    );
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111]))
+    );
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Done)
+    );
 }
 
 // TODO
 // #[tokio::test]
 // async fn timeout_infinite_streaming() {
 //     utils::setup();
-//     let (mut isolate, send, receiver) = utils::create_isolate(
+//     let (send, receiver) = utils::create_isolate(
 //         IsolateOptions::new(
 //             "export function handler() {
 //     const { readable } = new TransformStream()
@@ -271,13 +260,13 @@ async fn response_before_write() {
 //     tokio::select! {
 //         _ = isolate.run_event_loop() => {}
 //         result = receiver.recv_async() => {
-//             assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Start(Response::from("[object ReadableStream]"))));
+//             assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Stream(StreamResult::Start(Response::from("[object ReadableStream]"))));
 //         }
 //     }
 //     tokio::select! {
 //         _ = isolate.run_event_loop() => {}
 //         result = receiver.recv_async() => {
-//             assert_eq!(result.unwrap(), RunResult::Timeout);
+//             assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Timeout);
 //         }
 //     }
 // }
@@ -285,7 +274,7 @@ async fn response_before_write() {
 #[tokio::test]
 async fn promise_reject_callback() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     const { readable } = new TransformStream()
 
@@ -301,26 +290,20 @@ async fn promise_reject_callback() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at trigger (5:9)\n  at handler (8:5)".to_owned()));
-        }
-    }
+    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at trigger (5:9)\n  at handler (8:5)".to_owned()));
 }
 
 #[tokio::test]
 async fn promise_reject_callback_after_response() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     const output = new TextEncoder().encode('This is rendered as binary stream with non-ASCII chars 😊');
 
     const { readable, writable } = new TransformStream();
 
     async function stream() {
-        // Just to delay a bit
-        await fetch('https://google.com');
+        await new Promise(resolve => setTimeout(resolve, 100))
 
         const writer = writable.getWriter();
         for (let i = 0; i < output.length; i++) {
@@ -339,18 +322,12 @@ async fn promise_reject_callback_after_response() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Stream(StreamResult::Start(Response::from(
-                "[object ReadableStream]"
-            ))));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at 13:17\n  at stream (12:19)".to_owned()));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response::from(
+            "[object ReadableStream]"
+        )))
+    );
+
+    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at 12:17\n  at stream (11:19)".to_owned()));
 }

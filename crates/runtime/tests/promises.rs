@@ -7,7 +7,7 @@ mod utils;
 #[tokio::test]
 async fn execute_async_handler() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
     return new Response('Async handler');
 }"
@@ -15,12 +15,10 @@ async fn execute_async_handler() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Async handler")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Async handler"))
+    );
 }
 
 #[tokio::test]
@@ -33,7 +31,7 @@ async fn execute_promise() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}').then((res) => res.text());
     return new Response(body);
@@ -41,10 +39,8 @@ async fn execute_promise() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello, World"))
+    );
 }

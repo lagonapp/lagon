@@ -2,6 +2,7 @@ use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateEvent, IsolateRequest};
 use std::sync::Once;
+use tokio::runtime::Handle;
 
 #[allow(dead_code)]
 pub fn setup() {
@@ -57,16 +58,21 @@ pub fn setup_logger() -> flume::Receiver<String> {
 type SendRequest = Box<dyn Fn(Request)>;
 
 #[allow(dead_code)]
-pub fn create_isolate(
-    options: IsolateOptions,
-) -> (Isolate, SendRequest, flume::Receiver<RunResult>) {
+pub fn create_isolate(options: IsolateOptions) -> (SendRequest, flume::Receiver<RunResult>) {
     let (request_tx, request_rx) = flume::unbounded();
     let (sender, receiver) = flume::unbounded();
-    let mut isolate = Isolate::new(
-        options.snapshot_blob(include_bytes!("../../../serverless/snapshot.bin")),
-        request_rx,
-    );
-    isolate.evaluate();
+
+    let handle = Handle::current();
+    std::thread::spawn(move || {
+        handle.block_on(async move {
+            let mut isolate = Isolate::new(
+                options.snapshot_blob(include_bytes!("../../../serverless/snapshot.bin")),
+                request_rx,
+            );
+            isolate.evaluate();
+            isolate.run_event_loop().await;
+        })
+    });
 
     let send_isolate_event = Box::new(move |request: Request| {
         request_tx
@@ -77,17 +83,24 @@ pub fn create_isolate(
             .unwrap();
     });
 
-    (isolate, send_isolate_event, receiver)
+    (send_isolate_event, receiver)
 }
 
 #[allow(dead_code)]
 pub fn create_isolate_without_snapshot(
     options: IsolateOptions,
-) -> (Isolate, SendRequest, flume::Receiver<RunResult>) {
+) -> (SendRequest, flume::Receiver<RunResult>) {
     let (request_tx, request_rx) = flume::unbounded();
     let (sender, receiver) = flume::unbounded();
-    let mut isolate = Isolate::new(options, request_rx);
-    isolate.evaluate();
+
+    let handle = Handle::current();
+    std::thread::spawn(move || {
+        handle.block_on(async move {
+            let mut isolate = Isolate::new(options, request_rx);
+            isolate.evaluate();
+            isolate.run_event_loop().await;
+        })
+    });
 
     let send_isolate_event = Box::new(move |request: Request| {
         request_tx
@@ -98,5 +111,5 @@ pub fn create_isolate_without_snapshot(
             .unwrap();
     });
 
-    (isolate, send_isolate_event, receiver)
+    (send_isolate_event, receiver)
 }
