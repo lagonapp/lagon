@@ -149,7 +149,7 @@ export function handler() {{
     let (tx, rx) = flume::unbounded();
     let handle = Handle::current();
 
-    std::thread::spawn(move || {
+    let join_handle = std::thread::spawn(move || {
         handle.block_on(async move {
             let mut isolate = Isolate::new(
                 IsolateOptions::new(code).metadata(Some((String::from(""), String::from("")))),
@@ -173,6 +173,12 @@ export function handler() {{
         println!("{error}");
         exit(1);
     }
+
+    tx.send_async(IsolateEvent::Terminate(String::from("Terminate")))
+        .await
+        .unwrap();
+
+    join_handle.join().unwrap();
 }
 
 async fn test_directory(path: &Path) {
