@@ -14,7 +14,7 @@ async fn basic_fetch() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}').then(res => res.text());
     return new Response(body);
@@ -22,12 +22,10 @@ async fn basic_fetch() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello, World"))
+    );
 }
 
 #[tokio::test]
@@ -40,7 +38,7 @@ async fn request_method() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'POST'
@@ -51,12 +49,10 @@ async fn request_method() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello, World"))
+    );
 }
 
 #[tokio::test]
@@ -69,7 +65,7 @@ async fn request_method_fallback() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'UNKNOWN'
@@ -80,12 +76,10 @@ async fn request_method_fallback() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello, World"))
+    );
 }
 
 #[tokio::test]
@@ -101,25 +95,23 @@ async fn request_headers() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}', {{
         headers: {{
             'x-token': 'hello'
         }}
-    }}).then(res => res.text());
+        }}).then(res => res.text());
 
     return new Response(body);
 }}"
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello, World"))
+    );
 }
 
 #[tokio::test]
@@ -135,7 +127,7 @@ async fn request_headers_class() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}', {{
         headers: new Headers({{
@@ -148,12 +140,10 @@ async fn request_headers_class() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello, World"))
+    );
 }
 
 #[tokio::test]
@@ -169,7 +159,7 @@ async fn request_body() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const body = await fetch('{url}', {{
         method: 'POST',
@@ -181,12 +171,10 @@ async fn request_body() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello, World"))
+    );
 }
 
 #[tokio::test]
@@ -199,7 +187,7 @@ async fn response_headers() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const response = await fetch('{url}');
     const body = [];
@@ -216,12 +204,10 @@ async fn response_headers() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("content-length: 0 x-token: hello")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("content-length: 0 x-token: hello"))
+    );
 }
 
 #[tokio::test]
@@ -238,7 +224,7 @@ async fn response_status() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.text();
@@ -248,12 +234,10 @@ async fn response_status() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Moved: 200")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Moved: 200"))
+    );
 }
 
 #[tokio::test]
@@ -266,7 +250,7 @@ async fn response_json() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.json();
@@ -276,12 +260,10 @@ async fn response_json() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from(r#"object {"hello":"world"}"#)));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from(r#"object {"hello":"world"}"#))
+    );
 }
 
 #[tokio::test]
@@ -294,7 +276,7 @@ async fn response_array_buffer() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const response = await fetch('{url}');
     const body = await response.arrayBuffer();
@@ -304,18 +286,16 @@ async fn response_array_buffer() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello, World")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello, World"))
+    );
 }
 
 #[tokio::test]
 async fn throw_invalid_url() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
     const response = await fetch('doesnotexist');
     const body = await response.text();
@@ -326,18 +306,16 @@ async fn throw_invalid_url() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: client requires absolute-form URIs".into()));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: client requires absolute-form URIs".into())
+    );
 }
 
 #[tokio::test]
 async fn throw_invalid_header() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
     const response = await fetch('http://localhost:5555/', {
         headers: {
@@ -352,12 +330,10 @@ async fn throw_invalid_header() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: failed to parse header value".into()));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: failed to parse header value".into())
+    );
 }
 
 #[tokio::test]
@@ -370,7 +346,7 @@ async fn abort_signal() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const controller = new AbortController();
     const signal = controller.signal;
@@ -387,12 +363,10 @@ async fn abort_signal() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Aborted")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Aborted"))
+    );
 }
 
 #[tokio::test]
@@ -405,7 +379,7 @@ async fn redirect() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
@@ -413,12 +387,10 @@ async fn redirect() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("200")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("200"))
+    );
 }
 
 #[tokio::test]
@@ -435,7 +407,7 @@ async fn redirect_relative_url() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
@@ -443,12 +415,10 @@ async fn redirect_relative_url() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("200")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("200"))
+    );
 }
 
 #[tokio::test]
@@ -460,7 +430,7 @@ async fn redirect_without_location_header() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
@@ -468,12 +438,10 @@ async fn redirect_without_location_header() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: Got a redirect without Location header".into()));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: Got a redirect without Location header".into())
+    );
 }
 
 #[tokio::test]
@@ -502,7 +470,7 @@ async fn redirect_loop() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "export async function handler() {{
     const status = (await fetch('{url}')).status;
     return new Response(status);
@@ -510,12 +478,10 @@ async fn redirect_loop() {
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: Too many redirects".into()));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: Too many redirects".into())
+    );
 }
 
 #[tokio::test]
@@ -529,7 +495,7 @@ async fn limit_fetch_calls() {
     );
     let url = server.url("/");
 
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
         "let pass = false;
 export async function handler() {{
     if (!pass) {{
@@ -545,34 +511,29 @@ export async function handler() {{
     )));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: fetch() can only be called 20 times per requests".into()));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: fetch() can only be called 20 times per requests".into())
+    );
 
     // Test if we can still call fetch in subsequent requests
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Error("Uncaught Error: fetch() can only be called 20 times per requests".into()));
-        }
-    }
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("ok")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Error("Uncaught Error: fetch() can only be called 20 times per requests".into())
+    );
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("ok"))
+    );
 }
 
 #[tokio::test]
 async fn fetch_https() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {{
     const status = (await fetch('https://google.com')).status;
     return new Response(status);
@@ -581,10 +542,8 @@ async fn fetch_https() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("200")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("200"))
+    );
 }

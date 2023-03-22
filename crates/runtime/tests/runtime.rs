@@ -8,7 +8,7 @@ mod utils;
 #[tokio::test]
 async fn execute_function() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     return new Response('Hello world');
 }"
@@ -16,18 +16,16 @@ async fn execute_function() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello world")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello world"))
+    );
 }
 
 #[tokio::test]
 async fn execute_function_twice() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     return new Response('Hello world');
 }"
@@ -35,27 +33,23 @@ async fn execute_function_twice() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello world")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello world"))
+    );
 
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello world")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello world"))
+    );
 }
 
 #[tokio::test]
 async fn environment_variables() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(
+    let (send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "export function handler() {
     return new Response(process.env.TEST);
@@ -70,18 +64,16 @@ async fn environment_variables() {
     );
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello world")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello world"))
+    );
 }
 
 #[tokio::test]
 async fn get_body() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler(request) {
     return new Response(request.body);
 }"
@@ -94,18 +86,16 @@ async fn get_body() {
         url: "".into(),
     });
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello world")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello world"))
+    );
 }
 
 #[tokio::test]
 async fn get_input() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler(request) {
     return new Response(request.url);
 }"
@@ -118,18 +108,16 @@ async fn get_input() {
         url: "https://hello.world".into(),
     });
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("https://hello.world")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("https://hello.world"))
+    );
 }
 
 #[tokio::test]
 async fn get_method() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler(request) {
     return new Response(request.method);
 }"
@@ -142,18 +130,16 @@ async fn get_method() {
         url: "".into(),
     });
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("POST")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("POST"))
+    );
 }
 
 #[tokio::test]
 async fn get_headers() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler(request) {
     return new Response(request.headers.get('x-auth'));
 }"
@@ -170,18 +156,16 @@ async fn get_headers() {
         url: "".into(),
     });
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("token")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("token"))
+    );
 }
 
 #[tokio::test]
 async fn return_headers() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     return new Response('Hello world', {
         headers: {
@@ -199,22 +183,20 @@ async fn return_headers() {
 
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response {
-                body: "Hello world".into(),
-                headers: Some(headers),
-                status: 200,
-            }));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response {
+            body: "Hello world".into(),
+            headers: Some(headers),
+            status: 200,
+        })
+    );
 }
 
 #[tokio::test]
 async fn return_headers_from_headers_api() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     return new Response('Hello world', {
         headers: new Headers({
@@ -232,22 +214,20 @@ async fn return_headers_from_headers_api() {
 
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response {
-                body: "Hello world".into(),
-                headers: Some(headers),
-                status: 200,
-            }));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response {
+            body: "Hello world".into(),
+            headers: Some(headers),
+            status: 200,
+        })
+    );
 }
 
 #[tokio::test]
 async fn return_status() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     return new Response('Moved permanently', {
         status: 302,
@@ -257,22 +237,20 @@ async fn return_status() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response {
-                body: "Moved permanently".into(),
-                headers: None,
-                status: 302,
-            }));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response {
+            body: "Moved permanently".into(),
+            headers: None,
+            status: 302,
+        })
+    );
 }
 
 #[tokio::test]
 async fn return_uint8array() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     // TextEncoder#encode returns a Uint8Array
     const body = new TextEncoder().encode('Hello world');
@@ -282,18 +260,16 @@ async fn return_uint8array() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello world")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello world"))
+    );
 }
 
 #[tokio::test]
 async fn console_log() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     const types = ['log', 'info', 'debug', 'error', 'warn'];
 
@@ -307,18 +283,16 @@ async fn console_log() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::default()));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::default())
+    );
 }
 
 #[tokio::test]
 async fn atob() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     return new Response(atob('SGVsbG8='));
 }"
@@ -326,18 +300,16 @@ async fn atob() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("Hello")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("Hello"))
+    );
 }
 
 #[tokio::test]
 async fn btoa() {
     utils::setup();
-    let (mut isolate, send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
     return new Response(btoa('Hello'));
 }"
@@ -345,10 +317,8 @@ async fn btoa() {
     ));
     send(Request::default());
 
-    tokio::select! {
-        _ = isolate.run_event_loop() => {}
-        result = receiver.recv_async() => {
-            assert_eq!(result.unwrap(), RunResult::Response(Response::from("SGVsbG8=")));
-        }
-    }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Response(Response::from("SGVsbG8="))
+    );
 }
