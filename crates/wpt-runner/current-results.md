@@ -54,12 +54,45 @@ TEST DONE 1 XMLHttpRequest with value %1F
 TEST DONE 1 XMLHttpRequest with value %20
 TEST DONE 1 fetch() with value %00
 Running ../../tools/wpt/fetch/api/headers/header-values.any.js
+TEST DONE 1 fetch() with value %01
+TEST DONE 1 fetch() with value %02
+TEST DONE 1 fetch() with value %03
+TEST DONE 1 fetch() with value %04
+TEST DONE 1 fetch() with value %05
+TEST DONE 1 fetch() with value %06
+TEST DONE 1 fetch() with value %07
+TEST DONE 1 fetch() with value %08
+TEST DONE 1 fetch() with value %09
+TEST DONE 1 fetch() with value %0A
+TEST DONE 1 fetch() with value %0D
+TEST DONE 1 fetch() with value %0E
+TEST DONE 1 fetch() with value %0F
+TEST DONE 1 fetch() with value %10
+TEST DONE 1 fetch() with value %11
+TEST DONE 1 fetch() with value %12
+TEST DONE 1 fetch() with value %13
+TEST DONE 1 fetch() with value %14
+TEST DONE 1 fetch() with value %15
+TEST DONE 1 fetch() with value %16
+TEST DONE 1 fetch() with value %17
+TEST DONE 1 fetch() with value %18
+TEST DONE 1 fetch() with value %19
+TEST DONE 1 fetch() with value %1A
+TEST DONE 1 fetch() with value %1B
+TEST DONE 1 fetch() with value %1C
+TEST DONE 1 fetch() with value %1D
+TEST DONE 1 fetch() with value %1E
+TEST DONE 1 fetch() with value %1F
+TEST DONE 1 fetch() with value %20
 TEST DONE 1 XMLHttpRequest with value x%00x needs to throw
 TEST DONE 1 XMLHttpRequest with value x%0Ax needs to throw
 TEST DONE 1 XMLHttpRequest with value x%0Dx needs to throw
 TEST DONE 1 XMLHttpRequest with all valid values
 TEST DONE 1 fetch() with value x%00x needs to throw
 Running ../../tools/wpt/fetch/api/headers/headers-basic.any.js
+TEST DONE 1 fetch() with value x%0Ax needs to throw
+TEST DONE 1 fetch() with value x%0Dx needs to throw
+TEST DONE 1 fetch() with all valid values
 TEST DONE 0 Create headers from no parameter
 TEST DONE 0 Create headers from undefined parameter
 TEST DONE 0 Create headers from empty object
@@ -414,6 +447,7 @@ Running ../../tools/wpt/fetch/api/response/json.any.js
 TEST DONE 1 Ensure the correct JSON parser is used
 Skipping ../../tools/wpt/fetch/api/response/response-cancel-stream.any.js
 Running ../../tools/wpt/fetch/api/response/response-clone.any.js
+TEST DONE 1 Ensure UTF-16 results in an error
 TEST DONE 0 Check Response's clone with default values, without body
 TEST DONE 0 Check Response's clone has the expected attribute values
 TEST DONE 1 Check orginal response's body after cloning
@@ -421,6 +455,20 @@ TEST DONE 1 Check cloned response's body
 TEST DONE 1 Cannot clone a disturbed response
 TEST DONE 1 Cloned responses should provide the same data
 Running ../../tools/wpt/fetch/api/response/response-consume-empty.any.js
+TEST DONE 1 Cancelling stream should not affect cloned one
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Int8Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Int16Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Int32Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (ArrayBufferchunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Uint8Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Uint8ClampedArraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Uint16Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Uint32Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (BigInt64Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (BigUint64Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Float32Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Float64Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (DataViewchunk)
 TEST DONE 1 Consume response's body as text
 TEST DONE 1 Consume response's body as blob
 TEST DONE 1 Consume response's body as arrayBuffer
@@ -1587,10 +1635,55 @@ TEST DONE 1 Property bag propagates exceptions
 Running ../../tools/wpt/FileAPI/file/send-file-formdata-controls.any.js
 TEST DONE 1 Upload file-for-upload-in-form-NUL-[ ].txt (ASCII) in fetch with FormData
 Running ../../tools/wpt/FileAPI/file/send-file-formdata-punctuation.any.js
+TEST DONE 1 Upload file-for-upload-in-form-BS-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-VT-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-LF-[
+].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-LF-CR-[
+].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-CR-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-CR-LF-[
+].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-HT-[	].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-FF-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-DEL-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-ESC-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-SPACE-[ ].txt (ASCII) in fetch with FormData
 TEST DONE 1 Upload file-for-upload-in-form-QUOTATION-MARK-["].txt (ASCII) in fetch with FormData
 Running ../../tools/wpt/FileAPI/file/send-file-formdata-utf-8.any.js
+TEST DONE 1 Upload "file-for-upload-in-form-double-quoted.txt" (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-REVERSE-SOLIDUS-[\].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-EXCLAMATION-MARK-[!].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-DOLLAR-SIGN-[$].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-PERCENT-SIGN-[%].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-AMPERSAND-[&].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-APOSTROPHE-['].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-LEFT-PARENTHESIS-[(].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-RIGHT-PARENTHESIS-[)].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-ASTERISK-[*].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-PLUS-SIGN-[+].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-COMMA-[,].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-FULL-STOP-[.].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-SOLIDUS-[/].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-COLON-[:].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-SEMICOLON-[;].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-EQUALS-SIGN-[=].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-QUESTION-MARK-[?].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-CIRCUMFLEX-ACCENT-[^].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-LEFT-SQUARE-BRACKET-[[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-RIGHT-SQUARE-BRACKET-[]].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-LEFT-CURLY-BRACKET-[{].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-VERTICAL-LINE-[|].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-RIGHT-CURLY-BRACKET-[}].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-TILDE-[~].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload 'file-for-upload-in-form-single-quoted.txt' (ASCII) in fetch with FormData
 TEST DONE 1 Upload file-for-upload-in-form.txt (ASCII) in fetch with FormData
 Running ../../tools/wpt/FileAPI/file/send-file-formdata.any.js
+TEST DONE 1 Upload file-for-upload-in-form-.txt (x-user-defined) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-☺😂.txt (Unicode) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in fetch with FormData
 TEST DONE 1 Upload file-for-upload-in-form.txt (ASCII) in fetch with FormData
 Running ../../tools/wpt/FileAPI/reading-data-section/Determining-Encoding.any.js
 TEST DONE 1 Blob Determing Encoding with encoding argument
@@ -1700,5 +1793,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1576 tests, 456 passed, 1111 failed
- -> 28% conformance
+1659 tests, 456 passed, 1201 failed
+ -> 27% conformance

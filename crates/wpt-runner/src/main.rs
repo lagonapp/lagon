@@ -12,6 +12,7 @@ use std::{
     process::exit,
     sync::Mutex,
 };
+use tokio::runtime::Handle;
 
 // From tools/wpt/encoding/resources/encodings.js, we only support utf-8
 const ENCODING_TABLE: &str = r#"const encodings_table =
@@ -146,11 +147,18 @@ export function handler() {{
     .replace("self.", "globalThis.");
 
     let (tx, rx) = flume::unbounded();
-    let mut isolate = Isolate::new(
-        IsolateOptions::new(code).metadata(Some((String::from(""), String::from("")))),
-        rx,
-    );
-    isolate.evaluate();
+    let handle = Handle::current();
+
+    std::thread::spawn(move || {
+        handle.block_on(async move {
+            let mut isolate = Isolate::new(
+                IsolateOptions::new(code).metadata(Some((String::from(""), String::from("")))),
+                rx,
+            );
+            isolate.evaluate();
+            isolate.run_event_loop().await;
+        })
+    });
 
     let (request_tx, request_rx) = flume::unbounded();
 
@@ -161,14 +169,9 @@ export function handler() {{
     .await
     .unwrap();
 
-    tokio::select! {
-            _ = isolate.run_event_loop() => {},
-            run_result = request_rx.recv_async() => {
-                if let RunResult::Error(error) = run_result.unwrap() {
-                    println!("{error}");
-                    exit(1);
-            }
-        }
+    if let Ok(RunResult::Error(error)) = request_rx.recv_async().await {
+        println!("{error}");
+        exit(1);
     }
 }
 

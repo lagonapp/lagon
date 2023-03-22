@@ -476,6 +476,10 @@ impl Isolate {
     }
 
     fn poll_v8(&mut self) {
+        if !self.isolate.as_ref().unwrap().is_execution_terminating() {
+            return;
+        }
+
         let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
         let global = {
             let isolate_state = isolate_state.borrow();
