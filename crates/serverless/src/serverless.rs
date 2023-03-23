@@ -1,10 +1,5 @@
 use crate::{
-    deployments::{
-        cache::run_cache_clear_task,
-        downloader::Downloader,
-        pubsub::{listen_pub_sub, PubSubListener},
-        Deployments,
-    },
+    deployments::{cache::run_cache_clear_task, pubsub::listen_pub_sub, Deployments},
     REGION, SNAPSHOT_BLOB,
 };
 use anyhow::Result;
@@ -27,6 +22,8 @@ use lagon_runtime_utils::{
     response::{handle_response, ResponseEvent, FAVICON_URL, PAGE_403, PAGE_404},
     DEPLOYMENTS_DIR,
 };
+use lagon_serverless_downloader::Downloader;
+use lagon_serverless_pubsub::PubSubListener;
 use log::{as_debug, error, info, warn};
 use metrics::{counter, decrement_gauge, histogram, increment_counter, increment_gauge};
 use std::{

@@ -3,10 +3,9 @@ use dashmap::DashMap;
 use futures::StreamExt;
 use hyper::body::Bytes;
 use lagon_runtime_utils::Deployment;
-use lagon_serverless::{
-    deployments::{downloader::FakeDownloader, pubsub::FakePubSub},
-    serverless::start,
-};
+use lagon_serverless::serverless::start;
+use lagon_serverless_downloader::FakeDownloader;
+use lagon_serverless_pubsub::FakePubSub;
 use serial_test::serial;
 use std::{
     collections::{HashMap, HashSet},

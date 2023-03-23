@@ -1,18 +1,16 @@
 use anyhow::Result;
 use lagon_runtime::{options::RuntimeOptions, Runtime};
-use lagon_serverless::deployments::downloader::S3BucketDownloader;
 use lagon_serverless::deployments::get_deployments;
-use lagon_serverless::deployments::pubsub::RedisPubSub;
 use lagon_serverless::serverless::start;
 use lagon_serverless::REGION;
+use lagon_serverless_downloader::{get_bucket, S3BucketDownloader};
 use lagon_serverless_logger::init_logger;
+use lagon_serverless_pubsub::RedisPubSub;
 use log::info;
 use metrics_exporter_prometheus::PrometheusBuilder;
 use mysql::{Opts, Pool};
 #[cfg(not(debug_assertions))]
 use mysql::{OptsBuilder, SslOpts};
-use s3::creds::Credentials;
-use s3::Bucket;
 #[cfg(not(debug_assertions))]
 use std::borrow::Cow;
 use std::env;
@@ -59,18 +57,8 @@ async fn main() -> Result<()> {
     let pool = Pool::new(opts)?;
     let conn = pool.get_conn()?;
 
-    let bucket_name = env::var("S3_BUCKET").expect("S3_BUCKET must be set");
-    let bucket_region = env::var("S3_REGION").expect("S3_REGION must be set");
-    let credentials = Credentials::new(
-        Some(&env::var("S3_ACCESS_KEY_ID").expect("S3_ACCESS_KEY_ID must be set")),
-        Some(&env::var("S3_SECRET_ACCESS_KEY").expect("S3_SECRET_ACCESS_KEY must be set")),
-        None,
-        None,
-        None,
-    )?;
-
     // let cronjob = Arc::new(Mutex::new(Cronjob::new().await));
-    let bucket = Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?;
+    let bucket = get_bucket()?;
     let downloader = Arc::new(S3BucketDownloader::new(bucket));
 
     let url = env::var("REDIS_URL").expect("REDIS_URL must be set");

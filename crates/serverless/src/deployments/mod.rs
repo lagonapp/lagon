@@ -9,16 +9,13 @@ use crate::REGION;
 use anyhow::{anyhow, Result};
 use dashmap::DashMap;
 use lagon_runtime_utils::{Deployment, DEPLOYMENTS_DIR};
+use lagon_serverless_downloader::Downloader;
 use log::{error, info, warn};
 use mysql::{prelude::Queryable, PooledConn};
 
-use self::{
-    downloader::Downloader,
-    filesystem::{create_deployments_folder, rm_deployment},
-};
+use self::filesystem::{create_deployments_folder, rm_deployment};
 
 pub mod cache;
-pub mod downloader;
 pub mod filesystem;
 pub mod pubsub;
 
