@@ -1,7 +1,8 @@
-use super::{PubSubListener, PubSubMessage};
 use anyhow::Result;
 use async_trait::async_trait;
 use futures::{Stream, StreamExt};
+
+use crate::{PubSubListener, PubSubMessage};
 
 pub struct FakePubSub {
     tx: flume::Sender<PubSubMessage>,

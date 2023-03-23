@@ -1,0 +1,10 @@
+[package]
+name = "lagon-serverless-downloader"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lagon-runtime-utils = { path = "../runtime_utils" }
+anyhow = "1.0.69"
+async-trait = "0.1.66"
+rust-s3 = "0.32"

@@ -1,59 +1,15 @@
-use super::{
-    download_deployment, downloader::Downloader, filesystem::rm_deployment, Deployment, Deployments,
-};
+use super::{download_deployment, filesystem::rm_deployment, Deployment, Deployments};
 use crate::{serverless::Workers, REGION};
 use anyhow::Result;
-use async_trait::async_trait;
-use futures::{Stream, StreamExt};
+use futures::StreamExt;
 use lagon_runtime_isolate::IsolateEvent;
+use lagon_serverless_downloader::Downloader;
+use lagon_serverless_pubsub::{PubSubListener, PubSubMessage, PubSubMessageKind};
 use log::{error, warn};
 use metrics::increment_counter;
 use serde_json::Value;
 use std::{collections::HashMap, sync::Arc};
 use tokio::{runtime::Handle, sync::Mutex};
-
-mod fake;
-mod redis;
-
-pub use self::redis::RedisPubSub;
-pub use fake::FakePubSub;
-
-#[derive(Debug)]
-pub enum PubSubMessageKind {
-    Deploy,
-    Undeploy,
-    Promote,
-    Unknown,
-}
-
-pub struct PubSubMessage {
-    kind: PubSubMessageKind,
-    payload: String,
-}
-
-impl PubSubMessage {
-    pub fn new(kind: PubSubMessageKind, payload: String) -> Self {
-        Self { kind, payload }
-    }
-}
-
-impl From<String> for PubSubMessageKind {
-    fn from(value: String) -> Self {
-        match value.as_str() {
-            "deploy" => Self::Deploy,
-            "undeploy" => Self::Undeploy,
-            "promote" => Self::Promote,
-            _ => Self::Unknown,
-        }
-    }
-}
-
-#[async_trait]
-pub trait PubSubListener: Send + Sized {
-    async fn connect(&mut self) -> Result<()>;
-
-    fn get_stream(&mut self) -> Box<dyn Stream<Item = PubSubMessage> + Unpin + Send + '_>;
-}
 
 pub async fn clear_deployment_cache(deployment_id: String, workers: Workers, reason: String) {
     if let Some((_, tx)) = workers.remove(&deployment_id) {
