@@ -11,7 +11,7 @@
     const id = counter++;
 
     timers.set(id, {
-      handler,
+      handler: AsyncContext.wrap(handler),
       repeat,
     });
 
@@ -46,6 +46,6 @@
   };
 
   globalThis.queueMicrotask = callback => {
-    LagonSync.queueMicrotask(callback);
+    LagonSync.queueMicrotask(AsyncContext.wrap(callback));
   };
 })(globalThis);

@@ -5,6 +5,7 @@ import './runtime/encoding/base64';
 import './runtime/core';
 import './runtime/streams';
 import './runtime/abort';
+import './runtime/global/context';
 import './runtime/global/event';
 import './runtime/global/blob';
 import './runtime/global/file';
@@ -28,6 +29,29 @@ import './runtime/http/fetch';
 // NOTE: we use `var` to that we can refer to these variables
 // using `globalThis.VARIABLE`.
 declare global {
+  interface AsyncContextConstructor {
+    new (): AsyncContext;
+    wrap(callback: (...args: unknown[]) => void): (...args: unknown[]) => void;
+  }
+
+  interface AsyncContext<T = unknown> {
+    get(): T;
+    run<R>(store: T, callback: (...args: unknown[]) => R, ...args: unknown[]): R;
+  }
+
+  var AsyncContext: AsyncContextConstructor;
+
+  interface AsyncLocalStorageConstructor {
+    new (): AsyncLocalStorage;
+  }
+
+  interface AsyncLocalStorage<T = unknown> {
+    getStore(): T;
+    run<R>(store: T, callback: (...args: unknown[]) => R, ...args: unknown[]): R;
+  }
+
+  var AsyncLocalStorage: AsyncLocalStorageConstructor;
+
   var LagonSync: {
     log: (level: string, message: string) => void;
     pullStream: (id: number, done: boolean, chunk?: Uint8Array) => void;
@@ -73,6 +97,7 @@ declare global {
     TEXT_ENCODER: TextEncoder;
     TEXT_DECODER: TextDecoder;
   };
+  var __storage__: Map<AsyncContext, unknown>;
   var handler: (request: Request) => Promise<Response>;
   var masterHandler: (
     id: number,

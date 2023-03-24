@@ -52,6 +52,17 @@ The standard `AbortController` object. [See the documentation on MDN](https://de
 
 The standard `AbortSignal` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal).
 
+### `AsyncContext`
+
+An early implementation of the [Async Context proposal](https://github.com/tc39/proposal-async-context). You shouldn't use this API yet, as it is still experimental and subject to change.
+
+### `AsyncLocalStorage`
+
+A minimal implementation of [Node.js's AsyncLocalStorage](https://nodejs.org/api/async_context.html#class-asynclocalstorage). The following methods are supported:
+
+- `getStore()`
+- `run(store, callback, ...args)`
+
 ### `Blob`
 
 The standard `Blob` object. [See the documentation on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Blob).
