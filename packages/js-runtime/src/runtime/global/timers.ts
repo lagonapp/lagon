@@ -11,7 +11,7 @@
     const id = counter++;
 
     timers.set(id, {
-      handler,
+      handler: AsyncContext.wrap(handler),
       repeat,
     });
 
