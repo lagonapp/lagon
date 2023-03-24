@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Error, Result};
+use anyhow::{Error, Result};
 use chrono::offset::Local;
 use colored::Colorize;
 use envfile::EnvFile;
@@ -16,7 +16,6 @@ use log::{
 };
 use notify::event::ModifyKind;
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
-use pathdiff::diff_paths;
 use std::collections::HashMap;
 use std::convert::Infallible;
 use std::path::{Path, PathBuf};
@@ -25,7 +24,7 @@ use std::time::Duration;
 use tokio::runtime::Handle;
 use tokio::sync::Mutex;
 
-use crate::utils::{bundle_function, error, info, input, success, warn, Assets, FunctionConfig};
+use crate::utils::{bundle_function, error, info, input, resolve_path, success, warn, Assets};
 
 const LOCAL_REGION: &str = "local";
 
@@ -178,37 +177,7 @@ pub async fn dev(
     env: Option<PathBuf>,
     allow_code_generation: bool,
 ) -> Result<()> {
-    let path = path.unwrap_or_else(|| PathBuf::from("."));
-
-    if !path.exists() {
-        return Err(anyhow!("File or directory not found"));
-    }
-
-    let (root, function_config) = match path.is_file() {
-        true => {
-            let root = PathBuf::from(path.parent().unwrap());
-
-            let index = diff_paths(&path, &root).unwrap();
-            let client = client.map(|client| diff_paths(client, &root).unwrap());
-            let assets = public_dir.map(|public_dir| diff_paths(public_dir, &root).unwrap());
-
-            (
-                root,
-                FunctionConfig {
-                    function_id: String::new(),
-                    organization_id: String::new(),
-                    index,
-                    client,
-                    assets,
-                },
-            )
-        }
-        false => (
-            path.clone(),
-            FunctionConfig::load(&path, client, public_dir)?,
-        ),
-    };
-
+    let (root, function_config) = resolve_path(path, client, public_dir)?;
     let (index, assets) = bundle_function(&function_config, &root)?;
 
     let server_index = index.clone();

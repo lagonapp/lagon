@@ -167,6 +167,43 @@ impl FunctionConfig {
     }
 }
 
+pub fn resolve_path(
+    path: Option<PathBuf>,
+    client: Option<PathBuf>,
+    public_dir: Option<PathBuf>,
+) -> Result<(PathBuf, FunctionConfig)> {
+    let path = path.unwrap_or_else(|| PathBuf::from("."));
+
+    if !path.exists() {
+        return Err(anyhow!("File or directory not found"));
+    }
+
+    match path.is_file() {
+        true => {
+            let root = PathBuf::from(path.parent().unwrap());
+
+            let index = diff_paths(&path, &root).unwrap();
+            let client = client.map(|client| diff_paths(client, &root).unwrap());
+            let assets = public_dir.map(|public_dir| diff_paths(public_dir, &root).unwrap());
+
+            Ok((
+                root,
+                FunctionConfig {
+                    function_id: String::new(),
+                    organization_id: String::new(),
+                    index,
+                    client,
+                    assets,
+                },
+            ))
+        }
+        false => Ok((
+            path.clone(),
+            FunctionConfig::load(&path, client, public_dir)?,
+        )),
+    }
+}
+
 pub fn get_root(root: Option<PathBuf>) -> PathBuf {
     match root {
         Some(path) => path,

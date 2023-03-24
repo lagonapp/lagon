@@ -2,15 +2,14 @@ use std::{fs, path::PathBuf};
 
 use anyhow::{anyhow, Result};
 
-use crate::utils::{bundle_function, debug, get_root, print_progress, success, FunctionConfig};
+use crate::utils::{bundle_function, debug, print_progress, resolve_path, success};
 
 pub fn build(
+    path: Option<PathBuf>,
     client: Option<PathBuf>,
     public_dir: Option<PathBuf>,
-    directory: Option<PathBuf>,
 ) -> Result<()> {
-    let root = get_root(directory);
-    let function_config = FunctionConfig::load(&root, client, public_dir)?;
+    let (root, function_config) = resolve_path(path, client, public_dir)?;
     let (index, assets) = bundle_function(&function_config, &root)?;
 
     let end_progress = print_progress("Writting index.js...");

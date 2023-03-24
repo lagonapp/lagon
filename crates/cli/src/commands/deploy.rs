@@ -8,7 +8,7 @@ use dialoguer::{Confirm, Input, Select};
 use serde::{Deserialize, Serialize};
 
 use crate::utils::{
-    create_deployment, debug, get_root, info, print_progress, Config, FunctionConfig, TrpcClient,
+    create_deployment, debug, info, print_progress, resolve_path, Config, TrpcClient,
 };
 
 #[derive(Deserialize, Debug)]
@@ -53,10 +53,10 @@ impl Display for Function {
 pub type FunctionsResponse = Vec<Function>;
 
 pub async fn deploy(
+    path: Option<PathBuf>,
     client: Option<PathBuf>,
     public_dir: Option<PathBuf>,
     prod: bool,
-    directory: Option<PathBuf>,
 ) -> Result<()> {
     let config = Config::new()?;
 
@@ -66,8 +66,7 @@ pub async fn deploy(
         ));
     }
 
-    let root = get_root(directory);
-    let mut function_config = FunctionConfig::load(&root, client, public_dir)?;
+    let (root, mut function_config) = resolve_path(path, client, public_dir)?;
 
     if function_config.function_id.is_empty() {
         println!("{}", debug("No deployment config found..."));

@@ -33,6 +33,9 @@ enum Commands {
     Logout,
     /// Deploy a new or existing Function
     Deploy {
+        /// Path to a file or a directory containing a Function
+        #[clap(value_parser)]
+        path: Option<PathBuf>,
         /// Path to a client-side script
         #[clap(short, long, value_parser)]
         client: Option<PathBuf>,
@@ -42,9 +45,6 @@ enum Commands {
         /// Deploy as a production deployment
         #[clap(visible_alias = "production", long)]
         prod: bool,
-        /// Path to a directory containing a Function
-        #[clap(value_parser)]
-        directory: Option<PathBuf>,
     },
     /// Delete an existing Function
     Rm {
@@ -78,15 +78,15 @@ enum Commands {
     },
     /// Build a Function without deploying it
     Build {
+        /// Path to a file or a directory containing a Function
+        #[clap(value_parser)]
+        path: Option<PathBuf>,
         /// Path to a client-side script
         #[clap(short, long, value_parser)]
         client: Option<PathBuf>,
         /// Path to a public directory to serve assets from
         #[clap(short, long, value_parser)]
         public_dir: Option<PathBuf>,
-        /// Path to a directory containing a Function
-        #[clap(value_parser)]
-        directory: Option<PathBuf>,
     },
     /// Link a local Function file to an already deployed Function
     Link {
@@ -127,11 +127,11 @@ async fn main() {
             Commands::Login => commands::login().await,
             Commands::Logout => commands::logout(),
             Commands::Deploy {
+                path,
                 client,
                 public_dir,
                 prod,
-                directory,
-            } => commands::deploy(client, public_dir, prod, directory).await,
+            } => commands::deploy(path, client, public_dir, prod).await,
             Commands::Rm { directory } => commands::rm(directory).await,
             Commands::Dev {
                 path,
@@ -154,10 +154,10 @@ async fn main() {
                 .await
             }
             Commands::Build {
+                path,
                 client,
                 public_dir,
-                directory,
-            } => commands::build(client, public_dir, directory),
+            } => commands::build(path, client, public_dir),
             Commands::Link { directory } => commands::link(directory).await,
             Commands::Ls { directory } => commands::ls(directory).await,
             Commands::Undeploy {
