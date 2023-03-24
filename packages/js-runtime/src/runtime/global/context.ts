@@ -13,6 +13,7 @@
         const prev = globalThis.__storage__;
         try {
           globalThis.__storage__ = snapshot;
+          // @ts-expect-error we want to get this from the current function
           return callback.apply(this, args);
         } finally {
           globalThis.__storage__ = prev;

@@ -8,9 +8,14 @@ mod utils;
 async fn inital_undefined() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
-        "export function handler() {
-    const ctx = new AsyncContext();
-    const actual = ctx.get();
+        "const ctx = new AsyncContext();
+const actual = ctx.get();
+
+if (actual !== undefined) {
+    throw new Error('Expected undefined');
+}
+
+export function handler() {
     return new Response(actual === undefined);
 }"
         .into(),
@@ -27,11 +32,16 @@ async fn inital_undefined() {
 async fn return_value() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
-        "export function handler() {
-    const ctx = new AsyncContext();
-    const expected = { id: 1 };
-    const actual = ctx.run({ id: 2 }, () => expected);
-    return new Response(actual === expected);
+        "const ctx = new AsyncContext();
+const expected = { id: 1 };
+const actual = ctx.run({ id: 2 }, () => expected);
+
+if (actual !== expected) {
+    throw new Error('Expected expected');
+}
+
+export function handler() {
+    return new Response();
 }"
         .into(),
     ));
@@ -39,7 +49,7 @@ async fn return_value() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("true"))
+        RunResult::Response(Response::from(""))
     );
 }
 
@@ -47,13 +57,17 @@ async fn return_value() {
 async fn get_returns_current_context_value() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
-        "export function handler() {
-    const ctx = new AsyncContext();
-    const expected = { id: 1 };
+        "const ctx = new AsyncContext();
+const expected = { id: 1 };
 
-    return ctx.run(expected, () => {
-        return new Response(ctx.get() === expected);
-    });
+ctx.run(expected, () => {
+    if (ctx.get() !== expected) {
+        throw new Error('Expected expected');
+    }
+});
+
+export function handler() {
+    return new Response();
 }"
         .into(),
     ));
@@ -61,7 +75,7 @@ async fn get_returns_current_context_value() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("true"))
+        RunResult::Response(Response::from(""))
     );
 }
 
@@ -69,35 +83,39 @@ async fn get_returns_current_context_value() {
 #[serial_test::serial]
 async fn get_within_nesting_contexts() {
     utils::setup();
-    let log_rx = utils::setup_logger();
-    let (send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
-    const ctx = new AsyncContext();
-    const first = { id: 1 };
-    const second = { id: 2 };
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "const ctx = new AsyncContext();
+const first = { id: 1 };
+const second = { id: 2 };
 
-    ctx.run(first, () => {
-        console.log(1, ctx.get() === first);
-        ctx.run(second, () => {
-            console.log(2, ctx.get() === second);
-        });
-        console.log(3, ctx.get() === first);
+ctx.run(first, () => {
+    if (ctx.get() !== first) {
+        throw new Error('Expected first');
+    }
+    ctx.run(second, () => {
+        if (ctx.get() !== second) {
+            throw new Error('Expected second');
+        }
     });
-    return new Response(ctx.get() === undefined);
+    if (ctx.get() !== first) {
+        throw new Error('Expected first');
+    }
+});
+
+if (ctx.get() !== undefined) {
+    throw new Error('Expected undefined');
+}
+
+export function handler() {
+    return new Response();
 }"
-            .into(),
-        )
-        .metadata(Some(("".to_owned(), "".to_owned()))),
-    );
+        .into(),
+    ));
     send(Request::default());
 
-    for _ in 1..=3 {
-        assert!(log_rx.recv_async().await.unwrap().contains("true"));
-    }
     assert_eq!(
         receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("true"))
+        RunResult::Response(Response::from(""))
     );
 }
 
@@ -105,39 +123,51 @@ async fn get_within_nesting_contexts() {
 #[serial_test::serial]
 async fn get_within_nesting_different_contexts() {
     utils::setup();
-    let log_rx = utils::setup_logger();
-    let (send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export function handler() {
-    const a = new AsyncContext();
-    const b = new AsyncContext();
-    const first = { id: 1 };
-    const second = { id: 2 };
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "const a = new AsyncContext();
+const b = new AsyncContext();
+const first = { id: 1 };
+const second = { id: 2 };
 
-    a.run(first, () => {
-      console.log(1, a.get() === first);
-      console.log(2, b.get() === undefined);
-      b.run(second, () => {
-        console.log(3, a.get() === first);
-        console.log(4, b.get() === second);
-      });
-      console.log(5, a.get() === first);
-      console.log(6, b.get() === undefined);
+a.run(first, () => {
+    if (a.get() !== first) {
+        throw new Error('Expected first');
+    }
+    if (b.get() !== undefined) {
+        throw new Error('Expected undefined');
+    }
+    b.run(second, () => {
+        if (a.get() !== first) {
+            throw new Error('Expected first');
+        }
+        if (b.get() !== second) {
+            throw new Error('Expected second');
+        }
     });
-    return new Response(a.get() === undefined && b.get() === undefined);
+    if (a.get() !== first) {
+        throw new Error('Expected first');
+    }
+    if (b.get() !== undefined) {
+        throw new Error('Expected undefined');
+    }
+});
+if (a.get() !== undefined) {
+    throw new Error('Expected undefined');
+}
+if (b.get() !== undefined) {
+    throw new Error('Expected undefined');
+}
+
+export function handler() {
+    return new Response();
 }"
-            .into(),
-        )
-        .metadata(Some(("".to_owned(), "".to_owned()))),
-    );
+        .into(),
+    ));
     send(Request::default());
 
-    for i in 1..=6 {
-        assert!(log_rx.recv_async().await.unwrap().contains("true"));
-    }
     assert_eq!(
         receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("true"))
+        RunResult::Response(Response::from(""))
     );
 }
 

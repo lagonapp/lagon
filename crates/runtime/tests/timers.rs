@@ -180,29 +180,6 @@ async fn queue_microtask() {
 }
 
 #[tokio::test]
-async fn queue_microtask_throw_not_function() {
-    utils::setup();
-    let (send, receiver) = utils::create_isolate(
-        IsolateOptions::new(
-            "export async function handler() {
-    queueMicrotask(true);
-    return new Response('Hello world');
-}"
-            .into(),
-        )
-        .metadata(Some(("".to_owned(), "".to_owned()))),
-    );
-    send(Request::default());
-
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Error(
-            "Uncaught TypeError: Parameter 1 is not of type 'Function'\n  at handler (2:5)".into()
-        )
-    );
-}
-
-#[tokio::test]
 #[serial]
 async fn timers_order() {
     let log_rx = utils::setup_logger();

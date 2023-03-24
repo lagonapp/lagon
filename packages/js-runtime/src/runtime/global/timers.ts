@@ -46,6 +46,6 @@
   };
 
   globalThis.queueMicrotask = callback => {
-    LagonSync.queueMicrotask(callback);
+    LagonSync.queueMicrotask(AsyncContext.wrap(callback));
   };
 })(globalThis);
