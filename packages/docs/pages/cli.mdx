@@ -48,7 +48,7 @@ If you then want to trigger a new Deployment, re-run the same command. By defaul
 
 This command accepts the following arguments and options:
 
-- `[DIRECTORY]` is an optional path to a directory containing the Function. (Default: `.`)
+- `[PATH]` is an optional path to a file or directory containing the Function. (Default: `.`)
 - `--client, -c <CLIENT>` allows you to specify a path to an additional file to bundle as a client-side script.
 - `--public, -p <<PUBLIC_DIR>>` allows you to specify a path to a directory containing assets to be served statically.
 - `--production, --prod` allows you to deploy the Function in production mode. (Default: `false`)
@@ -58,6 +58,8 @@ Examples:
 ```bash
 # Deploy the current directory to Production
 lagon deploy --prod
+# Deploy the index.ts file
+lagon deploy ./index.ts
 # Deploy the my-project directory and override the public directory
 lagon deploy ./my-project --public ./my-project/assets
 ```
@@ -168,7 +170,7 @@ For debugging purposes, you can build a Function and see its output without depl
 
 This command accepts the following arguments and options:
 
-- `[DIRECTORY]` is an optional path to a directory containing the Function. (Default: `.`)
+- `[PATH]` is an optional path to a file or directory containing the Function. (Default: `.`)
 - `--client, -c <CLIENT>` allows you to specify a path to an additional file to bundle as a client-side script.
 - `--public, -p <<PUBLIC_DIR>>` allows you to specify a path to a directory containing assets to be served statically.
 
