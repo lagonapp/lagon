@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://docs.lagon.app
-
-# Sitemaps
-Sitemap: https://docs.lagon.app/sitemap.xml
