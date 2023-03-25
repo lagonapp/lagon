@@ -11,7 +11,7 @@
     "lagon-dev": "pnpm build && lagon dev dist/server/entry.mjs -p dist/client"
   },
   "devDependencies": {
-    "astro": "2.0.14"
+    "astro": "^2.1.7"
   },
   "dependencies": {
     "@lagon/astro": "workspace:*"
