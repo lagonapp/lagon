@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.69"
+anyhow = "1.0.70"
 async-trait = "0.1.66"
 futures = "0.3.26"
 redis = { version = "0.22.3", features = ["tokio-native-tls-comp", "tokio-comp"] }

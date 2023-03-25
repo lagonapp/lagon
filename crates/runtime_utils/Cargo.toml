@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-anyhow = "1.0.69"
+anyhow = "1.0.70"
 lagon-runtime-http = { path = "../runtime_http" }
 hyper = { version = "0.14", features = ["stream"] }
 flume = "0.10.14"
