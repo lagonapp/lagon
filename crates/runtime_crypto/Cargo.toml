@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 v8 = "0.64.0"
-anyhow = "1.0.69"
+anyhow = "1.0.70"
 rand = "0.8.5"
 uuid = { version = "1.2.2", features = ["v4", "fast-rng"] }
 lagon-runtime-v8-utils = { path = "../runtime_v8_utils" }

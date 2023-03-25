@@ -11,7 +11,7 @@ futures = "0.3.27"
 hyper = { version = "0.14", features = ["client"] }
 hyper-tls = { version = "0.5.0", features = ["vendored"] }
 flume = "0.10.14"
-anyhow = "1.0.69"
+anyhow = "1.0.70"
 log = { version = "0.4.17", features = ["std", "kv_unstable"] }
 lazy_static = "1.4.0"
 async-recursion = "1.0.2"
