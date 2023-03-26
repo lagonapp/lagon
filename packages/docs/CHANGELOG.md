@@ -1,5 +1,13 @@
 # @lagon/docs
 
+## 0.3.2
+
+### Patch Changes
+
+- [#684](https://github.com/lagonapp/lagon/pull/684) [`9da1136`](https://github.com/lagonapp/lagon/commit/9da113606e60078b62f7cc57ba4a31baafd64025) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `AsyncLocalStorage` & `AsyncContext` APIs
+
+* [#688](https://github.com/lagonapp/lagon/pull/688) [`0dffdb2`](https://github.com/lagonapp/lagon/commit/0dffdb215058bdab6617e342b0b17525ff6e4cf7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow `lagon deploy` & `lagon build` to specify files and folders
+
 ## 0.3.1
 
 ### Patch Changes

@@ -1,5 +1,21 @@
 # @lagon/serverless
 
+## 0.1.25
+
+### Patch Changes
+
+- [#665](https://github.com/lagonapp/lagon/pull/665) [`a2ba9ce`](https://github.com/lagonapp/lagon/commit/a2ba9cec1bdfcabaee1e286f9a091f3a97899700) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Reply 403 for HTTP access to cron functions
+
+* [#676](https://github.com/lagonapp/lagon/pull/676) [`54e37e3`](https://github.com/lagonapp/lagon/commit/54e37e34b3d49a1ecc70203db4a4bd99165bfa1c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow parallel requests to the same isolate
+
+- [#681](https://github.com/lagonapp/lagon/pull/681) [`e714ac3`](https://github.com/lagonapp/lagon/commit/e714ac3aed03fc3ae2703a9c22ee738cccd89136) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Remove useless LAGON_WORKERS env variable
+
+* [#665](https://github.com/lagonapp/lagon/pull/665) [`a2ba9ce`](https://github.com/lagonapp/lagon/commit/a2ba9cec1bdfcabaee1e286f9a091f3a97899700) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Listen Redis Pub/Sub in another thread
+
+- [#665](https://github.com/lagonapp/lagon/pull/665) [`a2ba9ce`](https://github.com/lagonapp/lagon/commit/a2ba9cec1bdfcabaee1e286f9a091f3a97899700) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Reuse isolates across domains using the same deployment id
+
+* [#681](https://github.com/lagonapp/lagon/pull/681) [`e714ac3`](https://github.com/lagonapp/lagon/commit/e714ac3aed03fc3ae2703a9c22ee738cccd89136) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Split pub/sub & s3 downloading logic into separate crates
+
 ## 0.1.24
 
 ### Patch Changes

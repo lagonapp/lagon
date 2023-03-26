@@ -1,5 +1,15 @@
 # @lagon/runtime
 
+## 0.3.8
+
+### Patch Changes
+
+- [#679](https://github.com/lagonapp/lagon/pull/679) [`f8d78b7`](https://github.com/lagonapp/lagon/commit/f8d78b71538f908a3b86b1f748c8fb8bd969c926) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Terminate isolates with 2 heartbeats missed
+
+* [#680](https://github.com/lagonapp/lagon/pull/680) [`4ce40b8`](https://github.com/lagonapp/lagon/commit/4ce40b8dfa6f412968dbac63e004051684996c4d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Block thread while waiting for new requests
+
+- [#676](https://github.com/lagonapp/lagon/pull/676) [`54e37e3`](https://github.com/lagonapp/lagon/commit/54e37e34b3d49a1ecc70203db4a4bd99165bfa1c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow parallel requests to the same isolate
+
 ## 0.3.7
 
 ### Patch Changes
