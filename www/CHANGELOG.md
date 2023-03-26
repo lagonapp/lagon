@@ -1,5 +1,11 @@
 # @lagon/www
 
+## 1.0.1
+
+### Patch Changes
+
+- [#675](https://github.com/lagonapp/lagon/pull/675) [`2ba1203`](https://github.com/lagonapp/lagon/commit/2ba12035c36f08c75ca3e32ea7f2b76b5093edc7) Thanks [@ColinLienard](https://github.com/ColinLienard)! - Avoid white blank space when scrolling to the top/bottom of the page
+
 ## 1.0.0
 
 ### Major Changes

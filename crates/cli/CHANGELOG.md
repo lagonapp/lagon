@@ -1,5 +1,17 @@
 # @lagon/cli
 
+## 0.5.5
+
+### Patch Changes
+
+- [#684](https://github.com/lagonapp/lagon/pull/684) [`9da1136`](https://github.com/lagonapp/lagon/commit/9da113606e60078b62f7cc57ba4a31baafd64025) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `AsyncLocalStorage` & `AsyncContext` APIs
+
+* [#676](https://github.com/lagonapp/lagon/pull/676) [`54e37e3`](https://github.com/lagonapp/lagon/commit/54e37e34b3d49a1ecc70203db4a4bd99165bfa1c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow parallel requests to the same isolate
+
+- [#688](https://github.com/lagonapp/lagon/pull/688) [`0dffdb2`](https://github.com/lagonapp/lagon/commit/0dffdb215058bdab6617e342b0b17525ff6e4cf7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow `lagon deploy` & `lagon build` to specify files and folders
+
+* [#697](https://github.com/lagonapp/lagon/pull/697) [`f2edf38`](https://github.com/lagonapp/lagon/commit/f2edf38f258cd47d9984f9fd90c9ec67e30912f9) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Exit with code 1 on error
+
 ## 0.5.4
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @lagon/dashboard
 
+## 0.3.1
+
+### Patch Changes
+
+- [#678](https://github.com/lagonapp/lagon/pull/678) [`499bb53`](https://github.com/lagonapp/lagon/commit/499bb53d94ece73b29c3ea43e2f64809d03f7f0b) Thanks [@danielroe](https://github.com/danielroe)! - Fix an issue that prevented deleting environment variables
+
 ## 0.3.0
 
 ### Minor Changes

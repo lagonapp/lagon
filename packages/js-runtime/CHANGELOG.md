@@ -1,5 +1,11 @@
 # @lagon/js-runtime
 
+## 0.3.8
+
+### Patch Changes
+
+- [#684](https://github.com/lagonapp/lagon/pull/684) [`9da1136`](https://github.com/lagonapp/lagon/commit/9da113606e60078b62f7cc57ba4a31baafd64025) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add `AsyncLocalStorage` & `AsyncContext` APIs
+
 ## 0.3.7
 
 ## 0.3.6
