@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{path::PathBuf, process::exit};
 
 use clap::{Parser, Subcommand};
 use serde::Deserialize;
@@ -170,13 +170,17 @@ async fn main() {
             } => commands::promote(deployment_id, directory).await,
         } {
             println!("{}", error(&err.to_string()));
+            exit(1);
         }
     } else {
         match serde_json::from_str(PACKAGE_JSON) {
             Ok(PackageJson { version }) => {
                 println!("{version}");
             }
-            _ => println!("{}", error("Couldn't extract version from package.json")),
+            _ => {
+                println!("{}", error("Couldn't extract version from package.json"));
+                exit(1);
+            }
         }
     }
 }
