@@ -26,7 +26,7 @@
     "@radix-ui/react-tabs": "^1.0.0",
     "@react-email/button": "^0.0.6",
     "@react-email/container": "0.0.7",
-    "@react-email/head": "^0.0.4",
+    "@react-email/head": "^0.0.5",
     "@react-email/hr": "^0.0.4",
     "@react-email/html": "^0.0.4",
     "@react-email/img": "^0.0.4",
