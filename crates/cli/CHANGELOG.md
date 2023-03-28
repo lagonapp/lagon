@@ -1,5 +1,11 @@
 # @lagon/cli
 
+## 0.5.6
+
+### Patch Changes
+
+- [#711](https://github.com/lagonapp/lagon/pull/711) [`4d31d23`](https://github.com/lagonapp/lagon/commit/4d31d2327a1c26a245acb3dd3d3df307aaffe41a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix returned exit code
+
 ## 0.5.5
 
 ### Patch Changes
