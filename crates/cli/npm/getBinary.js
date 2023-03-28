@@ -38,9 +38,6 @@ function getPlatform() {
 }
 
 export function getBinary() {
-  // Prevent exiting with code 1
-  process.exit = () => { };
-
   const { platform, name } = getPlatform();
   const customRequire = createRequire(import.meta.url);
 
