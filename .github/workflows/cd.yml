@@ -70,7 +70,7 @@ jobs:
           echo "CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER=/usr/bin/aarch64-linux-gnu-gcc-10" >> ${GITHUB_ENV}
           echo "QEMU_LD_PREFIX=/usr/aarch64-linux-gnu" >> ${GITHUB_ENV}
       - name: Install dependencies
-        run: pnpm install --ignore-scripts
+        run: pnpm install
       - name: Build js-runtime
         run: pnpm turbo build --filter=@lagon/js-runtime
       - name: Build CLI
