@@ -235,7 +235,7 @@ importers:
       '@radix-ui/react-alert-dialog': ^1.0.0
       '@radix-ui/react-tabs': ^1.0.0
       '@react-email/button': ^0.0.6
-      '@react-email/container': 0.0.7
+      '@react-email/container': 0.0.8
       '@react-email/head': ^0.0.5
       '@react-email/hr': ^0.0.5
       '@react-email/html': ^0.0.4
@@ -289,7 +289,7 @@ importers:
       '@radix-ui/react-alert-dialog': 1.0.2_twyhzqqpkwvvgrmyeapdo6i4my
       '@radix-ui/react-tabs': 1.0.1_biqbaboplfbrettd7655fr4n2y
       '@react-email/button': 0.0.6
-      '@react-email/container': 0.0.7
+      '@react-email/container': 0.0.8
       '@react-email/head': 0.0.5
       '@react-email/hr': 0.0.5
       '@react-email/html': 0.0.4
@@ -8077,8 +8077,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@react-email/container/0.0.7:
-    resolution: {integrity: sha512-EOrXGnNUQ6mILDMSXCW2ljqqCOOOmcVQqX6QY2eRB+kQR8iDtJN7BMUP58EHkfMsJzt2nnHgoh415eeHZYIa3w==}
+  /@react-email/container/0.0.8:
+    resolution: {integrity: sha512-MQZQxvTOoLWjJR+Jm689jltm0I/mtZbEaDnwZbNkkHKgccr++wwb9kOKMgXG777Y7tGa1JATAsZpvFYiCITwUg==}
     engines: {node: '>=16.0.0'}
     dependencies:
       react: 18.2.0
