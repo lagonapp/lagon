@@ -58,102 +58,94 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
           }
         />
       ) : null}
-      {func?.deployments.map(deployment => {
-        const date = new Date(deployment.createdAt);
-        date.setHours(date.getHours() - date.getTimezoneOffset() / 60);
-
-        return (
-          <Card key={deployment.id}>
-            <div className="relative flex flex-col items-start justify-between gap-4 md:flex-row md:items-center md:gap-0">
-              {deployment.isProduction ? (
-                <span className="absolute -top-5 -left-5 rounded bg-blue-500 px-1 text-xs text-white">
-                  {t('list.production')}
-                </span>
-              ) : null}
-              <div className="md:w-1/3">
-                {func.cron === null ? (
-                  <>
-                    <Link href={getFullCurrentDomain({ name: deployment.id })} target="_blank">
-                      {getCurrentDomain({ name: deployment.id })}
-                    </Link>
-                    {deployment.isProduction ? (
-                      <>
-                        {func.domains.map(domain => (
-                          <Link key={domain} href={getFullDomain(domain)} target="_blank">
-                            {domain}
-                          </Link>
-                        ))}
-                      </>
-                    ) : null}
-                  </>
-                ) : (
-                  <p className="text-sm text-blue-500">{t('cron')}</p>
-                )}
-                <Text size="sm">
-                  {date.toLocaleString('en-US', {
-                    minute: 'numeric',
-                    hour: 'numeric',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </Text>
-              </div>
-              <div>
-                <Text>{deployment.commit || t('list.noCommit')}</Text>
-                <Text>
-                  {t('list.by')}&nbsp;{deployment.triggerer}
-                </Text>
-              </div>
-              <div className="flex gap-2 md:w-1/3 md:justify-end">
-                {!deployment.isProduction ? (
-                  <>
-                    <Dialog
-                      title={t('promote.modal.title')}
-                      description={t('promote.modal.description')}
-                      disclosure={
-                        <Button
-                          leftIcon={<ArrowPathIcon className="h-4 w-4" />}
-                          disabled={undeployDeployment.isLoading}
-                        >
-                          {t('promote')}
-                        </Button>
-                      }
-                    >
-                      <Dialog.Buttons>
-                        <Dialog.Cancel />
-                        <Dialog.Action onClick={() => promoteDeploymentHandler(deployment)}>
-                          {t('promote.modal.submit')}
-                        </Dialog.Action>
-                      </Dialog.Buttons>
-                    </Dialog>
-                    <Dialog
-                      title={t('delete.modal.title')}
-                      description={t('delete.modal.description')}
-                      disclosure={
-                        <Button variant="danger" disabled={undeployDeployment.isLoading}>
-                          {t('delete')}
-                        </Button>
-                      }
-                    >
-                      <Dialog.Buttons>
-                        <Dialog.Cancel disabled={undeployDeployment.isLoading} />
-                        <Dialog.Action
-                          variant="danger"
-                          onClick={() => removeDeplomyent(deployment)}
-                          disabled={undeployDeployment.isLoading}
-                        >
-                          {t('delete.modal.submit')}
-                        </Dialog.Action>
-                      </Dialog.Buttons>
-                    </Dialog>
-                  </>
-                ) : null}
-              </div>
+      {func?.deployments.map(deployment => (
+        <Card key={deployment.id}>
+          <div className="relative flex flex-col items-start justify-between gap-4 md:flex-row md:items-center md:gap-0">
+            {deployment.isProduction ? (
+              <span className="absolute -top-5 -left-5 rounded bg-blue-500 px-1 text-xs text-white">
+                {t('list.production')}
+              </span>
+            ) : null}
+            <div className="md:w-1/3">
+              {func.cron === null ? (
+                <>
+                  <Link href={getFullCurrentDomain({ name: deployment.id })} target="_blank">
+                    {getCurrentDomain({ name: deployment.id })}
+                  </Link>
+                  {deployment.isProduction ? (
+                    <>
+                      {func.domains.map(domain => (
+                        <Link key={domain} href={getFullDomain(domain)} target="_blank">
+                          {domain}
+                        </Link>
+                      ))}
+                    </>
+                  ) : null}
+                </>
+              ) : (
+                <p className="text-sm text-blue-500">{t('cron')}</p>
+              )}
+              <Text size="sm">
+                {new Date(deployment.createdAt).toLocaleString('en-US', {
+                  minute: 'numeric',
+                  hour: 'numeric',
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </Text>
             </div>
-          </Card>
-        );
-      })}
+            <div>
+              <Text>{deployment.commit || t('list.noCommit')}</Text>
+              <Text>
+                {t('list.by')}&nbsp;{deployment.triggerer}
+              </Text>
+            </div>
+            <div className="flex gap-2 md:w-1/3 md:justify-end">
+              {!deployment.isProduction ? (
+                <>
+                  <Dialog
+                    title={t('promote.modal.title')}
+                    description={t('promote.modal.description')}
+                    disclosure={
+                      <Button leftIcon={<ArrowPathIcon className="h-4 w-4" />} disabled={undeployDeployment.isLoading}>
+                        {t('promote')}
+                      </Button>
+                    }
+                  >
+                    <Dialog.Buttons>
+                      <Dialog.Cancel />
+                      <Dialog.Action onClick={() => promoteDeploymentHandler(deployment)}>
+                        {t('promote.modal.submit')}
+                      </Dialog.Action>
+                    </Dialog.Buttons>
+                  </Dialog>
+                  <Dialog
+                    title={t('delete.modal.title')}
+                    description={t('delete.modal.description')}
+                    disclosure={
+                      <Button variant="danger" disabled={undeployDeployment.isLoading}>
+                        {t('delete')}
+                      </Button>
+                    }
+                  >
+                    <Dialog.Buttons>
+                      <Dialog.Cancel disabled={undeployDeployment.isLoading} />
+                      <Dialog.Action
+                        variant="danger"
+                        onClick={() => removeDeplomyent(deployment)}
+                        disabled={undeployDeployment.isLoading}
+                      >
+                        {t('delete.modal.submit')}
+                      </Dialog.Action>
+                    </Dialog.Buttons>
+                  </Dialog>
+                </>
+              ) : null}
+            </div>
+          </div>
+        </Card>
+      ))}
     </div>
   );
 };
