@@ -234,7 +234,7 @@ importers:
       '@prisma/client': 4.11.0
       '@radix-ui/react-alert-dialog': ^1.0.0
       '@radix-ui/react-tabs': ^1.0.0
-      '@react-email/button': ^0.0.6
+      '@react-email/button': ^0.0.7
       '@react-email/container': 0.0.8
       '@react-email/head': ^0.0.5
       '@react-email/hr': ^0.0.5
@@ -288,7 +288,7 @@ importers:
       '@prisma/client': 4.11.0_prisma@4.11.0
       '@radix-ui/react-alert-dialog': 1.0.2_twyhzqqpkwvvgrmyeapdo6i4my
       '@radix-ui/react-tabs': 1.0.1_biqbaboplfbrettd7655fr4n2y
-      '@react-email/button': 0.0.6
+      '@react-email/button': 0.0.7
       '@react-email/container': 0.0.8
       '@react-email/head': 0.0.5
       '@react-email/hr': 0.0.5
@@ -8070,8 +8070,8 @@ packages:
     dependencies:
       '@babel/runtime': 7.20.13
 
-  /@react-email/button/0.0.6:
-    resolution: {integrity: sha512-h0QVT6tZq5sDWbkEUj29VUk18aGzJPZDeeKz0fPJVHpyAgKyVePYrRdQVzIAwLiwzZL8xfZ9yB6jyA1aPgZIoA==}
+  /@react-email/button/0.0.7:
+    resolution: {integrity: sha512-TMcy5p+XBArufjtmrYOkFFRtiVegrvz3BeynvvHlsvlJImDy6az2+NLvkuSghG0hgOs1t5otD0Bn2PBVZhx/wA==}
     engines: {node: '>=16.0.0'}
     dependencies:
       react: 18.2.0
