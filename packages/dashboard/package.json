@@ -53,7 +53,7 @@
     "react-dom": "18.2.0",
     "react-final-form": "^6.5.9",
     "react-hot-toast": "^2.2.0",
-    "redis": "^4.1.0",
+    "redis": "^4.6.5",
     "stripe": "^11.7.0",
     "zod": "^3.17.3"
   },
