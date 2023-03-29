@@ -33,7 +33,7 @@
     "@react-email/preview": "^0.0.5",
     "@react-email/render": "^0.0.6",
     "@react-email/section": "0.0.8",
-    "@react-email/text": "^0.0.4",
+    "@react-email/text": "^0.0.5",
     "@scaleway/use-random-name": "^0.3.0",
     "@sentry/nextjs": "^7.1.1",
     "@tanstack/react-query": "^4.6.1",
