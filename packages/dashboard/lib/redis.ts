@@ -9,6 +9,7 @@ let redis = global.redis;
 if (!redis) {
   const redisClient = createClient({
     url: process.env.REDIS_URL,
+    pingInterval: 1000,
   });
 
   // TODO: await?
