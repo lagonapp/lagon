@@ -4,15 +4,13 @@
     "typecheck": {
       "dependsOn": [
         "@lagon/remix#build"
-      ],
-      "outputs": []
+      ]
     },
     "test": {
       "dependsOn": [
         "@lagon/runtime#build",
         "@lagon/remix#build"
-      ],
-      "outputs": []
+      ]
     },
     "@lagon/runtime#test": {
       "dependsOn": [
@@ -23,8 +21,7 @@
       "dependsOn": [
         "@lagon/runtime#build",
         "@lagon/remix#build"
-      ],
-      "outputs": []
+      ]
     },
     "build": {
       "dependsOn": [

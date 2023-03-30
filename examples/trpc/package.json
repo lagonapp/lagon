@@ -6,6 +6,6 @@
     "lagon-dev": "lagon dev index.ts"
   },
   "dependencies": {
-    "@trpc/server": "10.0.0"
+    "@trpc/server": "^10.18.0"
   }
 }

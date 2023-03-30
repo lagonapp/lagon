@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           submodules: true
-      - uses: Swatinem/rust-cache@v1
+      - uses: Swatinem/rust-cache@v2
       - uses: pnpm/action-setup@v2.2.4
         with:
           version: 7
@@ -38,4 +38,3 @@ jobs:
         run: cd crates/wpt-runner && pnpm start
       - name: Check if results have changed
         run: git diff --exit-code
-
