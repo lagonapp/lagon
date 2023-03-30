@@ -49,6 +49,7 @@ export const Footer = () => {
           <Text size="a" href="/pricing">
             Pricing
           </Text>
+          {/* @ts-expect-error RSC */}
           <StatusBadge />
         </FooterSection>
         <FooterSection title="Community">

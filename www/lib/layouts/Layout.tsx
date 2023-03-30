@@ -3,7 +3,6 @@ import { Header } from '../components/Header';
 import useSystemTheme from '../hooks/useSystemTheme';
 import { ReactNode } from 'react';
 import { Footer } from '../components/Footer';
-import Head from 'next/head';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -14,17 +13,15 @@ type LayoutProps = {
 };
 
 export const Layout = ({ children }: LayoutProps) => {
-  const theme = useSystemTheme();
+  // const theme = useSystemTheme();
 
   return (
     <>
-      <Head>
-        {theme === 'dark' ? (
+      {/* {theme === 'dark' ? (
           <link rel="icon" href="/favicon-white.ico" />
         ) : (
           <link rel="icon" href="/favicon-black.ico" />
-        )}
-      </Head>
+        )} */}
       <div className={`bg-dark pt-8 ${inter.className}`}>
         <div
           className="pointer-events-none absolute top-0 left-0 h-64 w-full"

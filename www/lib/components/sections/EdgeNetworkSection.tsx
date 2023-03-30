@@ -4,6 +4,7 @@ import { WorldMapImage } from '../images/WorldMapImage';
 import { Text } from '../Text';
 import { Tooltip } from '../Tooltip';
 import { motion } from 'framer-motion';
+import * as RadixTooltip from '@radix-ui/react-tooltip';
 
 type CityPointProps = Region & {
   i: number;
@@ -48,9 +49,11 @@ export const EdgeNetworkSection = () => {
       </motion.div>
       <div className="relative md:-mt-16">
         <WorldMapImage />
-        {ALL_REGIONS.map((point, i) => (
-          <CityPoint key={i} i={i} {...point} />
-        ))}
+        <RadixTooltip.Provider skipDelayDuration={0} delayDuration={0}>
+          {ALL_REGIONS.map((point, i) => (
+            <CityPoint key={i} i={i} {...point} />
+          ))}
+        </RadixTooltip.Provider>
       </div>
       <div className="z-10 flex w-full flex-wrap justify-center gap-4 md:-mt-16">
         <Button variant="primary" size="lg" href="https://tally.so/r/n9q1Rp" target="_blank">

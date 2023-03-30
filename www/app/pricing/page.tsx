@@ -1,9 +1,10 @@
-import { Button } from '../lib/components/Button';
-import { Card } from '../lib/components/Card';
-import { Text } from '../lib/components/Text';
+'use client';
+
+import { Button } from '../../lib/components/Button';
+import { Card } from '../../lib/components/Card';
+import { Text } from '../../lib/components/Text';
 import { CheckIcon } from '@heroicons/react/24/outline';
-import { REGIONS } from '../lib/constants';
-import Head from 'next/head';
+import { REGIONS } from '../../lib/constants';
 import { motion } from 'framer-motion';
 import { HTMLAttributeAnchorTarget } from 'react';
 
@@ -70,12 +71,10 @@ const PLANS: Plan[] = [
   },
 ];
 
-const Pricing = () => {
+export default function Pricing() {
   return (
     <section className="flex flex-col gap-16">
-      <Head>
-        <title>Pricing - Lagon</title>
-      </Head>
+      <title>Pricing - Lagon</title>
       <motion.div
         className="relative z-10 flex flex-col items-center gap-4"
         initial={{ opacity: 0, top: 20 }}
@@ -311,6 +310,4 @@ const Pricing = () => {
       </div>
     </section>
   );
-};
-
-export default Pricing;
+}

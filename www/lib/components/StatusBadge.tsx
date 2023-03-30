@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { Text } from './Text';
 
 type Status = 'up' | 'incident' | 'outage' | 'maintenance';
@@ -17,19 +16,15 @@ const STATUS_TO_TEXT: Record<Status, string> = {
   maintenance: 'Under maintenance',
 };
 
-export const StatusBadge = () => {
-  const [status, setStatus] = useState<Status>('up');
+async function getStatus() {
+  const res = await fetch(`https://status.lagon.app/status.json`, { next: { revalidate: 60 } });
+  const data = await res.json();
 
-  useEffect(() => {
-    fetch('https://status.lagon.app/status.json')
-      .then(res => res.json())
-      .then(data => {
-        setStatus(data.indicator);
-      })
-      .catch(error => {
-        console.error(error);
-      });
-  }, []);
+  return data.indicator as Status;
+}
+
+export const StatusBadge = async () => {
+  const status = await getStatus();
 
   return (
     <Text size="a" href="https://status.lagon.app" target="_blank">

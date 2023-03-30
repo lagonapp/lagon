@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from './Button';
 import { Text } from './Text';
 import Image from 'next/image';
@@ -6,15 +8,15 @@ import { GitHubIcon } from './icons/GitHubIcon';
 import { BurgerIcon } from './icons/BurgerIcon';
 import { useEffect, useState } from 'react';
 import { CloseIcon } from './icons/CloseIcon';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 
 export const Header = () => {
   const [open, setOpen] = useState(false);
-  const { asPath } = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     setOpen(false);
-  }, [asPath]);
+  }, [pathname]);
 
   return (
     <header className="bg-dark/50 container sticky top-0 z-50 mx-auto rounded-md py-4 px-8 backdrop-blur md:rounded-full">
@@ -32,10 +34,10 @@ export const Header = () => {
           <Text size="a" href="https://docs.lagon.app" target="_blank">
             Documentation
           </Text>
-          <Text size="a" href="/blog" className={asPath.startsWith('/blog') ? '!text-white' : undefined}>
+          <Text size="a" href="/blog" className={pathname?.startsWith('/blog') ? '!text-white' : undefined}>
             Blog
           </Text>
-          <Text size="a" href="/pricing" className={asPath.startsWith('/pricing') ? '!text-white' : undefined}>
+          <Text size="a" href="/pricing" className={pathname?.startsWith('/pricing') ? '!text-white' : undefined}>
             Pricing
           </Text>
         </div>
@@ -61,11 +63,11 @@ export const Header = () => {
           <div className="border-b-grey/20 border-b" />
           <Link href="https://docs.lagon.app">Documentation</Link>
           <div className="border-b-grey/20 border-b" />
-          <Link href="/blog" className={asPath.startsWith('/blog') ? '!text-white' : undefined}>
+          <Link href="/blog" className={pathname?.startsWith('/blog') ? '!text-white' : undefined}>
             Blog
           </Link>
           <div className="border-b-grey/20 border-b" />
-          <Link href="/pricing" className={asPath.startsWith('/pricing') ? '!text-white' : undefined}>
+          <Link href="/pricing" className={pathname?.startsWith('/pricing') ? '!text-white' : undefined}>
             Pricing
           </Link>
           <div className="mt-6 flex justify-between gap-12">
