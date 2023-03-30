@@ -37,6 +37,6 @@ export default async function Blog() {
   );
 }
 
-// export const metadata = {
-//   title: 'Blog - Lagon',
-// };
+export const metadata = {
+  title: 'Blog - Lagon',
+};

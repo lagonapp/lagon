@@ -6,7 +6,6 @@ import { Text } from '../components/Text';
 import { ComponentProps, ReactNode } from 'react';
 import { Article } from '../blog';
 import { Tags } from '../components/Tags';
-import Head from 'next/head';
 import Link from 'next/link';
 
 const components: ComponentProps<typeof MDXProvider>['components'] = {
@@ -35,10 +34,8 @@ type BlogLayoutProps = {
 export const BlogLayout = ({ meta, children }: BlogLayoutProps) => {
   return (
     <MDXProvider components={components}>
-      <Head>
-        <title>{`${meta.title} - Lagon Blog`}</title>
-        <meta name="description" content={meta.description} />
-      </Head>
+      <title>{`${meta.title} - Lagon Blog`}</title>
+      <meta name="description" content={meta.description} />
       <div className="z-10 mx-auto flex max-w-2xl flex-col">
         <div className="mb-16 flex flex-col gap-8">
           <Text size="h2">{meta.title}</Text>
