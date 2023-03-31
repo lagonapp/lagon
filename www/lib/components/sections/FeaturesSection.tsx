@@ -2,7 +2,7 @@ import { AnimatedLine } from '../AnimatedLine';
 import { Badge } from '../Badge';
 import { Star } from '../Star';
 import { Text } from '../Text';
-import { motion } from 'framer-motion';
+import { MotionDiv } from '../../client';
 
 const CATEGORIES = ['websites', 'apps', 'cron jobs', 'webhooks'];
 
@@ -12,9 +12,9 @@ type AnimatedBadgeProps = {
 };
 
 const AnimatedBadge = ({ delay, children }: AnimatedBadgeProps) => (
-  <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay }} viewport={{ once: true }}>
+  <MotionDiv initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay }} viewport={{ once: true }}>
     <Badge>{children}</Badge>
-  </motion.div>
+  </MotionDiv>
 );
 
 export const FeaturesSection = () => {
@@ -31,7 +31,7 @@ export const FeaturesSection = () => {
           <AnimatedLine size="large" key={i} />
         ))}
       </div>
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
@@ -59,7 +59,7 @@ export const FeaturesSection = () => {
             </ul>
           </span>
         </Text>
-      </motion.div>
+      </MotionDiv>
       <div className="flex flex-col items-center gap-2">
         <div className="flex flex-wrap justify-center gap-2">
           <AnimatedBadge delay={0.2}>Open source</AnimatedBadge>

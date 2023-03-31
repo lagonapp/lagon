@@ -1,38 +1,14 @@
-import { ALL_REGIONS, Region, REGIONS } from '../../constants';
+import { REGIONS } from '../../constants';
 import { Button } from '../Button';
 import { WorldMapImage } from '../images/WorldMapImage';
 import { Text } from '../Text';
-import { Tooltip } from '../Tooltip';
-import { motion } from 'framer-motion';
-import * as RadixTooltip from '@radix-ui/react-tooltip';
-
-type CityPointProps = Region & {
-  i: number;
-};
-
-const CityPoint = ({ name, top, left, i }: CityPointProps) => {
-  const initialTop = `${Number(top.replace('%', '')) - 1}%`;
-
-  return (
-    <motion.div
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform"
-      initial={{ opacity: 0, top: initialTop, left }}
-      whileInView={{ opacity: 1, top, left }}
-      transition={{ delay: i / 10, type: 'tween' }}
-      viewport={{ once: true }}
-    >
-      <Tooltip content={name} aria-label={`Pin located in ${name}, representing a Lagon Edge Region`}>
-        <div className="from-blue-1 h-2 w-2 rounded-full bg-gradient-to-b to-[#1B76FF]" />
-        <div className="bg-grey ml-[3px] mt-[1px] h-1 w-[2px] rounded-full" />
-      </Tooltip>
-    </motion.div>
-  );
-};
+import { MotionDiv } from '../../client';
+import { WorldMapTooltips } from '../WorldMapTooltips';
 
 export const EdgeNetworkSection = () => {
   return (
     <section className="flex flex-col justify-center">
-      <motion.div
+      <MotionDiv
         className="z-10 mx-auto flex w-3/4 flex-col items-center gap-4 text-center"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -46,14 +22,10 @@ export const EdgeNetworkSection = () => {
           </span>
         </Text>
         <Text>{REGIONS} regions allowing minimal latency all around the world.</Text>
-      </motion.div>
+      </MotionDiv>
       <div className="relative md:-mt-16">
         <WorldMapImage />
-        <RadixTooltip.Provider skipDelayDuration={0} delayDuration={0}>
-          {ALL_REGIONS.map((point, i) => (
-            <CityPoint key={i} i={i} {...point} />
-          ))}
-        </RadixTooltip.Provider>
+        <WorldMapTooltips />
       </div>
       <div className="z-10 flex w-full flex-wrap justify-center gap-4 md:-mt-16">
         <Button variant="primary" size="lg" href="https://tally.so/r/n9q1Rp" target="_blank">
