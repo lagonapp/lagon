@@ -25,7 +25,7 @@ lazy_static = "1.4.0"
 anyhow = "1.0.70"
 tokio-cron-scheduler = "0.9.4"
 dashmap = "5.4.0"
-futures = "0.3.28"
+futures = "0.3.26"
 
 [build-dependencies]
 lagon-runtime = { path = "../runtime" }
