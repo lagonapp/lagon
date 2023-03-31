@@ -4,6 +4,10 @@ import { getArticles } from '../../lib/blog';
 import { Tags } from '../../lib/components/Tags';
 import { Text } from '../../lib/components/Text';
 
+export const metadata = {
+  title: 'Blog - Lagon',
+};
+
 export default async function Blog() {
   const articles = await getArticles();
 
@@ -36,7 +40,3 @@ export default async function Blog() {
     </section>
   );
 }
-
-export const metadata = {
-  title: 'Blog - Lagon',
-};

@@ -6,6 +6,11 @@ import { Text } from '../../../lib/components/Text';
 // @ts-expect-error MDX
 import { meta } from './page.mdx';
 
+export const metadata = {
+  title: `${meta.title} - Lagon`,
+  description: meta.description,
+};
+
 type LayoutProps = {
   children: ReactNode;
 };
@@ -48,8 +53,3 @@ export default function Layout({ children }: LayoutProps) {
     </div>
   );
 }
-
-export const metadata = {
-  title: `${meta.title} - Lagon`,
-  description: meta.description,
-};
