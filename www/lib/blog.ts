@@ -26,13 +26,12 @@ export const getArticles = async (): Promise<Article[]> => {
 
   return Promise.all(
     files
-      .filter(file => file.endsWith('.mdx'))
-      .map(async file => {
-        const slug = file.replace('.mdx', '');
-        const content = await import(`../app/blog/${file}`);
+      .filter(file => !file.endsWith('.mdx') && !file.endsWith('.tsx'))
+      .map(async directory => {
+        const content = await import(`../app/blog/${directory}/page.mdx`);
 
         return {
-          slug,
+          slug: directory,
           meta: content.meta,
         };
       }),
