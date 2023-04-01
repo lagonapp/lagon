@@ -114,8 +114,11 @@ export default defineLocale({
   'profile.information.success': 'Les informations ont été mises à jour.',
 
   'profile.tokens.title': 'Tokens',
-  'profile.tokens.description': 'Voici vos Tokens personnels, utilisés pour la CLI.',
+  'profile.tokens.description':
+    'Voici vos Tokens personnels, utilisés pour vous authentifier dans la CLI et la GitHub Action.',
   'profile.tokens.created': 'Créé :',
+  'profile.tokens.copy': 'Copier',
+  'profile.tokens.copy.success': 'Le Token a été copié dans le presse-papiers.',
   'profile.tokens.delete.submit': 'Supprimer',
   'profile.tokens.delete.modal.title': 'Supprimer un Token',
   'profile.tokens.delete.modal.description':
