@@ -1,21 +1,18 @@
-import { GetStaticProps } from 'next';
-import Link from 'next/link';
-import { Article, getArticles } from '../../lib/blog';
-import { Text } from '../../lib/components/Text';
 import Image from 'next/image';
+import Link from 'next/link';
+import { getArticles } from '../../lib/blog';
 import { Tags } from '../../lib/components/Tags';
-import Head from 'next/head';
+import { Text } from '../../lib/components/Text';
 
-type BlogProps = {
-  articles: Article[];
+export const metadata = {
+  title: 'Blog - Lagon',
 };
 
-const Blog = ({ articles }: BlogProps) => {
+export default async function Blog() {
+  const articles = await getArticles();
+
   return (
     <section className="z-10 mx-auto flex w-full max-w-2xl flex-col gap-16">
-      <Head>
-        <title>Blog - Lagon</title>
-      </Head>
       <Text size="h2" className="text-center">
         Blog
       </Text>
@@ -42,14 +39,4 @@ const Blog = ({ articles }: BlogProps) => {
       ))}
     </section>
   );
-};
-
-export const getStaticProps: GetStaticProps<BlogProps> = async () => {
-  return {
-    props: {
-      articles: await getArticles(),
-    },
-  };
-};
-
-export default Blog;
+}

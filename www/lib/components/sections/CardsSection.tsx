@@ -6,7 +6,7 @@ import { StatsIcon } from '../icons/StatsIcon';
 import { WorldIcon } from '../icons/WorldIcon';
 import { HeartIcon } from '../icons/HeartIcon';
 import { Text } from '../Text';
-import { motion } from 'framer-motion';
+import { MotionDiv } from '../../client';
 import { ReactElement, ReactNode } from 'react';
 import Link from 'next/link';
 
@@ -18,7 +18,7 @@ type CustomCardProps = {
 };
 
 const CustomCard = ({ icon, title, description, delay }: CustomCardProps) => (
-  <motion.div
+  <MotionDiv
     className="relative"
     initial={{ opacity: 0, top: 20 }}
     whileInView={{ opacity: 1, top: 0 }}
@@ -30,20 +30,20 @@ const CustomCard = ({ icon, title, description, delay }: CustomCardProps) => (
       <Text size="h3">{title}</Text>
       <Text className="justify-self-end">{description}</Text>
     </Card>
-  </motion.div>
+  </MotionDiv>
 );
 
 export const CardsSection = () => {
   return (
     <section className="flex flex-col items-center gap-16">
-      <motion.div
+      <MotionDiv
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
         viewport={{ once: true }}
       >
         <Text size="h2">Packed with features</Text>
-      </motion.div>
+      </MotionDiv>
       <div className="grid grid-cols-1 grid-rows-6 gap-4 sm:grid-cols-2 sm:grid-rows-3 md:gap-6 lg:grid-cols-3 lg:grid-rows-2">
         <CustomCard
           icon={

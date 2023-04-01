@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-const ARTICLES_DIR = path.join(process.cwd(), 'pages/blog');
+const ARTICLES_DIR = path.join(process.cwd(), 'app/blog');
 
 export type Author = {
   name: string;
@@ -26,13 +26,12 @@ export const getArticles = async (): Promise<Article[]> => {
 
   return Promise.all(
     files
-      .filter(file => file !== 'index.tsx')
-      .map(async file => {
-        const slug = file.replace('.mdx', '');
-        const content = await import(`../pages/blog/${file}`);
+      .filter(file => !file.endsWith('.mdx') && !file.endsWith('.tsx'))
+      .map(async directory => {
+        const content = await import(`../app/blog/${directory}/page.mdx`);
 
         return {
-          slug,
+          slug: directory,
           meta: content.meta,
         };
       }),
