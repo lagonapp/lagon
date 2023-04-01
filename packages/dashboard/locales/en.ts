@@ -110,8 +110,11 @@ export default {
   'profile.information.success': 'Information updated successfully.',
 
   'profile.tokens.title': 'Tokens',
-  'profile.tokens.description': 'Below are your personal Tokens, used for the CLI.',
+  'profile.tokens.description':
+    'Below are your personal Tokens, used for authenticating through the CLI and the GitHub Action.',
   'profile.tokens.created': 'Created:',
+  'profile.tokens.copy': 'Copy',
+  'profile.tokens.copy.success': 'Token copied to clipboard.',
   'profile.tokens.delete.submit': 'Delete',
   'profile.tokens.delete.modal.title': 'Delete Token',
   'profile.tokens.delete.modal.description':

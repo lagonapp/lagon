@@ -7,6 +7,7 @@ import { getLocaleProps, useI18n } from 'locales';
 import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
 import { Suspense, useCallback } from 'react';
+import { ClipboardIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
 const Tokens = () => {
@@ -27,6 +28,11 @@ const Tokens = () => {
     [deleteToken, refetch, t],
   );
 
+  const copyToken = async (value: string) => {
+    await navigator.clipboard.writeText(value);
+    toast.success(t('tokens.copy.success'));
+  };
+
   return (
     <Card title={t('tokens.title')} description={t('tokens.description')}>
       <div>
@@ -45,22 +51,27 @@ const Tokens = () => {
                   year: 'numeric',
                 })}
               </Text>
-              <Dialog
-                title={t('tokens.delete.modal.title')}
-                description={t('tokens.delete.modal.description')}
-                disclosure={
-                  <Button variant="danger" disabled={deleteToken.isLoading}>
-                    {t('tokens.delete.submit')}
-                  </Button>
-                }
-              >
-                <Dialog.Buttons>
-                  <Dialog.Cancel disabled={deleteToken.isLoading} />
-                  <Dialog.Action variant="danger" onClick={() => removeToken(token)} disabled={deleteToken.isLoading}>
-                    {t('tokens.delete.modal.submit')}
-                  </Dialog.Action>
-                </Dialog.Buttons>
-              </Dialog>
+              <div className="flex gap-2 md:w-1/3 md:justify-end">
+                <Button leftIcon={<ClipboardIcon className="h-4 w-4" />} onClick={() => copyToken(token.value)}>
+                  {t('tokens.copy')}
+                </Button>
+                <Dialog
+                  title={t('tokens.delete.modal.title')}
+                  description={t('tokens.delete.modal.description')}
+                  disclosure={
+                    <Button variant="danger" disabled={deleteToken.isLoading}>
+                      {t('tokens.delete.submit')}
+                    </Button>
+                  }
+                >
+                  <Dialog.Buttons>
+                    <Dialog.Cancel disabled={deleteToken.isLoading} />
+                    <Dialog.Action variant="danger" onClick={() => removeToken(token)} disabled={deleteToken.isLoading}>
+                      {t('tokens.delete.modal.submit')}
+                    </Dialog.Action>
+                  </Dialog.Buttons>
+                </Dialog>
+              </div>
             </div>
           </div>
         ))}

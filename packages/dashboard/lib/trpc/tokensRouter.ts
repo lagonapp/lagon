@@ -13,6 +13,7 @@ export const tokensRouter = (t: T) =>
         },
         select: {
           id: true,
+          value: true,
           createdAt: true,
         },
         orderBy: {
