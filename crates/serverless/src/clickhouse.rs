@@ -22,6 +22,7 @@ pub struct RequestRow {
     pub isolate: bool,
     pub bytes_in: u32,
     pub bytes_out: u32,
+    pub cpu_time_micros: u128,
     pub timestamp: u32,
 }
 
@@ -75,6 +76,7 @@ ORDER BY timestamp",
     isolate Bool,
     bytes_in UInt32,
     bytes_out UInt32,
+    cpu_time_micros UInt128,
     timestamp DateTime,
 )
 ENGINE = MergeTree()
@@ -83,6 +85,22 @@ ORDER BY timestamp",
         )
         .execute()
         .await?;
+
+    //     client
+    //         .query(
+    //             "CREATE TABLE IF NOT EXISTS serverless.stats
+    // (
+    //     function_id String,
+    //     deployment_id String,
+    //     region String,
+    //     timestamp DateTime,
+    // )
+    // ENGINE = MergeTree()
+    // PRIMARY KEY (timestamp)
+    // ORDER BY timestamp",
+    //         )
+    //         .execute()
+    //         .await?;
 
     Ok(())
 }

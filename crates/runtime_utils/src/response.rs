@@ -2,7 +2,7 @@ use anyhow::Result;
 use flume::Receiver;
 use hyper::{body::Bytes, http::response::Builder, Body, Response as HyperResponse};
 use lagon_runtime_http::{RunResult, StreamResult};
-use std::{future::Future, pin::Pin};
+use std::{future::Future, pin::Pin, time::Duration};
 
 pub const PAGE_404: &str = include_str!("../public/404.html");
 pub const PAGE_403: &str = include_str!("../public/403.html");
@@ -12,9 +12,8 @@ pub const PAGE_500: &str = include_str!("../public/500.html");
 pub const FAVICON_URL: &str = "/favicon.ico";
 
 pub enum ResponseEvent {
-    Bytes(usize),
+    Bytes(usize, Duration),
     StreamDoneNoDataError,
-    StreamDoneDataError,
     UnexpectedStreamResult(RunResult),
     LimitsReached(RunResult),
     Error(RunResult),
@@ -54,8 +53,8 @@ where
                     let bytes = Bytes::from(bytes);
                     stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                 }
-                StreamResult::Done => {
-                    on_event(ResponseEvent::StreamDoneNoDataError, data.clone());
+                StreamResult::Done(_) => {
+                    on_event(ResponseEvent::StreamDoneNoDataError, data.clone()).await?;
 
                     // Close the stream by sending empty bytes
                     stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
@@ -63,44 +62,34 @@ where
             }
 
             tokio::spawn(async move {
-                let mut done = false;
-
                 while let Ok(result) = rx.recv_async().await {
                     match result {
                         RunResult::Stream(StreamResult::Start(response)) => {
                             response_tx.send_async(response).await.unwrap_or(());
                         }
                         RunResult::Stream(StreamResult::Data(bytes)) => {
-                            on_event(ResponseEvent::Bytes(bytes.len()), data.clone());
-
-                            if done {
-                                on_event(ResponseEvent::StreamDoneDataError, data.clone());
-
-                                // Close the stream by sending empty bytes
-                                stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
-                                break;
-                            }
-
                             total_bytes += bytes.len();
 
                             let bytes = Bytes::from(bytes);
                             stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                         }
-                        _ => {
-                            done = result == RunResult::Stream(StreamResult::Done);
-
-                            if !done {
-                                on_event(
-                                    ResponseEvent::UnexpectedStreamResult(result),
-                                    data.clone(),
-                                );
-                            }
+                        RunResult::Stream(StreamResult::Done(elapsed)) => {
+                            on_event(ResponseEvent::Bytes(total_bytes, elapsed), data.clone())
+                                .await
+                                .expect("Failed to send event");
 
                             // Close the stream by sending empty bytes
                             stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
-                            on_event(ResponseEvent::Bytes(total_bytes), data.clone())
+                            break;
+                        }
+                        _ => {
+                            on_event(ResponseEvent::UnexpectedStreamResult(result), data.clone())
                                 .await
                                 .expect("Failed to send event");
+
+                            // Close the stream by sending empty bytes
+                            stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
+                            break;
                         }
                     }
                 }
@@ -111,8 +100,8 @@ where
 
             Ok(hyper_response)
         }
-        RunResult::Response(response) => {
-            on_event(ResponseEvent::Bytes(response.len()), data).await?;
+        RunResult::Response(response, elapsed) => {
+            on_event(ResponseEvent::Bytes(response.len(), elapsed), data).await?;
 
             Ok(Builder::try_from(&response)?.body(response.body.into())?)
         }

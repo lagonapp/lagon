@@ -144,7 +144,7 @@ async fn handle_request(
             .join(&deployment.id);
 
         let run_result = match handle_asset(root, asset) {
-            Ok(response) => RunResult::Response(response),
+            Ok(response) => RunResult::Response(response, Duration::from_secs(0)),
             Err(error) => {
                 error!(deployment = &deployment.id, asset = asset, request = request_id; "Error while handing asset: {}", error);
 
@@ -155,16 +155,17 @@ async fn handle_request(
         sender.send_async(run_result).await.unwrap_or(());
     } else if is_favicon {
         sender
-            .send_async(RunResult::Response(Response {
-                status: 404,
-                ..Default::default()
-            }))
+            .send_async(RunResult::Response(
+                Response {
+                    status: 404,
+                    ..Default::default()
+                },
+                Duration::from_secs(0),
+            ))
             .await
             .unwrap_or(());
     } else {
-        // TODO replace by query last
-        // last_requests.insert(deployment_id.clone(), Instant::now());
-
+        last_requests.insert(deployment_id.clone(), Instant::now());
         isolate = true;
 
         match Request::from_hyper_with_capacity(req, 2).await {
@@ -297,7 +298,7 @@ async fn handle_request(
             )| {
                 Box::pin(async move {
                     match event {
-                        ResponseEvent::Bytes(bytes) => {
+                        ResponseEvent::Bytes(bytes, elapsed) => {
                             inserters
                                 .lock()
                                 .await
@@ -309,6 +310,7 @@ async fn handle_request(
                                     isolate,
                                     bytes_in,
                                     bytes_out: bytes as u32,
+                                    cpu_time_micros: elapsed.as_micros(),
                                     timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
                                 })
                                 .await?;
@@ -318,14 +320,6 @@ async fn handle_request(
                                 RunResult::Error(
                                     "The stream was done before sending a response/data".into(),
                                 ),
-                                &deployment_id,
-                                &request_id,
-                                &labels,
-                            );
-                        }
-                        ResponseEvent::StreamDoneDataError => {
-                            handle_error(
-                                RunResult::Error("Got data after stream was done".into()),
                                 &deployment_id,
                                 &request_id,
                                 &labels,

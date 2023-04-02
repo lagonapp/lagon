@@ -541,14 +541,21 @@ impl Isolate {
                     *stream_status = StreamStatus::HasStream;
                 }
 
-                if let StreamResult::Done = stream_result {
+                if let StreamResult::Done(_) = stream_result {
                     *stream_status = StreamStatus::Done;
-                }
 
-                handler_result
-                    .sender
-                    .send(RunResult::Stream(stream_result))
-                    .unwrap_or(());
+                    handler_result
+                        .sender
+                        .send(RunResult::Stream(StreamResult::Done(
+                            handler_result.start_time.elapsed(),
+                        )))
+                        .unwrap_or(());
+                } else {
+                    handler_result
+                        .sender
+                        .send(RunResult::Stream(stream_result))
+                        .unwrap_or(());
+                }
             }
         }
     }
@@ -628,7 +635,6 @@ impl Isolate {
         state.handler_results.retain(|_, handler_result| {
             if *handler_result.stream_response_sent.borrow() {
                 if handler_result.stream_status.borrow().is_done() {
-                    send_statistics(options, try_catch, handler_result.start_time);
                     return false;
                 }
 
@@ -641,13 +647,14 @@ impl Isolate {
             match promise.state() {
                 v8::PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
-
                     let run_result = match Response::from_v8(try_catch, response) {
-                        Ok(response) => RunResult::Response(response),
+                        Ok(response) => {
+                            RunResult::Response(response, handler_result.start_time.elapsed())
+                        }
                         Err(error) => RunResult::Error(error.to_string()),
                     };
 
-                    if let RunResult::Response(ref response) = run_result {
+                    if let RunResult::Response(ref response, _) = run_result {
                         if response.is_streamed() {
                             handler_result
                                 .sender
@@ -660,11 +667,7 @@ impl Isolate {
                         }
                     }
 
-                    // It's important to send the response before sending the statistics
-                    // because calculating the statistics can take a long time
                     handler_result.sender.send(run_result).unwrap_or(());
-                    send_statistics(options, try_catch, handler_result.start_time);
-
                     false
                 }
                 v8::PromiseState::Rejected => {
@@ -676,7 +679,6 @@ impl Isolate {
                             try_catch, exception, lines,
                         )))
                         .unwrap_or(());
-                    send_statistics(options, try_catch, handler_result.start_time);
 
                     false
                 }

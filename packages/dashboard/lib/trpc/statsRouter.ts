@@ -47,6 +47,7 @@ AND
           .query(
             `SELECT
   count(*) as requests,
+  avg(cpu_time_micros) as cpuTime,
   sum(bytes_in) as bytesIn,
   sum(bytes_out) as bytesOut,
   ${groupBy}(timestamp) AS time
@@ -57,7 +58,7 @@ GROUP BY time
 ORDER BY time
 LIMIT ${limit}`,
           )
-          .toPromise()) as { requests: number; bytesIn: number; bytesOut: number; time: string }[];
+          .toPromise()) as { requests: number; cpuTime: number; bytesIn: number; bytesOut: number; time: string }[];
 
         return result;
       }),

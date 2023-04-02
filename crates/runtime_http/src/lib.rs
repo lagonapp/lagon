@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use anyhow::Result;
 
 mod headers;
@@ -25,12 +27,12 @@ pub trait FromV8: Sized {
 pub enum StreamResult {
     Start(Response),
     Data(Vec<u8>),
-    Done,
+    Done(Duration),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunResult {
-    Response(Response),
+    Response(Response, Duration),
     Stream(StreamResult),
     Timeout,
     MemoryLimit,

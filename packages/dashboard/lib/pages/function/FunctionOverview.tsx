@@ -112,18 +112,20 @@ const Charts = ({ func, timeframe }: ChartsProps) => {
 
       const time = now.getTime();
 
-      values.push(value ? { ...value, time } : { time, requests: 0, bytesIn: 0, bytesOut: 0 });
+      values.push(value ? { ...value, time } : { time, requests: 0, cpuTime: 0, bytesIn: 0, bytesOut: 0 });
     }
 
     return values.sort((a, b) => a.time - b.time);
   }, [data, timeframe]);
+
+  const labels = useMemo(() => result.map(({ time }) => new Date(time).getTime() / 1000), [result]);
 
   return (
     <>
       <Card title={t('requests')}>
         <div className="h-72">
           <Chart
-            labels={result.map(({ time }) => new Date(time).getTime() / 1000)}
+            labels={labels}
             datasets={[
               {
                 label: t('requests.label'),
@@ -135,26 +137,27 @@ const Charts = ({ func, timeframe }: ChartsProps) => {
           />
         </div>
       </Card>
-      {/* <Card title={t('cpuTime')}>
+      <Card title={t('cpuTime')}>
         <div className="h-72">
           <Chart
-            labels={cpuTime.map(({ time }) => time)}
+            labels={labels}
             datasets={[
               {
                 label: t('cpuTime.label'),
                 color: '#F59E0B',
-                data: cpuTime.map(({ value }) => value),
+                // CPU time is in microseconds
+                data: result.map(({ cpuTime }) => cpuTime / 1_000_000),
                 transform: formatSeconds,
               },
             ]}
             axisTransform={(self, ticks) => ticks.map(formatSeconds)}
           />
         </div>
-      </Card> */}
+      </Card>
       <Card title={t('network')}>
         <div className="h-72">
           <Chart
-            labels={result.map(({ time }) => new Date(time).getTime() / 1000)}
+            labels={labels}
             datasets={[
               {
                 label: t('network.label.inBytes'),
