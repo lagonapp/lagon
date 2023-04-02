@@ -1781,7 +1781,6 @@ dependencies = [
  "lagon-runtime-http",
  "lagon-runtime-isolate",
  "lazy_static",
- "log",
  "tokio",
 ]
 
