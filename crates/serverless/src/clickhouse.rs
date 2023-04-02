@@ -2,9 +2,9 @@ use std::env;
 
 use anyhow::Result;
 use clickhouse::{Client, Row};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Row, Serialize)]
+#[derive(Row, Serialize, Deserialize)]
 pub struct LogRow {
     pub function_id: String,
     pub deployment_id: String,
@@ -14,7 +14,7 @@ pub struct LogRow {
     pub timestamp: u32,
 }
 
-#[derive(Row, Serialize)]
+#[derive(Row, Serialize, Deserialize)]
 pub struct RequestRow {
     pub function_id: String,
     pub deployment_id: String,

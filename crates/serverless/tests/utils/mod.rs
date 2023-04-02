@@ -1,6 +1,11 @@
-use clickhouse::{test::Mock, Client};
+use clickhouse::{test::handlers, Client};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
+use lagon_serverless::clickhouse::{LogRow, RequestRow};
 use std::sync::Once;
+
+use crate::utils::mock::Mock;
+
+mod mock;
 
 pub fn setup() -> Client {
     static START: Once = Once::new();
@@ -12,5 +17,7 @@ pub fn setup() -> Client {
     });
 
     let mock = Mock::new();
+    mock.add(handlers::record::<RequestRow>());
+    mock.add(handlers::record::<LogRow>());
     Client::default().with_url(mock.url())
 }

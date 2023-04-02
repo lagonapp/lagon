@@ -77,7 +77,6 @@ where
 
                             // Close the stream by sending empty bytes
                             stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
-                            break;
                         }
                         _ => {
                             on_event(ResponseEvent::UnexpectedStreamResult(result), data.clone())
