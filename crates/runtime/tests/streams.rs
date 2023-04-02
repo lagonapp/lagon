@@ -28,10 +28,7 @@ async fn sync_streaming() {
         RunResult::Stream(StreamResult::Data(vec![65, 66, 67]))
     );
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Done)
-    );
+    assert!(receiver.recv_async().await.unwrap().as_stream_done());
 
     assert_eq!(
         receiver.recv_async().await.unwrap(),
@@ -72,10 +69,7 @@ async fn queue_multiple() {
         );
     }
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Done)
-    );
+    assert!(receiver.recv_async().await.unwrap().as_stream_done());
     assert_eq!(
         receiver.recv_async().await.unwrap(),
         RunResult::Stream(StreamResult::Start(Response::from(
@@ -115,10 +109,7 @@ async fn custom_response() {
         RunResult::Stream(StreamResult::Data(vec![65, 66, 67]))
     );
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Done)
-    );
+    assert!(receiver.recv_async().await.unwrap().as_stream_done());
 
     assert_eq!(
         receiver.recv_async().await.unwrap(),
@@ -163,10 +154,7 @@ async fn start_and_pull() {
         RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111]))
     );
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Done)
-    );
+    assert!(receiver.recv_async().await.unwrap().as_stream_done());
 
     assert_eq!(
         receiver.recv_async().await.unwrap(),
@@ -228,10 +216,7 @@ async fn response_before_write() {
         RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111]))
     );
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Done)
-    );
+    assert!(receiver.recv_async().await.unwrap().as_stream_done());
 }
 
 // TODO

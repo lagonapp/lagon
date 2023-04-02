@@ -1,4 +1,4 @@
-use lagon_runtime_http::{Request, Response, RunResult};
+use lagon_runtime_http::{Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -23,8 +23,8 @@ export function handler() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("true"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true")
     );
 }
 
@@ -48,8 +48,8 @@ export function handler() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from(""))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("")
     );
 }
 
@@ -74,8 +74,8 @@ export function handler() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from(""))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("")
     );
 }
 
@@ -114,8 +114,8 @@ export function handler() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from(""))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("")
     );
 }
 
@@ -166,8 +166,8 @@ export function handler() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from(""))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("")
     );
 }
 
@@ -175,7 +175,7 @@ export function handler() {
 #[serial_test::serial]
 async fn timers() {
     utils::setup();
-    let log_rx = utils::setup_logger();
+    let (logs_sender, logs_receiver) = flume::unbounded();
     let (send, receiver) = utils::create_isolate(
         IsolateOptions::new(
             "const store = new AsyncLocalStorage();
@@ -195,21 +195,24 @@ export async function handler() {
 }"
             .into(),
         )
-        .metadata(Some(("".to_owned(), "".to_owned()))),
+        .log_sender(logs_sender),
     );
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("2"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("2")
     );
 
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("4"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("4")
     );
 
-    assert_eq!(log_rx.recv_async().await.unwrap(), "2");
+    assert_eq!(
+        logs_receiver.recv_async().await.unwrap(),
+        ("log".into(), "2".into(), None)
+    );
 }

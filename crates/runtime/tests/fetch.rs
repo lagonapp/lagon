@@ -23,8 +23,8 @@ async fn basic_fetch() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello, World")
     );
 }
 
@@ -50,8 +50,8 @@ async fn request_method() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello, World")
     );
 }
 
@@ -77,8 +77,8 @@ async fn request_method_fallback() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello, World")
     );
 }
 
@@ -109,8 +109,8 @@ async fn request_headers() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello, World")
     );
 }
 
@@ -141,8 +141,8 @@ async fn request_headers_class() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello, World")
     );
 }
 
@@ -172,8 +172,8 @@ async fn request_body() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello, World")
     );
 }
 
@@ -205,8 +205,8 @@ async fn response_headers() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("content-length: 0 x-token: hello"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("content-length: 0 x-token: hello")
     );
 }
 
@@ -235,8 +235,8 @@ async fn response_status() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Moved: 200"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Moved: 200")
     );
 }
 
@@ -261,8 +261,8 @@ async fn response_json() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from(r#"object {"hello":"world"}"#))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from(r#"object {"hello":"world"}"#)
     );
 }
 
@@ -287,8 +287,8 @@ async fn response_array_buffer() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello, World")
     );
 }
 
@@ -364,8 +364,8 @@ async fn abort_signal() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Aborted"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Aborted")
     );
 }
 
@@ -388,8 +388,8 @@ async fn redirect() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("200"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("200")
     );
 }
 
@@ -416,8 +416,8 @@ async fn redirect_relative_url() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("200"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("200")
     );
 }
 
@@ -525,8 +525,8 @@ export async function handler() {{
     );
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("ok"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("ok")
     );
 }
 
@@ -543,7 +543,7 @@ async fn fetch_https() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("200"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("200")
     );
 }

@@ -1,5 +1,5 @@
 use httptest::{matchers::*, responders::*, Expectation, Server};
-use lagon_runtime_http::{Request, Response, RunResult};
+use lagon_runtime_http::{Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -16,8 +16,8 @@ async fn execute_async_handler() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Async handler"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Async handler")
     );
 }
 
@@ -40,7 +40,7 @@ async fn execute_promise() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello, World"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello, World")
     );
 }

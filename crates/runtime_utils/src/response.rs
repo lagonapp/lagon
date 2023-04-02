@@ -19,11 +19,8 @@ pub enum ResponseEvent {
     Error(RunResult),
 }
 
-type OnEvent<D> = Box<
-    dyn Fn(ResponseEvent, D) -> Pin<Box<(dyn Future<Output = Result<()>> + Send + Sync)>>
-        + Send
-        + Sync,
->;
+type OnEventReturnType = Pin<Box<(dyn Future<Output = Result<()>> + Send + Sync)>>;
+type OnEvent<D> = Box<dyn Fn(ResponseEvent, D) -> OnEventReturnType + Send + Sync>;
 
 pub async fn handle_response<D>(
     rx: Receiver<RunResult>,
@@ -126,96 +123,110 @@ mod tests {
 
     use super::*;
 
-    // #[tokio::test]
-    // async fn sequential() {
-    //     let (tx, rx) = flume::unbounded::<RunResult>();
+    #[tokio::test]
+    async fn sequential() {
+        let (tx, rx) = flume::unbounded::<RunResult>();
 
-    //     let handle = tokio::spawn(async move {
-    //         let mut response = handle_response(rx, (), Box::new(|_, _| ())).await.unwrap();
+        let handle = tokio::spawn(async move {
+            let mut response =
+                handle_response(rx, (), Box::new(|_, _| Box::pin(async move { Ok(()) })))
+                    .await
+                    .unwrap();
 
-    //         assert_eq!(response.status(), 200);
-    //         assert_eq!(
-    //             to_bytes(response.body_mut()).await.unwrap(),
-    //             Bytes::from("Hello World")
-    //         );
-    //     });
+            assert_eq!(response.status(), 200);
+            assert_eq!(
+                to_bytes(response.body_mut()).await.unwrap(),
+                Bytes::from("Hello World")
+            );
+        });
 
-    //     tx.send_async(RunResult::Response(Response::from("Hello World")))
-    //         .await
-    //         .unwrap();
+        tx.send_async(RunResult::Response(
+            Response::from("Hello World"),
+            Duration::from_secs(0),
+        ))
+        .await
+        .unwrap();
 
-    //     handle.await.unwrap();
-    // }
+        handle.await.unwrap();
+    }
 
-    // #[tokio::test]
-    // async fn stream() {
-    //     let (tx, rx) = flume::unbounded::<RunResult>();
+    #[tokio::test]
+    async fn stream() {
+        let (tx, rx) = flume::unbounded::<RunResult>();
 
-    //     let handle = tokio::spawn(async move {
-    //         let mut response = handle_response(rx, (), Box::new(|_, _| Box::pin(async { () })))
-    //             .await
-    //             .unwrap();
+        let handle = tokio::spawn(async move {
+            let mut response =
+                handle_response(rx, (), Box::new(|_, _| Box::pin(async move { Ok(()) })))
+                    .await
+                    .unwrap();
 
-    //         assert_eq!(response.status(), 200);
-    //         assert_eq!(
-    //             to_bytes(response.body_mut()).await.unwrap(),
-    //             Bytes::from("Hello world")
-    //         );
-    //     });
+            assert_eq!(response.status(), 200);
+            assert_eq!(
+                to_bytes(response.body_mut()).await.unwrap(),
+                Bytes::from("Hello world")
+            );
+        });
 
-    //     tx.send_async(RunResult::Stream(StreamResult::Start(Response::from(""))))
-    //         .await
-    //         .unwrap();
+        tx.send_async(RunResult::Stream(StreamResult::Start(Response::from(""))))
+            .await
+            .unwrap();
 
-    //     tx.send_async(RunResult::Stream(StreamResult::Data(b"Hello".to_vec())))
-    //         .await
-    //         .unwrap();
+        tx.send_async(RunResult::Stream(StreamResult::Data(b"Hello".to_vec())))
+            .await
+            .unwrap();
 
-    //     tx.send_async(RunResult::Stream(StreamResult::Data(b" world".to_vec())))
-    //         .await
-    //         .unwrap();
+        tx.send_async(RunResult::Stream(StreamResult::Data(b" world".to_vec())))
+            .await
+            .unwrap();
 
-    //     tx.send_async(RunResult::Stream(StreamResult::Done))
-    //         .await
-    //         .unwrap();
+        tx.send_async(RunResult::Stream(StreamResult::Done(Duration::from_secs(
+            0,
+        ))))
+        .await
+        .unwrap();
 
-    //     drop(tx);
+        drop(tx);
 
-    //     handle.await.unwrap();
-    // }
+        handle.await.unwrap();
+    }
 
-    // #[tokio::test]
-    // async fn stream_data_before_response() {
-    //     let (tx, rx) = flume::unbounded::<RunResult>();
+    #[tokio::test]
+    async fn stream_data_before_response() {
+        let (tx, rx) = flume::unbounded::<RunResult>();
 
-    //     let handle = tokio::spawn(async move {
-    //         let mut response = handle_response(rx, (), Box::new(|_, _| ())).await.unwrap();
+        let handle = tokio::spawn(async move {
+            let mut response =
+                handle_response(rx, (), Box::new(|_, _| Box::pin(async move { Ok(()) })))
+                    .await
+                    .unwrap();
 
-    //         assert_eq!(response.status(), 200);
-    //         assert_eq!(
-    //             to_bytes(response.body_mut()).await.unwrap(),
-    //             Bytes::from("Hello world")
-    //         );
-    //     });
+            assert_eq!(response.status(), 200);
+            assert_eq!(
+                to_bytes(response.body_mut()).await.unwrap(),
+                Bytes::from("Hello world")
+            );
+        });
 
-    //     tx.send_async(RunResult::Stream(StreamResult::Data(b"Hello".to_vec())))
-    //         .await
-    //         .unwrap();
+        tx.send_async(RunResult::Stream(StreamResult::Data(b"Hello".to_vec())))
+            .await
+            .unwrap();
 
-    //     tx.send_async(RunResult::Stream(StreamResult::Start(Response::from(""))))
-    //         .await
-    //         .unwrap();
+        tx.send_async(RunResult::Stream(StreamResult::Start(Response::from(""))))
+            .await
+            .unwrap();
 
-    //     tx.send_async(RunResult::Stream(StreamResult::Data(b" world".to_vec())))
-    //         .await
-    //         .unwrap();
+        tx.send_async(RunResult::Stream(StreamResult::Data(b" world".to_vec())))
+            .await
+            .unwrap();
 
-    //     tx.send_async(RunResult::Stream(StreamResult::Done))
-    //         .await
-    //         .unwrap();
+        tx.send_async(RunResult::Stream(StreamResult::Done(Duration::from_secs(
+            0,
+        ))))
+        .await
+        .unwrap();
 
-    //     drop(tx);
+        drop(tx);
 
-    //     handle.await.unwrap();
-    // }
+        handle.await.unwrap();
+    }
 }

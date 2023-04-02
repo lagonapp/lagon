@@ -48,4 +48,20 @@ impl RunResult {
 
         panic!("RunResult is not an Error");
     }
+
+    pub fn as_response(self) -> Response {
+        if let RunResult::Response(response, _) = self {
+            return response;
+        }
+
+        panic!("RunResult is not a Response");
+    }
+
+    pub fn as_stream_done(self) -> bool {
+        if let RunResult::Stream(StreamResult::Done(_)) = self {
+            return true;
+        }
+
+        false
+    }
 }
