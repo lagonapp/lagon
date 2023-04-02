@@ -1,6 +1,6 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/router';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import { Button, Card, Chart, Description, Divider, Menu, Skeleton, Text } from '@lagon/ui';
 import useFunctionStats from 'lib/hooks/useFunctionStats';
 import { Timeframe, TIMEFRAMES } from 'lib/types';
@@ -51,29 +51,23 @@ const Usage = ({ func, timeframe }: UsageProps) => {
     priceId: session?.organization?.stripePriceId,
     currentPeriodEnd: session?.organization?.stripeCurrentPeriodEnd,
   });
-  const {
-    data: { usage, cpuTime, bytesIn, bytesOut } = {
-      usage: 0,
-      requests: [],
-      cpuTime: [],
-      bytesIn: [],
-      bytesOut: [],
-    },
-  } = useFunctionStats({ functionId: func?.id, timeframe });
+  const { data = [] } = useFunctionStats({ functionId: func?.id, timeframe });
+
+  const requests = data.reduce((acc, { requests }) => acc + requests, 0);
 
   return (
     <>
       <Description title={t('usage')} total={formatNumber(plan.freeRequests)}>
-        {formatNumber(Math.round(usage))}
+        {formatNumber(requests)}
       </Description>
       <Description title={t('usage.avgCpu')} total={`${plan.cpuTime}ms`}>
-        {formatSeconds(cpuTime.length === 0 ? 0 : cpuTime.reduce((acc, { value }) => acc + value, 0) / cpuTime.length)}
+        {/* {formatSeconds(cpuTime.length === 0 ? 0 : cpuTime.reduce((acc, { value }) => acc + value, 0) / cpuTime.length)} */}
       </Description>
       <Description title={t('usage.avgInBytes')}>
-        {formatBytes(bytesIn.length === 0 ? 0 : bytesIn.reduce((acc, { value }) => acc + value, 0) / bytesIn.length)}
+        {formatBytes(data.reduce((acc, { bytesIn }) => acc + bytesIn, 0) / requests)}
       </Description>
       <Description title={t('usage.avgOutBytes')}>
-        {formatBytes(bytesOut.length === 0 ? 0 : bytesOut.reduce((acc, { value }) => acc + value, 0) / bytesOut.length)}
+        {formatBytes(data.reduce((acc, { bytesOut }) => acc + bytesOut, 0) / requests)}
       </Description>
     </>
   );
@@ -87,33 +81,61 @@ type ChartsProps = {
 const Charts = ({ func, timeframe }: ChartsProps) => {
   const { scopedT } = useI18n();
   const t = scopedT('functions.overview');
-  const {
-    data: { requests, cpuTime, bytesIn, bytesOut } = {
-      requests: [],
-      cpuTime: [],
-      bytesIn: [],
-      bytesOut: [],
-    },
-  } = useFunctionStats({ functionId: func?.id, timeframe });
+  const { data = [] } = useFunctionStats({ functionId: func?.id, timeframe });
+
+  const result = useMemo(() => {
+    const timeframes: Record<Timeframe, number> = {
+      'Last 24 hours': 24,
+      'Last 30 days': 30,
+      'Last 7 days': 7,
+    };
+
+    const values = [];
+
+    for (let i = 0; i < timeframes[timeframe]; i++) {
+      const now = new Date();
+      now.setTime(now.getTime() + now.getTimezoneOffset() * 60 * 1000);
+
+      if (timeframe === 'Last 24 hours') {
+        now.setHours(now.getHours() - i);
+      } else {
+        now.setDate(now.getDate() - i);
+      }
+
+      const value = data.find(({ time: resultTime }) => {
+        if (timeframe === 'Last 24 hours') {
+          return new Date(resultTime).getHours() === now.getHours();
+        } else {
+          return new Date(resultTime).getDate() === now.getDate();
+        }
+      });
+
+      const time = now.getTime();
+
+      values.push(value ? { ...value, time } : { time, requests: 0, bytesIn: 0, bytesOut: 0 });
+    }
+
+    return values.sort((a, b) => a.time - b.time);
+  }, [data, timeframe]);
 
   return (
     <>
       <Card title={t('requests')}>
         <div className="h-72">
           <Chart
-            labels={requests.map(({ time }) => time)}
+            labels={result.map(({ time }) => new Date(time).getTime() / 1000)}
             datasets={[
               {
                 label: t('requests.label'),
                 color: '#3B82F6',
-                data: requests.map(({ value }) => Math.round(value)),
+                data: result.map(({ requests }) => requests),
                 transform: formatNumber,
               },
             ]}
           />
         </div>
       </Card>
-      <Card title={t('cpuTime')}>
+      {/* <Card title={t('cpuTime')}>
         <div className="h-72">
           <Chart
             labels={cpuTime.map(({ time }) => time)}
@@ -128,22 +150,22 @@ const Charts = ({ func, timeframe }: ChartsProps) => {
             axisTransform={(self, ticks) => ticks.map(formatSeconds)}
           />
         </div>
-      </Card>
+      </Card> */}
       <Card title={t('network')}>
         <div className="h-72">
           <Chart
-            labels={bytesIn.map(({ time }) => time)}
+            labels={result.map(({ time }) => new Date(time).getTime() / 1000)}
             datasets={[
               {
                 label: t('network.label.inBytes'),
                 color: '#10B981',
-                data: bytesIn.map(({ value }) => Math.round(value)),
+                data: result.map(({ bytesIn }) => bytesIn),
                 transform: formatBytes,
               },
               {
                 label: t('network.label.outBytes'),
                 color: '#3B82F6',
-                data: bytesOut.map(({ value }) => Math.round(value)),
+                data: result.map(({ bytesOut }) => bytesOut),
                 transform: formatBytes,
               },
             ]}

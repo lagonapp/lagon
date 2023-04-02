@@ -3,6 +3,7 @@ use std::env;
 
 // TODO add back cron jobs
 // pub mod cronjob;
+pub mod clickhouse;
 pub mod deployments;
 pub mod serverless;
 

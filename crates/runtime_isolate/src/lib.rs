@@ -27,7 +27,6 @@ use self::{
 mod bindings;
 mod callbacks;
 pub mod options;
-pub use bindings::CONSOLE_SOURCE;
 
 lazy_static! {
     pub static ref POOL: LocalPoolHandle = LocalPoolHandle::new(1);
@@ -65,7 +64,6 @@ pub struct HandlerResult {
 #[derive(Debug, Clone)]
 struct Global(v8::Global<v8::Context>);
 
-#[derive(Debug)]
 pub struct IsolateState {
     global: Option<Global>,
     promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
@@ -76,6 +74,7 @@ pub struct IsolateState {
     rejected_promises: LinkedHashMap<v8::Global<v8::Promise>, String>,
     lines: usize,
     requests_count: u32,
+    log_sender: Option<flume::Sender<(String, String, Metadata)>>,
 }
 
 #[derive(Debug, Copy, Clone)]
@@ -206,6 +205,7 @@ impl Isolate {
                 rejected_promises: LinkedHashMap::new(),
                 lines: 0,
                 requests_count: 0,
+                log_sender: options.log_sender.clone(),
             }
         };
 

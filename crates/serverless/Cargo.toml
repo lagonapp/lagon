@@ -26,6 +26,9 @@ anyhow = "1.0.70"
 tokio-cron-scheduler = "0.9.4"
 dashmap = "5.4.0"
 futures = "0.3.26"
+clickhouse = "0.11.3"
+bytes = "1.4.0"
+serde = { version = "1.0", features = ["derive"] }
 
 [build-dependencies]
 lagon-runtime = { path = "../runtime" }
@@ -35,6 +38,7 @@ flume = "0.10.14"
 [dev-dependencies]
 reqwest = "0.11.16"
 serial_test = "1.0.0"
+clickhouse = { version = "0.11.3", features = ["test-util"] }
 
 [features]
 default = []
