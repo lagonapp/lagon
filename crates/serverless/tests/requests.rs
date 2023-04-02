@@ -17,7 +17,7 @@ mod utils;
 #[tokio::test]
 #[serial]
 async fn returns_correct_http() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -40,6 +40,7 @@ async fn returns_correct_http() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -58,7 +59,7 @@ async fn returns_correct_http() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn returns_correct_path() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -81,6 +82,7 @@ async fn returns_correct_path() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -107,7 +109,7 @@ async fn returns_correct_path() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn forwards_headers() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -130,6 +132,7 @@ async fn forwards_headers() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -147,7 +150,7 @@ async fn forwards_headers() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn stream_sequentially() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -170,6 +173,7 @@ async fn stream_sequentially() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;

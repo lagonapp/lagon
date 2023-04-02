@@ -15,7 +15,7 @@ mod utils;
 #[tokio::test]
 #[serial]
 async fn html_assets() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -38,6 +38,7 @@ async fn html_assets() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -70,7 +71,7 @@ async fn html_assets() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn assets_nested() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -93,6 +94,7 @@ async fn assets_nested() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -118,7 +120,7 @@ async fn assets_nested() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn set_content_type() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -145,6 +147,7 @@ async fn set_content_type() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
