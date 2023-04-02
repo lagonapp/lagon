@@ -61,13 +61,13 @@ const Usage = ({ func, timeframe }: UsageProps) => {
         {formatNumber(requests)}
       </Description>
       <Description title={t('usage.avgCpu')} total={`${plan.cpuTime}ms`}>
-        {/* {formatSeconds(cpuTime.length === 0 ? 0 : cpuTime.reduce((acc, { value }) => acc + value, 0) / cpuTime.length)} */}
+        {formatSeconds(requests > 0 ? data.reduce((acc, { cpuTime }) => acc + cpuTime, 0) / requests : 0)}
       </Description>
       <Description title={t('usage.avgInBytes')}>
-        {formatBytes(data.reduce((acc, { bytesIn }) => acc + bytesIn, 0) / requests)}
+        {formatBytes(requests > 0 ? data.reduce((acc, { bytesIn }) => acc + bytesIn, 0) / requests : 0)}
       </Description>
       <Description title={t('usage.avgOutBytes')}>
-        {formatBytes(data.reduce((acc, { bytesOut }) => acc + bytesOut, 0) / requests)}
+        {formatBytes(requests > 0 ? data.reduce((acc, { bytesOut }) => acc + bytesOut, 0) / requests : 0)}
       </Description>
     </>
   );
