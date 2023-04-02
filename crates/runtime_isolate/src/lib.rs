@@ -13,7 +13,7 @@ use std::{
         Arc, RwLock,
     },
     task::{Context, Poll},
-    time::{Duration, Instant},
+    time::Instant,
 };
 use tokio_util::task::LocalPoolHandle;
 use v8::MapFnTo;
@@ -75,12 +75,6 @@ pub struct IsolateState {
     lines: usize,
     requests_count: u32,
     log_sender: Option<flume::Sender<(String, String, Metadata)>>,
-}
-
-#[derive(Debug, Copy, Clone)]
-pub struct IsolateStatistics {
-    pub cpu_time: Duration,
-    pub memory_usage: usize,
 }
 
 #[derive(Debug)]
@@ -635,6 +629,7 @@ impl Isolate {
         state.handler_results.retain(|_, handler_result| {
             if *handler_result.stream_response_sent.borrow() {
                 if handler_result.stream_status.borrow().is_done() {
+                    send_statistics(options, try_catch);
                     return false;
                 }
 
@@ -668,6 +663,7 @@ impl Isolate {
                     }
 
                     handler_result.sender.send(run_result).unwrap_or(());
+                    send_statistics(options, try_catch);
                     false
                 }
                 v8::PromiseState::Rejected => {
@@ -680,6 +676,7 @@ impl Isolate {
                         )))
                         .unwrap_or(());
 
+                    send_statistics(options, try_catch);
                     false
                 }
                 v8::PromiseState::Pending => true,
@@ -722,22 +719,12 @@ impl Drop for Isolate {
     }
 }
 
-pub fn send_statistics(options: &IsolateOptions, isolate: &mut v8::Isolate, start_time: Instant) {
+pub fn send_statistics(options: &IsolateOptions, isolate: &mut v8::Isolate) {
     if let Some(on_statistics) = &options.on_statistics {
-        // We calculate the elapsed time before getting the
-        // heap statistics because it can take a long time
-        let cpu_time = start_time.elapsed();
-
         let mut statistics = v8::HeapStatistics::default();
         isolate.get_heap_statistics(&mut statistics);
 
-        on_statistics(
-            Rc::clone(&options.metadata),
-            IsolateStatistics {
-                cpu_time,
-                memory_usage: statistics.used_heap_size(),
-            },
-        )
+        on_statistics(Rc::clone(&options.metadata), statistics.used_heap_size())
     }
 }
 

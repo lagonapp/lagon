@@ -28,7 +28,7 @@ use lagon_runtime_utils::{
 use lagon_serverless_downloader::Downloader;
 use lagon_serverless_pubsub::PubSubListener;
 use log::{as_debug, error, info, warn};
-use metrics::{counter, decrement_gauge, histogram, increment_counter, increment_gauge};
+use metrics::{decrement_gauge, histogram, increment_counter, increment_gauge};
 use std::{
     convert::Infallible,
     env,
@@ -51,15 +51,15 @@ fn handle_error(
     match result {
         RunResult::Timeout => {
             increment_counter!("lagon_isolate_timeouts", labels);
-            // warn!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution timed out")
+            warn!(deployment = deployment_id, request = request_id; "Function execution timed out")
         }
         RunResult::MemoryLimit => {
             increment_counter!("lagon_isolate_memory_limits", labels);
-            // warn!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution memory limit reached")
+            warn!(deployment = deployment_id, request = request_id; "Function execution memory limit reached")
         }
         RunResult::Error(error) => {
             increment_counter!("lagon_isolate_errors", labels);
-            // error!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution error: {}", error);
+            error!(deployment = deployment_id, request = request_id; "Function execution error: {}", error);
         }
         _ => {}
     };
@@ -233,12 +233,11 @@ async fn handle_request(
                                             ("region", REGION.clone()),
                                         ];
 
-                                        // histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
-                                        // histogram!(
-                                        //     "lagon_isolate_memory_usage",
-                                        //     statistics.memory_usage as f64,
-                                        //     &labels
-                                        // );
+                                        histogram!(
+                                            "lagon_isolate_memory_usage",
+                                            statistics as f64,
+                                            &labels
+                                        );
                                     }
                                 }))
                                 .log_sender(log_sender)

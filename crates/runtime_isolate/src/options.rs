@@ -1,13 +1,11 @@
 use lagon_runtime_v8_utils::v8_string;
 use std::{collections::HashMap, rc::Rc, time::Duration};
 
-use super::IsolateStatistics;
-
 const JS_RUNTIME: &str = include_str!("../runtime.js");
 
 pub type Metadata = Option<(String, String)>;
 type OnIsolateDropCallback = Box<dyn Fn(Rc<Metadata>)>;
-type OnIsolateStatisticsCallback = Box<dyn Fn(Rc<Metadata>, IsolateStatistics)>;
+type OnIsolateStatisticsCallback = Box<dyn Fn(Rc<Metadata>, usize)>;
 
 pub struct IsolateOptions {
     pub code: String,
