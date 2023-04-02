@@ -1614,7 +1614,6 @@ dependencies = [
  "lagon-runtime-http",
  "lagon-runtime-isolate",
  "lagon-runtime-utils",
- "log",
  "notify",
  "pathdiff",
  "serde",
