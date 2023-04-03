@@ -70,7 +70,7 @@ async fn handle_request(
         println!("              {}", input("Asset found"));
 
         let run_result = match handle_asset(public_dir.unwrap(), asset) {
-            Ok(response) => RunResult::Response(response, Duration::from_secs(0)),
+            Ok(response) => RunResult::Response(response, None),
             Err(error) => RunResult::Error(format!("Could not retrieve asset ({asset}): {error}")),
         };
 
@@ -81,7 +81,7 @@ async fn handle_request(
                 status: 404,
                 ..Default::default()
             },
-            Duration::from_secs(0),
+            None,
         ))
         .await
         .unwrap_or(());
