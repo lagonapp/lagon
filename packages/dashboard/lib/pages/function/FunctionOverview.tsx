@@ -94,7 +94,7 @@ const Charts = ({ func, timeframe }: ChartsProps) => {
 
     for (let i = 0; i < timeframes[timeframe]; i++) {
       const now = new Date();
-      now.setTime(now.getTime() + now.getTimezoneOffset() * 60 * 1000);
+      now.setMinutes(0);
 
       if (timeframe === 'Last 24 hours') {
         now.setHours(now.getHours() - i);
@@ -104,7 +104,10 @@ const Charts = ({ func, timeframe }: ChartsProps) => {
 
       const value = data.find(({ time: resultTime }) => {
         if (timeframe === 'Last 24 hours') {
-          return new Date(resultTime).getHours() === now.getHours();
+          const resultTimeTZ = new Date(resultTime);
+          resultTimeTZ.setTime(resultTimeTZ.getTime() - now.getTimezoneOffset() * 60 * 1000);
+
+          return resultTimeTZ.getHours() === now.getHours();
         } else {
           return new Date(resultTime).getDate() === now.getDate();
         }
