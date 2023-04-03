@@ -143,7 +143,8 @@ AND
     input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 30 days' ? 30 : 7
   } DAY)
 ${input.logLevel !== 'all' ? `AND level = '${input.logLevel}'` : ''}
-ORDER BY timestamp DESC`,
+ORDER BY timestamp DESC
+LIMIT 100`,
           )
           .toPromise()) as { level: string; message: string; timestamp: string }[];
 
