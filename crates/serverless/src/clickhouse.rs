@@ -59,8 +59,7 @@ pub async fn run_migrations(client: &Client) -> Result<()> {
     timestamp DateTime,
 )
 ENGINE = MergeTree()
-PRIMARY KEY (level, timestamp)
-ORDER BY timestamp",
+PRIMARY KEY (level, function_id, timestamp)",
         )
         .execute()
         .await?;
@@ -78,27 +77,10 @@ ORDER BY timestamp",
     timestamp DateTime,
 )
 ENGINE = MergeTree()
-PRIMARY KEY (timestamp)
-ORDER BY timestamp",
+PRIMARY KEY (function_id, timestamp)",
         )
         .execute()
         .await?;
-
-    //     client
-    //         .query(
-    //             "CREATE TABLE IF NOT EXISTS serverless.stats
-    // (
-    //     function_id String,
-    //     deployment_id String,
-    //     region String,
-    //     timestamp DateTime,
-    // )
-    // ENGINE = MergeTree()
-    // PRIMARY KEY (timestamp)
-    // ORDER BY timestamp",
-    //         )
-    //         .execute()
-    //         .await?;
 
     Ok(())
 }
