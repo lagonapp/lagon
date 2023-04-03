@@ -19,10 +19,9 @@ pub struct RequestRow {
     pub function_id: String,
     pub deployment_id: String,
     pub region: String,
-    pub isolate: bool,
     pub bytes_in: u32,
     pub bytes_out: u32,
-    pub cpu_time_micros: u128,
+    pub cpu_time_micros: Option<u128>,
     pub timestamp: u32,
 }
 
@@ -73,10 +72,9 @@ ORDER BY timestamp",
     function_id String,
     deployment_id String,
     region String,
-    isolate Bool,
     bytes_in UInt32,
     bytes_out UInt32,
-    cpu_time_micros UInt128,
+    cpu_time_micros Nullable(UInt128),
     timestamp DateTime,
 )
 ENGINE = MergeTree()

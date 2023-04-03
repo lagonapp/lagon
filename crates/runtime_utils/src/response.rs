@@ -2,7 +2,7 @@ use anyhow::Result;
 use flume::Receiver;
 use hyper::{body::Bytes, http::response::Builder, Body, Response as HyperResponse};
 use lagon_runtime_http::{RunResult, StreamResult};
-use std::{future::Future, pin::Pin, time::Duration};
+use std::{future::Future, pin::Pin};
 
 pub const PAGE_404: &str = include_str!("../public/404.html");
 pub const PAGE_403: &str = include_str!("../public/403.html");
@@ -12,7 +12,7 @@ pub const PAGE_500: &str = include_str!("../public/500.html");
 pub const FAVICON_URL: &str = "/favicon.ico";
 
 pub enum ResponseEvent {
-    Bytes(usize, Duration),
+    Bytes(usize, Option<u128>),
     StreamDoneNoDataError,
     UnexpectedStreamResult(RunResult),
     LimitsReached(RunResult),
@@ -71,9 +71,12 @@ where
                             stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                         }
                         RunResult::Stream(StreamResult::Done(elapsed)) => {
-                            on_event(ResponseEvent::Bytes(total_bytes, elapsed), data.clone())
-                                .await
-                                .expect("Failed to send event");
+                            on_event(
+                                ResponseEvent::Bytes(total_bytes, Some(elapsed.as_micros())),
+                                data.clone(),
+                            )
+                            .await
+                            .expect("Failed to send event");
 
                             // Close the stream by sending empty bytes
                             stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
@@ -97,7 +100,11 @@ where
             Ok(hyper_response)
         }
         RunResult::Response(response, elapsed) => {
-            on_event(ResponseEvent::Bytes(response.len(), elapsed), data).await?;
+            on_event(
+                ResponseEvent::Bytes(response.len(), elapsed.map(|duration| duration.as_micros())),
+                data,
+            )
+            .await?;
 
             Ok(Builder::try_from(&response)?.body(response.body.into())?)
         }
@@ -117,6 +124,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
+
     use hyper::body::to_bytes;
     use lagon_runtime_http::Response;
 
@@ -139,12 +148,9 @@ mod tests {
             );
         });
 
-        tx.send_async(RunResult::Response(
-            Response::from("Hello World"),
-            Duration::from_secs(0),
-        ))
-        .await
-        .unwrap();
+        tx.send_async(RunResult::Response(Response::from("Hello World"), None))
+            .await
+            .unwrap();
 
         handle.await.unwrap();
     }

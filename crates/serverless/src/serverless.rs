@@ -122,7 +122,6 @@ async fn handle_request(
 
     let function_id = deployment.function_id.clone();
     let deployment_id = deployment.id.clone();
-    let mut isolate = false;
     let mut bytes_in = 0;
 
     let request_id_handle = request_id.clone();
@@ -144,7 +143,7 @@ async fn handle_request(
             .join(&deployment.id);
 
         let run_result = match handle_asset(root, asset) {
-            Ok(response) => RunResult::Response(response, Duration::from_secs(0)),
+            Ok(response) => RunResult::Response(response, None),
             Err(error) => {
                 error!(deployment = &deployment.id, asset = asset, request = request_id; "Error while handing asset: {}", error);
 
@@ -160,13 +159,12 @@ async fn handle_request(
                     status: 404,
                     ..Default::default()
                 },
-                Duration::from_secs(0),
+                None,
             ))
             .await
             .unwrap_or(());
     } else {
         last_requests.insert(deployment_id.clone(), Instant::now());
-        isolate = true;
 
         match Request::from_hyper_with_capacity(req, 2).await {
             Ok(mut request) => {
@@ -278,26 +276,16 @@ async fn handle_request(
         (
             function_id,
             deployment_id,
-            isolate,
             bytes_in,
             request_id_handle,
             labels,
             inserters,
         ),
         Box::new(
-            |event,
-             (
-                function_id,
-                deployment_id,
-                isolate,
-                bytes_in,
-                request_id,
-                labels,
-                inserters,
-            )| {
+            |event, (function_id, deployment_id, bytes_in, request_id, labels, inserters)| {
                 Box::pin(async move {
                     match event {
-                        ResponseEvent::Bytes(bytes, elapsed) => {
+                        ResponseEvent::Bytes(bytes, cpu_time_micros) => {
                             inserters
                                 .lock()
                                 .await
@@ -306,10 +294,9 @@ async fn handle_request(
                                     function_id,
                                     deployment_id,
                                     region: REGION.clone(),
-                                    isolate,
                                     bytes_in,
                                     bytes_out: bytes as u32,
-                                    cpu_time_micros: elapsed.as_micros(),
+                                    cpu_time_micros,
                                     timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
                                 })
                                 .await?;

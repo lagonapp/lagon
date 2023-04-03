@@ -27,12 +27,16 @@ pub trait FromV8: Sized {
 pub enum StreamResult {
     Start(Response),
     Data(Vec<u8>),
+    // Stream responses always have a duration
+    // since they are always from the isolate
     Done(Duration),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunResult {
-    Response(Response, Duration),
+    // Isolate responses have a duration (cpu time)
+    // Assets responses don't
+    Response(Response, Option<Duration>),
     Stream(StreamResult),
     Timeout,
     MemoryLimit,

@@ -644,7 +644,7 @@ impl Isolate {
                     let response = promise.result(try_catch);
                     let run_result = match Response::from_v8(try_catch, response) {
                         Ok(response) => {
-                            RunResult::Response(response, handler_result.start_time.elapsed())
+                            RunResult::Response(response, Some(handler_result.start_time.elapsed()))
                         }
                         Err(error) => RunResult::Error(error.to_string()),
                     };
