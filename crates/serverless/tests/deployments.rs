@@ -15,7 +15,7 @@ mod utils;
 #[tokio::test]
 #[serial]
 async fn simple() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -38,6 +38,7 @@ async fn simple() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -53,7 +54,7 @@ async fn simple() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn custom_domains() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     let deployment = Arc::new(Deployment {
         id: "simple".into(),
@@ -75,6 +76,7 @@ async fn custom_domains() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -99,7 +101,7 @@ async fn custom_domains() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn reuse_isolate() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -122,6 +124,7 @@ async fn reuse_isolate() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -141,7 +144,7 @@ async fn reuse_isolate() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn reuse_isolate_across_domains() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     let deployment = Arc::new(Deployment {
         id: "counter".into(),
@@ -163,6 +166,7 @@ async fn reuse_isolate_across_domains() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;

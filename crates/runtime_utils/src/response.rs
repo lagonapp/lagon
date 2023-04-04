@@ -2,6 +2,7 @@ use anyhow::Result;
 use flume::Receiver;
 use hyper::{body::Bytes, http::response::Builder, Body, Response as HyperResponse};
 use lagon_runtime_http::{RunResult, StreamResult};
+use std::{future::Future, pin::Pin};
 
 pub const PAGE_404: &str = include_str!("../public/404.html");
 pub const PAGE_403: &str = include_str!("../public/403.html");
@@ -11,15 +12,15 @@ pub const PAGE_500: &str = include_str!("../public/500.html");
 pub const FAVICON_URL: &str = "/favicon.ico";
 
 pub enum ResponseEvent {
-    Bytes(usize),
+    Bytes(usize, Option<u128>),
     StreamDoneNoDataError,
-    StreamDoneDataError,
     UnexpectedStreamResult(RunResult),
     LimitsReached(RunResult),
     Error(RunResult),
 }
 
-type OnEvent<D> = Box<dyn Fn(ResponseEvent, D) + Send>;
+type OnEventReturnType = Pin<Box<(dyn Future<Output = Result<()>> + Send + Sync)>>;
+type OnEvent<D> = Box<dyn Fn(ResponseEvent, D) -> OnEventReturnType + Send + Sync>;
 
 pub async fn handle_response<D>(
     rx: Receiver<RunResult>,
@@ -27,7 +28,7 @@ pub async fn handle_response<D>(
     on_event: OnEvent<D>,
 ) -> Result<HyperResponse<Body>>
 where
-    D: Send + Clone + 'static,
+    D: Send + Sync + Clone + 'static,
 {
     let result = rx.recv_async().await?;
 
@@ -37,19 +38,20 @@ where
             let body = Body::wrap_stream(stream_rx.into_stream());
 
             let (response_tx, response_rx) = flume::bounded(1);
+            let mut total_bytes = 0;
 
             match stream_result {
                 StreamResult::Start(response) => {
                     response_tx.send_async(response).await.unwrap_or(());
                 }
                 StreamResult::Data(bytes) => {
-                    on_event(ResponseEvent::Bytes(bytes.len()), data.clone());
+                    total_bytes += bytes.len();
 
                     let bytes = Bytes::from(bytes);
                     stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                 }
-                StreamResult::Done => {
-                    on_event(ResponseEvent::StreamDoneNoDataError, data.clone());
+                StreamResult::Done(_) => {
+                    on_event(ResponseEvent::StreamDoneNoDataError, data.clone()).await?;
 
                     // Close the stream by sending empty bytes
                     stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
@@ -57,39 +59,36 @@ where
             }
 
             tokio::spawn(async move {
-                let mut done = false;
-
                 while let Ok(result) = rx.recv_async().await {
                     match result {
                         RunResult::Stream(StreamResult::Start(response)) => {
                             response_tx.send_async(response).await.unwrap_or(());
                         }
                         RunResult::Stream(StreamResult::Data(bytes)) => {
-                            on_event(ResponseEvent::Bytes(bytes.len()), data.clone());
-
-                            if done {
-                                on_event(ResponseEvent::StreamDoneDataError, data.clone());
-
-                                // Close the stream by sending empty bytes
-                                stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
-                                break;
-                            }
+                            total_bytes += bytes.len();
 
                             let bytes = Bytes::from(bytes);
                             stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                         }
-                        _ => {
-                            done = result == RunResult::Stream(StreamResult::Done);
-
-                            if !done {
-                                on_event(
-                                    ResponseEvent::UnexpectedStreamResult(result),
-                                    data.clone(),
-                                );
-                            }
+                        RunResult::Stream(StreamResult::Done(elapsed)) => {
+                            on_event(
+                                ResponseEvent::Bytes(total_bytes, Some(elapsed.as_micros())),
+                                data.clone(),
+                            )
+                            .await
+                            .expect("Failed to send event");
 
                             // Close the stream by sending empty bytes
                             stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
+                        }
+                        _ => {
+                            on_event(ResponseEvent::UnexpectedStreamResult(result), data.clone())
+                                .await
+                                .expect("Failed to send event");
+
+                            // Close the stream by sending empty bytes
+                            stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
+                            break;
                         }
                     }
                 }
@@ -100,18 +99,22 @@ where
 
             Ok(hyper_response)
         }
-        RunResult::Response(response) => {
-            on_event(ResponseEvent::Bytes(response.len()), data);
+        RunResult::Response(response, elapsed) => {
+            on_event(
+                ResponseEvent::Bytes(response.len(), elapsed.map(|duration| duration.as_micros())),
+                data,
+            )
+            .await?;
 
             Ok(Builder::try_from(&response)?.body(response.body.into())?)
         }
         RunResult::Timeout | RunResult::MemoryLimit => {
-            on_event(ResponseEvent::LimitsReached(result), data);
+            on_event(ResponseEvent::LimitsReached(result), data).await?;
 
             Ok(HyperResponse::builder().status(502).body(PAGE_502.into())?)
         }
         RunResult::Error(_) => {
-            on_event(ResponseEvent::Error(result), data);
+            on_event(ResponseEvent::Error(result), data).await?;
 
             Ok(HyperResponse::builder().status(500).body(PAGE_500.into())?)
         }
@@ -121,6 +124,8 @@ where
 
 #[cfg(test)]
 mod tests {
+    use std::time::Duration;
+
     use hyper::body::to_bytes;
     use lagon_runtime_http::Response;
 
@@ -131,7 +136,10 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, (), Box::new(|_, _| ())).await.unwrap();
+            let mut response =
+                handle_response(rx, (), Box::new(|_, _| Box::pin(async move { Ok(()) })))
+                    .await
+                    .unwrap();
 
             assert_eq!(response.status(), 200);
             assert_eq!(
@@ -140,7 +148,7 @@ mod tests {
             );
         });
 
-        tx.send_async(RunResult::Response(Response::from("Hello World")))
+        tx.send_async(RunResult::Response(Response::from("Hello World"), None))
             .await
             .unwrap();
 
@@ -152,7 +160,10 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, (), Box::new(|_, _| ())).await.unwrap();
+            let mut response =
+                handle_response(rx, (), Box::new(|_, _| Box::pin(async move { Ok(()) })))
+                    .await
+                    .unwrap();
 
             assert_eq!(response.status(), 200);
             assert_eq!(
@@ -173,9 +184,11 @@ mod tests {
             .await
             .unwrap();
 
-        tx.send_async(RunResult::Stream(StreamResult::Done))
-            .await
-            .unwrap();
+        tx.send_async(RunResult::Stream(StreamResult::Done(Duration::from_secs(
+            0,
+        ))))
+        .await
+        .unwrap();
 
         drop(tx);
 
@@ -187,7 +200,10 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, (), Box::new(|_, _| ())).await.unwrap();
+            let mut response =
+                handle_response(rx, (), Box::new(|_, _| Box::pin(async move { Ok(()) })))
+                    .await
+                    .unwrap();
 
             assert_eq!(response.status(), 200);
             assert_eq!(
@@ -208,9 +224,11 @@ mod tests {
             .await
             .unwrap();
 
-        tx.send_async(RunResult::Stream(StreamResult::Done))
-            .await
-            .unwrap();
+        tx.send_async(RunResult::Stream(StreamResult::Done(Duration::from_secs(
+            0,
+        ))))
+        .await
+        .unwrap();
 
         drop(tx);
 

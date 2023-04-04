@@ -1,8 +1,10 @@
 use crate::{
+    clickhouse::{LogRow, RequestRow},
     deployments::{cache::run_cache_clear_task, pubsub::listen_pub_sub, Deployments},
     REGION, SNAPSHOT_BLOB,
 };
 use anyhow::Result;
+use clickhouse::{inserter::Inserter, Client};
 use dashmap::DashMap;
 use hyper::{
     header::HOST,
@@ -15,7 +17,8 @@ use lagon_runtime_http::{
     Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP,
 };
 use lagon_runtime_isolate::{
-    options::IsolateOptions, Isolate, IsolateEvent, IsolateRequest, CONSOLE_SOURCE,
+    options::{IsolateOptions, Metadata},
+    Isolate, IsolateEvent, IsolateRequest,
 };
 use lagon_runtime_utils::{
     assets::{find_asset, handle_asset},
@@ -25,7 +28,7 @@ use lagon_runtime_utils::{
 use lagon_serverless_downloader::Downloader;
 use lagon_serverless_pubsub::PubSubListener;
 use log::{as_debug, error, info, warn};
-use metrics::{counter, decrement_gauge, histogram, increment_counter, increment_gauge};
+use metrics::{decrement_gauge, histogram, increment_counter, increment_gauge};
 use std::{
     convert::Infallible,
     env,
@@ -33,7 +36,7 @@ use std::{
     net::SocketAddr,
     path::Path,
     sync::Arc,
-    time::{Duration, Instant},
+    time::{Duration, Instant, UNIX_EPOCH},
 };
 use tokio::{runtime::Handle, sync::Mutex};
 
@@ -48,15 +51,15 @@ fn handle_error(
     match result {
         RunResult::Timeout => {
             increment_counter!("lagon_isolate_timeouts", labels);
-            warn!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution timed out")
+            warn!(deployment = deployment_id, request = request_id; "Function execution timed out")
         }
         RunResult::MemoryLimit => {
             increment_counter!("lagon_isolate_memory_limits", labels);
-            warn!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution memory limit reached")
+            warn!(deployment = deployment_id, request = request_id; "Function execution memory limit reached")
         }
         RunResult::Error(error) => {
             increment_counter!("lagon_isolate_errors", labels);
-            error!(deployment = deployment_id, request = request_id, source = CONSOLE_SOURCE; "Function execution error: {}", error);
+            error!(deployment = deployment_id, request = request_id; "Function execution error: {}", error);
         }
         _ => {}
     };
@@ -68,6 +71,8 @@ async fn handle_request(
     deployments: Deployments,
     last_requests: Arc<DashMap<String, Instant>>,
     workers: Workers,
+    inserters: Arc<Mutex<(Inserter<RequestRow>, Inserter<LogRow>)>>,
+    log_sender: flume::Sender<(String, String, Metadata)>,
 ) -> Result<HyperResponse<Body>> {
     let request_id = match req.headers().get(X_LAGON_ID) {
         Some(x_lagon_id) => x_lagon_id.to_str().unwrap_or("").to_string(),
@@ -115,7 +120,10 @@ async fn handle_request(
         return Ok(HyperResponse::builder().status(403).body(PAGE_403.into())?);
     }
 
+    let function_id = deployment.function_id.clone();
     let deployment_id = deployment.id.clone();
+    let mut bytes_in = 0;
+
     let request_id_handle = request_id.clone();
 
     let (sender, receiver) = flume::unbounded();
@@ -126,8 +134,6 @@ async fn handle_request(
         ("region", REGION.clone()),
     ];
 
-    increment_counter!("lagon_requests", &labels);
-
     let url = req.uri().path();
     let is_favicon = url == FAVICON_URL;
 
@@ -137,7 +143,7 @@ async fn handle_request(
             .join(&deployment.id);
 
         let run_result = match handle_asset(root, asset) {
-            Ok(response) => RunResult::Response(response),
+            Ok(response) => RunResult::Response(response, None),
             Err(error) => {
                 error!(deployment = &deployment.id, asset = asset, request = request_id; "Error while handing asset: {}", error);
 
@@ -148,20 +154,21 @@ async fn handle_request(
         sender.send_async(run_result).await.unwrap_or(());
     } else if is_favicon {
         sender
-            .send_async(RunResult::Response(Response {
-                status: 404,
-                ..Default::default()
-            }))
+            .send_async(RunResult::Response(
+                Response {
+                    status: 404,
+                    ..Default::default()
+                },
+                None,
+            ))
             .await
             .unwrap_or(());
     } else {
         last_requests.insert(deployment_id.clone(), Instant::now());
 
-        increment_counter!("lagon_isolate_requests", &labels);
-
         match Request::from_hyper_with_capacity(req, 2).await {
             Ok(mut request) => {
-                counter!("lagon_bytes_in", request.len() as u64, &labels);
+                bytes_in = request.len() as u32;
 
                 // Try to Extract the X-Real-Ip header or fallback to remote addr IP
                 let ip = request
@@ -224,14 +231,14 @@ async fn handle_request(
                                             ("region", REGION.clone()),
                                         ];
 
-                                        histogram!("lagon_isolate_cpu_time", statistics.cpu_time, &labels);
                                         histogram!(
                                             "lagon_isolate_memory_usage",
-                                            statistics.memory_usage as f64,
+                                            statistics as f64,
                                             &labels
                                         );
                                     }
                                 }))
+                                .log_sender(log_sender)
                                 .snapshot_blob(SNAPSHOT_BLOB);
 
                             let mut isolate = Isolate::new(options, receiver);
@@ -266,33 +273,55 @@ async fn handle_request(
 
     handle_response(
         receiver,
-        (deployment_id, request_id_handle, labels),
-        Box::new(|event, (deployment_id, request_id, labels)| match event {
-            ResponseEvent::Bytes(bytes) => {
-                counter!("lagon_bytes_out", bytes as u64, &labels);
-            }
-            ResponseEvent::StreamDoneNoDataError => {
-                handle_error(
-                    RunResult::Error("The stream was done before sending a response/data".into()),
-                    &deployment_id,
-                    &request_id,
-                    &labels,
-                );
-            }
-            ResponseEvent::StreamDoneDataError => {
-                handle_error(
-                    RunResult::Error("Got data after stream was done".into()),
-                    &deployment_id,
-                    &request_id,
-                    &labels,
-                );
-            }
-            ResponseEvent::UnexpectedStreamResult(result)
-            | ResponseEvent::LimitsReached(result)
-            | ResponseEvent::Error(result) => {
-                handle_error(result, &deployment_id, &request_id, &labels);
-            }
-        }),
+        (
+            function_id,
+            deployment_id,
+            bytes_in,
+            request_id_handle,
+            labels,
+            inserters,
+        ),
+        Box::new(
+            |event, (function_id, deployment_id, bytes_in, request_id, labels, inserters)| {
+                Box::pin(async move {
+                    match event {
+                        ResponseEvent::Bytes(bytes, cpu_time_micros) => {
+                            inserters
+                                .lock()
+                                .await
+                                .0
+                                .write(&RequestRow {
+                                    function_id,
+                                    deployment_id,
+                                    region: REGION.clone(),
+                                    bytes_in,
+                                    bytes_out: bytes as u32,
+                                    cpu_time_micros,
+                                    timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
+                                })
+                                .await?;
+                        }
+                        ResponseEvent::StreamDoneNoDataError => {
+                            handle_error(
+                                RunResult::Error(
+                                    "The stream was done before sending a response/data".into(),
+                                ),
+                                &deployment_id,
+                                &request_id,
+                                &labels,
+                            );
+                        }
+                        ResponseEvent::UnexpectedStreamResult(result)
+                        | ResponseEvent::LimitsReached(result)
+                        | ResponseEvent::Error(result) => {
+                            handle_error(result, &deployment_id, &request_id, &labels);
+                        }
+                    }
+
+                    Ok(())
+                })
+            },
+        ),
     )
     .await
 }
@@ -302,6 +331,7 @@ pub async fn start<D, P>(
     addr: SocketAddr,
     downloader: Arc<D>,
     pubsub: P,
+    client: Client,
     // cronjob: Arc<Mutex<Cronjob>>,
 ) -> Result<impl Future<Output = ()> + Send>
 where
@@ -322,10 +352,68 @@ where
     );
     run_cache_clear_task(Arc::clone(&last_requests), Arc::clone(&workers));
 
+    let insertion_interval = Duration::from_secs(1);
+    let inserters = Arc::new(Mutex::new((
+        client
+            .inserter::<RequestRow>("serverless.requests")?
+            .with_period(Some(insertion_interval)),
+        client
+            .inserter::<LogRow>("serverless.logs")?
+            .with_period(Some(insertion_interval)),
+    )));
+
+    let inserters_handle = Arc::clone(&inserters);
+    tokio::spawn(async move {
+        loop {
+            tokio::time::sleep(insertion_interval).await;
+
+            let mut inserters = inserters_handle.lock().await;
+
+            if let Err(error) = inserters.0.commit().await {
+                error!("Error while committing requests: {}", error);
+            }
+
+            if let Err(error) = inserters.1.commit().await {
+                error!("Error while committing logs: {}", error);
+            }
+        }
+    });
+
+    let (log_sender, log_receiver) = flume::unbounded::<(String, String, Metadata)>();
+    let inserters_handle = Arc::clone(&inserters);
+    tokio::spawn(async move {
+        while let Ok(log) = log_receiver.recv_async().await {
+            let mut inserters = inserters_handle.lock().await;
+
+            if let Err(error) = inserters
+                .1
+                .write(&LogRow {
+                    function_id: log
+                        .2
+                        .as_ref()
+                        .map_or_else(String::new, |metadata| metadata.1.clone()),
+                    deployment_id: log
+                        .2
+                        .as_ref()
+                        .map_or_else(String::new, |metadata| metadata.0.clone()),
+                    level: log.0,
+                    message: log.1,
+                    region: REGION.clone(),
+                    timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
+                })
+                .await
+            {
+                error!("Error while writing log: {}", error);
+            }
+        }
+    });
+
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let deployments = Arc::clone(&deployments);
         let last_requests = Arc::clone(&last_requests);
         let workers = Arc::clone(&workers);
+        let inserters = Arc::clone(&inserters);
+        let log_sender = log_sender.clone();
 
         let addr = conn.remote_addr();
         let ip = addr.ip().to_string();
@@ -338,6 +426,8 @@ where
                     Arc::clone(&deployments),
                     Arc::clone(&last_requests),
                     Arc::clone(&workers),
+                    Arc::clone(&inserters),
+                    log_sender.clone(),
                 )
             }))
         }

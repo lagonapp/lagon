@@ -1,8 +1,6 @@
-use log::{debug, error, info, warn};
+use log::error;
 
 use crate::Isolate;
-
-pub const CONSOLE_SOURCE: &str = "console";
 
 pub fn console_binding(
     scope: &mut v8::HandleScope,
@@ -14,23 +12,9 @@ pub fn console_binding(
     let state = Isolate::state(scope);
     let state = state.borrow();
 
-    if let Some((deployment, function)) = &state.metadata.as_ref() {
-        let deployment = deployment.as_str();
-        let function = function.as_str();
-
-        match level.as_str() {
-            "debug" => {
-                debug!(source = CONSOLE_SOURCE, deployment = deployment, function = function; "{}", message)
-            }
-            "warn" => {
-                warn!(source = CONSOLE_SOURCE, deployment = deployment, function = function; "{}", message)
-            }
-            "error" => {
-                error!(source = CONSOLE_SOURCE, deployment = deployment, function = function; "{}", message)
-            }
-            _ => {
-                info!(source = CONSOLE_SOURCE, deployment = deployment, function = function; "{}", message)
-            }
-        };
+    if let Some(log_sender) = state.log_sender.as_ref() {
+        if let Err(error) = log_sender.send((level, message, state.metadata.as_ref().clone())) {
+            error!("Failed to send log message: {}", error)
+        }
     }
 }

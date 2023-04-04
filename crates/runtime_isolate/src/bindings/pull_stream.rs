@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use lagon_runtime_http::StreamResult;
 use lagon_runtime_v8_utils::{extract_v8_uint8array, v8_exception};
 
@@ -17,7 +19,7 @@ pub fn pull_stream_binding(
     if done.is_true() {
         state
             .stream_sender
-            .send((id, StreamResult::Done))
+            .send((id, StreamResult::Done(Duration::from_secs(0))))
             .unwrap_or(());
     } else {
         match extract_v8_uint8array(args.get(2)) {

@@ -1,5 +1,5 @@
 use httptest::bytes::Bytes;
-use lagon_runtime_http::{Method, Request, Response, RunResult};
+use lagon_runtime_http::{Method, Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 use std::collections::HashMap;
 
@@ -17,8 +17,8 @@ async fn execute_function() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello world"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello world")
     );
 }
 
@@ -34,15 +34,15 @@ async fn execute_function_twice() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello world"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello world")
     );
 
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello world"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello world")
     );
 }
 
@@ -65,8 +65,8 @@ async fn environment_variables() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello world"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello world")
     );
 }
 
@@ -87,8 +87,8 @@ async fn get_body() {
     });
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello world"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello world")
     );
 }
 
@@ -109,8 +109,8 @@ async fn get_input() {
     });
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("https://hello.world"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("https://hello.world")
     );
 }
 
@@ -131,8 +131,8 @@ async fn get_method() {
     });
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("POST"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("POST")
     );
 }
 
@@ -157,8 +157,8 @@ async fn get_headers() {
     });
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("token"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("token")
     );
 }
 
@@ -184,12 +184,12 @@ async fn return_headers() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response {
+        receiver.recv_async().await.unwrap().as_response(),
+        Response {
             body: "Hello world".into(),
             headers: Some(headers),
             status: 200,
-        })
+        }
     );
 }
 
@@ -215,12 +215,12 @@ async fn return_headers_from_headers_api() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response {
+        receiver.recv_async().await.unwrap().as_response(),
+        Response {
             body: "Hello world".into(),
             headers: Some(headers),
             status: 200,
-        })
+        }
     );
 }
 
@@ -238,12 +238,12 @@ async fn return_status() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response {
+        receiver.recv_async().await.unwrap().as_response(),
+        Response {
             body: "Moved permanently".into(),
             headers: None,
             status: 302,
-        })
+        }
     );
 }
 
@@ -261,8 +261,8 @@ async fn return_uint8array() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello world"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello world")
     );
 }
 
@@ -284,8 +284,8 @@ async fn console_log() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::default())
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::default()
     );
 }
 
@@ -301,8 +301,8 @@ async fn atob() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("Hello"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello")
     );
 }
 
@@ -318,7 +318,7 @@ async fn btoa() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("SGVsbG8="))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("SGVsbG8=")
     );
 }

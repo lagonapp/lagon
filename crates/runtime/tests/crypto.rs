@@ -17,8 +17,8 @@ async fn crypto_random_uuid() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("string 36 false"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("string 36 false")
     );
 }
 
@@ -36,8 +36,8 @@ async fn crypto_get_random_values() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("false 3 3"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("false 3 3")
     );
 }
 
@@ -82,8 +82,8 @@ async fn crypto_key_value() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("object 32"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("object 32")
     );
 }
 
@@ -114,8 +114,8 @@ async fn crypto_unique_key_value() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("false"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("false")
     );
 }
 
@@ -143,8 +143,8 @@ async fn crypto_sign() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("true 32"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true 32")
     );
 }
 
@@ -176,8 +176,8 @@ async fn crypto_verify() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("true"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true")
     );
 }
 
@@ -195,10 +195,8 @@ async fn crypto_digest_sha1() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from(
-            "20 183,226,62,194,154,242,43,11,78,65,218,49,232,104,213,114,38,18,28,132"
-        ))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("20 183,226,62,194,154,242,43,11,78,65,218,49,232,104,213,114,38,18,28,132")
     );
 }
 
@@ -215,7 +213,10 @@ async fn crypto_digest_string() {
     ));
     send(Request::default());
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Response(Response::from("32 9,202,126,78,170,110,138,233,199,210,97,22,113,41,24,72,131,100,77,7,223,186,124,191,188,76,138,46,8,54,13,91")));
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("32 9,202,126,78,170,110,138,233,199,210,97,22,113,41,24,72,131,100,77,7,223,186,124,191,188,76,138,46,8,54,13,91"),
+    );
 }
 
 #[tokio::test]
@@ -231,7 +232,10 @@ async fn crypto_digest_object() {
     ));
     send(Request::default());
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Response(Response::from("32 9,202,126,78,170,110,138,233,199,210,97,22,113,41,24,72,131,100,77,7,223,186,124,191,188,76,138,46,8,54,13,91")));
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("32 9,202,126,78,170,110,138,233,199,210,97,22,113,41,24,72,131,100,77,7,223,186,124,191,188,76,138,46,8,54,13,91"),
+    );
 }
 
 #[tokio::test]
@@ -261,8 +265,8 @@ async fn crypto_encrypt() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("true 28"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true 28")
     );
 }
 
@@ -299,7 +303,7 @@ async fn crypto_decrypt() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("hello, world"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("hello, world")
     );
 }

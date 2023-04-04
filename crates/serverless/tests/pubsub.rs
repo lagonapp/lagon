@@ -12,7 +12,7 @@ mod utils;
 #[tokio::test]
 #[serial]
 async fn deploy_undeploy() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let pubsub = FakePubSub::default();
     let tx = pubsub.get_tx();
     let serverless = start(
@@ -20,6 +20,7 @@ async fn deploy_undeploy() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         pubsub,
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -85,7 +86,7 @@ async fn deploy_undeploy() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn assign_correct_domains_prod() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let pubsub = FakePubSub::default();
     let tx = pubsub.get_tx();
     let serverless = start(
@@ -93,6 +94,7 @@ async fn assign_correct_domains_prod() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         pubsub,
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -146,7 +148,7 @@ async fn assign_correct_domains_prod() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn assign_correct_domains_dev() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let pubsub = FakePubSub::default();
     let tx = pubsub.get_tx();
     let serverless = start(
@@ -154,6 +156,7 @@ async fn assign_correct_domains_dev() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         pubsub,
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -207,7 +210,7 @@ async fn assign_correct_domains_dev() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn skip_cron_not_same_region() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let pubsub = FakePubSub::default();
     let tx = pubsub.get_tx();
     let serverless = start(
@@ -215,6 +218,7 @@ async fn skip_cron_not_same_region() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         pubsub,
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -251,7 +255,7 @@ async fn skip_cron_not_same_region() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn warn_cron_direct_access() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let pubsub = FakePubSub::default();
     let tx = pubsub.get_tx();
     let serverless = start(
@@ -259,6 +263,7 @@ async fn warn_cron_direct_access() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         pubsub,
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;

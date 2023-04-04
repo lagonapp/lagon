@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use anyhow::Result;
 
 mod headers;
@@ -25,12 +27,16 @@ pub trait FromV8: Sized {
 pub enum StreamResult {
     Start(Response),
     Data(Vec<u8>),
-    Done,
+    // Stream responses always have a duration
+    // since they are always from the isolate
+    Done(Duration),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum RunResult {
-    Response(Response),
+    // Isolate responses have a duration (cpu time)
+    // Assets responses don't
+    Response(Response, Option<Duration>),
     Stream(StreamResult),
     Timeout,
     MemoryLimit,
@@ -45,5 +51,21 @@ impl RunResult {
         }
 
         panic!("RunResult is not an Error");
+    }
+
+    pub fn as_response(self) -> Response {
+        if let RunResult::Response(response, _) = self {
+            return response;
+        }
+
+        panic!("RunResult is not a Response");
+    }
+
+    pub fn as_stream_done(self) -> bool {
+        if let RunResult::Stream(StreamResult::Done(_)) = self {
+            return true;
+        }
+
+        false
     }
 }

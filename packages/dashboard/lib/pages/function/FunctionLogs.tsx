@@ -36,11 +36,11 @@ const Content = ({ func, logLevel, timeframe }: ContentProps) => {
 
   return (
     <div className="flex flex-col">
-      {logs?.map(({ time, level, message }, index) => {
+      {logs?.map(({ timestamp, level, message }, index) => {
         return (
           <LogLine
-            key={`${time}-${index}`}
-            date={new Date(time)}
+            key={`${timestamp}-${index}`}
+            date={new Date(timestamp)}
             level={level.toLowerCase() as LogLevel}
             message={message}
           />

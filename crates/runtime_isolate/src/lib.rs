@@ -13,7 +13,7 @@ use std::{
         Arc, RwLock,
     },
     task::{Context, Poll},
-    time::{Duration, Instant},
+    time::Instant,
 };
 use tokio_util::task::LocalPoolHandle;
 use v8::MapFnTo;
@@ -27,7 +27,6 @@ use self::{
 mod bindings;
 mod callbacks;
 pub mod options;
-pub use bindings::CONSOLE_SOURCE;
 
 lazy_static! {
     pub static ref POOL: LocalPoolHandle = LocalPoolHandle::new(1);
@@ -65,7 +64,6 @@ pub struct HandlerResult {
 #[derive(Debug, Clone)]
 struct Global(v8::Global<v8::Context>);
 
-#[derive(Debug)]
 pub struct IsolateState {
     global: Option<Global>,
     promises: FuturesUnordered<Pin<Box<dyn Future<Output = BindingResult>>>>,
@@ -76,12 +74,7 @@ pub struct IsolateState {
     rejected_promises: LinkedHashMap<v8::Global<v8::Promise>, String>,
     lines: usize,
     requests_count: u32,
-}
-
-#[derive(Debug, Copy, Clone)]
-pub struct IsolateStatistics {
-    pub cpu_time: Duration,
-    pub memory_usage: usize,
+    log_sender: Option<flume::Sender<(String, String, Metadata)>>,
 }
 
 #[derive(Debug)]
@@ -206,6 +199,7 @@ impl Isolate {
                 rejected_promises: LinkedHashMap::new(),
                 lines: 0,
                 requests_count: 0,
+                log_sender: options.log_sender.clone(),
             }
         };
 
@@ -541,14 +535,21 @@ impl Isolate {
                     *stream_status = StreamStatus::HasStream;
                 }
 
-                if let StreamResult::Done = stream_result {
+                if let StreamResult::Done(_) = stream_result {
                     *stream_status = StreamStatus::Done;
-                }
 
-                handler_result
-                    .sender
-                    .send(RunResult::Stream(stream_result))
-                    .unwrap_or(());
+                    handler_result
+                        .sender
+                        .send(RunResult::Stream(StreamResult::Done(
+                            handler_result.start_time.elapsed(),
+                        )))
+                        .unwrap_or(());
+                } else {
+                    handler_result
+                        .sender
+                        .send(RunResult::Stream(stream_result))
+                        .unwrap_or(());
+                }
             }
         }
     }
@@ -628,7 +629,7 @@ impl Isolate {
         state.handler_results.retain(|_, handler_result| {
             if *handler_result.stream_response_sent.borrow() {
                 if handler_result.stream_status.borrow().is_done() {
-                    send_statistics(options, try_catch, handler_result.start_time);
+                    send_statistics(options, try_catch);
                     return false;
                 }
 
@@ -641,13 +642,14 @@ impl Isolate {
             match promise.state() {
                 v8::PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
-
                     let run_result = match Response::from_v8(try_catch, response) {
-                        Ok(response) => RunResult::Response(response),
+                        Ok(response) => {
+                            RunResult::Response(response, Some(handler_result.start_time.elapsed()))
+                        }
                         Err(error) => RunResult::Error(error.to_string()),
                     };
 
-                    if let RunResult::Response(ref response) = run_result {
+                    if let RunResult::Response(ref response, _) = run_result {
                         if response.is_streamed() {
                             handler_result
                                 .sender
@@ -660,11 +662,8 @@ impl Isolate {
                         }
                     }
 
-                    // It's important to send the response before sending the statistics
-                    // because calculating the statistics can take a long time
                     handler_result.sender.send(run_result).unwrap_or(());
-                    send_statistics(options, try_catch, handler_result.start_time);
-
+                    send_statistics(options, try_catch);
                     false
                 }
                 v8::PromiseState::Rejected => {
@@ -676,8 +675,8 @@ impl Isolate {
                             try_catch, exception, lines,
                         )))
                         .unwrap_or(());
-                    send_statistics(options, try_catch, handler_result.start_time);
 
+                    send_statistics(options, try_catch);
                     false
                 }
                 v8::PromiseState::Pending => true,
@@ -720,22 +719,12 @@ impl Drop for Isolate {
     }
 }
 
-pub fn send_statistics(options: &IsolateOptions, isolate: &mut v8::Isolate, start_time: Instant) {
+pub fn send_statistics(options: &IsolateOptions, isolate: &mut v8::Isolate) {
     if let Some(on_statistics) = &options.on_statistics {
-        // We calculate the elapsed time before getting the
-        // heap statistics because it can take a long time
-        let cpu_time = start_time.elapsed();
-
         let mut statistics = v8::HeapStatistics::default();
         isolate.get_heap_statistics(&mut statistics);
 
-        on_statistics(
-            Rc::clone(&options.metadata),
-            IsolateStatistics {
-                cpu_time,
-                memory_usage: statistics.used_heap_size(),
-            },
-        )
+        on_statistics(Rc::clone(&options.metadata), statistics.used_heap_size())
     }
 }
 

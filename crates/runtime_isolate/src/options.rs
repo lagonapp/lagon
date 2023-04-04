@@ -1,13 +1,11 @@
 use lagon_runtime_v8_utils::v8_string;
 use std::{collections::HashMap, rc::Rc, time::Duration};
 
-use super::IsolateStatistics;
-
 const JS_RUNTIME: &str = include_str!("../runtime.js");
 
 pub type Metadata = Option<(String, String)>;
 type OnIsolateDropCallback = Box<dyn Fn(Rc<Metadata>)>;
-type OnIsolateStatisticsCallback = Box<dyn Fn(Rc<Metadata>, IsolateStatistics)>;
+type OnIsolateStatisticsCallback = Box<dyn Fn(Rc<Metadata>, usize)>;
 
 pub struct IsolateOptions {
     pub code: String,
@@ -18,6 +16,7 @@ pub struct IsolateOptions {
     pub metadata: Rc<Metadata>,
     pub on_drop: Option<OnIsolateDropCallback>,
     pub on_statistics: Option<OnIsolateStatisticsCallback>,
+    pub log_sender: Option<flume::Sender<(String, String, Metadata)>>,
     pub snapshot: bool,
     pub snapshot_blob: Option<&'static [u8]>,
 }
@@ -37,6 +36,7 @@ impl IsolateOptions {
             on_statistics: None,
             snapshot: false,
             snapshot_blob: None,
+            log_sender: None,
         }
     }
 
@@ -72,6 +72,11 @@ impl IsolateOptions {
 
     pub fn on_statistics_callback(mut self, on_statistics: OnIsolateStatisticsCallback) -> Self {
         self.on_statistics = Some(on_statistics);
+        self
+    }
+
+    pub fn log_sender(mut self, log_sender: flume::Sender<(String, String, Metadata)>) -> Self {
+        self.log_sender = Some(log_sender);
         self
     }
 

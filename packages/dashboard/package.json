@@ -15,7 +15,6 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.186.0",
     "@aws-sdk/s3-request-presigner": "^3.186.0",
-    "@axiomhq/axiom-node": "^0.11.0",
     "@headlessui/react": "^1.6.4",
     "@heroicons/react": "^2.0.0",
     "@lagon/ui": "workspace:*",
@@ -41,6 +40,7 @@
     "@trpc/next": "^10.18.0",
     "@trpc/react-query": "^10.18.0",
     "@trpc/server": "^10.18.0",
+    "clickhouse": "^2.6.0",
     "final-form": "^4.20.7",
     "monaco-editor": "^0.36.0",
     "next": "13.2.4",

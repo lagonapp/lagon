@@ -18,12 +18,13 @@ mod utils;
 #[tokio::test]
 #[serial]
 async fn return_404_no_deployment_found() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let serverless = start(
         Arc::new(DashMap::new()),
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -39,7 +40,7 @@ async fn return_404_no_deployment_found() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn return_403_cron_deployment() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -62,6 +63,7 @@ async fn return_403_cron_deployment() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -77,7 +79,7 @@ async fn return_403_cron_deployment() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn return_500_unknown_code() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -100,6 +102,7 @@ async fn return_500_unknown_code() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -115,7 +118,7 @@ async fn return_500_unknown_code() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn return_502_timeout_execution() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -138,6 +141,7 @@ async fn return_502_timeout_execution() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -153,7 +157,7 @@ async fn return_502_timeout_execution() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn return_502_timeout_init() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -176,6 +180,7 @@ async fn return_502_timeout_init() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -191,7 +196,7 @@ async fn return_502_timeout_init() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn return_500_code_invalid() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -214,6 +219,7 @@ async fn return_500_code_invalid() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
@@ -229,7 +235,7 @@ async fn return_500_code_invalid() -> Result<()> {
 #[tokio::test]
 #[serial]
 async fn return_500_throw_error() -> Result<()> {
-    utils::setup();
+    let client = utils::setup();
     let deployments = Arc::new(DashMap::new());
     deployments.insert(
         "127.0.0.1:4000".into(),
@@ -252,6 +258,7 @@ async fn return_500_throw_error() -> Result<()> {
         "127.0.0.1:4000".parse().unwrap(),
         Arc::new(FakeDownloader),
         FakePubSub::default(),
+        client,
         // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;

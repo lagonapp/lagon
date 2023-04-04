@@ -3,9 +3,6 @@ use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateEvent, IsolateRequest};
 use lazy_static::lazy_static;
-use log::{
-    set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,
-};
 use std::{
     env, fs,
     path::{Path, PathBuf},
@@ -48,39 +45,6 @@ lazy_static! {
         .to_owned()
         .replace("})(self);", "})(globalThis);")
         .replace("debug: false", "debug: true");
-}
-
-struct SimpleLogger;
-
-impl Log for SimpleLogger {
-    fn enabled(&self, metadata: &Metadata) -> bool {
-        metadata.level() <= Level::Info
-    }
-
-    fn log(&self, record: &Record) {
-        if self.enabled(record.metadata()) {
-            let content = record.args().to_string();
-
-            if content.starts_with("TEST DONE 0") {
-                RESULT.lock().unwrap().1 += 1;
-                println!("{}", content.green());
-            } else if content.starts_with("TEST DONE 1") {
-                RESULT.lock().unwrap().2 += 1;
-                println!("{}", content.red());
-            } else if content.starts_with("TEST START") {
-                RESULT.lock().unwrap().0 += 1;
-            } else {
-                println!("{}", content.bright_black());
-            }
-        }
-    }
-
-    fn flush(&self) {}
-}
-
-fn init_logger() -> Result<(), SetLoggerError> {
-    set_boxed_logger(Box::new(SimpleLogger)).map(|()| set_max_level(LevelFilter::Info))?;
-    Ok(())
 }
 
 const SKIP_TESTS: [&str; 16] = [
@@ -147,17 +111,31 @@ export function handler() {{
     .replace("self.", "globalThis.");
 
     let (tx, rx) = flume::unbounded();
+    let (logs_sender, logs_receiver) = flume::unbounded();
     let handle = Handle::current();
 
     let join_handle = std::thread::spawn(move || {
         handle.block_on(async move {
-            let mut isolate = Isolate::new(
-                IsolateOptions::new(code).metadata(Some((String::from(""), String::from("")))),
-                rx,
-            );
+            let mut isolate = Isolate::new(IsolateOptions::new(code).log_sender(logs_sender), rx);
             isolate.evaluate();
             isolate.run_event_loop().await;
         })
+    });
+
+    let log_handle = tokio::spawn(async move {
+        while let Ok(log) = logs_receiver.recv_async().await {
+            let content = log.1;
+
+            if content.starts_with("TEST DONE 0") {
+                RESULT.lock().unwrap().1 += 1;
+                println!("{}", content.green());
+            } else if content.starts_with("TEST DONE 1") {
+                RESULT.lock().unwrap().2 += 1;
+                println!("{}", content.red());
+            } else if content.starts_with("TEST START") {
+                RESULT.lock().unwrap().0 += 1;
+            }
+        }
     });
 
     let (request_tx, request_rx) = flume::unbounded();
@@ -179,6 +157,7 @@ export function handler() {{
         .unwrap();
 
     join_handle.join().unwrap();
+    log_handle.await.unwrap();
 }
 
 async fn test_directory(path: &Path) {
@@ -197,7 +176,6 @@ async fn test_directory(path: &Path) {
 #[tokio::main]
 async fn main() {
     let runtime = Runtime::new(RuntimeOptions::default().expose_gc(true));
-    init_logger().expect("Failed to initialize logger");
 
     if let Some(path) = env::args().nth(1) {
         let path = Path::new(&path);

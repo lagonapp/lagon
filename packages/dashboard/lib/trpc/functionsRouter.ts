@@ -14,7 +14,6 @@ import {
 import { LOG_LEVELS } from '@lagon/ui';
 import { TRPCError } from '@trpc/server';
 import { T } from 'pages/api/trpc/[trpc]';
-import Client from '@axiomhq/axiom-node';
 import {
   checkCanCreateFunction,
   checkCanQueryFunction,
@@ -24,11 +23,7 @@ import {
 } from 'lib/api/functions';
 import { getPlanFromPriceId } from 'lib/plans';
 import { checkIsOrganizationOwner } from 'lib/api/organizations';
-
-const axiomClient = new Client({
-  orgId: process.env.AXIOM_ORG_ID,
-  token: process.env.AXIOM_TOKEN,
-});
+import clickhouse from 'lib/clickhouse';
 
 export const functionsRouter = (t: T) =>
   t.router({
@@ -134,29 +129,26 @@ export const functionsRouter = (t: T) =>
           ownerId: ctx.session.user.id,
         });
 
-        const logs = await axiomClient.query(
-          `['serverless'] | where ['metadata.source'] == 'console' and ['metadata.function'] == '${input.functionId}' | sort by _time`,
-          {
-            startTime: new Date(
-              new Date().getTime() -
-                (input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 30 days' ? 30 : 7) *
-                  24 *
-                  60 *
-                  60 *
-                  1000,
-            ).toISOString(),
-            endTime: new Date(Date.now()).toISOString(),
-            noCache: false,
-            streamingDuration: '',
-          },
-        );
+        const result = (await clickhouse
+          .query(
+            `SELECT
+  level,
+  message,
+  timestamp
+FROM serverless.logs
+WHERE
+  function_id = '${input.functionId}'
+AND
+  timestamp >= toDateTime(now() - INTERVAL ${
+    input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 30 days' ? 30 : 7
+  } DAY)
+${input.logLevel !== 'all' ? `AND level = '${input.logLevel}'` : ''}
+ORDER BY timestamp DESC
+LIMIT 100`,
+          )
+          .toPromise()) as { level: string; message: string; timestamp: string }[];
 
-        return (
-          (logs.matches?.map(({ _time, data }) => ({
-            ...data,
-            time: _time,
-          })) as { time: string; level: string; message: string }[]) || []
-        );
+        return result;
       }),
     functionCode: t.procedure
       .input(

@@ -11,9 +11,6 @@ use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use lagon_runtime_isolate::{IsolateEvent, IsolateRequest};
 use lagon_runtime_utils::assets::{find_asset, handle_asset};
 use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL};
-use log::{
-    set_boxed_logger, set_max_level, Level, LevelFilter, Log, Metadata, Record, SetLoggerError,
-};
 use notify::event::ModifyKind;
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
@@ -27,33 +24,6 @@ use tokio::sync::Mutex;
 use crate::utils::{bundle_function, error, info, input, resolve_path, success, warn, Assets};
 
 const LOCAL_REGION: &str = "local";
-
-struct SimpleLogger;
-
-impl Log for SimpleLogger {
-    fn enabled(&self, metadata: &Metadata) -> bool {
-        metadata.level() <= Level::Info
-    }
-
-    fn log(&self, record: &Record) {
-        if self.enabled(record.metadata()) {
-            let level = match record.level() {
-                Level::Error => "ERROR".red(),
-                Level::Warn => "WARN".yellow(),
-                _ => "INFO".blue(),
-            };
-
-            println!("{} {}", level, record.args());
-        }
-    }
-
-    fn flush(&self) {}
-}
-
-fn init_logger() -> Result<(), SetLoggerError> {
-    set_boxed_logger(Box::new(SimpleLogger)).map(|()| set_max_level(LevelFilter::Info))?;
-    Ok(())
-}
 
 fn parse_environment_variables(
     root: &Path,
@@ -100,16 +70,19 @@ async fn handle_request(
         println!("              {}", input("Asset found"));
 
         let run_result = match handle_asset(public_dir.unwrap(), asset) {
-            Ok(response) => RunResult::Response(response),
+            Ok(response) => RunResult::Response(response, None),
             Err(error) => RunResult::Error(format!("Could not retrieve asset ({asset}): {error}")),
         };
 
         tx.send_async(run_result).await.unwrap_or(());
     } else if is_favicon {
-        tx.send_async(RunResult::Response(Response {
-            status: 404,
-            ..Default::default()
-        }))
+        tx.send_async(RunResult::Response(
+            Response {
+                status: 404,
+                ..Default::default()
+            },
+            None,
+        ))
         .await
         .unwrap_or(());
     } else {
@@ -139,30 +112,33 @@ async fn handle_request(
     handle_response(
         rx,
         (),
-        Box::new(|event, _| match event {
-            ResponseEvent::StreamDoneNoDataError => {
-                println!(
-                    "{}",
-                    error("The stream was done before sending a response/data")
-                );
-            }
-            ResponseEvent::StreamDoneDataError => {
-                println!("{}", error("Got data after stream was done"));
-            }
-            ResponseEvent::UnexpectedStreamResult(result) => {
-                println!("{} {:?}", error("Unexpected stream result:"), result);
-            }
-            ResponseEvent::LimitsReached(result) => {
-                if result == RunResult::Timeout {
-                    println!("{}", error("Function execution timed out"));
-                } else {
-                    println!("{}", error("Function execution reached memory limit"));
+        Box::new(|event, _| {
+            Box::pin(async move {
+                match event {
+                    ResponseEvent::StreamDoneNoDataError => {
+                        println!(
+                            "{}",
+                            error("The stream was done before sending a response/data")
+                        );
+                    }
+                    ResponseEvent::UnexpectedStreamResult(result) => {
+                        println!("{} {:?}", error("Unexpected stream result:"), result);
+                    }
+                    ResponseEvent::LimitsReached(result) => {
+                        if result == RunResult::Timeout {
+                            println!("{}", error("Function execution timed out"));
+                        } else {
+                            println!("{}", error("Function execution reached memory limit"));
+                        }
+                    }
+                    ResponseEvent::Error(result) => {
+                        println!("{}", error(result.as_error().as_str()));
+                    }
+                    _ => {}
                 }
-            }
-            ResponseEvent::Error(result) => {
-                println!("{}", error(result.as_error().as_str()));
-            }
-            _ => {}
+
+                Ok(())
+            })
         }),
     )
     .await
@@ -200,6 +176,7 @@ pub async fn dev(
 
     let (tx, rx) = flume::unbounded();
     let (index_tx, index_rx) = flume::unbounded();
+    let (log_sender, log_receiver) = flume::unbounded();
     let handle = Handle::current();
 
     std::thread::spawn(move || {
@@ -214,7 +191,8 @@ pub async fn dev(
                     .timeout(Duration::from_secs(1))
                     .startup_timeout(Duration::from_secs(2))
                     .metadata(Some((String::from(""), String::from(""))))
-                    .environment_variables(environment_variables.clone()),
+                    .environment_variables(environment_variables.clone())
+                    .log_sender(log_sender.clone()),
                     rx.clone(),
                 );
 
@@ -228,6 +206,19 @@ pub async fn dev(
                 }
             }
         });
+    });
+
+    tokio::spawn(async move {
+        while let Ok(log) = log_receiver.recv_async().await {
+            let (level, message, ..) = log;
+            let level = match level.as_str() {
+                "error" => "ERROR".red(),
+                "warn" => "WARN".yellow(),
+                _ => level.to_uppercase().blue(),
+            };
+
+            println!("{} {}", level, message);
+        }
     });
 
     let server_assets = Arc::clone(&assets);
@@ -303,7 +294,6 @@ pub async fn dev(
         format!("http://{addr}").blue()
     );
 
-    init_logger()?;
     server.await?;
     runtime.dispose();
 

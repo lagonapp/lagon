@@ -1,4 +1,4 @@
-use lagon_runtime_http::{Request, Response, RunResult};
+use lagon_runtime_http::{Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -16,8 +16,8 @@ return new Response(result)
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("2"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("2")
     );
 }
 
@@ -34,7 +34,7 @@ async fn allow_function() {
     send(Request::default());
 
     assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Response(Response::from("2"))
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("2")
     );
 }
