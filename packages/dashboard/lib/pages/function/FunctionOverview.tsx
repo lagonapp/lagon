@@ -55,13 +55,25 @@ const Usage = ({ func, timeframe }: UsageProps) => {
 
   const requests = data.reduce((acc, { requests }) => acc + requests, 0);
 
+  const cpuTimeAvg = useMemo(() => {
+    let points = 0;
+
+    const total = data.reduce((acc, { cpuTime }) => {
+      points++;
+      return acc + cpuTime;
+    }, 0);
+
+    // CPU time is in microseconds
+    return points > 0 ? total / points / 1_000_000 : points;
+  }, [data]);
+
   return (
     <>
       <Description title={t('usage')} total={formatNumber(plan.freeRequests)}>
         {formatNumber(requests)}
       </Description>
       <Description title={t('usage.avgCpu')} total={`${plan.cpuTime}ms`}>
-        {formatSeconds(requests > 0 ? data.reduce((acc, { cpuTime }) => acc + cpuTime, 0) / requests : 0)}
+        {formatSeconds(cpuTimeAvg)}
       </Description>
       <Description title={t('usage.avgInBytes')}>
         {formatBytes(requests > 0 ? data.reduce((acc, { bytesIn }) => acc + bytesIn, 0) / requests : 0)}
