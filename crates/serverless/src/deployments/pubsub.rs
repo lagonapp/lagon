@@ -72,8 +72,8 @@ where
                 .map(|(k, v)| (k.to_owned(), v.as_str().unwrap().to_string()))
                 .collect::<HashMap<_, _>>(),
             memory: value["memory"].as_u64().unwrap() as usize,
-            timeout: value["timeout"].as_u64().unwrap() as usize,
-            startup_timeout: value["startupTimeout"].as_u64().unwrap() as usize,
+            tick_timeout: value["tickTimeout"].as_u64().unwrap() as usize,
+            total_timeout: value["totalTimeout"].as_u64().unwrap() as usize,
             is_production: value["isProduction"].as_bool().unwrap(),
             cron,
         };

@@ -4,8 +4,8 @@ export type Plan = {
   expired: boolean;
   maxFunctions: number;
   freeRequests: number;
-  cpuTime: number;
-  startupTime: number;
+  tickTimeout: number;
+  totalTimeout: number;
   organizationMembers: number;
 };
 
@@ -14,8 +14,8 @@ export const PERSONAL_PLAN: Plan = {
   expired: false,
   maxFunctions: 10,
   freeRequests: 3000000,
-  cpuTime: 10,
-  startupTime: 100,
+  tickTimeout: 200,
+  totalTimeout: 1000,
   organizationMembers: 1,
 };
 
@@ -25,9 +25,9 @@ export const PRO_PLAN: Plan = {
   expired: false,
   maxFunctions: 50,
   freeRequests: 5000000,
-  cpuTime: 50,
-  startupTime: 200,
-  organizationMembers: 5,
+  tickTimeout: 500,
+  totalTimeout: 10000,
+  organizationMembers: 10,
 };
 
 export const getPlanFromPriceId = ({

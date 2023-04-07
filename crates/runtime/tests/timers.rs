@@ -26,35 +26,41 @@ async fn set_timeout() {
     );
 }
 
-// #[tokio::test]
-// #[serial]
-// async fn set_timeout_not_blocking_response() {
-//     utils::setup();
-//     let log_rx = utils::setup_logger();
-//     let (send, receiver) = utils::create_isolate(
-//         IsolateOptions::new(
-//             "export async function handler() {
-//     console.log('before')
-//     setTimeout(() => {
-//         console.log('done')
-//     }, 100);
-//     console.log('after')
+#[tokio::test]
+#[serial]
+async fn set_timeout_not_blocking_response() {
+    let (logs_sender, logs_receiver) = flume::unbounded();
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "export async function handler() {
+    console.log('before')
+    setTimeout(() => {
+        console.log('done')
+    }, 100);
+    console.log('after')
 
-//     return new Response('Hello!');
-// }"
-//             .into(),
-//         )
-//         .metadata(Some(("".to_owned(), "".to_owned()))),
-//     );
-//     send(Request::default());
+    return new Response('Hello!');
+}"
+            .into(),
+        )
+        .log_sender(logs_sender),
+    );
+    send(Request::default());
 
-//     assert_eq!(log_rx.recv_async().await.unwrap(), "before".to_string());
-//     assert_eq!(
-//         receiver.recv_async().await.unwrap().as_response(),
-//         Response::from("Hello!")
-//     );
-//     assert_eq!(log_rx.recv_async().await.unwrap(), "after".to_string());
-// }
+    assert_eq!(
+        logs_receiver.recv_async().await.unwrap(),
+        ("log".into(), "before".into(), None)
+    );
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello!")
+    );
+    assert_eq!(
+        logs_receiver.recv_async().await.unwrap(),
+        ("log".into(), "after".into(), None)
+    );
+}
 
 #[tokio::test]
 async fn set_timeout_clear() {

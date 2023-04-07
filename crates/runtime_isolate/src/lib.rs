@@ -1,21 +1,16 @@
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
 use lagon_runtime_http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult};
 use lagon_runtime_v8_utils::v8_string;
-use lazy_static::lazy_static;
 use linked_hash_map::LinkedHashMap;
 use std::{
     cell::{RefCell, RefMut},
     collections::HashMap,
     pin::Pin,
     rc::Rc,
-    sync::{
-        atomic::{AtomicBool, Ordering},
-        Arc, RwLock,
-    },
+    sync::{Arc, RwLock},
     task::{Context, Poll},
     time::Instant,
 };
-use tokio_util::task::LocalPoolHandle;
 use v8::MapFnTo;
 
 use self::{
@@ -27,10 +22,6 @@ use self::{
 mod bindings;
 mod callbacks;
 pub mod options;
-
-lazy_static! {
-    pub static ref POOL: LocalPoolHandle = LocalPoolHandle::new(1);
-}
 
 const RUNTIME_ONLY_SCRIPT_NAME: &str = "runtime.js";
 const CODE_ONLY_SCRIPT_NAME: &str = "code.js";
@@ -314,11 +305,8 @@ impl Isolate {
 
         let thread_safe_handle = try_catch.thread_safe_handle();
         let termination_result = Arc::clone(&self.termination_result);
-        let startup_duration = self.options.startup_timeout;
-        let duration = self.options.timeout;
+        let tick_timeout = self.options.tick_timeout;
         let heartbeat = Arc::clone(&self.heartbeat);
-        let evaluating = Arc::new(AtomicBool::new(true));
-        let evaluating_handle = Arc::clone(&evaluating);
 
         std::thread::spawn(move || {
             // Isolates are terminated when they miss at least two heartbeats. The heartbeat
@@ -329,11 +317,7 @@ impl Isolate {
             let mut missed_heartbeat = 0;
 
             loop {
-                std::thread::sleep(if evaluating_handle.load(Ordering::SeqCst) {
-                    startup_duration
-                } else {
-                    duration
-                });
+                std::thread::sleep(tick_timeout);
 
                 let heartbeat_value = heartbeat.read().unwrap();
 
@@ -395,8 +379,6 @@ impl Isolate {
                 self.compilation_error = Some(handle_error(try_catch, lines).as_error());
             }
         };
-
-        evaluating.store(false, Ordering::SeqCst);
     }
 
     pub fn handle_event(&mut self, event: IsolateEvent) {
@@ -633,6 +615,11 @@ impl Isolate {
                     return false;
                 }
 
+                if handler_result.start_time.elapsed() >= options.total_timeout {
+                    handler_result.sender.send(RunResult::Timeout).unwrap_or(());
+                    return false;
+                }
+
                 return true;
             }
 
@@ -679,7 +666,14 @@ impl Isolate {
                     send_statistics(options, try_catch);
                     false
                 }
-                v8::PromiseState::Pending => true,
+                v8::PromiseState::Pending => {
+                    if handler_result.start_time.elapsed() >= options.total_timeout {
+                        handler_result.sender.send(RunResult::Timeout).unwrap_or(());
+                        return false;
+                    }
+
+                    true
+                }
             }
         });
 

@@ -219,42 +219,28 @@ async fn response_before_write() {
     assert!(receiver.recv_async().await.unwrap().as_stream_done());
 }
 
-// TODO
-// #[tokio::test]
-// async fn timeout_infinite_streaming() {
-//     utils::setup();
-//     let (send, receiver) = utils::create_isolate(
-//         IsolateOptions::new(
-//             "export function handler() {
-//     const { readable } = new TransformStream()
+#[tokio::test]
+async fn timeout_infinite_streaming() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
+    const { readable } = new TransformStream()
 
-//     return new Response(readable);
-// }"
-//             .to_owned(),
-//         )
-//         ,
-//     );
-//     request_tx
-//         .send_async(IsolateRequest {
-//             request: Request::default(),
-//             sender,
-//         })
-//         .await
-//         .unwrap();
+    return new Response(readable);
+}"
+        .to_owned(),
+    ));
+    send(Request::default());
 
-//     tokio::select! {
-//         _ = isolate.run_event_loop() => {}
-//         result = receiver.recv_async() => {
-//             assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Stream(StreamResult::Start(Response::from("[object ReadableStream]"))));
-//         }
-//     }
-//     tokio::select! {
-//         _ = isolate.run_event_loop() => {}
-//         result = receiver.recv_async() => {
-//             assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Timeout);
-//         }
-//     }
-// }
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response::from(
+            "[object ReadableStream]"
+        )))
+    );
+
+    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Timeout);
+}
 
 #[tokio::test]
 async fn promise_reject_callback() {

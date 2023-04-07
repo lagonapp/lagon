@@ -98,11 +98,11 @@ model Function {
   updatedAt      DateTime      @updatedAt
   name           String        @unique
   memory         Int
-  timeout        Int
+  tickTimeout    Int           @default(500)
   cron           String?
   organizationId String
   cronRegion     String        @default("paris-eu-west")
-  startupTimeout Int           @default(200)
+  totalTimeout   Int           @default(1000)
   organization   Organization  @relation(fields: [organizationId], references: [id])
   domains        Domain[]
   env            EnvVariable[]
