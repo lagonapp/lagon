@@ -8,5 +8,5 @@
 -- AlterTable
 ALTER TABLE `Function` DROP COLUMN `startupTimeout`,
     DROP COLUMN `timeout`,
-    ADD COLUMN `tickTimeout` INTEGER NOT NULL DEFAULT 200,
-    ADD COLUMN `totalTimeout` INTEGER NOT NULL DEFAULT 1000;
+    ADD COLUMN `tickTimeout` INTEGER NOT NULL DEFAULT 500,
+    ADD COLUMN `totalTimeout` INTEGER NOT NULL DEFAULT 5000;
