@@ -42,8 +42,8 @@ export default function Pricing() {
             </tr>
             <tr className="border-b border-[#1f1f2e]">
               <td className="text-grey mr-8 py-4 text-base">Maximum request duration</td>
-              <td>1s/request</td>
-              <td>10s/request</td>
+              <td>5s/request</td>
+              <td>30s/request</td>
               <td>Custom</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">

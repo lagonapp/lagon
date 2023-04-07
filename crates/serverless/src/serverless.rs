@@ -165,7 +165,6 @@ async fn handle_request(
             .unwrap_or(());
     } else {
         last_requests.insert(deployment_id.clone(), Instant::now());
-        println!("isoslate req");
 
         match Request::from_hyper_with_capacity(req, 2).await {
             Ok(mut request) => {

@@ -102,7 +102,7 @@ model Function {
   cron           String?
   organizationId String
   cronRegion     String        @default("paris-eu-west")
-  totalTimeout   Int           @default(1000)
+  totalTimeout   Int           @default(5000)
   organization   Organization  @relation(fields: [organizationId], references: [id])
   domains        Domain[]
   env            EnvVariable[]

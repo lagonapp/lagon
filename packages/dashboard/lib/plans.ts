@@ -15,7 +15,7 @@ export const PERSONAL_PLAN: Plan = {
   maxFunctions: 10,
   freeRequests: 3000000,
   tickTimeout: 200,
-  totalTimeout: 1000,
+  totalTimeout: 5000,
   organizationMembers: 1,
 };
 
@@ -26,7 +26,7 @@ export const PRO_PLAN: Plan = {
   maxFunctions: 50,
   freeRequests: 5000000,
   tickTimeout: 500,
-  totalTimeout: 10000,
+  totalTimeout: 30000,
   organizationMembers: 10,
 };
 
