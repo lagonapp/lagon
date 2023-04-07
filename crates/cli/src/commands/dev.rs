@@ -188,8 +188,8 @@ pub async fn dev(
                     IsolateOptions::new(
                         String::from_utf8(index.clone()).expect("Code is not UTF-8"),
                     )
-                    .timeout(Duration::from_secs(1))
-                    .startup_timeout(Duration::from_secs(2))
+                    .tick_timeout(Duration::from_millis(500))
+                    .total_timeout(Duration::from_secs(30))
                     .metadata(Some((String::from(""), String::from(""))))
                     .environment_variables(environment_variables.clone())
                     .log_sender(log_sender.clone()),

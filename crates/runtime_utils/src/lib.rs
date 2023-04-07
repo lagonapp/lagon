@@ -25,9 +25,9 @@ pub struct Deployment {
     pub domains: HashSet<String>,
     pub assets: HashSet<String>,
     pub environment_variables: HashMap<String, String>,
-    pub memory: usize,          // in MB (MegaBytes)
-    pub timeout: usize,         // in ms (MilliSeconds)
-    pub startup_timeout: usize, // in ms (MilliSeconds)
+    pub memory: usize,        // in MB (MegaBytes)
+    pub tick_timeout: usize,  // in ms (MilliSeconds)
+    pub total_timeout: usize, // in ms (MilliSeconds)
     pub is_production: bool,
     pub cron: Option<String>,
 }
@@ -118,8 +118,8 @@ mod tests {
             assets: HashSet::new(),
             environment_variables: HashMap::new(),
             memory: 128,
-            timeout: 1000,
-            startup_timeout: 1000,
+            tick_timeout: 1000,
+            total_timeout: 1000,
             is_production: false,
             cron: None,
         };
@@ -139,8 +139,8 @@ mod tests {
             assets: HashSet::new(),
             environment_variables: HashMap::new(),
             memory: 128,
-            timeout: 1000,
-            startup_timeout: 1000,
+            tick_timeout: 1000,
+            total_timeout: 1000,
             is_production: false,
             cron: None,
         };
@@ -160,8 +160,8 @@ mod tests {
             assets: HashSet::new(),
             environment_variables: HashMap::new(),
             memory: 128,
-            timeout: 1000,
-            startup_timeout: 1000,
+            tick_timeout: 1000,
+            total_timeout: 1000,
             is_production: true,
             cron: None,
         };

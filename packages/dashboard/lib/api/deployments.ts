@@ -10,13 +10,6 @@ import { MAX_ASSETS_PER_FUNCTION } from 'lib/constants';
 export async function createDeployment(
   func: {
     id: string;
-    name: string;
-    domains: string[];
-    memory: number;
-    timeout: number;
-    cron: string | null;
-    cronRegion: string;
-    env: { key: string; value: string }[];
   },
   assets: string[],
   triggerer: string,
@@ -61,8 +54,8 @@ export async function removeDeployment(
     name: string;
     domains: string[];
     memory: number;
-    timeout: number;
-    startupTimeout: number;
+    tickTimeout: number;
+    totalTimeout: number;
     cron: string | null;
     cronRegion: string;
     env: { key: string; value: string }[];
@@ -127,8 +120,8 @@ export async function removeDeployment(
       deploymentId: deployment.id,
       domains: func.domains,
       memory: func.memory,
-      timeout: func.timeout,
-      startupTimeout: func.startupTimeout,
+      tickTimeout: func.tickTimeout,
+      totalTimeout: func.totalTimeout,
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
@@ -181,8 +174,8 @@ export async function promoteProductionDeployment(functionId: string, newDeploym
       name: true,
       domains: true,
       memory: true,
-      timeout: true,
-      startupTimeout: true,
+      tickTimeout: true,
+      totalTimeout: true,
       cron: true,
       cronRegion: true,
       env: {
@@ -231,8 +224,8 @@ export async function promoteProductionDeployment(functionId: string, newDeploym
       deploymentId: newDeploymentId,
       domains: func.domains.map(({ domain }) => domain),
       memory: func.memory,
-      timeout: func.timeout,
-      startupTimeout: func.startupTimeout,
+      tickTimeout: func.totalTimeout,
+      totalTimeout: func.totalTimeout,
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
@@ -248,8 +241,8 @@ export async function redeploy(
     name: string;
     domains: string[];
     memory: number;
-    timeout: number;
-    startupTimeout: number;
+    tickTimeout: number;
+    totalTimeout: number;
     cron: string | null;
     cronRegion: string;
     env: { key: string; value: string }[];
@@ -265,8 +258,8 @@ export async function redeploy(
       deploymentId: deployment.id,
       domains: oldDomains,
       memory: func.memory,
-      timeout: func.timeout,
-      startupTimeout: func.startupTimeout,
+      tickTimeout: func.tickTimeout,
+      totalTimeout: func.totalTimeout,
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
@@ -283,8 +276,8 @@ export async function redeploy(
       deploymentId: deployment.id,
       domains: func.domains,
       memory: func.memory,
-      timeout: func.timeout,
-      startupTimeout: func.startupTimeout,
+      tickTimeout: func.tickTimeout,
+      totalTimeout: func.totalTimeout,
       cron: func.cron,
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
@@ -303,8 +296,8 @@ export async function removeFunction(func: {
     domain: string;
   }[];
   memory: number;
-  timeout: number;
-  startupTimeout: number;
+  tickTimeout: number;
+  totalTimeout: number;
   cron: string | null;
   cronRegion: string;
   env: {

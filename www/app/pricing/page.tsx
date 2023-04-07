@@ -41,16 +41,10 @@ export default function Pricing() {
               <td>Custom</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
-              <td className="text-grey mr-8 py-4 text-base">CPU time</td>
-              <td>10ms/request</td>
-              <td>50ms/request</td>
-              <td>Up to 1s/request</td>
-            </tr>
-            <tr className="border-b border-[#1f1f2e]">
-              <td className="text-grey mr-8 py-4 text-base">CPU startup time</td>
-              <td>100ms</td>
-              <td>200ms</td>
-              <td>Up to 1s</td>
+              <td className="text-grey mr-8 py-4 text-base">Maximum request duration</td>
+              <td>5s/request</td>
+              <td>30s/request</td>
+              <td>Custom</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
               <td className="text-grey mr-8 py-4 text-base">Memory</td>
@@ -140,7 +134,13 @@ export default function Pricing() {
               <td className="text-grey mr-8 py-4 text-base">Organization members</td>
               <td>1</td>
               <td>10</td>
-              <td>Unlimited</td>
+              <td>Custom</td>
+            </tr>
+            <tr className="border-b border-[#1f1f2e]">
+              <td className="text-grey mr-8 py-4 text-base">Functions</td>
+              <td>10</td>
+              <td>50</td>
+              <td>Custom</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">
               <td className="text-grey mr-8 py-4 text-base">Logs</td>

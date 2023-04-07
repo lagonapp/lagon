@@ -203,9 +203,9 @@ async fn handle_request(
                             let options = IsolateOptions::new(code)
                                 .environment_variables(deployment.environment_variables.clone())
                                 .memory(deployment.memory)
-                                .timeout(Duration::from_millis(deployment.timeout as u64))
-                                .startup_timeout(Duration::from_millis(
-                                    deployment.startup_timeout as u64,
+                                .tick_timeout(Duration::from_millis(deployment.tick_timeout as u64))
+                                .total_timeout(Duration::from_millis(
+                                    deployment.total_timeout as u64,
                                 ))
                                 .metadata(Some((
                                     deployment.id.clone(),

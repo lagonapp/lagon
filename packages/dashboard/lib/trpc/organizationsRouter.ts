@@ -133,8 +133,8 @@ export const organizationsRouter = (t: T) =>
               },
             },
             memory: true,
-            timeout: true,
-            startupTimeout: true,
+            tickTimeout: true,
+            totalTimeout: true,
             cron: true,
             cronRegion: true,
             env: {

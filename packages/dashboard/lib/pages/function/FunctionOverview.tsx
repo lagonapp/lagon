@@ -72,7 +72,7 @@ const Usage = ({ func, timeframe }: UsageProps) => {
       <Description title={t('usage')} total={formatNumber(plan.freeRequests)}>
         {formatNumber(requests)}
       </Description>
-      <Description title={t('usage.avgCpu')} total={`${plan.cpuTime}ms`}>
+      <Description title={t('usage.avgCpu')} total={formatSeconds(plan.totalTimeout / 1000)}>
         {formatSeconds(cpuTimeAvg)}
       </Description>
       <Description title={t('usage.avgInBytes')}>

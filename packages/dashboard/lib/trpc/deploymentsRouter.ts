@@ -39,41 +39,9 @@ export const deploymentsRouter = (t: T) =>
           ownerId: ctx.session.user.id,
         });
 
-        const func = await prisma.function.findFirst({
-          where: {
-            id: input.functionId,
-          },
-          select: {
-            id: true,
-            name: true,
-            domains: {
-              select: {
-                domain: true,
-              },
-            },
-            memory: true,
-            timeout: true,
-            cron: true,
-            cronRegion: true,
-            env: {
-              select: {
-                key: true,
-                value: true,
-              },
-            },
-          },
-        });
-
-        if (!func) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-          });
-        }
-
         const deployment = await createDeployment(
           {
-            ...func,
-            domains: func.domains.map(({ domain }) => domain),
+            id: input.functionId,
           },
           input.assets.map(({ name }) => name),
           ctx.session.user.email,
@@ -142,8 +110,8 @@ export const deploymentsRouter = (t: T) =>
               name: true,
               domains: true,
               memory: true,
-              timeout: true,
-              startupTimeout: true,
+              tickTimeout: true,
+              totalTimeout: true,
               cron: true,
               cronRegion: true,
               env: true,
@@ -178,8 +146,8 @@ export const deploymentsRouter = (t: T) =>
             deploymentId: deployment.id,
             domains: func.domains.map(({ domain }) => domain),
             memory: func.memory,
-            timeout: func.timeout,
-            startupTimeout: func.startupTimeout,
+            tickTimeout: func.tickTimeout,
+            totalTimeout: func.totalTimeout,
             cron: func.cron,
             cronRegion: func.cronRegion,
             env: envStringToObject(func.env),
@@ -237,8 +205,8 @@ export const deploymentsRouter = (t: T) =>
               },
             },
             memory: true,
-            timeout: true,
-            startupTimeout: true,
+            tickTimeout: true,
+            totalTimeout: true,
             cron: true,
             cronRegion: true,
             env: {

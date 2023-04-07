@@ -91,7 +91,7 @@ export function handler() {
 }
 
 #[tokio::test]
-async fn execution_timeout_reached() {
+async fn execution_tick_timeout_reached() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler() {
@@ -106,11 +106,26 @@ async fn execution_timeout_reached() {
 }
 
 #[tokio::test]
-async fn init_timeout_reached() {
+async fn init_tick_timeout_reached() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "while(true) {}
 export function handler() {
+    return new Response('Should not be reached');
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Timeout);
+}
+
+#[tokio::test]
+async fn total_timeout_reached() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     return new Response('Should not be reached');
 }"
         .into(),
@@ -140,7 +155,7 @@ async fn memory_reached() {
             .into(),
         )
         // Increase timeout for CI
-        .startup_timeout(Duration::from_millis(10000))
+        .total_timeout(Duration::from_secs(2))
         .memory(1),
     );
     send(Request::default());
