@@ -125,7 +125,7 @@ async fn total_timeout_reached() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1200));
     return new Response('Should not be reached');
 }"
         .into(),

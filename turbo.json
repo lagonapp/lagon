@@ -34,6 +34,9 @@
         "storybook-static"
       ]
     },
+    "@lagon/dashboard#build": {
+      "dependsOn": []
+    },
     "@lagon/runtime#build": {
       "dependsOn": [
         "@lagon/js-runtime#build"
