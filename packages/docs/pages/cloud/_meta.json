@@ -1,12 +1,12 @@
 {
   "deployments": "Deployments",
-  "logs": "Logs",
+  "assets": "Assets",
   "environment-variables": "Environment variables",
-  "cron": "Cron",
-  "static-files": "Static files",
   "domains": "Domains",
+  "logs": "Logs",
+  "cron": "Cron",
   "pricing": "Pricing",
-  "limits": "Limits",
   "regions": "Regions",
+  "limits": "Limits",
   "security": "Security"
 }

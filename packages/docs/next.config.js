@@ -2,6 +2,13 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  redirects: () => [
+    {
+      source: '/cloud/static-files',
+      destination: '/cloud/assets',
+      permanent: true,
+    },
+  ],
 };
 
 const withNextra = require('nextra')({
