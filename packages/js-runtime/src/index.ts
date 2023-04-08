@@ -55,7 +55,7 @@ declare global {
   var LagonSync: {
     log: (level: string, message: string) => void;
     pullStream: (id: number, done: boolean, chunk?: Uint8Array) => void;
-    uuid: () => string;
+    uuid: () => `${string}-${string}-${string}-${string}-${string}`;
     randomValues: <T extends ArrayBufferView | null>(array: T) => T;
     getKeyValue: () => ArrayBuffer;
     queueMicrotask: (callback: () => void) => void;
