@@ -1,33 +1,50 @@
 import { Callout } from 'nextra-theme-docs';
 
-There are two types of deployments: **Production** and **Preview** deployments. [Default and custom Domains](/cloud/domains) always points to the current production Deployment.
+## Deploying a new Function
 
-Each Deployment is immutable, and always accessible via a unique URL. You can see the list of Deployments for a Function in the "Deployments" tab of a Function:
+A Function is bound to Deployments: **Production** and **Preview** deployments. [Default and custom Domains](/cloud/domains) always points to the current production Deployment.
 
-![Deployments](/images/deployments.png)
+Your Function always has a single production Deployment and typically has multiple preview Deployments. Each Deployment is immutable, and always accessible via a unique URL.
 
-In this list, you can see the current production Deployment, the date at which each Deployment was created, their always-accessible URLs, and the author of each Deployment.
+### Using the CLI
+
+You can deploy a new Function using the `lagon deploy` command:
+
+```bash
+lagon deploy your-file.ts
+```
+
+This will create a new Function and a new production Deployment. You can then deploy again this Function using the same command:
 
 <Callout type="info">
   By default, `lagon deploy` will create a preview Deployment. You can use the `--prod` flag to automatically promote
   this new Deployment to production.
 </Callout>
 
-## Promoting a Deployment
+```bash
+# Create a preview deployment
+lagon deploy your-file.ts
+# Create a production deployment
+lagon deploy --prod your-file.ts
+```
 
-<Callout type="warning">
-  You can't promote a production Deployment, as it is already the current production Deployment.
-</Callout>
+Follow the [`lagon deploy` documentation](/cli#lagon-deploy) to learn more.
 
-You can roll back at any time to a previous or a new preview Deployment:
+### Using the GitHub Action
 
-To promote a preview Deployment to production, click on the "Promote" button next to the preview Deployment you want to promote. You will be asked to confirm, and then this Deployment will be promoted and become the new production Deployment. The previous production Deployment will still exist but as a preview Deployment.
+If you are using GitHub and want to automate your Deployments with [GitHub Actions](https://github.com/features/actions), you can use the [Lagon GitHub Action](https://github.com/lagonapp/github-action).
 
-## Deleting a Deployment
+Follow the [Lagon GitHub Action documentation](https://github.com/lagonapp/github-action) to learn more.
 
-<Callout type="warning">You can't delete a production Deployment.</Callout>
+### Using the Dashboard
 
-You can delete a preview Deployment at any time. To do so, click on the "Delete" button next to the preview Deployment you want to delete. You will be asked to confirm, and then this Deployment will be deleted.
+You can also create Functions and Deployments through the [Dashboard](https://dash.lagon.app), using the Playground.
+
+Head over to the [Dashboard](https://dash.lagon.app), and click on the "Create a Function" button. You will be redirected to the Playground, where you can see your new Function, with the code at the left and the deployed result at the right:
+
+![Playground](/images/playground.png)
+
+You can now edit the code in the Playground, and click on the "Deploy" button to create a new production Deployment.You will see the result of your changes at the right.
 
 ## Cold starts
 
