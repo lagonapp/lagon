@@ -7,4 +7,4 @@ edition = "2021"
 lagon-runtime-utils = { path = "../runtime_utils" }
 anyhow = "1.0.70"
 async-trait = "0.1.68"
-rust-s3 = "0.32"
+rust-s3 = "0.33"
