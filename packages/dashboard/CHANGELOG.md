@@ -1,5 +1,21 @@
 # @lagon/dashboard
 
+## 0.3.2
+
+### Patch Changes
+
+- [#727](https://github.com/lagonapp/lagon/pull/727) [`dc23559`](https://github.com/lagonapp/lagon/commit/dc235595c154f87059fe518dcaf16708684090a4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add a "Copy" button to the tokens list
+
+* [#719](https://github.com/lagonapp/lagon/pull/719) [`8c41e80`](https://github.com/lagonapp/lagon/commit/8c41e80379210e0ca92efc3da6c52dea4cbc3600) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix deployments creation date
+
+- [#728](https://github.com/lagonapp/lagon/pull/728) [`476c2e2`](https://github.com/lagonapp/lagon/commit/476c2e23d1ce4ff5e30d3ccd2bd51f2070db4f6d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Migrate underlaying storage for stats & logs to Clickhouse
+
+* [#733](https://github.com/lagonapp/lagon/pull/733) [`a75de67`](https://github.com/lagonapp/lagon/commit/a75de673cae0e7d2b2ef140b0e54df63875db27a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Limit maximum response time
+
+- [`9273678`](https://github.com/lagonapp/lagon/commit/927367879a61b4f0cec03a64b5c2af728a976362) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix CPU time showing a wrong metric
+
+* [#716](https://github.com/lagonapp/lagon/pull/716) [`b3ea6c7`](https://github.com/lagonapp/lagon/commit/b3ea6c760308e15eb9d72f9efafb7cabcc06fb44) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix "Socket closed unexpectedly" API errors due to Redis timeouts
+
 ## 0.3.1
 
 ### Patch Changes
