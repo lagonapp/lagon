@@ -23,7 +23,7 @@
     "@prisma/client": "^4.11.0",
     "@radix-ui/react-alert-dialog": "^1.0.0",
     "@radix-ui/react-tabs": "^1.0.0",
-    "@react-email/button": "^0.0.7",
+    "@react-email/button": "^0.0.8",
     "@react-email/container": "0.0.8",
     "@react-email/head": "^0.0.5",
     "@react-email/hr": "^0.0.5",
