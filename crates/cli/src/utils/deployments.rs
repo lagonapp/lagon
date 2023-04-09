@@ -223,7 +223,7 @@ fn esbuild(file: &Path, root: &Path) -> Result<Vec<u8>> {
         .arg("--format=esm")
         .arg("--target=esnext")
         .arg("--platform=browser")
-        .arg("--conditions=lagon")
+        .arg("--conditions=lagon,worker")
         .arg("--loader:.wasm=binary")
         .output()?;
 
