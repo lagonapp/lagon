@@ -56,6 +56,10 @@ This example uses [Satori](https://github.com/vercel/satori) to render React and
 
 This example uses [tRPC](https://trpc.io) server, to build typesafe APIs. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/trpc)
 
+### vite-plugin-ssr
+
+This example uses [vite-plugin-ssr](https://vite-plugin-ssr.com/) to render static and dynamic React pages. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/vite-plugin-ssr)
+
 ## Frameworks
 
 ### Astro
