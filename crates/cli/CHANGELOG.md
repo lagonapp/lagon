@@ -1,5 +1,11 @@
 # @lagon/cli
 
+## 0.5.7
+
+### Patch Changes
+
+- [#744](https://github.com/lagonapp/lagon/pull/744) [`e92fb57`](https://github.com/lagonapp/lagon/commit/e92fb579001b17dce36bde200cda3de86f13dfcc) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add a `worker` import condition after `lagon` when bundling
+
 ## 0.5.6
 
 ### Patch Changes

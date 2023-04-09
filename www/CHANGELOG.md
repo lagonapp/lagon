@@ -1,5 +1,15 @@
 # @lagon/www
 
+## 1.1.0
+
+### Minor Changes
+
+- [#724](https://github.com/lagonapp/lagon/pull/724) [`123f520`](https://github.com/lagonapp/lagon/commit/123f5202d6f728192f3f2bc8233ee678b9dfe1ff) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Migrate to Next.js 13 app router
+
+### Patch Changes
+
+- [#733](https://github.com/lagonapp/lagon/pull/733) [`a75de67`](https://github.com/lagonapp/lagon/commit/a75de673cae0e7d2b2ef140b0e54df63875db27a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Update CPU time to request duration
+
 ## 1.0.1
 
 ### Patch Changes

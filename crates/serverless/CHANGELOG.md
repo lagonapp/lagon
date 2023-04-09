@@ -1,5 +1,13 @@
 # @lagon/serverless
 
+## 0.1.26
+
+### Patch Changes
+
+- [#728](https://github.com/lagonapp/lagon/pull/728) [`476c2e2`](https://github.com/lagonapp/lagon/commit/476c2e23d1ce4ff5e30d3ccd2bd51f2070db4f6d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Migrate underlaying storage for stats & logs to Clickhouse
+
+* [#733](https://github.com/lagonapp/lagon/pull/733) [`a75de67`](https://github.com/lagonapp/lagon/commit/a75de673cae0e7d2b2ef140b0e54df63875db27a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Limit maximum response time
+
 ## 0.1.25
 
 ### Patch Changes

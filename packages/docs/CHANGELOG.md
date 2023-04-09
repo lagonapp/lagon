@@ -1,5 +1,17 @@
 # @lagon/docs
 
+## 0.3.3
+
+### Patch Changes
+
+- [#733](https://github.com/lagonapp/lagon/pull/733) [`a75de67`](https://github.com/lagonapp/lagon/commit/a75de673cae0e7d2b2ef140b0e54df63875db27a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add pricing page
+
+* [#738](https://github.com/lagonapp/lagon/pull/738) [`78c3787`](https://github.com/lagonapp/lagon/commit/78c3787422bd5806a6ab8ad6a8bb73009ee89257) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve Deployments docs
+
+- [#733](https://github.com/lagonapp/lagon/pull/733) [`a75de67`](https://github.com/lagonapp/lagon/commit/a75de673cae0e7d2b2ef140b0e54df63875db27a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Update CPU time to request duration
+
+* [#738](https://github.com/lagonapp/lagon/pull/738) [`78c3787`](https://github.com/lagonapp/lagon/commit/78c3787422bd5806a6ab8ad6a8bb73009ee89257) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Rename Static Files to Assets
+
 ## 0.3.2
 
 ### Patch Changes
