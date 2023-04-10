@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.70"
 async-trait = "0.1.68"
-futures = "0.3.26"
+futures = "0.3.28"
 redis = { version = "0.23.0", features = ["tokio-native-tls-comp", "tokio-comp"] }
 log = { version = "0.4.17", features = ["std", "kv_unstable", "kv_unstable_serde"] }
 flume = "0.10.14"
