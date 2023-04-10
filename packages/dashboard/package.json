@@ -29,7 +29,7 @@
     "@react-email/hr": "^0.0.5",
     "@react-email/html": "^0.0.4",
     "@react-email/img": "^0.0.5",
-    "@react-email/preview": "^0.0.5",
+    "@react-email/preview": "^0.0.6",
     "@react-email/render": "^0.0.6",
     "@react-email/section": "^0.0.9",
     "@react-email/text": "^0.0.5",
