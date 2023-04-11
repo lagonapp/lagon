@@ -333,7 +333,7 @@ importers:
         version: link:../ui
       '@monaco-editor/react':
         specifier: ^4.4.5
-        version: 4.4.5(monaco-editor@0.36.1)(react-dom@18.2.0)(react@18.2.0)
+        version: 4.4.5(monaco-editor@0.37.0)(react-dom@18.2.0)(react@18.2.0)
       '@next-auth/prisma-adapter':
         specifier: ^1.0.5
         version: 1.0.5(@prisma/client@4.11.0)(next-auth@4.20.1)
@@ -404,8 +404,8 @@ importers:
         specifier: ^4.20.7
         version: 4.20.7
       monaco-editor:
-        specifier: ^0.36.0
-        version: 0.36.1
+        specifier: ^0.37.0
+        version: 0.37.0
       next:
         specifier: 13.2.4
         version: 13.2.4(@babel/core@7.21.0)(react-dom@18.2.0)(react@18.2.0)
@@ -6055,24 +6055,24 @@ packages:
       '@types/react': 18.0.26
       react: 18.2.0
 
-  /@monaco-editor/loader@1.3.2(monaco-editor@0.36.1):
+  /@monaco-editor/loader@1.3.2(monaco-editor@0.37.0):
     resolution: {integrity: sha512-BTDbpHl3e47r3AAtpfVFTlAi7WXv4UQ/xZmz8atKl4q7epQV5e7+JbigFDViWF71VBi4IIBdcWP57Hj+OWuc9g==}
     peerDependencies:
       monaco-editor: '>= 0.21.0 < 1'
     dependencies:
-      monaco-editor: 0.36.1
+      monaco-editor: 0.37.0
       state-local: 1.0.7
     dev: false
 
-  /@monaco-editor/react@4.4.5(monaco-editor@0.36.1)(react-dom@18.2.0)(react@18.2.0):
+  /@monaco-editor/react@4.4.5(monaco-editor@0.37.0)(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-IImtzU7sRc66OOaQVCG+5PFHkSWnnhrUWGBuH6zNmH2h0YgmAhcjHZQc/6MY9JWEbUtVF1WPBMJ9u1XuFbRrVA==}
     peerDependencies:
       monaco-editor: '>= 0.25.0 < 1'
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
-      '@monaco-editor/loader': 1.3.2(monaco-editor@0.36.1)
-      monaco-editor: 0.36.1
+      '@monaco-editor/loader': 1.3.2(monaco-editor@0.37.0)
+      monaco-editor: 0.37.0
       prop-types: 15.8.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -17050,8 +17050,8 @@ packages:
       pkg-types: 1.0.2
       ufo: 1.1.0
 
-  /monaco-editor@0.36.1:
-    resolution: {integrity: sha512-/CaclMHKQ3A6rnzBzOADfwdSJ25BFoFT0Emxsc4zYVyav5SkK9iA6lEtIeuN/oRYbwPgviJT+t3l+sjFa28jYg==}
+  /monaco-editor@0.37.0:
+    resolution: {integrity: sha512-PrvIsrbD/uLQlzYqNnzrZ0yDCK+X3YoLgNx+fFZKvmgkDZxo9kJRvb5YNtCUesG4xjv44jEEKaHKE0demcEleg==}
     dev: false
 
   /mri@1.2.0:
