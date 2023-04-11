@@ -17,10 +17,10 @@
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix"
   },
-  "packageManager": "pnpm@7.30.5",
+  "packageManager": "pnpm@8.2.0",
   "engines": {
     "node": ">=16.0.0",
-    "pnpm": ">=7.0.0"
+    "pnpm": ">=8.0.0"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.4.6",
