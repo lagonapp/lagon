@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+<url><loc>https://docs.lagon.app</loc><lastmod>2023-04-11T05:53:08.124Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/cli</loc><lastmod>2023-04-11T05:53:08.124Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/cloud/assets</loc><lastmod>2023-04-11T05:53:08.124Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/cloud/cron</loc><lastmod>2023-04-11T05:53:08.124Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/cloud/deployments</loc><lastmod>2023-04-11T05:53:08.124Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/cloud/domains</loc><lastmod>2023-04-11T05:53:08.124Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/cloud/environment-variables</loc><lastmod>2023-04-11T05:53:08.124Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/cloud/limits</loc><lastmod>2023-04-11T05:53:08.124Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/cloud/logs</loc><lastmod>2023-04-11T05:53:08.125Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/cloud/pricing</loc><lastmod>2023-04-11T05:53:08.125Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/cloud/regions</loc><lastmod>2023-04-11T05:53:08.125Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/cloud/security</loc><lastmod>2023-04-11T05:53:08.125Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/contributing</loc><lastmod>2023-04-11T05:53:08.125Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/examples</loc><lastmod>2023-04-11T05:53:08.125Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/get-started</loc><lastmod>2023-04-11T05:53:08.125Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/runtime-apis</loc><lastmod>2023-04-11T05:53:08.125Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/self-hosted/installation</loc><lastmod>2023-04-11T05:53:08.125Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+<url><loc>https://docs.lagon.app/self-hosted/requirements</loc><lastmod>2023-04-11T05:53:08.125Z</lastmod><changefreq>daily</changefreq><priority>0.7</priority></url>
+</urlset>

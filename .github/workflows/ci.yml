@@ -20,8 +20,6 @@ jobs:
           submodules: true
       - uses: Swatinem/rust-cache@v2
       - uses: pnpm/action-setup@v2.2.4
-        with:
-          version: 7
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
@@ -40,8 +38,6 @@ jobs:
           submodules: true
       - uses: Swatinem/rust-cache@v2
       - uses: pnpm/action-setup@v2.2.4
-        with:
-          version: 7
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
@@ -61,8 +57,6 @@ jobs:
         with:
           submodules: true
       - uses: pnpm/action-setup@v2.2.4
-        with:
-          version: 7
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
@@ -84,8 +78,6 @@ jobs:
           submodules: true
       - uses: Swatinem/rust-cache@v2
       - uses: pnpm/action-setup@v2.2.4
-        with:
-          version: 7
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
