@@ -49,8 +49,6 @@ jobs:
           target: ${{ matrix.target }}
           override: true
       - uses: pnpm/action-setup@v2.2.4
-        with:
-          version: 7
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
