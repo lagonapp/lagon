@@ -1,12 +1,12 @@
 import { cx } from 'class-variance-authority';
 import { useMemo } from 'react';
 
-export const LOG_LEVELS = ['log', 'info', 'debug', 'error', 'warn', 'all'] as const;
-type LogLevel = typeof LOG_LEVELS[number];
+export const LOGS_LEVELS = ['log', 'info', 'debug', 'error', 'warn', 'all'] as const;
+export type LogsLevel = typeof LOGS_LEVELS[number];
 
 type LogLineProps = {
   date: Date;
-  level?: LogLevel;
+  level?: LogsLevel;
   message: string;
 };
 

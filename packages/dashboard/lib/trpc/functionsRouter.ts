@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import prisma from 'lib/prisma';
-import { TIMEFRAMES } from 'lib/types';
+import { LOGS_TIMEFRAMES } from 'lib/types';
 import { getDeploymentCode, removeFunction, redeploy } from 'lib/api/deployments';
 import {
   CUSTOM_DOMAINS_PER_FUNCTION,
@@ -11,7 +11,7 @@ import {
   FUNCTION_NAME_MAX_LENGTH,
   FUNCTION_NAME_MIN_LENGTH,
 } from 'lib/constants';
-import { LOG_LEVELS } from '@lagon/ui';
+import { LOGS_LEVELS } from '@lagon/ui';
 import { TRPCError } from '@trpc/server';
 import { T } from 'pages/api/trpc/[trpc]';
 import {
@@ -119,8 +119,8 @@ export const functionsRouter = (t: T) =>
       .input(
         z.object({
           functionId: z.string(),
-          logLevel: z.enum(LOG_LEVELS),
-          timeframe: z.enum(TIMEFRAMES),
+          level: z.enum(LOGS_LEVELS),
+          timeframe: z.enum(LOGS_TIMEFRAMES),
         }),
       )
       .query(async ({ input, ctx }) => {
@@ -140,9 +140,9 @@ WHERE
   function_id = '${input.functionId}'
 AND
   timestamp >= toDateTime(now() - INTERVAL ${
-    input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 30 days' ? 30 : 7
-  } DAY)
-${input.logLevel !== 'all' ? `AND level = '${input.logLevel}'` : ''}
+    input.timeframe === 'Last hour' ? '1 HOUR' : input.timeframe === 'Last 24 hours' ? '1 DAY' : '1 WEEK'
+  })
+${input.level !== 'all' ? `AND level = '${input.level}'` : ''}
 ORDER BY timestamp DESC
 LIMIT 100`,
           )

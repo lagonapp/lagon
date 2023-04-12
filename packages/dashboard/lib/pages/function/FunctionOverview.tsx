@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { Button, Card, Chart, Description, Divider, Menu, Skeleton, Text } from '@lagon/ui';
 import useFunctionStats from 'lib/hooks/useFunctionStats';
-import { Timeframe, TIMEFRAMES } from 'lib/types';
+import { AnalyticsTimeframe, ANALYTICS_TIMEFRAMES } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
 import { useI18n } from 'locales';
 import { getPlanFromPriceId } from 'lib/plans';
@@ -40,7 +40,7 @@ function formatNumber(number = 0) {
 
 type UsageProps = {
   func: ReturnType<typeof useFunction>['data'];
-  timeframe: Timeframe;
+  timeframe: AnalyticsTimeframe;
 };
 
 const Usage = ({ func, timeframe }: UsageProps) => {
@@ -87,7 +87,7 @@ const Usage = ({ func, timeframe }: UsageProps) => {
 
 type ChartsProps = {
   func: ReturnType<typeof useFunction>['data'];
-  timeframe: Timeframe;
+  timeframe: AnalyticsTimeframe;
 };
 
 const Charts = ({ func, timeframe }: ChartsProps) => {
@@ -96,7 +96,7 @@ const Charts = ({ func, timeframe }: ChartsProps) => {
   const { data = [] } = useFunctionStats({ functionId: func?.id, timeframe });
 
   const result = useMemo(() => {
-    const timeframes: Record<Timeframe, number> = {
+    const timeframes: Record<AnalyticsTimeframe, number> = {
       'Last 24 hours': 24,
       'Last 30 days': 30,
       'Last 7 days': 7,
@@ -203,7 +203,9 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
   const router = useRouter();
   const { scopedT } = useI18n();
   const t = scopedT('functions.overview');
-  const [timeframe, setTimeframe] = useState<Timeframe>(() => (router.query.timeframe as Timeframe) || 'Last 24 hours');
+  const [timeframe, setTimeframe] = useState<AnalyticsTimeframe>(
+    () => (router.query.timeframe as AnalyticsTimeframe) || 'Last 24 hours',
+  );
 
   useEffect(() => {
     router.replace({
@@ -227,7 +229,7 @@ const FunctionOverview = ({ func }: FunctionOverviewProps) => {
                 <Button rightIcon={<ChevronDownIcon className="h-4 w-4" />}>{timeframe}</Button>
               </Menu.Button>
               <Menu.Items>
-                {TIMEFRAMES.map(item => (
+                {ANALYTICS_TIMEFRAMES.map(item => (
                   <Menu.Item key={item} disabled={timeframe === item} onClick={() => setTimeframe(item)}>
                     {item}
                   </Menu.Item>

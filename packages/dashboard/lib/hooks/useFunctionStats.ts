@@ -1,7 +1,7 @@
 import { trpc } from 'lib/trpc';
-import { Timeframe } from 'lib/types';
+import { AnalyticsTimeframe } from 'lib/types';
 
-const useFunctionStats = ({ functionId, timeframe }: { functionId?: string; timeframe: Timeframe }) => {
+const useFunctionStats = ({ functionId, timeframe }: { functionId?: string; timeframe: AnalyticsTimeframe }) => {
   return trpc.stats.useQuery(
     {
       functionId: functionId || '',

@@ -1,20 +1,18 @@
-import { Timeframe } from 'lib/types';
-import { LOG_LEVELS } from '@lagon/ui';
+import { LogsLevel } from '@lagon/ui';
 import { trpc } from 'lib/trpc';
-
-type LogLevel = typeof LOG_LEVELS[number];
+import { LogsTimeframe } from 'lib/types';
 
 const useFunctionLogs = ({
   functionId,
-  logLevel,
+  level,
   timeframe,
 }: {
   functionId?: string;
-  logLevel: LogLevel;
-  timeframe: Timeframe;
+  level: LogsLevel;
+  timeframe: LogsTimeframe;
 }) => {
   return trpc.functionLogs.useQuery(
-    { functionId: functionId || '', logLevel, timeframe },
+    { functionId: functionId || '', level, timeframe },
     {
       refetchInterval: 5000,
       enabled: !!functionId,
