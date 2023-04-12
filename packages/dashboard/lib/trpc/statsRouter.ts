@@ -1,6 +1,6 @@
 import { T } from 'pages/api/trpc/[trpc]';
 import { z } from 'zod';
-import { TIMEFRAMES } from 'lib/types';
+import { ANALYTICS_TIMEFRAMES } from 'lib/types';
 import { checkCanQueryFunction } from 'lib/api/functions';
 import clickhouse from 'lib/clickhouse';
 
@@ -30,7 +30,7 @@ AND
     stats: t.procedure
       .input(
         z.object({
-          timeframe: z.enum(TIMEFRAMES),
+          timeframe: z.enum(ANALYTICS_TIMEFRAMES),
           functionId: z.string(),
         }),
       )

@@ -1,24 +1,22 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
 import { useRouter } from 'next/router';
 import { Suspense, useEffect, useState } from 'react';
-import { Button, Card, Divider, EmptyState, LogLine, Menu, Skeleton, LOG_LEVELS } from '@lagon/ui';
+import { Button, Card, Divider, EmptyState, LOGS_LEVELS, LogLine, LogsLevel, Menu, Skeleton } from '@lagon/ui';
 import useFunctionLogs from 'lib/hooks/useFunctionLogs';
-import { Timeframe, TIMEFRAMES } from 'lib/types';
+import { LOGS_TIMEFRAMES, LogsTimeframe } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
 import { useI18n } from 'locales';
 
-type LogLevel = typeof LOG_LEVELS[number];
-
 type ContentProps = {
   func: ReturnType<typeof useFunction>['data'];
-  logLevel: LogLevel;
-  timeframe: Timeframe;
+  level: LogsLevel;
+  timeframe: LogsTimeframe;
 };
 
-const Content = ({ func, logLevel, timeframe }: ContentProps) => {
+const Content = ({ func, level, timeframe }: ContentProps) => {
   const { scopedT } = useI18n();
   const t = scopedT('functions.logs');
-  const { data: logs } = useFunctionLogs({ functionId: func?.id, logLevel, timeframe });
+  const { data: logs } = useFunctionLogs({ functionId: func?.id, level, timeframe });
 
   if (logs?.length === 0) {
     return (
@@ -41,7 +39,7 @@ const Content = ({ func, logLevel, timeframe }: ContentProps) => {
           <LogLine
             key={`${timestamp}-${index}`}
             date={new Date(timestamp)}
-            level={level.toLowerCase() as LogLevel}
+            level={level.toLowerCase() as LogsLevel}
             message={message}
           />
         );
@@ -58,19 +56,21 @@ const FunctionLogs = ({ func }: FunctionLogsProps) => {
   const router = useRouter();
   const { scopedT } = useI18n();
   const t = scopedT('functions.logs');
-  const [logLevel, setLogLevel] = useState<LogLevel>(() => (router.query.logLevel as LogLevel) || 'all');
-  const [timeframe, setTimeframe] = useState<Timeframe>(() => (router.query.timeframe as Timeframe) || 'Last 24 hours');
+  const [logsLevel, setLogsLevel] = useState<LogsLevel>(() => (router.query.logLevel as LogsLevel) || 'all');
+  const [timeframe, setTimeframe] = useState<LogsTimeframe>(
+    () => (router.query.logsTimeframe as LogsTimeframe) || 'Last hour',
+  );
 
   useEffect(() => {
     router.replace({
       query: {
         ...router.query,
-        timeframe,
-        logLevel,
+        logsTimeframe: timeframe,
+        logsLevel,
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [timeframe, logLevel]);
+  }, [timeframe, logsLevel]);
 
   return (
     <Card
@@ -80,17 +80,17 @@ const FunctionLogs = ({ func }: FunctionLogsProps) => {
           <Menu>
             <Menu.Button>
               <Button rightIcon={<ChevronDownIcon className="h-4 w-4" />}>
-                {t('logLevel')}&nbsp;{logLevel}
+                {t('logLevel')}&nbsp;{logsLevel}
               </Button>
             </Menu.Button>
             <Menu.Items>
-              {LOG_LEVELS.filter(item => item !== 'all').map(item => (
-                <Menu.Item key={item} disabled={logLevel === item} onClick={() => setLogLevel(item)}>
+              {LOGS_LEVELS.filter(item => item !== 'all').map(item => (
+                <Menu.Item key={item} disabled={logsLevel === item} onClick={() => setLogsLevel(item)}>
                   {item}
                 </Menu.Item>
               ))}
               <Divider />
-              <Menu.Item disabled={logLevel === 'all'} onClick={() => setLogLevel('all')}>
+              <Menu.Item disabled={logsLevel === 'all'} onClick={() => setLogsLevel('all')}>
                 all
               </Menu.Item>
             </Menu.Items>
@@ -100,7 +100,7 @@ const FunctionLogs = ({ func }: FunctionLogsProps) => {
               <Button rightIcon={<ChevronDownIcon className="h-4 w-4" />}>{timeframe}</Button>
             </Menu.Button>
             <Menu.Items>
-              {TIMEFRAMES.map(item => (
+              {LOGS_TIMEFRAMES.map(item => (
                 <Menu.Item key={item} disabled={timeframe === item} onClick={() => setTimeframe(item)}>
                   {item}
                 </Menu.Item>
@@ -111,7 +111,7 @@ const FunctionLogs = ({ func }: FunctionLogsProps) => {
       }
     >
       <Suspense fallback={<Skeleton variant="log" />}>
-        <Content func={func} logLevel={logLevel} timeframe={timeframe} />
+        <Content func={func} level={logsLevel} timeframe={timeframe} />
       </Suspense>
     </Card>
   );

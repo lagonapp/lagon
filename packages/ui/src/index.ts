@@ -10,7 +10,7 @@ export {
   Form,
   Input,
   Link,
-  LOG_LEVELS,
+  LOGS_LEVELS,
   LogLine,
   Menu,
   Nav,
@@ -19,3 +19,4 @@ export {
   Text,
   Textarea,
 } from './components';
+export type { LogsLevel } from './components';
