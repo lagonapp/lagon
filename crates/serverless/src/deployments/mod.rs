@@ -169,31 +169,27 @@ OR
         error!("Failed to delete old deployments: {:?}", error);
     }
 
-    {
-        // let mut cronjob = cronjob.lock().await;
-
-        for deployment in deployments_list {
-            if !deployment.has_code() {
-                if let Err(error) = download_deployment(&deployment, Arc::clone(&downloader)).await
-                {
-                    error!("Failed to download deployment {}: {}", deployment.id, error);
-                    continue;
-                }
+    futures::future::join_all(deployments_list.into_iter().map(|deployment| async {
+        if !deployment.has_code() {
+            if let Err(error) = download_deployment(&deployment, Arc::clone(&downloader)).await {
+                error!("Failed to download deployment {}: {}", deployment.id, error);
+                return;
             }
-
-            let deployment = Arc::new(deployment);
-
-            for domain in deployment.get_domains() {
-                deployments.insert(domain, Arc::clone(&deployment));
-            }
-
-            // if deployment.should_run_cron() {
-            //     if let Err(error) = cronjob.add(deployment).await {
-            //         error!("Failed to register cron: {}", error);
-            //     }
-            // }
         }
-    }
+
+        let deployment = Arc::new(deployment);
+
+        for domain in deployment.get_domains() {
+            deployments.insert(domain, Arc::clone(&deployment));
+        }
+
+        // if deployment.should_run_cron() {
+        //     if let Err(error) = cronjob.add(deployment).await {
+        //         error!("Failed to register cron: {}", error);
+        //     }
+        // }
+    }))
+    .await;
 
     Ok(deployments)
 }

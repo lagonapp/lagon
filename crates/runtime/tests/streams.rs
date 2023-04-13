@@ -1,4 +1,4 @@
-use httptest::{bytes::Bytes, matchers::*, responders::*, Expectation, Server};
+use httptest::bytes::Bytes;
 use lagon_runtime_http::{Request, Response, RunResult, StreamResult};
 use lagon_runtime_isolate::options::IsolateOptions;
 use std::collections::HashMap;
@@ -167,34 +167,28 @@ async fn start_and_pull() {
 #[tokio::test]
 async fn response_before_write() {
     utils::setup();
-    let server = Server::run();
-    server.expect(
-        Expectation::matching(request::method_path("GET", "/"))
-            .respond_with(status_code(200).body("Hello")),
-    );
-    let url = server.url("/");
-
-    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
-        "export function handler() {{
-    const transformStream = new TransformStream({{
-        start(controller) {{
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
+    const transformStream = new TransformStream({
+        start(controller) {
             controller.enqueue(new TextEncoder().encode('Loading...'));
-        }}
-    }})
+        }
+    })
 
     const writeableStream = transformStream.writable;
     const readableStream = transformStream.readable;
 
     const writer = writeableStream.getWriter();
 
-    fetch('{url}').then(res => res.text().then(text => {{
-        writer.write(new TextEncoder().encode(text));
+    setTimeout(() => {
+        writer.write(new TextEncoder().encode('Hello'));
         writer.close();
-    }}))
+    }, 100);
 
     return new Response(readableStream);
-}}"
-    )));
+}"
+        .into(),
+    ));
     send(Request::default());
 
     assert_eq!(
