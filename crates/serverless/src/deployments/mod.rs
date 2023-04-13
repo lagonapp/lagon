@@ -182,6 +182,12 @@ OR
         for domain in deployment.get_domains() {
             deployments.insert(domain, Arc::clone(&deployment));
         }
+
+        // if deployment.should_run_cron() {
+        //     if let Err(error) = cronjob.add(deployment).await {
+        //         error!("Failed to register cron: {}", error);
+        //     }
+        // }
     }))
     .await;
 
