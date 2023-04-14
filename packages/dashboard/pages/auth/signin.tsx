@@ -1,4 +1,6 @@
 import { Text, Card, Button } from '@lagon/ui';
+import { GitHubIcon } from 'lib/components/GitHubIcon';
+import { GoogleIcon } from 'lib/components/GoogleIcon';
 import { useI18n } from 'locales';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -23,18 +25,32 @@ const SignIn = () => {
             <Text size="xl">{t('title')}</Text>
             <Text>{t('description')}</Text>
           </div>
-          <Button
-            variant="primary"
-            disabled={isLoading}
-            onClick={() => {
-              setIsLoading(true);
-              signIn('github', {
-                callbackUrl: '/',
-              });
-            }}
-          >
-            {t('github')}
-          </Button>
+          <div className="flex flex-col items-center gap-2">
+            <Button
+              leftIcon={<GitHubIcon className="h-4 w-4" />}
+              disabled={isLoading}
+              onClick={() => {
+                setIsLoading(true);
+                signIn('github', {
+                  callbackUrl: '/',
+                });
+              }}
+            >
+              {t('github')}
+            </Button>
+            <Button
+              leftIcon={<GoogleIcon className="h-4 w-4" />}
+              disabled={isLoading}
+              onClick={() => {
+                setIsLoading(true);
+                signIn('google', {
+                  callbackUrl: '/',
+                });
+              }}
+            >
+              {t('google')}
+            </Button>
+          </div>
         </div>
       </Card>
     </div>
