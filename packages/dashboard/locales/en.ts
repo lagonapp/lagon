@@ -2,12 +2,12 @@ export default {
   'signin.title': 'Sign in',
   'signin.description': 'Please sign in into your account to access the dashboard.',
   'signin.github': 'Sign in with GitHub',
+  'signin.google': 'Sign in with Google',
   'signin.error.title': 'Failed to sign in',
   'signin.error.description': 'An error ({error}) occured while trying to sign in. Please try again.',
   'signin.error.description.notAuthorized':
     'Your are not authorized to sign in. Join the waitlist to be notified when we release updates.',
   'signin.error.joinWaitlist': 'Join waitlist',
-  'signin.error.github': 'Sign in with GitHub',
 
   'layout.header.functions': 'Functions',
   'layout.header.settings': 'Settings',
