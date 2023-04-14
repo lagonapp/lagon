@@ -54,8 +54,9 @@ FROM serverless.requests
 WHERE
   function_id = '${input.functionId}'
 AND
-  timestamp >= now() - INTERVAL  ${input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 7 days' ? 7 : 30
-            } DAY
+  timestamp >= now() - INTERVAL  ${
+    input.timeframe === 'Last 24 hours' ? 1 : input.timeframe === 'Last 7 days' ? 7 : 30
+  } DAY
 GROUP BY time`,
           )
           .toPromise()) as { requests: number; cpuTime: number; bytesIn: number; bytesOut: number; time: string }[];

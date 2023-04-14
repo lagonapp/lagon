@@ -105,7 +105,11 @@ const SettingsMember = () => {
           <Dialog
             title={t('members.invite.modal.title')}
             description={t('members.invite.modal.description')}
-            disclosure={<Button variant="primary" disabled={!isOrganizationOwner}>{t('members.invite')}</Button>}
+            disclosure={
+              <Button variant="primary" disabled={!isOrganizationOwner}>
+                {t('members.invite')}
+              </Button>
+            }
           >
             <Form
               onSubmit={async ({ email }) => {
