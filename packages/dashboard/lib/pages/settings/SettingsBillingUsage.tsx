@@ -7,6 +7,7 @@ import { getPlanFromPriceId } from 'lib/plans';
 import { Suspense, useState } from 'react';
 import useFunctions from 'lib/hooks/useFunctions';
 import useFunctionsUsage from 'lib/hooks/useFunctionsUsage';
+import useOrganizationMembers from 'lib/hooks/useOrganizationMembers';
 
 function formatNumber(number = 0) {
   return number.toLocaleString();
@@ -56,6 +57,9 @@ const SettingsBillingUsage = () => {
   const [isLoadingPlan, setIsLoadingPlan] = useState(false);
   const { scopedT } = useI18n();
   const t = scopedT('settings');
+  const { data: organizationMembers } = useOrganizationMembers();
+
+  const isOrganizationOwner = session?.user.id === organizationMembers?.owner.id;
 
   const redirectStripe = async (action: () => Promise<string | undefined | null>) => {
     setIsLoadingPlan(true);
@@ -116,7 +120,8 @@ const SettingsBillingUsage = () => {
             <Functions />
           </Suspense>
           <Description title={t('usage.members')} total={plan.organizationMembers}>
-            1
+            {/* We add 1 because the owner isn't listed in the organization members */}
+            {(organizationMembers?.members.length ?? 0) + 1}
           </Description>
         </div>
       </Card>
@@ -129,7 +134,7 @@ const SettingsBillingUsage = () => {
           {plan.type === 'personal' ? (
             <Button
               variant="primary"
-              disabled={isLoadingPlan}
+              disabled={isLoadingPlan || !isOrganizationOwner}
               onClick={() => checkout(process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_PRICE_ID as string)}
             >
               {t('subcription.upgrade.pro')}
@@ -141,7 +146,7 @@ const SettingsBillingUsage = () => {
                   date: new Date(session?.organization?.stripeCurrentPeriodEnd ?? 0).toLocaleDateString(),
                 })}
               </Text>
-              <Button variant="secondary" disabled={isLoadingPlan} onClick={managePlan}>
+              <Button variant="secondary" disabled={isLoadingPlan || !isOrganizationOwner} onClick={managePlan}>
                 {t('subcription.manage')}
               </Button>
             </>

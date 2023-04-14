@@ -63,6 +63,8 @@ export default {
 
   'settings.members.title': 'Members',
   'settings.members.description': 'Manage the members of this Organization.',
+  'settings.members.owner': 'Owner',
+  'settings.members.member': 'Member',
   'settings.members.invite': 'Invite a new member',
   'settings.members.invite.modal.title': 'Invite a new member',
   'settings.members.invite.modal.description': 'Enter the email of the member you want to invite.',

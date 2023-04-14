@@ -32,11 +32,11 @@ export function isFunctionNameBlacklisted(name: string): boolean {
 
 export async function checkCanCreateFunction({
   functionName,
-  ownerId,
+  organizationId,
   plan,
 }: {
   functionName?: string;
-  ownerId: string;
+  organizationId: string;
   plan: Plan;
 }) {
   if (functionName) {
@@ -51,7 +51,7 @@ export async function checkCanCreateFunction({
   const functions = await prisma.function.count({
     where: {
       organization: {
-        ownerId,
+        id: organizationId,
       },
     },
   });
@@ -64,12 +64,21 @@ export async function checkCanCreateFunction({
   }
 }
 
-export async function checkCanQueryFunction({ functionId, ownerId }: { functionId: string; ownerId: string }) {
+export async function checkCanQueryFunction({ functionId, userId }: { functionId: string; userId: string }) {
   const func = await prisma.function.count({
     where: {
       id: functionId,
       organization: {
-        ownerId,
+        OR: [
+          {
+            members: {
+              some: {
+                userId,
+              },
+            },
+          },
+          { ownerId: userId },
+        ],
       },
     },
   });

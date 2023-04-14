@@ -10,16 +10,17 @@ const Members = () => {
   const { scopedT } = useI18n();
   const t = scopedT('settings.members');
   const { data: session } = useSession();
-  const { data: organizationMembers } = useOrganizationMembers();
+  const { data: organizationMembers, refetch } = useOrganizationMembers();
 
   const isOrganizationOwner = session?.user.id === organizationMembers?.owner.id;
-
   const organizationRemoveMember = trpc.organizationRemoveMember.useMutation();
 
   const removeMember = async (userId: string) => {
     await organizationRemoveMember.mutateAsync({
       userId,
     });
+
+    await refetch();
 
     toast.success(t('remove.success'));
   };
@@ -28,7 +29,18 @@ const Members = () => {
     <>
       <Divider />
       <div className="flex items-center justify-between gap-4 px-4">
-        <Text strong>{organizationMembers?.owner.email}</Text>
+        <Text strong={isOrganizationOwner}>{organizationMembers?.owner.email}</Text>
+        <Text size="sm">
+          {t('joined')}&nbsp;
+          {new Date(session?.organization.createdAt ?? 0).toLocaleString('en-US', {
+            minute: 'numeric',
+            hour: 'numeric',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+          })}
+        </Text>
+        <Text size="sm">{t('owner')}</Text>
         <Button variant="danger" disabled>
           {t('remove')}
         </Button>
@@ -37,7 +49,7 @@ const Members = () => {
         <>
           <Divider />
           <div className="flex items-center justify-between gap-4 px-4" key={member.user.id}>
-            <Text>{member.user.email}</Text>
+            <Text strong={member.user.id === session?.user.id}>{member.user.email}</Text>
             <Text size="sm">
               {t('joined')}&nbsp;
               {new Date(member.createdAt).toLocaleString('en-US', {
@@ -48,6 +60,7 @@ const Members = () => {
                 year: 'numeric',
               })}
             </Text>
+            <Text size="sm">{t('member')}</Text>
             <Dialog
               title={t('remove.modal.title')}
               description={t('remove.modal.description', {
@@ -61,8 +74,8 @@ const Members = () => {
               }
             >
               <Dialog.Buttons>
-                <Dialog.Cancel disabled />
-                <Dialog.Action variant="danger" onClick={async () => removeMember(member.user.id)} disabled>
+                <Dialog.Cancel />
+                <Dialog.Action variant="danger" onClick={async () => removeMember(member.user.id)}>
                   {t('remove.modal.submit')}
                 </Dialog.Action>
               </Dialog.Buttons>
@@ -77,7 +90,10 @@ const Members = () => {
 const SettingsMember = () => {
   const { scopedT } = useI18n();
   const t = scopedT('settings');
+  const { data: session } = useSession();
+  const { data: organizationMembers } = useOrganizationMembers();
 
+  const isOrganizationOwner = session?.user.id === organizationMembers?.owner.id;
   const organizationAddMember = trpc.organizationAddMember.useMutation();
 
   return (
@@ -89,7 +105,7 @@ const SettingsMember = () => {
           <Dialog
             title={t('members.invite.modal.title')}
             description={t('members.invite.modal.description')}
-            disclosure={<Button variant="primary">{t('members.invite')}</Button>}
+            disclosure={<Button variant="primary" disabled={!isOrganizationOwner}>{t('members.invite')}</Button>}
           >
             <Form
               onSubmit={async ({ email }) => {
@@ -105,8 +121,8 @@ const SettingsMember = () => {
                 <>
                   <Input name="email" type="email" placeholder="john@doe.com" />
                   <Dialog.Buttons>
-                    <Dialog.Cancel disabled={false} />
-                    <Dialog.Action variant="primary" onClick={handleSubmit} disabled={false}>
+                    <Dialog.Cancel />
+                    <Dialog.Action variant="primary" onClick={handleSubmit}>
                       {t('members.invite.modal.submit')}
                     </Dialog.Action>
                   </Dialog.Buttons>

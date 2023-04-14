@@ -62,7 +62,7 @@ export const functionsRouter = (t: T) =>
       .query(async ({ ctx, input }) => {
         await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const func = await prisma.function.findFirst({
@@ -126,7 +126,7 @@ export const functionsRouter = (t: T) =>
       .query(async ({ input, ctx }) => {
         await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const result = (await clickhouse
@@ -139,9 +139,8 @@ FROM serverless.logs
 WHERE
   function_id = '${input.functionId}'
 AND
-  timestamp >= toDateTime(now() - INTERVAL ${
-    input.timeframe === 'Last hour' ? '1 HOUR' : input.timeframe === 'Last 24 hours' ? '1 DAY' : '1 WEEK'
-  })
+  timestamp >= toDateTime(now() - INTERVAL ${input.timeframe === 'Last hour' ? '1 HOUR' : input.timeframe === 'Last 24 hours' ? '1 DAY' : '1 WEEK'
+            })
 ${input.level !== 'all' ? `AND level = '${input.level}'` : ''}
 ORDER BY timestamp DESC
 LIMIT 100`,
@@ -159,7 +158,7 @@ LIMIT 100`,
       .query(async ({ input, ctx }) => {
         await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const deployment = await prisma.deployment.findFirst({
@@ -205,7 +204,7 @@ LIMIT 100`,
 
         await checkCanCreateFunction({
           functionName: input.name,
-          ownerId: ctx.session.user.id,
+          organizationId: ctx.session.organization.id,
           plan,
         });
 
@@ -276,7 +275,7 @@ LIMIT 100`,
       .mutation(async ({ input, ctx }) => {
         await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const func = await prisma.function.findFirst({
@@ -443,7 +442,7 @@ LIMIT 100`,
 
         await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const func = await prisma.function.findFirst({

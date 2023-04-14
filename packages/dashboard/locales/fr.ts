@@ -67,6 +67,8 @@ export default defineLocale({
 
   'settings.members.title': 'Membres',
   'settings.members.description': 'Gérer les membres de cette Organisation.',
+  'settings.members.owner': 'Propriétaire',
+  'settings.members.member': 'Membre',
   'settings.members.invite': 'Inviter un nouveau membre',
   'settings.members.invite.modal.title': 'Inviter un nouveau membre',
   'settings.members.invite.modal.description': "Entrez l'email du membre que vous voulez inviter.",

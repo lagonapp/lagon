@@ -19,31 +19,26 @@ import { z } from 'zod';
 export const organizationsRouter = (t: T) =>
   t.router({
     organizationsList: t.procedure.query(async ({ ctx }) => {
-      const ownerOrganizations = await prisma.organization.findMany({
+      return prisma.organization.findMany({
         where: {
-          ownerId: ctx.session.user.id,
-        },
-        select: {
-          id: true,
-          name: true,
-        },
-      });
-
-      const memberOrganizations = await prisma.organization.findMany({
-        where: {
-          members: {
-            some: {
-              userId: ctx.session.user.id,
+          OR: [
+            {
+              ownerId: ctx.session.user.id,
             },
-          },
+            {
+              members: {
+                some: {
+                  userId: ctx.session.user.id,
+                },
+              },
+            },
+          ],
         },
         select: {
           id: true,
           name: true,
         },
       });
-
-      return [...ownerOrganizations, ...memberOrganizations];
     }),
     organizationCreate: t.procedure
       .input(
@@ -308,6 +303,15 @@ export const organizationsRouter = (t: T) =>
         await prisma.organizationMember.delete({
           where: {
             id: organizationMember.id,
+          },
+        });
+
+        await prisma.user.update({
+          where: {
+            id: input.userId,
+          },
+          data: {
+            currentOrganizationId: null,
           },
         });
 
