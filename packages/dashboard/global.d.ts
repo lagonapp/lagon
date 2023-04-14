@@ -10,6 +10,7 @@ declare module 'next-auth' {
       stripePriceId: string | null;
       stripeSubscriptionId: string | null;
       stripeCurrentPeriodEnd: Date | null;
+      createdAt: Date;
     };
     user: {
       id: string;

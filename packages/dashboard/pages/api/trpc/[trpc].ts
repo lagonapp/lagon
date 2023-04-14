@@ -73,6 +73,7 @@ const createContext = async ({
           stripeCustomerId: null,
           stripeSubscriptionId: null,
           stripeCurrentPeriodEnd: null,
+          createdAt: new Date(),
         },
         expires: '',
       },

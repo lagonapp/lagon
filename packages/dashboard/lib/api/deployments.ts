@@ -6,6 +6,7 @@ import { Readable } from 'node:stream';
 import { TRPCError } from '@trpc/server';
 import { envStringToObject } from 'lib/utils';
 import { MAX_ASSETS_PER_FUNCTION } from 'lib/constants';
+import { checkCanQueryFunction } from './functions';
 
 export async function createDeployment(
   func: {
@@ -357,11 +358,11 @@ export async function getDeploymentCode(deploymentId: string) {
 export async function checkCanCreateDeployment({
   assets,
   functionId,
-  ownerId,
+  userId,
 }: {
   assets: number;
   functionId: string;
-  ownerId: string;
+  userId: string;
 }) {
   if (assets >= MAX_ASSETS_PER_FUNCTION) {
     throw new TRPCError({
@@ -370,25 +371,8 @@ export async function checkCanCreateDeployment({
     });
   }
 
-  await checkCanUpdateDeployment({
+  await checkCanQueryFunction({
     functionId,
-    ownerId,
+    userId,
   });
-}
-
-export async function checkCanUpdateDeployment({ functionId, ownerId }: { functionId: string; ownerId: string }) {
-  const func = await prisma.function.count({
-    where: {
-      id: functionId,
-      organization: {
-        ownerId,
-      },
-    },
-  });
-
-  if (func === 0) {
-    throw new TRPCError({
-      code: 'UNAUTHORIZED',
-    });
-  }
 }

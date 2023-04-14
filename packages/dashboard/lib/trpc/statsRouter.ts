@@ -37,7 +37,7 @@ AND
       .query(async ({ input, ctx }) => {
         await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const groupBy = input.timeframe === 'Last 24 hours' ? 'toStartOfHour' : 'toStartOfDay';

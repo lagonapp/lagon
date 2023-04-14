@@ -210,7 +210,7 @@ const Layout = ({ title, anonymous, children }: LayoutProps) => {
                   ) : null}
                 </div>
               </div>
-              <div className="min-h-[calc(100vh - 4rem)] bg-stone-50 dark:bg-stone-800">{children}</div>
+              <div className="min-h-[calc(100vh-4rem)] bg-stone-50 dark:bg-stone-800">{children}</div>
             </>
           ) : (
             <div className="flex h-screen w-screen items-center justify-center">

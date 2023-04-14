@@ -62,7 +62,7 @@ export const functionsRouter = (t: T) =>
       .query(async ({ ctx, input }) => {
         await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const func = await prisma.function.findFirst({
@@ -126,7 +126,7 @@ export const functionsRouter = (t: T) =>
       .query(async ({ input, ctx }) => {
         await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const result = (await clickhouse
@@ -159,7 +159,7 @@ LIMIT 100`,
       .query(async ({ input, ctx }) => {
         await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const deployment = await prisma.deployment.findFirst({
@@ -205,7 +205,7 @@ LIMIT 100`,
 
         await checkCanCreateFunction({
           functionName: input.name,
-          ownerId: ctx.session.user.id,
+          organizationId: ctx.session.organization.id,
           plan,
         });
 
@@ -276,7 +276,7 @@ LIMIT 100`,
       .mutation(async ({ input, ctx }) => {
         await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const func = await prisma.function.findFirst({
@@ -443,7 +443,7 @@ LIMIT 100`,
 
         await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const func = await prisma.function.findFirst({

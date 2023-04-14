@@ -6,7 +6,6 @@ import {
   removeDeployment,
   promoteProductionDeployment,
   checkCanCreateDeployment,
-  checkCanUpdateDeployment,
 } from 'lib/api/deployments';
 import prisma from 'lib/prisma';
 import { T } from 'pages/api/trpc/[trpc]';
@@ -16,6 +15,7 @@ import redis from 'lib/redis';
 import { envStringToObject, getFullCurrentDomain } from 'lib/utils';
 import s3 from 'lib/s3';
 import { PRESIGNED_URL_EXPIRES_SECONDS } from 'lib/constants';
+import { checkCanQueryFunction } from 'lib/api/functions';
 
 export const deploymentsRouter = (t: T) =>
   t.router({
@@ -36,7 +36,7 @@ export const deploymentsRouter = (t: T) =>
         await checkCanCreateDeployment({
           assets: input.assets.length,
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const deployment = await createDeployment(
@@ -84,9 +84,9 @@ export const deploymentsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input, ctx }) => {
-        await checkCanUpdateDeployment({
+        await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const hasProductionDeployment = await prisma.deployment.findFirst({
@@ -170,9 +170,9 @@ export const deploymentsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input, ctx }) => {
-        await checkCanUpdateDeployment({
+        await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         await promoteProductionDeployment(input.functionId, input.deploymentId);
@@ -187,9 +187,9 @@ export const deploymentsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ input, ctx }) => {
-        await checkCanUpdateDeployment({
+        await checkCanQueryFunction({
           functionId: input.functionId,
-          ownerId: ctx.session.user.id,
+          userId: ctx.session.user.id,
         });
 
         const func = await prisma.function.findFirst({

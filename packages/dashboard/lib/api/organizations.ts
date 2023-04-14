@@ -82,7 +82,8 @@ export async function checkCanAddMember({ organizationId, plan }: { organization
     },
   });
 
-  if (organizationMembers >= plan.organizationMembers) {
+  // We add 1 because the owner isn't counted in the members
+  if (organizationMembers + 1 >= plan.organizationMembers) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
       message: `You can only have ${plan.organizationMembers} Members per Organization in your current plan`,

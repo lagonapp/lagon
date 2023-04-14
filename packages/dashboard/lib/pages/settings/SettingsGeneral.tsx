@@ -12,6 +12,7 @@ import { trpc } from 'lib/trpc';
 import { reloadSession } from 'lib/utils';
 import { useI18n } from 'locales';
 import { useQueryClient } from '@tanstack/react-query';
+import useOrganizationMembers from 'lib/hooks/useOrganizationMembers';
 
 const SettingsGeneral = () => {
   const { data: session } = useSession();
@@ -21,6 +22,9 @@ const SettingsGeneral = () => {
   const queryClient = useQueryClient();
   const { scopedT } = useI18n();
   const t = scopedT('settings');
+  const { data: organizationMembers } = useOrganizationMembers();
+
+  const isOrganizationOwner = session?.user.id === organizationMembers?.owner.id;
 
   return (
     <div className="flex flex-col gap-8">
@@ -47,14 +51,14 @@ const SettingsGeneral = () => {
             <Input
               name="name"
               placeholder={t('name.placeholder')}
-              disabled={updateOrganization.isLoading}
+              disabled={updateOrganization.isLoading || !isOrganizationOwner}
               validator={composeValidators(
                 requiredValidator,
                 minLengthValidator(ORGANIZATION_NAME_MIN_LENGTH),
                 maxLengthValidator(ORGANIZATION_NAME_MAX_LENGTH),
               )}
             />
-            <Button variant="primary" disabled={updateOrganization.isLoading} submit>
+            <Button variant="primary" disabled={updateOrganization.isLoading || !isOrganizationOwner} submit>
               {t('name.submit')}
             </Button>
           </div>
@@ -83,10 +87,10 @@ const SettingsGeneral = () => {
             <Textarea
               name="description"
               placeholder={t('description.placeholder')}
-              disabled={updateOrganization.isLoading}
+              disabled={updateOrganization.isLoading || !isOrganizationOwner}
               validator={composeValidators(requiredValidator, maxLengthValidator(ORGANIZATION_DESCRIPTION_MAX_LENGTH))}
             />
-            <Button variant="primary" disabled={updateOrganization.isLoading} submit>
+            <Button variant="primary" disabled={updateOrganization.isLoading || !isOrganizationOwner} submit>
               {t('description.submit')}
             </Button>
           </div>
@@ -100,7 +104,7 @@ const SettingsGeneral = () => {
               organizationName: session?.organization.name as string,
             })}
             disclosure={
-              <Button variant="danger" disabled={deleteOrganization.isLoading}>
+              <Button variant="danger" disabled={deleteOrganization.isLoading || !isOrganizationOwner}>
                 {t('delete.submit')}
               </Button>
             }

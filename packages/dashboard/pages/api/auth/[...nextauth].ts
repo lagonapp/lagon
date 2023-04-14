@@ -97,6 +97,7 @@ export const authOptions: NextAuthOptions = {
           stripePriceId: true,
           stripeCustomerId: true,
           stripeCurrentPeriodEnd: true,
+          createdAt: true,
         },
       });
 
