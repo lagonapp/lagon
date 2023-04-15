@@ -45,7 +45,7 @@
     "monaco-editor": "^0.37.0",
     "next": "13.2.4",
     "next-auth": "^4.20.1",
-    "next-international": "^0.3.0",
+    "next-international": "^0.4.0",
     "node-fetch": "^3.2.10",
     "nodemailer": "^6.9.0",
     "raw-body": "^2.5.1",
