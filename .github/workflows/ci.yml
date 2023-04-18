@@ -39,6 +39,8 @@ jobs:
         with:
           submodules: true
       - uses: moonrepo/setup-rust@v0
+        with:
+          bins: cargo-all-features
       - uses: pnpm/action-setup@v2.2.4
       - name: Use Node.js 16
         uses: actions/setup-node@v3
