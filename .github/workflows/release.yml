@@ -18,7 +18,6 @@ jobs:
         with:
           submodules: true
           token: ${{ secrets.PAT }}
-      - uses: Swatinem/rust-cache@v2
       - uses: pnpm/action-setup@v2.2.4
       - name: Use Node.js 16
         uses: actions/setup-node@v3
