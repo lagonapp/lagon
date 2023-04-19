@@ -3,12 +3,11 @@ import useVerificationCode from 'lib/hooks/useVerificationCode';
 import toast from 'react-hot-toast';
 import LayoutTitle from 'lib/components/LayoutTitle';
 import { GetStaticProps } from 'next';
-import { getLocaleProps, useI18n } from 'locales';
+import { getLocaleProps, useScopedI18n } from 'locales';
 
 const CLI = () => {
   const { data } = useVerificationCode();
-  const { scopedT } = useI18n();
-  const t = scopedT('cli');
+  const t = useScopedI18n('cli');
 
   const copyCode = async () => {
     await navigator.clipboard.writeText(data?.code || '');

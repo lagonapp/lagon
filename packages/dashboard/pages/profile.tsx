@@ -3,7 +3,7 @@ import { Button, Card, Dialog, Divider, Form, Input, Skeleton, Text } from '@lag
 import { requiredValidator } from 'lib/form/validators';
 import useTokens from 'lib/hooks/useTokens';
 import { trpc } from 'lib/trpc';
-import { getLocaleProps, useI18n } from 'locales';
+import { getLocaleProps, useScopedI18n } from 'locales';
 import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
 import { Suspense, useCallback } from 'react';
@@ -13,8 +13,7 @@ import toast from 'react-hot-toast';
 const Tokens = () => {
   const { data: tokens = [], refetch } = useTokens();
   const deleteToken = trpc.tokensDelete.useMutation();
-  const { scopedT } = useI18n();
-  const t = scopedT('profile');
+  const t = useScopedI18n('profile');
 
   const removeToken = useCallback(
     async (token: NonNullable<typeof tokens>[number]) => {
@@ -83,8 +82,7 @@ const Tokens = () => {
 const Profile = () => {
   const { data: session } = useSession();
   const updateAccount = trpc.accountUpdate.useMutation();
-  const { scopedT } = useI18n();
-  const t = scopedT('profile');
+  const t = useScopedI18n('profile');
 
   return (
     <LayoutTitle title={t('title')}>

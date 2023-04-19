@@ -22,7 +22,9 @@ export const ExplainSection = () => {
               </div>
             </div>
             <div className="from-purple/10 to-blue-1/10 pointer-events-none absolute h-80 w-80 translate-x-[-30%] translate-y-[-30%] transform rounded-full bg-gradient-to-br opacity-0 blur-3xl transition duration-300 group-hover:opacity-100" />
-            <Text size="h2">Deploy in seconds</Text>
+            <Text size="h2" className="text-white">
+              Deploy in seconds
+            </Text>
             <Text paragraph>
               Your Deployments are live all around the world in a few seconds. Deploy with the CLI, the Playground on
               the Dashboard, or automate with a GitHub Action.
@@ -33,7 +35,9 @@ export const ExplainSection = () => {
           <div className="bg-dark flex h-full flex-col justify-between rounded-3xl p-6 md:p-16">
             <RunButtonImage />
             <div className="flex flex-col gap-4">
-              <Text size="h2">2ms cold starts</Text>
+              <Text size="h2" className="text-white">
+                2ms cold starts
+              </Text>
               <Text>
                 Lagon&apos;s Runtime is written in Rust and uses V8, Chrome&apos;s JavaScript engine. Your Functions
                 start in single-digit milliseconds and stay warm for subsequent requests.

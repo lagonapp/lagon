@@ -15,7 +15,7 @@ import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH, Regions, REGIONS } 
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from '@tanstack/react-query';
-import { useI18n } from 'locales';
+import { useScopedI18n } from 'locales';
 
 type FunctionSettingsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -24,8 +24,7 @@ type FunctionSettingsProps = {
 
 const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
   const router = useRouter();
-  const { scopedT } = useI18n();
-  const t = scopedT('functions.settings');
+  const t = useScopedI18n('functions.settings');
   const updateFunction = trpc.functionUpdate.useMutation();
   const deleteFunction = trpc.functionDelete.useMutation();
 

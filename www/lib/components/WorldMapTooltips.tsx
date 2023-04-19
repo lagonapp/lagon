@@ -14,7 +14,7 @@ const CityPoint = ({ name, top, left, i }: CityPointProps) => {
 
   return (
     <motion.div
-      className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform"
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform"
       initial={{ opacity: 0, top: initialTop, left }}
       whileInView={{ opacity: 1, top, left }}
       transition={{ delay: i / 10, type: 'tween' }}

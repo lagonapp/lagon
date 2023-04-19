@@ -19,7 +19,7 @@ export const Header = () => {
   }, [pathname]);
 
   return (
-    <header className="bg-dark/50 container sticky top-0 z-50 mx-auto rounded-md py-4 px-8 backdrop-blur md:rounded-full">
+    <header className="bg-dark/50 container sticky top-0 z-50 mx-auto rounded-md px-8 py-4 backdrop-blur md:rounded-full">
       <div className="flex items-center justify-between">
         <Link href="/">
           <Image src="/logo-white.png" width="80" height="24" alt="Lagon Logo" />

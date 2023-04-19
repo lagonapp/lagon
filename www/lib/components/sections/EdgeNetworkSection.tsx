@@ -15,7 +15,7 @@ export const EdgeNetworkSection = () => {
         transition={{ delay: 0.2 }}
         viewport={{ once: true }}
       >
-        <Text size="h2">
+        <Text size="h2" className="text-white">
           A growing&nbsp;
           <span className="from-green to-purple bg-gradient-to-r via-[#5A7ACB] bg-clip-text text-transparent">
             Edge Network

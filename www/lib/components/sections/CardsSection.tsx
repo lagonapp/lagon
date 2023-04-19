@@ -27,7 +27,9 @@ const CustomCard = ({ icon, title, description, delay }: CustomCardProps) => (
   >
     <Card lineAnimation className="flex flex-col gap-4 rounded-2xl p-6 md:p-12">
       {icon}
-      <Text size="h3">{title}</Text>
+      <Text size="h3" className="text-white">
+        {title}
+      </Text>
       <Text className="justify-self-end">{description}</Text>
     </Card>
   </MotionDiv>
@@ -42,7 +44,9 @@ export const CardsSection = () => {
         transition={{ delay: 0.2 }}
         viewport={{ once: true }}
       >
-        <Text size="h2">Packed with features</Text>
+        <Text size="h2" className="text-white">
+          Packed with features
+        </Text>
       </MotionDiv>
       <div className="grid grid-cols-1 grid-rows-6 gap-4 sm:grid-cols-2 sm:grid-rows-3 md:gap-6 lg:grid-cols-3 lg:grid-rows-2">
         <CustomCard

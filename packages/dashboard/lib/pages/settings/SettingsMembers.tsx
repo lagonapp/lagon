@@ -1,14 +1,13 @@
 import { Card, Text, Input, Button, Form, Dialog, Divider, Skeleton } from '@lagon/ui';
 import useOrganizationMembers from 'lib/hooks/useOrganizationMembers';
 import { trpc } from 'lib/trpc';
-import { useI18n } from 'locales';
+import { useScopedI18n } from 'locales';
 import { useSession } from 'next-auth/react';
 import { Suspense } from 'react';
 import toast from 'react-hot-toast';
 
 const Members = () => {
-  const { scopedT } = useI18n();
-  const t = scopedT('settings.members');
+  const t = useScopedI18n('settings.members');
   const { data: session } = useSession();
   const { data: organizationMembers, refetch } = useOrganizationMembers();
 
@@ -88,8 +87,7 @@ const Members = () => {
 };
 
 const SettingsMember = () => {
-  const { scopedT } = useI18n();
-  const t = scopedT('settings');
+  const t = useScopedI18n('settings');
   const { data: session } = useSession();
   const { data: organizationMembers } = useOrganizationMembers();
 

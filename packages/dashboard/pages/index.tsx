@@ -4,7 +4,7 @@ import LayoutTitle from 'lib/components/LayoutTitle';
 import { Button, Skeleton } from '@lagon/ui';
 import { trpc } from 'lib/trpc';
 import { useRouter } from 'next/router';
-import { getLocaleProps, useI18n } from 'locales';
+import { getLocaleProps, useScopedI18n } from 'locales';
 import { GetStaticProps } from 'next';
 import { DEFAULT_FUNCTION } from 'lib/constants';
 
@@ -14,8 +14,7 @@ const Home = () => {
   const deployDeployment = trpc.deploymentDeploy.useMutation();
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const { scopedT } = useI18n();
-  const t = scopedT('home');
+  const t = useScopedI18n('home');
 
   return (
     <LayoutTitle

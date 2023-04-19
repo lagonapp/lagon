@@ -9,14 +9,13 @@ import { PlayIcon } from '@heroicons/react/24/outline';
 import Head from 'next/head';
 import LayoutTitle from 'lib/components/LayoutTitle';
 import FunctionLinks from 'lib/components/FunctionLinks';
-import { useI18n } from 'locales';
+import { useScopedI18n } from 'locales';
 
 const Function = () => {
   const {
     query: { functionId },
   } = useRouter();
-  const { scopedT } = useI18n();
-  const t = scopedT('function.nav');
+  const t = useScopedI18n('function.nav');
 
   const { data: func, refetch } = useFunction(functionId as string);
 

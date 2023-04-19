@@ -16,6 +16,11 @@ body {
   color: #fff;
 }
 
+.bg-clip-text {
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
 .bg-radial-gradient-white {
   background-image: radial-gradient(circle at center, #FFFFFF, rgba(255, 255, 255, 0.75))
 }

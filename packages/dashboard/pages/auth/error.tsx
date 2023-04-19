@@ -1,14 +1,13 @@
 import { Text, Card, Button } from '@lagon/ui';
 import { GitHubIcon } from 'lib/components/GitHubIcon';
 import { GoogleIcon } from 'lib/components/GoogleIcon';
-import { useI18n } from 'locales';
+import { useScopedI18n } from 'locales';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 const Error = () => {
-  const { scopedT } = useI18n();
-  const t = scopedT('signin');
+  const t = useScopedI18n('signin');
   const { query, push } = useRouter();
   const error = (query.error as string) ?? 'Unknown error';
   const { status } = useSession();

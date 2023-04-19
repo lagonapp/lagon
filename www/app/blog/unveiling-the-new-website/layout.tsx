@@ -19,7 +19,9 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="z-10 mx-auto flex max-w-2xl flex-col">
       <div className="mb-16 flex flex-col gap-8">
-        <Text size="h2">{meta.title}</Text>
+        <Text size="h2" className="text-white">
+          {meta.title}
+        </Text>
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-2">
             <Image

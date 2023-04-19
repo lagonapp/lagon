@@ -80,7 +80,9 @@ export const Plans = () => {
         animate={{ opacity: 1, top: 0 }}
         transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
       >
-        <Text size="h2">Pricing</Text>
+        <Text size="h2" className="text-white">
+          Pricing
+        </Text>
         <Text>Simple pricing that grows with you.</Text>
       </motion.div>
       <motion.div
@@ -101,7 +103,9 @@ export const Plans = () => {
               >
                 {plan.name}
               </Text>
-              <Text size="h3">{plan.price}</Text>
+              <Text size="h3" className="text-white">
+                {plan.price}
+              </Text>
               <div className="my-6 flex flex-col gap-4">
                 {plan.features.map(feature => (
                   <Text key={feature} className="flex items-center gap-2">

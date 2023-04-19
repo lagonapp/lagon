@@ -14,7 +14,7 @@ const style = cva('', {
       span: '',
     },
     variant: {
-      default: 'text-white',
+      default: '',
       bold: '!text-white font-semibold',
       radialGradientWhite: 'text-transparent bg-clip-text bg-radial-gradient-white',
       linearGradiantGray: '!text-transparent bg-clip-text bg-gradient-to-br from-white via-white to-gray-700',

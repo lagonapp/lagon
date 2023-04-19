@@ -43,9 +43,9 @@
     "clickhouse": "^2.6.0",
     "final-form": "^4.20.7",
     "monaco-editor": "^0.37.0",
-    "next": "13.2.4",
+    "next": "13.3.0",
     "next-auth": "^4.20.1",
-    "next-international": "^0.3.0",
+    "next-international": "^0.4.1",
     "node-fetch": "^3.2.10",
     "nodemailer": "^6.9.0",
     "raw-body": "^2.5.1",
@@ -62,11 +62,11 @@
     "@types/react": "^18.0.9",
     "autoprefixer": "^10.4.7",
     "eslint": "^8.16.0",
-    "eslint-config-next": "13.2.4",
+    "eslint-config-next": "13.3.0",
     "eslint-plugin-storybook": "^0.6.0",
-    "postcss": "^8.4.14",
+    "postcss": "^8.4.22",
     "prisma": "^4.11.0",
-    "tailwindcss": "^3.0.24",
+    "tailwindcss": "^3.3.1",
     "typescript": "^5.0.2"
   }
 }
