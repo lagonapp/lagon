@@ -1,5 +1,11 @@
 # @lagon/www
 
+## 1.1.1
+
+### Patch Changes
+
+- [#747](https://github.com/lagonapp/lagon/pull/747) [`1490db7`](https://github.com/lagonapp/lagon/commit/1490db74df0a1a8b94c0df67a3d6174b5d26af21) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Switch to client-side fetching for the status badge
+
 ## 1.1.0
 
 ### Minor Changes

@@ -1,5 +1,15 @@
 # @lagon/dashboard
 
+## 0.3.3
+
+### Patch Changes
+
+- [#760](https://github.com/lagonapp/lagon/pull/760) [`e2dc434`](https://github.com/lagonapp/lagon/commit/e2dc43451a134797c9f2ac4e0620a5915a88357e) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Google OAuth
+
+* [#761](https://github.com/lagonapp/lagon/pull/761) [`269d318`](https://github.com/lagonapp/lagon/commit/269d318dc09a626d2a02fae80112caa6a0092311) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Organization members bugs
+
+- [#754](https://github.com/lagonapp/lagon/pull/754) [`9cd29c6`](https://github.com/lagonapp/lagon/commit/9cd29c605ac58f94c6170d13c1f8cb4ca1c0cd0f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Store logs for 7 days
+
 ## 0.3.2
 
 ### Patch Changes
