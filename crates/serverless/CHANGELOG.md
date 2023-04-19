@@ -1,5 +1,13 @@
 # @lagon/serverless
 
+## 0.1.27
+
+### Patch Changes
+
+- [#756](https://github.com/lagonapp/lagon/pull/756) [`4c50bf5`](https://github.com/lagonapp/lagon/commit/4c50bf5e4a73093381411dc8efde2adef2210bf2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Download deployments in parallel
+
+* [#754](https://github.com/lagonapp/lagon/pull/754) [`9cd29c6`](https://github.com/lagonapp/lagon/commit/9cd29c605ac58f94c6170d13c1f8cb4ca1c0cd0f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Store logs for 7 days
+
 ## 0.1.26
 
 ### Patch Changes
