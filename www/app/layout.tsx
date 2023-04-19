@@ -1,7 +1,7 @@
 import { Analytics } from '@vercel/analytics/react';
 import { ReactNode } from 'react';
 import { DESCRIPTION, SHORT_DESCRIPTION } from '../lib/constants';
-import { theme } from '../tailwind.config';
+import tailwind from '../tailwind.config';
 import { Inter } from 'next/font/google';
 import { Header } from '../lib/components/Header';
 import { Footer } from '../lib/components/Footer';
@@ -14,7 +14,7 @@ const inter = Inter({
 
 export const metadata = {
   description: `${SHORT_DESCRIPTION}. ${DESCRIPTION}`,
-  themeColor: theme.colors.dark,
+  themeColor: tailwind.theme.extend.colors.dark,
   openGraph: {
     url: 'https://lagon.app',
     type: 'website',
@@ -45,7 +45,7 @@ export default function RootLayout({ children }: LayoutProps) {
       <body>
         <div className={`bg-dark pt-8 ${inter.className}`}>
           <div
-            className="pointer-events-none absolute top-0 left-0 h-64 w-full"
+            className="pointer-events-none absolute left-0 top-0 h-64 w-full"
             style={{
               background:
                 'linear-gradient(to bottom, transparent, #050211), repeating-linear-gradient(-45deg, #041F47, #041F47 1px, transparent 1px, transparent 20px)',

@@ -95,7 +95,7 @@ export default function Pricing() {
               <td>Custom</td>
             </tr>
             <tr>
-              <td className="pt-8 pb-2 text-base font-semibold text-white">Platform</td>
+              <td className="pb-2 pt-8 text-base font-semibold text-white">Platform</td>
               <td></td>
               <td></td>
               <td></td>

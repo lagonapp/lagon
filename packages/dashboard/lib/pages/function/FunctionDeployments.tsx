@@ -6,7 +6,7 @@ import { ArrowPathIcon } from '@heroicons/react/24/outline';
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from '@tanstack/react-query';
-import { useI18n } from 'locales';
+import { useScopedI18n } from 'locales';
 
 type FunctionDeploymentsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -14,8 +14,7 @@ type FunctionDeploymentsProps = {
 };
 
 const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
-  const { scopedT } = useI18n();
-  const t = scopedT('functions.deployments');
+  const t = useScopedI18n('functions.deployments');
   const undeployDeployment = trpc.deploymentUndeploy.useMutation();
   const promoteDeployment = trpc.deploymentPromote.useMutation();
 
@@ -62,7 +61,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
         <Card key={deployment.id}>
           <div className="relative flex flex-col items-start justify-between gap-4 md:flex-row md:items-center md:gap-0">
             {deployment.isProduction ? (
-              <span className="absolute -top-5 -left-5 rounded bg-blue-500 px-1 text-xs text-white">
+              <span className="absolute -left-5 -top-5 rounded bg-blue-500 px-1 text-xs text-white">
                 {t('list.production')}
               </span>
             ) : null}

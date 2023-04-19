@@ -5,7 +5,7 @@ import { Button, Card, Chart, Description, Divider, Menu, Skeleton, Text } from 
 import useFunctionStats from 'lib/hooks/useFunctionStats';
 import { AnalyticsTimeframe, ANALYTICS_TIMEFRAMES } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
-import { useI18n } from 'locales';
+import { useScopedI18n } from 'locales';
 import { getPlanFromPriceId } from 'lib/plans';
 import { useSession } from 'next-auth/react';
 
@@ -44,8 +44,7 @@ type UsageProps = {
 };
 
 const Usage = ({ func, timeframe }: UsageProps) => {
-  const { scopedT } = useI18n();
-  const t = scopedT('functions.overview');
+  const t = useScopedI18n('functions.overview');
   const { data: session } = useSession();
   const plan = getPlanFromPriceId({
     priceId: session?.organization?.stripePriceId,
@@ -91,8 +90,7 @@ type ChartsProps = {
 };
 
 const Charts = ({ func, timeframe }: ChartsProps) => {
-  const { scopedT } = useI18n();
-  const t = scopedT('functions.overview');
+  const t = useScopedI18n('functions.overview');
   const { data = [] } = useFunctionStats({ functionId: func?.id, timeframe });
 
   const result = useMemo(() => {
@@ -201,8 +199,7 @@ type FunctionOverviewProps = {
 
 const FunctionOverview = ({ func }: FunctionOverviewProps) => {
   const router = useRouter();
-  const { scopedT } = useI18n();
-  const t = scopedT('functions.overview');
+  const t = useScopedI18n('functions.overview');
   const [timeframe, setTimeframe] = useState<AnalyticsTimeframe>(
     () => (router.query.timeframe as AnalyticsTimeframe) || 'Last 24 hours',
   );

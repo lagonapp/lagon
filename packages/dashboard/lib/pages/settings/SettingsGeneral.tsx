@@ -10,7 +10,7 @@ import {
 } from 'lib/constants';
 import { trpc } from 'lib/trpc';
 import { reloadSession } from 'lib/utils';
-import { useI18n } from 'locales';
+import { useScopedI18n } from 'locales';
 import { useQueryClient } from '@tanstack/react-query';
 import useOrganizationMembers from 'lib/hooks/useOrganizationMembers';
 
@@ -20,8 +20,7 @@ const SettingsGeneral = () => {
   const updateOrganization = trpc.organizationUpdate.useMutation();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { scopedT } = useI18n();
-  const t = scopedT('settings');
+  const t = useScopedI18n('settings');
   const { data: organizationMembers } = useOrganizationMembers();
 
   const isOrganizationOwner = session?.user.id === organizationMembers?.owner.id;

@@ -5,7 +5,7 @@ import { Button, Card, Divider, EmptyState, LOGS_LEVELS, LogLine, LogsLevel, Men
 import useFunctionLogs from 'lib/hooks/useFunctionLogs';
 import { LOGS_TIMEFRAMES, LogsTimeframe } from 'lib/types';
 import useFunction from 'lib/hooks/useFunction';
-import { useI18n } from 'locales';
+import { useScopedI18n } from 'locales';
 
 type ContentProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -14,8 +14,7 @@ type ContentProps = {
 };
 
 const Content = ({ func, level, timeframe }: ContentProps) => {
-  const { scopedT } = useI18n();
-  const t = scopedT('functions.logs');
+  const t = useScopedI18n('functions.logs');
   const { data: logs } = useFunctionLogs({ functionId: func?.id, level, timeframe });
 
   if (logs?.length === 0) {
@@ -54,8 +53,7 @@ type FunctionLogsProps = {
 
 const FunctionLogs = ({ func }: FunctionLogsProps) => {
   const router = useRouter();
-  const { scopedT } = useI18n();
-  const t = scopedT('functions.logs');
+  const t = useScopedI18n('functions.logs');
   const [logsLevel, setLogsLevel] = useState<LogsLevel>(() => (router.query.logLevel as LogsLevel) || 'all');
   const [timeframe, setTimeframe] = useState<LogsTimeframe>(
     () => (router.query.logsTimeframe as LogsTimeframe) || 'Last hour',

@@ -8,7 +8,7 @@ import {
 import { composeValidators, maxLengthValidator, minLengthValidator, requiredValidator } from 'lib/form/validators';
 import { trpc } from 'lib/trpc';
 import { reloadSession } from 'lib/utils';
-import { getLocaleProps, useI18n } from 'locales';
+import { getLocaleProps, useScopedI18n } from 'locales';
 import { GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
@@ -17,8 +17,7 @@ const New = () => {
   const router = useRouter();
   const createOrganization = trpc.organizationCreate.useMutation();
   const queryClient = useQueryClient();
-  const { scopedT } = useI18n();
-  const t = scopedT('new');
+  const t = useScopedI18n('new');
 
   return (
     <Form

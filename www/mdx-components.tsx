@@ -17,7 +17,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       </div>
     ),
     // @ts-expect-error missing children
-    h2: props => <Text size="h3" className="mt-8 mb-6" {...props} />,
+    h2: props => <Text size="h3" className="mb-6 mt-8 text-white" {...props} />,
     // @ts-expect-error missing children
     p: props => <Text className="mb-4 leading-7" {...props} />,
     // @ts-expect-error missing children

@@ -19,7 +19,7 @@ import useOrganizations from './hooks/useOrganizations';
 import { trpc } from './trpc';
 import { reloadSession } from './utils';
 import useTheme from './hooks/useTheme';
-import { useChangeLocale, useI18n } from 'locales';
+import { useChangeLocale, useScopedI18n } from 'locales';
 import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
 
@@ -98,8 +98,7 @@ const Layout = ({ title, anonymous, children }: LayoutProps) => {
   const { asPath, locale } = useRouter();
   const { theme, savedTheme, updateTheme } = useTheme();
   const changeLocale = useChangeLocale();
-  const { scopedT } = useI18n();
-  const t = scopedT('layout');
+  const t = useScopedI18n('layout');
 
   return (
     <>

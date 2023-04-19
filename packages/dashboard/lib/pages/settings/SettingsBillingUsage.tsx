@@ -2,7 +2,7 @@ import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
 import { Button, Card, Description, Skeleton, Text } from '@lagon/ui';
 import { trpc } from 'lib/trpc';
-import { useI18n } from 'locales';
+import { useScopedI18n } from 'locales';
 import { getPlanFromPriceId } from 'lib/plans';
 import { Suspense, useState } from 'react';
 import useFunctions from 'lib/hooks/useFunctions';
@@ -23,8 +23,7 @@ const Requests = () => {
   const usage = useFunctionsUsage({
     functions: functions.data?.map(func => func.id) ?? [],
   });
-  const { scopedT } = useI18n();
-  const t = scopedT('settings');
+  const t = useScopedI18n('settings');
 
   return (
     <Description title={t('usage.requests')} total={formatNumber(plan.freeRequests)}>
@@ -40,8 +39,7 @@ const Functions = () => {
     currentPeriodEnd: session?.organization?.stripeCurrentPeriodEnd,
   });
   const functions = useFunctions();
-  const { scopedT } = useI18n();
-  const t = scopedT('settings');
+  const t = useScopedI18n('settings');
 
   return (
     <Description title={t('usage.functions')} total={plan.maxFunctions}>
@@ -55,8 +53,7 @@ const SettingsBillingUsage = () => {
   const organizationPlan = trpc.organizationPlan.useMutation();
   const organizationCheckout = trpc.organizationCheckout.useMutation();
   const [isLoadingPlan, setIsLoadingPlan] = useState(false);
-  const { scopedT } = useI18n();
-  const t = scopedT('settings');
+  const t = useScopedI18n('settings');
   const { data: organizationMembers } = useOrganizationMembers();
 
   const isOrganizationOwner = session?.user.id === organizationMembers?.owner.id;

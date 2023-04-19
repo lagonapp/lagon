@@ -13,12 +13,14 @@ export default async function Blog() {
 
   return (
     <section className="z-10 mx-auto flex w-full max-w-2xl flex-col gap-16">
-      <Text size="h2" className="text-center">
+      <Text size="h2" className="text-center text-white">
         Blog
       </Text>
       {articles.map(({ slug, meta }) => (
         <Link key={slug} href={`/blog/${slug}`} className="flex flex-col gap-2">
-          <Text size="h3">{meta.title}</Text>
+          <Text size="h3" className="text-white">
+            {meta.title}
+          </Text>
           <Text size="p">{meta.description}</Text>
           <div className="mt-2 flex flex-col justify-between gap-1 md:flex-row">
             <Text className="text-sm">

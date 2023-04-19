@@ -9,7 +9,7 @@ import { getFullCurrentDomain } from 'lib/utils';
 import { Text, Button, Form } from '@lagon/ui';
 import { PlayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import useFunctionCode from 'lib/hooks/useFunctionCode';
-import { useI18n } from 'locales';
+import { useScopedI18n } from 'locales';
 import { trpc } from 'lib/trpc';
 
 const PlaygroundPage = () => {
@@ -22,8 +22,7 @@ const PlaygroundPage = () => {
   const deployDeployment = trpc.deploymentDeploy.useMutation();
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const monaco = useMonaco();
-  const { scopedT } = useI18n();
-  const t = scopedT('playground');
+  const t = useScopedI18n('playground');
   const [isLoading, setIsLoading] = useState(false);
 
   const reloadIframe = useCallback(() => {

@@ -3,14 +3,13 @@ import { useCallback, useState } from 'react';
 import FunctionLinks from 'lib/components/FunctionLinks';
 import useFunctions from 'lib/hooks/useFunctions';
 import { Card, Dot, Text, Button, EmptyState } from '@lagon/ui';
-import { useI18n } from 'locales';
+import { useScopedI18n } from 'locales';
 import useFunction from 'lib/hooks/useFunction';
 
 const FunctionsList = () => {
   const { data: functions } = useFunctions();
   const { push } = useRouter();
-  const { scopedT } = useI18n();
-  const t = scopedT('home');
+  const t = useScopedI18n('home');
 
   // Used to preload the function data
   const [hoveredFunctions, setHoveredFunctions] = useState<string[]>([]);

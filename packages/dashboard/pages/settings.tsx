@@ -1,14 +1,13 @@
 import { Nav } from '@lagon/ui';
 import LayoutTitle from 'lib/components/LayoutTitle';
-import { getLocaleProps, useI18n } from 'locales';
+import { getLocaleProps, useScopedI18n } from 'locales';
 import { GetStaticProps } from 'next';
 import SettingsGeneral from 'lib/pages/settings/SettingsGeneral';
 import SettingsMembers from 'lib/pages/settings/SettingsMembers';
 import SettingsBillingUsage from 'lib/pages/settings/SettingsBillingUsage';
 
 const Settings = () => {
-  const { scopedT } = useI18n();
-  const t = scopedT('settings');
+  const t = useScopedI18n('settings');
 
   return (
     <LayoutTitle title={t('title')}>
