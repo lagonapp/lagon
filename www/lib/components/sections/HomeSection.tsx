@@ -11,13 +11,13 @@ export const HomeSection = () => {
     <section className="relative flex flex-col items-center justify-center gap-8">
       <div className="flex flex-col items-center gap-4 text-center">
         <MotionA
-          href="/blog/unveiling-the-new-website"
+          href="/blog/announcing-lagon-alpha"
           className="text-grey bg-dark-gray hover:bg-blue-3 z-10 inline-flex gap-2 rounded-full px-4 py-2 text-base transition hover:text-white"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.6 }}
         >
-          Unveiling the new website <ArrowRightIcon />
+          Announcing Lagon Alpha <ArrowRightIcon />
         </MotionA>
         <MotionDiv
           className="relative max-w-2xl"
