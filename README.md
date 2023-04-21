@@ -21,12 +21,12 @@
 
 Lagon is an open-source runtime and platform that allows developers to run TypeScript and JavaScript Serverless Functions close to users.
 
-> **Warning**: Lagon is still in development. Do not use for production usages.
+> **Note**: Lagon is in Alpha. Get access to Lagon Cloud via the [waitlist](https://tally.so/r/n9q1Rp)
 
 Current status:
 
-- **Dev**: In heavy development, features are being added and APIs have breaking changes
-- ~Alpha~: Missing features and bugs to fix, progressive access to Lagon Cloud ([waitlist](https://tally.so/r/n9q1Rp))
+- Dev: In heavy development, features are being added and APIs have breaking changes
+- **Alpha**: Missing features and bugs to fix, progressive access to Lagon Cloud ([waitlist](https://tally.so/r/n9q1Rp))
 - ~Beta~: Stable APIs, last features are being added, Lagon Cloud available without a waitlist
 - ~General Availability~: Cloud and self-hosted versions available for production usage
 

@@ -25,5 +25,6 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ul: props => <ul className="mb-4 pl-6" {...props} />,
     // @ts-expect-error missing children
     li: props => <Text size="li" {...props} />,
+    blockquote: props => <blockquote className="mb-4 border-l border-l-white pl-4 !text-sm" {...props} />,
   };
 }
