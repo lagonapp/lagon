@@ -10,4 +10,4 @@ lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-isolate = { path = "../runtime_isolate" }
 flume = "0.10.14"
 colored = "2.0.0"
-lazy_static = "1.4.0"
+once_cell = "1.17.1"

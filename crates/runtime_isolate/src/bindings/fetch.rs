@@ -7,16 +7,14 @@ use hyper::{
 };
 use hyper_tls::HttpsConnector;
 use lagon_runtime_http::{FromV8, Request, Response};
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 
 use crate::{bindings::PromiseResult, Isolate};
 
 use super::BindingResult;
 
-lazy_static! {
-    static ref CLIENT: Client<HttpsConnector<HttpConnector>> =
-        Client::builder().build::<_, Body>(HttpsConnector::new());
-}
+static CLIENT: Lazy<Client<HttpsConnector<HttpConnector>>> =
+    Lazy::new(|| Client::builder().build::<_, Body>(HttpsConnector::new()));
 
 type Arg = Request;
 
