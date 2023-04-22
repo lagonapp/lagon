@@ -1,4 +1,4 @@
-use anyhow::{Error, Result};
+use anyhow::{anyhow, Error, Result};
 use chrono::offset::Local;
 use colored::Colorize;
 use envfile::EnvFile;
@@ -21,7 +21,9 @@ use std::time::Duration;
 use tokio::runtime::Handle;
 use tokio::sync::Mutex;
 
-use crate::utils::{bundle_function, error, info, input, resolve_path, success, warn, Assets};
+use crate::utils::{
+    bundle_function, debug, error, info, input, resolve_path, success, warn, Assets,
+};
 
 const LOCAL_REGION: &str = "local";
 
@@ -37,6 +39,12 @@ fn parse_environment_variables(
         for (key, value) in envfile.store {
             environment_variables.insert(key, value);
         }
+    } else if let Ok(envfile) = EnvFile::new(root.join(".env")) {
+        for (key, value) in envfile.store {
+            environment_variables.insert(key, value);
+        }
+
+        println!("{}", debug("Automatically loaded .env file..."));
     }
 
     Ok(environment_variables)
@@ -172,7 +180,11 @@ pub async fn dev(
         .assets
         .as_ref()
         .map(|assets| root.join(assets));
-    let environment_variables = parse_environment_variables(&root, env)?;
+
+    let environment_variables = match parse_environment_variables(&root, env) {
+        Ok(env) => env,
+        Err(err) => return Err(anyhow!("Could not load environment variables: {:?}", err)),
+    };
 
     let (tx, rx) = flume::unbounded();
     let (index_tx, index_rx) = flume::unbounded();
