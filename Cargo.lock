@@ -1696,9 +1696,9 @@ dependencies = [
  "lagon-runtime-crypto",
  "lagon-runtime-http",
  "lagon-runtime-v8-utils",
- "lazy_static",
  "linked-hash-map",
  "log",
+ "once_cell",
  "tokio",
  "v8",
 ]
@@ -1741,11 +1741,11 @@ dependencies = [
  "lagon-serverless-downloader",
  "lagon-serverless-logger",
  "lagon-serverless-pubsub",
- "lazy_static",
  "log",
  "metrics",
  "metrics-exporter-prometheus",
  "mysql",
+ "once_cell",
  "reqwest",
  "serde",
  "serde_json",
@@ -1798,7 +1798,7 @@ dependencies = [
  "lagon-runtime",
  "lagon-runtime-http",
  "lagon-runtime-isolate",
- "lazy_static",
+ "once_cell",
  "tokio",
 ]
 

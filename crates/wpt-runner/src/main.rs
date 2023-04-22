@@ -2,7 +2,7 @@ use colored::*;
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateEvent, IsolateRequest};
-use lazy_static::lazy_static;
+use once_cell::sync::Lazy;
 use std::{
     env, fs,
     path::{Path, PathBuf},
@@ -39,13 +39,13 @@ const SUPPORT_BLOB: &str = include_str!("../../../tools/wpt/FileAPI/support/Blob
 const SUPPORT_FORMDATA: &str =
     include_str!("../../../tools/wpt/FileAPI/support/send-file-formdata-helper.js");
 
-lazy_static! {
-    static ref RESULT: Mutex<(usize, usize, usize)> = Mutex::new((0, 0, 0));
-    static ref TEST_HARNESS: String = include_str!("../../../tools/wpt/resources/testharness.js")
+static RESULT: Lazy<Mutex<(usize, usize, usize)>> = Lazy::new(|| Mutex::new((0, 0, 0)));
+static TEST_HARNESS: Lazy<String> = Lazy::new(|| {
+    include_str!("../../../tools/wpt/resources/testharness.js")
         .to_owned()
         .replace("})(self);", "})(globalThis);")
-        .replace("debug: false", "debug: true");
-}
+        .replace("debug: false", "debug: true")
+});
 
 const SKIP_TESTS: [&str; 16] = [
     // request
