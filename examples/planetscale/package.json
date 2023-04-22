@@ -1,0 +1,11 @@
+{
+  "name": "@lagon/example-planetscale",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "lagon-dev": "lagon dev index.ts"
+  },
+  "dependencies": {
+    "@planetscale/database": "^1.7.0"
+  }
+}

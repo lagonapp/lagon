@@ -113,6 +113,12 @@ importers:
         specifier: ^3.2.2
         version: 3.2.2(eslint@8.38.0)(typescript@5.0.2)
 
+  examples/planetscale:
+    dependencies:
+      '@planetscale/database':
+        specifier: ^1.7.0
+        version: 1.7.0
+
   examples/preact:
     dependencies:
       preact:
@@ -6569,11 +6575,9 @@ packages:
       tslib: 2.4.0
     dev: true
 
-  /@planetscale/database@1.5.0:
-    resolution: {integrity: sha512-Qwh7Or1W5dB5mZ9EQqDkgvkDKhBBmQe58KIVUy0SGocNtr5fP4JAWtvZ6EdLAV6C6hVpzNlCA2xIg9lKTswm1Q==}
+  /@planetscale/database@1.7.0:
+    resolution: {integrity: sha512-lWR6biXChUyQnxsT4RT1CIeR3ZJvwTQXiQ+158MnY3VjLwjHEGakDzdH9kwUGPk6CHvu6UeqRXp1DgUOVHJFTw==}
     engines: {node: '>=16'}
-    requiresBuild: true
-    optional: true
 
   /@pmmmwh/react-refresh-webpack-plugin@0.5.10(react-refresh@0.11.0)(webpack@5.73.0):
     resolution: {integrity: sha512-j0Ya0hCFZPd4x40qLzbhGsh9TMtdb+CJQiso+WxLOPNasohq9cc5SNUcwsZaRH6++Xh91Xkm/xHCkuIiIu0LUA==}
@@ -22183,7 +22187,7 @@ packages:
       ufo: 1.1.0
       ws: 8.12.1
     optionalDependencies:
-      '@planetscale/database': 1.5.0
+      '@planetscale/database': 1.7.0
     transitivePeerDependencies:
       - bufferutil
       - supports-color
