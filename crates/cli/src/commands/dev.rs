@@ -1,4 +1,4 @@
-use anyhow::{Error, Result};
+use anyhow::{anyhow, Error, Result};
 use chrono::offset::Local;
 use colored::Colorize;
 use envfile::EnvFile;
@@ -180,7 +180,11 @@ pub async fn dev(
         .assets
         .as_ref()
         .map(|assets| root.join(assets));
-    let environment_variables = parse_environment_variables(&root, env)?;
+
+    let environment_variables = match parse_environment_variables(&root, env) {
+        Ok(env) => env,
+        Err(err) => return Err(anyhow!("Could not load environment variables: {:?}", err)),
+    };
 
     let (tx, rx) = flume::unbounded();
     let (index_tx, index_rx) = flume::unbounded();
