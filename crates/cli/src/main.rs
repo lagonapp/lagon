@@ -69,7 +69,7 @@ enum Commands {
         /// Hostname to start dev server on
         #[clap(long)]
         hostname: Option<String>,
-        /// Path to a env file to parse
+        /// Path to a custom environment variables file to use
         #[clap(short, long, value_parser)]
         env: Option<PathBuf>,
         /// Allow code generation from strings using `eval` / `new Function`
