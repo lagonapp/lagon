@@ -28,23 +28,27 @@ This example uses [Hono](https://honojs.dev), a small, simple, and ultrafast web
 
 This example uses [Nitro](https://nitro.unjs.io/), a library to build and deploy universal JavaScript servers, via Lagon's preset. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/nitro)
 
-### Preact client-side rendering
+### PlanetScale Serverless Driver
+
+This example uses [PlanetScale](https://planetscale.com) with the Serverless Driver (`@planetscale/database`) to make SQL queries on the edge. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/planetscale)
+
+### Preact CSR
 
 This example uses [Preact](https://preactjs.com) to client-side render an app. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/preact)
 
-### Preact server-side rendering and hydration
+### Preact SRR
 
 This example uses [Preact](https://preactjs.com) to server-side render an app and hydrate on the client. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/preact-ssr)
 
-### React client-side rendering
+### React CSR
 
 This example uses [React](https://reactjs.org) to client-side render an app. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/react)
 
-### React server-side rendering and hydration
+### React SSR
 
 This example uses [React](https://reactjs.org) to server-side render an app and hydrate on the client. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/react-ssr)
 
-### React server-side rendering with streaming and hydration
+### React SSR with streaming
 
 This example uses [React](https://reactjs.org) to server-side render an app, stream the HTML, and hydrate on the client. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/react-streaming)
 
