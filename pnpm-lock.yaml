@@ -342,7 +342,7 @@ importers:
         version: 4.5.0(monaco-editor@0.37.0)(react-dom@18.2.0)(react@18.2.0)
       '@next-auth/prisma-adapter':
         specifier: ^1.0.6
-        version: 1.0.6(@prisma/client@4.13.0)(next-auth@4.20.1)
+        version: 1.0.6(@prisma/client@4.13.0)(next-auth@4.22.1)
       '@prisma/client':
         specifier: ^4.13.0
         version: 4.13.0(prisma@4.13.0)
@@ -416,8 +416,8 @@ importers:
         specifier: 13.3.0
         version: 13.3.0(@babel/core@7.21.0)(react-dom@18.2.0)(react@18.2.0)
       next-auth:
-        specifier: ^4.20.1
-        version: 4.20.1(next@13.3.0)(nodemailer@6.9.0)(react-dom@18.2.0)(react@18.2.0)
+        specifier: ^4.22.1
+        version: 4.22.1(next@13.3.0)(nodemailer@6.9.0)(react-dom@18.2.0)(react@18.2.0)
       next-international:
         specifier: ^0.4.1
         version: 0.4.1(next@13.3.0)(react@18.2.0)
@@ -6266,14 +6266,14 @@ packages:
     dependencies:
       is-promise: 4.0.0
 
-  /@next-auth/prisma-adapter@1.0.6(@prisma/client@4.13.0)(next-auth@4.20.1):
+  /@next-auth/prisma-adapter@1.0.6(@prisma/client@4.13.0)(next-auth@4.22.1):
     resolution: {integrity: sha512-Z7agwfSZEeEcqKqrnisBun7VndRPshd6vyDsoRU68MXbkui8storkHgvN2hnNDrqr/hSCF9aRn56a1qpihaB4A==}
     peerDependencies:
       '@prisma/client': '>=2.26.0 || >=3'
       next-auth: ^4
     dependencies:
       '@prisma/client': 4.13.0(prisma@4.13.0)
-      next-auth: 4.20.1(next@13.3.0)(nodemailer@6.9.0)(react-dom@18.2.0)(react@18.2.0)
+      next-auth: 4.22.1(next@13.3.0)(nodemailer@6.9.0)(react-dom@18.2.0)(react@18.2.0)
     dev: false
 
   /@next/env@13.3.0:
@@ -17285,8 +17285,8 @@ packages:
     engines: {node: '>= 0.4.0'}
     dev: true
 
-  /next-auth@4.20.1(next@13.3.0)(nodemailer@6.9.0)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-ZcTUN4qzzZ/zJYgOW0hMXccpheWtAol8QOMdMts+LYRcsPGsqf2hEityyaKyECQVw1cWInb9dF3wYwI5GZdEmQ==}
+  /next-auth@4.22.1(next@13.3.0)(nodemailer@6.9.0)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-NTR3f6W7/AWXKw8GSsgSyQcDW6jkslZLH8AiZa5PQ09w1kR8uHtR9rez/E9gAq/o17+p0JYHE8QjF3RoniiObA==}
     peerDependencies:
       next: ^12.2.5 || ^13
       nodemailer: ^6.6.5
