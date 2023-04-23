@@ -148,10 +148,7 @@ This command accepts the following arguments and options:
 - `--env <FILE>` allows you to specify a custom path to an environment file to inject [environment variables](/cloud/environment-variables). (Default: `.env`)
 - `--allow-code-generation` allows you to enable code generation from strings (`eval` / `new Function`)
 
-<Callout type="warning">
-  Although the `dev` command uses the same Runtime as when deployed, the local HTTP server itself doesn't have the same
-  optimizations. As such, you shouldn't run a production environment on it, or run any kind of load tests/benchmarks.
-</Callout>
+Unlike other commands, `lagon dev` sets `process.env.NODE_ENV` to `"development"` instead of `"production"`.
 
 Examples:
 
@@ -163,6 +160,11 @@ lagon dev ./server.tsx --public ./assets
 # Run a local dev server inside the my-project directory using a custom port
 lagon dev ./my-project --port 56565
 ```
+
+<Callout type="warning">
+  Although the `dev` command uses the same Runtime as when deployed, the local HTTP server itself doesn't have the same
+  optimizations. As such, you shouldn't run any production environment on it, or run any kind of load tests/benchmarks.
+</Callout>
 
 ### `lagon build`
 

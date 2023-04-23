@@ -215,10 +215,15 @@ pub fn get_function_config_path(root: &Path) -> PathBuf {
     root.join(".lagon").join("config.json")
 }
 
-fn esbuild(file: &Path, root: &Path) -> Result<Vec<u8>> {
+fn esbuild(file: &Path, root: &Path, prod: bool) -> Result<Vec<u8>> {
+    let node_env = match prod {
+        true => "production",
+        false => "development",
+    };
+
     let result = Command::new(ESBUILD)
         .arg(root.join(file))
-        .arg("--define:process.env.NODE_ENV=\"production\"")
+        .arg(format!("--define:process.env.NODE_ENV=\"{}\"", node_env))
         .arg("--bundle")
         .arg("--format=esm")
         .arg("--target=esnext")
@@ -248,7 +253,11 @@ fn esbuild(file: &Path, root: &Path) -> Result<Vec<u8>> {
     ))
 }
 
-pub fn bundle_function(function_config: &FunctionConfig, root: &Path) -> Result<(Vec<u8>, Assets)> {
+pub fn bundle_function(
+    function_config: &FunctionConfig,
+    root: &Path,
+    prod: bool,
+) -> Result<(Vec<u8>, Assets)> {
     if let Err(error) = Command::new(ESBUILD).arg("--version").output() {
         return if error.kind() == ErrorKind::NotFound {
             Err(anyhow!(
@@ -263,14 +272,14 @@ pub fn bundle_function(function_config: &FunctionConfig, root: &Path) -> Result<
     }
 
     let end_progress = print_progress("Bundling Function handler...");
-    let index_output = esbuild(&function_config.index, root)?;
+    let index_output = esbuild(&function_config.index, root, prod)?;
     end_progress();
 
     let mut final_assets = Assets::new();
 
     if let Some(client) = &function_config.client {
         let end_progress = print_progress("Bundling client file...");
-        let client_output = esbuild(client, root)?;
+        let client_output = esbuild(client, root, prod)?;
         end_progress();
 
         let client_path = client.as_path().with_extension("js");
@@ -383,10 +392,11 @@ struct DeployDeploymentResponse {
 pub async fn create_deployment(
     config: Config,
     function_config: &FunctionConfig,
-    prod: bool,
+    is_production: bool,
     root: &Path,
+    prod_bundle: bool,
 ) -> Result<()> {
-    let (index, assets) = bundle_function(function_config, root)?;
+    let (index, assets) = bundle_function(function_config, root, prod_bundle)?;
 
     let end_progress = print_progress("Creating deployment...");
 
@@ -446,7 +456,7 @@ pub async fn create_deployment(
             DeployDeploymentRequest {
                 function_id: function_config.function_id.clone(),
                 deployment_id,
-                is_production: prod,
+                is_production,
             },
         )
         .await?;
@@ -454,7 +464,7 @@ pub async fn create_deployment(
     println!();
     println!("{}", success("Function deployed!"));
 
-    if !prod {
+    if !is_production {
         println!("{}", debug("Use --prod to deploy to production"));
     }
 

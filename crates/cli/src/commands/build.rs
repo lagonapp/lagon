@@ -10,7 +10,7 @@ pub fn build(
     public_dir: Option<PathBuf>,
 ) -> Result<()> {
     let (root, function_config) = resolve_path(path, client, public_dir)?;
-    let (index, assets) = bundle_function(&function_config, &root)?;
+    let (index, assets) = bundle_function(&function_config, &root, true)?;
 
     let end_progress = print_progress("Writting index.js...");
 

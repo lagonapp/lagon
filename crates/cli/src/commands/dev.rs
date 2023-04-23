@@ -162,7 +162,7 @@ pub async fn dev(
     allow_code_generation: bool,
 ) -> Result<()> {
     let (root, function_config) = resolve_path(path, client, public_dir)?;
-    let (index, assets) = bundle_function(&function_config, &root)?;
+    let (index, assets) = bundle_function(&function_config, &root, false)?;
 
     let server_index = index.clone();
     let assets = Arc::new(Mutex::new(assets));
@@ -279,7 +279,7 @@ pub async fn dev(
                 print!("\x1B[2J\x1B[1;1H");
                 println!("{}", info("Found change, updating..."));
 
-                let (new_index, new_assets) = bundle_function(&function_config, &root)?;
+                let (new_index, new_assets) = bundle_function(&function_config, &root, false)?;
 
                 *assets.lock().await = new_assets;
                 index_tx.send_async(new_index).await.unwrap();
