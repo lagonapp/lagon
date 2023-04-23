@@ -168,7 +168,9 @@ The standard `FormData` object. [See the documentation on MDN](https://developer
 
 ### `process.env`
 
-The only usage of `process` is to access environment variables. [Learn more about environment variables](/cloud/environment-variables).
+The only usage of `process` is to access environment variables. By default, it will only contain the `NODE_ENV` variable, which is set to `"production"` when deployed, and to `"development"` when using [`lagon dev`](/cli#lagon-dev).
+
+[Learn more about environment variables](/cloud/environment-variables).
 
 ### `ProgressEvent`
 

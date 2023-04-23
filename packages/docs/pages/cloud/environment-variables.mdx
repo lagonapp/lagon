@@ -14,6 +14,8 @@ export function handler(request: Request): Response {
 }
 ```
 
+By default, it will only contain the `NODE_ENV` variable, which is set to `"production"` when deployed, and to `"development"` when using [`lagon dev`](/cli#lagon-dev).
+
 ## Development
 
 During development, `.env` files are automatically detected and loaded. You can also manually specify the `--env` flag of the [`dev` command](http://localhost:3000/cli#lagon-dev) to use a custom path for your environment file.

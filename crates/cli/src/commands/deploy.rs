@@ -56,7 +56,7 @@ pub async fn deploy(
     path: Option<PathBuf>,
     client: Option<PathBuf>,
     public_dir: Option<PathBuf>,
-    prod: bool,
+    is_production: bool,
 ) -> Result<()> {
     let config = Config::new()?;
 
@@ -106,7 +106,7 @@ pub async fn deploy(
                 function_config.organization_id = organization.id.clone();
                 function_config.write(&root)?;
 
-                create_deployment(config, &function_config, prod, &root).await?;
+                create_deployment(config, &function_config, is_production, &root, true).await?;
             }
             false => {
                 let name = Input::<String>::new()
@@ -136,11 +136,11 @@ pub async fn deploy(
                 function_config.organization_id = organization.id.clone();
                 function_config.write(&root)?;
 
-                create_deployment(config, &function_config, prod, &root).await?;
+                create_deployment(config, &function_config, is_production, &root, true).await?;
             }
         }
     } else {
-        create_deployment(config, &function_config, prod, &root).await?;
+        create_deployment(config, &function_config, is_production, &root, true).await?;
     }
 
     Ok(())
