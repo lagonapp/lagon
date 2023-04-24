@@ -33,6 +33,11 @@ jobs:
             asset_name: lagon-darwin-x64
             input: lagon-cli
             output: lagon
+          - os: macOS-latest
+            target: aarch64-apple-darwin
+            asset_name: lagon-darwin-arm64
+            input: lagon-cli
+            output: lagon
           - os: windows-2019
             target: x86_64-pc-windows-msvc
             asset_name: lagon-win-x64
@@ -54,10 +59,9 @@ jobs:
         with:
           node-version: 16
           cache: 'pnpm'
-      - name: Install cross compilation toolchain
+      - name: Install cross compilation toolchain (Linux)
         if: matrix.target == 'aarch64-unknown-linux-gnu'
         run: |
-          rustup target add aarch64-unknown-linux-gnu
           sudo apt update
           sudo apt install -yq --no-install-suggests --no-install-recommends \
             binfmt-support g++-10-aarch64-linux-gnu g++-10-multilib \

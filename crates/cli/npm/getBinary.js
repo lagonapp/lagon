@@ -27,9 +27,16 @@ function getPlatform() {
     };
   }
 
-  if (type === 'Darwin') {
+  if (type === 'Darwin' && arch === 'x64') {
     return {
       platform: 'lagon-darwin-x64',
+      name: 'lagon',
+    };
+  }
+
+  if (type === 'Darwin' && arch === 'arm64') {
+    return {
+      platform: 'lagon-darwin-arm64',
       name: 'lagon',
     };
   }
