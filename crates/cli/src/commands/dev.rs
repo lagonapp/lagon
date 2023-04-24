@@ -152,6 +152,7 @@ async fn handle_request(
     .await
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn dev(
     path: Option<PathBuf>,
     client: Option<PathBuf>,
@@ -160,9 +161,10 @@ pub async fn dev(
     hostname: Option<String>,
     env: Option<PathBuf>,
     allow_code_generation: bool,
+    prod: bool,
 ) -> Result<()> {
     let (root, function_config) = resolve_path(path, client, public_dir)?;
-    let (index, assets) = bundle_function(&function_config, &root, false)?;
+    let (index, assets) = bundle_function(&function_config, &root, prod)?;
 
     let server_index = index.clone();
     let assets = Arc::new(Mutex::new(assets));
@@ -279,7 +281,7 @@ pub async fn dev(
                 print!("\x1B[2J\x1B[1;1H");
                 println!("{}", info("Found change, updating..."));
 
-                let (new_index, new_assets) = bundle_function(&function_config, &root, false)?;
+                let (new_index, new_assets) = bundle_function(&function_config, &root, prod)?;
 
                 *assets.lock().await = new_assets;
                 index_tx.send_async(new_index).await.unwrap();
