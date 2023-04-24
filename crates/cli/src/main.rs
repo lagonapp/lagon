@@ -75,6 +75,9 @@ enum Commands {
         /// Allow code generation from strings using `eval` / `new Function`
         #[clap(long)]
         allow_code_generation: bool,
+        /// Force `process.env.NODE_ENV` to be "production"
+        #[clap(visible_alias = "production", long)]
+        prod: bool,
     },
     /// Build a Function without deploying it
     Build {
@@ -141,6 +144,7 @@ async fn main() {
                 hostname,
                 env,
                 allow_code_generation,
+                prod,
             } => {
                 commands::dev(
                     path,
@@ -150,6 +154,7 @@ async fn main() {
                     hostname,
                     env,
                     allow_code_generation,
+                    prod,
                 )
                 .await
             }

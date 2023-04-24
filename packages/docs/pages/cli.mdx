@@ -147,8 +147,7 @@ This command accepts the following arguments and options:
 - `--port <PORT>` allows you to specify a custom port to start the server on. (Default: `1234`)
 - `--env <FILE>` allows you to specify a custom path to an environment file to inject [environment variables](/cloud/environment-variables). (Default: `.env`)
 - `--allow-code-generation` allows you to enable code generation from strings (`eval` / `new Function`)
-
-Unlike other commands, `lagon dev` sets `process.env.NODE_ENV` to `"development"` instead of `"production"`.
+- `--prod` allows you to set `process.env.NODE_ENV` to `"production"` instead of `"development"`
 
 Examples:
 
