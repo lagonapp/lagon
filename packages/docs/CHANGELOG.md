@@ -1,5 +1,15 @@
 # @lagon/docs
 
+## 0.3.5
+
+### Patch Changes
+
+- [`209ee44`](https://github.com/lagonapp/lagon/commit/209ee449043f90b83df8ac8301d136c10dd44aa3) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Set `process.env.NODE_ENV` to "development" when using `lagon dev`
+
+* [#782](https://github.com/lagonapp/lagon/pull/782) [`b92e0de`](https://github.com/lagonapp/lagon/commit/b92e0de61c0254e49ac3626de2517081465010be) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Automatically load .env files with `lagon dev` if present in root
+
+- [#781](https://github.com/lagonapp/lagon/pull/781) [`b5894e2`](https://github.com/lagonapp/lagon/commit/b5894e23da9920c9338f350d25a5276cd70d3267) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add PlanetScale example
+
 ## 0.3.4
 
 ### Patch Changes

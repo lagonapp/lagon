@@ -1,5 +1,11 @@
 # @lagon/wpt-runner
 
+## 0.1.3
+
+### Patch Changes
+
+- [#778](https://github.com/lagonapp/lagon/pull/778) [`54df73e`](https://github.com/lagonapp/lagon/commit/54df73e6a0043307f4e153613806122fad1809d2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use once_cell instead of lazy_static
+
 ## 0.1.2
 
 ### Patch Changes

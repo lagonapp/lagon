@@ -1,5 +1,11 @@
 # @lagon/www
 
+## 1.1.2
+
+### Patch Changes
+
+- [#770](https://github.com/lagonapp/lagon/pull/770) [`c7bf3cc`](https://github.com/lagonapp/lagon/commit/c7bf3ccd7f7ea6870cd44e513849cfe7488c0321) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Lagon Alpha blog post
+
 ## 1.1.1
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @lagon/dashboard
 
+## 0.3.4
+
+### Patch Changes
+
+- [#785](https://github.com/lagonapp/lagon/pull/785) [`6c12980`](https://github.com/lagonapp/lagon/commit/6c12980015319974e5ac1b2284a8ab360850d16b) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use Prisma `jsonProtocol` to reduce cold starts & execution time
+
 ## 0.3.3
 
 ### Patch Changes
