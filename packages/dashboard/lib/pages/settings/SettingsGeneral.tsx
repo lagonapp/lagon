@@ -87,7 +87,7 @@ const SettingsGeneral = () => {
               name="description"
               placeholder={t('description.placeholder')}
               disabled={updateOrganization.isLoading || !isOrganizationOwner}
-              validator={composeValidators(requiredValidator, maxLengthValidator(ORGANIZATION_DESCRIPTION_MAX_LENGTH))}
+              validator={composeValidators(maxLengthValidator(ORGANIZATION_DESCRIPTION_MAX_LENGTH))}
             />
             <Button variant="primary" disabled={updateOrganization.isLoading || !isOrganizationOwner} submit>
               {t('description.submit')}

@@ -13,7 +13,7 @@ export const variants = cva(null, {
       true: 'font-semibold',
     },
     error: {
-      true: 'text-red-500 dark:text-red-500',
+      true: '!text-red-500 !dark:text-red-500',
     },
   },
 });
