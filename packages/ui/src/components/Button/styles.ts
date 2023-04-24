@@ -7,19 +7,19 @@ export const variants = cva('select-none whitespace-nowrap shadow-sm transition 
         'text-white',
         'bg-blue-500 hover:bg-blue-600 active:bg-blue-700',
         'border border-blue-700',
-        'shadow-blue-100 dark:shadow-blue-900',
+        'shadow-blue-100 dark:shadow-none',
       ],
       secondary: [
         'text-stone-800 dark:text-stone-200',
         'bg-stone-50 hover:bg-stone-100 active:bg-stone-200 dark:bg-stone-900 dark:hover:bg-stone-800 dark:active:bg-stone-700',
         'border border-stone-300 dark:border-stone-600',
-        'shadow-stone-100 dark:shadow-stone-900',
+        'shadow-stone-100 dark:shadow-none',
       ],
       danger: [
         'text-white',
         'bg-red-500 hover:bg-red-600 active:bg-red-700',
         'border border-red-700',
-        'shadow-red-100 dark:shadow-red-900',
+        'shadow-red-100 dark:shadow-none',
       ],
     },
     size: {

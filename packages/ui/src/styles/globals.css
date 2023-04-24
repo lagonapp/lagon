@@ -4,6 +4,7 @@
 
 body {
   overflow-x: hidden;
+  @apply bg-white dark:bg-stone-900;
 }
 
 /* Radix UI Tabs */
