@@ -10,13 +10,28 @@ type PlaygroundProps = {
 
 const Playground = ({ defaultValue, width, height }: PlaygroundProps) => {
   const monaco = useMonaco();
-  const { theme } = useTheme();
 
   useEffect(() => {
     if (monaco) {
-      monaco.editor.setTheme(theme === 'Dark' ? 'vs-dark' : 'vs-light');
+      const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+            const darkMode = (mutation.target as HTMLElement).classList.contains('dark');
+
+            monaco.editor.setTheme(darkMode ? 'vs-dark' : 'vs-light');
+          }
+        });
+      });
+
+      observer.observe(document.documentElement, {
+        attributes: true,
+      });
+
+      return () => {
+        observer.disconnect();
+      };
     }
-  }, [theme, monaco]);
+  }, [monaco]);
 
   useEffect(() => {
     if (monaco) {

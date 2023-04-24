@@ -26,7 +26,7 @@ type MenuItemsProps = {
 const MenuItems = ({ children }: MenuItemsProps) => {
   return (
     <RadixMenu.Portal>
-      <RadixMenu.Content className="z-10 w-56 rounded-md bg-white p-2 shadow-lg shadow-stone-200 focus:outline-none dark:bg-black dark:shadow-stone-700">
+      <RadixMenu.Content className="z-10 w-56 rounded-md bg-white p-2 shadow-lg shadow-stone-200 focus:outline-none dark:bg-black dark:shadow-none">
         {children}
       </RadixMenu.Content>
     </RadixMenu.Portal>
