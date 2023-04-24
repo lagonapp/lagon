@@ -43,8 +43,8 @@ export const organizationsRouter = (t: T) =>
     organizationCreate: t.procedure
       .input(
         z.object({
-          name: z.string(),
-          description: z.string(),
+          name: z.string().min(ORGANIZATION_NAME_MIN_LENGTH).max(ORGANIZATION_NAME_MAX_LENGTH),
+          description: z.string().max(ORGANIZATION_DESCRIPTION_MAX_LENGTH).optional(),
         }),
       )
       .mutation(async ({ ctx, input }) => {
@@ -79,7 +79,7 @@ export const organizationsRouter = (t: T) =>
         z.object({
           organizationId: z.string(),
           name: z.string().min(ORGANIZATION_NAME_MIN_LENGTH).max(ORGANIZATION_NAME_MAX_LENGTH),
-          description: z.string().max(ORGANIZATION_DESCRIPTION_MAX_LENGTH).nullable(),
+          description: z.string().max(ORGANIZATION_DESCRIPTION_MAX_LENGTH).optional().nullable(),
         }),
       )
       .mutation(async ({ input, ctx }) => {
