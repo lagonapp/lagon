@@ -350,7 +350,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4114279215a005bc675e386011e594e1d9b800918cea18fcadadcce864a2046b"
 dependencies = [
  "borsh-derive",
- "hashbrown 0.12.3",
+ "hashbrown 0.13.2",
 ]
 
 [[package]]
@@ -3621,13 +3621,13 @@ dependencies = [
 
 [[package]]
 name = "v8"
-version = "0.68.0"
+version = "0.70.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "81c69410b7435f1b74e82e243ba906d71e8b9bb350828291418b9311dbd77222"
+checksum = "ab13e022340b67561836bbb90ceeebbfca7e35fbc05471ceff5ce099e5a754a3"
 dependencies = [
  "bitflags",
  "fslock",
- "lazy_static",
+ "once_cell",
  "which",
 ]
 
