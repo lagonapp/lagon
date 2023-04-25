@@ -56,6 +56,10 @@ This example uses [React](https://reactjs.org) to server-side render an app, str
 
 This example uses [Satori](https://github.com/vercel/satori) to render React and HTML/CSS to SVG. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/satori)
 
+### Turso
+
+This example uses [Turso](https://turso.tech) to make SQLite queries on the edge. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/turso)
+
 ### tRPC
 
 This example uses [tRPC](https://trpc.io) server, to build typesafe APIs. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/trpc)
