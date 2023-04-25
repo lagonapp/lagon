@@ -563,8 +563,8 @@ importers:
         specifier: ^1.7.5
         version: 1.7.5
       urlpattern-polyfill:
-        specifier: ^6.0.2
-        version: 6.0.2
+        specifier: ^7.0.0
+        version: 7.0.0
       web-streams-polyfill:
         specifier: ^3.2.1
         version: 3.2.1
@@ -22381,8 +22381,8 @@ packages:
     dependencies:
       punycode: 2.1.1
 
-  /urlpattern-polyfill@6.0.2:
-    resolution: {integrity: sha512-5vZjFlH9ofROmuWmXM9yj2wljYKgWstGwe8YTyiqM7hVum/g9LyCizPZtb3UqsuppVwety9QJmfc42VggLpTgg==}
+  /urlpattern-polyfill@7.0.0:
+    resolution: {integrity: sha512-fErMjbZwveQIk+EY4vxM5GKDuInBOigxmjM6WT2R/cV2ETVyFtDHeU+VmbnfuJ5sp0qNbyUBelTO/60/d+/SSQ==}
     dependencies:
       braces: 3.0.2
     dev: false
