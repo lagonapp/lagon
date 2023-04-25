@@ -10,9 +10,9 @@ const conn = connect(config);
 
 export async function handler(): Promise<Response> {
   try {
-    const results = await conn.execute('select 1 from dual where 1=?', [1]);
+    const results = await conn.execute("SELECT 'Hello World!' FROM DUAL");
 
-    return new Response(JSON.stringify(results));
+    return Response.json(results);
   } catch (e) {
     console.error(e);
     return new Response('Internal Error');

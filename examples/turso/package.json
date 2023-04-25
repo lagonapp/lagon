@@ -1,0 +1,11 @@
+{
+  "name": "@lagon/example-turso",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "lagon-dev": "lagon dev index.ts"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.1.3"
+  }
+}
