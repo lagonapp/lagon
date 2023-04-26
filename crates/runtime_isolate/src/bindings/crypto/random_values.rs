@@ -11,6 +11,7 @@ pub fn random_values_binding(
     if !value.is_typed_array() {
         let exception = v8_exception(scope, "Parameter 1 is not of type 'TypedArray'");
         scope.throw_exception(exception);
+        return;
     }
 
     let chunk = unsafe { v8::Local::<v8::TypedArray>::cast(value) };
