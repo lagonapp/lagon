@@ -14,8 +14,8 @@
     "@vercel/analytics": "0.1.11",
     "next": "13.3.1",
     "next-sitemap": "^4.0.5",
-    "nextra": "2.4.0",
-    "nextra-theme-docs": "2.4.0",
+    "nextra": "2.4.2",
+    "nextra-theme-docs": "2.4.2",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
