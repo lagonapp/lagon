@@ -17,6 +17,10 @@ import { RequestResponseBody } from './body';
     private readonly input: RequestInfo | URL;
 
     constructor(input: RequestInfo | URL, init?: RequestInit) {
+      if (input instanceof Request && input.bodyUsed) {
+        throw new TypeError('nnot construct a Request with a Request object that has already been used.');
+      }
+
       super(init?.body, init?.headers);
 
       this.init = init;

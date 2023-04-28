@@ -1,5 +1,5 @@
 export class RequestResponseBody {
-  private theBody: ReadableStream<Uint8Array> | string | ArrayBuffer | null;
+  private theBody: string | ArrayBuffer | FormData | ReadableStream<Uint8Array> | Blob | URLSearchParams | null;
   bodyUsed: boolean;
 
   // isStream is not part of the spec, but required to only stream
@@ -13,43 +13,37 @@ export class RequestResponseBody {
     body: string | ArrayBuffer | ArrayBufferView | FormData | ReadableStream | Blob | URLSearchParams | null = null,
     headersInit?: HeadersInit,
   ) {
-    if (body !== null) {
-      const isPrimitive = typeof body === 'number' || typeof body === 'boolean';
+    // @ts-expect-error we ignore ArrayBufferView
+    this.theBody = typeof body === 'number' || typeof body === 'boolean' ? String(body) : body;
+    this.headersInit = headersInit;
+    this.bodyUsed = false;
+    this.isStream = body instanceof ReadableStream;
 
-      if (
-        body instanceof ReadableStream ||
-        globalThis.__lagon__.isIterable(body) ||
-        typeof body === 'string' ||
-        isPrimitive
-      ) {
-        this.theBody = isPrimitive ? String(body) : body;
-        this.bodyUsed = false;
-        this.headersInit = headersInit;
-        this.isStream = body instanceof ReadableStream;
-        return;
-      }
-
-      const stream = new TransformStream();
-      const writer = stream.writable.getWriter();
-
-      writer.write(body);
-      writer.close();
-
-      this.theBody = stream.readable;
-    } else {
-      this.theBody = null;
+    if (typeof body === 'string') {
+      this.headers.set('content-type', this.headers.get('content-type') ?? 'text/plain;charset=UTF-8');
     }
 
-    this.bodyUsed = false;
-    this.headersInit = headersInit;
-    this.isStream = false;
+    if (body instanceof FormData) {
+      this.headers.set('content-type', this.headers.get('content-type') ?? 'multipart/form-data');
+    }
 
     if (body instanceof URLSearchParams) {
-      this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+      this.headers.set(
+        'content-type',
+        this.headers.get('content-type') ?? 'application/x-www-form-urlencoded;charset=UTF-8',
+      );
+    }
+
+    if (body instanceof Blob) {
+      this.headers.set('content-type', this.headers.get('content-type') ?? body.type);
     }
   }
 
-  get body(): ReadableStream<Uint8Array> {
+  get body(): ReadableStream<Uint8Array> | null {
+    if (!this.theBody) {
+      return null;
+    }
+
     if (this.theBody instanceof ReadableStream) {
       return this.theBody;
     }
@@ -57,15 +51,14 @@ export class RequestResponseBody {
     const stream = new TransformStream();
     const writer = stream.writable.getWriter();
 
-    if (globalThis.__lagon__.isIterable(this.theBody)) {
+    if (this.theBody instanceof ArrayBuffer) {
       writer.write(this.theBody);
+    } else if (this.theBody instanceof FormData || this.theBody instanceof URLSearchParams) {
+      writer.write(globalThis.__lagon__.TEXT_ENCODER.encode(this.theBody.toString()));
+    } else if (this.theBody instanceof Blob) {
+      writer.write(this.theBody.buffer);
     } else {
-      const body =
-        typeof this.theBody === 'number' || typeof this.theBody === 'boolean'
-          ? String(this.theBody)
-          : this.theBody ?? '';
-
-      writer.write(globalThis.__lagon__.TEXT_ENCODER.encode(body));
+      writer.write(globalThis.__lagon__.TEXT_ENCODER.encode(this.theBody ?? ''));
     }
 
     writer.close();
@@ -106,12 +99,22 @@ export class RequestResponseBody {
       return globalThis.__lagon__.TEXT_ENCODER.encode(this.theBody);
     }
 
-    if (globalThis.__lagon__.isIterable(this.theBody)) {
+    if (this.theBody instanceof ArrayBuffer) {
       this.bodyUsed = true;
       return this.theBody;
     }
 
-    const reader = this.theBody.getReader();
+    if (this.theBody instanceof FormData || this.theBody instanceof URLSearchParams) {
+      this.bodyUsed = true;
+      return globalThis.__lagon__.TEXT_ENCODER.encode(this.theBody.toString());
+    }
+
+    if (this.theBody instanceof Blob) {
+      this.bodyUsed = true;
+      return this.theBody.arrayBuffer();
+    }
+
+    const reader = (this.theBody as ReadableStream<Uint8Array>).getReader();
 
     return new Promise(resolve => {
       let result = new Uint8Array();
@@ -144,13 +147,15 @@ export class RequestResponseBody {
   }
 
   async formData(): Promise<FormData> {
-    const body = await this.text();
+    if (this.theBody instanceof FormData) {
+      return this.theBody;
+    }
 
-    return globalThis.__lagon__.parseMultipart(this.headers, body);
+    return new FormData();
   }
 
   async json<T>(): Promise<T> {
-    return this.text().then(text => JSON.parse(text));
+    return this.text().then(JSON.parse);
   }
 
   async text(): Promise<string> {
@@ -168,12 +173,22 @@ export class RequestResponseBody {
       return this.theBody;
     }
 
-    if (globalThis.__lagon__.isIterable(this.theBody)) {
+    if (this.theBody instanceof ArrayBuffer) {
       this.bodyUsed = true;
       return globalThis.__lagon__.TEXT_DECODER.decode(this.theBody);
     }
 
-    const reader = this.theBody.getReader();
+    if (this.theBody instanceof FormData || this.theBody instanceof URLSearchParams) {
+      this.bodyUsed = true;
+      return this.theBody.toString();
+    }
+
+    if (this.theBody instanceof Blob) {
+      this.bodyUsed = true;
+      return this.theBody.text();
+    }
+
+    const reader = (this.theBody as ReadableStream<Uint8Array>).getReader();
 
     return new Promise(resolve => {
       let result = '';
