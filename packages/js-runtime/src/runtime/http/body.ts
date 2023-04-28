@@ -152,7 +152,9 @@ export class RequestResponseBody {
       return this.theBody;
     }
 
-    return new FormData();
+    const body = await this.text();
+
+    return globalThis.__lagon__.parseMultipart(this.headers, body);
   }
 
   async json<T>(): Promise<T> {
