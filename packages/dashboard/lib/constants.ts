@@ -21,6 +21,8 @@ export const CUSTOM_DOMAINS_PER_FUNCTION = 10;
 
 export const PRESIGNED_URL_EXPIRES_SECONDS = 60 * 60; // 1 hour
 
+export const FUNCTION_NAME_REGEX = /^[a-z0-9-]+$/;
+
 export const REGIONS = {
   'ashburn-us-east': 'Ashburn (us-east)',
   'hillsboro-us-west': 'Hillsboro (us-west)',

@@ -18,6 +18,7 @@ import {
   checkCanCreateFunction,
   checkCanQueryFunction,
   findUniqueFunctionName,
+  isFunctionNameAllowed,
   isFunctionNameBlacklisted,
   isFunctionNameUnique,
 } from 'lib/api/functions';
@@ -219,6 +220,13 @@ LIMIT 100`,
           });
         }
 
+        if (!isFunctionNameAllowed(name)) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Function name must only contain lowercase alphanumeric characters and dashes',
+          });
+        }
+
         if (isFunctionNameBlacklisted(name)) {
           throw new TRPCError({
             code: 'FORBIDDEN',
@@ -362,6 +370,13 @@ LIMIT 100`,
             throw new TRPCError({
               code: 'CONFLICT',
               message: 'A Function with the same name already exists',
+            });
+          }
+
+          if (!isFunctionNameAllowed(input.name)) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: 'Function name must only contain lowercase alphanumeric characters and dashes',
             });
           }
 
