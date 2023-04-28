@@ -1,5 +1,5 @@
 export class RequestResponseBody {
-  readonly body: ReadableStream<Uint8Array> | null;
+  readonly body: ReadableStream<Uint8Array> | string | ArrayBuffer | null;
   bodyUsed: boolean;
 
   // isStream is not part of the spec, but required to only stream
@@ -14,10 +14,15 @@ export class RequestResponseBody {
     headersInit?: HeadersInit,
   ) {
     if (body !== null) {
-      if (body instanceof ReadableStream || typeof body === 'string') {
-        // @ts-expect-error the type doesn't allow body to be a string, but we
-        // bypass this to avoid allocating huge stream objects for small strings
-        this.body = body;
+      const isPrimitive = typeof body === 'number' || typeof body === 'boolean';
+
+      if (
+        body instanceof ReadableStream ||
+        globalThis.__lagon__.isIterable(body) ||
+        typeof body === 'string' ||
+        isPrimitive
+      ) {
+        this.body = isPrimitive ? String(body) : body;
         this.bodyUsed = false;
         this.headersInit = headersInit;
         this.isStream = body instanceof ReadableStream;
@@ -82,8 +87,14 @@ export class RequestResponseBody {
       return globalThis.__lagon__.TEXT_ENCODER.encode(this.body);
     }
 
+    if (globalThis.__lagon__.isIterable(this.body)) {
+      this.bodyUsed = true;
+      return this.body;
+    }
+
+    const reader = this.body.getReader();
+
     return new Promise(resolve => {
-      const reader = (this.body as ReadableStream<Uint8Array>).getReader();
       let result = new Uint8Array();
 
       const pull = () => {
@@ -138,8 +149,14 @@ export class RequestResponseBody {
       return this.body;
     }
 
+    if (globalThis.__lagon__.isIterable(this.body)) {
+      this.bodyUsed = true;
+      return globalThis.__lagon__.TEXT_DECODER.decode(this.body);
+    }
+
+    const reader = this.body.getReader();
+
     return new Promise(resolve => {
-      const reader = (this.body as ReadableStream<Uint8Array>).getReader();
       let result = '';
 
       const pull = () => {

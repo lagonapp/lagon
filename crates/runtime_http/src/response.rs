@@ -6,7 +6,7 @@ use hyper::{
     Body, Response as HyperResponse,
 };
 use lagon_runtime_v8_utils::{
-    extract_v8_headers_object, extract_v8_integer, extract_v8_string, v8_headers_object,
+    extract_v8_headers_object, extract_v8_integer, extract_v8_uint8array, v8_headers_object,
     v8_integer, v8_string, v8_uint8array,
 };
 use std::{collections::HashMap, str::FromStr};
@@ -81,7 +81,7 @@ impl FromV8 for Response {
         let body_key = v8_string(scope, "b");
 
         if let Some(body_value) = response.get(scope, body_key.into()) {
-            body = extract_v8_string(body_value, scope)?;
+            body = extract_v8_uint8array(body_value)?;
         } else {
             return Err(anyhow!("Could not find body"));
         }

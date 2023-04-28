@@ -6,7 +6,8 @@ use hyper::{
     Body, Request as HyperRequest,
 };
 use lagon_runtime_v8_utils::{
-    extract_v8_headers_object, extract_v8_string, v8_headers_object, v8_string,
+    extract_v8_headers_object, extract_v8_string, extract_v8_uint8array, v8_headers_object,
+    v8_string, v8_uint8array,
 };
 use std::{collections::HashMap, str::FromStr};
 
@@ -55,7 +56,7 @@ impl IntoV8 for Request {
 
         if body_exists {
             names.push(v8_string(scope, "b").into());
-            values.push(v8_string(scope, &String::from_utf8(self.body.to_vec()).unwrap()).into());
+            values.push(v8_uint8array(scope, self.body.to_vec()).into());
         }
 
         if let Some(headers) = self.headers {
@@ -83,7 +84,7 @@ impl FromV8 for Request {
 
         if let Some(body_value) = request.get(scope, body_key.into()) {
             if !body_value.is_null_or_undefined() {
-                body = Bytes::from(extract_v8_string(body_value, scope)?);
+                body = Bytes::from(extract_v8_uint8array(body_value)?);
             }
         }
 
