@@ -288,7 +288,10 @@ async fn response_array_buffer() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello, World")
+        Response {
+            body: "Hello, World".into(),
+            ..Default::default()
+        }
     );
 }
 

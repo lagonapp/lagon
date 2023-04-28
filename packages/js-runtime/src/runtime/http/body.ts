@@ -13,13 +13,14 @@ export class RequestResponseBody {
     body: string | ArrayBuffer | ArrayBufferView | FormData | ReadableStream | Blob | URLSearchParams | null = null,
     headersInit?: HeadersInit,
   ) {
+    const isPrimitive = typeof body === 'number' || typeof body === 'boolean';
     // @ts-expect-error we ignore ArrayBufferView
-    this.theBody = typeof body === 'number' || typeof body === 'boolean' ? String(body) : body;
+    this.theBody = isPrimitive ? String(body) : body;
     this.headersInit = headersInit;
     this.bodyUsed = false;
     this.isStream = body instanceof ReadableStream;
 
-    if (typeof body === 'string') {
+    if (typeof body === 'string' || isPrimitive) {
       this.headers.set('content-type', this.headers.get('content-type') ?? 'text/plain;charset=UTF-8');
     }
 
@@ -51,7 +52,7 @@ export class RequestResponseBody {
     const stream = new TransformStream();
     const writer = stream.writable.getWriter();
 
-    if (this.theBody instanceof ArrayBuffer) {
+    if (this.theBody instanceof ArrayBuffer || this.theBody instanceof Uint8Array) {
       writer.write(this.theBody);
     } else if (this.theBody instanceof FormData || this.theBody instanceof URLSearchParams) {
       writer.write(globalThis.__lagon__.TEXT_ENCODER.encode(this.theBody.toString()));
@@ -99,7 +100,7 @@ export class RequestResponseBody {
       return globalThis.__lagon__.TEXT_ENCODER.encode(this.theBody);
     }
 
-    if (this.theBody instanceof ArrayBuffer) {
+    if (this.theBody instanceof ArrayBuffer || this.theBody instanceof Uint8Array) {
       this.bodyUsed = true;
       return this.theBody;
     }
@@ -173,7 +174,7 @@ export class RequestResponseBody {
       return this.theBody;
     }
 
-    if (this.theBody instanceof ArrayBuffer) {
+    if (this.theBody instanceof ArrayBuffer || this.theBody instanceof Uint8Array) {
       this.bodyUsed = true;
       return globalThis.__lagon__.TEXT_DECODER.decode(this.theBody);
     }

@@ -1,5 +1,5 @@
 use httptest::bytes::Bytes;
-use lagon_runtime_http::{Method, Request, Response};
+use lagon_runtime_http::{Method, Request, Response, RunResult, StreamResult};
 use lagon_runtime_isolate::options::IsolateOptions;
 use std::collections::HashMap;
 
@@ -71,7 +71,7 @@ async fn environment_variables() {
 }
 
 #[tokio::test]
-async fn get_body() {
+async fn get_body_streaming() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export function handler(request) {
@@ -81,7 +81,46 @@ async fn get_body() {
     ));
     send(Request {
         body: Bytes::from("Hello world"),
-        headers: None,
+        headers: Some(HashMap::from([(
+            "content-type".into(),
+            Vec::from(["text/plain;charset=UTF-8".into()]),
+        )])),
+        method: Method::GET,
+        url: "".into(),
+    });
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Data(vec![
+            72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100
+        ]))
+    );
+    assert!(receiver.recv_async().await.unwrap().as_stream_done());
+    assert_eq!(
+        receiver.recv_async().await.unwrap(),
+        RunResult::Stream(StreamResult::Start(Response {
+            headers: None,
+            body: Bytes::from("[object ReadableStream]"),
+            status: 200,
+        }))
+    );
+}
+
+#[tokio::test]
+async fn get_body() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler(request) {
+    return new Response(await request.text());
+}"
+        .into(),
+    ));
+    send(Request {
+        body: Bytes::from("Hello world"),
+        headers: Some(HashMap::from([(
+            "content-type".into(),
+            Vec::from(["text/plain;charset=UTF-8".into()]),
+        )])),
         method: Method::GET,
         url: "".into(),
     });
@@ -103,7 +142,10 @@ async fn get_input() {
     ));
     send(Request {
         body: Bytes::new(),
-        headers: None,
+        headers: Some(HashMap::from([(
+            "content-type".into(),
+            Vec::from(["text/plain;charset=UTF-8".into()]),
+        )])),
         method: Method::GET,
         url: "https://hello.world".into(),
     });
@@ -125,7 +167,10 @@ async fn get_method() {
     ));
     send(Request {
         body: Bytes::new(),
-        headers: None,
+        headers: Some(HashMap::from([(
+            "content-type".into(),
+            Vec::from(["text/plain;charset=UTF-8".into()]),
+        )])),
         method: Method::POST,
         url: "".into(),
     });
@@ -241,7 +286,10 @@ async fn return_status() {
         receiver.recv_async().await.unwrap().as_response(),
         Response {
             body: "Moved permanently".into(),
-            headers: None,
+            headers: Some(HashMap::from([(
+                "content-type".into(),
+                Vec::from(["text/plain;charset=UTF-8".into()]),
+            )])),
             status: 302,
         }
     );
@@ -262,7 +310,10 @@ async fn return_uint8array() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello world")
+        Response {
+            body: "Hello world".into(),
+            ..Default::default()
+        }
     );
 }
 
@@ -285,7 +336,7 @@ async fn console_log() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
-        Response::default()
+        Response::from("")
     );
 }
 

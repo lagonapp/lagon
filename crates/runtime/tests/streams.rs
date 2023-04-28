@@ -32,9 +32,11 @@ async fn sync_streaming() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response::from(
-            "[object ReadableStream]"
-        )))
+        RunResult::Stream(StreamResult::Start(Response {
+            headers: None,
+            body: Bytes::from("[object ReadableStream]"),
+            status: 200,
+        }))
     );
 }
 
@@ -72,9 +74,11 @@ async fn queue_multiple() {
     assert!(receiver.recv_async().await.unwrap().as_stream_done());
     assert_eq!(
         receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response::from(
-            "[object ReadableStream]"
-        )))
+        RunResult::Stream(StreamResult::Start(Response {
+            headers: None,
+            body: Bytes::from("[object ReadableStream]"),
+            status: 200,
+        }))
     );
 }
 
@@ -158,9 +162,11 @@ async fn start_and_pull() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response::from(
-            "[object ReadableStream]"
-        )))
+        RunResult::Stream(StreamResult::Start(Response {
+            headers: None,
+            body: Bytes::from("[object ReadableStream]"),
+            status: 200,
+        }))
     );
 }
 
@@ -200,9 +206,11 @@ async fn response_before_write() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response::from(
-            "[object ReadableStream]"
-        )))
+        RunResult::Stream(StreamResult::Start(Response {
+            headers: None,
+            body: Bytes::from("[object ReadableStream]"),
+            status: 200,
+        }))
     );
 
     assert_eq!(
@@ -228,9 +236,11 @@ async fn timeout_infinite_streaming() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response::from(
-            "[object ReadableStream]"
-        )))
+        RunResult::Stream(StreamResult::Start(Response {
+            headers: None,
+            body: Bytes::from("[object ReadableStream]"),
+            status: 200,
+        }))
     );
 
     assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Timeout);
@@ -289,9 +299,11 @@ async fn promise_reject_callback_after_response() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response::from(
-            "[object ReadableStream]"
-        )))
+        RunResult::Stream(StreamResult::Start(Response {
+            headers: None,
+            body: Bytes::from("[object ReadableStream]"),
+            status: 200,
+        }))
     );
 
     assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at 12:17\n  at stream (11:19)".to_owned()));
