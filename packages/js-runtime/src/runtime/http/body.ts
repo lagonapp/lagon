@@ -1,5 +1,5 @@
 export class RequestResponseBody {
-  readonly body: ReadableStream<Uint8Array> | string | ArrayBuffer | null;
+  private theBody: ReadableStream<Uint8Array> | string | ArrayBuffer | null;
   bodyUsed: boolean;
 
   // isStream is not part of the spec, but required to only stream
@@ -22,7 +22,7 @@ export class RequestResponseBody {
         typeof body === 'string' ||
         isPrimitive
       ) {
-        this.body = isPrimitive ? String(body) : body;
+        this.theBody = isPrimitive ? String(body) : body;
         this.bodyUsed = false;
         this.headersInit = headersInit;
         this.isStream = body instanceof ReadableStream;
@@ -32,17 +32,12 @@ export class RequestResponseBody {
       const stream = new TransformStream();
       const writer = stream.writable.getWriter();
 
-      if (typeof body === 'string') {
-        writer.write(globalThis.__lagon__.TEXT_ENCODER.encode(body));
-      } else {
-        writer.write(body);
-      }
-
+      writer.write(body);
       writer.close();
 
-      this.body = stream.readable;
+      this.theBody = stream.readable;
     } else {
-      this.body = null;
+      this.theBody = null;
     }
 
     this.bodyUsed = false;
@@ -52,6 +47,30 @@ export class RequestResponseBody {
     if (body instanceof URLSearchParams) {
       this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
     }
+  }
+
+  get body(): ReadableStream<Uint8Array> {
+    if (this.theBody instanceof ReadableStream) {
+      return this.theBody;
+    }
+
+    const stream = new TransformStream();
+    const writer = stream.writable.getWriter();
+
+    if (globalThis.__lagon__.isIterable(this.theBody)) {
+      writer.write(this.theBody);
+    } else {
+      const body =
+        typeof this.theBody === 'number' || typeof this.theBody === 'boolean'
+          ? String(this.theBody)
+          : this.theBody ?? '';
+
+      writer.write(globalThis.__lagon__.TEXT_ENCODER.encode(body));
+    }
+
+    writer.close();
+
+    return stream.readable;
   }
 
   get headers(): Headers {
@@ -77,22 +96,22 @@ export class RequestResponseBody {
       throw new TypeError('Body is already used');
     }
 
-    if (!this.body) {
+    if (!this.theBody) {
       this.bodyUsed = true;
       return new Uint8Array();
     }
 
-    if (typeof this.body === 'string') {
+    if (typeof this.theBody === 'string') {
       this.bodyUsed = true;
-      return globalThis.__lagon__.TEXT_ENCODER.encode(this.body);
+      return globalThis.__lagon__.TEXT_ENCODER.encode(this.theBody);
     }
 
-    if (globalThis.__lagon__.isIterable(this.body)) {
+    if (globalThis.__lagon__.isIterable(this.theBody)) {
       this.bodyUsed = true;
-      return this.body;
+      return this.theBody;
     }
 
-    const reader = this.body.getReader();
+    const reader = this.theBody.getReader();
 
     return new Promise(resolve => {
       let result = new Uint8Array();
@@ -139,22 +158,22 @@ export class RequestResponseBody {
       throw new TypeError('Body is already used');
     }
 
-    if (!this.body) {
+    if (!this.theBody) {
       this.bodyUsed = true;
       return '';
     }
 
-    if (typeof this.body === 'string') {
+    if (typeof this.theBody === 'string') {
       this.bodyUsed = true;
-      return this.body;
+      return this.theBody;
     }
 
-    if (globalThis.__lagon__.isIterable(this.body)) {
+    if (globalThis.__lagon__.isIterable(this.theBody)) {
       this.bodyUsed = true;
-      return globalThis.__lagon__.TEXT_DECODER.decode(this.body);
+      return globalThis.__lagon__.TEXT_DECODER.decode(this.theBody);
     }
 
-    const reader = this.body.getReader();
+    const reader = this.theBody.getReader();
 
     return new Promise(resolve => {
       let result = '';
