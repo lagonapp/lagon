@@ -1,4 +1,5 @@
 import { FieldValidator } from 'final-form';
+import { FUNCTION_NAME_REGEX } from 'lib/constants';
 
 export const requiredValidator: FieldValidator<string | number> = value => {
   return value ? undefined : 'Field is required';
@@ -22,9 +23,9 @@ export const maxLengthValidator =
 
 export const functionNameValidator: FieldValidator<string | number> = value => {
   if (typeof value === 'string') {
-    return /^[a-zA-Z0-9-]*$/.test(value)
+    return FUNCTION_NAME_REGEX.test(value)
       ? undefined
-      : 'Field must only contains alphanumerics characters, numbers and dashes';
+      : 'Function name must only contain lowercase alphanumeric characters and dashes';
   }
 
   return 'Field must be a string';

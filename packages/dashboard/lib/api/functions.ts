@@ -2,6 +2,7 @@ import prisma from 'lib/prisma';
 import { randomName } from '@scaleway/use-random-name';
 import { TRPCError } from '@trpc/server';
 import type { Plan } from 'lib/plans';
+import { FUNCTION_NAME_REGEX } from 'lib/constants';
 
 const LAGON_BLACKLISTED_FUNCTIONS_NAMES = process.env.LAGON_BLACKLISTED_NAMES?.split(',') ?? [];
 
@@ -24,6 +25,10 @@ export async function findUniqueFunctionName(): Promise<string> {
   }
 
   return name;
+}
+
+export function isFunctionNameAllowed(name: string): boolean {
+  return FUNCTION_NAME_REGEX.test(name);
 }
 
 export function isFunctionNameBlacklisted(name: string): boolean {
