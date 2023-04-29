@@ -283,9 +283,9 @@ Running ../../tools/wpt/fetch/api/request/request-disturbed.any.js
 TEST DONE 1 Request's body: initial state
 TEST DONE 1 Request without body cannot be disturbed
 TEST DONE 1 Check cloning a disturbed request
-TEST DONE 1 Check creating a new request from a disturbed request
+TEST DONE 0 Check creating a new request from a disturbed request
 TEST DONE 1 Request construction failure should not set "bodyUsed"
-TEST DONE 0 Check creating a new request with a new body from a disturbed request
+TEST DONE 1 Check creating a new request with a new body from a disturbed request
 TEST DONE 1 Input request used for creating new request became disturbed
 TEST DONE 1 Input request used for creating new request became disturbed even if body is not used
 TEST DONE 0 Check consuming a disturbed request
@@ -351,7 +351,7 @@ TEST DONE 1 Request should get its content-type from the body if none is provide
 TEST DONE 1 Request should get its content-type from init headers if one is provided
 TEST DONE 0 Testing request header creations with various objects
 TEST DONE 0 Test that Request.headers has the [SameObject] extended attribute
-TEST DONE 0 Testing empty Request Content-Type header
+TEST DONE 1 Testing empty Request Content-Type header
 Running ../../tools/wpt/fetch/api/request/request-init-002.any.js
 TEST DONE 0 Initialize Request with headers values
 TEST DONE 0 Initialize Request's body with "undefined", undefined
@@ -365,10 +365,10 @@ Running ../../tools/wpt/fetch/api/request/request-init-contenttype.any.js
 TEST DONE 0 Default Content-Type for Request with empty body
 TEST DONE 0 Default Content-Type for Request with Blob body (no type set)
 TEST DONE 0 Default Content-Type for Request with Blob body (empty type)
-TEST DONE 1 Default Content-Type for Request with Blob body (set type)
+TEST DONE 0 Default Content-Type for Request with Blob body (set type)
 TEST DONE 0 Default Content-Type for Request with buffer source body
 TEST DONE 0 Default Content-Type for Request with URLSearchParams body
-TEST DONE 1 Default Content-Type for Request with string body
+TEST DONE 0 Default Content-Type for Request with string body
 TEST DONE 0 Default Content-Type for Request with ReadableStream body
 TEST DONE 0 Can override Content-Type for Request with empty body
 TEST DONE 0 Can override Content-Type for Request with Blob body (no type set)
@@ -376,7 +376,7 @@ TEST DONE 0 Can override Content-Type for Request with Blob body (empty type)
 TEST DONE 0 Can override Content-Type for Request with Blob body (set type)
 TEST DONE 0 Can override Content-Type for Request with buffer source body
 TEST DONE 0 Can override Content-Type for Request with FormData body
-TEST DONE 1 Can override Content-Type for Request with URLSearchParams body
+TEST DONE 0 Can override Content-Type for Request with URLSearchParams body
 TEST DONE 0 Can override Content-Type for Request with string body
 TEST DONE 0 Can override Content-Type for Request with ReadableStream body
 TEST DONE 1 Default Content-Type for Request with FormData body
@@ -430,11 +430,11 @@ TEST DONE 1 Consume response's body as formData with correct urlencoded type
 TEST DONE 1 Consume response's body as formData without correct type (error case)
 TEST DONE 0 Consume empty blob response body as arrayBuffer
 TEST DONE 0 Consume empty text response body as arrayBuffer
-TEST DONE 1 Consume empty blob response body as text
+TEST DONE 0 Consume empty blob response body as text
 TEST DONE 0 Consume empty text response body as text
 TEST DONE 0 Consume empty URLSearchParams response body as text
-TEST DONE 0 Consume empty FormData response body as text
-TEST DONE 1 Consume empty ArrayBuffer response body as text
+TEST DONE 1 Consume empty FormData response body as text
+TEST DONE 0 Consume empty ArrayBuffer response body as text
 Running ../../tools/wpt/fetch/api/response/response-consume-stream.any.js
 TEST DONE 0 Getting an error Response stream
 TEST DONE 0 Getting a redirect Response stream
@@ -480,20 +480,20 @@ TEST DONE 0 Test that Response.headers has the [SameObject] extended attribute
 Running ../../tools/wpt/fetch/api/response/response-init-002.any.js
 TEST DONE 0 Initialize Response with headers values
 TEST DONE 0 Testing null Response body
-TEST DONE 1 Initialize Response's body with application/octet-binary
+TEST DONE 0 Initialize Response's body with application/octet-binary
 TEST DONE 1 Initialize Response's body with multipart/form-data
-TEST DONE 1 Initialize Response's body with application/x-www-form-urlencoded;charset=UTF-8
-TEST DONE 1 Initialize Response's body with text/plain;charset=UTF-8
+TEST DONE 0 Initialize Response's body with application/x-www-form-urlencoded;charset=UTF-8
+TEST DONE 0 Initialize Response's body with text/plain;charset=UTF-8
 TEST DONE 1 Read Response's body as readableStream
-TEST DONE 0 Testing empty Response Content-Type header
+TEST DONE 1 Testing empty Response Content-Type header
 Running ../../tools/wpt/fetch/api/response/response-init-contenttype.any.js
 TEST DONE 0 Default Content-Type for Response with empty body
 TEST DONE 0 Default Content-Type for Response with Blob body (no type set)
 TEST DONE 0 Default Content-Type for Response with Blob body (empty type)
-TEST DONE 1 Default Content-Type for Response with Blob body (set type)
+TEST DONE 0 Default Content-Type for Response with Blob body (set type)
 TEST DONE 0 Default Content-Type for Response with buffer source body
 TEST DONE 0 Default Content-Type for Response with URLSearchParams body
-TEST DONE 1 Default Content-Type for Response with string body
+TEST DONE 0 Default Content-Type for Response with string body
 TEST DONE 0 Default Content-Type for Response with ReadableStream body
 TEST DONE 0 Can override Content-Type for Response with empty body
 TEST DONE 0 Can override Content-Type for Response with Blob body (no type set)
@@ -501,7 +501,7 @@ TEST DONE 0 Can override Content-Type for Response with Blob body (empty type)
 TEST DONE 0 Can override Content-Type for Response with Blob body (set type)
 TEST DONE 0 Can override Content-Type for Response with buffer source body
 TEST DONE 0 Can override Content-Type for Response with FormData body
-TEST DONE 1 Can override Content-Type for Response with URLSearchParams body
+TEST DONE 0 Can override Content-Type for Response with URLSearchParams body
 TEST DONE 0 Can override Content-Type for Response with string body
 TEST DONE 0 Can override Content-Type for Response with ReadableStream body
 TEST DONE 1 Default Content-Type for Response with FormData body
@@ -1586,10 +1586,55 @@ TEST DONE 0 Unusual but valid property bag: function() {}
 TEST DONE 1 Property bag propagates exceptions
 Running ../../tools/wpt/FileAPI/file/send-file-formdata-controls.any.js
 TEST DONE 1 Upload file-for-upload-in-form-NUL-[ ].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-BS-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-VT-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-LF-[
+].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-LF-CR-[
+].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-CR-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-CR-LF-[
+].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-HT-[	].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-FF-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-DEL-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-ESC-[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-SPACE-[ ].txt (ASCII) in fetch with FormData
 Running ../../tools/wpt/FileAPI/file/send-file-formdata-punctuation.any.js
 TEST DONE 1 Upload file-for-upload-in-form-QUOTATION-MARK-["].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload "file-for-upload-in-form-double-quoted.txt" (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-REVERSE-SOLIDUS-[\].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-EXCLAMATION-MARK-[!].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-DOLLAR-SIGN-[$].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-PERCENT-SIGN-[%].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-AMPERSAND-[&].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-APOSTROPHE-['].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-LEFT-PARENTHESIS-[(].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-RIGHT-PARENTHESIS-[)].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-ASTERISK-[*].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-PLUS-SIGN-[+].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-COMMA-[,].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-FULL-STOP-[.].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-SOLIDUS-[/].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-COLON-[:].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-SEMICOLON-[;].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-EQUALS-SIGN-[=].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-QUESTION-MARK-[?].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-CIRCUMFLEX-ACCENT-[^].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-LEFT-SQUARE-BRACKET-[[].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-RIGHT-SQUARE-BRACKET-[]].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-LEFT-CURLY-BRACKET-[{].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-VERTICAL-LINE-[|].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-RIGHT-CURLY-BRACKET-[}].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-TILDE-[~].txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload 'file-for-upload-in-form-single-quoted.txt' (ASCII) in fetch with FormData
 Running ../../tools/wpt/FileAPI/file/send-file-formdata-utf-8.any.js
 TEST DONE 1 Upload file-for-upload-in-form.txt (ASCII) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-.txt (x-user-defined) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-☺😂.txt (Unicode) in fetch with FormData
+TEST DONE 1 Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in fetch with FormData
 Running ../../tools/wpt/FileAPI/file/send-file-formdata.any.js
 TEST DONE 1 Upload file-for-upload-in-form.txt (ASCII) in fetch with FormData
 Running ../../tools/wpt/FileAPI/reading-data-section/Determining-Encoding.any.js
@@ -1700,5 +1745,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1576 tests, 456 passed, 1111 failed
+1615 tests, 464 passed, 1145 failed
  -> 28% conformance

@@ -62,8 +62,8 @@ declare global {
   };
 
   var LagonAsync: {
-    fetch: ({ h, m, b, u }: { h?: Map<string, string>; m: string; b?: string; u: string }) => Promise<{
-      b: Uint8Array;
+    fetch: ({ h, m, b, u }: { h?: Map<string, string>; m: string; b?: ArrayBuffer; u: string }) => Promise<{
+      b: ArrayBuffer;
       s: number;
       h?: Record<string, string>;
     }>;
@@ -108,7 +108,7 @@ declare global {
       b: RequestInit['body'];
     },
   ) => Promise<{
-    b: string;
+    b: ArrayBuffer;
     h: ResponseInit['headers'];
     s: ResponseInit['status'];
   }>;
@@ -138,9 +138,17 @@ globalThis.masterHandler = async (id, request) => {
   });
 
   const response = await handler(handlerRequest);
+  let body: ArrayBuffer;
 
-  if (response.body && response.isStream) {
-    const reader = response.body.getReader();
+  if (response.isStream) {
+    const responseBody = response.body;
+
+    if (!responseBody) {
+      throw new Error('Got a stream without a body');
+    }
+
+    body = globalThis.__lagon__.TEXT_ENCODER.encode(responseBody.toString());
+    const reader = responseBody.getReader();
 
     const read = () => {
       reader.read().then(({ done, value }) => {
@@ -159,12 +167,11 @@ globalThis.masterHandler = async (id, request) => {
 
     read();
   } else {
-    // @ts-expect-error we reassign body even if it's readonly
-    response.body = await response.text();
+    body = await response.arrayBuffer();
   }
 
   return {
-    b: response.body as unknown as string,
+    b: body,
     h: response.headers,
     s: response.status,
   };

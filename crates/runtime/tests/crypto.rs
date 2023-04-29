@@ -296,7 +296,7 @@ async fn crypto_decrypt() {
         ciphertext,
     );
 
-    return new Response(text);
+    return new Response(new TextDecoder().decode(text));
 }"
         .into(),
     ));

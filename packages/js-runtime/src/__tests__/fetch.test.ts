@@ -191,7 +191,7 @@ describe('fetch', () => {
     expect(globalThis.LagonAsync.fetch).toHaveBeenCalledWith({
       m: 'POST',
       u: 'https://google.com',
-      b: 'A body',
+      b: new Uint8Array([65, 32, 98, 111, 100, 121]),
     });
   });
 });

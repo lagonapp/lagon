@@ -49,7 +49,7 @@ export function handler() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
-        Response::from("")
+        Response::default()
     );
 }
 
@@ -75,7 +75,7 @@ export function handler() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
-        Response::from("")
+        Response::default()
     );
 }
 
@@ -115,7 +115,7 @@ export function handler() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
-        Response::from("")
+        Response::default()
     );
 }
 
@@ -167,7 +167,7 @@ export function handler() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
-        Response::from("")
+        Response::default()
     );
 }
 
