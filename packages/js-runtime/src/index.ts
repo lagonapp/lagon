@@ -140,10 +140,15 @@ globalThis.masterHandler = async (id, request) => {
   const response = await handler(handlerRequest);
   let body: ArrayBuffer;
 
-  if (response.body && response.isStream) {
-    body = globalThis.__lagon__.TEXT_ENCODER.encode(response.body.toString());
+  if (response.isStream) {
+    const responseBody = response.body;
 
-    const reader = response.body.getReader();
+    if (!responseBody) {
+      throw new Error('Got a stream without a body');
+    }
+
+    body = globalThis.__lagon__.TEXT_ENCODER.encode(responseBody.toString());
+    const reader = responseBody.getReader();
 
     const read = () => {
       reader.read().then(({ done, value }) => {
