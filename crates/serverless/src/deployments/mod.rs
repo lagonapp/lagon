@@ -1,17 +1,17 @@
+use crate::REGION;
+use anyhow::{anyhow, Result};
+use dashmap::DashMap;
+use futures::{stream::FuturesUnordered, StreamExt};
+use lagon_runtime_utils::{Deployment, DEPLOYMENTS_DIR};
+use lagon_serverless_downloader::Downloader;
+use log::{error, info, warn};
+use mysql::{prelude::Queryable, PooledConn};
 use std::{
     collections::{HashMap, HashSet},
     fs,
     path::Path,
     sync::Arc,
 };
-
-use crate::REGION;
-use anyhow::{anyhow, Result};
-use dashmap::DashMap;
-use lagon_runtime_utils::{Deployment, DEPLOYMENTS_DIR};
-use lagon_serverless_downloader::Downloader;
-use log::{error, info, warn};
-use mysql::{prelude::Queryable, PooledConn};
 
 use self::filesystem::{create_deployments_folder, rm_deployment};
 
@@ -31,13 +31,20 @@ where
             info!(deployment = deployment.id; "Wrote deployment");
 
             if !deployment.assets.is_empty() {
+                let mut futures = FuturesUnordered::new();
+
                 for asset in &deployment.assets {
-                    match downloader
-                        .download(deployment.id.clone() + "/" + asset.as_str())
-                        .await
-                    {
+                    futures.push(async {
+                        let future =
+                            downloader.download(deployment.id.clone() + "/" + asset.as_str());
+                        (future.await, asset.clone())
+                    });
+                }
+
+                while let Some((result, asset)) = futures.next().await {
+                    match result {
                         Ok(object) => {
-                            deployment.write_asset(asset, &object)?;
+                            deployment.write_asset(&asset, &object)?;
                         }
                         Err(error) => {
                             warn!(deployment = deployment.id, asset = asset; "Failed to download deployment asset: {}", error)
