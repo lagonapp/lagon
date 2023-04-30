@@ -178,7 +178,8 @@ impl Request {
 
         for key in request.headers().keys() {
             if key != X_LAGON_ID {
-                let mut values = Vec::new();
+                // We guess that most of the time there will be only one header value
+                let mut values = Vec::with_capacity(1);
 
                 for value in request.headers().get_all(key) {
                     values.push(value.to_str()?.to_string());

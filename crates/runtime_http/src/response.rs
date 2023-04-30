@@ -165,7 +165,8 @@ impl Response {
         let mut headers = Vec::with_capacity(response.headers().keys_len());
 
         for key in response.headers().keys() {
-            let mut values = Vec::new();
+            // We guess that most of the time there will be only one header value
+            let mut values = Vec::with_capacity(1);
 
             for value in response.headers().get_all(key) {
                 values.push(value.to_str()?.to_string());
