@@ -4,7 +4,7 @@ import AuthGuard from 'lib/components/AuthGuard';
 import '@lagon/ui/src/styles/globals.css';
 import { Toaster } from 'react-hot-toast';
 import Layout from 'lib/Layout';
-import { I18nProvider } from 'locales';
+import { I18nProvider, usePersistLocale } from 'locales';
 import en from 'locales/en';
 import { trpc } from 'lib/trpc';
 import { useMemo } from 'react';
@@ -17,6 +17,8 @@ type LayoutAppProps = AppProps & {
 };
 
 const App = ({ Component, pageProps: { session, ...pageProps } }: LayoutAppProps) => {
+  usePersistLocale();
+
   const MaybeAuthGuard = useMemo(
     () => (Component.anonymous ? ({ children }: { children: React.ReactNode }) => <>{children}</> : AuthGuard),
     [Component.anonymous],
