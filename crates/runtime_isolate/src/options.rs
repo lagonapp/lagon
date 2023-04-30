@@ -13,6 +13,7 @@ pub struct IsolateOptions {
     pub memory: usize, // in MB (MegaBytes)
     pub tick_timeout: Duration,
     pub total_timeout: Duration,
+    pub statistics_interval: Duration,
     pub metadata: Rc<Metadata>,
     pub on_drop: Option<OnIsolateDropCallback>,
     pub on_statistics: Option<OnIsolateStatisticsCallback>,
@@ -30,6 +31,7 @@ impl IsolateOptions {
             environment_variables: None,
             tick_timeout: Duration::from_millis(200),
             total_timeout: Duration::from_secs(1),
+            statistics_interval: Duration::from_secs(1),
             memory: 128,
             metadata: Rc::new(None),
             on_drop: None,
