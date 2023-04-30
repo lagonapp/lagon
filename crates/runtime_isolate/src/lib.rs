@@ -108,6 +108,7 @@ pub struct Isolate {
     heartbeat: Arc<RwLock<Heartbeat>>,
     rx: flume::Receiver<IsolateEvent>,
     near_heap_limit_callback_data: Option<Box<RefCell<dyn std::any::Any>>>,
+    last_statistic_sent: Instant,
 }
 
 unsafe impl Send for Isolate {}
@@ -206,6 +207,7 @@ impl Isolate {
             heartbeat: Arc::new(RwLock::new(Heartbeat::None)),
             rx,
             near_heap_limit_callback_data: None,
+            last_statistic_sent: Instant::now(),
         };
 
         let thread_safe_handle = this.isolate.as_ref().unwrap().thread_safe_handle();
@@ -381,12 +383,11 @@ impl Isolate {
         };
     }
 
-    pub fn handle_event(&mut self, event: IsolateEvent) {
+    pub fn handle_event(&mut self, event: IsolateEvent, state: &Rc<RefCell<IsolateState>>) {
         match event {
             IsolateEvent::Request(IsolateRequest { request, sender }) => {
-                let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
                 let (global, requests_count) = {
-                    let mut isolate_state = isolate_state.borrow_mut();
+                    let mut isolate_state = state.borrow_mut();
                     let global = isolate_state.global.as_ref().unwrap().0.clone();
 
                     isolate_state.requests_count += 1;
@@ -409,7 +410,7 @@ impl Isolate {
                 let id = v8::Integer::new(try_catch, requests_count as i32);
                 try_catch.set_continuation_preserved_embedder_data(id.into());
 
-                isolate_state.borrow_mut().handler_results.insert(
+                state.borrow_mut().handler_results.insert(
                     requests_count,
                     HandlerResult {
                         promise: None,
@@ -427,10 +428,8 @@ impl Isolate {
                             .expect("Handler did not return a promise");
                         let promise = v8::Global::new(try_catch, promise);
 
-                        if let Some(handler_result) = isolate_state
-                            .borrow_mut()
-                            .handler_results
-                            .get_mut(&requests_count)
+                        if let Some(handler_result) =
+                            state.borrow_mut().handler_results.get_mut(&requests_count)
                         {
                             handler_result.promise = Some(promise);
                         }
@@ -451,32 +450,31 @@ impl Isolate {
         }
     }
 
-    fn poll_v8(&mut self) {
-        let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
-        let global = {
-            let isolate_state = isolate_state.borrow();
-            isolate_state.global.as_ref().unwrap().0.clone()
-        };
+    fn poll_v8(&mut self, global: &v8::Global<v8::Context>) {
         let scope = &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global);
 
         while v8::Platform::pump_message_loop(&v8::V8::get_current_platform(), scope, false) {}
         scope.perform_microtask_checkpoint();
     }
 
-    fn resolve_promises(&mut self, cx: &mut Context) {
-        let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
+    fn resolve_promises(
+        &mut self,
+        cx: &mut Context,
+        global: &v8::Global<v8::Context>,
+        state: &Rc<RefCell<IsolateState>>,
+    ) {
         let mut promises = None;
 
         {
-            let mut isolate_state = isolate_state.borrow_mut();
+            let mut state = state.borrow_mut();
 
-            if !isolate_state.promises.is_empty() {
+            if !state.promises.is_empty() {
                 promises = Some(Vec::new());
 
                 while let Poll::Ready(Some(BindingResult { id, result })) =
-                    isolate_state.promises.poll_next_unpin(cx)
+                    state.promises.poll_next_unpin(cx)
                 {
-                    if let Some(promise) = isolate_state.js_promises.remove(&id) {
+                    if let Some(promise) = state.js_promises.remove(&id) {
                         promises.as_mut().unwrap().push((result, promise));
                     }
                 }
@@ -484,10 +482,6 @@ impl Isolate {
         }
 
         if let Some(promises) = promises {
-            let global = {
-                let isolate_state = isolate_state.borrow();
-                isolate_state.global.as_ref().unwrap().0.clone()
-            };
             let scope = &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global);
 
             for (result, promise) in promises {
@@ -504,7 +498,7 @@ impl Isolate {
         }
     }
 
-    fn poll_stream(&mut self, state: &RefMut<IsolateState>) {
+    fn poll_stream(&self, state: &RefMut<IsolateState>) {
         while let Ok(stream_result) = self.stream_receiver.try_recv() {
             let (id, stream_result) = stream_result;
 
@@ -550,32 +544,36 @@ impl Isolate {
             return Poll::Ready(());
         }
 
-        let isolate_state = Isolate::state(self.isolate.as_ref().unwrap());
+        let state = Isolate::state(self.isolate.as_ref().unwrap());
 
         // If no requests are being processed, we can block this thread (`rx.recv`)
         // while we wait for a new request. The heartbeat status is set to Waiting
         // to avoid the isolate being terminated. If we are already processing requests,
         // try to receive any other request
-        if isolate_state.borrow().handler_results.is_empty() {
+        if state.borrow().handler_results.is_empty() {
             *self.heartbeat.write().unwrap() = Heartbeat::Waiting;
 
             if let Ok(event) = self.rx.recv() {
                 *self.heartbeat.write().unwrap() = Heartbeat::Some;
-                self.handle_event(event);
+                self.handle_event(event, &state);
             }
         } else {
             *self.heartbeat.write().unwrap() = Heartbeat::Some;
 
             while let Ok(event) = self.rx.try_recv() {
-                self.handle_event(event);
+                self.handle_event(event, &state);
             }
         }
 
-        self.poll_v8();
-        self.resolve_promises(cx);
+        let global = {
+            let state = state.borrow();
+            state.global.as_ref().unwrap().0.clone()
+        };
 
-        let mut state = isolate_state.borrow_mut();
+        self.poll_v8(&global);
+        self.resolve_promises(cx, &global, &state);
 
+        let mut state = state.borrow_mut();
         self.poll_stream(&state);
 
         if let Some(termination_result) = self.termination_result.read().unwrap().as_ref() {
@@ -602,16 +600,27 @@ impl Isolate {
             }
         }
 
-        let global = state.global.as_ref().unwrap().0.clone();
         let scope = &mut v8::HandleScope::with_context(self.isolate.as_mut().unwrap(), global);
         let try_catch = &mut v8::TryCatch::new(scope);
         let lines = state.lines;
         let options = &self.options;
 
+        let should_send_statistics =
+            match self.last_statistic_sent.elapsed() >= options.statistics_interval {
+                true => {
+                    self.last_statistic_sent = Instant::now();
+                    true
+                }
+                false => false,
+            };
+
         state.handler_results.retain(|_, handler_result| {
             if *handler_result.stream_response_sent.borrow() {
                 if handler_result.stream_status.borrow().is_done() {
-                    send_statistics(options, try_catch);
+                    if should_send_statistics {
+                        send_statistics(options, try_catch);
+                    }
+
                     return false;
                 }
 
@@ -650,7 +659,11 @@ impl Isolate {
                     }
 
                     handler_result.sender.send(run_result).unwrap_or(());
-                    send_statistics(options, try_catch);
+
+                    if should_send_statistics {
+                        send_statistics(options, try_catch);
+                    }
+
                     false
                 }
                 v8::PromiseState::Rejected => {
@@ -663,7 +676,10 @@ impl Isolate {
                         )))
                         .unwrap_or(());
 
-                    send_statistics(options, try_catch);
+                    if should_send_statistics {
+                        send_statistics(options, try_catch);
+                    }
+
                     false
                 }
                 v8::PromiseState::Pending => {
