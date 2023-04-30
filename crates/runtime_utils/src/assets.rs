@@ -2,7 +2,7 @@ use anyhow::Result;
 use hyper::body::Bytes;
 use lagon_runtime_http::Response;
 use std::{
-    collections::{HashMap, HashSet},
+    collections::HashSet,
     fs,
     path::{Path, PathBuf},
 };
@@ -39,8 +39,7 @@ pub fn handle_asset(root: PathBuf, asset: &String) -> Result<Response> {
         },
     );
 
-    let mut headers = HashMap::with_capacity(1);
-    headers.insert("content-type".into(), vec![content_type.into()]);
+    let headers = Vec::from([("content-type".into(), vec![content_type.into()])]);
 
     Ok(Response {
         status: 200,

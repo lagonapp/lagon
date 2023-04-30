@@ -9,15 +9,15 @@ use lagon_runtime_v8_utils::{
     extract_v8_headers_object, extract_v8_integer, extract_v8_uint8array, v8_headers_object,
     v8_integer, v8_string, v8_uint8array,
 };
-use std::{collections::HashMap, str::FromStr};
+use std::str::FromStr;
 
-use crate::{FromV8, IntoV8};
+use crate::{FromV8, Headers, IntoV8};
 
 static READABLE_STREAM_STR: &[u8] = b"[object ReadableStream]";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Response {
-    pub headers: Option<HashMap<String, Vec<String>>>,
+    pub headers: Option<Headers>,
     pub body: Bytes,
     pub status: u16,
 }
@@ -35,7 +35,7 @@ impl Default for Response {
 impl From<&str> for Response {
     fn from(body: &str) -> Self {
         Response {
-            headers: Some(HashMap::from([(
+            headers: Some(Vec::from([(
                 "content-type".into(),
                 Vec::from(["text/plain;charset=UTF-8".into()]),
             )])),
@@ -162,14 +162,16 @@ impl Response {
     }
 
     pub async fn from_hyper(response: HyperResponse<Body>) -> Result<Self> {
-        let mut headers =
-            HashMap::<String, Vec<String>>::with_capacity(response.headers().keys_len());
+        let mut headers = Vec::with_capacity(response.headers().keys_len());
 
-        for (key, value) in response.headers().iter() {
-            headers
-                .entry(key.to_string())
-                .or_default()
-                .push(value.to_str()?.to_string());
+        for key in response.headers().keys() {
+            let mut values = Vec::new();
+
+            for value in response.headers().get_all(key) {
+                values.push(value.to_str()?.to_string());
+            }
+
+            headers.push((key.to_string(), values));
         }
 
         let status = response.status().as_u16();
