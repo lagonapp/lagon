@@ -35,10 +35,10 @@ impl Default for Response {
 impl From<&str> for Response {
     fn from(body: &str) -> Self {
         Response {
-            headers: Some(Vec::from([(
+            headers: Some(vec![(
                 "content-type".into(),
-                Vec::from(["text/plain;charset=UTF-8".into()]),
-            )])),
+                vec!["text/plain;charset=UTF-8".into()],
+            )]),
             body: Bytes::from(body.to_string()),
             status: 200,
         }
