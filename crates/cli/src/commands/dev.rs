@@ -117,38 +117,32 @@ async fn handle_request(
         };
     }
 
-    handle_response(
-        rx,
-        (),
-        Box::new(|event, _| {
-            Box::pin(async move {
-                match event {
-                    ResponseEvent::StreamDoneNoDataError => {
-                        println!(
-                            "{}",
-                            error("The stream was done before sending a response/data")
-                        );
-                    }
-                    ResponseEvent::UnexpectedStreamResult(result) => {
-                        println!("{} {:?}", error("Unexpected stream result:"), result);
-                    }
-                    ResponseEvent::LimitsReached(result) => {
-                        if result == RunResult::Timeout {
-                            println!("{}", error("Function execution timed out"));
-                        } else {
-                            println!("{}", error("Function execution reached memory limit"));
-                        }
-                    }
-                    ResponseEvent::Error(result) => {
-                        println!("{}", error(result.as_error().as_str()));
-                    }
-                    _ => {}
+    handle_response(rx, |event| async move {
+        match event {
+            ResponseEvent::StreamDoneNoDataError => {
+                println!(
+                    "{}",
+                    error("The stream was done before sending a response/data")
+                );
+            }
+            ResponseEvent::UnexpectedStreamResult(result) => {
+                println!("{} {:?}", error("Unexpected stream result:"), result);
+            }
+            ResponseEvent::LimitsReached(result) => {
+                if result == RunResult::Timeout {
+                    println!("{}", error("Function execution timed out"));
+                } else {
+                    println!("{}", error("Function execution reached memory limit"));
                 }
+            }
+            ResponseEvent::Error(result) => {
+                println!("{}", error(result.as_error().as_str()));
+            }
+            _ => {}
+        }
 
-                Ok(())
-            })
-        }),
-    )
+        Ok(())
+    })
     .await
 }
 

@@ -41,7 +41,6 @@ pub enum RunResult {
     Timeout,
     MemoryLimit,
     Error(String),
-    NotFound,
 }
 
 impl RunResult {
