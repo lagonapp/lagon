@@ -1,5 +1,13 @@
 # @lagon/ui
 
+## 0.2.3
+
+### Patch Changes
+
+- [#791](https://github.com/lagonapp/lagon/pull/791) [`a345727`](https://github.com/lagonapp/lagon/commit/a345727ad337fd57b3f14103bfba6c3ec198bf58) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Text error not being red
+
+* [#792](https://github.com/lagonapp/lagon/pull/792) [`c775ec9`](https://github.com/lagonapp/lagon/commit/c775ec9b3096f225af03b72a65cb1189e520acd7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Remove shadows on dark mode
+
 ## 0.2.2
 
 ### Patch Changes

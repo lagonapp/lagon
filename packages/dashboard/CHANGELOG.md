@@ -1,5 +1,22 @@
 # @lagon/dashboard
 
+## 0.3.5
+
+### Patch Changes
+
+- [#792](https://github.com/lagonapp/lagon/pull/792) [`c775ec9`](https://github.com/lagonapp/lagon/commit/c775ec9b3096f225af03b72a65cb1189e520acd7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix playground editor theme to match the user's theme
+
+* [#808](https://github.com/lagonapp/lagon/pull/808) [`a2146e2`](https://github.com/lagonapp/lagon/commit/a2146e23206abea9ef2803a6b2997cb00ce73b19) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Only allow lowercase alphanumeric characters and dashes for Functions names
+
+- [#792](https://github.com/lagonapp/lagon/pull/792) [`c775ec9`](https://github.com/lagonapp/lagon/commit/c775ec9b3096f225af03b72a65cb1189e520acd7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add a background color (fix macos overscroll)
+
+* [#791](https://github.com/lagonapp/lagon/pull/791) [`a345727`](https://github.com/lagonapp/lagon/commit/a345727ad337fd57b3f14103bfba6c3ec198bf58) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix organization name/description validators
+
+- [#816](https://github.com/lagonapp/lagon/pull/816) [`9f8d19b`](https://github.com/lagonapp/lagon/commit/9f8d19bd3553388367d90900b0a46a9d2bdc49cb) Thanks [@diboune](https://github.com/diboune)! - Persist language choice
+
+- Updated dependencies [[`a345727`](https://github.com/lagonapp/lagon/commit/a345727ad337fd57b3f14103bfba6c3ec198bf58), [`c775ec9`](https://github.com/lagonapp/lagon/commit/c775ec9b3096f225af03b72a65cb1189e520acd7)]:
+  - @lagon/ui@0.2.3
+
 ## 0.3.4
 
 ### Patch Changes

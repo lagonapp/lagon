@@ -1,6 +1,6 @@
 {
   "name": "@lagon/cli",
-  "version": "0.5.8",
+  "version": "0.6.0",
   "description": "CLI for Lagon",
   "type": "module",
   "files": [

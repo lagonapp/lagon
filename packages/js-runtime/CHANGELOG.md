@@ -1,5 +1,11 @@
 # @lagon/js-runtime
 
+## 0.3.10
+
+### Patch Changes
+
+- [#807](https://github.com/lagonapp/lagon/pull/807) [`b0b0cc5`](https://github.com/lagonapp/lagon/commit/b0b0cc52c37e69518f9a44892150eeac8c642f76) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve Request/Response default headers
+
 ## 0.3.9
 
 ## 0.3.8

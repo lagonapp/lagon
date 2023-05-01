@@ -1,6 +1,6 @@
 {
   "name": "@lagon/ui",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Lagon Design System",
   "private": true,
   "main": "src/index.ts",

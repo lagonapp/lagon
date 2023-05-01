@@ -1,5 +1,17 @@
 # @lagon/runtime
 
+## 0.3.10
+
+### Patch Changes
+
+- [#813](https://github.com/lagonapp/lagon/pull/813) [`835094f`](https://github.com/lagonapp/lagon/commit/835094fef023aee532e1d57e895e4f1cb6189d22) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Calculate isolate statistics at every seconds instead of every request
+
+* [#814](https://github.com/lagonapp/lagon/pull/814) [`29fb49d`](https://github.com/lagonapp/lagon/commit/29fb49d7ace2759be57157969b4ffca61ed748d1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve Request/Response allocations
+
+- [#807](https://github.com/lagonapp/lagon/pull/807) [`b0b0cc5`](https://github.com/lagonapp/lagon/commit/b0b0cc52c37e69518f9a44892150eeac8c642f76) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve Request/Response default headers
+
+* [#802](https://github.com/lagonapp/lagon/pull/802) [`40b8a4f`](https://github.com/lagonapp/lagon/commit/40b8a4f08142cc0fc74eb73209e67b9f0bf8366b) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Update to V8 11.4
+
 ## 0.3.9
 
 ### Patch Changes
