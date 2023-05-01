@@ -55,7 +55,7 @@ impl IntoV8 for Response {
         let mut values = Vec::with_capacity(len);
 
         names.push(v8_string(scope, "b").into());
-        values.push(v8_string(scope, std::str::from_utf8(&self.body).unwrap()).into());
+        values.push(v8_string(scope, unsafe { std::str::from_utf8_unchecked(&self.body) }).into());
 
         names.push(v8_string(scope, "s").into());
         values.push(v8_integer(scope, self.status.into()).into());

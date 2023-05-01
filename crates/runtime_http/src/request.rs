@@ -55,7 +55,9 @@ impl IntoV8 for Request {
 
         if body_exists {
             names.push(v8_string(scope, "b").into());
-            values.push(v8_string(scope, std::str::from_utf8(&self.body).unwrap()).into());
+            values.push(
+                v8_string(scope, unsafe { std::str::from_utf8_unchecked(&self.body) }).into(),
+            );
         }
 
         if let Some(headers) = self.headers {
