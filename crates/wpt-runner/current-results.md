@@ -1586,55 +1586,10 @@ TEST DONE 0 Unusual but valid property bag: function() {}
 TEST DONE 1 Property bag propagates exceptions
 Running ../../tools/wpt/FileAPI/file/send-file-formdata-controls.any.js
 TEST DONE 1 Upload file-for-upload-in-form-NUL-[ ].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-BS-[].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-VT-[].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-LF-[
-].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-LF-CR-[
-].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-CR-[].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-CR-LF-[
-].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-HT-[	].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-FF-[].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-DEL-[].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-ESC-[].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-SPACE-[ ].txt (ASCII) in fetch with FormData
 Running ../../tools/wpt/FileAPI/file/send-file-formdata-punctuation.any.js
 TEST DONE 1 Upload file-for-upload-in-form-QUOTATION-MARK-["].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload "file-for-upload-in-form-double-quoted.txt" (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-REVERSE-SOLIDUS-[\].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-EXCLAMATION-MARK-[!].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-DOLLAR-SIGN-[$].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-PERCENT-SIGN-[%].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-AMPERSAND-[&].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-APOSTROPHE-['].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-LEFT-PARENTHESIS-[(].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-RIGHT-PARENTHESIS-[)].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-ASTERISK-[*].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-PLUS-SIGN-[+].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-COMMA-[,].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-FULL-STOP-[.].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-SOLIDUS-[/].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-COLON-[:].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-SEMICOLON-[;].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-EQUALS-SIGN-[=].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-QUESTION-MARK-[?].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-CIRCUMFLEX-ACCENT-[^].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-LEFT-SQUARE-BRACKET-[[].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-RIGHT-SQUARE-BRACKET-[]].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-LEFT-CURLY-BRACKET-[{].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-VERTICAL-LINE-[|].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-RIGHT-CURLY-BRACKET-[}].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-TILDE-[~].txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload 'file-for-upload-in-form-single-quoted.txt' (ASCII) in fetch with FormData
 Running ../../tools/wpt/FileAPI/file/send-file-formdata-utf-8.any.js
 TEST DONE 1 Upload file-for-upload-in-form.txt (ASCII) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-.txt (x-user-defined) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-â˜ºðŸ˜‚.txt (windows-1252) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-★星★.txt (JIS X 0201 and JIS X 0208) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-☺😂.txt (Unicode) in fetch with FormData
-TEST DONE 1 Upload file-for-upload-in-form-ABC~‾¥≈¤･・•∙·☼★星🌟星★☼·∙•・･¤≈¥‾~XYZ.txt (Unicode) in fetch with FormData
 Running ../../tools/wpt/FileAPI/file/send-file-formdata.any.js
 TEST DONE 1 Upload file-for-upload-in-form.txt (ASCII) in fetch with FormData
 Running ../../tools/wpt/FileAPI/reading-data-section/Determining-Encoding.any.js
@@ -1745,5 +1700,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1615 tests, 464 passed, 1145 failed
- -> 28% conformance
+1576 tests, 464 passed, 1103 failed
+ -> 29% conformance

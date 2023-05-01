@@ -206,7 +206,7 @@ async fn response_headers() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
-        Response::from("content-length: 0 x-token: hello")
+        Response::from("content-length: 0 content-type: text/plain;charset=UTF-8 x-token: hello")
     );
 }
 

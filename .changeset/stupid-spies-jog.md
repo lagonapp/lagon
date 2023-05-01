@@ -1,6 +1,7 @@
 ---
 '@lagon/runtime': patch
+'@lagon/cli': patch
 '@lagon/js-runtime': patch
 ---
 
-Use ArrayBuffer for Request/response body
+Improve Request/Response default headers
