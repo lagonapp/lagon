@@ -263,7 +263,7 @@ async fn handle_request(
         }
     }
 
-    handle_response(receiver, move |deferred_event| {
+    handle_response(receiver, move |event| {
         let inserters = Arc::clone(&inserters);
         let function_id = function_id.clone();
         let deployment_id = deployment_id.clone();
@@ -271,7 +271,7 @@ async fn handle_request(
         let labels = labels.clone();
 
         async move {
-            match deferred_event {
+            match event {
                 ResponseEvent::Bytes(bytes, cpu_time_micros) => {
                     inserters
                         .lock()
