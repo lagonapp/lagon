@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use anyhow::{anyhow, Result};
 
 pub fn extract_v8_string(
@@ -24,7 +22,7 @@ pub fn extract_v8_integer(value: v8::Local<v8::Value>, scope: &mut v8::HandleSco
 pub fn extract_v8_headers_object(
     value: v8::Local<v8::Value>,
     scope: &mut v8::HandleScope,
-) -> Result<Option<HashMap<String, Vec<String>>>> {
+) -> Result<Option<Vec<(String, Vec<String>)>>> {
     if !value.is_map() {
         return Err(anyhow!("Value is not of type 'Map'"));
     }
@@ -34,7 +32,7 @@ pub fn extract_v8_headers_object(
     if map.size() > 0 {
         let headers_keys = map.as_array(scope);
         let length = headers_keys.length();
-        let mut headers = HashMap::with_capacity((length / 2) as usize);
+        let mut headers = Vec::with_capacity((length / 2) as usize);
 
         for mut index in 0..length {
             if index % 2 != 0 {
@@ -73,7 +71,7 @@ pub fn extract_v8_headers_object(
                     result
                 });
 
-            headers.insert(key, values);
+            headers.push((key, values));
         }
 
         return Ok(Some(headers));
@@ -120,7 +118,7 @@ pub fn v8_uint8array<'a>(
 
 pub fn v8_headers_object<'a>(
     scope: &mut v8::HandleScope<'a>,
-    value: HashMap<String, Vec<String>>,
+    value: Vec<(String, Vec<String>)>,
 ) -> v8::Local<'a, v8::Object> {
     let len = value.len();
 

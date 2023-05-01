@@ -1,7 +1,6 @@
 use httptest::bytes::Bytes;
 use lagon_runtime_http::{Request, Response, RunResult, StreamResult};
 use lagon_runtime_isolate::options::IsolateOptions;
-use std::collections::HashMap;
 
 mod utils;
 
@@ -105,8 +104,6 @@ async fn custom_response() {
         .into(),
     ));
     send(Request::default());
-    let mut headers = HashMap::new();
-    headers.insert("x-lagon".into(), vec!["test".into()]);
 
     assert_eq!(
         receiver.recv_async().await.unwrap(),
@@ -120,7 +117,7 @@ async fn custom_response() {
         RunResult::Stream(StreamResult::Start(Response {
             body: Bytes::from("[object ReadableStream]"),
             status: 201,
-            headers: Some(headers),
+            headers: Some(vec![("x-lagon".into(), vec!["test".into()])]),
         }))
     );
 }

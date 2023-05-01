@@ -1,7 +1,6 @@
 use httptest::bytes::Bytes;
 use lagon_runtime_http::{Method, Request, Response, RunResult, StreamResult};
 use lagon_runtime_isolate::options::IsolateOptions;
-use std::collections::HashMap;
 
 mod utils;
 
@@ -81,10 +80,10 @@ async fn get_body_streaming() {
     ));
     send(Request {
         body: Bytes::from("Hello world"),
-        headers: Some(HashMap::from([(
+        headers: Some(vec![(
             "content-type".into(),
-            Vec::from(["text/plain;charset=UTF-8".into()]),
-        )])),
+            vec!["text/plain;charset=UTF-8".into()],
+        )]),
         method: Method::GET,
         url: "".into(),
     });
@@ -117,10 +116,10 @@ async fn get_body() {
     ));
     send(Request {
         body: Bytes::from("Hello world"),
-        headers: Some(HashMap::from([(
+        headers: Some(vec![(
             "content-type".into(),
-            Vec::from(["text/plain;charset=UTF-8".into()]),
-        )])),
+            vec!["text/plain;charset=UTF-8".into()],
+        )]),
         method: Method::GET,
         url: "".into(),
     });
@@ -142,10 +141,10 @@ async fn get_input() {
     ));
     send(Request {
         body: Bytes::new(),
-        headers: Some(HashMap::from([(
+        headers: Some(vec![(
             "content-type".into(),
-            Vec::from(["text/plain;charset=UTF-8".into()]),
-        )])),
+            vec!["text/plain;charset=UTF-8".into()],
+        )]),
         method: Method::GET,
         url: "https://hello.world".into(),
     });
@@ -167,10 +166,10 @@ async fn get_method() {
     ));
     send(Request {
         body: Bytes::new(),
-        headers: Some(HashMap::from([(
+        headers: Some(vec![(
             "content-type".into(),
-            Vec::from(["text/plain;charset=UTF-8".into()]),
-        )])),
+            vec!["text/plain;charset=UTF-8".into()],
+        )]),
         method: Method::POST,
         url: "".into(),
     });
@@ -190,13 +189,9 @@ async fn get_headers() {
 }"
         .into(),
     ));
-
-    let mut headers = HashMap::new();
-    headers.insert("x-auth".into(), vec!["token".into()]);
-
     send(Request {
         body: Bytes::new(),
-        headers: Some(headers),
+        headers: Some(vec![("x-auth".into(), vec!["token".into()])]),
         method: Method::POST,
         url: "".into(),
     });
@@ -221,18 +216,16 @@ async fn return_headers() {
 }"
         .into(),
     ));
-
-    let mut headers = HashMap::new();
-    headers.insert("content-type".into(), vec!["text/html".into()]);
-    headers.insert("x-test".into(), vec!["test".into()]);
-
     send(Request::default());
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
         Response {
             body: "Hello world".into(),
-            headers: Some(headers),
+            headers: Some(vec![
+                ("content-type".into(), vec!["text/html".into()]),
+                ("x-test".into(), vec!["test".into()])
+            ]),
             status: 200,
         }
     );
@@ -252,18 +245,16 @@ async fn return_headers_from_headers_api() {
 }"
         .into(),
     ));
-
-    let mut headers = HashMap::new();
-    headers.insert("content-type".into(), vec!["text/html".into()]);
-    headers.insert("x-test".into(), vec!["test".into()]);
-
     send(Request::default());
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
         Response {
             body: "Hello world".into(),
-            headers: Some(headers),
+            headers: Some(vec![
+                ("content-type".into(), vec!["text/html".into()]),
+                ("x-test".into(), vec!["test".into()])
+            ]),
             status: 200,
         }
     );
@@ -286,10 +277,10 @@ async fn return_status() {
         receiver.recv_async().await.unwrap().as_response(),
         Response {
             body: "Moved permanently".into(),
-            headers: Some(HashMap::from([(
+            headers: Some(vec![(
                 "content-type".into(),
-                Vec::from(["text/plain;charset=UTF-8".into()]),
-            )])),
+                vec!["text/plain;charset=UTF-8".into()],
+            )]),
             status: 302,
         }
     );

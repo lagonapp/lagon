@@ -166,22 +166,16 @@ async fn handle_request(
     } else {
         last_requests.insert(deployment_id.clone(), Instant::now());
 
+        // Try to Extract the X-Real-Ip header or fallback to remote addr IP
+        let ip = req.headers().get(X_REAL_IP).map_or(ip.clone(), |header| {
+            header.clone().to_str().map_or(ip, |ip| ip.to_string())
+        });
+
         match Request::from_hyper_with_capacity(req, 2).await {
             Ok(mut request) => {
                 bytes_in = request.len() as u32;
 
-                // Try to Extract the X-Real-Ip header or fallback to remote addr IP
-                let ip = request
-                    .headers
-                    .as_ref()
-                    .map_or(&ip, |headers| {
-                        headers
-                            .get(X_REAL_IP)
-                            .map_or(&ip, |x_real_ip| x_real_ip.get(0).unwrap_or(&ip))
-                    })
-                    .to_string();
-
-                request.set_header(X_FORWARDED_FOR.to_string(), ip);
+                request.set_header(X_FORWARDED_FOR.to_string(), ip.to_string());
                 request.set_header(X_LAGON_REGION.to_string(), REGION.to_string());
 
                 let isolate_workers = Arc::clone(&workers);

@@ -1,3 +1,5 @@
+pub type Headers = Vec<(String, Vec<String>)>;
+
 pub const X_FORWARDED_FOR: &str = "x-forwarded-for";
 pub const X_REAL_IP: &str = "x-real-ip";
 
