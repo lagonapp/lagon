@@ -122,11 +122,9 @@ async fn handle_request(
 
     let function_id = deployment.function_id.clone();
     let deployment_id = deployment.id.clone();
-    let mut bytes_in = 0;
-
     let request_id_handle = request_id.clone();
-
     let (sender, receiver) = flume::unbounded();
+    let mut bytes_in = 0;
 
     let labels = [
         ("deployment", deployment.id.clone()),
@@ -145,7 +143,7 @@ async fn handle_request(
         let run_result = match handle_asset(root, asset) {
             Ok(response) => RunResult::Response(response, None),
             Err(error) => {
-                error!(deployment = &deployment.id, asset = asset, request = request_id; "Error while handing asset: {}", error);
+                error!(deployment = &deployment.id, asset = asset, request = request_id_handle; "Error while handing asset: {}", error);
 
                 RunResult::Error("Could not retrieve asset.".into())
             }
@@ -187,10 +185,10 @@ async fn handle_request(
                     std::thread::Builder::new().name(String::from("isolate-") + deployment.id.as_str()).spawn(move || {
                         handle.block_on(async move {
                             increment_gauge!("lagon_isolates", 1.0, &labels);
-                            info!(deployment = deployment.id, function = deployment.function_id, request = request_id; "Creating new isolate");
+                            info!(deployment = deployment.id, function = deployment.function_id, request = request_id_handle; "Creating new isolate");
 
                             let code = deployment.get_code().unwrap_or_else(|error| {
-                                error!(deployment = deployment.id, request = request_id; "Error while getting deployment code: {}", error);
+                                error!(deployment = deployment.id, request = request_id_handle; "Error while getting deployment code: {}", error);
 
                                 "".into()
                             });
@@ -255,7 +253,7 @@ async fn handle_request(
                     .unwrap_or(());
             }
             Err(error) => {
-                error!(deployment = &deployment.id, request = request_id; "Error while parsing request: {}", error);
+                error!(deployment = &deployment.id, request = request_id_handle; "Error while parsing request: {}", error);
 
                 sender
                     .send_async(RunResult::Error("Error while parsing request".into()))
@@ -265,58 +263,53 @@ async fn handle_request(
         }
     }
 
-    handle_response(
-        receiver,
-        (
-            function_id,
-            deployment_id,
-            bytes_in,
-            request_id_handle,
-            labels,
-            inserters,
-        ),
-        Box::new(
-            |event, (function_id, deployment_id, bytes_in, request_id, labels, inserters)| {
-                Box::pin(async move {
-                    match event {
-                        ResponseEvent::Bytes(bytes, cpu_time_micros) => {
-                            inserters
-                                .lock()
-                                .await
-                                .0
-                                .write(&RequestRow {
-                                    function_id,
-                                    deployment_id,
-                                    region: REGION.clone(),
-                                    bytes_in,
-                                    bytes_out: bytes as u32,
-                                    cpu_time_micros,
-                                    timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
-                                })
-                                .await?;
-                        }
-                        ResponseEvent::StreamDoneNoDataError => {
-                            handle_error(
-                                RunResult::Error(
-                                    "The stream was done before sending a response/data".into(),
-                                ),
-                                &deployment_id,
-                                &request_id,
-                                &labels,
-                            );
-                        }
-                        ResponseEvent::UnexpectedStreamResult(result)
-                        | ResponseEvent::LimitsReached(result)
-                        | ResponseEvent::Error(result) => {
-                            handle_error(result, &deployment_id, &request_id, &labels);
-                        }
-                    }
+    handle_response(receiver, move |event| {
+        let inserters = Arc::clone(&inserters);
+        let function_id = function_id.clone();
+        let deployment_id = deployment_id.clone();
+        let request_id = request_id.clone();
+        let labels = labels.clone();
 
-                    Ok(())
-                })
-            },
-        ),
-    )
+        async move {
+            match event {
+                ResponseEvent::Bytes(bytes, cpu_time_micros) => {
+                    inserters
+                        .lock()
+                        .await
+                        .0
+                        .write(&RequestRow {
+                            function_id,
+                            deployment_id,
+                            region: REGION.clone(),
+                            bytes_in,
+                            bytes_out: bytes as u32,
+                            cpu_time_micros,
+                            timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
+                        })
+                        .await
+                        .unwrap_or(());
+                }
+                ResponseEvent::StreamDoneNoDataError => {
+                    handle_error(
+                        RunResult::Error(
+                            "The stream was done before sending a response/data".into(),
+                        ),
+                        &deployment_id,
+                        &request_id,
+                        &labels,
+                    );
+                }
+                ResponseEvent::UnexpectedStreamResult(result) => {
+                    handle_error(result, &deployment_id, &request_id, &labels);
+                }
+                ResponseEvent::LimitsReached(result) | ResponseEvent::Error(result) => {
+                    handle_error(result, &deployment_id, &request_id, &labels);
+                }
+            }
+
+            Ok(())
+        }
+    })
     .await
 }
 
