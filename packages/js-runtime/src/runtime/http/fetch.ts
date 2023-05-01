@@ -14,17 +14,17 @@
       headers = new Map(Object.entries(init.headers));
     }
 
-    let body: ArrayBuffer | undefined;
+    let body: string | undefined;
 
     if (init?.body) {
-      if (!globalThis.__lagon__.isIterable(init.body)) {
+      if (globalThis.__lagon__.isIterable(init.body)) {
+        body = globalThis.__lagon__.TEXT_DECODER.decode(init.body);
+      } else {
         if (typeof init.body !== 'string') {
           // TODO: Support other body types
           throw new Error('Body must be a string or an iterable');
         }
 
-        body = globalThis.__lagon__.TEXT_ENCODER.encode(init.body);
-      } else {
         body = init.body;
       }
     }

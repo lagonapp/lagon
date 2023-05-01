@@ -6,8 +6,8 @@ use hyper::{
     Body, Response as HyperResponse,
 };
 use lagon_runtime_v8_utils::{
-    extract_v8_headers_object, extract_v8_integer, extract_v8_uint8array, v8_headers_object,
-    v8_integer, v8_string, v8_uint8array,
+    extract_v8_headers_object, extract_v8_integer, extract_v8_string, v8_headers_object,
+    v8_integer, v8_string,
 };
 use std::str::FromStr;
 
@@ -55,7 +55,7 @@ impl IntoV8 for Response {
         let mut values = Vec::with_capacity(len);
 
         names.push(v8_string(scope, "b").into());
-        values.push(v8_uint8array(scope, self.body.to_vec()).into());
+        values.push(v8_string(scope, std::str::from_utf8(&self.body).unwrap()).into());
 
         names.push(v8_string(scope, "s").into());
         values.push(v8_integer(scope, self.status.into()).into());
@@ -84,7 +84,7 @@ impl FromV8 for Response {
         let body_key = v8_string(scope, "b");
 
         if let Some(body_value) = response.get(scope, body_key.into()) {
-            body = extract_v8_uint8array(body_value)?;
+            body = extract_v8_string(body_value, scope)?;
         } else {
             return Err(anyhow!("Could not find body"));
         }

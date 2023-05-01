@@ -62,8 +62,8 @@ declare global {
   };
 
   var LagonAsync: {
-    fetch: ({ h, m, b, u }: { h?: Map<string, string>; m: string; b?: ArrayBuffer; u: string }) => Promise<{
-      b: ArrayBuffer;
+    fetch: ({ h, m, b, u }: { h?: Map<string, string>; m: string; b?: string; u: string }) => Promise<{
+      b: Uint8Array;
       s: number;
       h?: Record<string, string>;
     }>;
@@ -108,7 +108,7 @@ declare global {
       b: RequestInit['body'];
     },
   ) => Promise<{
-    b: ArrayBuffer;
+    b: string;
     h: ResponseInit['headers'];
     s: ResponseInit['status'];
   }>;
@@ -138,7 +138,7 @@ globalThis.masterHandler = async (id, request) => {
   });
 
   const response = await handler(handlerRequest);
-  let body: ArrayBuffer;
+  let body: string;
 
   if (response.isStream) {
     const responseBody = response.body;
@@ -147,7 +147,7 @@ globalThis.masterHandler = async (id, request) => {
       throw new Error('Got a stream without a body');
     }
 
-    body = globalThis.__lagon__.TEXT_ENCODER.encode(responseBody.toString());
+    body = responseBody.toString();
     const reader = responseBody.getReader();
 
     const read = () => {
@@ -167,7 +167,7 @@ globalThis.masterHandler = async (id, request) => {
 
     read();
   } else {
-    body = await response.arrayBuffer();
+    body = await response.text();
   }
 
   return {
