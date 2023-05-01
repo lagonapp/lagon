@@ -1,5 +1,12 @@
 # @lagon/example-remix
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [[`af3d21f`](https://github.com/lagonapp/lagon/commit/af3d21f10ca4fff90ed09c6569ea3fa5d06e88ec)]:
+  - @lagon/remix@0.1.2
+
 ## 0.0.3
 
 ### Patch Changes

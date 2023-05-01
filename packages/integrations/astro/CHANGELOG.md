@@ -1,5 +1,11 @@
 # @lagon/astro
 
+## 0.2.3
+
+### Patch Changes
+
+- [#799](https://github.com/lagonapp/lagon/pull/799) [`af3d21f`](https://github.com/lagonapp/lagon/commit/af3d21f10ca4fff90ed09c6569ea3fa5d06e88ec) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add NPM packages provenance
+
 ## 0.2.2
 
 ### Patch Changes

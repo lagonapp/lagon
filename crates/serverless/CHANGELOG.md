@@ -1,5 +1,13 @@
 # @lagon/serverless
 
+## 0.1.29
+
+### Patch Changes
+
+- [#818](https://github.com/lagonapp/lagon/pull/818) [`cfa7238`](https://github.com/lagonapp/lagon/commit/cfa723805390f97d2fe1493c94094e1bfd34c09c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Reduce head allocations on responses
+
+* [#811](https://github.com/lagonapp/lagon/pull/811) [`b3b8b0f`](https://github.com/lagonapp/lagon/commit/b3b8b0f92957176abe6acdd9c07da9ec7496072f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Download deployments assets in parallel
+
 ## 0.1.28
 
 ### Patch Changes

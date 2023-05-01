@@ -1,5 +1,21 @@
 # @lagon/cli
 
+## 0.6.0
+
+### Minor Changes
+
+- [#796](https://github.com/lagonapp/lagon/pull/796) [`2f47dac`](https://github.com/lagonapp/lagon/commit/2f47dacfcb79fec302e79b22189d81b0283b017d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Publish arm64 binary for macOS
+
+### Patch Changes
+
+- [#799](https://github.com/lagonapp/lagon/pull/799) [`af3d21f`](https://github.com/lagonapp/lagon/commit/af3d21f10ca4fff90ed09c6569ea3fa5d06e88ec) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add NPM packages provenance
+
+* [#818](https://github.com/lagonapp/lagon/pull/818) [`cfa7238`](https://github.com/lagonapp/lagon/commit/cfa723805390f97d2fe1493c94094e1bfd34c09c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Reduce head allocations on responses
+
+- [#807](https://github.com/lagonapp/lagon/pull/807) [`b0b0cc5`](https://github.com/lagonapp/lagon/commit/b0b0cc52c37e69518f9a44892150eeac8c642f76) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve Request/Response default headers
+
+* [#802](https://github.com/lagonapp/lagon/pull/802) [`40b8a4f`](https://github.com/lagonapp/lagon/commit/40b8a4f08142cc0fc74eb73209e67b9f0bf8366b) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Update to V8 11.4
+
 ## 0.5.8
 
 ### Patch Changes

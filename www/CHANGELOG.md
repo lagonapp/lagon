@@ -1,5 +1,11 @@
 # @lagon/www
 
+## 1.1.3
+
+### Patch Changes
+
+- [#803](https://github.com/lagonapp/lagon/pull/803) [`0145896`](https://github.com/lagonapp/lagon/commit/0145896f3276b44f5e4fef83869f3322f85658fa) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Export fully static
+
 ## 1.1.2
 
 ### Patch Changes
