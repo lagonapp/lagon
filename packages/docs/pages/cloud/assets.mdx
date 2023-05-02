@@ -14,7 +14,7 @@ public/
     image.png
 ```
 
-To deploy this Function with these asets, you can use the `-p` or `--public` flag:
+To deploy this Function with these assets, you can use the `-p` or `--public` flag:
 
 ```bash
 lagon deploy ./index.ts --public public
@@ -37,4 +37,4 @@ In your HTML, you can reference these files using relative paths:
 
 ## Limits
 
-The number and size of assets are limited to prevent abuses. [Learn more about the assets limits](/cloud/limits).
+The number of assets per Deployment is limited to 100 for Personal plans, and 1000 for Pro plans. The size of each asset is also limited to prevent abuses. [Learn more about the assets limits](/cloud/limits).

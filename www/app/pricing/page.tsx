@@ -67,7 +67,7 @@ export default function Pricing() {
             <tr className="border-b border-[#1f1f2e]">
               <td className="text-grey mr-8 py-4 text-base">Assets per Deployment</td>
               <td>100</td>
-              <td>100</td>
+              <td>1000</td>
               <td>Custom</td>
             </tr>
             <tr className="border-b border-[#1f1f2e]">

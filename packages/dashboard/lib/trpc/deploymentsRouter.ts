@@ -16,6 +16,7 @@ import { envStringToObject, getFullCurrentDomain } from 'lib/utils';
 import s3 from 'lib/s3';
 import { PRESIGNED_URL_EXPIRES_SECONDS } from 'lib/constants';
 import { checkCanQueryFunction } from 'lib/api/functions';
+import { getPlanFromPriceId } from 'lib/plans';
 
 export const deploymentsRouter = (t: T) =>
   t.router({
@@ -33,10 +34,16 @@ export const deploymentsRouter = (t: T) =>
         }),
       )
       .mutation(async ({ ctx, input }) => {
+        const plan = getPlanFromPriceId({
+          priceId: ctx.session.organization.stripePriceId,
+          currentPeriodEnd: ctx.session.organization.stripeCurrentPeriodEnd,
+        });
+
         await checkCanCreateDeployment({
           assets: input.assets.length,
           functionId: input.functionId,
           userId: ctx.session.user.id,
+          plan,
         });
 
         const deployment = await createDeployment(

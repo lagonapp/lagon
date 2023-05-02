@@ -5,8 +5,8 @@ import prisma from 'lib/prisma';
 import { Readable } from 'node:stream';
 import { TRPCError } from '@trpc/server';
 import { envStringToObject } from 'lib/utils';
-import { MAX_ASSETS_PER_FUNCTION } from 'lib/constants';
 import { checkCanQueryFunction } from './functions';
+import { Plan } from 'lib/plans';
 
 export async function createDeployment(
   func: {
@@ -359,15 +359,17 @@ export async function checkCanCreateDeployment({
   assets,
   functionId,
   userId,
+  plan,
 }: {
   assets: number;
   functionId: string;
   userId: string;
+  plan: Plan;
 }) {
-  if (assets >= MAX_ASSETS_PER_FUNCTION) {
+  if (assets > plan.maxAssetsPerFunction) {
     throw new TRPCError({
       code: 'BAD_REQUEST',
-      message: `You can only upload ${MAX_ASSETS_PER_FUNCTION} assets per Function`,
+      message: `You can only have ${plan.maxAssetsPerFunction} assets per Deployment in your current plan`,
     });
   }
 
