@@ -18,8 +18,7 @@ use serde::{Deserialize, Serialize};
 use crate::utils::{debug, info, print_progress, success, TrpcClient};
 
 use super::{
-    validate_assets_dir, validate_code_file, Config, MAX_ASSETS_PER_FUNCTION, MAX_ASSET_SIZE_MB,
-    MAX_FUNCTION_SIZE_MB,
+    validate_assets_dir, validate_code_file, Config, MAX_ASSET_SIZE_MB, MAX_FUNCTION_SIZE_MB,
 };
 
 pub type Assets = HashMap<String, Vec<u8>>;
@@ -314,13 +313,6 @@ pub fn bundle_function(
         let files = WalkDir::new(&assets)
             .into_iter()
             .collect::<Vec<walkdir::Result<DirEntry>>>();
-
-        if files.len() >= MAX_ASSETS_PER_FUNCTION {
-            return Err(anyhow!(
-                "Too many assets in public directory, max is {}",
-                MAX_ASSETS_PER_FUNCTION
-            ));
-        }
 
         for file in files {
             let file = file?;

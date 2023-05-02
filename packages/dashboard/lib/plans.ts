@@ -7,6 +7,7 @@ export type Plan = {
   tickTimeout: number;
   totalTimeout: number;
   organizationMembers: number;
+  maxAssetsPerFunction: number;
 };
 
 export const PERSONAL_PLAN: Plan = {
@@ -17,6 +18,7 @@ export const PERSONAL_PLAN: Plan = {
   tickTimeout: 200,
   totalTimeout: 5000,
   organizationMembers: 1,
+  maxAssetsPerFunction: 100,
 };
 
 export const PRO_PLAN: Plan = {
@@ -28,6 +30,7 @@ export const PRO_PLAN: Plan = {
   tickTimeout: 500,
   totalTimeout: 30000,
   organizationMembers: 10,
+  maxAssetsPerFunction: 1000,
 };
 
 export const getPlanFromPriceId = ({
