@@ -326,6 +326,12 @@ importers:
         specifier: ^0.4.112
         version: 0.4.112(vite@4.1.2)
 
+  examples/xata:
+    dependencies:
+      '@xata.io/client':
+        specifier: ^0.23.5
+        version: 0.23.5(typescript@5.0.2)
+
   packages/dashboard:
     dependencies:
       '@aws-sdk/client-s3':
@@ -10153,6 +10159,14 @@ packages:
     dependencies:
       '@webassemblyjs/ast': 1.11.1
       '@xtuc/long': 4.2.2
+
+  /@xata.io/client@0.23.5(typescript@5.0.2):
+    resolution: {integrity: sha512-xNi6eLW6kXi6Ka8Q/TD/4+uGsfAUQ/Mna4CrPZGEQmPHRCqcwuSyaixPcJIaEO0mYfFGFjn5iUyvc4PLQ0rtiw==}
+    peerDependencies:
+      typescript: '>=4.5'
+    dependencies:
+      typescript: 5.0.2
+    dev: false
 
   /@xtuc/ieee754@1.2.0:
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}

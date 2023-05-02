@@ -68,6 +68,10 @@ This example uses [tRPC](https://trpc.io) server, to build typesafe APIs. [See t
 
 This example uses [vite-plugin-ssr](https://vite-plugin-ssr.com/) to render static and dynamic React pages. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/vite-plugin-ssr)
 
+### Xata
+
+This example uses [Xata](https://xata.io), a modern serverless type-safe database. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/xata)
+
 ## Frameworks
 
 ### Astro

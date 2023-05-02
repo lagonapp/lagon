@@ -1,0 +1,12 @@
+{
+  "name": "@lagon/example-xata",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "xata": "xata init --codegen xata.ts",
+    "lagon-dev": "pnpm xata; lagon dev index.ts"
+  },
+  "dependencies": {
+    "@xata.io/client": "^0.23.5"
+  }
+}
