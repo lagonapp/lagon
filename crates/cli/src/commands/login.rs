@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use dialoguer::{Confirm, Password};
 use serde::{Deserialize, Serialize};
 
-use crate::utils::{debug, info, input, print_progress, success, Config, TrpcClient};
+use crate::utils::{debug, error, info, input, print_progress, success, Config, TrpcClient};
 
 #[derive(Deserialize, Debug)]
 struct CliResponse {
@@ -31,13 +31,17 @@ pub async fn login() -> Result<()> {
 
     let end_progress = print_progress("Opening browser...");
     let url = config.site_url.clone() + "/cli";
-    webbrowser::open(&url)?;
+
+    if webbrowser::open(&url).is_err() {
+        println!("{}", error("Couldn't open browser."));
+    }
+
     end_progress();
 
     println!();
     println!(
         "{}",
-        info("Please copy and paste the verification from your browser.")
+        info(&format!("Please copy and paste the verification from your browser. You can also manually visit {}", url))
     );
 
     let code = Password::new()
