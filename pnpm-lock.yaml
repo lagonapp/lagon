@@ -629,8 +629,8 @@ importers:
         specifier: ^10.4.7
         version: 10.4.7(postcss@8.4.22)
       class-variance-authority:
-        specifier: ^0.5.1
-        version: 0.5.1(typescript@5.0.2)
+        specifier: ^0.6.0
+        version: 0.6.0(typescript@5.0.2)
       final-form:
         specifier: ^4.20.7
         version: 4.20.7
@@ -689,8 +689,8 @@ importers:
         specifier: 0.1.11
         version: 0.1.11(react@18.2.0)
       class-variance-authority:
-        specifier: ^0.5.1
-        version: 0.5.1(typescript@5.0.2)
+        specifier: ^0.6.0
+        version: 0.6.0(typescript@5.0.2)
       cobe:
         specifier: ^0.6.0
         version: 0.6.2
@@ -11467,14 +11467,15 @@ packages:
     resolution: {integrity: sha512-eXTggHWSooYhq49F2opQhuHWgzucfF2YgODK4e1566GQs5BIfP30B0oenwBJHfWxAs2fyPB1s7Mg949zLf61Yw==}
     engines: {node: '>=8'}
 
-  /class-variance-authority@0.5.1(typescript@5.0.2):
-    resolution: {integrity: sha512-J3tAiPbmBhPffsZ6Le3cR4o5hN78XBTst5NwCJJF7hAkZYIDuHQKV03Tb89zMDAxIONmM+DFRooMUCK5nTWpvQ==}
+  /class-variance-authority@0.6.0(typescript@5.0.2):
+    resolution: {integrity: sha512-qdRDgfjx3GRb9fpwpSvn+YaidnT7IUJNe4wt5/SWwM+PmUwJUhQRk/8zAyNro0PmVfmen2635UboTjIBXXxy5A==}
     peerDependencies:
       typescript: '>= 4.5.5 < 6'
     peerDependenciesMeta:
       typescript:
         optional: true
     dependencies:
+      clsx: 1.2.1
       typescript: 5.0.2
 
   /clean-css@5.3.0:
@@ -11607,7 +11608,6 @@ packages:
   /clsx@1.2.1:
     resolution: {integrity: sha512-EcR6r5a8bj6pu3ycsa/E/cKVGuTgZJZdsyUYHOksG/UHIiKfjxzRxYJpyVBwYaQeOvghal9fcc4PidlgzugAQg==}
     engines: {node: '>=6'}
-    dev: false
 
   /cluster-key-slot@1.1.0:
     resolution: {integrity: sha512-2Nii8p3RwAPiFwsnZvukotvow2rIHM+yQ6ZcBXGHdniadkYGZYiGmkHJIbZPIV9nfv7m/U1IPMVVcAhoWFeklw==}
