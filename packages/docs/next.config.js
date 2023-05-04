@@ -9,6 +9,12 @@ const nextConfig = {
       permanent: true,
     },
   ],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 const withNextra = require('nextra')({

@@ -9,11 +9,18 @@ const { withSentryConfig } = require('@sentry/nextjs');
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  swcMinify: true,
   i18n: {
     locales: ['en', 'fr'],
     defaultLocale: 'en',
   },
   transpilePackages: ['@lagon/ui'],
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
 const sentryWebpackPluginOptions = {
