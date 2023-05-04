@@ -32,7 +32,7 @@ pub async fn login() -> Result<()> {
     let end_progress = print_progress("Opening browser...");
     let url = config.site_url.clone() + "/cli";
 
-    if let Err(_) = webbrowser::open(&url) {
+    if webbrowser::open(&url).is_err() {
         println!("{}", error("Couldn't open browser."));
     }
 
