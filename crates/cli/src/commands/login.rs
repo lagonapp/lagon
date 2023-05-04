@@ -37,7 +37,7 @@ pub async fn login() -> Result<()> {
     println!();
     println!(
         "{}",
-        info("Please copy and paste the verification from your browser.")
+        info(&format!("Please copy and paste the verification from your browser. You can also manually visit {}", url))
     );
 
     let code = Password::new()
