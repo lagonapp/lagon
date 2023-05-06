@@ -1,15 +1,12 @@
 use anyhow::{anyhow, Result};
 use hyper::{
     body::{self, Bytes},
-    header::HeaderName,
-    http::{self, HeaderValue},
-    Body, Response as HyperResponse,
+    http, Body, Response as HyperResponse,
 };
 use lagon_runtime_v8_utils::{
     extract_v8_headers_object, extract_v8_integer, extract_v8_string, v8_headers_object,
     v8_integer, v8_string,
 };
-use std::str::FromStr;
 
 use crate::{FromV8, Headers, IntoV8};
 
@@ -129,16 +126,10 @@ impl TryFrom<&Response> for http::response::Builder {
     fn try_from(response: &Response) -> Result<Self, Self::Error> {
         let mut builder = HyperResponse::builder().status(response.status);
 
-        let builder_headers = match builder.headers_mut() {
-            Some(headers) => headers,
-            None => return Err(anyhow!("Invalid headers")),
-        };
-
         if let Some(headers) = &response.headers {
             for (key, value) in headers {
                 for value in value {
-                    builder_headers
-                        .append(HeaderName::from_str(key)?, HeaderValue::from_str(value)?);
+                    builder = builder.header(key, value);
                 }
             }
         }

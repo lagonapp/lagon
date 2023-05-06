@@ -131,16 +131,10 @@ impl TryFrom<&Request> for http::request::Builder {
             .uri(&request.url)
             .method::<&str>(request.method.into());
 
-        let builder_headers = match builder.headers_mut() {
-            Some(headers) => headers,
-            None => return Err(anyhow!("Invalid headers")),
-        };
-
         if let Some(headers) = &request.headers {
             for (key, value) in headers {
                 for value in value {
-                    builder_headers
-                        .append(HeaderName::from_str(key)?, HeaderValue::from_str(value)?);
+                    builder = builder.header(key, value);
                 }
             }
         }
