@@ -3,7 +3,6 @@ import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from 'lib/prisma';
-import apiHandler from 'lib/api';
 import * as Sentry from '@sentry/nextjs';
 import { createOrAssignDefaultOrganization } from 'lib/api/users';
 import { sendWelcomeEmail } from 'lib/smtp';
@@ -136,4 +135,4 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export default apiHandler(NextAuth(authOptions));
+export default NextAuth(authOptions);

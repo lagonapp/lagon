@@ -1,12 +1,11 @@
-import { Analytics } from '@vercel/analytics/react';
 import { ReactNode } from 'react';
 import { DESCRIPTION, SHORT_DESCRIPTION } from '../lib/constants';
 import tailwind from '../tailwind.config';
 import { Inter } from 'next/font/google';
 import { Header } from '../lib/components/Header';
 import { Footer } from '../lib/components/Footer';
+import { PostHogProvider } from '../lib/posthog';
 import '../styles/globals.css';
-import '../lib/posthog';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -43,19 +42,20 @@ export default function RootLayout({ children }: LayoutProps) {
   return (
     <html lang="en">
       <body>
-        <div className={`bg-dark pt-8 ${inter.className}`}>
-          <div
-            className="pointer-events-none absolute left-0 top-0 h-64 w-full"
-            style={{
-              background:
-                'linear-gradient(to bottom, transparent, #050211), repeating-linear-gradient(-45deg, #041F47, #041F47 1px, transparent 1px, transparent 20px)',
-            }}
-          />
-          <Header />
-          <main className="container mx-auto flex min-h-screen flex-col gap-32 px-4 pt-24 md:gap-64">{children}</main>
-          <Footer />
-        </div>
-        <Analytics />
+        <PostHogProvider>
+          <div className={`bg-dark pt-8 ${inter.className}`}>
+            <div
+              className="pointer-events-none absolute left-0 top-0 h-64 w-full"
+              style={{
+                background:
+                  'linear-gradient(to bottom, transparent, #050211), repeating-linear-gradient(-45deg, #041F47, #041F47 1px, transparent 1px, transparent 20px)',
+              }}
+            />
+            <Header />
+            <main className="container mx-auto flex min-h-screen flex-col gap-32 px-4 pt-24 md:gap-64">{children}</main>
+            <Footer />
+          </div>
+        </PostHogProvider>
       </body>
     </html>
   );

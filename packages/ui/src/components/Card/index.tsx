@@ -27,7 +27,7 @@ export const Card = ({
   const styles = variants({ clickable, danger });
 
   return (
-    <div className={cx([fullWidth ? 'w-full' : '', 'flex flex-col gap-2'])}>
+    <div className={cx([fullWidth && 'w-full', 'flex flex-col gap-2'])}>
       {title ? (
         <div className="flex items-end justify-between">
           <Text size="xl" strong>
