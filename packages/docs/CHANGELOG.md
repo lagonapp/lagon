@@ -1,5 +1,15 @@
 # @lagon/docs
 
+## 0.3.7
+
+### Patch Changes
+
+- [#821](https://github.com/lagonapp/lagon/pull/821) [`6b91b4c`](https://github.com/lagonapp/lagon/commit/6b91b4ca976a09520c50c7d647400d1d43b692d2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Increase assets per Deployment to 1000 for Pro plans
+
+* [#824](https://github.com/lagonapp/lagon/pull/824) [`eca2255`](https://github.com/lagonapp/lagon/commit/eca2255e19a0e59baf7a6382439fca3519478f9d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Xata example
+
+- [#828](https://github.com/lagonapp/lagon/pull/828) [`4bef900`](https://github.com/lagonapp/lagon/commit/4bef9002e9bd5e633327158cad69fdac15dc5977) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Disable ESLint + TypeScript when building Next.js website
+
 ## 0.3.6
 
 ### Patch Changes

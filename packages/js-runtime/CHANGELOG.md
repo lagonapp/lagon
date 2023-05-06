@@ -1,5 +1,11 @@
 # @lagon/js-runtime
 
+## 0.3.11
+
+### Patch Changes
+
+- [#834](https://github.com/lagonapp/lagon/pull/834) [`d6e39ae`](https://github.com/lagonapp/lagon/commit/d6e39ae79c2b6cf2aa83c883bf8a926c319e1712) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow any protocols for URL parsing
+
 ## 0.3.10
 
 ### Patch Changes
