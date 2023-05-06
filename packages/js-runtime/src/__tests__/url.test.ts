@@ -359,4 +359,26 @@ describe('URL', () => {
       expect(url.href).toEqual('https://foo:flabada@developer.mozilla.org/en-US/docs/Web/API/URL/password');
     });
   });
+
+  describe('any protocol', () => {
+    it('should work with mysql protocol', () => {
+      const url = new URL('mysql://user:pass@my.host/db?sslaccept=strict');
+      expect(url.protocol).toEqual('mysql:');
+      expect(url.username).toEqual('user');
+      expect(url.password).toEqual('pass');
+      expect(url.host).toEqual('my.host');
+      expect(url.pathname).toEqual('/db');
+      expect(url.search).toEqual('?sslaccept=strict');
+    });
+
+    it('should work with postgres protocol', () => {
+      const url = new URL('postgres://user:pass@my.host/db');
+      expect(url.protocol).toEqual('postgres:');
+      expect(url.username).toEqual('user');
+      expect(url.password).toEqual('pass');
+      expect(url.host).toEqual('my.host');
+      expect(url.pathname).toEqual('/db');
+      expect(url.search).toEqual('');
+    });
+  });
 });
