@@ -1,5 +1,17 @@
 # @lagon/cli
 
+## 0.6.1
+
+### Patch Changes
+
+- [#833](https://github.com/lagonapp/lagon/pull/833) [`3101c9e`](https://github.com/lagonapp/lagon/commit/3101c9eddb36c76a790d7c73ba4e54256e44cfb0) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Tweak release build flags to improve performance
+
+* [#821](https://github.com/lagonapp/lagon/pull/821) [`6b91b4c`](https://github.com/lagonapp/lagon/commit/6b91b4ca976a09520c50c7d647400d1d43b692d2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Increase assets per Deployment to 1000 for Pro plans
+
+- [#830](https://github.com/lagonapp/lagon/pull/830) [`7d54f3a`](https://github.com/lagonapp/lagon/commit/7d54f3a2d5b9709dc554bee7d14525cd74383885) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add info message with link to get authorization code when using `lagon login`
+
+* [#834](https://github.com/lagonapp/lagon/pull/834) [`d6e39ae`](https://github.com/lagonapp/lagon/commit/d6e39ae79c2b6cf2aa83c883bf8a926c319e1712) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow any protocols for URL parsing
+
 ## 0.6.0
 
 ### Minor Changes

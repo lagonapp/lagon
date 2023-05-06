@@ -1,5 +1,13 @@
 # @lagon/www
 
+## 1.1.4
+
+### Patch Changes
+
+- [#821](https://github.com/lagonapp/lagon/pull/821) [`6b91b4c`](https://github.com/lagonapp/lagon/commit/6b91b4ca976a09520c50c7d647400d1d43b692d2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Increase assets per Deployment to 1000 for Pro plans
+
+* [#828](https://github.com/lagonapp/lagon/pull/828) [`4bef900`](https://github.com/lagonapp/lagon/commit/4bef9002e9bd5e633327158cad69fdac15dc5977) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Disable ESLint + TypeScript when building Next.js website
+
 ## 1.1.3
 
 ### Patch Changes

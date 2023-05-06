@@ -1,5 +1,11 @@
 # @lagon/serverless
 
+## 0.1.30
+
+### Patch Changes
+
+- [#833](https://github.com/lagonapp/lagon/pull/833) [`3101c9e`](https://github.com/lagonapp/lagon/commit/3101c9eddb36c76a790d7c73ba4e54256e44cfb0) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Tweak release build flags to improve performance
+
 ## 0.1.29
 
 ### Patch Changes
