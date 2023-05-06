@@ -11,11 +11,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vercel/analytics": "0.1.11",
-    "next": "13.3.4",
+    "next": "13.4.1",
     "next-sitemap": "^4.0.5",
     "nextra": "2.4.2",
     "nextra-theme-docs": "2.4.2",
+    "posthog-js": "^1.55.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
@@ -25,7 +25,7 @@
     "@types/react-dom": "^18.0.5",
     "autoprefixer": "^10.4.7",
     "eslint": "^8.16.0",
-    "eslint-config-next": "13.3.4",
+    "eslint-config-next": "13.4.1",
     "postcss": "^8.4.22",
     "tailwindcss": "^3.3.1",
     "typescript": "^5.0.2"

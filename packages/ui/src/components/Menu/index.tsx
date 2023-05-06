@@ -49,7 +49,7 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
           href={href}
           className={cx([
             'focus:bg-stone-100 focus-visible:outline-none focus:dark:bg-stone-800',
-            disabled ? 'cursor-not-allowed opacity-50' : '',
+            disabled && 'cursor-not-allowed opacity-50',
             'flex w-full select-none items-center gap-2 rounded-md px-4 py-1 text-left text-sm text-stone-800 dark:text-stone-300',
           ])}
         >
@@ -67,7 +67,7 @@ const MenuItem = ({ icon, href, disabled, onClick, children }: MenuItemProps) =>
         onClick={onClick}
         className={cx([
           'focus:bg-stone-100 focus-visible:outline-none focus:dark:bg-stone-800',
-          disabled ? 'cursor-not-allowed opacity-50' : undefined,
+          disabled && 'cursor-not-allowed opacity-50',
           'flex w-full select-none items-center gap-2 rounded-md px-4 py-1 text-left text-sm text-stone-800 dark:text-stone-300',
         ])}
       >
