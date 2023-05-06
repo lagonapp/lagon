@@ -5,3 +5,8 @@ members = [
   "crates/cli",
   "crates/wpt-runner",
 ]
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+panic = "abort"

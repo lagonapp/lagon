@@ -15,7 +15,7 @@ colored = "2.0.0"
 dirs = "5.0.1"
 webbrowser = "0.8.9"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync"] }
-hyper = { version = "0.14", features = ["client", "server", "http1", "runtime", "stream"] }
+hyper = { version = "0.14.26", features = ["client", "server", "http1", "runtime", "stream"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 walkdir = "2.3.3"
