@@ -1,4 +1,5 @@
 mod decrypt;
+mod derive_bits;
 mod digest;
 mod encrypt;
 mod get_key_value;
@@ -9,6 +10,7 @@ mod verify;
 
 pub use self::uuid::uuid_binding;
 pub use decrypt::{decrypt_binding, decrypt_init};
+pub use derive_bits::{derive_bits_binding, derive_bits_init};
 pub use digest::{digest_binding, digest_init};
 pub use encrypt::{encrypt_binding, encrypt_init};
 pub use get_key_value::get_key_value_binding;

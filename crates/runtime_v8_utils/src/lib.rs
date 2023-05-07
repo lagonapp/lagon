@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use v8::{HandleScope, Local, ObjectTemplate, READ_ONLY};
 
 pub fn extract_v8_string(
     value: v8::Local<v8::Value>,
@@ -151,4 +152,88 @@ pub fn v8_boolean<'a>(scope: &mut v8::HandleScope<'a>, value: bool) -> v8::Local
 pub fn v8_exception<'a>(scope: &mut v8::HandleScope<'a>, value: &str) -> v8::Local<'a, v8::Value> {
     let message = v8_string(scope, value);
     v8::Exception::type_error(scope, message)
+}
+
+pub fn extract_v8_uint32(scope: &mut v8::HandleScope, value: v8::Local<v8::Value>) -> Result<u32> {
+    if let Some(value) = value.to_uint32(scope) {
+        return Ok(value.value());
+    }
+
+    Err(anyhow!("Value is not an integer"))
+}
+
+pub fn create_object_under<'s>(
+    scope: &mut HandleScope<'s>,
+    target: Local<v8::Object>,
+    name: &'static str,
+) -> v8::Local<'s, v8::Object> {
+    let template = ObjectTemplate::new(scope);
+    let key = v8::String::new(scope, name).unwrap();
+    let value = template.new_instance(scope).unwrap();
+    target.set(scope, key.into(), value.into());
+    value
+}
+
+/// get property getter，setter
+pub fn set_accessor_to<'s, GetterF, SetterF>(
+    scope: &mut HandleScope<'s>,
+    target: Local<v8::Object>,
+    name: &'static str,
+    getter: GetterF,
+    setter: SetterF,
+) where
+    GetterF: Sized
+        + Copy
+        + Fn(
+            &mut v8::HandleScope,
+            v8::Local<v8::Name>,
+            v8::PropertyCallbackArguments,
+            v8::ReturnValue,
+        ),
+    SetterF: Sized
+        + Copy
+        + Fn(
+            &mut v8::HandleScope,
+            v8::Local<v8::Name>,
+            v8::Local<v8::Value>,
+            v8::PropertyCallbackArguments,
+        ),
+{
+    let key = v8::String::new(scope, name).unwrap();
+    target.set_accessor_with_setter(scope, key.into(), getter, setter);
+}
+
+/// binding func
+pub fn set_function_to(
+    scope: &mut v8::HandleScope<'_>,
+    target: v8::Local<v8::Object>,
+    name: &'static str,
+    callback: impl v8::MapFnTo<v8::FunctionCallback>,
+) {
+    let key = v8::String::new(scope, name).unwrap();
+    let tmpl = v8::FunctionTemplate::new(scope, callback);
+    let val = tmpl.get_function(scope).unwrap();
+    target.set(scope, key.into(), val.into());
+}
+
+// set key，value to obj
+pub fn set_property_to<'s>(
+    scope: &mut v8::HandleScope<'s>,
+    target: v8::Local<v8::Object>,
+    name: &'static str,
+    value: v8::Local<v8::Value>,
+) {
+    let key = v8::String::new(scope, name).unwrap();
+    target.set(scope, key.into(), value.into());
+}
+
+// set readonly property
+pub fn set_constant_to<'s>(
+    scope: &mut v8::HandleScope<'s>,
+    target: v8::Local<v8::Object>,
+    name: &str,
+    cvalue: v8::Local<v8::Value>,
+) {
+    let key = v8::String::new(scope, name).unwrap();
+    target.define_own_property(scope, key.into(), cvalue, READ_ONLY);
 }
