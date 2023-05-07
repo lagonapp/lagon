@@ -25,9 +25,11 @@ const Function = () => {
       titleStatus="success"
       rightItem={func?.cron === null ? <FunctionLinks func={func} /> : undefined}
     >
-      <Head>
-        <title>{func?.name || 'Loading...'}</title>
-      </Head>
+      {func?.name ? (
+        <Head>
+          <title>{func.name} - Lagon</title>
+        </Head>
+      ) : null}
       <Nav defaultValue="overview">
         <Nav.List
           rightItem={
@@ -58,6 +60,6 @@ const Function = () => {
   );
 };
 
-Function.title = 'Loading...';
+Function.title = 'Overview';
 
 export default Function;

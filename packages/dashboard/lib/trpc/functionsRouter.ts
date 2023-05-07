@@ -113,6 +113,7 @@ export const functionsRouter = (t: T) =>
 
         return {
           ...func,
+          env: func.env.reduce((acc, { key, value }) => ({ ...acc, [key]: value }), {}),
           domains: func.domains.map(({ domain }) => domain),
         };
       }),
