@@ -811,36 +811,36 @@ Skipping ../../tools/wpt/url/url-setters.any.js
 Running ../../tools/wpt/url/url-tojson.any.js
 TEST DONE 0 Untitled
 Running ../../tools/wpt/url/urlencoded-parser.any.js
-TEST DONE 1 URLSearchParams constructed with: test
+TEST DONE 0 URLSearchParams constructed with: test
 TEST DONE 0 URLSearchParams constructed with: ﻿test=﻿
-TEST DONE 1 URLSearchParams constructed with: %EF%BB%BFtest=%EF%BB%BF
+TEST DONE 0 URLSearchParams constructed with: %EF%BB%BFtest=%EF%BB%BF
 TEST DONE 1 URLSearchParams constructed with: %FE%FF
 TEST DONE 1 URLSearchParams constructed with: %FF%FE
-TEST DONE 1 URLSearchParams constructed with: †&†=x
+TEST DONE 0 URLSearchParams constructed with: †&†=x
 TEST DONE 1 URLSearchParams constructed with: %C2
 TEST DONE 1 URLSearchParams constructed with: %C2x
 TEST DONE 1 URLSearchParams constructed with: _charset_=windows-1252&test=%C2x
 TEST DONE 0 URLSearchParams constructed with: 
-TEST DONE 1 URLSearchParams constructed with: a
+TEST DONE 0 URLSearchParams constructed with: a
 TEST DONE 0 URLSearchParams constructed with: a=b
 TEST DONE 0 URLSearchParams constructed with: a=
 TEST DONE 0 URLSearchParams constructed with: =b
-TEST DONE 1 URLSearchParams constructed with: &
-TEST DONE 1 URLSearchParams constructed with: &a
-TEST DONE 1 URLSearchParams constructed with: a&
-TEST DONE 1 URLSearchParams constructed with: a&a
-TEST DONE 1 URLSearchParams constructed with: a&b&c
+TEST DONE 0 URLSearchParams constructed with: &
+TEST DONE 0 URLSearchParams constructed with: &a
+TEST DONE 0 URLSearchParams constructed with: a&
+TEST DONE 0 URLSearchParams constructed with: a&a
+TEST DONE 0 URLSearchParams constructed with: a&b&c
 TEST DONE 0 URLSearchParams constructed with: a=b&c=d
-TEST DONE 1 URLSearchParams constructed with: a=b&c=d&
-TEST DONE 1 URLSearchParams constructed with: &&&a=b&&&&c=d&
+TEST DONE 0 URLSearchParams constructed with: a=b&c=d&
+TEST DONE 0 URLSearchParams constructed with: &&&a=b&&&&c=d&
 TEST DONE 0 URLSearchParams constructed with: a=a&a=b&a=c
 TEST DONE 1 URLSearchParams constructed with: a==a
-TEST DONE 1 URLSearchParams constructed with: a=a+b+c+d
-TEST DONE 0 URLSearchParams constructed with: %=a
-TEST DONE 0 URLSearchParams constructed with: %a=a
-TEST DONE 0 URLSearchParams constructed with: %a_=a
-TEST DONE 1 URLSearchParams constructed with: %61=a
-TEST DONE 1 URLSearchParams constructed with: %61+%4d%4D=
+TEST DONE 0 URLSearchParams constructed with: a=a+b+c+d
+TEST DONE 1 URLSearchParams constructed with: %=a
+TEST DONE 1 URLSearchParams constructed with: %a=a
+TEST DONE 1 URLSearchParams constructed with: %a_=a
+TEST DONE 0 URLSearchParams constructed with: %61=a
+TEST DONE 0 URLSearchParams constructed with: %61+%4d%4D=
 TEST DONE 1 URLSearchParams constructed with: id=0&value=%
 TEST DONE 1 URLSearchParams constructed with: b=%2sf%2a
 TEST DONE 1 URLSearchParams constructed with: b=%2%2af%2a
@@ -920,7 +920,7 @@ TEST DONE 1 Append null
 TEST DONE 1 Append multiple
 Running ../../tools/wpt/url/urlsearchparams-constructor.any.js
 TEST DONE 1 Basic URLSearchParams construction
-TEST DONE 0 URLSearchParams constructor, no arguments
+TEST DONE 1 URLSearchParams constructor, no arguments
 TEST DONE 0 URLSearchParams constructor, remove leading "?"
 TEST DONE 1 URLSearchParams constructor, DOMException as argument
 TEST DONE 0 URLSearchParams constructor, empty string as argument
@@ -928,17 +928,17 @@ TEST DONE 0 URLSearchParams constructor, {} as argument
 TEST DONE 1 URLSearchParams constructor, string.
 TEST DONE 1 URLSearchParams constructor, object.
 TEST DONE 1 URLSearchParams constructor, FormData.
-TEST DONE 1 Parse +
+TEST DONE 0 Parse +
 TEST DONE 1 Parse encoded +
 TEST DONE 0 Parse space
-TEST DONE 1 Parse %20
+TEST DONE 0 Parse %20
 TEST DONE 0 Parse \0
-TEST DONE 1 Parse %00
+TEST DONE 0 Parse %00
 TEST DONE 0 Parse ⎄
-TEST DONE 1 Parse %e2%8e%84
+TEST DONE 0 Parse %e2%8e%84
 TEST DONE 0 Parse 💩
-TEST DONE 1 Parse %f0%9f%92%a9
-TEST DONE 1 Constructor with sequence of sequences of strings
+TEST DONE 0 Parse %f0%9f%92%a9
+TEST DONE 0 Constructor with sequence of sequences of strings
 TEST DONE 0 Construct with object with +
 TEST DONE 0 Construct with object with two keys
 TEST DONE 0 Construct with array with two keys
@@ -948,43 +948,48 @@ TEST DONE 1 Construct with object with NULL, non-ASCII, and surrogate keys
 TEST DONE 1 Custom [Symbol.iterator]
 Running ../../tools/wpt/url/urlsearchparams-delete.any.js
 TEST DONE 1 Delete basics
-TEST DONE 1 Deleting appended multiple
+TEST DONE 0 Deleting appended multiple
 TEST DONE 0 Deleting all params removes ? from URL
-TEST DONE 1 Removing non-existent param removes ? from URL
+TEST DONE 0 Removing non-existent param removes ? from URL
 TEST DONE 1 Changing the query of a URL with an opaque path can impact the path
 TEST DONE 1 Changing the query of a URL with an opaque path can impact the path if the URL has no fragment
 Running ../../tools/wpt/url/urlsearchparams-foreach.any.js
 TEST DONE 0 ForEach Check
+TEST DONE 1 For-of Check
+TEST DONE 0 empty
+TEST DONE 1 delete next param during iteration
+TEST DONE 1 delete current param during iteration
+TEST DONE 1 delete every param seen during iteration
 Running ../../tools/wpt/url/urlsearchparams-get.any.js
 TEST DONE 1 Get basics
 TEST DONE 1 More get() basics
 Running ../../tools/wpt/url/urlsearchparams-getall.any.js
 TEST DONE 0 getAll() basics
-TEST DONE 1 getAll() multiples
+TEST DONE 0 getAll() multiples
 Running ../../tools/wpt/url/urlsearchparams-has.any.js
 TEST DONE 1 Has basics
 TEST DONE 0 has() following delete()
 Running ../../tools/wpt/url/urlsearchparams-set.any.js
 TEST DONE 0 Set basics
-TEST DONE 1 URLSearchParams.set
+TEST DONE 0 URLSearchParams.set
 Running ../../tools/wpt/url/urlsearchparams-sort.any.js
 TEST DONE 0 Parse and sort: z=b&a=b&z=a&a=a
-TEST DONE 1 URL parse and sort: z=b&a=b&z=a&a=a
-TEST DONE 1 Parse and sort: �=x&￼&�=a
-TEST DONE 1 URL parse and sort: �=x&￼&�=a
-TEST DONE 1 Parse and sort: ﬃ&🌈
-TEST DONE 1 URL parse and sort: ﬃ&🌈
+TEST DONE 0 URL parse and sort: z=b&a=b&z=a&a=a
+TEST DONE 0 Parse and sort: �=x&￼&�=a
+TEST DONE 0 URL parse and sort: �=x&￼&�=a
+TEST DONE 0 Parse and sort: ﬃ&🌈
+TEST DONE 0 URL parse and sort: ﬃ&🌈
 TEST DONE 1 Parse and sort: é&e�&é
 TEST DONE 1 URL parse and sort: é&e�&é
 TEST DONE 0 Parse and sort: z=z&a=a&z=y&a=b&z=x&a=c&z=w&a=d&z=v&a=e&z=u&a=f&z=t&a=g
-TEST DONE 1 URL parse and sort: z=z&a=a&z=y&a=b&z=x&a=c&z=w&a=d&z=v&a=e&z=u&a=f&z=t&a=g
-TEST DONE 1 Parse and sort: bbb&bb&aaa&aa=x&aa=y
-TEST DONE 1 URL parse and sort: bbb&bb&aaa&aa=x&aa=y
+TEST DONE 0 URL parse and sort: z=z&a=a&z=y&a=b&z=x&a=c&z=w&a=d&z=v&a=e&z=u&a=f&z=t&a=g
+TEST DONE 0 Parse and sort: bbb&bb&aaa&aa=x&aa=y
+TEST DONE 0 URL parse and sort: bbb&bb&aaa&aa=x&aa=y
 TEST DONE 0 Parse and sort: z=z&=f&=t&=x
-TEST DONE 1 URL parse and sort: z=z&=f&=t&=x
-TEST DONE 1 Parse and sort: a🌈&a💩
-TEST DONE 1 URL parse and sort: a🌈&a💩
-TEST DONE 1 Sorting non-existent params removes ? from URL
+TEST DONE 0 URL parse and sort: z=z&=f&=t&=x
+TEST DONE 0 Parse and sort: a🌈&a💩
+TEST DONE 0 URL parse and sort: a🌈&a💩
+TEST DONE 0 Sorting non-existent params removes ? from URL
 Running ../../tools/wpt/url/urlsearchparams-stringifier.any.js
 TEST DONE 1 Serialize space
 TEST DONE 1 Serialize empty value
@@ -993,13 +998,13 @@ TEST DONE 1 Serialize empty name and value
 TEST DONE 1 Serialize +
 TEST DONE 1 Serialize =
 TEST DONE 1 Serialize &
-TEST DONE 0 Serialize *-._
+TEST DONE 1 Serialize *-._
 TEST DONE 1 Serialize %
 TEST DONE 1 Serialize \0
 TEST DONE 1 Serialize 💩
 TEST DONE 1 URLSearchParams.toString
 TEST DONE 1 URLSearchParams connected to URL
-TEST DONE 1 URLSearchParams must not do newline normalization
+TEST DONE 0 URLSearchParams must not do newline normalization
 Running ../../tools/wpt/encoding/api-basics.any.js
 TEST DONE 0 Default encodings
 TEST DONE 0 Default inputs
@@ -1613,5 +1618,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1493 tests, 465 passed, 1015 failed
- -> 31% conformance
+1497 tests, 498 passed, 987 failed
+ -> 33% conformance
