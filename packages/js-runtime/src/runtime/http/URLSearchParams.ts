@@ -98,7 +98,7 @@
 
     get(name: string): string | null {
       name = String(name);
-      return this.list.find(([currentName]) => currentName === name)?.[1] || null;
+      return this.list.find(([currentName]) => currentName === name)?.[1] ?? null;
     }
 
     getAll(name: string): string[] {

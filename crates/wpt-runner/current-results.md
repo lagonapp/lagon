@@ -917,7 +917,7 @@ Running ../../tools/wpt/url/urlsearchparams-append.any.js
 TEST DONE 1 Append same name
 TEST DONE 1 Append empty strings
 TEST DONE 1 Append null
-TEST DONE 1 Append multiple
+TEST DONE 0 Append multiple
 Running ../../tools/wpt/url/urlsearchparams-constructor.any.js
 TEST DONE 1 Basic URLSearchParams construction
 TEST DONE 1 URLSearchParams constructor, no arguments
@@ -961,8 +961,8 @@ TEST DONE 1 delete next param during iteration
 TEST DONE 1 delete current param during iteration
 TEST DONE 1 delete every param seen during iteration
 Running ../../tools/wpt/url/urlsearchparams-get.any.js
-TEST DONE 1 Get basics
-TEST DONE 1 More get() basics
+TEST DONE 0 Get basics
+TEST DONE 0 More get() basics
 Running ../../tools/wpt/url/urlsearchparams-getall.any.js
 TEST DONE 0 getAll() basics
 TEST DONE 0 getAll() multiples
@@ -1618,5 +1618,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1497 tests, 500 passed, 985 failed
+1497 tests, 503 passed, 982 failed
  -> 33% conformance
