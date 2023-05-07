@@ -50,7 +50,7 @@ static TEST_HARNESS: Lazy<String> = Lazy::new(|| {
         .replace("debug: false", "debug: true")
 });
 
-const SKIP_TESTS: [&str; 13] = [
+const SKIP_TESTS: [&str; 14] = [
     // response
     "response-cancel-stream.any.js",           // "undefined"
     "response-error-from-stream.any.js",       // "Start error"
@@ -65,6 +65,7 @@ const SKIP_TESTS: [&str; 13] = [
     "iso-2022-jp-decoder.any.js",          // we only support utf-8
     "encodeInto.any.js",                   // TextEncoder#encodeInto isn't implemented yet
     "textdecoder-fatal-single-byte.any.js", // lots of test that we don't really need
+    "unsupported-encodings.any.js",        // we only support utf-8
     // event
     "EventTarget-removeEventListener.any.js", // removeEventListener does not exists on the global object
     // headers

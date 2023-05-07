@@ -1063,21 +1063,7 @@ Running ../../tools/wpt/encoding/textencoder-constructor-non-utf.any.js
 TEST DONE 0 Encoding argument supported for decode: UTF-8
 TEST DONE 0 Encoding argument not considered for encode: UTF-8
 Skipping ../../tools/wpt/encoding/textencoder-utf16-surrogates.any.js
-Running ../../tools/wpt/encoding/unsupported-encodings.any.js
-TEST DONE 1 UTF-7 should not be supported
-TEST DONE 1 utf-7 should not be supported
-TEST DONE 1 UTF-32 with BOM should decode as UTF-16LE
-TEST DONE 1 UTF-32 with no BOM should decode as UTF-8
-TEST DONE 1 utf-32 with BOM should decode as UTF-16LE
-TEST DONE 1 utf-32 with no BOM should decode as UTF-8
-TEST DONE 1 UTF-32LE with BOM should decode as UTF-16LE
-TEST DONE 1 UTF-32LE with no BOM should decode as UTF-8
-TEST DONE 1 utf-32le with BOM should decode as UTF-16LE
-TEST DONE 1 utf-32le with no BOM should decode as UTF-8
-TEST DONE 1 UTF-32be with no BOM should decode as UTF-8
-TEST DONE 1 UTF-32be with BOM should decode as UTF-8
-TEST DONE 1 utf-32be with no BOM should decode as UTF-8
-TEST DONE 1 utf-32be with BOM should decode as UTF-8
+Skipping ../../tools/wpt/encoding/unsupported-encodings.any.js
 Running ../../tools/wpt/FileAPI/blob/Blob-array-buffer.any.js
 TEST DONE 0 Blob.arrayBuffer()
 TEST DONE 0 Blob.arrayBuffer() empty Blob data
@@ -1460,5 +1446,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1340 tests, 600 passed, 727 failed (13 not completed)
+1326 tests, 600 passed, 713 failed (13 not completed)
  -> 45% conformance
