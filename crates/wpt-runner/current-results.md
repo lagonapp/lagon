@@ -914,13 +914,13 @@ TEST DONE 1 response.formData() with input: b=%2%2af%2a
 TEST DONE 1 request.formData() with input: b=%%2a
 TEST DONE 1 response.formData() with input: b=%%2a
 Running ../../tools/wpt/url/urlsearchparams-append.any.js
-TEST DONE 1 Append same name
-TEST DONE 1 Append empty strings
-TEST DONE 1 Append null
+TEST DONE 0 Append same name
+TEST DONE 0 Append empty strings
+TEST DONE 0 Append null
 TEST DONE 0 Append multiple
 Running ../../tools/wpt/url/urlsearchparams-constructor.any.js
 TEST DONE 1 Basic URLSearchParams construction
-TEST DONE 1 URLSearchParams constructor, no arguments
+TEST DONE 0 URLSearchParams constructor, no arguments
 TEST DONE 0 URLSearchParams constructor, remove leading "?"
 TEST DONE 1 URLSearchParams constructor, DOMException as argument
 TEST DONE 0 URLSearchParams constructor, empty string as argument
@@ -929,7 +929,7 @@ TEST DONE 1 URLSearchParams constructor, string.
 TEST DONE 1 URLSearchParams constructor, object.
 TEST DONE 1 URLSearchParams constructor, FormData.
 TEST DONE 0 Parse +
-TEST DONE 1 Parse encoded +
+TEST DONE 0 Parse encoded +
 TEST DONE 0 Parse space
 TEST DONE 0 Parse %20
 TEST DONE 0 Parse \0
@@ -992,16 +992,16 @@ TEST DONE 0 URL parse and sort: a🌈&a💩
 TEST DONE 0 Sorting non-existent params removes ? from URL
 Running ../../tools/wpt/url/urlsearchparams-stringifier.any.js
 TEST DONE 1 Serialize space
-TEST DONE 1 Serialize empty value
-TEST DONE 1 Serialize empty name
-TEST DONE 1 Serialize empty name and value
-TEST DONE 1 Serialize +
-TEST DONE 1 Serialize =
-TEST DONE 1 Serialize &
-TEST DONE 1 Serialize *-._
+TEST DONE 0 Serialize empty value
+TEST DONE 0 Serialize empty name
+TEST DONE 0 Serialize empty name and value
+TEST DONE 0 Serialize +
+TEST DONE 0 Serialize =
+TEST DONE 0 Serialize &
+TEST DONE 0 Serialize *-._
 TEST DONE 1 Serialize %
-TEST DONE 1 Serialize \0
-TEST DONE 1 Serialize 💩
+TEST DONE 0 Serialize \0
+TEST DONE 0 Serialize 💩
 TEST DONE 1 URLSearchParams.toString
 TEST DONE 1 URLSearchParams connected to URL
 TEST DONE 0 URLSearchParams must not do newline normalization
@@ -1618,5 +1618,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1497 tests, 503 passed, 982 failed
- -> 33% conformance
+1497 tests, 517 passed, 968 failed
+ -> 34% conformance

@@ -3,7 +3,7 @@
     private list: [string, string][] = [];
     private url: URL | null = null;
 
-    constructor(init?: string[][] | Record<string, string> | string | URLSearchParams) {
+    constructor(init: string[][] | Record<string, string> | string | URLSearchParams = '') {
       if (typeof init === 'string' && init.startsWith('?')) {
         init = init.slice(1);
       }
@@ -41,7 +41,7 @@
       return output;
     }
 
-    private initialize(init?: string[][] | Record<string, string> | string | URLSearchParams) {
+    private initialize(init: string[][] | Record<string, string> | string | URLSearchParams = '') {
       if (typeof init === 'object') {
         if (Array.isArray(init)) {
           for (const inner of init) {
@@ -64,7 +64,12 @@
     }
 
     private serialize(list: [string, string][]): string {
-      return list.map(([name, value]) => `${encodeURIComponent(name)}=${encodeURIComponent(value)}`).join('&');
+      return list
+        .map(
+          ([name, value]) =>
+            `${encodeURIComponent(name.replaceAll(' ', '+'))}=${encodeURIComponent(value.replaceAll(' ', '+'))}`,
+        )
+        .join('&');
     }
 
     private update() {
