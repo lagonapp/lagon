@@ -20,39 +20,7 @@ TEST DONE 0 Headers.prototype.getSetCookie with two equal headers
 TEST DONE 0 Headers.prototype.getSetCookie ignores set-cookie2 headers
 TEST DONE 0 Headers.prototype.getSetCookie preserves header ordering
 TEST DONE 1 Set-Cookie is a forbidden response header
-Running ../../tools/wpt/fetch/api/headers/header-values-normalize.any.js
-TEST DONE 1 XMLHttpRequest with value %00
-TEST DONE 1 XMLHttpRequest with value %01
-TEST DONE 1 XMLHttpRequest with value %02
-TEST DONE 1 XMLHttpRequest with value %03
-TEST DONE 1 XMLHttpRequest with value %04
-TEST DONE 1 XMLHttpRequest with value %05
-TEST DONE 1 XMLHttpRequest with value %06
-TEST DONE 1 XMLHttpRequest with value %07
-TEST DONE 1 XMLHttpRequest with value %08
-TEST DONE 1 XMLHttpRequest with value %09
-TEST DONE 1 XMLHttpRequest with value %0A
-TEST DONE 1 XMLHttpRequest with value %0D
-TEST DONE 1 XMLHttpRequest with value %0E
-TEST DONE 1 XMLHttpRequest with value %0F
-TEST DONE 1 XMLHttpRequest with value %10
-TEST DONE 1 XMLHttpRequest with value %11
-TEST DONE 1 XMLHttpRequest with value %12
-TEST DONE 1 XMLHttpRequest with value %13
-TEST DONE 1 XMLHttpRequest with value %14
-TEST DONE 1 XMLHttpRequest with value %15
-TEST DONE 1 XMLHttpRequest with value %16
-TEST DONE 1 XMLHttpRequest with value %17
-TEST DONE 1 XMLHttpRequest with value %18
-TEST DONE 1 XMLHttpRequest with value %19
-TEST DONE 1 XMLHttpRequest with value %1A
-TEST DONE 1 XMLHttpRequest with value %1B
-TEST DONE 1 XMLHttpRequest with value %1C
-TEST DONE 1 XMLHttpRequest with value %1D
-TEST DONE 1 XMLHttpRequest with value %1E
-TEST DONE 1 XMLHttpRequest with value %1F
-TEST DONE 1 XMLHttpRequest with value %20
-TEST DONE 1 fetch() with value %00
+Skipping ../../tools/wpt/fetch/api/headers/header-values-normalize.any.js
 Running ../../tools/wpt/fetch/api/headers/header-values.any.js
 TEST DONE 1 XMLHttpRequest with value x%00x needs to throw
 TEST DONE 1 XMLHttpRequest with value x%0Ax needs to throw
@@ -543,69 +511,14 @@ TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.json() c
 TEST DONE 1 ReadableStream with non-Uint8Array chunk passed to Response.text() causes TypeError
 Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-1.any.js
 TEST DONE 1 Getting blob after getting the Response body - not disturbed, not locked (body source: fetch)
-TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: fetch)
-TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: fetch)
-TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: fetch)
-TEST DONE 1 Getting blob after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting blob after getting the Response body - not disturbed, not locked (body source: string)
-TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: string)
-TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: string)
-TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: string)
 Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-2.any.js
 TEST DONE 1 Getting blob after getting a locked Response body (body source: fetch)
-TEST DONE 1 Getting text after getting a locked Response body (body source: fetch)
-TEST DONE 1 Getting json after getting a locked Response body (body source: fetch)
-TEST DONE 1 Getting arrayBuffer after getting a locked Response body (body source: fetch)
-TEST DONE 1 Getting blob after getting a locked Response body (body source: stream)
-TEST DONE 1 Getting text after getting a locked Response body (body source: stream)
-TEST DONE 1 Getting json after getting a locked Response body (body source: stream)
-TEST DONE 1 Getting arrayBuffer after getting a locked Response body (body source: stream)
-TEST DONE 1 Getting blob after getting a locked Response body (body source: string)
-TEST DONE 1 Getting text after getting a locked Response body (body source: string)
-TEST DONE 1 Getting json after getting a locked Response body (body source: string)
-TEST DONE 1 Getting arrayBuffer after getting a locked Response body (body source: string)
 Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-3.any.js
 TEST DONE 1 Getting blob after reading the Response body (body source: fetch)
-TEST DONE 1 Getting text after reading the Response body (body source: fetch)
-TEST DONE 1 Getting json after reading the Response body (body source: fetch)
-TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: fetch)
-TEST DONE 1 Getting blob after reading the Response body (body source: stream)
-TEST DONE 1 Getting text after reading the Response body (body source: stream)
-TEST DONE 1 Getting json after reading the Response body (body source: stream)
-TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: stream)
-TEST DONE 1 Getting blob after reading the Response body (body source: string)
-TEST DONE 1 Getting text after reading the Response body (body source: string)
-TEST DONE 1 Getting json after reading the Response body (body source: string)
-TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: string)
 Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-4.any.js
 TEST DONE 1 Getting blob after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting text after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting json after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting blob after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting text after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting json after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting blob after cancelling the Response body (body source: string)
-TEST DONE 1 Getting text after cancelling the Response body (body source: string)
-TEST DONE 1 Getting json after cancelling the Response body (body source: string)
-TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: string)
 Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-5.any.js
 TEST DONE 1 Getting a body reader after consuming as blob (body source: fetch)
-TEST DONE 1 Getting a body reader after consuming as text (body source: fetch)
-TEST DONE 1 Getting a body reader after consuming as json (body source: fetch)
-TEST DONE 1 Getting a body reader after consuming as arrayBuffer (body source: fetch)
-TEST DONE 1 Getting a body reader after consuming as blob (body source: stream)
-TEST DONE 1 Getting a body reader after consuming as text (body source: stream)
-TEST DONE 1 Getting a body reader after consuming as json (body source: stream)
-TEST DONE 1 Getting a body reader after consuming as arrayBuffer (body source: stream)
-TEST DONE 1 Getting a body reader after consuming as blob (body source: string)
-TEST DONE 1 Getting a body reader after consuming as text (body source: string)
-TEST DONE 1 Getting a body reader after consuming as json (body source: string)
-TEST DONE 1 Getting a body reader after consuming as arrayBuffer (body source: string)
 Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-6.any.js
 TEST DONE 1 A non-closed stream on which read() has been called
 TEST DONE 1 A non-closed stream on which cancel() has been called
@@ -1638,7 +1551,7 @@ Running ../../tools/wpt/FileAPI/reading-data-section/filereader_result.any.js
 TEST DONE 0 readAsText
 TEST DONE 0 readAsDataURL
 TEST DONE 0 readAsArrayBuffer
-TEST DONE 1 readAsBinaryString
+TEST DONE 0 readAsBinaryString
 TEST DONE 1 result is null during "loadstart" event for readAsText
 TEST DONE 1 result is null during "loadstart" event for readAsDataURL
 TEST DONE 1 result is null during "loadstart" event for readAsArrayBuffer
@@ -1700,5 +1613,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1576 tests, 464 passed, 1103 failed
- -> 29% conformance
+1493 tests, 465 passed, 1015 failed
+ -> 31% conformance

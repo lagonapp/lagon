@@ -38,6 +38,8 @@ const DECODING_HELPERS: &str =
 const SUPPORT_BLOB: &str = include_str!("../../../tools/wpt/FileAPI/support/Blob.js");
 const SUPPORT_FORMDATA: &str =
     include_str!("../../../tools/wpt/FileAPI/support/send-file-formdata-helper.js");
+const STREAM_DISTURBED_UTIL: &str =
+    include_str!("../../../tools/wpt/fetch/api/response/response-stream-disturbed-util.js");
 
 static RESULT: Lazy<Mutex<(usize, usize, usize)>> = Lazy::new(|| Mutex::new((0, 0, 0)));
 static TEST_HARNESS: Lazy<String> = Lazy::new(|| {
@@ -47,7 +49,7 @@ static TEST_HARNESS: Lazy<String> = Lazy::new(|| {
         .replace("debug: false", "debug: true")
 });
 
-const SKIP_TESTS: [&str; 16] = [
+const SKIP_TESTS: [&str; 17] = [
     // request
     "request-error.any.js",         // "badRequestArgTests is not defined"
     "request-init-stream.any.js",   // "request.body.getReader is not a function"
@@ -69,6 +71,8 @@ const SKIP_TESTS: [&str; 16] = [
     "textdecoder-fatal-single-byte.any.js", // have a random number of tests?
     // event
     "EventTarget-removeEventListener.any.js", // removeEventListener does not exists on the global object
+    // headers
+    "header-values-normalize.any.js", // XMLHttpRequest isn't supported
 ];
 
 async fn run_test(path: &Path) {
@@ -103,6 +107,7 @@ export function handler() {{
     {DECODING_HELPERS}
     {SUPPORT_BLOB}
     {SUPPORT_FORMDATA}
+    {STREAM_DISTURBED_UTIL}
     {code}
     return new Response()
 }}",
@@ -134,6 +139,8 @@ export function handler() {{
                 println!("{}", content.red());
             } else if content.starts_with("TEST START") {
                 RESULT.lock().unwrap().0 += 1;
+            } else {
+                // println!("{}", content);
             }
         }
     });

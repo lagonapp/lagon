@@ -1,6 +1,5 @@
-use std::time::Duration;
-
 use anyhow::Result;
+use std::time::Duration;
 
 mod headers;
 mod method;
