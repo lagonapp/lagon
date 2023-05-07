@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { Button, Card, Form, Input, Text, TagsInput, Dialog, Menu } from '@lagon/ui';
+import { Button, Card, Form, Input, Text, TagsInput, Dialog, Menu, Divider } from '@lagon/ui';
 import { getCurrentDomain } from 'lib/utils';
 import {
   composeValidators,
@@ -174,7 +174,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
       </Form>
       <Form
         initialValues={{
-          env: func?.env || [],
+          env: func?.env || {},
         }}
         onSubmit={async ({ env }) => {
           if (!func) {
@@ -183,17 +183,10 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
 
           await updateFunction.mutateAsync({
             functionId: func.id,
-            env: (env as Array<string | Record<'key' | 'value', string>>).map(currentEnv => {
-              // return already-normalised env
-              if (typeof currentEnv !== 'string') return currentEnv;
-
-              const [key, value] = currentEnv.split('=');
-
-              return {
-                key,
-                value,
-              };
-            }),
+            env: Object.entries<string>(env).reduce(
+              (acc, [key, value]) => [...acc, { key, value }],
+              [] as { key: string; value: string }[],
+            ),
           });
 
           await refetch();
@@ -206,7 +199,30 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           <Card title={t('env.title')} description={t('env.description')}>
             <div className="flex flex-col items-start gap-4">
               <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
-                <Input name="envKey" placeholder={t('env.placeholder.key')} disabled={updateFunction.isLoading} />
+                <Input
+                  name="envKey"
+                  placeholder={t('env.placeholder.key')}
+                  disabled={updateFunction.isLoading}
+                  onPaste={event => {
+                    const text = event.clipboardData.getData('text');
+
+                    if (text.includes('\n')) {
+                      const entries = text.split('\n');
+                      const pastedEnv: Record<string, string> = {};
+
+                      for (const entry of entries) {
+                        const [key, value] = entry.split(/=(.*)/s);
+
+                        if (key && value && !key.trimStart().startsWith('#')) {
+                          pastedEnv[key] = value;
+                        }
+                      }
+
+                      form.change('env', { ...values.env, ...pastedEnv });
+                      event.preventDefault();
+                    }
+                  }}
+                />
                 <Input
                   name="envValue"
                   placeholder={t('env.placeholder.value')}
@@ -219,9 +235,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                     const { envKey, envValue } = values;
 
                     if (envKey && envValue) {
-                      form.change('env', [...values.env, `${envKey}=${envValue}`]);
-                      form.change(`${envKey}-key`, envKey);
-                      form.change(`${envKey}-value`, envValue);
+                      form.change('env', { ...values.env, [envKey]: envValue });
 
                       form.change('envKey', '');
                       form.change('envValue', '');
@@ -231,18 +245,22 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                   {t('env.add')}
                 </Button>
               </div>
-              {values.env.map(({ key }: { key: string }) => {
+              {Object.entries<string>(values.env).map(([key, value], index) => {
                 return (
-                  <div key={key} className="flex flex-col items-start gap-2 md:flex-row md:items-center">
+                  <div
+                    key={`${key}-${value}-${index}`}
+                    className="flex flex-col items-start gap-2 md:flex-row md:items-center"
+                  >
                     <Input name={`${key}-key`} placeholder={key} disabled />
-                    <Input name={`${key}-value`} placeholder="*******" disabled />
+                    <Input name={`${key}-value`} placeholder={new Array(value.length).fill('*').join('')} disabled />
                     <Button
                       disabled={updateFunction.isLoading}
+                      variant="danger"
                       onClick={() => {
-                        form.change(
-                          'env',
-                          values.env.filter(({ key: currentKey }: { key: string }) => key !== currentKey),
-                        );
+                        const newEnv = { ...values.env };
+                        delete newEnv[key];
+
+                        form.change('env', newEnv);
                       }}
                     >
                       {t('env.remove')}
