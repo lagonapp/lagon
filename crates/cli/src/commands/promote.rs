@@ -1,10 +1,9 @@
+use crate::utils::{get_root, print_progress, Config, FunctionConfig, TrpcClient, THEME};
 use anyhow::{anyhow, Result};
+use colored::Colorize;
 use dialoguer::Confirm;
-use std::path::PathBuf;
-
 use serde::{Deserialize, Serialize};
-
-use crate::utils::{get_root, info, print_progress, success, Config, FunctionConfig, TrpcClient};
+use std::path::PathBuf;
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -31,14 +30,14 @@ pub async fn promote(deployment_id: String, directory: Option<PathBuf>) -> Resul
     let root = get_root(directory);
     let function_config = FunctionConfig::load(&root, None, None)?;
 
-    match Confirm::new()
-        .with_prompt(info(
-            "Are you sure you want to promote this Deployment to production?",
-        ))
+    match Confirm::with_theme(&*THEME)
+        .with_prompt("Do you really want to promote this Deployment to production?")
+        .default(true)
         .interact()?
     {
         true => {
-            let end_progress = print_progress("Promoting Deployment...");
+            println!();
+            let end_progress = print_progress("Promoting Deployment");
             TrpcClient::new(config)
                 .mutation::<PromoteDeploymentRequest, PromoteDeploymentResponse>(
                     "deploymentPromote",
@@ -51,10 +50,14 @@ pub async fn promote(deployment_id: String, directory: Option<PathBuf>) -> Resul
             end_progress();
 
             println!();
-            println!("{}", success("Deployment promoted to production!"));
+            println!(" {} Deployment promoted to production!", "◼".magenta());
 
             Ok(())
         }
-        false => Err(anyhow!("Promotion aborted.")),
+        false => {
+            println!();
+            println!("{} Promotion aborted", "✕".red());
+            Ok(())
+        }
     }
 }

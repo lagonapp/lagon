@@ -1,13 +1,11 @@
-use std::path::PathBuf;
-
-use anyhow::{anyhow, Result};
-
-use dialoguer::Select;
-
 use crate::{
     commands::deploy::{FunctionsResponse, OrganizationsResponse},
-    utils::{get_root, info, success, Config, FunctionConfig, TrpcClient},
+    utils::{get_root, Config, FunctionConfig, TrpcClient, THEME},
 };
+use anyhow::{anyhow, Result};
+use colored::Colorize;
+use dialoguer::Select;
+use std::path::PathBuf;
 
 pub async fn link(directory: Option<PathBuf>) -> Result<()> {
     let config = Config::new()?;
@@ -19,9 +17,10 @@ pub async fn link(directory: Option<PathBuf>) -> Result<()> {
     }
 
     let root = get_root(directory);
+    let function_config = FunctionConfig::load(&root, None, None)?;
 
-    match root.join(".lagon").join("config.json").exists() {
-        true => Err(anyhow!("This directory is already linked to a Function.")),
+    match !function_config.function_id.is_empty() {
+        true => Err(anyhow!("This directory is already linked to a Function")),
         false => {
             let trpc_client = TrpcClient::new(config);
             let response = trpc_client
@@ -29,10 +28,10 @@ pub async fn link(directory: Option<PathBuf>) -> Result<()> {
                 .await?;
             let organizations = response.result.data;
 
-            let index = Select::new()
+            let index = Select::with_theme(&*THEME)
                 .items(&organizations)
                 .default(0)
-                .with_prompt(info("Select an Organization to link from"))
+                .with_prompt("Which Organization would you like to link from?")
                 .interact()?;
             let organization = &organizations[index];
 
@@ -41,10 +40,10 @@ pub async fn link(directory: Option<PathBuf>) -> Result<()> {
                 .await?;
             let functions = response.result.data;
 
-            let index = Select::new()
+            let index = Select::with_theme(&*THEME)
                 .items(&functions)
                 .default(0)
-                .with_prompt(info("Select a Function to link from"))
+                .with_prompt("Which Function would you like to link?")
                 .interact()?;
             let function = &functions[index];
 
@@ -53,7 +52,8 @@ pub async fn link(directory: Option<PathBuf>) -> Result<()> {
             function_config.organization_id = organization.id.clone();
             function_config.write(&root)?;
 
-            println!("{}", success("Function linked!"));
+            println!();
+            println!(" {} Function linked!", "◼".magenta());
 
             Ok(())
         }

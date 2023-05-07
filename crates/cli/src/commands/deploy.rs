@@ -1,14 +1,11 @@
+use crate::utils::{create_deployment, print_progress, resolve_path, Config, TrpcClient, THEME};
+use anyhow::{anyhow, Result};
+use colored::Colorize;
+use dialoguer::{Confirm, Input, Select};
+use serde::{Deserialize, Serialize};
 use std::{
     fmt::{Display, Formatter},
     path::PathBuf,
-};
-
-use anyhow::{anyhow, Result};
-use dialoguer::{Confirm, Input, Select};
-use serde::{Deserialize, Serialize};
-
-use crate::utils::{
-    create_deployment, debug, info, print_progress, resolve_path, Config, TrpcClient,
 };
 
 #[derive(Deserialize, Debug)]
@@ -69,7 +66,7 @@ pub async fn deploy(
     let (root, mut function_config) = resolve_path(path, client, public_dir)?;
 
     if function_config.function_id.is_empty() {
-        println!("{}", debug("No deployment config found..."));
+        println!("{}", "No previous Deployment found...".bright_black());
         println!();
 
         let trpc_client = TrpcClient::new(config.clone());
@@ -78,15 +75,16 @@ pub async fn deploy(
             .await?;
         let organizations = response.result.data;
 
-        let index = Select::new()
+        let index = Select::with_theme(&*THEME)
             .items(&organizations)
             .default(0)
-            .with_prompt(info("Select an Organization to deploy to"))
+            .with_prompt("Which Organization would you like to deploy to?")
             .interact()?;
         let organization = &organizations[index];
 
-        match Confirm::new()
-            .with_prompt(info("Link to an existing Function?"))
+        match Confirm::with_theme(&*THEME)
+            .with_prompt("Link to an existing Function?")
+            .default(false)
             .interact()?
         {
             true => {
@@ -95,10 +93,10 @@ pub async fn deploy(
                     .await?;
                 let functions = response.result.data;
 
-                let index = Select::new()
+                let index = Select::with_theme(&*THEME)
                     .items(&functions)
                     .default(0)
-                    .with_prompt(info("Select a Function to link from"))
+                    .with_prompt("Which Function would you like to link?")
                     .interact()?;
                 let function = &functions[index];
 
@@ -106,15 +104,16 @@ pub async fn deploy(
                 function_config.organization_id = organization.id.clone();
                 function_config.write(&root)?;
 
+                println!();
                 create_deployment(config, &function_config, is_production, &root, true).await?;
             }
             false => {
-                let name = Input::<String>::new()
-                    .with_prompt(info("What is the name of this new Function?"))
+                let name = Input::<String>::with_theme(&*THEME)
+                    .with_prompt("What's the name of this new Function?")
                     .interact_text()?;
 
                 println!();
-                let message = format!("Creating Function {name}...");
+                let message = format!("Creating Function {name}");
                 let end_progress = print_progress(&message);
 
                 let response = trpc_client

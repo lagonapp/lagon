@@ -1635,6 +1635,7 @@ dependencies = [
  "lagon-runtime-isolate",
  "lagon-runtime-utils",
  "notify",
+ "once_cell",
  "pathdiff",
  "serde",
  "serde_json",

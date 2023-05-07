@@ -1,11 +1,9 @@
-use std::path::PathBuf;
-
+use crate::utils::{get_root, print_progress, Config, FunctionConfig, TrpcClient, THEME};
 use anyhow::{anyhow, Result};
+use colored::Colorize;
 use dialoguer::Confirm;
-
 use serde::{Deserialize, Serialize};
-
-use crate::utils::{get_root, info, print_progress, success, Config, FunctionConfig, TrpcClient};
+use std::path::PathBuf;
 
 #[derive(Serialize, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -32,12 +30,13 @@ pub async fn undeploy(deployment_id: String, directory: Option<PathBuf>) -> Resu
     let root = get_root(directory);
     let function_config = FunctionConfig::load(&root, None, None)?;
 
-    match Confirm::new()
-        .with_prompt(info("Are you sure you want to delete this Deployment?"))
+    match Confirm::with_theme(&*THEME)
+        .with_prompt("Do you really want to delete this Deployment?")
+        .default(false)
         .interact()?
     {
         true => {
-            let end_progress = print_progress("Deleting Deployment...");
+            let end_progress = print_progress("Deleting Deployment");
             TrpcClient::new(config)
                 .mutation::<UndeployDeploymentRequest, UndeployDeploymentResponse>(
                     "deploymentUndeploy",
@@ -50,10 +49,14 @@ pub async fn undeploy(deployment_id: String, directory: Option<PathBuf>) -> Resu
             end_progress();
 
             println!();
-            println!("{}", success("Deployment deleted."));
+            println!(" {} Deployment deleted!", "◼".magenta());
 
             Ok(())
         }
-        false => Err(anyhow!("Deletion aborted.")),
+        false => {
+            println!();
+            println!("{} Deletion aborted", "✕".red());
+            Ok(())
+        }
     }
 }

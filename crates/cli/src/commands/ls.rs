@@ -1,11 +1,8 @@
-use std::path::PathBuf;
-
+use crate::utils::{get_root, print_progress, Config, FunctionConfig, TrpcClient};
 use anyhow::{anyhow, Result};
 use colored::Colorize;
-
 use serde::{Deserialize, Serialize};
-
-use crate::utils::{error, get_root, print_progress, Config, FunctionConfig, TrpcClient};
+use std::path::PathBuf;
 
 #[derive(Deserialize, Debug)]
 struct Function {
@@ -39,7 +36,7 @@ pub async fn ls(directory: Option<PathBuf>) -> Result<()> {
 
     let root = get_root(directory);
     let function_config = FunctionConfig::load(&root, None, None)?;
-    let end_progress = print_progress("Fetching deployments...");
+    let end_progress = print_progress("Fetching Deployments");
 
     let function = TrpcClient::new(config)
         .query::<FunctionRequest, FunctionResponse>(
@@ -52,32 +49,32 @@ pub async fn ls(directory: Option<PathBuf>) -> Result<()> {
 
     end_progress();
     println!();
+    println!(" {} List of Deployments:", "◼".magenta());
+    println!();
 
     let deployments = function.result.data.deployments;
 
     if deployments.is_empty() {
-        println!("{}", error("No deployments found."));
+        println!("{} No deployments found", "✕".red());
     } else {
         for deployment in deployments {
             if deployment.is_production {
                 println!(
-                    "{} {} {}{}, {}{}",
-                    "•".green(),
-                    deployment.id,
-                    "(".bright_black(),
-                    deployment.created_at.bright_black(),
-                    "production".green(),
-                    ")".bright_black()
+                    "{} Production: {} {}",
+                    "●".bright_black(),
+                    format!("https://{}.lagon.dev", deployment.id)
+                        .underline()
+                        .blue(),
+                    format!("({})", deployment.created_at).bright_black(),
                 );
             } else {
                 println!(
-                    "{} {} {}{}, {}{}",
-                    "•".blue(),
-                    deployment.id,
-                    "(".bright_black(),
-                    deployment.created_at.bright_black(),
-                    "preview".blue(),
-                    ")".bright_black()
+                    "{} Preview: {} {}",
+                    "○".bright_black(),
+                    format!("https://{}.lagon.dev", deployment.id)
+                        .underline()
+                        .blue(),
+                    format!("({})", deployment.created_at).bright_black(),
                 );
             }
         }

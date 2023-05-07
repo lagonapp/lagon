@@ -1,8 +1,8 @@
+use crate::utils::{print_progress, Config, TrpcClient, THEME};
 use anyhow::{anyhow, Result};
+use colored::Colorize;
 use dialoguer::{Confirm, Password};
 use serde::{Deserialize, Serialize};
-
-use crate::utils::{debug, error, info, input, print_progress, success, Config, TrpcClient};
 
 #[derive(Deserialize, Debug)]
 struct CliResponse {
@@ -18,34 +18,34 @@ pub async fn login() -> Result<()> {
     let mut config = Config::new()?;
 
     if config.token.is_some()
-        && !Confirm::new()
-            .with_prompt(info(
-                "You are already logged in. Are you sure you want to log in again?",
-            ))
+        && !Confirm::with_theme(&*THEME)
+            .with_prompt("You are already logged in. Do you want to log out and log in again?")
+            .default(true)
             .interact()?
     {
-        return Err(anyhow!("Login aborted."));
+        println!();
+        println!("{} Login aborted", "✕".red());
+        return Ok(());
     }
 
     println!();
 
-    let end_progress = print_progress("Opening browser...");
+    let end_progress = print_progress("Opening browser");
     let url = config.site_url.clone() + "/cli";
 
     if webbrowser::open(&url).is_err() {
-        println!("{}", error("Couldn't open browser."));
+        println!("{} Could not open browser", "✕".red());
     }
 
     end_progress();
-
-    println!();
     println!(
         "{}",
-        info(&format!("Please copy and paste the verification from your browser. You can also manually visit {}", url))
+        format!("   You can also manually access {}", url).bright_black()
     );
+    println!();
 
-    let code = Password::new()
-        .with_prompt(input("Verification code"))
+    let code = Password::with_theme(&*THEME)
+        .with_prompt("Paste the verification code from your browser here")
         .interact()?;
 
     config.set_token(Some(code.clone()));
@@ -62,11 +62,8 @@ pub async fn login() -> Result<()> {
             config.save()?;
 
             println!();
-            println!(
-                "{} {}",
-                success("You are now logged in."),
-                debug("You can close your browser tab.")
-            );
+            println!(" {} You are now logged in!", "◼".magenta());
+            println!("   {}", "You can now close the browser tab".black());
 
             Ok(())
         }
