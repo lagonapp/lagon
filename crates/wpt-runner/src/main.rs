@@ -32,6 +32,7 @@ const ENCODING_TABLE: &str = r#"const encodings_table =
   }
 ]"#;
 const REQUEST_CACHE: &str = include_str!("../../../tools/wpt/fetch/api/request/request-cache.js");
+const REQUEST_ERROR: &str = include_str!("../../../tools/wpt/fetch/api/request/request-error.js");
 const SUBSET_TESTS: &str = include_str!("../../../tools/wpt/common/subset-tests.js");
 const DECODING_HELPERS: &str =
     include_str!("../../../tools/wpt/encoding/resources/decoding-helpers.js");
@@ -49,26 +50,21 @@ static TEST_HARNESS: Lazy<String> = Lazy::new(|| {
         .replace("debug: false", "debug: true")
 });
 
-const SKIP_TESTS: [&str; 17] = [
-    // request
-    "request-error.any.js",         // "badRequestArgTests is not defined"
-    "request-init-stream.any.js",   // "request.body.getReader is not a function"
-    "request-consume-empty.any.js", // "Unexpected end of JSON input"
-    "request-consume.any.js",       // "Unexpected end of JSON input"
-    "request-init-priority.any.js", // "idx is not defined"
+const SKIP_TESTS: [&str; 13] = [
     // response
     "response-cancel-stream.any.js",           // "undefined"
     "response-error-from-stream.any.js",       // "Start error"
     "response-stream-with-broken-then.any.js", // "Cannot destructure property 'done' of 'undefined' as it is undefine"
     // url
-    "idlharness.any.js",  // load webidl stuff, not supported
-    "url-setters.any.js", // fetch an json file, find a way to run it
+    "idlharness.any.js",            // load webidl stuff, not supported
+    "url-setters.any.js",           // fetch an json file, find a way to run it
+    "url-setters-stripping.any.js", // stripping every field is not supported
     // encoding
     "textdecoder-utf16-surrogates.any.js", // we only support utf-8
     "textencoder-utf16-surrogates.any.js", // we only support utf-8
     "iso-2022-jp-decoder.any.js",          // we only support utf-8
     "encodeInto.any.js",                   // TextEncoder#encodeInto isn't implemented yet
-    "textdecoder-fatal-single-byte.any.js", // have a random number of tests?
+    "textdecoder-fatal-single-byte.any.js", // lots of test that we don't really need
     // event
     "EventTarget-removeEventListener.any.js", // removeEventListener does not exists on the global object
     // headers
@@ -98,11 +94,13 @@ async fn run_test(path: &Path) {
     isWindow: () => false,
 }}
 globalThis.location = {{}}
+globalThis.idx = undefined;
 
 export function handler() {{
     {}
     {ENCODING_TABLE}
     {REQUEST_CACHE}
+    {REQUEST_ERROR}
     {SUBSET_TESTS}
     {DECODING_HELPERS}
     {SUPPORT_BLOB}
@@ -212,16 +210,20 @@ async fn main() {
     let result = RESULT.lock().unwrap();
     println!();
     println!(
-        "{} tests, {} passed, {} failed",
+        "{} tests, {} passed, {} failed ({} not completed)",
         result.0,
         result.1.to_string().green(),
-        result.2.to_string().red()
+        result.2.to_string().red(),
+        result.0 - (result.1 + result.2)
     );
 
     if result.2 == 0 {
         println!(" -> 100% conformance");
     } else {
-        println!(" -> {}% conformance", (result.1 * 100) / result.0);
+        println!(
+            " -> {}% conformance",
+            (result.1 * 100) / (result.1 + result.2)
+        );
     }
 
     runtime.dispose();

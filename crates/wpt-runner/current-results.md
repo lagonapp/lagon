@@ -245,8 +245,60 @@ TEST DONE 1 RequestCache "reload" mode does store the response in the cache even
 TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Last-Modified and stale response
 TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Etag and fresh response
 TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Last-Modified and fresh response
-Skipping ../../tools/wpt/fetch/api/request/request-consume-empty.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-consume.any.js
+Running ../../tools/wpt/fetch/api/request/request-consume-empty.any.js
+TEST DONE 1 Consume request's body as text
+TEST DONE 1 Consume request's body as blob
+TEST DONE 1 Consume request's body as arrayBuffer
+TEST DONE 1 Consume request's body as json (error case)
+TEST DONE 1 Consume request's body as formData with correct multipart type (error case)
+TEST DONE 1 Consume request's body as formData with correct urlencoded type
+TEST DONE 1 Consume request's body as formData without correct type (error case)
+TEST DONE 0 Consume empty blob request body as arrayBuffer
+TEST DONE 0 Consume empty text request body as arrayBuffer
+TEST DONE 0 Consume empty blob request body as text
+TEST DONE 0 Consume empty text request body as text
+TEST DONE 0 Consume empty URLSearchParams request body as text
+TEST DONE 1 Consume empty FormData request body as text
+TEST DONE 0 Consume empty ArrayBuffer request body as text
+Running ../../tools/wpt/fetch/api/request/request-consume.any.js
+TEST DONE 0 Consume String request's body as text
+TEST DONE 0 Consume String request's body as blob
+TEST DONE 1 Consume String request's body as arrayBuffer
+TEST DONE 0 Consume String request's body as JSON
+TEST DONE 0 Consume ArrayBuffer request's body as text
+TEST DONE 0 Consume ArrayBuffer request's body as blob
+TEST DONE 1 Consume ArrayBuffer request's body as arrayBuffer
+TEST DONE 0 Consume ArrayBuffer request's body as JSON
+TEST DONE 0 Consume Uint8Array request's body as text
+TEST DONE 0 Consume Uint8Array request's body as blob
+TEST DONE 1 Consume Uint8Array request's body as arrayBuffer
+TEST DONE 0 Consume Uint8Array request's body as JSON
+TEST DONE 1 Consume Int8Array request's body as text
+TEST DONE 1 Consume Int8Array request's body as blob
+TEST DONE 1 Consume Int8Array request's body as arrayBuffer
+TEST DONE 1 Consume Int8Array request's body as JSON
+TEST DONE 1 Consume Float32Array request's body as text
+TEST DONE 1 Consume Float32Array request's body as blob
+TEST DONE 1 Consume Float32Array request's body as arrayBuffer
+TEST DONE 1 Consume Float32Array request's body as JSON
+TEST DONE 1 Consume DataView request's body as text
+TEST DONE 1 Consume DataView request's body as blob
+TEST DONE 1 Consume DataView request's body as arrayBuffer
+TEST DONE 1 Consume DataView request's body as JSON
+TEST DONE 1 Consume FormData request's body as FormData
+TEST DONE 0 Consume blob response's body as blob
+TEST DONE 0 Consume blob response's body as text
+TEST DONE 0 Consume blob response's body as json
+TEST DONE 1 Consume blob response's body as arrayBuffer
+TEST DONE 0 Consume blob response's body as blob (empty blob as input)
+TEST DONE 0 Consume JSON from text: '"null"'
+TEST DONE 0 Consume JSON from text: '"1"'
+TEST DONE 0 Consume JSON from text: '"true"'
+TEST DONE 0 Consume JSON from text: '"\"string\""'
+TEST DONE 0 Trying to consume bad JSON text as JSON: 'undefined'
+TEST DONE 0 Trying to consume bad JSON text as JSON: '{'
+TEST DONE 0 Trying to consume bad JSON text as JSON: 'a'
+TEST DONE 0 Trying to consume bad JSON text as JSON: '['
 Running ../../tools/wpt/fetch/api/request/request-disturbed.any.js
 TEST DONE 1 Request's body: initial state
 TEST DONE 1 Request without body cannot be disturbed
@@ -257,7 +309,29 @@ TEST DONE 1 Check creating a new request with a new body from a disturbed reques
 TEST DONE 1 Input request used for creating new request became disturbed
 TEST DONE 1 Input request used for creating new request became disturbed even if body is not used
 TEST DONE 0 Check consuming a disturbed request
-Skipping ../../tools/wpt/fetch/api/request/request-error.any.js
+Running ../../tools/wpt/fetch/api/request/request-error.any.js
+TEST DONE 1 RequestInit's window is not null
+TEST DONE 1 Input URL is not valid
+TEST DONE 1 Input URL has credentials
+TEST DONE 1 RequestInit's mode is navigate
+TEST DONE 1 RequestInit's referrer is invalid
+TEST DONE 1 RequestInit's method is invalid
+TEST DONE 1 RequestInit's method is forbidden
+TEST DONE 1 RequestInit's mode is no-cors and method is not simple
+TEST DONE 1 RequestInit's cache mode is only-if-cached and mode is not same-origin
+TEST DONE 1 Request with cache mode: only-if-cached and fetch mode cors
+TEST DONE 1 Request with cache mode: only-if-cached and fetch mode no-cors
+TEST DONE 1 Bad referrerPolicy init parameter value
+TEST DONE 1 Bad mode init parameter value
+TEST DONE 1 Bad credentials init parameter value
+TEST DONE 1 Bad cache init parameter value
+TEST DONE 1 Bad redirect init parameter value
+TEST DONE 0 Untitled
+TEST DONE 1 Request should get its content-type from the init request
+TEST DONE 0 Request should not get its content-type from the init request if init headers are provided
+TEST DONE 1 Request should get its content-type from the body if none is provided
+TEST DONE 1 Request should get its content-type from init headers if one is provided
+TEST DONE 0 Request with cache mode: only-if-cached and fetch mode: same-origin
 Running ../../tools/wpt/fetch/api/request/request-headers.any.js
 TEST DONE 0 Adding valid request header "Content-Type: OK"
 TEST DONE 0 Adding valid request header "Potato: OK"
@@ -348,8 +422,36 @@ TEST DONE 0 Can override Content-Type for Request with URLSearchParams body
 TEST DONE 0 Can override Content-Type for Request with string body
 TEST DONE 0 Can override Content-Type for Request with ReadableStream body
 TEST DONE 1 Default Content-Type for Request with FormData body
-Skipping ../../tools/wpt/fetch/api/request/request-init-priority.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-init-stream.any.js
+Running ../../tools/wpt/fetch/api/request/request-init-priority.any.js
+TEST DONE 0 new Request() with a 'high' priority does not throw an error
+TEST DONE 0 new Request() with a 'low' priority does not throw an error
+TEST DONE 0 new Request() with a 'auto' priority does not throw an error
+TEST DONE 1 new Request() throws a TypeError if any of RequestInit's members' values are invalid
+TEST DONE 1 fetch() with a 'high' priority completes successfully
+Running ../../tools/wpt/fetch/api/request/request-init-stream.any.js
+TEST DONE 1 Constructing a Request with a stream holds the original object.
+TEST DONE 1 Constructing a Request with a stream on which getReader() is called
+TEST DONE 1 Constructing a Request with a stream on which read() is called
+TEST DONE 1 Constructing a Request with a Request on which body.getReader() is called
+TEST DONE 1 Constructing a Request with a Request on which body.getReader().read() is called
+TEST DONE 0 It is OK to omit .duplex when the body is null.
+TEST DONE 0 It is OK to omit .duplex when the body is a string.
+TEST DONE 0 It is OK to omit .duplex when the body is a Uint8Array.
+TEST DONE 0 It is OK to omit .duplex when the body is a Blob.
+TEST DONE 1 It is error to omit .duplex when the body is a ReadableStream.
+TEST DONE 0 It is OK to set .duplex = 'half' when the body is null.
+TEST DONE 0 It is OK to set .duplex = 'half' when the body is a string.
+TEST DONE 0 It is OK to set .duplex = 'half' when the body is a Uint8Array.
+TEST DONE 0 It is OK to set .duplex = 'half' when the body is a Blob.
+TEST DONE 0 It is OK to set .duplex = 'half' when the body is a ReadableStream.
+TEST DONE 1 It is error to set .duplex = 'full' when the body is null.
+TEST DONE 1 It is error to set .duplex = 'full' when the body is a string.
+TEST DONE 1 It is error to set .duplex = 'full' when the body is a Uint8Array.
+TEST DONE 1 It is error to set .duplex = 'full' when the body is a Blob.
+TEST DONE 1 It is error to set .duplex = 'full' when the body is a ReadableStream.
+TEST DONE 0 It is OK to omit duplex when init.body is not given and input.body is given.
+TEST DONE 1 Constructing a Request with a stream on which read() and releaseLock() are called
+TEST DONE 1 Constructing a Request with a Request on which read() and releaseLock() are called
 Running ../../tools/wpt/fetch/api/request/request-keepalive.any.js
 TEST DONE 1 keepalive flag
 TEST DONE 1 keepalive flag with stream body
@@ -546,267 +648,7 @@ TEST DONE 0 URL.searchParams getter
 TEST DONE 0 URL.searchParams updating, clearing
 TEST DONE 1 URL.searchParams setter, invalid values
 TEST DONE 1 URL.searchParams and URL.search setters, update propagation
-Running ../../tools/wpt/url/url-setters-stripping.any.js
-TEST DONE 1 Setting protocol with leading U+0000 (https:)
-TEST DONE 1 Setting protocol with U+0000 before inserted colon (https:)
-TEST DONE 1 Setting username with leading U+0000 (https:)
-TEST DONE 1 Setting username with middle U+0000 (https:)
-TEST DONE 1 Setting username with trailing U+0000 (https:)
-TEST DONE 1 Setting password with leading U+0000 (https:)
-TEST DONE 1 Setting password with middle U+0000 (https:)
-TEST DONE 1 Setting password with trailing U+0000 (https:)
-TEST DONE 1 Setting host with leading U+0000 (https:)
-TEST DONE 1 Setting hostname with leading U+0000 (https:)
-TEST DONE 1 Setting host with middle U+0000 (https:)
-TEST DONE 1 Setting hostname with middle U+0000 (https:)
-TEST DONE 1 Setting host with trailing U+0000 (https:)
-TEST DONE 1 Setting hostname with trailing U+0000 (https:)
-TEST DONE 1 Setting port with leading U+0000 (https:)
-TEST DONE 1 Setting port with middle U+0000 (https:)
-TEST DONE 1 Setting port with trailing U+0000 (https:)
-TEST DONE 1 Setting pathname with leading U+0000 (https:)
-TEST DONE 1 Setting pathname with middle U+0000 (https:)
-TEST DONE 1 Setting pathname with trailing U+0000 (https:)
-TEST DONE 1 Setting search with leading U+0000 (https:)
-TEST DONE 1 Setting search with middle U+0000 (https:)
-TEST DONE 1 Setting search with trailing U+0000 (https:)
-TEST DONE 1 Setting hash with leading U+0000 (https:)
-TEST DONE 1 Setting hash with middle U+0000 (https:)
-TEST DONE 1 Setting hash with trailing U+0000 (https:)
-TEST DONE 1 Setting protocol with leading U+0009 (https:)
-TEST DONE 1 Setting protocol with U+0009 before inserted colon (https:)
-TEST DONE 1 Setting username with leading U+0009 (https:)
-TEST DONE 1 Setting username with middle U+0009 (https:)
-TEST DONE 1 Setting username with trailing U+0009 (https:)
-TEST DONE 1 Setting password with leading U+0009 (https:)
-TEST DONE 1 Setting password with middle U+0009 (https:)
-TEST DONE 1 Setting password with trailing U+0009 (https:)
-TEST DONE 1 Setting host with leading U+0009 (https:)
-TEST DONE 1 Setting hostname with leading U+0009 (https:)
-TEST DONE 1 Setting host with middle U+0009 (https:)
-TEST DONE 1 Setting hostname with middle U+0009 (https:)
-TEST DONE 1 Setting host with trailing U+0009 (https:)
-TEST DONE 1 Setting hostname with trailing U+0009 (https:)
-TEST DONE 1 Setting port with leading U+0009 (https:)
-TEST DONE 1 Setting port with middle U+0009 (https:)
-TEST DONE 1 Setting port with trailing U+0009 (https:)
-TEST DONE 1 Setting pathname with leading U+0009 (https:)
-TEST DONE 1 Setting pathname with middle U+0009 (https:)
-TEST DONE 1 Setting pathname with trailing U+0009 (https:)
-TEST DONE 1 Setting search with leading U+0009 (https:)
-TEST DONE 1 Setting search with middle U+0009 (https:)
-TEST DONE 1 Setting search with trailing U+0009 (https:)
-TEST DONE 1 Setting hash with leading U+0009 (https:)
-TEST DONE 1 Setting hash with middle U+0009 (https:)
-TEST DONE 1 Setting hash with trailing U+0009 (https:)
-TEST DONE 1 Setting protocol with leading U+000A (https:)
-TEST DONE 1 Setting protocol with U+000A before inserted colon (https:)
-TEST DONE 1 Setting username with leading U+000A (https:)
-TEST DONE 1 Setting username with middle U+000A (https:)
-TEST DONE 1 Setting username with trailing U+000A (https:)
-TEST DONE 1 Setting password with leading U+000A (https:)
-TEST DONE 1 Setting password with middle U+000A (https:)
-TEST DONE 1 Setting password with trailing U+000A (https:)
-TEST DONE 1 Setting host with leading U+000A (https:)
-TEST DONE 1 Setting hostname with leading U+000A (https:)
-TEST DONE 1 Setting host with middle U+000A (https:)
-TEST DONE 1 Setting hostname with middle U+000A (https:)
-TEST DONE 1 Setting host with trailing U+000A (https:)
-TEST DONE 1 Setting hostname with trailing U+000A (https:)
-TEST DONE 1 Setting port with leading U+000A (https:)
-TEST DONE 1 Setting port with middle U+000A (https:)
-TEST DONE 1 Setting port with trailing U+000A (https:)
-TEST DONE 1 Setting pathname with leading U+000A (https:)
-TEST DONE 1 Setting pathname with middle U+000A (https:)
-TEST DONE 1 Setting pathname with trailing U+000A (https:)
-TEST DONE 1 Setting search with leading U+000A (https:)
-TEST DONE 1 Setting search with middle U+000A (https:)
-TEST DONE 1 Setting search with trailing U+000A (https:)
-TEST DONE 1 Setting hash with leading U+000A (https:)
-TEST DONE 1 Setting hash with middle U+000A (https:)
-TEST DONE 1 Setting hash with trailing U+000A (https:)
-TEST DONE 1 Setting protocol with leading U+000D (https:)
-TEST DONE 1 Setting protocol with U+000D before inserted colon (https:)
-TEST DONE 1 Setting username with leading U+000D (https:)
-TEST DONE 1 Setting username with middle U+000D (https:)
-TEST DONE 1 Setting username with trailing U+000D (https:)
-TEST DONE 1 Setting password with leading U+000D (https:)
-TEST DONE 1 Setting password with middle U+000D (https:)
-TEST DONE 1 Setting password with trailing U+000D (https:)
-TEST DONE 1 Setting host with leading U+000D (https:)
-TEST DONE 1 Setting hostname with leading U+000D (https:)
-TEST DONE 1 Setting host with middle U+000D (https:)
-TEST DONE 1 Setting hostname with middle U+000D (https:)
-TEST DONE 1 Setting host with trailing U+000D (https:)
-TEST DONE 1 Setting hostname with trailing U+000D (https:)
-TEST DONE 1 Setting port with leading U+000D (https:)
-TEST DONE 1 Setting port with middle U+000D (https:)
-TEST DONE 1 Setting port with trailing U+000D (https:)
-TEST DONE 1 Setting pathname with leading U+000D (https:)
-TEST DONE 1 Setting pathname with middle U+000D (https:)
-TEST DONE 1 Setting pathname with trailing U+000D (https:)
-TEST DONE 1 Setting search with leading U+000D (https:)
-TEST DONE 1 Setting search with middle U+000D (https:)
-TEST DONE 1 Setting search with trailing U+000D (https:)
-TEST DONE 1 Setting hash with leading U+000D (https:)
-TEST DONE 1 Setting hash with middle U+000D (https:)
-TEST DONE 1 Setting hash with trailing U+000D (https:)
-TEST DONE 1 Setting protocol with leading U+001F (https:)
-TEST DONE 1 Setting protocol with U+001F before inserted colon (https:)
-TEST DONE 1 Setting username with leading U+001F (https:)
-TEST DONE 1 Setting username with middle U+001F (https:)
-TEST DONE 1 Setting username with trailing U+001F (https:)
-TEST DONE 1 Setting password with leading U+001F (https:)
-TEST DONE 1 Setting password with middle U+001F (https:)
-TEST DONE 1 Setting password with trailing U+001F (https:)
-TEST DONE 1 Setting host with leading U+001F (https:)
-TEST DONE 1 Setting hostname with leading U+001F (https:)
-TEST DONE 1 Setting host with middle U+001F (https:)
-TEST DONE 1 Setting hostname with middle U+001F (https:)
-TEST DONE 1 Setting host with trailing U+001F (https:)
-TEST DONE 1 Setting hostname with trailing U+001F (https:)
-TEST DONE 1 Setting port with leading U+001F (https:)
-TEST DONE 1 Setting port with middle U+001F (https:)
-TEST DONE 1 Setting port with trailing U+001F (https:)
-TEST DONE 1 Setting pathname with leading U+001F (https:)
-TEST DONE 1 Setting pathname with middle U+001F (https:)
-TEST DONE 1 Setting pathname with trailing U+001F (https:)
-TEST DONE 1 Setting search with leading U+001F (https:)
-TEST DONE 1 Setting search with middle U+001F (https:)
-TEST DONE 1 Setting search with trailing U+001F (https:)
-TEST DONE 1 Setting hash with leading U+001F (https:)
-TEST DONE 1 Setting hash with middle U+001F (https:)
-TEST DONE 1 Setting hash with trailing U+001F (https:)
-TEST DONE 1 Setting protocol with leading U+0000 (wpt++:)
-TEST DONE 1 Setting protocol with U+0000 before inserted colon (wpt++:)
-TEST DONE 1 Setting username with leading U+0000 (wpt++:)
-TEST DONE 1 Setting username with middle U+0000 (wpt++:)
-TEST DONE 1 Setting username with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting password with leading U+0000 (wpt++:)
-TEST DONE 1 Setting password with middle U+0000 (wpt++:)
-TEST DONE 1 Setting password with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting host with leading U+0000 (wpt++:)
-TEST DONE 1 Setting hostname with leading U+0000 (wpt++:)
-TEST DONE 1 Setting host with middle U+0000 (wpt++:)
-TEST DONE 1 Setting hostname with middle U+0000 (wpt++:)
-TEST DONE 1 Setting host with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting hostname with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting port with leading U+0000 (wpt++:)
-TEST DONE 1 Setting port with middle U+0000 (wpt++:)
-TEST DONE 1 Setting port with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting pathname with leading U+0000 (wpt++:)
-TEST DONE 1 Setting pathname with middle U+0000 (wpt++:)
-TEST DONE 1 Setting pathname with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting search with leading U+0000 (wpt++:)
-TEST DONE 1 Setting search with middle U+0000 (wpt++:)
-TEST DONE 1 Setting search with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting hash with leading U+0000 (wpt++:)
-TEST DONE 1 Setting hash with middle U+0000 (wpt++:)
-TEST DONE 1 Setting hash with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting protocol with leading U+0009 (wpt++:)
-TEST DONE 1 Setting protocol with U+0009 before inserted colon (wpt++:)
-TEST DONE 1 Setting username with leading U+0009 (wpt++:)
-TEST DONE 1 Setting username with middle U+0009 (wpt++:)
-TEST DONE 1 Setting username with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting password with leading U+0009 (wpt++:)
-TEST DONE 1 Setting password with middle U+0009 (wpt++:)
-TEST DONE 1 Setting password with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting host with leading U+0009 (wpt++:)
-TEST DONE 1 Setting hostname with leading U+0009 (wpt++:)
-TEST DONE 1 Setting host with middle U+0009 (wpt++:)
-TEST DONE 1 Setting hostname with middle U+0009 (wpt++:)
-TEST DONE 1 Setting host with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting hostname with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting port with leading U+0009 (wpt++:)
-TEST DONE 1 Setting port with middle U+0009 (wpt++:)
-TEST DONE 1 Setting port with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting pathname with leading U+0009 (wpt++:)
-TEST DONE 1 Setting pathname with middle U+0009 (wpt++:)
-TEST DONE 1 Setting pathname with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting search with leading U+0009 (wpt++:)
-TEST DONE 1 Setting search with middle U+0009 (wpt++:)
-TEST DONE 1 Setting search with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting hash with leading U+0009 (wpt++:)
-TEST DONE 1 Setting hash with middle U+0009 (wpt++:)
-TEST DONE 1 Setting hash with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting protocol with leading U+000A (wpt++:)
-TEST DONE 1 Setting protocol with U+000A before inserted colon (wpt++:)
-TEST DONE 1 Setting username with leading U+000A (wpt++:)
-TEST DONE 1 Setting username with middle U+000A (wpt++:)
-TEST DONE 1 Setting username with trailing U+000A (wpt++:)
-TEST DONE 1 Setting password with leading U+000A (wpt++:)
-TEST DONE 1 Setting password with middle U+000A (wpt++:)
-TEST DONE 1 Setting password with trailing U+000A (wpt++:)
-TEST DONE 1 Setting host with leading U+000A (wpt++:)
-TEST DONE 1 Setting hostname with leading U+000A (wpt++:)
-TEST DONE 1 Setting host with middle U+000A (wpt++:)
-TEST DONE 1 Setting hostname with middle U+000A (wpt++:)
-TEST DONE 1 Setting host with trailing U+000A (wpt++:)
-TEST DONE 1 Setting hostname with trailing U+000A (wpt++:)
-TEST DONE 1 Setting port with leading U+000A (wpt++:)
-TEST DONE 1 Setting port with middle U+000A (wpt++:)
-TEST DONE 1 Setting port with trailing U+000A (wpt++:)
-TEST DONE 1 Setting pathname with leading U+000A (wpt++:)
-TEST DONE 1 Setting pathname with middle U+000A (wpt++:)
-TEST DONE 1 Setting pathname with trailing U+000A (wpt++:)
-TEST DONE 1 Setting search with leading U+000A (wpt++:)
-TEST DONE 1 Setting search with middle U+000A (wpt++:)
-TEST DONE 1 Setting search with trailing U+000A (wpt++:)
-TEST DONE 1 Setting hash with leading U+000A (wpt++:)
-TEST DONE 1 Setting hash with middle U+000A (wpt++:)
-TEST DONE 1 Setting hash with trailing U+000A (wpt++:)
-TEST DONE 1 Setting protocol with leading U+000D (wpt++:)
-TEST DONE 1 Setting protocol with U+000D before inserted colon (wpt++:)
-TEST DONE 1 Setting username with leading U+000D (wpt++:)
-TEST DONE 1 Setting username with middle U+000D (wpt++:)
-TEST DONE 1 Setting username with trailing U+000D (wpt++:)
-TEST DONE 1 Setting password with leading U+000D (wpt++:)
-TEST DONE 1 Setting password with middle U+000D (wpt++:)
-TEST DONE 1 Setting password with trailing U+000D (wpt++:)
-TEST DONE 1 Setting host with leading U+000D (wpt++:)
-TEST DONE 1 Setting hostname with leading U+000D (wpt++:)
-TEST DONE 1 Setting host with middle U+000D (wpt++:)
-TEST DONE 1 Setting hostname with middle U+000D (wpt++:)
-TEST DONE 1 Setting host with trailing U+000D (wpt++:)
-TEST DONE 1 Setting hostname with trailing U+000D (wpt++:)
-TEST DONE 1 Setting port with leading U+000D (wpt++:)
-TEST DONE 1 Setting port with middle U+000D (wpt++:)
-TEST DONE 1 Setting port with trailing U+000D (wpt++:)
-TEST DONE 1 Setting pathname with leading U+000D (wpt++:)
-TEST DONE 1 Setting pathname with middle U+000D (wpt++:)
-TEST DONE 1 Setting pathname with trailing U+000D (wpt++:)
-TEST DONE 1 Setting search with leading U+000D (wpt++:)
-TEST DONE 1 Setting search with middle U+000D (wpt++:)
-TEST DONE 1 Setting search with trailing U+000D (wpt++:)
-TEST DONE 1 Setting hash with leading U+000D (wpt++:)
-TEST DONE 1 Setting hash with middle U+000D (wpt++:)
-TEST DONE 1 Setting hash with trailing U+000D (wpt++:)
-TEST DONE 1 Setting protocol with leading U+001F (wpt++:)
-TEST DONE 1 Setting protocol with U+001F before inserted colon (wpt++:)
-TEST DONE 1 Setting username with leading U+001F (wpt++:)
-TEST DONE 1 Setting username with middle U+001F (wpt++:)
-TEST DONE 1 Setting username with trailing U+001F (wpt++:)
-TEST DONE 1 Setting password with leading U+001F (wpt++:)
-TEST DONE 1 Setting password with middle U+001F (wpt++:)
-TEST DONE 1 Setting password with trailing U+001F (wpt++:)
-TEST DONE 1 Setting host with leading U+001F (wpt++:)
-TEST DONE 1 Setting hostname with leading U+001F (wpt++:)
-TEST DONE 1 Setting host with middle U+001F (wpt++:)
-TEST DONE 1 Setting hostname with middle U+001F (wpt++:)
-TEST DONE 1 Setting host with trailing U+001F (wpt++:)
-TEST DONE 1 Setting hostname with trailing U+001F (wpt++:)
-TEST DONE 1 Setting port with leading U+001F (wpt++:)
-TEST DONE 1 Setting port with middle U+001F (wpt++:)
-TEST DONE 1 Setting port with trailing U+001F (wpt++:)
-TEST DONE 1 Setting pathname with leading U+001F (wpt++:)
-TEST DONE 1 Setting pathname with middle U+001F (wpt++:)
-TEST DONE 1 Setting pathname with trailing U+001F (wpt++:)
-TEST DONE 1 Setting search with leading U+001F (wpt++:)
-TEST DONE 1 Setting search with middle U+001F (wpt++:)
-TEST DONE 1 Setting search with trailing U+001F (wpt++:)
-TEST DONE 1 Setting hash with leading U+001F (wpt++:)
-TEST DONE 1 Setting hash with middle U+001F (wpt++:)
-TEST DONE 1 Setting hash with trailing U+001F (wpt++:)
+Skipping ../../tools/wpt/url/url-setters-stripping.any.js
 Skipping ../../tools/wpt/url/url-setters.any.js
 Running ../../tools/wpt/url/url-tojson.any.js
 TEST DONE 0 Untitled
@@ -1618,5 +1460,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1497 tests, 557 passed, 928 failed
- -> 37% conformance
+1340 tests, 600 passed, 727 failed (13 not completed)
+ -> 45% conformance
