@@ -86,24 +86,28 @@
     }
 
     append(name: string, value: string) {
-      this.list.push([name, String(value)]);
+      this.list.push([String(name), String(value)]);
       this.update();
     }
 
     delete(name: string) {
+      name = String(name);
       this.list = this.list.filter(([currentName]) => currentName !== name);
       this.update();
     }
 
     get(name: string): string | null {
+      name = String(name);
       return this.list.find(([currentName]) => currentName === name)?.[1] || null;
     }
 
     getAll(name: string): string[] {
+      name = String(name);
       return this.list.filter(([currentName]) => currentName === name).map(([, currentValue]) => currentValue);
     }
 
     has(name: string): boolean {
+      name = String(name);
       return this.list.some(([currentName]) => currentName === name);
     }
 
@@ -118,7 +122,7 @@
             }
 
             found = true;
-            acc.push([name, String(value)]);
+            acc.push([String(name), String(value)]);
           } else {
             acc.push([currentName, currentValue]);
           }

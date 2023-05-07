@@ -947,7 +947,7 @@ TEST DONE 1 Construct with 3 unpaired surrogates (no leading)
 TEST DONE 1 Construct with object with NULL, non-ASCII, and surrogate keys
 TEST DONE 1 Custom [Symbol.iterator]
 Running ../../tools/wpt/url/urlsearchparams-delete.any.js
-TEST DONE 1 Delete basics
+TEST DONE 0 Delete basics
 TEST DONE 0 Deleting appended multiple
 TEST DONE 0 Deleting all params removes ? from URL
 TEST DONE 0 Removing non-existent param removes ? from URL
@@ -967,7 +967,7 @@ Running ../../tools/wpt/url/urlsearchparams-getall.any.js
 TEST DONE 0 getAll() basics
 TEST DONE 0 getAll() multiples
 Running ../../tools/wpt/url/urlsearchparams-has.any.js
-TEST DONE 1 Has basics
+TEST DONE 0 Has basics
 TEST DONE 0 has() following delete()
 Running ../../tools/wpt/url/urlsearchparams-set.any.js
 TEST DONE 0 Set basics
@@ -1618,5 +1618,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1497 tests, 498 passed, 987 failed
+1497 tests, 500 passed, 985 failed
  -> 33% conformance
