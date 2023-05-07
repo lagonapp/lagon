@@ -26,8 +26,11 @@ Head over to the settings tab of your Function, and scroll to the "Environment v
 
 Enter a key and value, then click on "Add". You can keep adding Environment Variables until you're satisfied, and then click on "Submit" to save your changes.
 
+You can also copy and paste an entire `.env` file, which will be automatically parsed and added to your Environment Variables.
+
 <Callout type="info">
-  When submitting, your Function's current production Deployment will automatically be re-deployed!
+  After submitting, your Function's current production Deployment will automatically be updated with the new environment
+  variables: you don't need to manually trigger another Deployment!
 </Callout>
 
 ![Environment Variables](/images/env-variables.png)
