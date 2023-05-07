@@ -845,18 +845,18 @@ TEST DONE 1 URLSearchParams constructed with: id=0&value=%
 TEST DONE 1 URLSearchParams constructed with: b=%2sf%2a
 TEST DONE 1 URLSearchParams constructed with: b=%2%2af%2a
 TEST DONE 1 URLSearchParams constructed with: b=%%2a
-TEST DONE 1 request.formData() with input: test
-TEST DONE 1 response.formData() with input: test
-TEST DONE 1 request.formData() with input: ﻿test=﻿
-TEST DONE 1 response.formData() with input: ﻿test=﻿
-TEST DONE 1 request.formData() with input: %EF%BB%BFtest=%EF%BB%BF
-TEST DONE 1 response.formData() with input: %EF%BB%BFtest=%EF%BB%BF
+TEST DONE 0 request.formData() with input: test
+TEST DONE 0 response.formData() with input: test
+TEST DONE 0 request.formData() with input: ﻿test=﻿
+TEST DONE 0 response.formData() with input: ﻿test=﻿
+TEST DONE 0 request.formData() with input: %EF%BB%BFtest=%EF%BB%BF
+TEST DONE 0 response.formData() with input: %EF%BB%BFtest=%EF%BB%BF
 TEST DONE 1 request.formData() with input: %FE%FF
 TEST DONE 1 response.formData() with input: %FE%FF
 TEST DONE 1 request.formData() with input: %FF%FE
 TEST DONE 1 response.formData() with input: %FF%FE
-TEST DONE 1 request.formData() with input: †&†=x
-TEST DONE 1 response.formData() with input: †&†=x
+TEST DONE 0 request.formData() with input: †&†=x
+TEST DONE 0 response.formData() with input: †&†=x
 TEST DONE 1 request.formData() with input: %C2
 TEST DONE 1 response.formData() with input: %C2
 TEST DONE 1 request.formData() with input: %C2x
@@ -865,46 +865,46 @@ TEST DONE 1 request.formData() with input: _charset_=windows-1252&test=%C2x
 TEST DONE 1 response.formData() with input: _charset_=windows-1252&test=%C2x
 TEST DONE 0 request.formData() with input: 
 TEST DONE 0 response.formData() with input: 
-TEST DONE 1 request.formData() with input: a
-TEST DONE 1 response.formData() with input: a
-TEST DONE 1 request.formData() with input: a=b
-TEST DONE 1 response.formData() with input: a=b
-TEST DONE 1 request.formData() with input: a=
-TEST DONE 1 response.formData() with input: a=
-TEST DONE 1 request.formData() with input: =b
-TEST DONE 1 response.formData() with input: =b
-TEST DONE 1 request.formData() with input: &
-TEST DONE 1 response.formData() with input: &
-TEST DONE 1 request.formData() with input: &a
-TEST DONE 1 response.formData() with input: &a
-TEST DONE 1 request.formData() with input: a&
-TEST DONE 1 response.formData() with input: a&
-TEST DONE 1 request.formData() with input: a&a
-TEST DONE 1 response.formData() with input: a&a
-TEST DONE 1 request.formData() with input: a&b&c
-TEST DONE 1 response.formData() with input: a&b&c
-TEST DONE 1 request.formData() with input: a=b&c=d
-TEST DONE 1 response.formData() with input: a=b&c=d
-TEST DONE 1 request.formData() with input: a=b&c=d&
-TEST DONE 1 response.formData() with input: a=b&c=d&
-TEST DONE 1 request.formData() with input: &&&a=b&&&&c=d&
-TEST DONE 1 response.formData() with input: &&&a=b&&&&c=d&
-TEST DONE 1 request.formData() with input: a=a&a=b&a=c
-TEST DONE 1 response.formData() with input: a=a&a=b&a=c
+TEST DONE 0 request.formData() with input: a
+TEST DONE 0 response.formData() with input: a
+TEST DONE 0 request.formData() with input: a=b
+TEST DONE 0 response.formData() with input: a=b
+TEST DONE 0 request.formData() with input: a=
+TEST DONE 0 response.formData() with input: a=
+TEST DONE 0 request.formData() with input: =b
+TEST DONE 0 response.formData() with input: =b
+TEST DONE 0 request.formData() with input: &
+TEST DONE 0 response.formData() with input: &
+TEST DONE 0 request.formData() with input: &a
+TEST DONE 0 response.formData() with input: &a
+TEST DONE 0 request.formData() with input: a&
+TEST DONE 0 response.formData() with input: a&
+TEST DONE 0 request.formData() with input: a&a
+TEST DONE 0 response.formData() with input: a&a
+TEST DONE 0 request.formData() with input: a&b&c
+TEST DONE 0 response.formData() with input: a&b&c
+TEST DONE 0 request.formData() with input: a=b&c=d
+TEST DONE 0 response.formData() with input: a=b&c=d
+TEST DONE 0 request.formData() with input: a=b&c=d&
+TEST DONE 0 response.formData() with input: a=b&c=d&
+TEST DONE 0 request.formData() with input: &&&a=b&&&&c=d&
+TEST DONE 0 response.formData() with input: &&&a=b&&&&c=d&
+TEST DONE 0 request.formData() with input: a=a&a=b&a=c
+TEST DONE 0 response.formData() with input: a=a&a=b&a=c
 TEST DONE 1 request.formData() with input: a==a
 TEST DONE 1 response.formData() with input: a==a
-TEST DONE 1 request.formData() with input: a=a+b+c+d
-TEST DONE 1 response.formData() with input: a=a+b+c+d
+TEST DONE 0 request.formData() with input: a=a+b+c+d
+TEST DONE 0 response.formData() with input: a=a+b+c+d
 TEST DONE 1 request.formData() with input: %=a
 TEST DONE 1 response.formData() with input: %=a
 TEST DONE 1 request.formData() with input: %a=a
 TEST DONE 1 response.formData() with input: %a=a
 TEST DONE 1 request.formData() with input: %a_=a
 TEST DONE 1 response.formData() with input: %a_=a
-TEST DONE 1 request.formData() with input: %61=a
-TEST DONE 1 response.formData() with input: %61=a
-TEST DONE 1 request.formData() with input: %61+%4d%4D=
-TEST DONE 1 response.formData() with input: %61+%4d%4D=
+TEST DONE 0 request.formData() with input: %61=a
+TEST DONE 0 response.formData() with input: %61=a
+TEST DONE 0 request.formData() with input: %61+%4d%4D=
+TEST DONE 0 response.formData() with input: %61+%4d%4D=
 TEST DONE 1 request.formData() with input: id=0&value=%
 TEST DONE 1 response.formData() with input: id=0&value=%
 TEST DONE 1 request.formData() with input: b=%2sf%2a
@@ -1618,5 +1618,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1497 tests, 517 passed, 968 failed
- -> 34% conformance
+1497 tests, 557 passed, 928 failed
+ -> 37% conformance
