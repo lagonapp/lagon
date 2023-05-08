@@ -1,6 +1,7 @@
+use crate::utils::{bundle_function, resolve_path, Assets};
 use anyhow::{anyhow, Error, Result};
 use chrono::offset::Local;
-use colored::Colorize;
+use dialoguer::console::style;
 use envfile::EnvFile;
 use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
@@ -21,10 +22,6 @@ use std::time::Duration;
 use tokio::runtime::Handle;
 use tokio::sync::Mutex;
 
-use crate::utils::{
-    bundle_function, debug, error, info, input, resolve_path, success, warn, Assets,
-};
-
 const LOCAL_REGION: &str = "local";
 
 fn parse_environment_variables(
@@ -39,12 +36,17 @@ fn parse_environment_variables(
         for (key, value) in envfile.store {
             environment_variables.insert(key, value);
         }
+
+        println!("{}", style("Loaded .env file...").black().bright());
     } else if let Ok(envfile) = EnvFile::new(root.join(".env")) {
         for (key, value) in envfile.store {
             environment_variables.insert(key, value);
         }
 
-        println!("{}", debug("Automatically loaded .env file..."));
+        println!(
+            "{}",
+            style("Automatically loaded .env file...").black().bright()
+        );
     }
 
     Ok(environment_variables)
@@ -62,20 +64,19 @@ async fn handle_request(
 ) -> Result<HyperResponse<Body>> {
     let url = req.uri().path();
 
-    println!(
-        "{} {} {}",
-        format!("{}", Local::now().time()).bright_black(),
-        req.method().to_string().blue(),
-        url
-    );
-
     let (tx, rx) = flume::unbounded();
     let assets = assets.lock().await.to_owned();
 
     let is_favicon = url == FAVICON_URL;
 
     if let Some(asset) = find_asset(url, &assets.keys().cloned().collect()) {
-        println!("              {}", input("Asset found"));
+        println!(
+            "{} {} {} {}",
+            style(format!("{}", Local::now().time())).black(),
+            style(req.method().to_string()).blue(),
+            style(url).black().bright(),
+            style("(asset)").black().bright()
+        );
 
         let run_result = match handle_asset(public_dir.unwrap(), asset) {
             Ok(response) => RunResult::Response(response, None),
@@ -94,6 +95,13 @@ async fn handle_request(
         .await
         .unwrap_or(());
     } else {
+        println!(
+            "{} {} {}",
+            style(format!("{}", Local::now().time())).black(),
+            style(req.method().to_string()).blue(),
+            url
+        );
+
         match Request::from_hyper(req).await {
             Ok(mut request) => {
                 request.set_header(X_FORWARDED_FOR.to_string(), ip);
@@ -121,22 +129,29 @@ async fn handle_request(
         match event {
             ResponseEvent::StreamDoneNoDataError => {
                 println!(
-                    "{}",
-                    error("The stream was done before sending a response/data")
+                    "{} The stream was done before sending a response/data",
+                    style("✕").red()
                 );
             }
             ResponseEvent::UnexpectedStreamResult(result) => {
-                println!("{} {:?}", error("Unexpected stream result:"), result);
+                println!(
+                    "{} Unexpected stream result: {:?}",
+                    style("✕").red(),
+                    result
+                );
             }
             ResponseEvent::LimitsReached(result) => {
                 if result == RunResult::Timeout {
-                    println!("{}", error("Function execution timed out"));
+                    println!("{} Function execution timed out", style("✕").red());
                 } else {
-                    println!("{}", error("Function execution reached memory limit"));
+                    println!(
+                        "{} Function execution reached memory limit",
+                        style("✕").red()
+                    );
                 }
             }
             ResponseEvent::Error(result) => {
-                println!("{}", error(result.as_error().as_str()));
+                println!("{} {}", style("✕").red(), result.as_error().as_str());
             }
             _ => {}
         }
@@ -220,9 +235,9 @@ pub async fn dev(
         while let Ok(log) = log_receiver.recv_async().await {
             let (level, message, ..) = log;
             let level = match level.as_str() {
-                "error" => "ERROR".red(),
-                "warn" => "WARN".yellow(),
-                _ => level.to_uppercase().blue(),
+                "error" => style("ERROR".into()).red(),
+                "warn" => style("WARN".into()).yellow(),
+                _ => style(level.to_uppercase()).blue(),
             };
 
             println!("{} {}", level, message);
@@ -273,12 +288,16 @@ pub async fn dev(
             if should_update {
                 // Clear the screen and put the cursor at first row & first col of the screen.
                 print!("\x1B[2J\x1B[1;1H");
-                println!("{}", info("Found change, updating..."));
+                println!("{}", style("File modified, updating...").black().bright());
 
                 let (new_index, new_assets) = bundle_function(&function_config, &root, prod)?;
 
                 *assets.lock().await = new_assets;
                 index_tx.send_async(new_index).await.unwrap();
+
+                println!();
+                println!(" {} Dev Server ready!", style("◼").magenta());
+                println!();
             }
         }
 
@@ -286,21 +305,23 @@ pub async fn dev(
     });
 
     println!();
-    println!("{}", success("Dev Server started!"));
+    println!(" {} Dev Server started!", style("◼").magenta());
 
     if allow_code_generation {
         println!(
-            "{}",
-            warn("Code generation is allowed due to `--allow-code-generation`")
+            "   {} {}",
+            style("Code generation is allowed due to").yellow(),
+            style("--allow-code-generation").black().bright()
         );
     }
 
     println!();
     println!(
-        " {} {}",
-        "➤".bright_black(),
-        format!("http://{addr}").blue()
+        "{} {}",
+        style("›").black().bright(),
+        style(format!("http://{addr}")).blue().underlined()
     );
+    println!();
 
     server.await?;
     runtime.dispose();

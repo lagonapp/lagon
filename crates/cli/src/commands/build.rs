@@ -1,8 +1,7 @@
-use std::{fs, path::PathBuf};
-
+use crate::utils::{bundle_function, print_progress, resolve_path};
 use anyhow::{anyhow, Result};
-
-use crate::utils::{bundle_function, debug, print_progress, resolve_path, success};
+use dialoguer::console::style;
+use std::{fs, path::PathBuf};
 
 pub fn build(
     path: Option<PathBuf>,
@@ -12,33 +11,29 @@ pub fn build(
     let (root, function_config) = resolve_path(path, client, public_dir)?;
     let (index, assets) = bundle_function(&function_config, &root, true)?;
 
-    let end_progress = print_progress("Writting index.js...");
+    let end_progress = print_progress("Writting files");
+    let root = root.join(".lagon");
 
-    fs::create_dir_all(root.join(".lagon"))?;
-    fs::write(root.join(".lagon").join("index.js"), index)?;
-
-    end_progress();
+    fs::create_dir_all(&root)?;
+    fs::write(root.join("index.js"), index)?;
 
     for (path, content) in assets {
-        let message = format!("Writting {path}...");
-        let end_progress = print_progress(&message);
-
-        let dir = root.join(".lagon").join("public").join(
+        let dir = root.join("public").join(
             PathBuf::from(&path)
                 .parent()
                 .ok_or_else(|| anyhow!("Could not find parent of {}", path))?,
         );
         fs::create_dir_all(dir)?;
-        fs::write(root.join(".lagon").join("public").join(path), content)?;
-
-        end_progress();
+        fs::write(root.join("public").join(path), content)?;
     }
 
+    end_progress();
+
     println!();
+    println!(" {} Build successful!", style("◼").magenta());
     println!(
-        "{} {}",
-        success("Build successful!"),
-        debug("You can find it in .lagon folder.")
+        "   {}",
+        style(format!("You can find it in {:?}", root)).black()
     );
 
     Ok(())
