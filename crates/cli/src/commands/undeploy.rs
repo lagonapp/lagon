@@ -1,7 +1,6 @@
 use crate::utils::{get_root, print_progress, Config, FunctionConfig, TrpcClient, THEME};
 use anyhow::{anyhow, Result};
-use colored::Colorize;
-use dialoguer::Confirm;
+use dialoguer::{console::style, Confirm};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -49,13 +48,13 @@ pub async fn undeploy(deployment_id: String, directory: Option<PathBuf>) -> Resu
             end_progress();
 
             println!();
-            println!(" {} Deployment deleted!", "◼".magenta());
+            println!(" {} Deployment deleted!", style("◼").magenta());
 
             Ok(())
         }
         false => {
             println!();
-            println!("{} Deletion aborted", "✕".red());
+            println!("{} Deletion aborted", style("✕").red());
             Ok(())
         }
     }

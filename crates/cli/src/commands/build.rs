@@ -1,6 +1,6 @@
 use crate::utils::{bundle_function, print_progress, resolve_path};
 use anyhow::{anyhow, Result};
-use colored::Colorize;
+use dialoguer::console::style;
 use std::{fs, path::PathBuf};
 
 pub fn build(
@@ -30,8 +30,11 @@ pub fn build(
     end_progress();
 
     println!();
-    println!(" {} Build successful!", "◼".magenta());
-    println!("   {}", format!("You can find it in {:?}", root).black());
+    println!(" {} Build successful!", style("◼").magenta());
+    println!(
+        "   {}",
+        style(format!("You can find it in {:?}", root)).black()
+    );
 
     Ok(())
 }

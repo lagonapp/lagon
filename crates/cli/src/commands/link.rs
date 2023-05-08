@@ -3,8 +3,7 @@ use crate::{
     utils::{get_root, Config, FunctionConfig, TrpcClient, THEME},
 };
 use anyhow::{anyhow, Result};
-use colored::Colorize;
-use dialoguer::Select;
+use dialoguer::{console::style, Select};
 use std::path::PathBuf;
 
 pub async fn link(directory: Option<PathBuf>) -> Result<()> {
@@ -53,7 +52,7 @@ pub async fn link(directory: Option<PathBuf>) -> Result<()> {
             function_config.write(&root)?;
 
             println!();
-            println!(" {} Function linked!", "◼".magenta());
+            println!(" {} Function linked!", style("◼").magenta());
 
             Ok(())
         }

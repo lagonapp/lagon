@@ -1,7 +1,6 @@
 use crate::utils::{print_progress, Config, TrpcClient, THEME};
 use anyhow::{anyhow, Result};
-use colored::Colorize;
-use dialoguer::{Confirm, Password};
+use dialoguer::{console::style, Confirm, Password};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug)]
@@ -24,7 +23,7 @@ pub async fn login() -> Result<()> {
             .interact()?
     {
         println!();
-        println!("{} Login aborted", "✕".red());
+        println!("{} Login aborted", style("✕").red());
         return Ok(());
     }
 
@@ -34,13 +33,15 @@ pub async fn login() -> Result<()> {
     let url = config.site_url.clone() + "/cli";
 
     if webbrowser::open(&url).is_err() {
-        println!("{} Could not open browser", "✕".red());
+        println!("{} Could not open browser", style("✕").red());
     }
 
     end_progress();
     println!(
         "{}",
-        format!("   You can also manually access {}", url).bright_black()
+        style(format!("   You can also manually access {}", url))
+            .black()
+            .bright()
     );
     println!();
 
@@ -62,8 +63,8 @@ pub async fn login() -> Result<()> {
             config.save()?;
 
             println!();
-            println!(" {} You are now logged in!", "◼".magenta());
-            println!("   {}", "You can now close the browser tab".black());
+            println!(" {} You are now logged in!", style("◼").magenta());
+            println!("   {}", style("You can now close the browser tab").black());
 
             Ok(())
         }

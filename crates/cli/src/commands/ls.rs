@@ -1,6 +1,6 @@
 use crate::utils::{get_root, print_progress, Config, FunctionConfig, TrpcClient};
 use anyhow::{anyhow, Result};
-use colored::Colorize;
+use dialoguer::console::style;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -49,32 +49,36 @@ pub async fn ls(directory: Option<PathBuf>) -> Result<()> {
 
     end_progress();
     println!();
-    println!(" {} List of Deployments:", "◼".magenta());
+    println!(" {} List of Deployments:", style("◼").magenta());
     println!();
 
     let deployments = function.result.data.deployments;
 
     if deployments.is_empty() {
-        println!("{} No deployments found", "✕".red());
+        println!("{} No deployments found", style("✕").red());
     } else {
         for deployment in deployments {
             if deployment.is_production {
                 println!(
                     "{} Production: {} {}",
-                    "●".bright_black(),
-                    format!("https://{}.lagon.dev", deployment.id)
-                        .underline()
-                        .blue(),
-                    format!("({})", deployment.created_at).bright_black(),
+                    style("●").black().bright(),
+                    style(format!("https://{}.lagon.dev", deployment.id))
+                        .blue()
+                        .underlined(),
+                    style(format!("({})", deployment.created_at))
+                        .black()
+                        .bright(),
                 );
             } else {
                 println!(
                     "{} Preview: {} {}",
-                    "○".bright_black(),
-                    format!("https://{}.lagon.dev", deployment.id)
-                        .underline()
-                        .blue(),
-                    format!("({})", deployment.created_at).bright_black(),
+                    style("○").black().bright(),
+                    style(format!("https://{}.lagon.dev", deployment.id))
+                        .blue()
+                        .underlined(),
+                    style(format!("({})", deployment.created_at))
+                        .black()
+                        .bright(),
                 );
             }
         }

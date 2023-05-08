@@ -1,7 +1,6 @@
 use crate::utils::{get_root, print_progress, Config, FunctionConfig, TrpcClient, THEME};
 use anyhow::{anyhow, Result};
-use colored::Colorize;
-use dialoguer::Confirm;
+use dialoguer::{console::style, Confirm};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -50,13 +49,16 @@ pub async fn promote(deployment_id: String, directory: Option<PathBuf>) -> Resul
             end_progress();
 
             println!();
-            println!(" {} Deployment promoted to production!", "◼".magenta());
+            println!(
+                " {} Deployment promoted to production!",
+                style("◼").magenta()
+            );
 
             Ok(())
         }
         false => {
             println!();
-            println!("{} Promotion aborted", "✕".red());
+            println!("{} Promotion aborted", style("✕").red());
             Ok(())
         }
     }

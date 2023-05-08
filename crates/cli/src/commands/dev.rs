@@ -1,7 +1,7 @@
 use crate::utils::{bundle_function, resolve_path, Assets};
 use anyhow::{anyhow, Error, Result};
 use chrono::offset::Local;
-use colored::Colorize;
+use dialoguer::console::style;
 use envfile::EnvFile;
 use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
@@ -37,13 +37,16 @@ fn parse_environment_variables(
             environment_variables.insert(key, value);
         }
 
-        println!("{}", "Loaded .env file...".bright_black());
+        println!("{}", style("Loaded .env file...").black().bright());
     } else if let Ok(envfile) = EnvFile::new(root.join(".env")) {
         for (key, value) in envfile.store {
             environment_variables.insert(key, value);
         }
 
-        println!("{}", "Automatically loaded .env file...".bright_black());
+        println!(
+            "{}",
+            style("Automatically loaded .env file...").black().bright()
+        );
     }
 
     Ok(environment_variables)
@@ -69,10 +72,10 @@ async fn handle_request(
     if let Some(asset) = find_asset(url, &assets.keys().cloned().collect()) {
         println!(
             "{} {} {} {}",
-            format!("{}", Local::now().time()).black(),
-            req.method().to_string().blue(),
-            url.bright_black(),
-            "(asset)".bright_black()
+            style(format!("{}", Local::now().time())).black(),
+            style(req.method().to_string()).blue(),
+            style(url).black().bright(),
+            style("(asset)").black().bright()
         );
 
         let run_result = match handle_asset(public_dir.unwrap(), asset) {
@@ -94,8 +97,8 @@ async fn handle_request(
     } else {
         println!(
             "{} {} {}",
-            format!("{}", Local::now().time()).black(),
-            req.method().to_string().blue(),
+            style(format!("{}", Local::now().time())).black(),
+            style(req.method().to_string()).blue(),
             url
         );
 
@@ -127,21 +130,28 @@ async fn handle_request(
             ResponseEvent::StreamDoneNoDataError => {
                 println!(
                     "{} The stream was done before sending a response/data",
-                    "✕".red()
+                    style("✕").red()
                 );
             }
             ResponseEvent::UnexpectedStreamResult(result) => {
-                println!("{} Unexpected stream result: {:?}", "✕".red(), result);
+                println!(
+                    "{} Unexpected stream result: {:?}",
+                    style("✕").red(),
+                    result
+                );
             }
             ResponseEvent::LimitsReached(result) => {
                 if result == RunResult::Timeout {
-                    println!("{} Function execution timed out", "✕".red());
+                    println!("{} Function execution timed out", style("✕").red());
                 } else {
-                    println!("{} Function execution reached memory limit", "✕".red());
+                    println!(
+                        "{} Function execution reached memory limit",
+                        style("✕").red()
+                    );
                 }
             }
             ResponseEvent::Error(result) => {
-                println!("{} {}", "✕".red(), result.as_error().as_str());
+                println!("{} {}", style("✕").red(), result.as_error().as_str());
             }
             _ => {}
         }
@@ -225,9 +235,9 @@ pub async fn dev(
         while let Ok(log) = log_receiver.recv_async().await {
             let (level, message, ..) = log;
             let level = match level.as_str() {
-                "error" => "ERROR".red(),
-                "warn" => "WARN".yellow(),
-                _ => level.to_uppercase().blue(),
+                "error" => style("ERROR".into()).red(),
+                "warn" => style("WARN".into()).yellow(),
+                _ => style(level.to_uppercase()).blue(),
             };
 
             println!("{} {}", level, message);
@@ -278,7 +288,7 @@ pub async fn dev(
             if should_update {
                 // Clear the screen and put the cursor at first row & first col of the screen.
                 print!("\x1B[2J\x1B[1;1H");
-                println!("{}", "File modified, updating...".bright_black());
+                println!("{}", style("File modified, updating...").black().bright());
 
                 let (new_index, new_assets) = bundle_function(&function_config, &root, prod)?;
 
@@ -286,7 +296,7 @@ pub async fn dev(
                 index_tx.send_async(new_index).await.unwrap();
 
                 println!();
-                println!(" {} Dev Server ready!", "◼".magenta());
+                println!(" {} Dev Server ready!", style("◼").magenta());
                 println!();
             }
         }
@@ -295,21 +305,21 @@ pub async fn dev(
     });
 
     println!();
-    println!(" {} Dev Server started!", "◼".magenta());
+    println!(" {} Dev Server started!", style("◼").magenta());
 
     if allow_code_generation {
         println!(
             "   {} {}",
-            "Code generation is allowed due to".yellow(),
-            "--allow-code-generation".bright_black()
+            style("Code generation is allowed due to").yellow(),
+            style("--allow-code-generation").black().bright()
         );
     }
 
     println!();
     println!(
         "{} {}",
-        "›".bright_black(),
-        format!("http://{addr}").underline().blue()
+        style("›").black().bright(),
+        style(format!("http://{addr}")).blue().underlined()
     );
     println!();
 

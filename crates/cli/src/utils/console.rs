@@ -1,4 +1,3 @@
-use colored::Colorize;
 use dialoguer::{
     console::{style, Style},
     theme::ColorfulTheme,
@@ -10,7 +9,12 @@ use std::time::Duration;
 pub fn print_progress(message: &str) -> impl Fn() + '_ {
     let index_progress = ProgressBar::new_spinner();
     index_progress.set_style(ProgressStyle::default_spinner());
-    index_progress.set_message(format!("{}...", message).bright_black().to_string());
+    index_progress.set_message(
+        style(format!("{}...", message))
+            .black()
+            .bright()
+            .to_string(),
+    );
     index_progress.tick();
 
     let handle = index_progress.clone();
@@ -28,7 +32,7 @@ pub fn print_progress(message: &str) -> impl Fn() + '_ {
 
     move || {
         index_progress.finish_and_clear();
-        println!("{} {}", "✓".green(), message.bright_black());
+        println!("{} {}", style("✓").green(), style(message).black().bright());
     }
 }
 

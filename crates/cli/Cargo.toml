@@ -11,7 +11,6 @@ lagon-runtime-utils = { path = "../runtime_utils" }
 clap = { version = "4.2.7", features = ["derive"] }
 dialoguer = { version = "0.10.4", features = ["password"] }
 indicatif = "0.17.3"
-colored = "2.0.0"
 dirs = "5.0.1"
 webbrowser = "0.8.9"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync"] }

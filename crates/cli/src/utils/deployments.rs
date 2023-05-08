@@ -3,7 +3,7 @@ use super::{
 };
 use crate::utils::{print_progress, TrpcClient, THEME};
 use anyhow::{anyhow, Result};
-use colored::Colorize;
+use dialoguer::console::style;
 use dialoguer::{Confirm, Input};
 use hyper::{Body, Method, Request};
 use pathdiff::diff_paths;
@@ -46,20 +46,24 @@ impl FunctionConfig {
         if !path.exists() {
             println!(
                 "{}",
-                "No configuration found in directory...".bright_black()
+                style("No configuration found in directory...")
+                    .black()
+                    .bright()
             );
             println!();
 
             let index = match client_override {
                 Some(index) => {
-                    println!("{}", "Using custom entrypoint...".bright_black());
+                    println!("{}", style("Using custom entrypoint...").black().bright());
                     index
                 }
                 None => {
                     let index = Input::<String>::with_theme(&*THEME)
                         .with_prompt(format!(
                             "Path to your Function's entrypoint? {}",
-                            format!("(relative to {:?})", root.canonicalize()?).bright_black(),
+                            style(format!("(relative to {:?})", root.canonicalize()?))
+                                .bright()
+                                .black(),
                         ))
                         .validate_with(|input: &String| -> std::result::Result<(), String> {
                             validate_code_file(&root.join(input), root)
@@ -73,7 +77,10 @@ impl FunctionConfig {
 
             let assets = match assets_override {
                 Some(assets) => {
-                    println!("{}", "Using custom public directory...".bright_black());
+                    println!(
+                        "{}",
+                        style("Using custom public directory...").black().bright()
+                    );
                     Some(assets)
                 }
                 None => match Confirm::with_theme(&*THEME)
@@ -85,7 +92,9 @@ impl FunctionConfig {
                         let assets = Input::<String>::with_theme(&*THEME)
                             .with_prompt(format!(
                                 "Path to your Function's public directory? {}",
-                                format!("(relative to {:?})", root.canonicalize()?).bright_black(),
+                                style(format!("(relative to {:?})", root.canonicalize()?))
+                                    .black()
+                                    .bright(),
                             ))
                             .validate_with(|input: &String| -> std::result::Result<(), String> {
                                 validate_assets_dir(&Some(root.join(input)), root)
@@ -113,18 +122,21 @@ impl FunctionConfig {
             return Ok(config);
         }
 
-        println!("{}", "Found configuration file...".bright_black());
+        println!("{}", style("Found configuration file...").black().bright());
 
         let content = fs::read_to_string(path)?;
         let mut config = serde_json::from_str::<FunctionConfig>(&content)?;
 
         if let Some(client_override) = client_override {
-            println!("{}", "Using custom client file...".bright_black());
+            println!("{}", style("Using custom client file...").black().bright());
             config.client = Some(client_override);
         }
 
         if let Some(assets_override) = assets_override {
-            println!("{}", "Using custom public directory...".bright_black());
+            println!(
+                "{}",
+                style("Using custom public directory...").bright().black()
+            );
             config.assets = Some(assets_override);
         }
 
@@ -336,7 +348,7 @@ pub fn bundle_function(
 
         end_progress();
     } else {
-        println!("{}", "Skipping assets...".bright_black());
+        println!("{}", style("Skipping assets...").black().bright());
     }
 
     Ok((index_output, final_assets))
@@ -450,22 +462,22 @@ pub async fn create_deployment(
         .await?;
 
     println!();
-    println!(" {} Function deployed!", "◼".magenta());
+    println!(" {} Function deployed!", style("◼").magenta());
 
     if !is_production {
         println!(
             "   {} {} {}",
-            "Append".black(),
-            "--prod".bright_black(),
-            "to deploy to production".black(),
+            style("Append").black(),
+            style("--prod").black().bright(),
+            style("to deploy to production").black(),
         );
     }
 
     println!();
     println!(
         "{} {}",
-        "›".bright_black(),
-        response.result.data.url.underline().blue()
+        style("›").black().bright(),
+        style(response.result.data.url).blue().underlined()
     );
 
     Ok(())

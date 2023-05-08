@@ -1,7 +1,6 @@
 use crate::utils::{Config, THEME};
 use anyhow::{anyhow, Result};
-use colored::Colorize;
-use dialoguer::Confirm;
+use dialoguer::{console::style, Confirm};
 
 pub fn logout() -> Result<()> {
     let mut config = Config::new()?;
@@ -20,13 +19,13 @@ pub fn logout() -> Result<()> {
             config.save()?;
 
             println!();
-            println!(" {} You have been logged out!", "◼".magenta());
+            println!(" {} You have been logged out!", style("◼").magenta());
 
             Ok(())
         }
         false => {
             println!();
-            println!("{} Logout aborted", "✕".red());
+            println!("{} Logout aborted", style("✕").red());
             Ok(())
         }
     }

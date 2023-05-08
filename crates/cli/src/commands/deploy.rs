@@ -1,7 +1,6 @@
 use crate::utils::{create_deployment, print_progress, resolve_path, Config, TrpcClient, THEME};
 use anyhow::{anyhow, Result};
-use colored::Colorize;
-use dialoguer::{Confirm, Input, Select};
+use dialoguer::{console::style, Confirm, Input, Select};
 use serde::{Deserialize, Serialize};
 use std::{
     fmt::{Display, Formatter},
@@ -66,7 +65,10 @@ pub async fn deploy(
     let (root, mut function_config) = resolve_path(path, client, public_dir)?;
 
     if function_config.function_id.is_empty() {
-        println!("{}", "No previous Deployment found...".bright_black());
+        println!(
+            "{}",
+            style("No previous Deployment found...").black().bright()
+        );
         println!();
 
         let trpc_client = TrpcClient::new(config.clone());

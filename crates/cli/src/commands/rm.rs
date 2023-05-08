@@ -1,7 +1,6 @@
 use crate::utils::{get_root, print_progress, Config, FunctionConfig, TrpcClient, THEME};
 use anyhow::{anyhow, Result};
-use colored::Colorize;
-use dialoguer::Confirm;
+use dialoguer::{console::style, Confirm};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
@@ -51,13 +50,13 @@ pub async fn rm(directory: Option<PathBuf>) -> Result<()> {
             function_config.delete(&root)?;
 
             println!();
-            println!(" {} Function deleted!", "◼".magenta());
+            println!(" {} Function deleted!", style("◼").magenta());
 
             Ok(())
         }
         false => {
             println!();
-            println!("{} Deletion aborted", "✕".red());
+            println!("{} Deletion aborted", style("✕").red());
             Ok(())
         },
     }

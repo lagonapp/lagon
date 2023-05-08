@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use colored::Colorize;
+use dialoguer::console::style;
 use serde::Deserialize;
 use std::{path::PathBuf, process::exit};
 
@@ -172,7 +172,7 @@ async fn main() {
                 directory,
             } => commands::promote(deployment_id, directory).await,
         } {
-            println!("{} {}", "✕".red(), err);
+            println!("{} {}", style("✕").red(), err);
             exit(1);
         }
     } else {
@@ -181,7 +181,10 @@ async fn main() {
                 println!("{version}");
             }
             _ => {
-                println!("{} Couldn't extract version from package.json", "✕".red(),);
+                println!(
+                    "{} Couldn't extract version from package.json",
+                    style("✕").red(),
+                );
                 exit(1);
             }
         }
