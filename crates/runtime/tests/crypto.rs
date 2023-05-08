@@ -307,3 +307,112 @@ async fn crypto_decrypt() {
         Response::from("hello, world")
     );
 }
+
+#[tokio::test]
+async fn crypto_hkdf_derive_bits() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['deriveBits'],
+    );
+    const salt = await crypto.getRandomValues(new Uint8Array(16));
+    const info = await crypto.getRandomValues(new Uint8Array(16));
+    const result = await crypto.subtle.deriveBits(
+      {
+        name: 'HKDF',
+        hash: 'SHA-256',
+        salt: salt,
+        info: info,
+      },
+      key,
+      128,
+    );
+    return new Response(`${result.byteLength}`);
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("16")
+    );
+}
+
+#[tokio::test]
+async fn crypto_pbkdf2_derive_bits() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['deriveBits'],
+    );
+    const salt = await crypto.getRandomValues(new Uint8Array(16));
+    const info = await crypto.getRandomValues(new Uint8Array(16));
+    const result = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        hash: 'SHA-256',
+        salt: salt,
+        iterations: 10000,
+      },
+      key,
+      128,
+    );
+    return new Response(`${result.byteLength}`);
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("16")
+    );
+}
+
+#[tokio::test]
+async fn crypto_ecdh_derive_bits() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+  const keypair = await crypto.subtle.generateKey(
+    {
+      name: 'ECDH',
+      namedCurve: 'P-384',
+    },
+    true,
+    ['deriveBits', 'deriveKey'],
+  );
+  try{
+  const result = await crypto.subtle.deriveBits(
+    {
+      name: 'ECDH',
+      public: keypair.publicKey,
+    },
+    keypair.privateKey,
+    256,
+  );
+    return new Response(`${result.byteLength * 8}`);
+}catch(e){
+    return new Response(`${e}`);
+}
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("256")
+    );
+}

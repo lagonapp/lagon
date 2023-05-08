@@ -18,41 +18,14 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
     match algorithm {
         DeriveAlgorithm::ECDH(ref named_curve, public) => match named_curve {
             CryptoNamedCurve::P256 => {
-                let secret_key = p256::SecretKey::from_pkcs8_der(&key_value)
-                    .map_err(|_| anyhow!("Must have publicKey"))?;
-
-                let point = p256::EncodedPoint::from_bytes(public)
+                let secret_key = p256::SecretKey::from_be_bytes(&key_value)
                     .map_err(|_| anyhow!("Unexpected error decoding private key"))?;
 
-                let pk = p256::PublicKey::from_encoded_point(&point);
-
-                let public_key = if pk.is_some().into() {
-                    pk.unwrap()
-                } else {
-                    return Err(anyhow!("Unexpected error decoding private key"));
-                };
+                let public_key = p256::SecretKey::from_be_bytes(&public)
+                    .map_err(|_| anyhow!("Unexpected error decoding public key"))?
+                    .public_key();
 
                 let shared_secret = p256::elliptic_curve::ecdh::diffie_hellman(
-                    secret_key.to_nonzero_scalar(),
-                    public_key.as_affine(),
-                );
-
-                Ok(shared_secret.raw_secret_bytes().to_vec().into())
-            }
-            CryptoNamedCurve::P384 => {
-                let secret_key = p384::SecretKey::from_pkcs8_der(&key_value)
-                    .map_err(|_| anyhow!("Unexpected error decoding private key"))?;
-                let point = p384::EncodedPoint::from_bytes(public)
-                    .map_err(|_| anyhow!("Unexpected error decoding private key"))?;
-
-                let pk = p384::PublicKey::from_encoded_point(&point);
-                let public_key = if pk.is_some().into() {
-                    pk.unwrap()
-                } else {
-                    return Err(anyhow!("Unexpected error decoding private key"));
-                };
-
-                let shared_secret = p384::elliptic_curve::ecdh::diffie_hellman(
                     secret_key.to_nonzero_scalar(),
                     public_key.as_affine(),
                 );

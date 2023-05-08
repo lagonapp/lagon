@@ -40,7 +40,7 @@ interface CryptoKey {
     }
 
     async deriveBits(
-      algorithm: (EcdhKeyDeriveParams & EcKeyGenParams) | HkdfParams | Pbkdf2Params,
+      algorithm: EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
       baseKey: CryptoKey,
       length: number,
     ): Promise<ArrayBuffer> {

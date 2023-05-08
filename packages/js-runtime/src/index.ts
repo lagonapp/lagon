@@ -90,7 +90,7 @@ declare global {
       data: BufferSource,
     ) => Promise<ArrayBuffer>;
     deriveBits(
-      algorithm: (EcdhKeyDeriveParams & EcKeyGenParams) | HkdfParams | Pbkdf2Params,
+      algorithm: EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
       baseKey: CryptoKey,
       length: number,
     ): Promise<ArrayBuffer>;

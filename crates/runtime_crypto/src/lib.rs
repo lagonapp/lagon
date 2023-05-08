@@ -134,10 +134,14 @@ pub fn get_derive_algorithm(
             let curve_key = v8_string(scope, "namedCurve").into();
             let curve = match algorithm.get(scope, curve_key) {
                 Some(lv) => {
-                    let curve = extract_v8_string(lv, scope)?;
-                    get_named_curve(&curve)?
+                    if lv.is_undefined() {
+                        CryptoNamedCurve::P256
+                    } else {
+                        let curve = extract_v8_string(lv, scope)?;
+                        get_named_curve(&curve)?
+                    }
                 }
-                None => return Err(anyhow!("ECDH must have namedCurve")),
+                None => CryptoNamedCurve::P256,
             };
             let public_key = v8_string(scope, "public").into();
             let public = match algorithm.get(scope, public_key) {
