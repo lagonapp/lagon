@@ -1,4 +1,4 @@
-use colored::*;
+use console::style;
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{Request, RunResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateEvent, IsolateRequest};
@@ -79,11 +79,11 @@ async fn run_test(path: &Path) {
     }
 
     if SKIP_TESTS.iter().any(|&s| display.ends_with(s)) {
-        println!("{} {}", "Skipping".yellow(), display);
+        println!("{} {}", style("Skipping").yellow(), display);
         return;
     }
 
-    println!("{} {}", "Running".blue(), display);
+    println!("{} {}", style("Running").blue(), display);
 
     let code = fs::read_to_string(path).expect("Failed to read file");
 
@@ -128,10 +128,10 @@ export function handler() {{
 
             if content.starts_with("TEST DONE 0") {
                 RESULT.lock().unwrap().1 += 1;
-                println!("{}", content.green());
+                println!("{}", style(content).green());
             } else if content.starts_with("TEST DONE 1") {
                 RESULT.lock().unwrap().2 += 1;
-                println!("{}", content.red());
+                println!("{}", style(content).red());
             } else if content.starts_with("TEST START") {
                 RESULT.lock().unwrap().0 += 1;
             }
@@ -207,8 +207,8 @@ async fn main() {
     println!(
         "{} tests, {} passed, {} failed",
         result.0,
-        result.1.to_string().green(),
-        result.2.to_string().red()
+        style(result.1.to_string()).green(),
+        style(result.2.to_string()).red()
     );
 
     if result.2 == 0 {

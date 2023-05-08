@@ -1,7 +1,13 @@
+use super::{
+    validate_assets_dir, validate_code_file, Config, MAX_ASSET_SIZE_MB, MAX_FUNCTION_SIZE_MB,
+};
+use crate::utils::{print_progress, TrpcClient, THEME};
 use anyhow::{anyhow, Result};
-use colored::Colorize;
+use dialoguer::console::style;
 use dialoguer::{Confirm, Input};
 use hyper::{Body, Method, Request};
+use pathdiff::diff_paths;
+use serde::{Deserialize, Serialize};
 use std::sync::Arc;
 use std::{
     collections::HashMap,
@@ -11,15 +17,6 @@ use std::{
     process::Command,
 };
 use walkdir::{DirEntry, WalkDir};
-
-use pathdiff::diff_paths;
-use serde::{Deserialize, Serialize};
-
-use crate::utils::{debug, info, print_progress, success, TrpcClient};
-
-use super::{
-    validate_assets_dir, validate_code_file, Config, MAX_ASSET_SIZE_MB, MAX_FUNCTION_SIZE_MB,
-};
 
 pub type Assets = HashMap<String, Vec<u8>>;
 
@@ -49,57 +46,63 @@ impl FunctionConfig {
         if !path.exists() {
             println!(
                 "{}",
-                debug("No configuration found in current directory...")
+                style("No configuration found in directory...")
+                    .black()
+                    .bright()
             );
             println!();
 
             let index = match client_override {
                 Some(index) => {
-                    println!("{}", debug("Using custom entrypoint..."));
+                    println!("{}", style("Using custom entrypoint...").black().bright());
                     index
                 }
                 None => {
-                    let index = Input::<String>::new()
+                    let index = Input::<String>::with_theme(&*THEME)
                         .with_prompt(format!(
-                            "{} {}",
-                            info("Path to your Function's entrypoint?"),
-                            debug(
-                                format!("(relative to {:?})", root.canonicalize().unwrap())
-                                    .as_str()
-                            ),
+                            "Path to your Function's entrypoint? {}",
+                            style(format!("(relative to {:?})", root.canonicalize()?))
+                                .bright()
+                                .black(),
                         ))
+                        .validate_with(|input: &String| -> std::result::Result<(), String> {
+                            validate_code_file(&root.join(input), root)
+                                .map_err(|err| err.to_string())
+                        })
                         .interact_text()?;
+
                     PathBuf::from(index)
                 }
             };
 
-            validate_code_file(&root.join(&index), root)?;
-
             let assets = match assets_override {
                 Some(assets) => {
-                    println!("{}", debug("Using custom public directory..."));
+                    println!(
+                        "{}",
+                        style("Using custom public directory...").black().bright()
+                    );
                     Some(assets)
                 }
-                None => match Confirm::new()
-                    .with_prompt(info("Do you have a public directory to serve assets from?"))
+                None => match Confirm::with_theme(&*THEME)
+                    .with_prompt("Do you have a public directory to serve assets from?")
+                    .default(false)
                     .interact()?
                 {
                     true => {
-                        let assets = Input::<String>::new()
+                        let assets = Input::<String>::with_theme(&*THEME)
                             .with_prompt(format!(
-                                "{} {}",
-                                info("Path to your Function's public directory?"),
-                                debug(
-                                    format!("(relative to {:?})", root.canonicalize().unwrap())
-                                        .as_str()
-                                ),
+                                "Path to your Function's public directory? {}",
+                                style(format!("(relative to {:?})", root.canonicalize()?))
+                                    .black()
+                                    .bright(),
                             ))
+                            .validate_with(|input: &String| -> std::result::Result<(), String> {
+                                validate_assets_dir(&Some(root.join(input)), root)
+                                    .map_err(|err| err.to_string())
+                            })
                             .interact_text()?;
-                        let assets = PathBuf::from(assets);
 
-                        validate_assets_dir(&Some(root.join(&assets)), root)?;
-
-                        Some(assets)
+                        Some(PathBuf::from(assets))
                     }
                     false => None,
                 },
@@ -114,20 +117,26 @@ impl FunctionConfig {
             };
 
             config.write(root)?;
+            println!();
 
             return Ok(config);
         }
+
+        println!("{}", style("Found configuration file...").black().bright());
 
         let content = fs::read_to_string(path)?;
         let mut config = serde_json::from_str::<FunctionConfig>(&content)?;
 
         if let Some(client_override) = client_override {
-            println!("{}", debug("Using custom entrypoint..."));
+            println!("{}", style("Using custom client file...").black().bright());
             config.client = Some(client_override);
         }
 
         if let Some(assets_override) = assets_override {
-            println!("{}", debug("Using custom public directory..."));
+            println!(
+                "{}",
+                style("Using custom public directory...").bright().black()
+            );
             config.assets = Some(assets_override);
         }
 
@@ -138,6 +147,8 @@ impl FunctionConfig {
         }
 
         validate_assets_dir(&config.assets, root)?;
+
+        println!();
 
         Ok(config)
     }
@@ -270,14 +281,14 @@ pub fn bundle_function(
         };
     }
 
-    let end_progress = print_progress("Bundling Function handler...");
+    let end_progress = print_progress("Bundling Function");
     let index_output = esbuild(&function_config.index, root, prod)?;
     end_progress();
 
     let mut final_assets = Assets::new();
 
     if let Some(client) = &function_config.client {
-        let end_progress = print_progress("Bundling client file...");
+        let end_progress = print_progress("Bundling client file");
         let client_output = esbuild(client, root, prod)?;
         end_progress();
 
@@ -304,10 +315,7 @@ pub fn bundle_function(
 
     if let Some(assets) = &function_config.assets {
         let assets = root.join(assets);
-        let msg = format!(
-            "Found public directory ({:?}), bundling assets...",
-            assets.canonicalize().unwrap()
-        );
+        let msg = format!("Processing assets ({:?})", assets.canonicalize().unwrap());
         let end_progress = print_progress(&msg);
 
         let files = WalkDir::new(&assets)
@@ -340,7 +348,7 @@ pub fn bundle_function(
 
         end_progress();
     } else {
-        println!("{}", debug("No public directory found, skipping..."));
+        println!("{}", style("Skipping assets...").black().bright());
     }
 
     Ok((index_output, final_assets))
@@ -390,7 +398,7 @@ pub async fn create_deployment(
 ) -> Result<()> {
     let (index, assets) = bundle_function(function_config, root, prod_bundle)?;
 
-    let end_progress = print_progress("Creating deployment...");
+    let end_progress = print_progress("Creating Deployment");
 
     let trpc_client = Arc::new(TrpcClient::new(config));
     let response = trpc_client
@@ -418,7 +426,7 @@ pub async fn create_deployment(
         assets_urls,
     } = response.result.data;
 
-    let end_progress = print_progress("Uploading files...");
+    let end_progress = print_progress("Uploading files");
 
     let request = Request::builder()
         .method(Method::PUT)
@@ -454,17 +462,22 @@ pub async fn create_deployment(
         .await?;
 
     println!();
-    println!("{}", success("Function deployed!"));
+    println!(" {} Function deployed!", style("◼").magenta());
 
     if !is_production {
-        println!("{}", debug("Use --prod to deploy to production"));
+        println!(
+            "   {} {} {}",
+            style("Append").black(),
+            style("--prod").black().bright(),
+            style("to deploy to production").black(),
+        );
     }
 
     println!();
     println!(
-        " {} {}",
-        "➤".bright_black(),
-        response.result.data.url.blue()
+        "{} {}",
+        style("›").black().bright(),
+        style(response.result.data.url).blue().underlined()
     );
 
     Ok(())

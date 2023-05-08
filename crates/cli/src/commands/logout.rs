@@ -1,8 +1,6 @@
+use crate::utils::{Config, THEME};
 use anyhow::{anyhow, Result};
-
-use dialoguer::Confirm;
-
-use crate::utils::{info, success, Config};
+use dialoguer::{console::style, Confirm};
 
 pub fn logout() -> Result<()> {
     let mut config = Config::new()?;
@@ -11,8 +9,9 @@ pub fn logout() -> Result<()> {
         return Err(anyhow!("You are not logged in."));
     }
 
-    match Confirm::new()
-        .with_prompt(info("Are you sure you want to log out?"))
+    match Confirm::with_theme(&*THEME)
+        .with_prompt("Do you really want to log out?")
+        .default(true)
         .interact()?
     {
         true => {
@@ -20,10 +19,14 @@ pub fn logout() -> Result<()> {
             config.save()?;
 
             println!();
-            println!("{}", success("You have been logged out."));
+            println!(" {} You have been logged out!", style("◼").magenta());
 
             Ok(())
         }
-        false => Err(anyhow!("Logout aborted.")),
+        false => {
+            println!();
+            println!("{} Logout aborted", style("✕").red());
+            Ok(())
+        }
     }
 }

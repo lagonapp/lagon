@@ -1,3 +1,4 @@
+use crate::{FromV8, Headers, IntoV8};
 use anyhow::{anyhow, Result};
 use hyper::{
     body::{self, Bytes},
@@ -7,8 +8,6 @@ use lagon_runtime_v8_utils::{
     extract_v8_headers_object, extract_v8_integer, extract_v8_string, v8_headers_object,
     v8_integer, v8_string,
 };
-
-use crate::{FromV8, Headers, IntoV8};
 
 static READABLE_STREAM_STR: &[u8] = b"[object ReadableStream]";
 
