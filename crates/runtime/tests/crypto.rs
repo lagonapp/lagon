@@ -393,7 +393,6 @@ async fn crypto_ecdh_derive_bits() {
     true,
     ['deriveBits', 'deriveKey'],
   );
-  try{
   const result = await crypto.subtle.deriveBits(
     {
       name: 'ECDH',
@@ -403,9 +402,6 @@ async fn crypto_ecdh_derive_bits() {
     256,
   );
     return new Response(`${result.byteLength * 8}`);
-}catch(e){
-    return new Response(`${e}`);
-}
 }"
         .into(),
     ));
