@@ -1,18 +1,13 @@
+use super::{FromV8, IntoV8, Method};
+use crate::{Headers, X_LAGON_ID};
 use anyhow::{anyhow, Result};
 use hyper::{
     body::{self, Bytes},
-    header::HeaderName,
-    http::{self, HeaderValue},
-    Body, Request as HyperRequest,
+    http, Body, Request as HyperRequest,
 };
 use lagon_runtime_v8_utils::{
     extract_v8_headers_object, extract_v8_string, v8_headers_object, v8_string,
 };
-use std::str::FromStr;
-
-use crate::{Headers, X_LAGON_ID};
-
-use super::{FromV8, IntoV8, Method};
 
 #[derive(Debug)]
 pub struct Request {

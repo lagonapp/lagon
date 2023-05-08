@@ -1,11 +1,11 @@
+use anyhow::{anyhow, Result};
+use std::path::{Path, PathBuf};
+
 mod config;
 mod console;
 mod deployments;
 mod trpc;
 
-use std::path::{Path, PathBuf};
-
-use anyhow::{anyhow, Result};
 pub use config::*;
 pub use console::*;
 pub use deployments::*;
