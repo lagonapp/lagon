@@ -1,8 +1,8 @@
 import type { AstroAdapter, AstroIntegration } from 'astro';
 import esbuild from 'esbuild';
-import * as fs from 'fs';
-import * as npath from 'path';
-import { fileURLToPath } from 'url';
+import * as fs from 'node:fs/promises';
+import * as path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 interface Options {
   port?: number;
@@ -47,10 +47,8 @@ export default function createIntegration(args?: Options): AstroIntegration {
               (vite.resolve.alias as Record<string, string>)[alias.find] = alias.replacement;
             }
           }
-
-          vite.ssr = {
-            noExternal: true,
-          };
+          vite.ssr = vite.ssr || {};
+          vite.ssr.target = vite.ssr.target || 'webworker';
         }
       },
       'astro:build:done': async () => {
@@ -64,18 +62,52 @@ export default function createIntegration(args?: Options): AstroIntegration {
           allowOverwrite: true,
           format: 'esm',
           bundle: true,
-          external: ['@astrojs/markdown-remark'],
+          minify: _vite.build?.minify !== false,
         });
+
+        const configPath = path.join(_vite.root, '.lagon/config.json');
+        let shouldCreateConfig = false;
+
+        try {
+          await fs.access(configPath);
+          shouldCreateConfig = false;
+        } catch {
+          shouldCreateConfig = true;
+        }
+
+        if (shouldCreateConfig) {
+          const index = path.relative(_vite.root, pth);
+          const assets = path.relative(_vite.root, fileURLToPath(_buildConfig.client));
+
+          console.log();
+          console.log('Wrote Lagon configuration to .lagon/config.json');
+
+          await fs.mkdir(path.dirname(configPath), { recursive: true });
+          await fs.writeFile(
+            configPath,
+            JSON.stringify({
+              function_id: '',
+              organization_id: '',
+              index,
+              client: null,
+              assets,
+            }),
+          );
+        }
 
         // Remove chunks, if they exist. Since we have bundled via esbuild these chunks are trash.
         try {
-          const chunkFileNames = _vite?.build?.rollupOptions?.output?.chunkFileNames ?? 'chunks/chunk.[hash].mjs';
-          const chunkPath = npath.dirname(chunkFileNames);
+          const chunkFileNames = _vite.build?.rollupOptions?.output?.chunkFileNames ?? 'chunks/chunk.[hash].mjs';
+          const chunkPath = path.dirname(chunkFileNames);
           const chunksDirUrl = new URL(chunkPath + '/', _buildConfig.server);
-          await fs.promises.rm(chunksDirUrl, { recursive: true, force: true });
+          await fs.rm(chunksDirUrl, { recursive: true, force: true });
         } catch {
           // No chunks to remove.
         }
+
+        console.log();
+        console.log('Run `lagon dev` / `lagon deploy` to start your app!');
+        console.log();
       },
     },
   };
