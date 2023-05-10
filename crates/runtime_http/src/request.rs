@@ -1,9 +1,10 @@
 use super::{FromV8, IntoV8, Method};
 use crate::{Headers, X_LAGON_ID};
 use anyhow::{anyhow, Result};
+use http_body_util::BodyExt;
 use hyper::{
-    body::{self, Bytes},
-    http, Body, Request as HyperRequest,
+    body::{Bytes, Incoming},
+    http, Request as HyperRequest,
 };
 use lagon_runtime_v8_utils::{
     extract_v8_headers_object, extract_v8_string, v8_headers_object, v8_string,
@@ -148,12 +149,12 @@ impl Request {
         self.body.is_empty()
     }
 
-    pub async fn from_hyper(request: HyperRequest<Body>) -> Result<Self> {
+    pub async fn from_hyper(request: HyperRequest<Incoming>) -> Result<Self> {
         Self::from_hyper_with_capacity(request, 0).await
     }
 
     pub async fn from_hyper_with_capacity(
-        request: HyperRequest<Body>,
+        request: HyperRequest<Incoming>,
         capacity: usize,
     ) -> Result<Self> {
         let host = request
@@ -182,7 +183,7 @@ impl Request {
         let method = Method::from(request.method());
         let url = format!("http://{}{}", host, request.uri().to_string().as_str());
 
-        let body = body::to_bytes(request.into_body()).await?;
+        let body = request.collect().await?.to_bytes();
 
         Ok(Request {
             headers: if !headers.is_empty() {

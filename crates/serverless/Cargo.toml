@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-hyper = { version = "0.14.26", features = ["server", "http1", "runtime", "stream"] }
+hyper = { version = "1.0.0-rc.3", features = ["server", "http1"] }
+http-body-util = "0.1.0-rc.2"
 tokio = { version = "1", features = ["rt-multi-thread", "sync", "time", "macros", "signal"] }
 tokio-util = { version = "0.7.8", features = ["rt"] }
 lagon-runtime = { path = "../runtime" }

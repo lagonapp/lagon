@@ -560,7 +560,7 @@ dependencies = [
  "clickhouse-derive",
  "clickhouse-rs-cityhash-sys",
  "futures",
- "hyper",
+ "hyper 0.14.26",
  "hyper-tls",
  "lz4",
  "sealed",
@@ -1342,6 +1342,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "http-body"
+version = "1.0.0-rc.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "951dfc2e32ac02d67c90c0d65bd27009a635dc9b381a2cc7d284ab01e3a0150d"
+dependencies = [
+ "bytes",
+ "http",
+]
+
+[[package]]
+name = "http-body-util"
+version = "0.1.0-rc.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "92445bc9cc14bfa0a3ce56817dc3b5bcc227a168781a356b702410789cec0d10"
+dependencies = [
+ "bytes",
+ "futures-util",
+ "http",
+ "http-body 1.0.0-rc.2",
+ "pin-project-lite",
+]
+
+[[package]]
 name = "httparse"
 version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1365,7 +1388,7 @@ dependencies = [
  "form_urlencoded",
  "futures",
  "http",
- "hyper",
+ "hyper 0.14.26",
  "log",
  "once_cell",
  "regex",
@@ -1387,7 +1410,7 @@ dependencies = [
  "futures-util",
  "h2",
  "http",
- "http-body",
+ "http-body 0.4.5",
  "httparse",
  "httpdate",
  "itoa",
@@ -1400,13 +1423,34 @@ dependencies = [
 ]
 
 [[package]]
+name = "hyper"
+version = "1.0.0-rc.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7b75264b2003a3913f118d35c586e535293b3e22e41f074930762929d071e092"
+dependencies = [
+ "bytes",
+ "futures-channel",
+ "futures-core",
+ "futures-util",
+ "http",
+ "http-body 1.0.0-rc.2",
+ "httparse",
+ "httpdate",
+ "itoa",
+ "pin-project-lite",
+ "tokio",
+ "tracing",
+ "want",
+]
+
+[[package]]
 name = "hyper-tls"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6183ddfa99b85da61a140bea0efc93fdf56ceaa041b37d553518030827f9905"
 dependencies = [
  "bytes",
- "hyper",
+ "hyper 0.14.26",
  "native-tls",
  "tokio",
  "tokio-native-tls",
@@ -1603,7 +1647,7 @@ dependencies = [
  "dirs 5.0.1",
  "envfile",
  "flume",
- "hyper",
+ "hyper 0.14.26",
  "hyper-tls",
  "indicatif",
  "lagon-runtime",
@@ -1656,7 +1700,8 @@ name = "lagon-runtime-http"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "hyper",
+ "http-body-util",
+ "hyper 1.0.0-rc.3",
  "lagon-runtime-v8-utils",
  "v8",
 ]
@@ -1669,7 +1714,7 @@ dependencies = [
  "async-recursion",
  "flume",
  "futures",
- "hyper",
+ "hyper 1.0.0-rc.3",
  "hyper-tls",
  "lagon-runtime-crypto",
  "lagon-runtime-http",
@@ -1687,7 +1732,8 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "flume",
- "hyper",
+ "http-body-util",
+ "hyper 1.0.0-rc.3",
  "lagon-runtime-http",
  "tokio",
 ]
@@ -1711,7 +1757,8 @@ dependencies = [
  "dotenv",
  "flume",
  "futures",
- "hyper",
+ "http-body-util",
+ "hyper 1.0.0-rc.3",
  "lagon-runtime",
  "lagon-runtime-http",
  "lagon-runtime-isolate",
@@ -2027,7 +2074,7 @@ version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5142a593c2be0cf5c2ac5b22ec7a4f74477b851efb6238236af26c6b5ca6e98e"
 dependencies = [
- "hyper",
+ "hyper 0.14.26",
  "indexmap",
  "ipnet",
  "metrics",
@@ -2776,8 +2823,8 @@ dependencies = [
  "futures-util",
  "h2",
  "http",
- "http-body",
- "hyper",
+ "http-body 0.4.5",
+ "hyper 0.14.26",
  "hyper-tls",
  "ipnet",
  "js-sys",

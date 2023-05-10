@@ -1,9 +1,10 @@
 use anyhow::{anyhow, Result};
 use async_recursion::async_recursion;
 use hyper::{
-    client::HttpConnector,
+    body::Incoming,
+    // client::HttpConnector,
     http::{request::Builder, Uri},
-    Body, Client, Response as HyperResponse,
+    Response as HyperResponse,
 };
 use hyper_tls::HttpsConnector;
 use lagon_runtime_http::{FromV8, Request, Response};
@@ -13,8 +14,8 @@ use crate::{bindings::PromiseResult, Isolate};
 
 use super::BindingResult;
 
-static CLIENT: Lazy<Client<HttpsConnector<HttpConnector>>> =
-    Lazy::new(|| Client::builder().build::<_, Body>(HttpsConnector::new()));
+// static CLIENT: Lazy<Client<HttpsConnector<HttpConnector>>> =
+//     Lazy::new(|| Client::builder().build::<_, Body>(HttpsConnector::new()));
 
 type Arg = Request;
 
@@ -53,40 +54,40 @@ async fn make_request(
     request: &Request,
     url: Option<String>,
     mut count: u8,
-) -> Result<HyperResponse<Body>> {
-    if count >= 5 {
-        return Err(anyhow!("Too many redirects"));
-    }
+) -> Result<HyperResponse<Incoming>> {
+    // if count >= 5 {
+    return Err(anyhow!("Too many redirects"));
+    // }
 
-    let mut hyper_request = Builder::try_from(request)?;
+    // let mut hyper_request = Builder::try_from(request)?;
 
-    if let Some(url) = url {
-        hyper_request = hyper_request.uri(url);
-    }
+    // if let Some(url) = url {
+    //     hyper_request = hyper_request.uri(url);
+    // }
 
-    let hyper_request = hyper_request.body(Body::from(request.body.clone()))?;
-    let uri = hyper_request.uri().clone();
-    let response = CLIENT.request(hyper_request).await?;
+    // let hyper_request = hyper_request.body(Body::from(request.body.clone()))?;
+    // let uri = hyper_request.uri().clone();
+    // let response = CLIENT.request(hyper_request).await?;
 
-    if response.status().is_redirection() {
-        let mut redirect_url = match response.headers().get("location") {
-            Some(location) => location.to_str()?.to_string(),
-            None => return Err(anyhow!("Got a redirect without Location header")),
-        };
+    // if response.status().is_redirection() {
+    //     let mut redirect_url = match response.headers().get("location") {
+    //         Some(location) => location.to_str()?.to_string(),
+    //         None => return Err(anyhow!("Got a redirect without Location header")),
+    //     };
 
-        // Construct the new URL if it's a relative path
-        if redirect_url.starts_with('/') {
-            let mut uri = uri.into_parts();
-            uri.path_and_query = Some(redirect_url.parse()?);
+    //     // Construct the new URL if it's a relative path
+    //     if redirect_url.starts_with('/') {
+    //         let mut uri = uri.into_parts();
+    //         uri.path_and_query = Some(redirect_url.parse()?);
 
-            redirect_url = Uri::from_parts(uri)?.to_string();
-        }
+    //         redirect_url = Uri::from_parts(uri)?.to_string();
+    //     }
 
-        count += 1;
-        return make_request(request, Some(redirect_url), count).await;
-    }
+    //     count += 1;
+    //     return make_request(request, Some(redirect_url), count).await;
+    // }
 
-    Ok(response)
+    // Ok(response)
 }
 
 pub async fn fetch_binding(id: usize, arg: Arg) -> BindingResult {

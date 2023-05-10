@@ -6,7 +6,8 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.71"
 lagon-runtime-http = { path = "../runtime_http" }
-hyper = { version = "0.14.26", features = ["stream"] }
+hyper = { version = "1.0.0-rc.3", features = [] }
+http-body-util = "0.1.0-rc.2"
 flume = "0.10.14"
 tokio = { version = "1", features = ["rt-multi-thread"] }
 

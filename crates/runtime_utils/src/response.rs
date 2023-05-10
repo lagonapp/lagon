@@ -1,8 +1,13 @@
 use anyhow::Result;
 use flume::Receiver;
-use hyper::{body::Bytes, http::response::Builder, Body, Response as HyperResponse};
+use http_body_util::{combinators::BoxBody, Full, StreamBody};
+use hyper::{
+    body::{Bytes, Frame},
+    http::response::Builder,
+    Response as HyperResponse,
+};
 use lagon_runtime_http::{RunResult, StreamResult};
-use std::future::Future;
+use std::{convert::Infallible, future::Future};
 
 pub const PAGE_404: &str = include_str!("../public/404.html");
 pub const PAGE_403: &str = include_str!("../public/403.html");
@@ -22,7 +27,7 @@ pub enum ResponseEvent {
 pub async fn handle_response<F>(
     rx: Receiver<RunResult>,
     on_event: impl Fn(ResponseEvent) -> F + Send + Sync + 'static,
-) -> Result<HyperResponse<Body>>
+) -> Result<HyperResponse<BoxBody<Bytes, Infallible>>>
 where
     F: Future<Output = Result<()>> + Send,
 {
@@ -30,8 +35,8 @@ where
 
     match result {
         RunResult::Stream(stream_result) => {
-            let (stream_tx, stream_rx) = flume::unbounded::<Result<Bytes, std::io::Error>>();
-            let body = Body::wrap_stream(stream_rx.into_stream());
+            let (stream_tx, stream_rx) = flume::unbounded::<Result<Frame<Bytes>, Infallible>>();
+            let body = StreamBody::new(stream_rx.into_stream());
 
             let (response_tx, response_rx) = flume::bounded(1);
             let mut total_bytes = 0;
@@ -43,14 +48,19 @@ where
                 StreamResult::Data(bytes) => {
                     total_bytes += bytes.len();
 
-                    let bytes = Bytes::from(bytes);
-                    stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
+                    stream_tx
+                        .send_async(Ok(Frame::data(Bytes::from(bytes))))
+                        .await
+                        .unwrap_or(());
                 }
                 StreamResult::Done(_) => {
                     on_event(ResponseEvent::StreamDoneNoDataError).await?;
 
                     // Close the stream by sending empty bytes
-                    stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
+                    stream_tx
+                        .send_async(Ok(Frame::data(Bytes::new())))
+                        .await
+                        .unwrap_or(());
                 }
             }
 
@@ -63,8 +73,10 @@ where
                         RunResult::Stream(StreamResult::Data(bytes)) => {
                             total_bytes += bytes.len();
 
-                            let bytes = Bytes::from(bytes);
-                            stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
+                            stream_tx
+                                .send_async(Ok(Frame::data(Bytes::from(bytes))))
+                                .await
+                                .unwrap_or(());
                         }
                         RunResult::Stream(StreamResult::Done(elapsed)) => {
                             on_event(ResponseEvent::Bytes(total_bytes, Some(elapsed.as_micros())))
@@ -72,7 +84,10 @@ where
                                 .unwrap_or(());
 
                             // Close the stream by sending empty bytes
-                            stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
+                            stream_tx
+                                .send_async(Ok(Frame::data(Bytes::new())))
+                                .await
+                                .unwrap_or(());
                         }
                         _ => {
                             on_event(ResponseEvent::UnexpectedStreamResult(result))
@@ -80,7 +95,10 @@ where
                                 .unwrap_or(());
 
                             // Close the stream by sending empty bytes
-                            stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
+                            stream_tx
+                                .send_async(Ok(Frame::data(Bytes::new())))
+                                .await
+                                .unwrap_or(());
                             break;
                         }
                     }
@@ -88,7 +106,7 @@ where
             });
 
             let response = response_rx.recv_async().await?;
-            let hyper_response = Builder::try_from(&response)?.body(body)?;
+            let hyper_response = Builder::try_from(&response)?.body(BoxBody::new(body))?;
 
             Ok(hyper_response)
         }
@@ -97,19 +115,23 @@ where
                 ResponseEvent::Bytes(response.len(), elapsed.map(|duration| duration.as_micros()));
             on_event(event).await?;
 
-            Ok(Builder::try_from(&response)?.body(response.body.into())?)
+            Ok(Builder::try_from(&response)?.body(BoxBody::new(Full::new(response.body)))?)
         }
         RunResult::Timeout | RunResult::MemoryLimit => {
             let event = ResponseEvent::LimitsReached(result);
             on_event(event).await?;
 
-            Ok(HyperResponse::builder().status(502).body(PAGE_502.into())?)
+            Ok(HyperResponse::builder()
+                .status(502)
+                .body(BoxBody::new(Full::new(PAGE_502.into())))?)
         }
         RunResult::Error(_) => {
             let event = ResponseEvent::Error(result);
             on_event(event).await?;
 
-            Ok(HyperResponse::builder().status(500).body(PAGE_500.into())?)
+            Ok(HyperResponse::builder()
+                .status(500)
+                .body(BoxBody::new(Full::new(PAGE_500.into())))?)
         }
     }
 }
@@ -118,7 +140,7 @@ where
 mod tests {
     use std::time::Duration;
 
-    use hyper::body::to_bytes;
+    use http_body_util::BodyExt;
     use lagon_runtime_http::Response;
 
     use super::*;
@@ -128,11 +150,11 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, |_| async { Ok(()) }).await.unwrap();
+            let response = handle_response(rx, |_| async { Ok(()) }).await.unwrap();
 
             assert_eq!(response.status(), 200);
             assert_eq!(
-                to_bytes(response.body_mut()).await.unwrap(),
+                response.collect().await.unwrap().to_bytes(),
                 Bytes::from("Hello World")
             );
         });
@@ -149,11 +171,11 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, |_| async { Ok(()) }).await.unwrap();
+            let response = handle_response(rx, |_| async { Ok(()) }).await.unwrap();
 
             assert_eq!(response.status(), 200);
             assert_eq!(
-                to_bytes(response.body_mut()).await.unwrap(),
+                response.collect().await.unwrap().to_bytes(),
                 Bytes::from("Hello world")
             );
         });
@@ -186,11 +208,11 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, |_| async { Ok(()) }).await.unwrap();
+            let response = handle_response(rx, |_| async { Ok(()) }).await.unwrap();
 
             assert_eq!(response.status(), 200);
             assert_eq!(
-                to_bytes(response.body_mut()).await.unwrap(),
+                response.collect().await.unwrap().to_bytes(),
                 Bytes::from("Hello world")
             );
         });

@@ -7,7 +7,7 @@ edition = "2021"
 v8 = "0.70.0"
 tokio = { version = "1", features = ["rt-multi-thread"] }
 futures = "0.3.28"
-hyper = { version = "0.14.26", features = ["client"] }
+hyper = { version = "1.0.0-rc.3", features = ["client"] }
 hyper-tls = { version = "0.5.0", features = ["vendored"] }
 flume = "0.10.14"
 anyhow = "1.0.71"

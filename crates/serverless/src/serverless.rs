@@ -4,14 +4,13 @@ use crate::{
     REGION, SNAPSHOT_BLOB,
 };
 use anyhow::Result;
+use bytes::Bytes;
 use clickhouse::{inserter::Inserter, Client};
 use dashmap::DashMap;
+use http_body_util::{combinators::BoxBody, Full};
 use hyper::{
-    header::HOST,
-    http::response::Builder,
-    server::conn::AddrStream,
-    service::{make_service_fn, service_fn},
-    Body, Request as HyperRequest, Response as HyperResponse, Server,
+    body::Incoming, header::HOST, http::response::Builder, server::conn::http1,
+    service::service_fn, Request as HyperRequest, Response as HyperResponse,
 };
 use lagon_runtime_http::{
     Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP,
@@ -38,7 +37,7 @@ use std::{
     sync::Arc,
     time::{Duration, Instant, UNIX_EPOCH},
 };
-use tokio::{runtime::Handle, sync::Mutex};
+use tokio::{net::TcpListener, runtime::Handle, sync::Mutex};
 
 pub type Workers = Arc<DashMap<String, flume::Sender<IsolateEvent>>>;
 
@@ -66,14 +65,14 @@ fn handle_error(
 }
 
 async fn handle_request(
-    req: HyperRequest<Body>,
+    req: HyperRequest<Incoming>,
     ip: String,
     deployments: Deployments,
     last_requests: Arc<DashMap<String, Instant>>,
     workers: Workers,
     inserters: Arc<Mutex<(Inserter<RequestRow>, Inserter<LogRow>)>>,
     log_sender: flume::Sender<(String, String, Metadata)>,
-) -> Result<HyperResponse<Body>> {
+) -> Result<HyperResponse<BoxBody<Bytes, Infallible>>> {
     let request_id = match req.headers().get(X_LAGON_ID) {
         Some(x_lagon_id) => x_lagon_id.to_str().unwrap_or("").to_string(),
         None => String::new(),
@@ -89,7 +88,9 @@ async fn handle_request(
             );
             warn!(req = as_debug!(req), ip = ip, request = request_id; "No Host header found in request");
 
-            return Ok(Builder::new().status(404).body(PAGE_404.into())?);
+            return Ok(Builder::new()
+                .status(404)
+                .body(BoxBody::new(Full::new(PAGE_404.into())))?);
         }
     };
 
@@ -104,7 +105,9 @@ async fn handle_request(
             );
             warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "No deployment found for hostname");
 
-            return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
+            return Ok(HyperResponse::builder()
+                .status(404)
+                .body(BoxBody::new(Full::new(PAGE_404.into())))?);
         }
     };
 
@@ -117,7 +120,9 @@ async fn handle_request(
         );
         warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "Cron deployment cannot be called directly");
 
-        return Ok(HyperResponse::builder().status(403).body(PAGE_403.into())?);
+        return Ok(HyperResponse::builder()
+            .status(403)
+            .body(BoxBody::new(Full::new(PAGE_403.into())))?);
     }
 
     let function_id = deployment.function_id.clone();
@@ -395,34 +400,45 @@ where
         }
     });
 
-    let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
-        let deployments = Arc::clone(&deployments);
-        let last_requests = Arc::clone(&last_requests);
-        let workers = Arc::clone(&workers);
-        let inserters = Arc::clone(&inserters);
-        let log_sender = log_sender.clone();
-
-        let addr = conn.remote_addr();
-        let ip = addr.ip().to_string();
-
-        async move {
-            Ok::<_, Infallible>(service_fn(move |req| {
-                handle_request(
-                    req,
-                    ip.clone(),
-                    Arc::clone(&deployments),
-                    Arc::clone(&last_requests),
-                    Arc::clone(&workers),
-                    Arc::clone(&inserters),
-                    log_sender.clone(),
-                )
-            }))
-        }
-    }));
+    let listener = TcpListener::bind(&addr).await?;
 
     Ok(async move {
-        if let Err(error) = server.await {
-            error!("Server error: {}", error);
+        loop {
+            match listener.accept().await {
+                Ok((stream, addr)) => {
+                    let deployments = Arc::clone(&deployments);
+                    let last_requests = Arc::clone(&last_requests);
+                    let workers = Arc::clone(&workers);
+                    let inserters = Arc::clone(&inserters);
+                    let log_sender = log_sender.clone();
+
+                    tokio::task::spawn(async move {
+                        let ip = addr.ip().to_string();
+
+                        let service = service_fn(move |req| {
+                            handle_request(
+                                req,
+                                ip.clone(),
+                                Arc::clone(&deployments),
+                                Arc::clone(&last_requests),
+                                Arc::clone(&workers),
+                                Arc::clone(&inserters),
+                                log_sender.clone(),
+                            )
+                        });
+
+                        if let Err(err) = http1::Builder::new()
+                            .serve_connection(stream, service)
+                            .await
+                        {
+                            error!("Error serving connection: {:?}", err);
+                        }
+                    });
+                }
+                Err(error) => {
+                    error!("Error while accepting connection: {}", error);
+                }
+            }
         }
     })
 }

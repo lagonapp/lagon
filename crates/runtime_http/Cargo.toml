@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 v8 = "0.70.0"
-hyper = { version = "0.14.26", features = ["client", "http1", "http2", "tcp"] }
+hyper = { version = "1.0.0-rc.3", features = ["client"] }
+http-body-util = "0.1.0-rc.2"
 anyhow = "1.0.71"
 lagon-runtime-v8-utils = { path = "../runtime_v8_utils" }

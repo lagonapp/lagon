@@ -1,8 +1,9 @@
 use crate::{FromV8, Headers, IntoV8};
 use anyhow::{anyhow, Result};
+use http_body_util::BodyExt;
 use hyper::{
-    body::{self, Bytes},
-    http, Body, Response as HyperResponse,
+    body::{Bytes, Incoming},
+    http, Response as HyperResponse,
 };
 use lagon_runtime_v8_utils::{
     extract_v8_headers_object, extract_v8_integer, extract_v8_string, v8_headers_object,
@@ -151,7 +152,7 @@ impl Response {
         self.body == READABLE_STREAM_STR
     }
 
-    pub async fn from_hyper(response: HyperResponse<Body>) -> Result<Self> {
+    pub async fn from_hyper(response: HyperResponse<Incoming>) -> Result<Self> {
         let mut headers = Vec::with_capacity(response.headers().keys_len());
 
         for key in response.headers().keys() {
@@ -166,7 +167,7 @@ impl Response {
         }
 
         let status = response.status().as_u16();
-        let body = body::to_bytes(response.into_body()).await?;
+        let body = response.collect().await?.to_bytes();
 
         Ok(Response {
             status,
