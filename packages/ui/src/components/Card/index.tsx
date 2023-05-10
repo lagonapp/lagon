@@ -1,29 +1,27 @@
-import { MouseEventHandler, ReactElement, ReactNode } from 'react';
+import { ReactElement, ReactNode } from 'react';
 import { VariantProps, cx } from 'class-variance-authority';
 import { Text } from '../';
 import { variants } from './styles';
+import Link from 'next/link';
 
 type CardProps = {
   title?: string;
   description?: string;
   rightItem?: ReactElement;
   fullWidth?: boolean;
-  onClick?: MouseEventHandler;
-  onHover?: MouseEventHandler;
+  href?: string;
   children: ReactNode;
 } & VariantProps<typeof variants>;
 
-export const Card = ({
+const CardContent = ({
   clickable,
   title,
   description,
   rightItem,
   fullWidth,
-  onClick,
-  onHover,
   danger,
   children,
-}: CardProps) => {
+}: Omit<CardProps, 'href'>) => {
   const styles = variants({ clickable, danger });
 
   return (
@@ -36,10 +34,42 @@ export const Card = ({
           {rightItem}
         </div>
       ) : null}
-      <div onClick={onClick} onMouseEnter={onHover} className={styles}>
+      <div className={styles}>
         {description ? <Text>{description}</Text> : null}
         {children}
       </div>
     </div>
+  );
+};
+
+export const Card = ({ clickable, title, description, rightItem, fullWidth, danger, href, children }: CardProps) => {
+  if (href) {
+    return (
+      <Link href={href}>
+        <CardContent
+          clickable={clickable}
+          title={title}
+          description={description}
+          rightItem={rightItem}
+          fullWidth={fullWidth}
+          danger={danger}
+        >
+          {children}
+        </CardContent>
+      </Link>
+    );
+  }
+
+  return (
+    <CardContent
+      clickable={clickable}
+      title={title}
+      description={description}
+      rightItem={rightItem}
+      fullWidth={fullWidth}
+      danger={danger}
+    >
+      {children}
+    </CardContent>
   );
 };
