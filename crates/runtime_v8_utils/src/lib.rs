@@ -152,3 +152,11 @@ pub fn v8_exception<'a>(scope: &mut v8::HandleScope<'a>, value: &str) -> v8::Loc
     let message = v8_string(scope, value);
     v8::Exception::type_error(scope, message)
 }
+
+pub fn extract_v8_uint32(scope: &mut v8::HandleScope, value: v8::Local<v8::Value>) -> Result<u32> {
+    if let Some(value) = value.to_uint32(scope) {
+        return Ok(value.value());
+    }
+
+    Err(anyhow!("Value is not an uint32"))
+}

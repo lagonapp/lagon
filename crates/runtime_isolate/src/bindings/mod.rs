@@ -11,7 +11,10 @@ use pull_stream::pull_stream_binding;
 use queue_microtask::queue_microtask_binding;
 use sleep::{sleep_binding, sleep_init};
 
-use crate::{bindings::crypto::digest_init, Isolate};
+use crate::{
+    bindings::crypto::{derive_bits_binding, derive_bits_init, digest_init},
+    Isolate,
+};
 
 pub mod console;
 pub mod crypto;
@@ -131,6 +134,13 @@ pub fn bind<'a>(
         async_binding!(scope, lagon_object, "sign", sign_init, sign_binding);
         async_binding!(scope, lagon_object, "verify", verify_init, verify_binding);
         async_binding!(scope, lagon_object, "digest", digest_init, digest_binding);
+        async_binding!(
+            scope,
+            lagon_object,
+            "deriveBits",
+            derive_bits_init,
+            derive_bits_binding
+        );
         async_binding!(
             scope,
             lagon_object,

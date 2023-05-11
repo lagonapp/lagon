@@ -40,11 +40,11 @@ interface CryptoKey {
     }
 
     async deriveBits(
-      algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
+      algorithm: EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
       baseKey: CryptoKey,
       length: number,
     ): Promise<ArrayBuffer> {
-      throw new Error('Not implemented');
+      return LagonAsync.deriveBits(algorithm, baseKey, length);
     }
 
     async deriveKey(

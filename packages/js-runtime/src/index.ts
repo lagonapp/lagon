@@ -89,6 +89,11 @@ declare global {
       key: CryptoKey,
       data: BufferSource,
     ) => Promise<ArrayBuffer>;
+    deriveBits(
+      algorithm: EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
+      baseKey: CryptoKey,
+      length: number,
+    ): Promise<ArrayBuffer>;
     sleep: (ms: number) => Promise<void>;
   };
   var __lagon__: {
