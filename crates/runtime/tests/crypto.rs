@@ -239,7 +239,7 @@ async fn crypto_digest_object() {
 }
 
 #[tokio::test]
-async fn crypto_encrypt() {
+async fn crypto_encrypt_aes_gcm() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
@@ -271,7 +271,7 @@ async fn crypto_encrypt() {
 }
 
 #[tokio::test]
-async fn crypto_decrypt() {
+async fn crypto_decrypt_aes_gcm() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
@@ -292,6 +292,76 @@ async fn crypto_decrypt() {
 
     const text = await crypto.subtle.decrypt(
         { name: 'AES-GCM', iv },
+        key,
+        ciphertext,
+    );
+
+    return new Response(new TextDecoder().decode(text));
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("hello, world")
+    );
+}
+
+#[tokio::test]
+async fn crypto_encrypt_aes_cbc() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'AES-CBC' },
+        false,
+        ['sign'],
+    );
+
+    const iv = crypto.getRandomValues(new Uint8Array(16));
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-CBC', iv },
+        key,
+        new TextEncoder().encode('hello, world'),
+    );
+
+    return new Response(`${ciphertext instanceof Uint8Array} ${ciphertext.length}`);
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true 16")
+    );
+}
+
+#[tokio::test]
+async fn crypto_decrypt_aes_cbc() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'AES-CBC' },
+        false,
+        ['sign'],
+    );
+
+    const iv = crypto.getRandomValues(new Uint8Array(16));
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-CBC', iv },
+        key,
+        new TextEncoder().encode('hello, world'),
+    );
+
+    const text = await crypto.subtle.decrypt(
+        { name: 'AES-CBC', iv },
         key,
         ciphertext,
     );
