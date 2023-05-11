@@ -94,6 +94,13 @@ declare global {
       baseKey: CryptoKey,
       length: number,
     ): Promise<ArrayBuffer>;
+    deriveKey(
+      algorithm: EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
+      baseKey: CryptoKey,
+      derivedKeyType: AesDerivedKeyParams | HmacImportParams,
+      extractable: boolean,
+      keyUsages: Iterable<KeyUsage>,
+    ): Promise<CryptoKey>;
     sleep: (ms: number) => Promise<void>;
   };
   var __lagon__: {

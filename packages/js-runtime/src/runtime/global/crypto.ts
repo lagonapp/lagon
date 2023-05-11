@@ -9,6 +9,118 @@ interface CryptoKey {
 
   const SYMMETRIC_ALGORITHMS = ['HMAC', 'AES-CBC', 'AES-CTR', 'AES-GCM', 'AES-KW'];
 
+  const checkDeriveAlgorithmType = (algorithm: EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params) => {
+    if (typeof algorithm !== 'object') {
+      throw TypeError('Algorithm must is EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params');
+    }
+    algorithm.name = algorithm.name?.toUpperCase();
+    switch (algorithm.name) {
+      case 'ECDH':
+        if (!(algorithm as EcdhKeyDeriveParams).public) {
+          throw new TypeError('EcdhKeyDeriveParams must have public');
+        }
+        break;
+      case 'HKDF':
+        if (!(algorithm as HkdfParams).hash) {
+          throw new TypeError('HkdfParams must have hash');
+        }
+        if (!(algorithm as HkdfParams).info) {
+          throw new TypeError('HkdfParams must have info');
+        }
+        if (!(algorithm as HkdfParams).salt) {
+          throw new TypeError('HkdfParams must have salt');
+        }
+        break;
+      case 'PBKDF2':
+        if (!(algorithm as Pbkdf2Params).hash) {
+          throw new TypeError('Pbkdf2Params must have hash');
+        }
+        if (typeof (algorithm as Pbkdf2Params).iterations !== 'number') {
+          throw new TypeError('Pbkdf2Params.iterations must be number');
+        }
+        if (!(algorithm as Pbkdf2Params).salt) {
+          throw new TypeError('Pbkdf2Params must have salt');
+        }
+        break;
+      default:
+        throw new TypeError('Unrecognized algorithm name');
+    }
+  };
+
+  const checkDeriveKeyType = (derivedKeyType: AesDerivedKeyParams | HmacImportParams) => {
+    if (typeof derivedKeyType !== 'object') {
+      throw TypeError('DerivedKeyType must is AesDerivedKeyParams | HmacImportParams');
+    }
+    derivedKeyType.name = derivedKeyType.name?.toUpperCase();
+    switch (derivedKeyType.name) {
+      case 'AES-CBC':
+      case 'AES-CTR':
+      case 'AES-GCM':
+      case 'AES-KW':
+        if (!(derivedKeyType as AesDerivedKeyParams).length) {
+          throw new TypeError('Pbkdf2Params must have length');
+        }
+        break;
+      case 'HMAC':
+        if (!(derivedKeyType as HmacImportParams).hash) {
+          throw new TypeError('HmacImportParams must have hash');
+        }
+        break;
+      default:
+        throw new TypeError('Unrecognized derivedKeyType name');
+    }
+  };
+
+  const getDeriveKeyLength = (derivedKeyType: AesDerivedKeyParams | HmacImportParams) => {
+    switch (derivedKeyType.name) {
+      case 'AES-CBC':
+      case 'AES-CTR':
+      case 'AES-GCM':
+      case 'AES-KW': {
+        if (![128, 192, 256].includes((derivedKeyType as AesDerivedKeyParams).length)) {
+          throw new TypeError('length must be 128, 192, or 256');
+        }
+        return (derivedKeyType as AesDerivedKeyParams).length;
+      }
+      case 'HMAC': {
+        let length;
+        if (derivedKeyType.length === undefined) {
+          let keyType: HmacImportParams & { hash: Algorithm } = {
+            ...(derivedKeyType as HmacImportParams),
+            hash:
+              typeof (derivedKeyType as HmacImportParams).hash === 'string'
+                ? { name: (derivedKeyType as HmacImportParams).hash as string }
+                : ((derivedKeyType as HmacImportParams).hash as Algorithm),
+          };
+          switch (keyType.hash.name) {
+            case 'SHA-1':
+              length = 160;
+              break;
+            case 'SHA-256':
+              length = 256;
+              break;
+            case 'SHA-384':
+              length = 384;
+              break;
+            case 'SHA-512':
+              length = 512;
+              break;
+            default:
+              throw new TypeError('Unrecognized hash algorithm');
+          }
+        } else if (derivedKeyType.length !== 0) {
+          length = derivedKeyType.length;
+        } else {
+          throw new TypeError('Invalid length.');
+        }
+
+        return length;
+      }
+      default:
+        throw new TypeError('unreachable');
+    }
+  };
+
   globalThis.CryptoKey = class {
     readonly algorithm: KeyAlgorithm;
     readonly extractable: boolean;
@@ -44,17 +156,24 @@ interface CryptoKey {
       baseKey: CryptoKey,
       length: number,
     ): Promise<ArrayBuffer> {
+      checkDeriveAlgorithmType(algorithm);
       return LagonAsync.deriveBits(algorithm, baseKey, length);
     }
 
     async deriveKey(
-      algorithm: AlgorithmIdentifier | EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
+      algorithm: EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
       baseKey: CryptoKey,
-      derivedKeyType: AlgorithmIdentifier | AesDerivedKeyParams | HmacImportParams | HkdfParams | Pbkdf2Params,
+      derivedKeyType: AesDerivedKeyParams | HmacImportParams,
       extractable: boolean,
       keyUsages: Iterable<KeyUsage>,
     ): Promise<CryptoKey> {
-      throw new Error('Not implemented');
+      checkDeriveAlgorithmType(algorithm);
+      checkDeriveKeyType(derivedKeyType);
+
+      const length = getDeriveKeyLength(derivedKeyType);
+      const secret = await this.deriveBits(algorithm, baseKey, length);
+
+      return await this.importKey('raw', secret, derivedKeyType, extractable, keyUsages);
     }
 
     async digest(algorithm: AlgorithmIdentifier, data: BufferSource): Promise<ArrayBuffer> {

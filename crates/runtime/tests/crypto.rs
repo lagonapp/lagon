@@ -412,3 +412,46 @@ async fn crypto_ecdh_derive_bits() {
         Response::from("256")
     );
 }
+
+#[tokio::test]
+async fn crypto_ecdh_derive_key() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+    const rawKey = await crypto.getRandomValues(new Uint8Array(16));
+    const key = await crypto.subtle.importKey(
+        'raw',
+        rawKey,
+        'PBKDF2',
+        false,
+        ['deriveKey', 'deriveBits'],
+    );
+
+    const salt = await crypto.getRandomValues(new Uint8Array(16));
+
+    const derivedKey = await crypto.subtle.deriveKey(
+        {
+        name: 'PBKDF2',
+        salt,
+        iterations: 1000,
+        hash: 'SHA-256',
+        },
+        key,
+        { name: 'HMAC', hash: 'SHA-256' },
+        true,
+        ['sign'],
+    );
+
+    const algorithm = derivedKey.algorithm
+
+    return new Response(`${derivedKey instanceof CryptoKey} ${derivedKey.type === 'secret'} ${derivedKey.extractable} ${derivedKey.usages?.length === 1} ${algorithm.name === 'HMAC'}`);
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true true true true true")
+    );
+}
