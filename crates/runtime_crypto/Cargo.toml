@@ -15,6 +15,7 @@ sha1 = "0.10.5"
 sha2 = "0.10.6"
 aes = "0.8.2"
 aes-gcm = "0.10.1"
+cbc = { version = "0.1.2", features = ["std"] }
 ring = { version = "0.16.20", features = ["std"] }
 p256 = { version = "0.11.1", features = ["ecdh"] }
 p384 = "0.11.1"
