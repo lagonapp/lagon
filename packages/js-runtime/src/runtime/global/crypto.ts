@@ -85,7 +85,7 @@ interface CryptoKey {
       case 'HMAC': {
         let length;
         if (derivedKeyType.length === undefined) {
-          let keyType: HmacImportParams & { hash: Algorithm } = {
+          const keyType: HmacImportParams & { hash: Algorithm } = {
             ...(derivedKeyType as HmacImportParams),
             hash:
               typeof (derivedKeyType as HmacImportParams).hash === 'string'
