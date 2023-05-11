@@ -13,12 +13,13 @@ import {
   SunIcon,
   LanguageIcon,
   UserIcon,
+  ArrowTopRightOnSquareIcon,
 } from '@heroicons/react/24//outline';
 import Head from 'next/head';
-import useOrganizations from './hooks/useOrganizations';
-import { trpc } from './trpc';
-import { reloadSession } from './utils';
-import useTheme from './hooks/useTheme';
+import useOrganizations from '../hooks/useOrganizations';
+import { trpc } from '../trpc';
+import { reloadSession } from '../utils';
+import useTheme from '../hooks/useTheme';
 import { useChangeLocale, useScopedI18n } from 'locales';
 import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
@@ -27,7 +28,7 @@ type HeaderLinkProps = {
   href: string;
   selected: boolean;
   target?: HTMLAttributeAnchorTarget;
-  children: string;
+  children: ReactNode;
 };
 
 const HeaderLink = ({ href, selected, target, children }: HeaderLinkProps) => {
@@ -40,7 +41,7 @@ const HeaderLink = ({ href, selected, target, children }: HeaderLinkProps) => {
     <Link
       href={href}
       target={target}
-      className={`${styles} text-md select-none transition hover:text-stone-800 dark:hover:text-stone-200`}
+      className={`${styles} text-md flex select-none items-center gap-1 transition hover:text-stone-800 dark:hover:text-stone-200`}
     >
       {children}
     </Link>
@@ -135,6 +136,7 @@ const Layout = ({ title, anonymous, children }: LayoutProps) => {
                     </HeaderLink>
                     <HeaderLink href="https://docs.lagon.app" target="_blank" selected={false}>
                       {t('header.documentation')}
+                      <ArrowTopRightOnSquareIcon className="h-4 w-4" />
                     </HeaderLink>
                   </div>
                   {session?.organization ? (

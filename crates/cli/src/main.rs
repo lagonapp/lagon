@@ -1,9 +1,7 @@
-use std::{path::PathBuf, process::exit};
-
 use clap::{Parser, Subcommand};
+use dialoguer::console::style;
 use serde::Deserialize;
-
-use crate::utils::error;
+use std::{path::PathBuf, process::exit};
 
 mod commands;
 mod utils;
@@ -174,7 +172,7 @@ async fn main() {
                 directory,
             } => commands::promote(deployment_id, directory).await,
         } {
-            println!("{}", error(&err.to_string()));
+            println!("{} {}", style("✕").red(), err);
             exit(1);
         }
     } else {
@@ -183,7 +181,10 @@ async fn main() {
                 println!("{version}");
             }
             _ => {
-                println!("{}", error("Couldn't extract version from package.json"));
+                println!(
+                    "{} Couldn't extract version from package.json",
+                    style("✕").red(),
+                );
                 exit(1);
             }
         }

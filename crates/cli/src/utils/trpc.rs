@@ -1,10 +1,9 @@
+use super::Config;
 use anyhow::{anyhow, Result};
 use hyper::{body, client::HttpConnector, Body, Client, Method, Request};
 use hyper_tls::HttpsConnector;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use urlencoding::encode;
-
-use super::Config;
 
 #[derive(Deserialize, Debug)]
 pub struct TrpcResponse<T> {
@@ -28,7 +27,7 @@ pub struct TrpcErrorResult {
 
 pub struct TrpcClient {
     pub client: Client<HttpsConnector<HttpConnector>>,
-    config:  Config,
+    config: Config,
 }
 
 impl TrpcClient {

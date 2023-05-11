@@ -65,8 +65,8 @@ model Organization {
   id          String               @id @default(cuid())
   createdAt   DateTime             @default(now())
   updatedAt   DateTime             @updatedAt
-  name        String
-  description String?
+  name        String               @db.VarChar(64)
+  description String?              @db.VarChar(256)
   ownerId     String
   owner       User                 @relation(fields: [ownerId], references: [id])
   members     OrganizationMember[]
@@ -97,7 +97,7 @@ model Function {
   id             String        @id @default(cuid())
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
-  name           String        @unique
+  name           String        @unique @db.VarChar(64)
   memory         Int
   tickTimeout    Int           @default(500)
   cron           String?
@@ -127,8 +127,8 @@ model EnvVariable {
   id         String   @id @default(cuid())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-  key        String
-  value      String
+  key        String   @db.VarChar(64)
+  value      String   @db.VarChar(5120)
   functionId String
   function   Function @relation(fields: [functionId], references: [id])
 

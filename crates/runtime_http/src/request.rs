@@ -1,3 +1,5 @@
+use super::{FromV8, IntoV8, Method};
+use crate::{Headers, X_LAGON_ID};
 use anyhow::{anyhow, Result};
 use hyper::{
     body::{self, Bytes},
@@ -6,10 +8,6 @@ use hyper::{
 use lagon_runtime_v8_utils::{
     extract_v8_headers_object, extract_v8_string, v8_headers_object, v8_string,
 };
-
-use crate::{Headers, X_LAGON_ID};
-
-use super::{FromV8, IntoV8, Method};
 
 #[derive(Debug)]
 pub struct Request {
