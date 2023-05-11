@@ -38,19 +38,6 @@ pub enum DeriveAlgorithm {
     PBKDF2(Sha, Vec<u8>, u32),
 }
 
-pub enum CryptoNamedCurve {
-    P256,
-    P384,
-}
-
-pub enum DeriveAlgorithm {
-    ECDH(CryptoNamedCurve, Vec<u8>),
-    /// HKDF(hash, salt, info)
-    HKDF(Sha, Vec<u8>, Vec<u8>),
-    /// PBKDF2(hash, salt, iterations)
-    PBKDF2(Sha, Vec<u8>, u32),
-}
-
 pub fn extract_algorithm_object(
     scope: &mut v8::HandleScope,
     value: v8::Local<v8::Value>,

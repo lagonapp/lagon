@@ -484,7 +484,7 @@ async fn crypto_ecdh_derive_bits() {
 }
 
 #[tokio::test]
-async fn crypto_ecdh_derive_key() {
+async fn crypto_derive_key() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
