@@ -1,7 +1,9 @@
 ---
 '@lagon/runtime': patch
-'@lagon/runtime-utils': patch
+'@lagon/cli': patch
+'@lagon/serverless': patch
 '@lagon/js-runtime': patch
+'@lagon/docs': patch
 ---
 
-feat: add derive_bits
+Add SubtleCrypto#deriveBits

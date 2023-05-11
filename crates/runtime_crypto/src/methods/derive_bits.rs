@@ -1,6 +1,4 @@
 use anyhow::{anyhow, Result};
-use p256::elliptic_curve::sec1::FromEncodedPoint;
-use p256::pkcs8::DecodePrivateKey;
 use ring::{hkdf, pbkdf2};
 use std::num::NonZeroU32;
 
@@ -30,7 +28,7 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
                     public_key.as_affine(),
                 );
 
-                Ok(shared_secret.raw_secret_bytes().to_vec().into())
+                Ok(shared_secret.raw_secret_bytes().to_vec())
             }
             _ => Err(anyhow!("NamedCurve not supported")),
         },
@@ -50,13 +48,13 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
             pbkdf2::derive(
                 hash_algorithm,
                 not_zero_iterations,
-                &salt,
+                salt,
                 &key_value,
                 &mut out,
             );
-            Ok(out.into())
-        }
 
+            Ok(out)
+        }
         DeriveAlgorithm::HKDF(ref hash, ref salt, info) => {
             let hash_algorithm = match hash {
                 Sha::Sha1 => hkdf::HKDF_SHA1_FOR_LEGACY_USE_ONLY,
@@ -65,9 +63,9 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
                 Sha::Sha512 => hkdf::HKDF_SHA512,
             };
 
-            let salt = hkdf::Salt::new(hash_algorithm, &salt);
+            let salt = hkdf::Salt::new(hash_algorithm, salt);
 
-            let boxed_slice = info.clone().into_boxed_slice();
+            let boxed_slice = info.into_boxed_slice();
             let info: &[&[u8]] = &[&*boxed_slice];
 
             let prk = salt.extract(&key_value);
@@ -78,10 +76,10 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
                 .expand(info, HkdfOutput((length / 8).try_into()?))
                 .map_err(|_e| anyhow!("The length provided for HKDF is too large"))?;
 
-            let mut r = vec![0u8; out_length];
-            okm.fill(&mut r)?;
-            Ok(r.into())
+            let mut out = vec![0u8; out_length];
+            okm.fill(&mut out)?;
+
+            Ok(out)
         }
-        _ => Err(anyhow!("Algorithm not supported")),
     }
 }
