@@ -22,6 +22,20 @@ pub enum Sha {
 pub enum Algorithm {
     Hmac,
     AesGcm(Vec<u8>),
+    AesCbc(Vec<u8>),
+}
+
+pub enum CryptoNamedCurve {
+    P256,
+    P384,
+}
+
+pub enum DeriveAlgorithm {
+    ECDH(CryptoNamedCurve, Vec<u8>),
+    /// HKDF(hash, salt, info)
+    HKDF(Sha, Vec<u8>, Vec<u8>),
+    /// PBKDF2(hash, salt, iterations)
+    PBKDF2(Sha, Vec<u8>, u32),
 }
 
 pub enum CryptoNamedCurve {
@@ -60,6 +74,16 @@ pub fn extract_algorithm_object(
             };
 
             return Ok(Algorithm::AesGcm(iv));
+        }
+
+        if name == "AES-CBC" {
+            let iv_key = v8_string(scope, "iv");
+            let iv = match algorithm.get(scope, iv_key.into()) {
+                Some(iv) => extract_v8_uint8array(iv)?,
+                None => return Err(anyhow!("Algorithm iv not found")),
+            };
+
+            return Ok(Algorithm::AesCbc(iv));
         }
     }
 
