@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 
 use crate::{Aes256Gcm, Algorithm};
 
-type Aes128CbcEnc = cbc::Encryptor<aes::Aes256>;
+type Aes256CbcEnc = cbc::Encryptor<aes::Aes256>;
 
 pub fn encrypt(algorithm: Algorithm, key_value: Vec<u8>, data: Vec<u8>) -> Result<Vec<u8>> {
     match algorithm {
@@ -17,7 +17,7 @@ pub fn encrypt(algorithm: Algorithm, key_value: Vec<u8>, data: Vec<u8>) -> Resul
                 Err(_) => Err(anyhow!("Encryption failed")),
             }
         }
-        Algorithm::AesCbc(iv) => Ok(Aes128CbcEnc::new(
+        Algorithm::AesCbc(iv) => Ok(Aes256CbcEnc::new(
             key_value.as_slice().into(),
             iv.as_slice().into(),
         )

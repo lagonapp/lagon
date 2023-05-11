@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 
 use crate::{Aes256Gcm, Algorithm};
 
-type Aes128CbcDec = cbc::Decryptor<aes::Aes256>;
+type Aes256CbcDec = cbc::Decryptor<aes::Aes256>;
 
 pub fn decrypt(algorithm: Algorithm, key_value: Vec<u8>, data: Vec<u8>) -> Result<Vec<u8>> {
     match algorithm {
@@ -18,7 +18,7 @@ pub fn decrypt(algorithm: Algorithm, key_value: Vec<u8>, data: Vec<u8>) -> Resul
             }
         }
         Algorithm::AesCbc(iv) => {
-            match Aes128CbcDec::new(key_value.as_slice().into(), iv.as_slice().into())
+            match Aes256CbcDec::new(key_value.as_slice().into(), iv.as_slice().into())
                 .decrypt_padded_vec_mut::<Pkcs7>(&data)
             {
                 Ok(result) => Ok(result),
