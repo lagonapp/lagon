@@ -501,10 +501,10 @@ async fn crypto_derive_key() {
 
     const derivedKey = await crypto.subtle.deriveKey(
         {
-        name: 'PBKDF2',
-        salt,
-        iterations: 1000,
-        hash: 'SHA-256',
+            name: 'PBKDF2',
+            salt,
+            iterations: 1000,
+            hash: 'SHA-256',
         },
         key,
         { name: 'HMAC', hash: 'SHA-256' },

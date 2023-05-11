@@ -11,7 +11,7 @@ interface CryptoKey {
 
   const checkDeriveAlgorithmType = (algorithm: EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params) => {
     if (typeof algorithm !== 'object') {
-      throw TypeError('Algorithm must is EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params');
+      throw TypeError('Algorithm must be EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params');
     }
     algorithm.name = algorithm.name?.toUpperCase();
     switch (algorithm.name) {
