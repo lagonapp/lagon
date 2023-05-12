@@ -16,10 +16,10 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
     match algorithm {
         DeriveAlgorithm::ECDH(ref named_curve, public) => match named_curve {
             CryptoNamedCurve::P256 => {
-                let secret_key = p256::SecretKey::from_be_bytes(&key_value)
+                let secret_key = p256::SecretKey::from_slice(&key_value)
                     .map_err(|_| anyhow!("Unexpected error decoding private key"))?;
 
-                let public_key = p256::SecretKey::from_be_bytes(&public)
+                let public_key = p256::SecretKey::from_slice(&public)
                     .map_err(|_| anyhow!("Unexpected error decoding public key"))?
                     .public_key();
 
