@@ -1,5 +1,4 @@
 import Editor, { useMonaco } from '@monaco-editor/react';
-import useTheme from 'lib/hooks/useTheme';
 import { useEffect } from 'react';
 
 type PlaygroundProps = {
@@ -41,7 +40,7 @@ const Playground = ({ defaultValue, width, height }: PlaygroundProps) => {
       });
 
       monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-        lib: ['es2015', 'dom'],
+        lib: ['esnext', 'dom', 'dom.iterable'],
         allowNonTsExtensions: true,
       });
     }

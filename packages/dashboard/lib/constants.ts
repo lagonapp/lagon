@@ -27,7 +27,7 @@ export const REGIONS = {
   'hillsboro-us-west': 'Hillsboro (us-west)',
   'san-francisco-us-west': 'San Francisco (us-west)',
   'beauharnois-ca-east': 'Beauharnois (ca-east)',
-  'london-eu-west': 'Londo (eu-west)',
+  'london-eu-west': 'London (eu-west)',
   'paris-eu-west': 'Paris (eu-west)',
   'nuremberg-eu-central': 'Nuremberg (eu-central)',
   'helsinki-eu-north': 'Helsinki (eu-north)',
