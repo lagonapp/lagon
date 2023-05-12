@@ -1,10 +1,10 @@
 use lagon_runtime_crypto::methods::random_values;
-use lagon_runtime_v8_utils::{v8_exception, v8_uint8array};
+use lagon_runtime_v8_utils::{v8_exception, v8_integer};
 
 pub fn random_values_binding(
     scope: &mut v8::HandleScope,
     args: v8::FunctionCallbackArguments,
-    mut retval: v8::ReturnValue,
+    mut _retval: v8::ReturnValue,
 ) {
     let value = args.get(0);
 
@@ -19,7 +19,9 @@ pub fn random_values_binding(
     chunk.copy_contents(&mut buf);
 
     let buf = random_values(buf);
-    let result = v8_uint8array(scope, buf);
 
-    retval.set(result.into());
+    for (i, byte) in buf.iter().enumerate() {
+        let num = v8_integer(scope, *byte as i32);
+        chunk.set_index(scope, i as u32, num.into());
+    }
 }

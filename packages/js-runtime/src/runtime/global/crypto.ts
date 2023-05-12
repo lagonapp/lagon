@@ -4,7 +4,11 @@ interface CryptoKey {
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 (globalThis => {
-  const getRandomValues = <T extends ArrayBufferView | null>(array: T): T => LagonSync.randomValues(array);
+  const getRandomValues = <T extends ArrayBufferView | null>(array: T): T => {
+    LagonSync.randomValues(array);
+    return array;
+  };
+
   const randomUUID = () => LagonSync.uuid();
 
   const SYMMETRIC_ALGORITHMS = ['HMAC', 'AES-CBC', 'AES-CTR', 'AES-GCM', 'AES-KW'];
