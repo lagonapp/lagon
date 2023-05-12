@@ -29,7 +29,7 @@ async fn crypto_get_random_values() {
         "export function handler() {
     const typedArray = new Uint8Array([0, 8, 2]);
     const result = crypto.getRandomValues(typedArray);
-    return new Response(`${result == typedArray} ${typedArray.length} ${result.length}`);
+    return new Response(`${result == typedArray} ${typedArray.length} ${result.length} ${typedArray.toString() === '0,8,2'} ${result.toString() === '0,8,2'}`);
 }"
         .into(),
     ));
@@ -37,7 +37,26 @@ async fn crypto_get_random_values() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
-        Response::from("false 3 3")
+        Response::from("true 3 3 false false")
+    );
+}
+
+#[tokio::test]
+async fn crypto_get_random_values_update_in_place() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
+    const typedArray = new Uint8Array([0, 8, 2]);
+    crypto.getRandomValues(typedArray);
+    return new Response(`${typedArray.length} ${typedArray.toString() === '0,8,2'}`);
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("3 false")
     );
 }
 

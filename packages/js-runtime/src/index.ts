@@ -56,7 +56,7 @@ declare global {
     log: (level: string, message: string) => void;
     pullStream: (id: number, done: boolean, chunk?: Uint8Array) => void;
     uuid: () => `${string}-${string}-${string}-${string}-${string}`;
-    randomValues: <T extends ArrayBufferView | null>(array: T) => T;
+    randomValues: <T extends ArrayBufferView | null>(array: T) => void;
     getKeyValue: () => ArrayBuffer;
     queueMicrotask: (callback: () => void) => void;
   };
