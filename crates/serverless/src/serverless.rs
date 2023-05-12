@@ -42,27 +42,58 @@ use tokio::{runtime::Handle, sync::Mutex};
 
 pub type Workers = Arc<DashMap<String, flume::Sender<IsolateEvent>>>;
 
-fn handle_error(
+async fn handle_error(
     result: RunResult,
-    deployment_id: &String,
+    function_id: String,
+    deployment_id: String,
     request_id: &String,
     labels: &[(&'static str, String); 3],
+    inserters: Arc<Mutex<(Inserter<RequestRow>, Inserter<LogRow>)>>,
 ) {
-    match result {
+    let (level, message) = match result {
         RunResult::Timeout => {
             increment_counter!("lagon_isolate_timeouts", labels);
-            warn!(deployment = deployment_id, request = request_id; "Function execution timed out")
+
+            let message = "Function execution timed out";
+            warn!(deployment = deployment_id, function = function_id, request = request_id; "{}", message);
+
+            ("warn", message.into())
         }
         RunResult::MemoryLimit => {
             increment_counter!("lagon_isolate_memory_limits", labels);
-            warn!(deployment = deployment_id, request = request_id; "Function execution memory limit reached")
+
+            let message = "Function execution memory limit reached";
+            warn!(deployment = deployment_id, function = function_id, request = request_id; "{}", message);
+
+            ("warn", message.into())
         }
         RunResult::Error(error) => {
             increment_counter!("lagon_isolate_errors", labels);
-            error!(deployment = deployment_id, request = request_id; "Function execution error: {}", error);
+
+            let message = format!("Function execution error: {}", error);
+            error!(deployment = deployment_id, function = function_id, request = request_id; "{}", message);
+
+            ("error", message)
         }
-        _ => {}
+        _ => ("warn", "Unknown result".into()),
     };
+
+    if let Err(error) = inserters
+        .lock()
+        .await
+        .1
+        .write(&LogRow {
+            function_id,
+            deployment_id,
+            level: level.to_string(),
+            message,
+            region: REGION.clone(),
+            timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
+        })
+        .await
+    {
+        error!("Error while writing log: {}", error);
+    }
 }
 
 async fn handle_request(
@@ -294,16 +325,35 @@ async fn handle_request(
                         RunResult::Error(
                             "The stream was done before sending a response/data".into(),
                         ),
-                        &deployment_id,
+                        function_id,
+                        deployment_id,
                         &request_id,
                         &labels,
-                    );
+                        inserters,
+                    )
+                    .await;
                 }
                 ResponseEvent::UnexpectedStreamResult(result) => {
-                    handle_error(result, &deployment_id, &request_id, &labels);
+                    handle_error(
+                        result,
+                        function_id,
+                        deployment_id,
+                        &request_id,
+                        &labels,
+                        inserters,
+                    )
+                    .await;
                 }
                 ResponseEvent::LimitsReached(result) | ResponseEvent::Error(result) => {
-                    handle_error(result, &deployment_id, &request_id, &labels);
+                    handle_error(
+                        result,
+                        function_id,
+                        deployment_id,
+                        &request_id,
+                        &labels,
+                        inserters,
+                    )
+                    .await;
                 }
             }
 
