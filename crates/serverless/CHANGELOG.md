@@ -1,5 +1,17 @@
 # @lagon/serverless
 
+## 0.1.31
+
+### Patch Changes
+
+- [#839](https://github.com/lagonapp/lagon/pull/839) [`52b170a`](https://github.com/lagonapp/lagon/commit/52b170a993e43da1bf465d2e5c7dd848c9eb1168) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add SubtleCrypto#deriveBits
+
+* [#851](https://github.com/lagonapp/lagon/pull/851) [`66b1fa5`](https://github.com/lagonapp/lagon/commit/66b1fa59992ac5fba83f6a0bdec49a6621bacc2c) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add SubtleCrypto#deriveKey
+
+- [#853](https://github.com/lagonapp/lagon/pull/853) [`7d27a6a`](https://github.com/lagonapp/lagon/commit/7d27a6a87829bc8ddf59caa9e57d2cbab8597da3) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Ingest results error to the logs
+
+* [#848](https://github.com/lagonapp/lagon/pull/848) [`cd214f2`](https://github.com/lagonapp/lagon/commit/cd214f2f20aa9bc32f96c0bc7841ac308650d3b7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support AES-CBC for `SubtleCrypto#encrypt` & `SubtleCrypto#decrypt`
+
 ## 0.1.30
 
 ### Patch Changes

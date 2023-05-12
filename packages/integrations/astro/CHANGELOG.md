@@ -1,5 +1,11 @@
 # @lagon/astro
 
+## 0.3.0
+
+### Minor Changes
+
+- [#845](https://github.com/lagonapp/lagon/pull/845) [`56cb476`](https://github.com/lagonapp/lagon/commit/56cb476e3d5edf32499ac20bf36c77c9fc2cb4e0) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Write Lagon config if not present when building
+
 ## 0.2.3
 
 ### Patch Changes

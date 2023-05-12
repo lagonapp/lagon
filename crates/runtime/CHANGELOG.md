@@ -1,5 +1,15 @@
 # @lagon/runtime
 
+## 0.3.12
+
+### Patch Changes
+
+- [#839](https://github.com/lagonapp/lagon/pull/839) [`52b170a`](https://github.com/lagonapp/lagon/commit/52b170a993e43da1bf465d2e5c7dd848c9eb1168) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add SubtleCrypto#deriveBits
+
+* [#851](https://github.com/lagonapp/lagon/pull/851) [`66b1fa5`](https://github.com/lagonapp/lagon/commit/66b1fa59992ac5fba83f6a0bdec49a6621bacc2c) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add SubtleCrypto#deriveKey
+
+- [#848](https://github.com/lagonapp/lagon/pull/848) [`cd214f2`](https://github.com/lagonapp/lagon/commit/cd214f2f20aa9bc32f96c0bc7841ac308650d3b7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support AES-CBC for `SubtleCrypto#encrypt` & `SubtleCrypto#decrypt`
+
 ## 0.3.11
 
 ### Patch Changes

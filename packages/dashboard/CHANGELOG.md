@@ -1,5 +1,23 @@
 # @lagon/dashboard
 
+## 0.3.7
+
+### Patch Changes
+
+- [#853](https://github.com/lagonapp/lagon/pull/853) [`7d27a6a`](https://github.com/lagonapp/lagon/commit/7d27a6a87829bc8ddf59caa9e57d2cbab8597da3) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix "Londo" -> "London" typo
+
+* [#836](https://github.com/lagonapp/lagon/pull/836) [`76f8260`](https://github.com/lagonapp/lagon/commit/76f8260156ee23aa64b086a2755f9c7f0f4b3d68) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix page title on functions overview
+
+- [#853](https://github.com/lagonapp/lagon/pull/853) [`7d27a6a`](https://github.com/lagonapp/lagon/commit/7d27a6a87829bc8ddf59caa9e57d2cbab8597da3) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Set playground TS to ESNext & add dom.iterable
+
+* [#844](https://github.com/lagonapp/lagon/pull/844) [`2433478`](https://github.com/lagonapp/lagon/commit/2433478a6c6b429035ef3cc27aa91013ed116fc1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add an external icon next to "Documentation" in the header
+
+- [#844](https://github.com/lagonapp/lagon/pull/844) [`2433478`](https://github.com/lagonapp/lagon/commit/2433478a6c6b429035ef3cc27aa91013ed116fc1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Stop pre-loading functions on hover
+
+* [#847](https://github.com/lagonapp/lagon/pull/847) [`54a241c`](https://github.com/lagonapp/lagon/commit/54a241c2526f7f0727b8022e635198afe94b636a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix environment variables length
+
+- [#836](https://github.com/lagonapp/lagon/pull/836) [`76f8260`](https://github.com/lagonapp/lagon/commit/76f8260156ee23aa64b086a2755f9c7f0f4b3d68) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve environment variables with support for copy/pasting a .env file
+
 ## 0.3.6
 
 ### Patch Changes
