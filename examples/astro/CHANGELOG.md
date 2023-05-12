@@ -1,5 +1,12 @@
 # @lagon/example-astro
 
+## 0.1.4
+
+### Patch Changes
+
+- Updated dependencies [[`56cb476`](https://github.com/lagonapp/lagon/commit/56cb476e3d5edf32499ac20bf36c77c9fc2cb4e0)]:
+  - @lagon/astro@0.3.0
+
 ## 0.1.3
 
 ### Patch Changes

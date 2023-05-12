@@ -1,5 +1,23 @@
 # @lagon/cli
 
+## 0.7.0
+
+### Minor Changes
+
+- [`9eada33`](https://github.com/lagonapp/lagon/commit/9eada33e02ae6e4b912354e2da094d65d62d001a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Introduce a brand new design
+
+### Patch Changes
+
+- [#839](https://github.com/lagonapp/lagon/pull/839) [`52b170a`](https://github.com/lagonapp/lagon/commit/52b170a993e43da1bf465d2e5c7dd848c9eb1168) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add SubtleCrypto#deriveBits
+
+* [`9eada33`](https://github.com/lagonapp/lagon/commit/9eada33e02ae6e4b912354e2da094d65d62d001a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Pre-select confirmation inputs
+
+- [#851](https://github.com/lagonapp/lagon/pull/851) [`66b1fa5`](https://github.com/lagonapp/lagon/commit/66b1fa59992ac5fba83f6a0bdec49a6621bacc2c) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add SubtleCrypto#deriveKey
+
+* [#848](https://github.com/lagonapp/lagon/pull/848) [`cd214f2`](https://github.com/lagonapp/lagon/commit/cd214f2f20aa9bc32f96c0bc7841ac308650d3b7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support AES-CBC for `SubtleCrypto#encrypt` & `SubtleCrypto#decrypt`
+
+- [`9eada33`](https://github.com/lagonapp/lagon/commit/9eada33e02ae6e4b912354e2da094d65d62d001a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve UX by showing file errors instead of exiting immediately
+
 ## 0.6.1
 
 ### Patch Changes
