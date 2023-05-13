@@ -1,10 +1,14 @@
 interface CryptoKey {
-  readonly keyValue: ArrayBuffer;
+  keyValue: ArrayBuffer;
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 (globalThis => {
-  const getRandomValues = <T extends ArrayBufferView | null>(array: T): T => LagonSync.randomValues(array);
+  const getRandomValues = <T extends ArrayBufferView | null>(array: T): T => {
+    LagonSync.randomValues(array);
+    return array;
+  };
+
   const randomUUID = () => LagonSync.uuid();
 
   const SYMMETRIC_ALGORITHMS = ['HMAC', 'AES-CBC', 'AES-CTR', 'AES-GCM', 'AES-KW'];
@@ -128,7 +132,7 @@ interface CryptoKey {
     readonly usages: KeyUsage[];
 
     // Store the randomly generate key value here
-    readonly keyValue: ArrayBuffer;
+    keyValue: ArrayBuffer;
 
     // Trick to make TypeScript happy, CryptoKey constructor is normally empty
     // but we need to construct it at some point.
@@ -263,7 +267,14 @@ interface CryptoKey {
       keyUsages: ReadonlyArray<KeyUsage> | Iterable<KeyUsage>,
     ): Promise<CryptoKey> {
       // @ts-expect-error CryptoKey constructor is empty, but we know our implementation is not
-      return new CryptoKey(algorithm, extractable, 'secret', keyUsages);
+      const cryptoKey = new CryptoKey(algorithm, extractable, 'secret', keyUsages);
+
+      if (format === 'raw') {
+        // @ts-expect-error wrong format
+        cryptoKey.keyValue = keyData;
+      }
+
+      return cryptoKey;
     }
 
     async sign(
