@@ -12,6 +12,7 @@ pub mod methods;
 pub type HmacSha256 = Hmac<Sha256>;
 pub type Aes256Gcm = AesGcm<Aes256, U16>;
 
+#[derive(Debug)]
 pub enum Sha {
     Sha1,
     Sha256,
@@ -19,17 +20,23 @@ pub enum Sha {
     Sha512,
 }
 
+#[derive(Debug)]
 pub enum Algorithm {
     Hmac,
     AesGcm(Vec<u8>),
     AesCbc(Vec<u8>),
+    RsaPss(u32),
+    RsassaPkcs1v15,
+    Ecdsa(Sha),
 }
 
+#[derive(Debug)]
 pub enum CryptoNamedCurve {
     P256,
     P384,
 }
 
+#[derive(Debug)]
 pub enum DeriveAlgorithm {
     ECDH(CryptoNamedCurve, Vec<u8>),
     /// HKDF(hash, salt, info)
@@ -129,6 +136,68 @@ pub fn get_named_curve(curve: &str) -> Result<CryptoNamedCurve> {
         _ => Err(anyhow!("named_curve not found")),
     }
 }
+pub fn get_sha_hash_from_v8_obj(
+    scope: &mut v8::HandleScope,
+    algorithm: v8::Local<v8::Object>,
+) -> Result<Sha> {
+    let hash_key = v8_string(scope, "hash");
+    let hash = match algorithm.get(scope, hash_key.into()) {
+        Some(hash) => extract_v8_string(hash, scope)?,
+        None => return Err(anyhow!("hash not found")),
+    };
+
+    Ok(get_sha(&hash)?)
+}
+
+pub fn get_sign_verify_algorithm(
+    scope: &mut v8::HandleScope,
+    value: v8::Local<v8::Value>,
+) -> Result<Algorithm> {
+    if value.is_string() {
+        let algorithm_name = extract_v8_string(value, scope)?;
+        if algorithm_name == "RSASSA-PKCS1-v1_5" {
+            return Ok(Algorithm::RsassaPkcs1v15);
+        }
+
+        if algorithm_name == "HMAC" {
+            return Ok(Algorithm::Hmac);
+        }
+
+        return Err(anyhow!("Algorithm not supported"));
+    }
+    if let Some(algorithm) = value.to_object(scope) {
+        let name_key = v8_string(scope, "name");
+        let name = match algorithm.get(scope, name_key.into()) {
+            Some(name) => extract_v8_string(name, scope)?,
+            None => return Err(anyhow!("Algorithm name not found")),
+        };
+
+        if name == "RSASSA-PKCS1-v1_5" {
+            return Ok(Algorithm::RsassaPkcs1v15);
+        }
+
+        if name == "HMAC" {
+            return Ok(Algorithm::Hmac);
+        }
+
+        if name == "RSA-PSS" {
+            let salt_length_key = v8_string(scope, "saltLength");
+            let salt_length = match algorithm.get(scope, salt_length_key.into()) {
+                Some(salt_length) => extract_v8_uint32(scope, salt_length)?,
+                None => return Err(anyhow!("RSA-PSS saltLength not found")),
+            };
+
+            return Ok(Algorithm::RsaPss(salt_length));
+        }
+
+        if name == "ECDSA" {
+            let sha = get_sha_hash_from_v8_obj(scope, algorithm)?;
+
+            return Ok(Algorithm::Ecdsa(sha));
+        }
+    }
+    Err(anyhow!("Algorithm not supported"))
+}
 
 pub fn get_derive_algorithm(
     scope: &mut v8::HandleScope,
@@ -145,14 +214,10 @@ pub fn get_derive_algorithm(
             let curve_key = v8_string(scope, "namedCurve").into();
             let curve = match algorithm.get(scope, curve_key) {
                 Some(lv) => {
-                    if lv.is_null_or_undefined() {
-                        CryptoNamedCurve::P256
-                    } else {
-                        let curve = extract_v8_string(lv, scope)?;
-                        get_named_curve(&curve)?
-                    }
+                    let curve = extract_v8_string(lv, scope)?;
+                    get_named_curve(&curve)?
                 }
-                None => CryptoNamedCurve::P256,
+                None => return Err(anyhow!("ECDH namedCurve must be one of: P-256 or P-384")),
             };
 
             let public_key = v8_string(scope, "public").into();

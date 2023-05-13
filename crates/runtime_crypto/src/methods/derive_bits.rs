@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use p256::pkcs8::DecodePrivateKey;
 use ring::{hkdf, pbkdf2};
 use std::num::NonZeroU32;
 
@@ -16,10 +17,10 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
     match algorithm {
         DeriveAlgorithm::ECDH(ref named_curve, public) => match named_curve {
             CryptoNamedCurve::P256 => {
-                let secret_key = p256::SecretKey::from_slice(&key_value)
+                let secret_key = p256::SecretKey::from_pkcs8_der(&key_value)
                     .map_err(|_| anyhow!("Unexpected error decoding private key"))?;
 
-                let public_key = p256::SecretKey::from_slice(&public)
+                let public_key = p256::SecretKey::from_pkcs8_der(&public)
                     .map_err(|_| anyhow!("Unexpected error decoding public key"))?
                     .public_key();
 
@@ -30,7 +31,21 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
 
                 Ok(shared_secret.raw_secret_bytes().to_vec())
             }
-            _ => Err(anyhow!("NamedCurve not supported")),
+            CryptoNamedCurve::P384 => {
+                let secret_key = p384::SecretKey::from_pkcs8_der(&key_value)
+                    .map_err(|_| anyhow!("Unexpected error decoding private key"))?;
+
+                let public_key = p384::SecretKey::from_pkcs8_der(&public)
+                    .map_err(|_| anyhow!("Unexpected error decoding public key"))?
+                    .public_key();
+
+                let shared_secret = p384::elliptic_curve::ecdh::diffie_hellman(
+                    secret_key.to_nonzero_scalar(),
+                    public_key.as_affine(),
+                );
+
+                Ok(shared_secret.raw_secret_bytes().to_vec())
+            }
         },
         DeriveAlgorithm::PBKDF2(ref hash, ref salt, ref iterations) => {
             let hash_algorithm = match hash {

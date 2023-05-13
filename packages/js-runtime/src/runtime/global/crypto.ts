@@ -132,13 +132,19 @@ interface CryptoKey {
 
     // Trick to make TypeScript happy, CryptoKey constructor is normally empty
     // but we need to construct it at some point.
-    constructor(algorithm?: KeyAlgorithm, extractable?: boolean, type?: KeyType, usages?: KeyUsage[]) {
+    constructor(
+      algorithm?: KeyAlgorithm,
+      extractable?: boolean,
+      type?: KeyType,
+      usages?: KeyUsage[],
+      keyValue?: ArrayBuffer,
+    ) {
       this.algorithm = algorithm!;
       this.extractable = extractable!;
       this.type = type!;
       this.usages = usages!;
 
-      this.keyValue = LagonSync.getKeyValue();
+      this.keyValue = keyValue ?? LagonSync.getKeyValue();
     }
   };
 
@@ -203,38 +209,34 @@ interface CryptoKey {
       return key.keyValue;
     }
 
-    async generateKey(
+    generateKey(
       algorithm: RsaHashedKeyGenParams | EcKeyGenParams,
       extractable: boolean,
       keyUsages: ReadonlyArray<KeyUsage>,
     ): Promise<CryptoKeyPair>;
-    async generateKey(
+    generateKey(
       algorithm: AesKeyGenParams | HmacKeyGenParams | Pbkdf2Params,
       extractable: boolean,
       keyUsages: ReadonlyArray<KeyUsage>,
     ): Promise<CryptoKey>;
     async generateKey(
-      algorithm: AlgorithmIdentifier,
+      algorithm: RsaHashedKeyGenParams | EcKeyGenParams | HmacKeyGenParams | AesKeyGenParams,
       extractable: boolean,
       keyUsages: Iterable<KeyUsage>,
     ): Promise<CryptoKeyPair | CryptoKey> {
-      let isSymmetric;
+      const isSymmetric = SYMMETRIC_ALGORITHMS.includes(algorithm.name);
 
-      if (typeof algorithm === 'string') {
-        isSymmetric = SYMMETRIC_ALGORITHMS.includes(algorithm);
-      } else {
-        isSymmetric = SYMMETRIC_ALGORITHMS.includes(algorithm.name);
-      }
+      const arrbuf = await LagonAsync.generateKey(algorithm);
 
       if (isSymmetric) {
         // @ts-expect-error CryptoKey constructor is empty, but we know our implementation is not
-        return new CryptoKey(algorithm, extractable, 'secret', keyUsages);
+        return new CryptoKey(algorithm, extractable, 'secret', keyUsages, arrbuf);
       } else {
         return {
           // @ts-expect-error CryptoKey constructor is empty, but we know our implementation is not
-          privateKey: new CryptoKey(algorithm, extractable, 'private', keyUsages),
+          privateKey: new CryptoKey(algorithm, extractable, 'private', keyUsages, arrbuf),
           // @ts-expect-error CryptoKey constructor is empty, but we know our implementation is not
-          publicKey: new CryptoKey(algorithm, extractable, 'public', keyUsages),
+          publicKey: new CryptoKey(algorithm, extractable, 'public', keyUsages, arrbuf),
         };
       }
     }

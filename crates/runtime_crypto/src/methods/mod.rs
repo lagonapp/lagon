@@ -2,6 +2,7 @@ mod decrypt;
 mod derive_bits;
 mod digest;
 mod encrypt;
+pub mod generate_key;
 mod get_key;
 mod random_values;
 mod sign;
