@@ -1,6 +1,6 @@
 use anyhow::Result;
 use lagon_runtime_crypto::{
-    extract_cryptokey_key_value, get_derive_algorithm, methods::derive_bits, DeriveAlgorithm,
+    extract_cryptokey_key_value, extract_derive_algorithm, methods::derive_bits, DeriveAlgorithm,
 };
 use lagon_runtime_v8_utils::extract_v8_uint32;
 
@@ -12,7 +12,7 @@ pub fn derive_bits_init(
     scope: &mut v8::HandleScope,
     args: v8::FunctionCallbackArguments,
 ) -> Result<Arg> {
-    let algorithm = get_derive_algorithm(scope, args.get(0))?;
+    let algorithm = extract_derive_algorithm(scope, args.get(0))?;
     let key_value = extract_cryptokey_key_value(scope, args.get(1))?;
     let length = extract_v8_uint32(scope, args.get(2))?;
 
