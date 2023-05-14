@@ -25,6 +25,7 @@ pub enum Algorithm {
     Hmac,
     AesGcm(Vec<u8>),
     AesCbc(Vec<u8>),
+    AesCtr(Vec<u8>, u32),
     RsaPss(u32),
     RsassaPkcs1v15,
     Ecdsa(Sha),
@@ -105,6 +106,22 @@ pub fn extract_algorithm_object(
             };
 
             return Ok(Algorithm::AesCbc(iv));
+        }
+
+        if name == "AES-CTR" {
+            let counter_key = v8_string(scope, "counter");
+            let counter = match algorithm.get(scope, counter_key.into()) {
+                Some(counter) => extract_v8_uint8array(counter)?,
+                None => return Err(anyhow!("AES-CTR counter not found")),
+            };
+
+            let length_key = v8_string(scope, "length").into();
+            let length = match algorithm.get(scope, length_key) {
+                Some(lv) => extract_v8_uint32(scope, lv)?,
+                None => return Err(anyhow!("AES-CTR length not found")),
+            };
+
+            return Ok(Algorithm::AesCtr(counter, length));
         }
     }
 

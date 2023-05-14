@@ -404,6 +404,78 @@ async fn crypto_decrypt_aes_cbc() {
 }
 
 #[tokio::test]
+async fn crypto_encrypt_aes_ctr() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.generateKey(
+        {
+            name: 'AES-CTR',
+            length: 256,
+        },
+        true,
+        ['encrypt'],
+    );
+
+    const counter = crypto.getRandomValues(new Uint8Array(16));
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-CTR', counter, length: 32 },
+        key,
+        new TextEncoder().encode('hello, world'),
+    );
+
+    return new Response(`${ciphertext instanceof Uint8Array} ${ciphertext.length}`);
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true 12")
+    );
+}
+
+#[tokio::test]
+async fn crypto_decrypt_aes_ctr() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.generateKey(
+        {
+            name: 'AES-CTR',
+            length: 256,
+        },
+        true,
+        ['encrypt'],
+    );
+    const counter = crypto.getRandomValues(new Uint8Array(16));
+
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-CTR', counter, length: 32 },
+        key,
+        new TextEncoder().encode('hello, world'),
+    );
+
+    const text = await crypto.subtle.decrypt(
+        { name: 'AES-CTR', counter, length: 32 },
+        key,
+        ciphertext,
+    );
+
+    return new Response(new TextDecoder().decode(text));
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("hello, world")
+    );
+}
+
+#[tokio::test]
 async fn crypto_hkdf_derive_bits() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
@@ -478,8 +550,9 @@ async fn crypto_pbkdf2_derive_bits() {
 #[tokio::test]
 async fn crypto_ecdh_derive_bits() {
     utils::setup();
-    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
-        "export async function handler() {
+    let (send, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "export async function handler() {
     const keypair_1 = await crypto.subtle.generateKey(
         {
             name: 'ECDH',
@@ -517,8 +590,11 @@ async fn crypto_ecdh_derive_bits() {
     );
     return new Response(`${result_1.byteLength * 8} ${result_2.byteLength * 8}`);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .tick_timeout(Duration::from_secs(5))
+        .total_timeout(Duration::from_secs(10)),
+    );
     send(Request::default());
 
     assert_eq!(
