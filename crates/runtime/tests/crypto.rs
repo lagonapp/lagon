@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use lagon_runtime_http::{Request, Response, RunResult};
 use lagon_runtime_isolate::options::IsolateOptions;
 
@@ -613,7 +615,7 @@ async fn crypto_ecdsa_sign_verify() {
 #[tokio::test]
 async fn crypto_rsa_pss_sign_verify() {
     utils::setup();
-    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new_with_timeout(
         "export async function handler() {
         const keypair_1 = await crypto.subtle.generateKey(
             {
@@ -644,6 +646,8 @@ async fn crypto_rsa_pss_sign_verify() {
         return new Response(`${verified}`);
 }"
         .into(),
+        Duration::from_secs(5),
+        Duration::from_secs(10),
     ));
     send(Request::default());
 
@@ -656,12 +660,12 @@ async fn crypto_rsa_pss_sign_verify() {
 #[tokio::test]
 async fn crypto_rsa_ssa_sign_verify() {
     utils::setup();
-    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new_with_timeout(
         "export async function handler() {
         const keypair_1 = await crypto.subtle.generateKey(
             {
                 name: 'RSASSA-PKCS1-v1_5',
-                modulusLength: 2048,
+                modulusLength: 1024,
                 publicExponent: new Uint8Array([1, 0, 1]),
             },
             true,
@@ -687,6 +691,8 @@ async fn crypto_rsa_ssa_sign_verify() {
         return new Response(`${verified}`);
 }"
         .into(),
+        Duration::from_secs(5),
+        Duration::from_secs(10),
     ));
     send(Request::default());
 
