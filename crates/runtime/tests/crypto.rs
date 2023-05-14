@@ -398,6 +398,47 @@ async fn crypto_decrypt_aes_cbc() {
 }
 
 #[tokio::test]
+async fn crypto_decrypt_aes_ctr() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode('secret'),
+        { name: 'AES-CTR' },
+        false,
+        ['sign'],
+    );
+try{
+    const counter = crypto.getRandomValues(new Uint8Array(32));
+
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-CTR', counter, length: 32 },
+        key,
+        new TextEncoder().encode('hello, world'),
+    );
+
+    const text = await crypto.subtle.decrypt(
+        { name: 'AES-CTR', counter, length: 32 },
+        key,
+        ciphertext,
+    );
+
+    return new Response(new TextDecoder().decode(text));}catch(e){
+        return new Response(`${e}`)
+    }
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("hello, world")
+    );
+}
+
+#[tokio::test]
 async fn crypto_hkdf_derive_bits() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(

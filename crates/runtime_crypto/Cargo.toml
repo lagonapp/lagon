@@ -19,3 +19,4 @@ cbc = { version = "0.1.2", features = ["std"] }
 ring = { version = "0.16.20", features = ["std"] }
 p256 = { version = "0.13.2", features = ["ecdh"] }
 p384 = "0.13.0"
+ctr = "0.9.1"
