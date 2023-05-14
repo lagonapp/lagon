@@ -48,7 +48,7 @@ impl RunResult {
             return error;
         }
 
-        panic!("RunResult is not an Error");
+        panic!("RunResult is not an Error: {:?}", self);
     }
 
     pub fn as_response(self) -> Response {
@@ -56,7 +56,7 @@ impl RunResult {
             return response;
         }
 
-        panic!("RunResult is not a Response");
+        panic!("RunResult is not a Response: {:?}", self);
     }
 
     pub fn as_stream_done(self) -> bool {
