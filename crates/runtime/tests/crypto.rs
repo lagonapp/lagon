@@ -404,6 +404,39 @@ async fn crypto_decrypt_aes_cbc() {
 }
 
 #[tokio::test]
+async fn crypto_encrypt_aes_ctr() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+    const key = await crypto.subtle.generateKey(
+        {
+            name: 'AES-CTR',
+            length: 256,
+        },
+        true,
+        ['encrypt'],
+    );
+
+    const counter = crypto.getRandomValues(new Uint8Array(16));
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-CTR', counter, length: 32 },
+        key,
+        new TextEncoder().encode('hello, world'),
+    );
+
+    return new Response(`${ciphertext instanceof Uint8Array} ${ciphertext.length}`);
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true 12")
+    );
+}
+
+#[tokio::test]
 async fn crypto_decrypt_aes_ctr() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
