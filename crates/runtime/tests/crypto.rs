@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use lagon_runtime_http::{Request, Response, RunResult};
 use lagon_runtime_isolate::options::IsolateOptions;
 
@@ -517,7 +519,25 @@ async fn crypto_ecdh_derive_bits() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
-    const keypair = await crypto.subtle.generateKey(
+    const keypair_1 = await crypto.subtle.generateKey(
+        {
+            name: 'ECDH',
+            namedCurve: 'P-256',
+        },
+        true,
+        ['deriveBits', 'deriveKey'],
+    );
+    const result_1 = await crypto.subtle.deriveBits(
+        {
+            name: 'ECDH',
+            namedCurve: 'P-256',
+            public: keypair_1.publicKey,
+        },
+        keypair_1.privateKey,
+        256,
+    );
+
+    const keypair_2 = await crypto.subtle.generateKey(
         {
             name: 'ECDH',
             namedCurve: 'P-384',
@@ -525,15 +545,16 @@ async fn crypto_ecdh_derive_bits() {
         true,
         ['deriveBits', 'deriveKey'],
     );
-    const result = await crypto.subtle.deriveBits(
+    const result_2 = await crypto.subtle.deriveBits(
         {
             name: 'ECDH',
-            public: keypair.publicKey,
+            namedCurve: 'P-384',
+            public: keypair_2.publicKey,
         },
-        keypair.privateKey,
-        256,
+        keypair_2.privateKey,
+        384,
     );
-    return new Response(`${result.byteLength * 8}`);
+    return new Response(`${result_1.byteLength * 8} ${result_2.byteLength * 8}`);
 }"
         .into(),
     ));
@@ -541,7 +562,7 @@ async fn crypto_ecdh_derive_bits() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
-        Response::from("256")
+        Response::from("256 384")
     );
 }
 
@@ -560,7 +581,6 @@ async fn crypto_derive_key() {
     );
 
     const salt = await crypto.getRandomValues(new Uint8Array(16));
-
     const derivedKey = await crypto.subtle.deriveKey(
         {
             name: 'PBKDF2',
@@ -585,5 +605,135 @@ async fn crypto_derive_key() {
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
         Response::from("true true true true true")
+    );
+}
+
+#[tokio::test]
+async fn crypto_ecdsa_sign_verify() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+    const keypair_1 = await crypto.subtle.generateKey(
+        {
+            name: 'ECDSA',
+            namedCurve: 'P-384',
+        },
+        true,
+        ['sign', 'verified'],
+    );
+
+    const data = new Uint8Array([1, 2, 3]);
+    const signAlgorithm = { name: 'ECDSA', hash: 'SHA-384' };
+    const signature = await crypto.subtle.sign(
+        signAlgorithm,
+        keypair_1.privateKey,
+        data,
+    );
+
+    const verified = await crypto.subtle.verify(
+        signAlgorithm,
+        keypair_1.publicKey,
+        signature,
+        data,
+    );
+    return new Response(`${verified}`);
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true")
+    );
+}
+
+#[tokio::test]
+async fn crypto_rsa_pss_sign_verify() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "export async function handler() {
+    const keypair = await crypto.subtle.generateKey(
+        {
+            name: 'RSA-PSS',
+            modulusLength: 1024,
+            publicExponent: new Uint8Array([1, 0, 1]),
+        },
+        true,
+        ['sign', 'verify'],
+    );
+
+    const data = new Uint8Array([1, 2, 3]);
+    const signAlgorithm = { name: 'RSA-PSS', saltLength: 32 };
+    const signature = await crypto.subtle.sign(
+        signAlgorithm,
+        keypair.privateKey,
+        data,
+    );
+
+    const verified = await crypto.subtle.verify(
+        signAlgorithm,
+        keypair.publicKey,
+        signature,
+        data,
+    );
+    return new Response(`${verified}`);
+}"
+            .into(),
+        )
+        .tick_timeout(Duration::from_secs(5))
+        .total_timeout(Duration::from_secs(10)),
+    );
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true")
+    );
+}
+
+#[tokio::test]
+async fn crypto_rsa_ssa_sign_verify() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "export async function handler() {
+    const keypair = await crypto.subtle.generateKey(
+        {
+            name: 'RSASSA-PKCS1-v1_5',
+            modulusLength: 1024,
+            publicExponent: new Uint8Array([1, 0, 1]),
+        },
+        true,
+        ['sign', 'verify'],
+    );
+
+    const data = new Uint8Array([1, 2, 3]);
+    const signAlgorithm = { name: 'RSASSA-PKCS1-v1_5', saltLength: 32 };
+    const signature = await crypto.subtle.sign(
+        signAlgorithm,
+        keypair.privateKey,
+        data,
+    );
+
+    const verified = await crypto.subtle.verify(
+        signAlgorithm,
+        keypair.publicKey,
+        signature,
+        data,
+    );
+    return new Response(`${verified}`);
+}"
+            .into(),
+        )
+        .tick_timeout(Duration::from_secs(5))
+        .total_timeout(Duration::from_secs(10)),
+    );
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true")
     );
 }

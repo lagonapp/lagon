@@ -101,6 +101,9 @@ declare global {
       extractable: boolean,
       keyUsages: Iterable<KeyUsage>,
     ): Promise<CryptoKey>;
+    generateKey(
+      algorithm: RsaHashedKeyGenParams | EcKeyGenParams | HmacKeyGenParams | AesKeyGenParams,
+    ): Promise<ArrayBuffer>;
     sleep: (ms: number) => Promise<void>;
   };
   var __lagon__: {

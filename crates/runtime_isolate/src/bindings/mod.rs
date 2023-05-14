@@ -12,7 +12,9 @@ use queue_microtask::queue_microtask_binding;
 use sleep::{sleep_binding, sleep_init};
 
 use crate::{
-    bindings::crypto::{derive_bits_binding, derive_bits_init, digest_init},
+    bindings::crypto::{
+        derive_bits_binding, derive_bits_init, digest_init, generate_key_binding, generate_key_init,
+    },
     Isolate,
 };
 
@@ -156,6 +158,13 @@ pub fn bind<'a>(
             decrypt_binding
         );
         async_binding!(scope, lagon_object, "sleep", sleep_init, sleep_binding);
+        async_binding!(
+            scope,
+            lagon_object,
+            "generateKey",
+            generate_key_init,
+            generate_key_binding
+        );
 
         global.set(v8_string(scope, "LagonAsync").into(), lagon_object.into());
     }
