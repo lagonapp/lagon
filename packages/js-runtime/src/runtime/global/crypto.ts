@@ -1,5 +1,5 @@
 interface CryptoKey {
-  keyValue: ArrayBuffer;
+  readonly keyValue: ArrayBuffer;
 }
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -132,17 +132,23 @@ interface CryptoKey {
     readonly usages: KeyUsage[];
 
     // Store the randomly generate key value here
-    keyValue: ArrayBuffer;
+    readonly keyValue: ArrayBuffer;
 
     // Trick to make TypeScript happy, CryptoKey constructor is normally empty
     // but we need to construct it at some point.
-    constructor(algorithm?: KeyAlgorithm, extractable?: boolean, type?: KeyType, usages?: KeyUsage[]) {
+    constructor(
+      algorithm?: KeyAlgorithm,
+      extractable?: boolean,
+      type?: KeyType,
+      usages?: KeyUsage[],
+      keyValue?: ArrayBuffer,
+    ) {
       this.algorithm = algorithm!;
       this.extractable = extractable!;
       this.type = type!;
       this.usages = usages!;
 
-      this.keyValue = LagonSync.getKeyValue();
+      this.keyValue = keyValue ?? LagonSync.getKeyValue();
     }
   };
 
@@ -264,15 +270,18 @@ interface CryptoKey {
       extractable: boolean,
       keyUsages: ReadonlyArray<KeyUsage> | Iterable<KeyUsage>,
     ): Promise<CryptoKey> {
-      // @ts-expect-error CryptoKey constructor is empty, but we know our implementation is not
-      const cryptoKey = new CryptoKey(algorithm, extractable, 'secret', keyUsages);
-
-      if (format === 'raw') {
-        // @ts-expect-error wrong format
-        cryptoKey.keyValue = keyData;
+      if (['raw', 'pkcs8', 'spki'].includes(format)) {
+        if (!(keyData instanceof ArrayBuffer || keyData instanceof Uint8Array)) {
+          throw new TypeError('keyData must be a BufferSource when format is raw, pkcs8 or spki');
+        }
+      } else if (format === 'jwk') {
+        if (keyData instanceof ArrayBuffer || keyData instanceof Uint8Array) {
+          throw new TypeError('keyData must be a JsonWebKey object when format is jwk');
+        }
       }
 
-      return cryptoKey;
+      // @ts-expect-error CryptoKey constructor is empty, but we know our implementation is not
+      return new CryptoKey(algorithm, extractable, 'secret', keyUsages, keyData);
     }
 
     async sign(
