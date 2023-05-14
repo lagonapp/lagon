@@ -406,14 +406,15 @@ async fn crypto_decrypt_aes_ctr() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
-    const key = await crypto.subtle.importKey(
-        'raw',
-        new TextEncoder().encode('secret'),
-        { name: 'AES-CTR' },
-        false,
-        ['sign'],
+    const key = await crypto.subtle.generateKey(
+        {
+            name: 'AES-CTR',
+            length: 256,
+        },
+        true,
+        ['encrypt'],
     );
-    const counter = crypto.getRandomValues(new Uint8Array(32));
+    const counter = crypto.getRandomValues(new Uint8Array(16));
 
     const ciphertext = await crypto.subtle.encrypt(
         { name: 'AES-CTR', counter, length: 32 },
