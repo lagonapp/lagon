@@ -1,5 +1,9 @@
 ---
+'@lagon/cli': patch
 '@lagon/runtime': patch
+'@lagon/serverless': patch
+'@lagon/docs': patch
+'@lagon/js-runtime': patch
 ---
 
-feat: add AES-CTR for encrypt and decrypt
+Add AES-CTR to `SubtleCrypto#encrypt` & `SubtleCrypto#decrypt`
