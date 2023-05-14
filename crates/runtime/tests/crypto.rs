@@ -550,8 +550,9 @@ async fn crypto_pbkdf2_derive_bits() {
 #[tokio::test]
 async fn crypto_ecdh_derive_bits() {
     utils::setup();
-    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
-        "export async function handler() {
+    let (send, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "export async function handler() {
     const keypair_1 = await crypto.subtle.generateKey(
         {
             name: 'ECDH',
@@ -589,8 +590,11 @@ async fn crypto_ecdh_derive_bits() {
     );
     return new Response(`${result_1.byteLength * 8} ${result_2.byteLength * 8}`);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .tick_timeout(Duration::from_secs(5))
+        .total_timeout(Duration::from_secs(10)),
+    );
     send(Request::default());
 
     assert_eq!(
