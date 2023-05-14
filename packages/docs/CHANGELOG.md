@@ -1,5 +1,13 @@
 # @lagon/docs
 
+## 0.3.9
+
+### Patch Changes
+
+- [#863](https://github.com/lagonapp/lagon/pull/863) [`4e6968a`](https://github.com/lagonapp/lagon/commit/4e6968a3688f52530cb4aed09022fd5dc54c0a80) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add AES-CTR to `SubtleCrypto#encrypt` & `SubtleCrypto#decrypt`
+
+* [#861](https://github.com/lagonapp/lagon/pull/861) [`22f5cc1`](https://github.com/lagonapp/lagon/commit/22f5cc1eea6d65963060d289945dc956312a50b3) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add RSA-PSS, RSASSA-PKCS1-v1_5 & ECDSA to `SubtleCrypto#sign` & `SubtleCrypto#verify`
+
 ## 0.3.8
 
 ### Patch Changes
