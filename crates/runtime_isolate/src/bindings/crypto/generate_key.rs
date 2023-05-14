@@ -1,6 +1,6 @@
 use anyhow::Result;
-use lagon_runtime_crypto::methods::generate_key::{
-    generate_key, get_generate_key_algorithm, KeyGenAlgorithm,
+use lagon_runtime_crypto::{
+    extract_generate_key_algorithm, methods::generate_key, KeyGenAlgorithm,
 };
 
 use crate::bindings::{BindingResult, PromiseResult};
@@ -11,9 +11,7 @@ pub fn generate_key_init(
     scope: &mut v8::HandleScope,
     args: v8::FunctionCallbackArguments,
 ) -> Result<Arg> {
-    let algorithm = get_generate_key_algorithm(scope, args.get(0))?;
-
-    Ok(algorithm)
+    extract_generate_key_algorithm(scope, args.get(0))
 }
 
 pub async fn generate_key_binding(id: usize, arg: Arg) -> BindingResult {

@@ -17,13 +17,16 @@ pub fn sign(algorithm: Algorithm, key_value: Vec<u8>, data: Vec<u8>) -> Result<V
         Algorithm::Hmac => {
             let mut mac = HmacSha256::new_from_slice(&key_value)?;
             mac.update(&data);
+
             Ok(mac.finalize().into_bytes().to_vec())
         }
         Algorithm::RsassaPkcs1v15 => {
             let private_key = RsaPrivateKey::from_pkcs1_der(&key_value)?;
             let mut hasher = Sha256::new();
             hasher.update(&data);
+
             let hashed = hasher.finalize()[..].to_vec();
+
             Ok(private_key.sign(Pkcs1v15Sign::new::<Sha256>(), &hashed)?)
         }
         Algorithm::RsaPss(salt_length) => {
@@ -31,7 +34,9 @@ pub fn sign(algorithm: Algorithm, key_value: Vec<u8>, data: Vec<u8>) -> Result<V
             let mut rng = OsRng;
             let mut hasher = Sha256::new();
             hasher.update(&data);
+
             let hashed = hasher.finalize()[..].to_vec();
+
             Ok(private_key.sign_with_rng(
                 &mut rng,
                 Pss::new_with_salt::<Sha256>(salt_length as usize),

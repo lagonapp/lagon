@@ -6,4 +6,4 @@
 '@lagon/js-runtime': patch
 ---
 
-feat: fix generate_key and add Ecdsa sign verify
+Add RSA-PSS, RSASSA-PKCS1-v1_5 & ECDSA to `SubtleCrypto#sign` & `SubtleCrypto#verify`

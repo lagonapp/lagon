@@ -5,9 +5,9 @@ use std::num::NonZeroU32;
 
 use crate::{CryptoNamedCurve, DeriveAlgorithm, Sha};
 
-pub struct HkdfOutput<T>(pub T);
+struct HkdfOutput(usize);
 
-impl hkdf::KeyType for HkdfOutput<usize> {
+impl hkdf::KeyType for HkdfOutput {
     fn len(&self) -> usize {
         self.0
     }
@@ -15,7 +15,7 @@ impl hkdf::KeyType for HkdfOutput<usize> {
 
 pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) -> Result<Vec<u8>> {
     match algorithm {
-        DeriveAlgorithm::ECDH(ref named_curve, public) => match named_curve {
+        DeriveAlgorithm::ECDH { curve, public } => match curve {
             CryptoNamedCurve::P256 => {
                 let secret_key = p256::SecretKey::from_pkcs8_der(&key_value)
                     .map_err(|_| anyhow!("Unexpected error decoding private key"))?;
@@ -47,7 +47,11 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
                 Ok(shared_secret.raw_secret_bytes().to_vec())
             }
         },
-        DeriveAlgorithm::PBKDF2(ref hash, ref salt, ref iterations) => {
+        DeriveAlgorithm::PBKDF2 {
+            hash,
+            ref salt,
+            iterations,
+        } => {
             let hash_algorithm = match hash {
                 Sha::Sha1 => pbkdf2::PBKDF2_HMAC_SHA1,
                 Sha::Sha256 => pbkdf2::PBKDF2_HMAC_SHA256,
@@ -56,9 +60,8 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
             };
 
             let mut out = vec![0; (length / 8).try_into()?];
-
             let not_zero_iterations =
-                NonZeroU32::new(*iterations).ok_or_else(|| anyhow!("Iterations not zero"))?;
+                NonZeroU32::new(iterations).ok_or_else(|| anyhow!("Iterations not zero"))?;
 
             pbkdf2::derive(
                 hash_algorithm,
@@ -70,7 +73,11 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
 
             Ok(out)
         }
-        DeriveAlgorithm::HKDF(ref hash, ref salt, info) => {
+        DeriveAlgorithm::HKDF {
+            hash,
+            ref salt,
+            info,
+        } => {
             let hash_algorithm = match hash {
                 Sha::Sha1 => hkdf::HKDF_SHA1_FOR_LEGACY_USE_ONLY,
                 Sha::Sha256 => hkdf::HKDF_SHA256,
@@ -79,12 +86,10 @@ pub fn derive_bits(algorithm: DeriveAlgorithm, key_value: Vec<u8>, length: u32) 
             };
 
             let salt = hkdf::Salt::new(hash_algorithm, salt);
-
             let boxed_slice = info.into_boxed_slice();
             let info: &[&[u8]] = &[&*boxed_slice];
 
             let prk = salt.extract(&key_value);
-
             let out_length = (length / 8).try_into()?;
 
             let okm = prk

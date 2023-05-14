@@ -42,23 +42,6 @@ impl IsolateOptions {
         }
     }
 
-    pub fn new_with_timeout(code: String, tick_timeout: Duration, total_timeout: Duration) -> Self {
-        Self {
-            code,
-            environment_variables: None,
-            tick_timeout: tick_timeout,
-            total_timeout: total_timeout,
-            statistics_interval: Duration::from_secs(1),
-            memory: 128,
-            metadata: Rc::new(None),
-            on_drop: None,
-            on_statistics: None,
-            snapshot: false,
-            snapshot_blob: None,
-            log_sender: None,
-        }
-    }
-
     pub fn environment_variables(mut self, environment_variables: HashMap<String, String>) -> Self {
         self.environment_variables = Some(environment_variables);
         self
