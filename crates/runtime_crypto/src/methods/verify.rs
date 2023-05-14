@@ -1,8 +1,13 @@
 use anyhow::{anyhow, Result};
 use hmac::Mac;
 use ring::signature::{EcdsaKeyPair, KeyPair};
-use rsa::{pkcs1::DecodeRsaPrivateKey, rand_core::OsRng, PaddingScheme, PublicKey, RsaPrivateKey};
-use sha2::{Digest, Sha256};
+use rsa::{
+    pkcs1::DecodeRsaPrivateKey,
+    pkcs1v15::Pkcs1v15Sign,
+    pss::Pss,
+    sha2::{Digest, Sha256},
+    RsaPrivateKey,
+};
 
 use crate::{Algorithm, HmacSha256, Sha};
 
@@ -22,20 +27,23 @@ pub fn verify(
             let public_key = RsaPrivateKey::from_pkcs1_der(&key_value)?.to_public_key();
             let mut hasher = Sha256::new();
             hasher.update(&data);
-            let padding = PaddingScheme::PKCS1v15Sign {
-                hash: Some(rsa::hash::Hash::SHA2_256),
-            };
             let hashed = hasher.finalize()[..].to_vec();
-            Ok(public_key.verify(padding, &hashed, &signature).is_ok())
+            Ok(public_key
+                .verify(Pkcs1v15Sign::new::<Sha256>(), &hashed, &signature)
+                .is_ok())
         }
         Algorithm::RsaPss(salt_length) => {
             let public_key = RsaPrivateKey::from_pkcs1_der(&key_value)?.to_public_key();
-            let rng = OsRng;
             let mut hasher = Sha256::new();
             hasher.update(&data);
-            let padding = PaddingScheme::new_pss_with_salt::<Sha256, _>(rng, salt_length as usize);
             let hashed = hasher.finalize()[..].to_vec();
-            Ok(public_key.verify(padding, &hashed, &signature).is_ok())
+            Ok(public_key
+                .verify(
+                    Pss::new_with_salt::<Sha256>(salt_length as usize),
+                    &hashed,
+                    &signature,
+                )
+                .is_ok())
         }
         Algorithm::Ecdsa(sha) => match sha {
             Sha::Sha256 => {

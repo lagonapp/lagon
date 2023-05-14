@@ -615,7 +615,6 @@ async fn crypto_rsa_pss_sign_verify() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
-        // TODO: I suspect that the issue is caused by the Vec<u8> being too large in Rust, resulting in an error when converting it to a V8 ArrayBuffer. You can try to find a solution for this issue or consider using serde_v8's ZeroCopyBuf to modify this project. 
         const keypair_1 = await crypto.subtle.generateKey(
             {
                 name: 'RSA-PSS',
@@ -629,6 +628,49 @@ async fn crypto_rsa_pss_sign_verify() {
         const data = new Uint8Array([1, 2, 3]);
 
         const signAlgorithm = { name: 'RSA-PSS', saltLength: 32 };
+
+        const signature = await crypto.subtle.sign(
+            signAlgorithm,
+            keypair_1.privateKey,
+            data,
+        );
+
+        const verified = await crypto.subtle.verify(
+            signAlgorithm,
+            keypair_1.publicKey,
+            signature,
+            data,
+        );
+        return new Response(`${verified}`);
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("true")
+    );
+}
+
+#[tokio::test]
+async fn crypto_rsa_ssa_sign_verify() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export async function handler() {
+        const keypair_1 = await crypto.subtle.generateKey(
+            {
+                name: 'RSASSA-PKCS1-v1_5',
+                modulusLength: 2048,
+                publicExponent: new Uint8Array([1, 0, 1]),
+            },
+            true,
+            ['sign', 'verify'],
+        );
+  
+        const data = new Uint8Array([1, 2, 3]);
+
+        const signAlgorithm = { name: 'RSASSA-PKCS1-v1_5', saltLength: 32 };
 
         const signature = await crypto.subtle.sign(
             signAlgorithm,

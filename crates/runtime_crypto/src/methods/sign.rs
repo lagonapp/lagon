@@ -3,9 +3,12 @@ use hmac::Mac;
 use rand::rngs::OsRng;
 use ring::rand::SystemRandom;
 use ring::signature::EcdsaKeyPair;
-use rsa::RsaPrivateKey;
-use rsa::{pkcs1::DecodeRsaPrivateKey, PaddingScheme};
-use sha2::{Digest, Sha256};
+use rsa::{
+    pkcs1::DecodeRsaPrivateKey,
+    pss::Pss,
+    sha2::{Digest, Sha256},
+};
+use rsa::{Pkcs1v15Sign, RsaPrivateKey};
 
 use crate::{Algorithm, HmacSha256, Sha};
 
@@ -20,20 +23,20 @@ pub fn sign(algorithm: Algorithm, key_value: Vec<u8>, data: Vec<u8>) -> Result<V
             let private_key = RsaPrivateKey::from_pkcs1_der(&key_value)?;
             let mut hasher = Sha256::new();
             hasher.update(&data);
-            let padding = PaddingScheme::PKCS1v15Sign {
-                hash: Some(rsa::hash::Hash::SHA2_256),
-            };
             let hashed = hasher.finalize()[..].to_vec();
-            Ok(private_key.sign(padding, &hashed)?)
+            Ok(private_key.sign(Pkcs1v15Sign::new::<Sha256>(), &hashed)?)
         }
         Algorithm::RsaPss(salt_length) => {
             let private_key = RsaPrivateKey::from_pkcs1_der(&key_value)?;
-            let rng = OsRng;
+            let mut rng = OsRng;
             let mut hasher = Sha256::new();
             hasher.update(&data);
-            let padding = PaddingScheme::new_pss_with_salt::<Sha256, _>(rng, salt_length as usize);
             let hashed = hasher.finalize()[..].to_vec();
-            Ok(private_key.sign(padding, &hashed)?)
+            Ok(private_key.sign_with_rng(
+                &mut rng,
+                Pss::new_with_salt::<Sha256>(salt_length as usize),
+                &hashed,
+            )?)
         }
         Algorithm::Ecdsa(sha) => match sha {
             Sha::Sha256 => {
