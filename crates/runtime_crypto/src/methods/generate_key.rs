@@ -92,7 +92,7 @@ pub fn get_generate_key_algorithm(
                 None => None,
             };
 
-            Ok(KeyGenAlgorithm::Hmac { hash: sha, length });
+            return Ok(KeyGenAlgorithm::Hmac { hash: sha, length });
         }
 
         if name == "AES-CTR" || name == "AES-CBC" || name == "AES-GCM" || name == "AES-KW" {
@@ -108,7 +108,7 @@ pub fn get_generate_key_algorithm(
                 ));
             }
 
-            Ok(KeyGenAlgorithm::Aes { length });
+            return Ok(KeyGenAlgorithm::Aes { length });
         }
     }
     Err(anyhow!(
