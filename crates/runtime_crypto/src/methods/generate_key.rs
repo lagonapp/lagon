@@ -102,7 +102,7 @@ pub fn get_generate_key_algorithm(
                 None => return Err(anyhow!("Algorithm length not found")),
             };
 
-            if length != 128 || length != 192 || length != 256 {
+            if length != 128 && length != 192 && length != 256 {
                 return Err(anyhow!(
                     "Algorithm length must be one of: 128, 192, or 256."
                 ));
