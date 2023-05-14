@@ -102,7 +102,7 @@ async fn crypto_key_value() {
 
     assert_eq!(
         receiver.recv_async().await.unwrap().as_response(),
-        Response::from("object 32")
+        Response::from("object 6")
     );
 }
 
@@ -262,12 +262,13 @@ async fn crypto_encrypt_aes_gcm() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
-    const key = await crypto.subtle.importKey(
-        'raw',
-        new TextEncoder().encode('secret'),
-        { name: 'AES-GCM' },
-        false,
-        ['sign'],
+    const key = await crypto.subtle.generateKey(
+        {
+            name: 'AES-GCM',
+            length: 256,
+        },
+        true,
+        ['encrypt'],
     );
 
     const iv = crypto.getRandomValues(new Uint8Array(16));
@@ -294,12 +295,13 @@ async fn crypto_decrypt_aes_gcm() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
-    const key = await crypto.subtle.importKey(
-        'raw',
-        new TextEncoder().encode('secret'),
-        { name: 'AES-GCM' },
-        false,
-        ['sign'],
+    const key = await crypto.subtle.generateKey(
+        {
+            name: 'AES-GCM',
+            length: 256,
+        },
+        true,
+        ['encrypt'],
     );
 
     const iv = crypto.getRandomValues(new Uint8Array(16));
@@ -332,12 +334,13 @@ async fn crypto_encrypt_aes_cbc() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
-    const key = await crypto.subtle.importKey(
-        'raw',
-        new TextEncoder().encode('secret'),
-        { name: 'AES-CBC' },
-        false,
-        ['sign'],
+    const key = await crypto.subtle.generateKey(
+        {
+            name: 'AES-CBC',
+            length: 256,
+        },
+        true,
+        ['encrypt'],
     );
 
     const iv = crypto.getRandomValues(new Uint8Array(16));
@@ -364,12 +367,13 @@ async fn crypto_decrypt_aes_cbc() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
-    const key = await crypto.subtle.importKey(
-        'raw',
-        new TextEncoder().encode('secret'),
-        { name: 'AES-CBC' },
-        false,
-        ['sign'],
+    const key = await crypto.subtle.generateKey(
+        {
+            name: 'AES-CBC',
+            length: 256,
+        },
+        true,
+        ['encrypt'],
     );
 
     const iv = crypto.getRandomValues(new Uint8Array(16));
