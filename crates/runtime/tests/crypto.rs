@@ -413,7 +413,6 @@ async fn crypto_decrypt_aes_ctr() {
         false,
         ['sign'],
     );
-try{
     const counter = crypto.getRandomValues(new Uint8Array(32));
 
     const ciphertext = await crypto.subtle.encrypt(
@@ -428,9 +427,7 @@ try{
         ciphertext,
     );
 
-    return new Response(new TextDecoder().decode(text));}catch(e){
-        return new Response(`${e}`)
-    }
+    return new Response(new TextDecoder().decode(text));
 }"
         .into(),
     ));
