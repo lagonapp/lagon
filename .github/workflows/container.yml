@@ -3,7 +3,7 @@ name: Container
 on:
   push:
     branches:
-      - main
+      - ${{ github.event.repository.default_branch }}
     tags:
       - v*
   pull_request:
@@ -22,11 +22,13 @@ jobs:
           fetch-depth: 0
 
       - name: Build image
-        run: docker build --file docker/Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}" .
+        run: |
+          echo "event: ${{ github.event_name }}"
+          # docker build --file docker/Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}" .
 
       - name: Log in to registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
-        if: "github.ref_type == 'tag' || github.ref_name == '${{ github.event.repository.default_branch }}'"
+        if: "github.event_name == 'tag' || github.event_name == 'push'"
 
       - name: Push image (tag and latest)
         run: |
@@ -41,7 +43,7 @@ jobs:
           docker push $IMAGE_ID:latest
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
-        if: "github.ref_type == 'tag'"
+        if: "github.event_name == 'tag'"
 
       - name: Push image (next for default branch)
         run: |
@@ -51,4 +53,4 @@ jobs:
           echo IMAGE_ID=$IMAGE_ID
           docker tag $IMAGE_NAME $IMAGE_ID:next
           docker push $IMAGE_ID:next
-        if: "github.ref_name == '${{ github.event.repository.default_branch }}'"
+        if: "github.event_name == 'push'"
