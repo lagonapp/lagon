@@ -17,7 +17,7 @@ FROM chef AS builder
 COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 COPY . .
-COPY --from=js-runtime /app/dist/index.js /app/crates/js-runtime/dist
+COPY --from=js-runtime /app/dist/index.js /app/crates/runtime_isolate/runtime.js
 RUN cargo build --release --bin lagon-serverless
 
 FROM debian:bullseye-slim AS runtime
