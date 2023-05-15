@@ -101,7 +101,8 @@ impl Heartbeat {
 pub struct Isolate {
     options: IsolateOptions,
     isolate: Option<v8::OwnedIsolate>,
-    handler: Option<v8::Global<v8::Function>>,
+    master_handler: Option<v8::Global<v8::Function>>,
+    handler: Option<v8::Global<v8::Value>>,
     compilation_error: Option<String>,
     stream_receiver: flume::Receiver<(u32, StreamResult)>,
     termination_result: Arc<RwLock<Option<RunResult>>>,
@@ -200,6 +201,7 @@ impl Isolate {
         let mut this = Self {
             options,
             isolate: Some(isolate),
+            master_handler: None,
             handler: None,
             compilation_error: None,
             stream_receiver,
@@ -367,6 +369,13 @@ impl Isolate {
                 }
 
                 if !self.options.snapshot {
+                    let namespace = module.get_module_namespace().to_object(try_catch).unwrap();
+                    let handler_key = v8_string(try_catch, "handler");
+                    let handler = namespace.get(try_catch, handler_key.into()).unwrap();
+                    let handler = v8::Global::new(try_catch, handler);
+
+                    self.handler = Some(handler);
+
                     let global = global.open(try_catch);
                     let global = global.global(try_catch);
                     let handler_key = v8_string(try_catch, "masterHandler");
@@ -374,7 +383,7 @@ impl Isolate {
                     let handler = v8::Local::<v8::Function>::try_from(handler).unwrap();
                     let handler = v8::Global::new(try_catch, handler);
 
-                    self.handler = Some(handler);
+                    self.master_handler = Some(handler);
                 }
             }
             None => {
@@ -400,8 +409,11 @@ impl Isolate {
                 );
                 let try_catch = &mut v8::TryCatch::new(scope);
 
+                let master_handler = self.master_handler.as_ref().unwrap();
+                let master_handler = master_handler.open(try_catch);
+
                 let handler = self.handler.as_ref().unwrap();
-                let handler = handler.open(try_catch);
+                let handler = v8::Local::new(try_catch, handler);
 
                 let global = global.open(try_catch);
                 let global = global.global(try_catch);
@@ -422,7 +434,11 @@ impl Isolate {
                     },
                 );
 
-                match handler.call(try_catch, global.into(), &[id.into(), request.into()]) {
+                match master_handler.call(
+                    try_catch,
+                    global.into(),
+                    &[id.into(), handler, request.into()],
+                ) {
                     Some(response) => {
                         let promise = v8::Local::<v8::Promise>::try_from(response)
                             .expect("Handler did not return a promise");
