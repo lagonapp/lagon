@@ -1,5 +1,5 @@
 import Editor, { useMonaco } from '@monaco-editor/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 type PlaygroundProps = {
   defaultValue: string;
@@ -8,33 +8,32 @@ type PlaygroundProps = {
 };
 
 const Playground = ({ defaultValue, width, height }: PlaygroundProps) => {
+  const [theme, setTheme] = useState('vs-light');
   const monaco = useMonaco();
 
+  const updateTheme = (element = document?.documentElement) => {
+    const darkMode = element?.classList.contains('dark');
+    setTheme(darkMode ? 'vs-dark' : 'vs-light');
+  };
+
   useEffect(() => {
-    function setTheme(element = document.documentElement) {
-      const darkMode = element.classList.contains('dark');
-      monaco?.editor.setTheme(darkMode ? 'vs-dark' : 'vs-light');
-    }
+    updateTheme();
 
-    if (monaco) {
-      setTheme();
-
-      const observer = new MutationObserver(mutations => {
-        mutations.forEach(mutation => {
-          if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-            setTheme(mutation.target as HTMLElement);
-          }
-        });
+    const observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          updateTheme(mutation.target as HTMLElement);
+        }
       });
+    });
 
-      observer.observe(document.documentElement, {
-        attributes: true,
-      });
+    observer.observe(document.documentElement, {
+      attributes: true,
+    });
 
-      return () => {
-        observer.disconnect();
-      };
-    }
+    return () => {
+      observer.disconnect();
+    };
   }, [monaco]);
 
   useEffect(() => {
@@ -55,6 +54,7 @@ const Playground = ({ defaultValue, width, height }: PlaygroundProps) => {
     <Editor
       width={width}
       height={height}
+      theme={theme}
       options={{
         minimap: {
           enabled: false,
