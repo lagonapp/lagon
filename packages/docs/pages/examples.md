@@ -64,6 +64,14 @@ This example uses [Turso](https://turso.tech) to make SQLite queries on the edge
 
 This example uses [tRPC](https://trpc.io) server, to build typesafe APIs. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/trpc)
 
+### Upstash Redis
+
+This example uses [Upstash Redis](https://github.com/upstash/upstash-redis) to make Redis requests over HTTP. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/upstash)
+
+### Upstash Rate Limit
+
+This example uses [Upstash Rate Limit](https://github.com/upstash/ratelimit) to easily create rate limits via Redis over HTTP. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/upstash-ratelimit)
+
 ### vite-plugin-ssr
 
 This example uses [vite-plugin-ssr](https://vite-plugin-ssr.com/) to render static and dynamic React pages. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/vite-plugin-ssr)
