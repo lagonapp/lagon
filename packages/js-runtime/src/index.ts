@@ -113,9 +113,9 @@ declare global {
     TEXT_DECODER: TextDecoder;
   };
   var __storage__: Map<AsyncContext, unknown>;
-  var handler: (request: Request) => Promise<Response>;
   var masterHandler: (
     id: number,
+    handler: (request: Request) => Promise<Response>,
     request: {
       i: string;
       m: RequestInit['method'];
@@ -141,7 +141,7 @@ declare global {
   }
 }
 
-globalThis.masterHandler = async (id, request) => {
+globalThis.masterHandler = async (id, handler, request) => {
   if (typeof handler !== 'function') {
     throw new Error('Handler function is not defined or is not a function');
   }

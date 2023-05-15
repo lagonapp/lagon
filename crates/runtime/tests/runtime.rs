@@ -22,6 +22,25 @@ async fn execute_function() {
 }
 
 #[tokio::test]
+async fn execute_function_export_as() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "function hello() {
+    return new Response('Hello world');
+}
+
+export { hello as handler }"
+            .into(),
+    ));
+    send(Request::default());
+
+    assert_eq!(
+        receiver.recv_async().await.unwrap().as_response(),
+        Response::from("Hello world")
+    );
+}
+
+#[tokio::test]
 async fn execute_function_twice() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
