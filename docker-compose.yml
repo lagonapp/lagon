@@ -2,14 +2,17 @@ version: '3'
 services:
   redis:
     image: redis
+    container_name: redis
+    restart: always
     ports:
       - 6379:6379
     command: redis-server --save 20 1 --loglevel warning
     volumes:
       - redis:/data
-
   mysql:
     image: mariadb
+    container_name: mysql
+    restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=mysql
     ports:
@@ -19,6 +22,8 @@ services:
 
   prometheus:
     image: prom/prometheus
+    container_name: prometheus
+    restart: always
     ports:
       - 9090:9090
     volumes:
@@ -27,6 +32,8 @@ services:
 
   grafana:
     image: grafana/grafana
+    container_name: grafana
+    restart: always
     ports:
       - 3001:3000
     volumes:
@@ -35,6 +42,8 @@ services:
 
   clickhouse:
     image: clickhouse/clickhouse-server
+    container_name: clickhouse
+    restart: always
     ports:
       - 8123:8123
       - 8000:9000
@@ -45,22 +54,9 @@ services:
     volumes:
       - clickhouse:/var/lib/clickhouse
 
-  minio:
-    image: minio/minio
-    ports:
-      - 9002:9002
-      - 9001:9001
-    volumes:
-      - minio-data:/data
-    environment:
-      MINIO_ROOT_USER: ${S3_ACCESS_KEY:-root}
-      MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-supersecret}
-    command: server /data --console-address ":9001" --address ":9002"
-
 volumes:
   redis:
   mysql:
   prometheus:
   grafana:
   clickhouse:
-  minio-data:
