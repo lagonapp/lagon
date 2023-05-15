@@ -1,0 +1,11 @@
+{
+  "name": "@lagon/example-upstash",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "lagon-dev": "lagon dev index.ts"
+  },
+  "dependencies": {
+    "@upstash/redis": "^1.20.6"
+  }
+}
