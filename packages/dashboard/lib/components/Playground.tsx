@@ -11,13 +11,18 @@ const Playground = ({ defaultValue, width, height }: PlaygroundProps) => {
   const monaco = useMonaco();
 
   useEffect(() => {
+    function setTheme(element = document.documentElement) {
+      const darkMode = element.classList.contains('dark');
+      monaco?.editor.setTheme(darkMode ? 'vs-dark' : 'vs-light');
+    }
+
     if (monaco) {
+      setTheme();
+
       const observer = new MutationObserver(mutations => {
         mutations.forEach(mutation => {
           if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-            const darkMode = (mutation.target as HTMLElement).classList.contains('dark');
-
-            monaco.editor.setTheme(darkMode ? 'vs-dark' : 'vs-light');
+            setTheme(mutation.target as HTMLElement);
           }
         });
       });
