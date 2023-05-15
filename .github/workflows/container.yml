@@ -1,0 +1,54 @@
+name: Container
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - v*
+  pull_request:
+
+env:
+  IMAGE_NAME: severless
+
+jobs:
+  release-containerimage:
+    name: Create container image
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Build image
+        run: docker build --file docker/Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}" .
+
+      - name: Log in to registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u $ --password-stdin
+        if: "github.ref_type == 'tag' || github.ref_name == '${{ github.event.repository.default_branch }}'"
+
+      - name: Push image (tag and latest)
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          # Strip git ref prefix and "v" prefix from tag name
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,' | sed -e 's/^v//')
+          echo IMAGE_ID=$IMAGE_ID
+          echo VERSION=$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:latest
+          docker push $IMAGE_ID:latest
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
+        if: "github.ref_type == 'tag'"
+
+      - name: Push image (next for default branch)
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          # Change all uppercase to lowercase
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
+          echo IMAGE_ID=$IMAGE_ID
+          docker tag $IMAGE_NAME $IMAGE_ID:next
+          docker push $IMAGE_ID:next
+        if: "github.ref_name == '${{ github.event.repository.default_branch }}'"
