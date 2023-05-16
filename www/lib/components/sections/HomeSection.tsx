@@ -2,7 +2,6 @@ import { Text } from '../Text';
 import { MotionDiv, MotionA } from '../../client';
 import { Button } from '../Button';
 import { DESCRIPTION } from '../../constants';
-import { WorldBottomImage } from '../images/WorldBottomImage';
 import { ArrowRightIcon } from '../icons/ArrowRightIcon';
 import { CodeWidget } from '../CodeWidget';
 
@@ -60,7 +59,7 @@ export const HomeSection = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8, delay: 0.6 }}
       >
-        <WorldBottomImage />
+        <img src="/images/world-bottom.svg" alt="Image of the earth" />
       </MotionDiv>
       <MotionDiv
         className="mt-44 hidden flex-col items-center md:flex"

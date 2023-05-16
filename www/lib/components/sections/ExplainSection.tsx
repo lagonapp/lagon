@@ -1,5 +1,4 @@
 import { DeploymentWidget } from '../DeploymentWidget';
-import { RunButtonImage } from '../images/RunButtonImage';
 import { Text } from '../Text';
 
 export const ExplainSection = () => {
@@ -33,7 +32,7 @@ export const ExplainSection = () => {
         </div>
         <div className="to-blue-1 hover:shadow-blue-1/40 flex-1 rounded-3xl bg-gradient-to-br from-[#C9E2FF] p-[1px] transition duration-300 hover:shadow-2xl">
           <div className="bg-dark flex h-full flex-col justify-between rounded-3xl p-6 md:p-16">
-            <RunButtonImage />
+            <img src="/images/run-button.svg" alt="Run Button" loading="lazy" />
             <div className="flex flex-col gap-4">
               <Text size="h2" className="text-white">
                 2ms cold starts
