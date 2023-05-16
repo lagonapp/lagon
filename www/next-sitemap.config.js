@@ -1,6 +1,7 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
   siteUrl: 'https://lagon.app',
+  outDir: 'out',
   generateRobotsTxt: true,
   generateIndexSitemap: false,
   transform: (config, path) => {
