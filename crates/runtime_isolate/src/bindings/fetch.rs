@@ -122,7 +122,7 @@ pub async fn fetch_binding(id: usize, arg: Arg) -> BindingResult {
 
     match hyper::body::to_bytes(body).await {
         Ok(body) => {
-            let response = (parts, body.to_vec());
+            let response = (parts, body);
 
             BindingResult {
                 id,

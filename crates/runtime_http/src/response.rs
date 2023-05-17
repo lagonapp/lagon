@@ -1,12 +1,12 @@
 use anyhow::{anyhow, Result};
-use hyper::{http::response::Parts, Body, Response};
+use hyper::{body::Bytes, http::response::Parts, Body, Response};
 use lagon_runtime_v8_utils::{
     extract_v8_headers_object, extract_v8_integer, extract_v8_string, v8_headers_object,
     v8_integer, v8_string,
 };
 
 pub fn response_to_v8<'a>(
-    response: (Parts, Vec<u8>),
+    response: (Parts, Bytes),
     scope: &mut v8::HandleScope<'a>,
 ) -> v8::Local<'a, v8::Object> {
     let len = 3;

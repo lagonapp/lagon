@@ -48,7 +48,7 @@ pub fn create_isolate(options: IsolateOptions) -> (SendRequest, flume::Receiver<
 
         tokio::spawn(async move {
             let (parts, body) = req.into_parts();
-            let body = hyper::body::to_bytes(body).await.unwrap().to_vec();
+            let body = hyper::body::to_bytes(body).await.unwrap();
             let request = (parts, body);
 
             request_tx
@@ -82,7 +82,7 @@ pub fn create_isolate_without_snapshot(
 
         tokio::spawn(async move {
             let (parts, body) = req.into_parts();
-            let body = hyper::body::to_bytes(body).await.unwrap().to_vec();
+            let body = hyper::body::to_bytes(body).await.unwrap();
             let request = (parts, body);
 
             request_tx

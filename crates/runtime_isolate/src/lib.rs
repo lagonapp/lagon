@@ -1,5 +1,8 @@
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
-use hyper::http::{request::Parts, response::Builder};
+use hyper::{
+    body::Bytes,
+    http::{request::Parts, response::Builder},
+};
 use lagon_runtime_http::{request_to_v8, response_from_v8, RunResult, StreamResult};
 use lagon_runtime_v8_utils::v8_string;
 use linked_hash_map::LinkedHashMap;
@@ -34,7 +37,7 @@ pub struct RequestContext {
 }
 
 pub struct IsolateRequest {
-    pub request: (Parts, Vec<u8>),
+    pub request: (Parts, Bytes),
     pub sender: flume::Sender<RunResult>,
 }
 

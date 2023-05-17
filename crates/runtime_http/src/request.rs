@@ -1,11 +1,11 @@
 use anyhow::{anyhow, Result};
-use hyper::{http::request::Parts, Body, Method, Request};
+use hyper::{body::Bytes, http::request::Parts, Body, Method, Request};
 use lagon_runtime_v8_utils::{
     extract_v8_headers_object, extract_v8_string, v8_headers_object, v8_string,
 };
 
 pub fn request_to_v8<'a>(
-    request: (Parts, Vec<u8>),
+    request: (Parts, Bytes),
     scope: &mut v8::HandleScope<'a>,
 ) -> v8::Local<'a, v8::Object> {
     let body_empty = request.1.is_empty();
@@ -18,12 +18,15 @@ pub fn request_to_v8<'a>(
         .0
         .headers
         .get("host")
-        .map_or_else(String::new, |host| {
-            host.to_str()
-                .map_or_else(|_| String::new(), |value| value.to_string())
-        });
+        .map_or("", |host| host.to_str().unwrap_or(""));
+    let uri = request.0.uri.to_string();
+    let uri = uri.as_str();
 
-    let url = format!("https://{}{}", host, request.0.uri.to_string().as_str());
+    let mut url = String::with_capacity(8 + host.len() + uri.len());
+    url.push_str("https://");
+    url.push_str(host);
+    url.push_str(uri);
+
     let method = request.0.method.as_str();
 
     names.push(v8_string(scope, "i").into());

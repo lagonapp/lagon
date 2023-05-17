@@ -100,7 +100,7 @@ async fn handle_request(
         );
 
         let (mut parts, body) = req.into_parts();
-        let body = hyper::body::to_bytes(body).await?.to_vec();
+        let body = hyper::body::to_bytes(body).await?;
 
         parts.headers.insert(X_FORWARDED_FOR, ip.parse()?);
         parts.headers.insert(X_LAGON_REGION, LOCAL_REGION.parse()?);
