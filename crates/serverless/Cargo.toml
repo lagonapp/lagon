@@ -15,7 +15,7 @@ lagon-serverless-logger = { path = "../serverless_logger" }
 lagon-serverless-downloader = { path = "../serverless_downloader" }
 lagon-serverless-pubsub = { path = "../serverless_pubsub" }
 flume = "0.10.14"
-mysql = "23.0.1"
+mysql = "24.0.0"
 dotenv = "0.15.0"
 serde_json = "1.0"
 metrics = "0.21.0"
