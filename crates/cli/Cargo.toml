@@ -22,7 +22,7 @@ pathdiff = "0.2.1"
 hyper-tls = { version = "0.5.0", features = ["vendored"] }
 flume = "0.10.14"
 chrono = "0.4.24"
-notify = "5.1.0"
+notify = "5.2.0"
 envfile = "0.2.1"
 anyhow = "1.0.71"
 urlencoding = "2.1.2"
