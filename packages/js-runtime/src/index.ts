@@ -123,7 +123,7 @@ declare global {
       b: RequestInit['body'];
     },
   ) => Promise<{
-    b: string;
+    b?: string;
     h: ResponseInit['headers'];
     s: ResponseInit['status'];
   }>;
@@ -153,7 +153,6 @@ globalThis.masterHandler = async (id, handler, request) => {
   });
 
   const response = await handler(handlerRequest);
-  let body: string;
 
   if (response.isStream) {
     const responseBody = response.body;
@@ -162,7 +161,6 @@ globalThis.masterHandler = async (id, handler, request) => {
       throw new Error('Got a stream without a body');
     }
 
-    body = responseBody.toString();
     const reader = responseBody.getReader();
 
     const read = () => {
@@ -181,13 +179,16 @@ globalThis.masterHandler = async (id, handler, request) => {
     };
 
     read();
-  } else {
-    body = await response.text();
-  }
 
-  return {
-    b: body,
-    h: response.headers,
-    s: response.status,
-  };
+    return {
+      h: response.headers,
+      s: response.status,
+    };
+  } else {
+    return {
+      b: await response.text(),
+      h: response.headers,
+      s: response.status,
+    };
+  }
 };

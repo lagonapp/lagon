@@ -1,5 +1,5 @@
 use httptest::{matchers::*, responders::*, Expectation, Server};
-use lagon_runtime_http::{Request, Response};
+use hyper::{header::CONTENT_TYPE, Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -15,10 +15,14 @@ async fn execute_async_handler() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Async handler")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Async handler".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -39,8 +43,12 @@ async fn execute_promise() {
     )));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello, World")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello, World".into())
+            .unwrap(),
+    )
+    .await;
 }

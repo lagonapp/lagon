@@ -1,12 +1,8 @@
 use anyhow::{anyhow, Result};
 use async_recursion::async_recursion;
-use hyper::{
-    client::HttpConnector,
-    http::{request::Builder, Uri},
-    Body, Client, Response as HyperResponse,
-};
+use hyper::{client::HttpConnector, header::LOCATION, http::Uri, Body, Client, Request, Response};
 use hyper_tls::HttpsConnector;
-use lagon_runtime_http::{FromV8, Request, Response};
+use lagon_runtime_http::request_from_v8;
 use once_cell::sync::Lazy;
 
 use crate::{bindings::PromiseResult, Isolate};
@@ -16,7 +12,7 @@ use super::BindingResult;
 static CLIENT: Lazy<Client<HttpsConnector<HttpConnector>>> =
     Lazy::new(|| Client::builder().build::<_, Body>(HttpsConnector::new()));
 
-type Arg = Request;
+type Arg = Request<Body>;
 
 pub fn fetch_init(scope: &mut v8::HandleScope, args: v8::FunctionCallbackArguments) -> Result<Arg> {
     let id = scope
@@ -45,31 +41,53 @@ pub fn fetch_init(scope: &mut v8::HandleScope, args: v8::FunctionCallbackArgumen
         None => return Err(anyhow!("Invalid request")),
     };
 
-    Request::from_v8(scope, request.into())
+    request_from_v8(scope, request.into())
+}
+
+async fn clone_response(request: Request<Body>) -> Result<(Request<Body>, Request<Body>)> {
+    let uri = request.uri().clone();
+    let method = request.method().clone();
+    let headers = request.headers().clone();
+    let body_bytes = hyper::body::to_bytes(request.into_body()).await?;
+
+    let mut request_a = Request::builder().uri(uri.clone()).method(method.clone());
+    let request_a_headers = request_a.headers_mut().unwrap();
+
+    let mut request_b = Request::builder().uri(uri).method(method);
+    let request_b_headers = request_b.headers_mut().unwrap();
+
+    for (key, value) in headers.iter() {
+        request_a_headers.append(key, value.clone());
+        request_b_headers.append(key, value.clone());
+    }
+
+    let request_a = request_a.body(Body::from(body_bytes.clone()))?;
+    let request_b = request_b.body(Body::from(body_bytes))?;
+
+    Ok((request_a, request_b))
 }
 
 #[async_recursion]
 async fn make_request(
-    request: &Request,
+    mut request: Request<Body>,
     url: Option<String>,
     mut count: u8,
-) -> Result<HyperResponse<Body>> {
+) -> Result<Response<Body>> {
     if count >= 5 {
         return Err(anyhow!("Too many redirects"));
     }
 
-    let mut hyper_request = Builder::try_from(request)?;
-
     if let Some(url) = url {
-        hyper_request = hyper_request.uri(url);
+        *request.uri_mut() = url.parse()?;
     }
 
-    let hyper_request = hyper_request.body(Body::from(request.body.clone()))?;
-    let uri = hyper_request.uri().clone();
-    let response = CLIENT.request(hyper_request).await?;
+    let uri = request.uri().clone();
+
+    let (request_a, request_b) = clone_response(request).await?;
+    let response = CLIENT.request(request_a).await?;
 
     if response.status().is_redirection() {
-        let mut redirect_url = match response.headers().get("location") {
+        let mut redirect_url = match response.headers().get(LOCATION) {
             Some(location) => location.to_str()?.to_string(),
             None => return Err(anyhow!("Got a redirect without Location header")),
         };
@@ -83,14 +101,14 @@ async fn make_request(
         }
 
         count += 1;
-        return make_request(request, Some(redirect_url), count).await;
+        return make_request(request_b, Some(redirect_url), count).await;
     }
 
     Ok(response)
 }
 
 pub async fn fetch_binding(id: usize, arg: Arg) -> BindingResult {
-    let hyper_response = match make_request(&arg, None, 0).await {
+    let hyper_response = match make_request(arg, None, 0).await {
         Ok(hyper_response) => hyper_response,
         Err(error) => {
             return BindingResult {
@@ -100,10 +118,20 @@ pub async fn fetch_binding(id: usize, arg: Arg) -> BindingResult {
         }
     };
 
-    let result = match Response::from_hyper(hyper_response).await {
-        Ok(response) => PromiseResult::Response(response),
-        Err(error) => PromiseResult::Error(error.to_string()),
-    };
+    let (parts, body) = hyper_response.into_parts();
 
-    BindingResult { id, result }
+    match hyper::body::to_bytes(body).await {
+        Ok(body) => {
+            let response = (parts, body.to_vec());
+
+            BindingResult {
+                id,
+                result: PromiseResult::Response(response),
+            }
+        }
+        Err(error) => BindingResult {
+            id,
+            result: PromiseResult::Error(error.to_string()),
+        },
+    }
 }

@@ -1,6 +1,7 @@
 use console::style;
+use hyper::{http::Request, Body};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
-use lagon_runtime_http::{Request, RunResult};
+use lagon_runtime_http::RunResult;
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateEvent, IsolateRequest};
 use once_cell::sync::Lazy;
 use std::{
@@ -139,9 +140,12 @@ export function handler() {{
     });
 
     let (request_tx, request_rx) = flume::unbounded();
+    let (parts, body) = Request::new(Body::empty()).into_parts();
+    let body = hyper::body::to_bytes(body).await.unwrap().to_vec();
+    let request = (parts, body);
 
     tx.send_async(IsolateEvent::Request(IsolateRequest {
-        request: Request::default(),
+        request,
         sender: request_tx,
     }))
     .await

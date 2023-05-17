@@ -1754,6 +1754,7 @@ version = "0.1.0"
 dependencies = [
  "flume",
  "httptest",
+ "hyper",
  "lagon-runtime-http",
  "lagon-runtime-isolate",
  "log",
@@ -1832,6 +1833,7 @@ name = "lagon-runtime-v8-utils"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "hyper",
  "v8",
 ]
 
@@ -1908,6 +1910,7 @@ version = "0.1.0"
 dependencies = [
  "console",
  "flume",
+ "hyper",
  "lagon-runtime",
  "lagon-runtime-http",
  "lagon-runtime-isolate",
