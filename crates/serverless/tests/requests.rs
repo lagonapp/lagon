@@ -90,17 +90,17 @@ async fn returns_correct_path() -> Result<()> {
 
     let response = reqwest::get("http://127.0.0.1:4000").await?;
     assert_eq!(response.status(), 200);
-    assert_eq!(response.text().await?, "http://127.0.0.1:4000/");
+    assert_eq!(response.text().await?, "https://127.0.0.1:4000/");
 
     let response = reqwest::get("http://127.0.0.1:4000/test").await?;
     assert_eq!(response.status(), 200);
-    assert_eq!(response.text().await?, "http://127.0.0.1:4000/test");
+    assert_eq!(response.text().await?, "https://127.0.0.1:4000/test");
 
     let response = reqwest::get("http://127.0.0.1:4000/test?hello=world").await?;
     assert_eq!(response.status(), 200);
     assert_eq!(
         response.text().await?,
-        "http://127.0.0.1:4000/test?hello=world"
+        "https://127.0.0.1:4000/test?hello=world"
     );
 
     Ok(())

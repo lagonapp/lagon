@@ -56,7 +56,7 @@ declare global {
     log: (level: string, message: string) => void;
     pullStream: (id: number, done: boolean, chunk?: Uint8Array) => void;
     uuid: () => `${string}-${string}-${string}-${string}-${string}`;
-    randomValues: <T extends ArrayBufferView | null>(array: T) => T;
+    randomValues: <T extends ArrayBufferView | null>(array: T) => void;
     getKeyValue: () => ArrayBuffer;
     queueMicrotask: (callback: () => void) => void;
   };
@@ -89,6 +89,21 @@ declare global {
       key: CryptoKey,
       data: BufferSource,
     ) => Promise<ArrayBuffer>;
+    deriveBits(
+      algorithm: EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
+      baseKey: CryptoKey,
+      length: number,
+    ): Promise<ArrayBuffer>;
+    deriveKey(
+      algorithm: EcdhKeyDeriveParams | HkdfParams | Pbkdf2Params,
+      baseKey: CryptoKey,
+      derivedKeyType: AesDerivedKeyParams | HmacImportParams,
+      extractable: boolean,
+      keyUsages: Iterable<KeyUsage>,
+    ): Promise<CryptoKey>;
+    generateKey(
+      algorithm: RsaHashedKeyGenParams | EcKeyGenParams | HmacKeyGenParams | AesKeyGenParams,
+    ): Promise<ArrayBuffer>;
     sleep: (ms: number) => Promise<void>;
   };
   var __lagon__: {
@@ -98,9 +113,9 @@ declare global {
     TEXT_DECODER: TextDecoder;
   };
   var __storage__: Map<AsyncContext, unknown>;
-  var handler: (request: Request) => Promise<Response>;
   var masterHandler: (
     id: number,
+    handler: (request: Request) => Promise<Response>,
     request: {
       i: string;
       m: RequestInit['method'];
@@ -108,7 +123,7 @@ declare global {
       b: RequestInit['body'];
     },
   ) => Promise<{
-    b: string;
+    b?: string;
     h: ResponseInit['headers'];
     s: ResponseInit['status'];
   }>;
@@ -126,7 +141,7 @@ declare global {
   }
 }
 
-globalThis.masterHandler = async (id, request) => {
+globalThis.masterHandler = async (id, handler, request) => {
   if (typeof handler !== 'function') {
     throw new Error('Handler function is not defined or is not a function');
   }
@@ -138,7 +153,6 @@ globalThis.masterHandler = async (id, request) => {
   });
 
   const response = await handler(handlerRequest);
-  let body: string;
 
   if (response.isStream) {
     const responseBody = response.body;
@@ -147,7 +161,6 @@ globalThis.masterHandler = async (id, request) => {
       throw new Error('Got a stream without a body');
     }
 
-    body = responseBody.toString();
     const reader = responseBody.getReader();
 
     const read = () => {
@@ -166,13 +179,16 @@ globalThis.masterHandler = async (id, request) => {
     };
 
     read();
-  } else {
-    body = await response.text();
-  }
 
-  return {
-    b: body,
-    h: response.headers,
-    s: response.status,
-  };
+    return {
+      h: response.headers,
+      s: response.status,
+    };
+  } else {
+    return {
+      b: await response.text(),
+      h: response.headers,
+      s: response.status,
+    };
+  }
 };

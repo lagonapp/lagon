@@ -5,13 +5,19 @@ use crypto::{
     verify_binding, verify_init,
 };
 use fetch::{fetch_binding, fetch_init};
-use lagon_runtime_http::{IntoV8, Response};
+use hyper::{body::Bytes, http::response::Parts};
+use lagon_runtime_http::response_to_v8;
 use lagon_runtime_v8_utils::{v8_boolean, v8_string, v8_uint8array};
 use pull_stream::pull_stream_binding;
 use queue_microtask::queue_microtask_binding;
 use sleep::{sleep_binding, sleep_init};
 
-use crate::{bindings::crypto::digest_init, Isolate};
+use crate::{
+    bindings::crypto::{
+        derive_bits_binding, derive_bits_init, digest_init, generate_key_binding, generate_key_init,
+    },
+    Isolate,
+};
 
 pub mod console;
 pub mod crypto;
@@ -26,7 +32,7 @@ pub struct BindingResult {
 }
 
 pub enum PromiseResult {
-    Response(Response),
+    Response((Parts, Bytes)),
     ArrayBuffer(Vec<u8>),
     Boolean(bool),
     Error(String),
@@ -36,7 +42,7 @@ pub enum PromiseResult {
 impl PromiseResult {
     pub fn into_value<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Value> {
         match self {
-            PromiseResult::Response(response) => response.into_v8(scope).into(),
+            PromiseResult::Response(response) => response_to_v8(response, scope).into(),
             PromiseResult::ArrayBuffer(bytes) => v8_uint8array(scope, bytes).into(),
             PromiseResult::Boolean(boolean) => v8_boolean(scope, boolean).into(),
             PromiseResult::Error(error) => v8_string(scope, &error).into(),
@@ -134,6 +140,13 @@ pub fn bind<'a>(
         async_binding!(
             scope,
             lagon_object,
+            "deriveBits",
+            derive_bits_init,
+            derive_bits_binding
+        );
+        async_binding!(
+            scope,
+            lagon_object,
             "encrypt",
             encrypt_init,
             encrypt_binding
@@ -146,6 +159,13 @@ pub fn bind<'a>(
             decrypt_binding
         );
         async_binding!(scope, lagon_object, "sleep", sleep_init, sleep_binding);
+        async_binding!(
+            scope,
+            lagon_object,
+            "generateKey",
+            generate_key_init,
+            generate_key_binding
+        );
 
         global.set(v8_string(scope, "LagonAsync").into(), lagon_object.into());
     }

@@ -62,8 +62,8 @@ impl FunctionConfig {
                         .with_prompt(format!(
                             "Path to your Function's entrypoint? {}",
                             style(format!("(relative to {:?})", root.canonicalize()?))
+                                .black()
                                 .bright()
-                                .black(),
                         ))
                         .validate_with(|input: &String| -> std::result::Result<(), String> {
                             validate_code_file(&root.join(input), root)
@@ -135,7 +135,7 @@ impl FunctionConfig {
         if let Some(assets_override) = assets_override {
             println!(
                 "{}",
-                style("Using custom public directory...").bright().black()
+                style("Using custom public directory...").black().bright()
             );
             config.assets = Some(assets_override);
         }
@@ -466,10 +466,10 @@ pub async fn create_deployment(
 
     if !is_production {
         println!(
-            "   {} {} {}",
-            style("Append").black(),
-            style("--prod").black().bright(),
-            style("to deploy to production").black(),
+            "   {}",
+            style("Append --prod to deploy to production")
+                .black()
+                .bright(),
         );
     }
 

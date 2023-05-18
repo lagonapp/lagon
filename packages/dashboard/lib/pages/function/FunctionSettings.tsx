@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { Button, Card, Form, Input, Text, TagsInput, Dialog, Menu, Divider } from '@lagon/ui';
+import { Button, Card, Form, Input, Text, TagsInput, Dialog, Menu } from '@lagon/ui';
 import { getCurrentDomain } from 'lib/utils';
 import {
   composeValidators,
@@ -11,7 +11,14 @@ import {
   minLengthValidator,
   requiredValidator,
 } from 'lib/form/validators';
-import { FUNCTION_NAME_MAX_LENGTH, FUNCTION_NAME_MIN_LENGTH, Regions, REGIONS } from 'lib/constants';
+import {
+  ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH,
+  ENVIRONMENT_VARIABLE_VALUE_MAX_SIZE,
+  FUNCTION_NAME_MAX_LENGTH,
+  FUNCTION_NAME_MIN_LENGTH,
+  Regions,
+  REGIONS,
+} from 'lib/constants';
 import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from '@tanstack/react-query';
@@ -222,12 +229,14 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                       event.preventDefault();
                     }
                   }}
+                  validator={maxLengthValidator(ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH)}
                 />
                 <Input
                   name="envValue"
                   placeholder={t('env.placeholder.value')}
                   type="password"
                   disabled={updateFunction.isLoading}
+                  validator={maxLengthValidator(ENVIRONMENT_VARIABLE_VALUE_MAX_SIZE)}
                 />
                 <Button
                   disabled={updateFunction.isLoading}

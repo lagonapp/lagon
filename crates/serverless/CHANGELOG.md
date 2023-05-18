@@ -1,5 +1,29 @@
 # @lagon/serverless
 
+## 0.1.32
+
+### Patch Changes
+
+- [#863](https://github.com/lagonapp/lagon/pull/863) [`4e6968a`](https://github.com/lagonapp/lagon/commit/4e6968a3688f52530cb4aed09022fd5dc54c0a80) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add AES-CTR to `SubtleCrypto#encrypt` & `SubtleCrypto#decrypt`
+
+* [#860](https://github.com/lagonapp/lagon/pull/860) [`f3ee3c4`](https://github.com/lagonapp/lagon/commit/f3ee3c44247d3776c8a2c339d1ca757e5f05b8e0) Thanks [@QuiiBz](https://github.com/QuiiBz)! - `SubtleCrypto#importKey` re-use key data
+
+- [#857](https://github.com/lagonapp/lagon/pull/857) [`c08bbf9`](https://github.com/lagonapp/lagon/commit/c08bbf9405718d7c361f252f7485766fa3ab274c) Thanks [@QuiiBz](https://github.com/QuiiBz)! - `crypto#getRandomValues` updates array in-place
+
+* [#861](https://github.com/lagonapp/lagon/pull/861) [`22f5cc1`](https://github.com/lagonapp/lagon/commit/22f5cc1eea6d65963060d289945dc956312a50b3) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add RSA-PSS, RSASSA-PKCS1-v1_5 & ECDSA to `SubtleCrypto#sign` & `SubtleCrypto#verify`
+
+## 0.1.31
+
+### Patch Changes
+
+- [#839](https://github.com/lagonapp/lagon/pull/839) [`52b170a`](https://github.com/lagonapp/lagon/commit/52b170a993e43da1bf465d2e5c7dd848c9eb1168) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add SubtleCrypto#deriveBits
+
+* [#851](https://github.com/lagonapp/lagon/pull/851) [`66b1fa5`](https://github.com/lagonapp/lagon/commit/66b1fa59992ac5fba83f6a0bdec49a6621bacc2c) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add SubtleCrypto#deriveKey
+
+- [#853](https://github.com/lagonapp/lagon/pull/853) [`7d27a6a`](https://github.com/lagonapp/lagon/commit/7d27a6a87829bc8ddf59caa9e57d2cbab8597da3) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Ingest results error to the logs
+
+* [#848](https://github.com/lagonapp/lagon/pull/848) [`cd214f2`](https://github.com/lagonapp/lagon/commit/cd214f2f20aa9bc32f96c0bc7841ac308650d3b7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support AES-CBC for `SubtleCrypto#encrypt` & `SubtleCrypto#decrypt`
+
 ## 0.1.30
 
 ### Patch Changes

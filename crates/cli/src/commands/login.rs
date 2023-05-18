@@ -64,7 +64,10 @@ pub async fn login() -> Result<()> {
 
             println!();
             println!(" {} You are now logged in!", style("◼").magenta());
-            println!("   {}", style("You can now close the browser tab").black());
+            println!(
+                "   {}",
+                style("You can now close the browser tab").black().bright()
+            );
 
             Ok(())
         }

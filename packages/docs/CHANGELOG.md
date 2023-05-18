@@ -1,5 +1,25 @@
 # @lagon/docs
 
+## 0.3.9
+
+### Patch Changes
+
+- [#863](https://github.com/lagonapp/lagon/pull/863) [`4e6968a`](https://github.com/lagonapp/lagon/commit/4e6968a3688f52530cb4aed09022fd5dc54c0a80) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add AES-CTR to `SubtleCrypto#encrypt` & `SubtleCrypto#decrypt`
+
+* [#861](https://github.com/lagonapp/lagon/pull/861) [`22f5cc1`](https://github.com/lagonapp/lagon/commit/22f5cc1eea6d65963060d289945dc956312a50b3) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add RSA-PSS, RSASSA-PKCS1-v1_5 & ECDSA to `SubtleCrypto#sign` & `SubtleCrypto#verify`
+
+## 0.3.8
+
+### Patch Changes
+
+- [#839](https://github.com/lagonapp/lagon/pull/839) [`52b170a`](https://github.com/lagonapp/lagon/commit/52b170a993e43da1bf465d2e5c7dd848c9eb1168) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add SubtleCrypto#deriveBits
+
+* [#848](https://github.com/lagonapp/lagon/pull/848) [`cd214f2`](https://github.com/lagonapp/lagon/commit/cd214f2f20aa9bc32f96c0bc7841ac308650d3b7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support AES-CBC for `SubtleCrypto#encrypt` & `SubtleCrypto#decrypt`
+
+- [#836](https://github.com/lagonapp/lagon/pull/836) [`76f8260`](https://github.com/lagonapp/lagon/commit/76f8260156ee23aa64b086a2755f9c7f0f4b3d68) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add a warning that custom domains aren't supported
+
+* [#836](https://github.com/lagonapp/lagon/pull/836) [`76f8260`](https://github.com/lagonapp/lagon/commit/76f8260156ee23aa64b086a2755f9c7f0f4b3d68) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve environment variables with support for copy/pasting a .env file
+
 ## 0.3.7
 
 ### Patch Changes

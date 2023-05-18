@@ -10,3 +10,6 @@ members = [
 lto = "thin"
 codegen-units = 1
 panic = "abort"
+
+[profile.dev.package.num-bigint-dig]
+opt-level = 3

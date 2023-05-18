@@ -1,6 +1,8 @@
 mod decrypt;
+mod derive_bits;
 mod digest;
 mod encrypt;
+mod generate_key;
 mod get_key;
 mod random_values;
 mod sign;
@@ -9,8 +11,10 @@ mod verify;
 
 pub use self::uuid::uuid;
 pub use decrypt::decrypt;
+pub use derive_bits::derive_bits;
 pub use digest::digest;
 pub use encrypt::encrypt;
+pub use generate_key::generate_key;
 pub use get_key::get_key;
 pub use random_values::random_values;
 pub use sign::sign;

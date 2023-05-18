@@ -1,4 +1,7 @@
 use anyhow::{anyhow, Result};
+use hyper::{header::HeaderName, http::HeaderValue, HeaderMap};
+
+const X_LAGON_ID: &str = "x-lagon-id";
 
 pub fn extract_v8_string(
     value: v8::Local<v8::Value>,
@@ -20,9 +23,10 @@ pub fn extract_v8_integer(value: v8::Local<v8::Value>, scope: &mut v8::HandleSco
 }
 
 pub fn extract_v8_headers_object(
+    header_map: &mut HeaderMap,
     value: v8::Local<v8::Value>,
     scope: &mut v8::HandleScope,
-) -> Result<Option<Vec<(String, Vec<String>)>>> {
+) -> Result<()> {
     if !value.is_map() {
         return Err(anyhow!("Value is not of type 'Map'"));
     }
@@ -32,7 +36,6 @@ pub fn extract_v8_headers_object(
     if map.size() > 0 {
         let headers_keys = map.as_array(scope);
         let length = headers_keys.length();
-        let mut headers = Vec::with_capacity((length / 2) as usize);
 
         for mut index in 0..length {
             if index % 2 != 0 {
@@ -45,39 +48,27 @@ pub fn extract_v8_headers_object(
 
             index += 1;
 
-            let values = headers_keys
-                .get_index(scope, index)
-                .map_or_else(Vec::new, |value| {
-                    let mut result = Vec::new();
+            for value in headers_keys.get_index(scope, index).into_iter() {
+                if value.is_array() {
+                    let values = unsafe { v8::Local::<v8::Array>::cast(value) };
 
-                    if value.is_array() {
-                        let values = unsafe { v8::Local::<v8::Array>::cast(value) };
+                    for i in 0..values.length() {
+                        let value = values
+                            .get_index(scope, i)
+                            .map_or_else(String::new, |value| value.to_rust_string_lossy(scope));
 
-                        for i in 0..values.length() {
-                            let value = values
-                                .get_index(scope, i)
-                                .map_or_else(String::new, |value| {
-                                    value.to_rust_string_lossy(scope)
-                                });
-
-                            result.push(value);
-                        }
-                    } else {
-                        let value = value.to_rust_string_lossy(scope);
-
-                        result.push(value);
+                        header_map.append(HeaderName::from_bytes(key.as_bytes())?, value.parse()?);
                     }
+                } else {
+                    let value = value.to_rust_string_lossy(scope);
 
-                    result
-                });
-
-            headers.push((key, values));
+                    header_map.append(HeaderName::from_bytes(key.as_bytes())?, value.parse()?);
+                }
+            }
         }
-
-        return Ok(Some(headers));
     }
 
-    Ok(None)
+    Ok(())
 }
 
 pub fn extract_v8_uint8array(value: v8::Local<v8::Value>) -> Result<Vec<u8>> {
@@ -118,26 +109,28 @@ pub fn v8_uint8array<'a>(
 
 pub fn v8_headers_object<'a>(
     scope: &mut v8::HandleScope<'a>,
-    value: Vec<(String, Vec<String>)>,
+    value: HeaderMap<HeaderValue>,
 ) -> v8::Local<'a, v8::Object> {
     let len = value.len();
 
     let mut names = Vec::with_capacity(len);
     let mut values = Vec::with_capacity(len);
 
-    for (key, headers) in value.iter() {
-        let key = v8_string(scope, key);
+    for key in value.keys() {
+        if key != X_LAGON_ID {
+            // We guess that most of the time there will be only one header value
+            let mut elements = Vec::with_capacity(1);
 
-        let mut elements = Vec::with_capacity(headers.len());
+            for value in value.get_all(key) {
+                elements.push(v8_string(scope, value.to_str().unwrap()).into())
+            }
 
-        for header in headers.iter() {
-            elements.push(v8_string(scope, header).into())
+            let key = v8_string(scope, key.as_str());
+            names.push(key.into());
+
+            let array = v8::Array::new_with_elements(scope, &elements);
+            values.push(array.into());
         }
-
-        let array = v8::Array::new_with_elements(scope, &elements);
-
-        names.push(key.into());
-        values.push(array.into());
     }
 
     let null = v8::null(scope).into();
@@ -151,4 +144,12 @@ pub fn v8_boolean<'a>(scope: &mut v8::HandleScope<'a>, value: bool) -> v8::Local
 pub fn v8_exception<'a>(scope: &mut v8::HandleScope<'a>, value: &str) -> v8::Local<'a, v8::Value> {
     let message = v8_string(scope, value);
     v8::Exception::type_error(scope, message)
+}
+
+pub fn extract_v8_uint32(scope: &mut v8::HandleScope, value: v8::Local<v8::Value>) -> Result<u32> {
+    if let Some(value) = value.to_uint32(scope) {
+        return Ok(value.value());
+    }
+
+    Err(anyhow!("Value is not an uint32"))
 }

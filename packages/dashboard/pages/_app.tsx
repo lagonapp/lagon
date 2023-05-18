@@ -3,7 +3,7 @@ import { SessionProvider } from 'next-auth/react';
 import AuthGuard from 'lib/components/AuthGuard';
 import '@lagon/ui/src/styles/globals.css';
 import { Toaster } from 'react-hot-toast';
-import Layout from 'lib/Layout';
+import Layout from 'lib/components/Layout';
 import { I18nProvider, usePersistLocale } from 'locales';
 import en from 'locales/en';
 import { trpc } from 'lib/trpc';

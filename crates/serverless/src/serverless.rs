@@ -6,16 +6,15 @@ use crate::{
 use anyhow::Result;
 use clickhouse::{inserter::Inserter, Client};
 use dashmap::DashMap;
+use futures::lock::Mutex;
 use hyper::{
     header::HOST,
     http::response::Builder,
     server::conn::AddrStream,
     service::{make_service_fn, service_fn},
-    Body, Request as HyperRequest, Response as HyperResponse, Server,
+    Body, Request, Response, Server,
 };
-use lagon_runtime_http::{
-    Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP,
-};
+use lagon_runtime_http::{RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP};
 use lagon_runtime_isolate::{
     options::{IsolateOptions, Metadata},
     Isolate, IsolateEvent, IsolateRequest,
@@ -36,44 +35,74 @@ use std::{
     net::SocketAddr,
     path::Path,
     sync::Arc,
-    time::{Duration, Instant, UNIX_EPOCH},
+    time::{Duration, UNIX_EPOCH},
 };
-use tokio::{runtime::Handle, sync::Mutex};
+use tokio::{runtime::Handle, sync::Mutex as TokioMutex};
 
 pub type Workers = Arc<DashMap<String, flume::Sender<IsolateEvent>>>;
 
-fn handle_error(
+async fn handle_error(
     result: RunResult,
-    deployment_id: &String,
+    function_id: String,
+    deployment_id: String,
     request_id: &String,
     labels: &[(&'static str, String); 3],
+    inserters: Arc<Mutex<(Inserter<RequestRow>, Inserter<LogRow>)>>,
 ) {
-    match result {
+    let (level, message) = match result {
         RunResult::Timeout => {
             increment_counter!("lagon_isolate_timeouts", labels);
-            warn!(deployment = deployment_id, request = request_id; "Function execution timed out")
+
+            let message = "Function execution timed out";
+            warn!(deployment = deployment_id, function = function_id, request = request_id; "{}", message);
+
+            ("warn", message.into())
         }
         RunResult::MemoryLimit => {
             increment_counter!("lagon_isolate_memory_limits", labels);
-            warn!(deployment = deployment_id, request = request_id; "Function execution memory limit reached")
+
+            let message = "Function execution memory limit reached";
+            warn!(deployment = deployment_id, function = function_id, request = request_id; "{}", message);
+
+            ("warn", message.into())
         }
         RunResult::Error(error) => {
             increment_counter!("lagon_isolate_errors", labels);
-            error!(deployment = deployment_id, request = request_id; "Function execution error: {}", error);
+
+            let message = format!("Function execution error: {}", error);
+            error!(deployment = deployment_id, function = function_id, request = request_id; "{}", message);
+
+            ("error", message)
         }
-        _ => {}
+        _ => ("warn", "Unknown result".into()),
     };
+
+    if let Err(error) = inserters
+        .lock()
+        .await
+        .1
+        .write(&LogRow {
+            function_id,
+            deployment_id,
+            level: level.to_string(),
+            message,
+            region: REGION.clone(),
+            timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
+        })
+        .await
+    {
+        error!("Error while writing log: {}", error);
+    }
 }
 
 async fn handle_request(
-    req: HyperRequest<Body>,
+    req: Request<Body>,
     ip: String,
     deployments: Deployments,
-    last_requests: Arc<DashMap<String, Instant>>,
     workers: Workers,
     inserters: Arc<Mutex<(Inserter<RequestRow>, Inserter<LogRow>)>>,
     log_sender: flume::Sender<(String, String, Metadata)>,
-) -> Result<HyperResponse<Body>> {
+) -> Result<Response<Body>> {
     let request_id = match req.headers().get(X_LAGON_ID) {
         Some(x_lagon_id) => x_lagon_id.to_str().unwrap_or("").to_string(),
         None => String::new(),
@@ -104,7 +133,7 @@ async fn handle_request(
             );
             warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "No deployment found for hostname");
 
-            return Ok(HyperResponse::builder().status(404).body(PAGE_404.into())?);
+            return Ok(Response::builder().status(404).body(PAGE_404.into())?);
         }
     };
 
@@ -117,7 +146,7 @@ async fn handle_request(
         );
         warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "Cron deployment cannot be called directly");
 
-        return Ok(HyperResponse::builder().status(403).body(PAGE_403.into())?);
+        return Ok(Response::builder().status(403).body(PAGE_403.into())?);
     }
 
     let function_id = deployment.function_id.clone();
@@ -153,114 +182,102 @@ async fn handle_request(
     } else if is_favicon {
         sender
             .send_async(RunResult::Response(
-                Response {
-                    status: 404,
-                    ..Default::default()
-                },
+                Response::builder().status(404).body(Body::empty())?,
                 None,
             ))
             .await
             .unwrap_or(());
     } else {
-        last_requests.insert(deployment_id.clone(), Instant::now());
-
         // Try to Extract the X-Real-Ip header or fallback to remote addr IP
         let ip = req.headers().get(X_REAL_IP).map_or(ip.clone(), |header| {
             header.clone().to_str().map_or(ip, |ip| ip.to_string())
         });
 
-        match Request::from_hyper_with_capacity(req, 2).await {
-            Ok(mut request) => {
-                bytes_in = request.len() as u32;
+        let (mut parts, body) = req.into_parts();
+        let body = hyper::body::to_bytes(body).await?;
 
-                request.set_header(X_FORWARDED_FOR.to_string(), ip.to_string());
-                request.set_header(X_LAGON_REGION.to_string(), REGION.to_string());
+        bytes_in = body.len() as u32;
 
-                let isolate_workers = Arc::clone(&workers);
-                let isolate_sender = workers.entry(deployment_id.clone()).or_insert_with(|| {
-                    let handle = Handle::current();
-                    let (sender, receiver) = flume::unbounded();
-                    let labels = labels.clone();
+        parts.headers.insert(X_FORWARDED_FOR, ip.parse()?);
+        parts.headers.insert(X_LAGON_REGION, REGION.parse()?);
 
-                    std::thread::Builder::new().name(String::from("isolate-") + deployment.id.as_str()).spawn(move || {
-                        handle.block_on(async move {
-                            increment_gauge!("lagon_isolates", 1.0, &labels);
-                            info!(deployment = deployment.id, function = deployment.function_id, request = request_id_handle; "Creating new isolate");
+        let request = (parts, body);
 
-                            let code = deployment.get_code().unwrap_or_else(|error| {
-                                error!(deployment = deployment.id, request = request_id_handle; "Error while getting deployment code: {}", error);
+        let isolate_workers = Arc::clone(&workers);
+        let isolate_sender = workers.entry(deployment_id.clone()).or_insert_with(|| {
+            let handle = Handle::current();
+            let (sender, receiver) = flume::unbounded();
+            let labels = labels.clone();
 
-                                "".into()
-                            });
-                            let options = IsolateOptions::new(code)
-                                .environment_variables(deployment.environment_variables.clone())
-                                .memory(deployment.memory)
-                                .tick_timeout(Duration::from_millis(deployment.tick_timeout as u64))
-                                .total_timeout(Duration::from_millis(
-                                    deployment.total_timeout as u64,
-                                ))
-                                .metadata(Some((
-                                    deployment.id.clone(),
-                                    deployment.function_id.clone(),
-                                )))
-                                .on_drop_callback(Box::new(|metadata| {
-                                    if let Some(metadata) = metadata.as_ref().as_ref() {
-                                        let labels = [
-                                            ("deployment", metadata.0.clone()),
-                                            ("function", metadata.1.clone()),
-                                            ("region", REGION.clone()),
-                                        ];
+            std::thread::Builder::new().name(String::from("isolate-") + deployment.id.as_str()).spawn(move || {
+                handle.block_on(async move {
+                    increment_gauge!("lagon_isolates", 1.0, &labels);
+                    info!(deployment = deployment.id, function = deployment.function_id, request = request_id_handle; "Creating new isolate");
 
-                                        decrement_gauge!("lagon_isolates", 1.0, &labels);
-                                        info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
-                                    }
-                                }))
-                                .on_statistics_callback(Box::new(|metadata, statistics| {
-                                    if let Some(metadata) = metadata.as_ref().as_ref() {
-                                        let labels = [
-                                            ("deployment", metadata.0.clone()),
-                                            ("function", metadata.1.clone()),
-                                            ("region", REGION.clone()),
-                                        ];
+                    let code = deployment.get_code().unwrap_or_else(|error| {
+                        error!(deployment = deployment.id, request = request_id_handle; "Error while getting deployment code: {}", error);
 
-                                        histogram!(
-                                            "lagon_isolate_memory_usage",
-                                            statistics as f64,
-                                            &labels
-                                        );
-                                    }
-                                }))
-                                .log_sender(log_sender)
-                                .snapshot_blob(SNAPSHOT_BLOB);
+                        "".into()
+                    });
+                    let options = IsolateOptions::new(code)
+                        .environment_variables(deployment.environment_variables.clone())
+                        .memory(deployment.memory)
+                        .tick_timeout(Duration::from_millis(deployment.tick_timeout as u64))
+                        .total_timeout(Duration::from_millis(
+                            deployment.total_timeout as u64,
+                        ))
+                        .metadata(Some((
+                            deployment.id.clone(),
+                            deployment.function_id.clone(),
+                        )))
+                        .on_drop_callback(Box::new(|metadata| {
+                            if let Some(metadata) = metadata.as_ref().as_ref() {
+                                let labels = [
+                                    ("deployment", metadata.0.clone()),
+                                    ("function", metadata.1.clone()),
+                                    ("region", REGION.clone()),
+                                ];
 
-                            let mut isolate = Isolate::new(options, receiver);
-                            isolate.evaluate();
-                            isolate.run_event_loop().await;
+                                decrement_gauge!("lagon_isolates", 1.0, &labels);
+                                info!(deployment = metadata.0, function = metadata.1; "Dropping isolate");
+                            }
+                        }))
+                        .on_statistics_callback(Box::new(|metadata, statistics| {
+                            if let Some(metadata) = metadata.as_ref().as_ref() {
+                                let labels = [
+                                    ("deployment", metadata.0.clone()),
+                                    ("function", metadata.1.clone()),
+                                    ("region", REGION.clone()),
+                                ];
 
-                            // When the event loop is completed, that means a) the isolate was terminate due to limits
-                            // or b) the isolate was dropped because of cache expiration. In the first case, the isolate
-                            // isn't removed from the workers map
-                            isolate_workers.remove(&deployment.id);
-                        });
-                    }).unwrap();
+                                histogram!(
+                                    "lagon_isolate_memory_usage",
+                                    statistics as f64,
+                                    &labels
+                                );
+                            }
+                        }))
+                        .log_sender(log_sender)
+                        .snapshot_blob(SNAPSHOT_BLOB);
 
-                    sender
+                    let mut isolate = Isolate::new(options, receiver);
+                    isolate.evaluate();
+                    isolate.run_event_loop().await;
+
+                    // When the event loop is completed, that means a) the isolate was terminate due to limits
+                    // or b) the isolate was dropped because of cache expiration. In the first case, the isolate
+                    // isn't removed from the workers map
+                    isolate_workers.remove(&deployment.id);
                 });
+            }).unwrap();
 
-                isolate_sender
-                    .send_async(IsolateEvent::Request(IsolateRequest { request, sender }))
-                    .await
-                    .unwrap_or(());
-            }
-            Err(error) => {
-                error!(deployment = &deployment.id, request = request_id_handle; "Error while parsing request: {}", error);
+            sender
+        });
 
-                sender
-                    .send_async(RunResult::Error("Error while parsing request".into()))
-                    .await
-                    .unwrap_or(());
-            }
-        }
+        isolate_sender
+            .send_async(IsolateEvent::Request(IsolateRequest { request, sender }))
+            .await
+            .unwrap_or(());
     }
 
     handle_response(receiver, move |event| {
@@ -273,6 +290,8 @@ async fn handle_request(
         async move {
             match event {
                 ResponseEvent::Bytes(bytes, cpu_time_micros) => {
+                    let timestamp = UNIX_EPOCH.elapsed().unwrap().as_secs() as u32;
+
                     inserters
                         .lock()
                         .await
@@ -284,7 +303,7 @@ async fn handle_request(
                             bytes_in,
                             bytes_out: bytes as u32,
                             cpu_time_micros,
-                            timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
+                            timestamp,
                         })
                         .await
                         .unwrap_or(());
@@ -294,16 +313,35 @@ async fn handle_request(
                         RunResult::Error(
                             "The stream was done before sending a response/data".into(),
                         ),
-                        &deployment_id,
+                        function_id,
+                        deployment_id,
                         &request_id,
                         &labels,
-                    );
+                        inserters,
+                    )
+                    .await;
                 }
                 ResponseEvent::UnexpectedStreamResult(result) => {
-                    handle_error(result, &deployment_id, &request_id, &labels);
+                    handle_error(
+                        result,
+                        function_id,
+                        deployment_id,
+                        &request_id,
+                        &labels,
+                        inserters,
+                    )
+                    .await;
                 }
                 ResponseEvent::LimitsReached(result) | ResponseEvent::Error(result) => {
-                    handle_error(result, &deployment_id, &request_id, &labels);
+                    handle_error(
+                        result,
+                        function_id,
+                        deployment_id,
+                        &request_id,
+                        &labels,
+                        inserters,
+                    )
+                    .await;
                 }
             }
 
@@ -325,10 +363,8 @@ where
     D: Downloader + Send + Sync + 'static,
     P: PubSubListener + Unpin + 'static,
 {
-    let last_requests = Arc::new(DashMap::new());
-
     let workers = Arc::new(DashMap::new());
-    let pubsub = Arc::new(Mutex::new(pubsub));
+    let pubsub = Arc::new(TokioMutex::new(pubsub));
 
     listen_pub_sub(
         Arc::clone(&downloader),
@@ -337,7 +373,7 @@ where
         // Arc::clone(&cronjob),
         pubsub,
     );
-    run_cache_clear_task(Arc::clone(&last_requests), Arc::clone(&workers));
+    run_cache_clear_task(&client, Arc::clone(&deployments), Arc::clone(&workers));
 
     let insertion_interval = Duration::from_secs(1);
     let inserters = Arc::new(Mutex::new((
@@ -397,7 +433,6 @@ where
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let deployments = Arc::clone(&deployments);
-        let last_requests = Arc::clone(&last_requests);
         let workers = Arc::clone(&workers);
         let inserters = Arc::clone(&inserters);
         let log_sender = log_sender.clone();
@@ -411,7 +446,6 @@ where
                     req,
                     ip.clone(),
                     Arc::clone(&deployments),
-                    Arc::clone(&last_requests),
                     Arc::clone(&workers),
                     Arc::clone(&inserters),
                     log_sender.clone(),

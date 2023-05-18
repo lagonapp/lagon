@@ -127,8 +127,7 @@ impl IsolateOptions {
                     scope,
                     &format!(
                         r"{environment_variables}
-{code}
-globalThis.handler = handler;"
+{code}"
                     ),
                 ),
                 environment_variables.lines().count() + 1,
@@ -146,8 +145,7 @@ globalThis.handler = handler;"
                     &format!(
                         r"{JS_RUNTIME}
 {environment_variables}
-{code}
-globalThis.handler = handler;"
+{code}"
                     ),
                 ),
                 JS_RUNTIME.lines().count() + environment_variables.lines().count() + 2,

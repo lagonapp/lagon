@@ -5,9 +5,9 @@ use dialoguer::console::style;
 use envfile::EnvFile;
 use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
+use hyper::{Body, Request, Response, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
-use lagon_runtime_http::{Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_REGION};
+use lagon_runtime_http::{RunResult, X_FORWARDED_FOR, X_LAGON_REGION};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use lagon_runtime_isolate::{IsolateEvent, IsolateRequest};
 use lagon_runtime_utils::assets::{find_asset, handle_asset};
@@ -56,12 +56,12 @@ fn parse_environment_variables(
 // except that we don't have multiple deployments and such multiple
 // threads to manage, and we don't manager logs and metrics.
 async fn handle_request(
-    req: HyperRequest<Body>,
+    req: Request<Body>,
     public_dir: Option<PathBuf>,
     ip: String,
     assets: Arc<Mutex<Assets>>,
     isolate_tx: flume::Sender<IsolateEvent>,
-) -> Result<HyperResponse<Body>> {
+) -> Result<Response<Body>> {
     let url = req.uri().path();
 
     let (tx, rx) = flume::unbounded();
@@ -72,7 +72,7 @@ async fn handle_request(
     if let Some(asset) = find_asset(url, &assets.keys().cloned().collect()) {
         println!(
             "{} {} {} {}",
-            style(format!("{}", Local::now().time())).black(),
+            style(format!("{}", Local::now().time())).black().bright(),
             style(req.method().to_string()).blue(),
             style(url).black().bright(),
             style("(asset)").black().bright()
@@ -86,10 +86,7 @@ async fn handle_request(
         tx.send_async(run_result).await.unwrap_or(());
     } else if is_favicon {
         tx.send_async(RunResult::Response(
-            Response {
-                status: 404,
-                ..Default::default()
-            },
+            Response::builder().status(404).body(Body::empty())?,
             None,
         ))
         .await
@@ -97,32 +94,26 @@ async fn handle_request(
     } else {
         println!(
             "{} {} {}",
-            style(format!("{}", Local::now().time())).black(),
+            style(format!("{}", Local::now().time())).black().bright(),
             style(req.method().to_string()).blue(),
             url
         );
 
-        match Request::from_hyper(req).await {
-            Ok(mut request) => {
-                request.set_header(X_FORWARDED_FOR.to_string(), ip);
-                request.set_header(X_LAGON_REGION.to_string(), LOCAL_REGION.to_string());
+        let (mut parts, body) = req.into_parts();
+        let body = hyper::body::to_bytes(body).await?;
 
-                isolate_tx
-                    .send_async(IsolateEvent::Request(IsolateRequest {
-                        request,
-                        sender: tx,
-                    }))
-                    .await
-                    .unwrap_or(());
-            }
-            Err(error) => {
-                println!("Error while parsing request: {error}");
+        parts.headers.insert(X_FORWARDED_FOR, ip.parse()?);
+        parts.headers.insert(X_LAGON_REGION, LOCAL_REGION.parse()?);
 
-                tx.send_async(RunResult::Error("Error while parsing request".into()))
-                    .await
-                    .unwrap_or(());
-            }
-        };
+        let request = (parts, body);
+
+        isolate_tx
+            .send_async(IsolateEvent::Request(IsolateRequest {
+                request,
+                sender: tx,
+            }))
+            .await
+            .unwrap_or(());
     }
 
     handle_response(rx, |event| async move {
@@ -141,7 +132,7 @@ async fn handle_request(
                 );
             }
             ResponseEvent::LimitsReached(result) => {
-                if result == RunResult::Timeout {
+                if result.is_timeout() {
                     println!("{} Function execution timed out", style("✕").red());
                 } else {
                     println!(
