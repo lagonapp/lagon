@@ -9,7 +9,7 @@ on:
   pull_request:
 
 env:
-  IMAGE_NAME: severless
+  IMAGE_NAME: serverless
 
 jobs:
   release-containerimage:
