@@ -6,6 +6,7 @@ use crate::{
 use anyhow::Result;
 use clickhouse::{inserter::Inserter, Client};
 use dashmap::DashMap;
+use futures::lock::Mutex;
 use hyper::{
     header::HOST,
     http::response::Builder,
@@ -34,9 +35,9 @@ use std::{
     net::SocketAddr,
     path::Path,
     sync::Arc,
-    time::{Duration, Instant, UNIX_EPOCH},
+    time::{Duration, UNIX_EPOCH},
 };
-use tokio::{runtime::Handle, sync::Mutex};
+use tokio::{runtime::Handle, sync::Mutex as TokioMutex};
 
 pub type Workers = Arc<DashMap<String, flume::Sender<IsolateEvent>>>;
 
@@ -98,7 +99,6 @@ async fn handle_request(
     req: Request<Body>,
     ip: String,
     deployments: Deployments,
-    last_requests: Arc<DashMap<String, Instant>>,
     workers: Workers,
     inserters: Arc<Mutex<(Inserter<RequestRow>, Inserter<LogRow>)>>,
     log_sender: flume::Sender<(String, String, Metadata)>,
@@ -188,8 +188,6 @@ async fn handle_request(
             .await
             .unwrap_or(());
     } else {
-        last_requests.insert(deployment_id.clone(), Instant::now());
-
         // Try to Extract the X-Real-Ip header or fallback to remote addr IP
         let ip = req.headers().get(X_REAL_IP).map_or(ip.clone(), |header| {
             header.clone().to_str().map_or(ip, |ip| ip.to_string())
@@ -363,10 +361,8 @@ where
     D: Downloader + Send + Sync + 'static,
     P: PubSubListener + Unpin + 'static,
 {
-    let last_requests = Arc::new(DashMap::new());
-
     let workers = Arc::new(DashMap::new());
-    let pubsub = Arc::new(Mutex::new(pubsub));
+    let pubsub = Arc::new(TokioMutex::new(pubsub));
 
     listen_pub_sub(
         Arc::clone(&downloader),
@@ -375,7 +371,7 @@ where
         // Arc::clone(&cronjob),
         pubsub,
     );
-    run_cache_clear_task(Arc::clone(&last_requests), Arc::clone(&workers));
+    run_cache_clear_task(&client, Arc::clone(&deployments), Arc::clone(&workers));
 
     let insertion_interval = Duration::from_secs(1);
     let inserters = Arc::new(Mutex::new((
@@ -435,7 +431,6 @@ where
 
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let deployments = Arc::clone(&deployments);
-        let last_requests = Arc::clone(&last_requests);
         let workers = Arc::clone(&workers);
         let inserters = Arc::clone(&inserters);
         let log_sender = log_sender.clone();
@@ -449,7 +444,6 @@ where
                     req,
                     ip.clone(),
                     Arc::clone(&deployments),
-                    Arc::clone(&last_requests),
                     Arc::clone(&workers),
                     Arc::clone(&inserters),
                     log_sender.clone(),
