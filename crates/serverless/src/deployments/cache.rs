@@ -2,7 +2,7 @@ use super::{pubsub::clear_deployment_cache, Deployments};
 use crate::{serverless::Workers, REGION};
 use clickhouse::{Client, Row};
 use serde::Deserialize;
-use std::{env, sync::Arc, time::Duration};
+use std::{collections::HashSet, env, sync::Arc, time::Duration};
 
 const CACHE_TASK_INTERVAL: Duration = Duration::from_secs(5);
 
@@ -24,20 +24,23 @@ pub fn run_cache_clear_task(client: &Client, deployments: Deployments, workers: 
         loop {
             tokio::time::sleep(CACHE_TASK_INTERVAL).await;
 
-            for deployment in deployments.iter() {
-                let deployment_id = &deployment.id;
+            let deployments_id = deployments
+                .iter()
+                .map(|deployment| deployment.id.clone())
+                .collect::<HashSet<_>>();
 
+            for deployment_id in deployments_id {
                 let query = client
                     .query("SELECT count(*) as count FROM serverless.requests WHERE timestamp >= subtractSeconds(now(), ?) AND region = ? AND deployment_id = ?")
                     .bind(isolates_cache_seconds.as_secs())
                     .bind(REGION.clone())
-                    .bind(deployment_id)
+                    .bind(deployment_id.clone())
                     .fetch_one::<MyRow>().await;
 
                 if let Ok(row) = query {
                     if row.count == 0 {
                         clear_deployment_cache(
-                            deployment_id.clone(),
+                            deployment_id,
                             Arc::clone(&workers),
                             String::from("expiration"),
                         )
