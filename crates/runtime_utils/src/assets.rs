@@ -1,6 +1,5 @@
 use anyhow::Result;
-use hyper::body::Bytes;
-use lagon_runtime_http::Response;
+use hyper::{body::Bytes, header::CONTENT_TYPE, Body, Response};
 use std::{
     collections::HashSet,
     fs,
@@ -19,7 +18,7 @@ pub fn find_asset<'a>(url: &'a str, assets: &'a HashSet<String>) -> Option<&'a S
     })
 }
 
-pub fn handle_asset(root: PathBuf, asset: &String) -> Result<Response> {
+pub fn handle_asset(root: PathBuf, asset: &String) -> Result<Response<Body>> {
     let path = root.join(asset);
     let body = fs::read(path)?;
 
@@ -39,13 +38,9 @@ pub fn handle_asset(root: PathBuf, asset: &String) -> Result<Response> {
         },
     );
 
-    let headers = vec![("content-type".into(), vec![content_type.into()])];
-
-    Ok(Response {
-        status: 200,
-        headers: Some(headers),
-        body: Bytes::from(body),
-    })
+    Ok(Response::builder()
+        .header(CONTENT_TYPE, content_type)
+        .body(Body::from(Bytes::from(body)))?)
 }
 
 #[cfg(test)]

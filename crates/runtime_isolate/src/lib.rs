@@ -1,5 +1,9 @@
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
-use lagon_runtime_http::{FromV8, IntoV8, Request, Response, RunResult, StreamResult};
+use hyper::{
+    body::Bytes,
+    http::{request::Parts, response::Builder},
+};
+use lagon_runtime_http::{request_to_v8, response_from_v8, RunResult, StreamResult};
 use lagon_runtime_v8_utils::v8_string;
 use linked_hash_map::LinkedHashMap;
 use std::{
@@ -33,7 +37,7 @@ pub struct RequestContext {
 }
 
 pub struct IsolateRequest {
-    pub request: Request,
+    pub request: (Parts, Bytes),
     pub sender: flume::Sender<RunResult>,
 }
 
@@ -418,7 +422,7 @@ impl Isolate {
                 let global = global.open(try_catch);
                 let global = global.global(try_catch);
 
-                let request = request.into_v8(try_catch);
+                let request = request_to_v8(request, try_catch);
                 let id = v8::Integer::new(try_catch, requests_count as i32);
                 try_catch.set_continuation_preserved_embedder_data(id.into());
 
@@ -549,8 +553,8 @@ impl Isolate {
     fn poll_event_loop(&mut self, cx: &mut Context) -> Poll<()> {
         if let Some(compilation_error) = &self.compilation_error {
             if let Ok(IsolateEvent::Request(IsolateRequest { sender, .. })) = self.rx.try_recv() {
-                let termination_result = match self.termination_result.read().unwrap().as_ref() {
-                    Some(termination_result) => termination_result.clone(),
+                let termination_result = match self.termination_result.write().unwrap().take() {
+                    Some(termination_result) => termination_result,
                     None => RunResult::Error(compilation_error.to_string()),
                 };
 
@@ -592,12 +596,9 @@ impl Isolate {
         let mut state = state.borrow_mut();
         self.poll_stream(&state);
 
-        if let Some(termination_result) = self.termination_result.read().unwrap().as_ref() {
-            for handler_result in state.handler_results.values() {
-                handler_result
-                    .sender
-                    .send(termination_result.clone())
-                    .unwrap_or(());
+        if let Some(termination_result) = self.termination_result.write().unwrap().take() {
+            if let Some(handler_result) = state.handler_results.values().next() {
+                handler_result.sender.send(termination_result).unwrap_or(());
             }
 
             return Poll::Ready(());
@@ -654,24 +655,34 @@ impl Isolate {
             match promise.state() {
                 v8::PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
-                    let run_result = match Response::from_v8(try_catch, response) {
-                        Ok(response) => {
-                            RunResult::Response(response, Some(handler_result.start_time.elapsed()))
-                        }
-                        Err(error) => RunResult::Error(error.to_string()),
+                    let (run_result, is_streaming) = match response_from_v8(try_catch, response) {
+                        Ok((response, is_streaming)) => (
+                            RunResult::Response(
+                                response,
+                                Some(handler_result.start_time.elapsed()),
+                            ),
+                            is_streaming,
+                        ),
+                        Err(error) => (RunResult::Error(error.to_string()), false),
                     };
 
-                    if let RunResult::Response(ref response, _) = run_result {
-                        if response.is_streamed() {
-                            handler_result
-                                .sender
-                                .send(RunResult::Stream(StreamResult::Start(response.clone())))
-                                .unwrap_or(());
+                    if is_streaming {
+                        let response = run_result.as_response();
+                        let mut response_builder = Builder::new().status(response.status());
+                        let headers = response_builder.headers_mut().unwrap();
 
-                            *handler_result.stream_response_sent.borrow_mut() = true;
-
-                            return true;
+                        for (key, value) in response.headers().iter() {
+                            headers.append(key, value.into());
                         }
+
+                        handler_result
+                            .sender
+                            .send(RunResult::Stream(StreamResult::Start(response_builder)))
+                            .unwrap_or(());
+
+                        *handler_result.stream_response_sent.borrow_mut() = true;
+
+                        return true;
                     }
 
                     handler_result.sender.send(run_result).unwrap_or(());
