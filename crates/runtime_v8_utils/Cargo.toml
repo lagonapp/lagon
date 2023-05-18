@@ -4,6 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-v8 = "0.71.1"
+v8 = "0.71.2"
 anyhow = "1.0.71"
 hyper = { version = "0.14.26" }
