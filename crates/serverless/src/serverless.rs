@@ -290,6 +290,8 @@ async fn handle_request(
         async move {
             match event {
                 ResponseEvent::Bytes(bytes, cpu_time_micros) => {
+                    let timestamp = UNIX_EPOCH.elapsed().unwrap().as_secs() as u32;
+
                     inserters
                         .lock()
                         .await
@@ -301,7 +303,7 @@ async fn handle_request(
                             bytes_in,
                             bytes_out: bytes as u32,
                             cpu_time_micros,
-                            timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
+                            timestamp,
                         })
                         .await
                         .unwrap_or(());
