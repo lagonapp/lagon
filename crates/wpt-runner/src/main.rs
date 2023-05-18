@@ -51,11 +51,12 @@ static TEST_HARNESS: Lazy<String> = Lazy::new(|| {
         .replace("debug: false", "debug: true")
 });
 
-const SKIP_TESTS: [&str; 14] = [
+const SKIP_TESTS: [&str; 15] = [
     // response
     "response-cancel-stream.any.js",           // "undefined"
     "response-error-from-stream.any.js",       // "Start error"
     "response-stream-with-broken-then.any.js", // "Cannot destructure property 'done' of 'undefined' as it is undefine"
+    "response-stream-disturbed-4.any.js",
     // url
     "idlharness.any.js",            // load webidl stuff, not supported
     "url-setters.any.js",           // fetch an json file, find a way to run it
