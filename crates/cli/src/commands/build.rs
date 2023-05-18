@@ -33,9 +33,7 @@ pub fn build(
     println!(" {} Build successful!", style("◼").magenta());
     println!(
         "   {}",
-        style(format!("You can find it in {:?}", root))
-            .black()
-            .bright()
+        style(format!("You can find it in {:?}", root)).black().bright()
     );
 
     Ok(())
