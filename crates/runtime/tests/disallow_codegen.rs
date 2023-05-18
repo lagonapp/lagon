@@ -1,4 +1,5 @@
-use lagon_runtime_http::{Request, RunResult};
+use hyper::Request;
+use lagon_runtime_http::RunResult;
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -15,9 +16,11 @@ async fn disallow_eval() {
     ));
     send(Request::default());
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Error(
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Error(
         "Uncaught EvalError: Code generation from strings disallowed for this context\n  at handler (2:20)".into()
-    ));
+    )).await;
 }
 
 #[tokio::test]
@@ -32,7 +35,9 @@ async fn disallow_function() {
     ));
     send(Request::default());
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Error(
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Error(
         "Uncaught EvalError: Code generation from strings disallowed for this context\n  at handler (2:20)".into()
-    ));
+    )).await;
 }

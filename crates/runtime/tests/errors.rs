@@ -1,4 +1,5 @@
-use lagon_runtime_http::{Request, RunResult};
+use hyper::Request;
+use lagon_runtime_http::RunResult;
 use lagon_runtime_isolate::options::IsolateOptions;
 use std::time::Duration;
 
@@ -11,12 +12,13 @@ async fn no_handler() {
         utils::create_isolate(IsolateOptions::new("console.log('Hello')".into()));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
+    utils::assert_run_result(
+        &receiver,
         RunResult::Error(
-            "Uncaught Error: Handler function is not defined or is not a function".into()
-        )
-    );
+            "Uncaught Error: Handler function is not defined or is not a function".into(),
+        ),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -26,12 +28,13 @@ async fn handler_not_function() {
         utils::create_isolate(IsolateOptions::new("export const handler = 'Hello'".into()));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
+    utils::assert_run_result(
+        &receiver,
         RunResult::Error(
-            "Uncaught Error: Handler function is not defined or is not a function".into()
-        )
-    );
+            "Uncaught Error: Handler function is not defined or is not a function".into(),
+        ),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -45,10 +48,11 @@ async fn handler_reject() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught Error: Rejected\n  at handler (2:11)".into())
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Error("Uncaught Error: Rejected\n  at handler (2:11)".into()),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -62,10 +66,11 @@ async fn compilation_error() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Error("Uncaught SyntaxError: Unexpected identifier 'syntax'".into())
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Error("Uncaught SyntaxError: Unexpected identifier 'syntax'".into()),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -81,13 +86,14 @@ export function handler() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
+    utils::assert_run_result(
+        &receiver,
         RunResult::Error(
             "Uncaught Error: Can't import modules, everything should be bundled in a single file"
-                .into()
-        )
-    );
+                .into(),
+        ),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -102,7 +108,7 @@ async fn execution_tick_timeout_reached() {
     ));
     send(Request::default());
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Timeout);
+    utils::assert_run_result(&receiver, RunResult::Timeout).await;
 }
 
 #[tokio::test]
@@ -117,7 +123,7 @@ export function handler() {
     ));
     send(Request::default());
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Timeout);
+    utils::assert_run_result(&receiver, RunResult::Timeout).await;
 }
 
 #[tokio::test]
@@ -132,7 +138,7 @@ async fn total_timeout_reached() {
     ));
     send(Request::default());
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Timeout);
+    utils::assert_run_result(&receiver, RunResult::Timeout).await;
 }
 
 #[tokio::test]
@@ -160,7 +166,7 @@ async fn memory_reached() {
     );
     send(Request::default());
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::MemoryLimit);
+    utils::assert_run_result(&receiver, RunResult::MemoryLimit).await;
 }
 
 #[tokio::test]
@@ -182,5 +188,8 @@ export function handler() {
     ));
     send(Request::default());
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Error("Uncaught TypeError: a is not a function\n  at test (2:12)\n  at first (6:12)\n  at handler (10:25)".into()));
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Error("Uncaught TypeError: a is not a function\n  at test (2:12)\n  at first (6:12)\n  at handler (10:25)".into())
+    ).await;
 }

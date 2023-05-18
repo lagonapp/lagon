@@ -1,5 +1,8 @@
-use httptest::bytes::Bytes;
-use lagon_runtime_http::{Method, Request, Response, RunResult, StreamResult};
+use hyper::{
+    header::{CONTENT_TYPE, HOST},
+    Body, Method, Request, Response,
+};
+use lagon_runtime_http::{RunResult, StreamResult};
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -15,10 +18,14 @@ async fn execute_function() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello world")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello world".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -34,10 +41,14 @@ export { hello as handler }"
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello world")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello world".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -51,17 +62,25 @@ async fn execute_function_twice() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello world")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello world".into())
+            .unwrap(),
+    )
+    .await;
 
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello world")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello world".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -82,10 +101,14 @@ async fn environment_variables() {
     );
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello world")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello world".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -97,31 +120,28 @@ async fn get_body_streaming() {
 }"
         .into(),
     ));
-    send(Request {
-        body: Bytes::from("Hello world"),
-        headers: Some(vec![(
-            "content-type".into(),
-            vec!["text/plain;charset=UTF-8".into()],
-        )]),
-        method: Method::GET,
-        url: "".into(),
-    });
+    send(
+        Request::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello world".into())
+            .unwrap(),
+    );
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
+    utils::assert_run_result(
+        &receiver,
         RunResult::Stream(StreamResult::Data(vec![
-            72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100
-        ]))
-    );
+            72, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100,
+        ])),
+    )
+    .await;
+
     assert!(receiver.recv_async().await.unwrap().as_stream_done());
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response {
-            headers: None,
-            body: Bytes::from("[object ReadableStream]"),
-            status: 200,
-        }))
-    );
+
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Start(Response::builder())),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -133,20 +153,21 @@ async fn get_body() {
 }"
         .into(),
     ));
-    send(Request {
-        body: Bytes::from("Hello world"),
-        headers: Some(vec![(
-            "content-type".into(),
-            vec!["text/plain;charset=UTF-8".into()],
-        )]),
-        method: Method::GET,
-        url: "".into(),
-    });
-
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello world")
+    send(
+        Request::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello world".into())
+            .unwrap(),
     );
+
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello world".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -158,20 +179,23 @@ async fn get_input() {
 }"
         .into(),
     ));
-    send(Request {
-        body: Bytes::new(),
-        headers: Some(vec![(
-            "content-type".into(),
-            vec!["text/plain;charset=UTF-8".into()],
-        )]),
-        method: Method::GET,
-        url: "https://hello.world".into(),
-    });
-
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("https://hello.world")
+    send(
+        Request::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .header(HOST, "hello.world")
+            .uri("/hello")
+            .body("Hello world".into())
+            .unwrap(),
     );
+
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("https://hello.world/hello".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -183,20 +207,22 @@ async fn get_method() {
 }"
         .into(),
     ));
-    send(Request {
-        body: Bytes::new(),
-        headers: Some(vec![(
-            "content-type".into(),
-            vec!["text/plain;charset=UTF-8".into()],
-        )]),
-        method: Method::POST,
-        url: "".into(),
-    });
-
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("POST")
+    send(
+        Request::builder()
+            .method(Method::POST)
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body(Body::empty())
+            .unwrap(),
     );
+
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("POST".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -208,17 +234,21 @@ async fn get_headers() {
 }"
         .into(),
     ));
-    send(Request {
-        body: Bytes::new(),
-        headers: Some(vec![("x-auth".into(), vec!["token".into()])]),
-        method: Method::POST,
-        url: "".into(),
-    });
-
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("token")
+    send(
+        Request::builder()
+            .header("x-auth", "token")
+            .body(Body::empty())
+            .unwrap(),
     );
+
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("token".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -237,17 +267,15 @@ async fn return_headers() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response {
-            body: "Hello world".into(),
-            headers: Some(vec![
-                ("content-type".into(), vec!["text/html".into()]),
-                ("x-test".into(), vec!["test".into()])
-            ]),
-            status: 200,
-        }
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/html")
+            .header("x-test", "test")
+            .body("Hello world".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -266,17 +294,15 @@ async fn return_headers_from_headers_api() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response {
-            body: "Hello world".into(),
-            headers: Some(vec![
-                ("content-type".into(), vec!["text/html".into()]),
-                ("x-test".into(), vec!["test".into()])
-            ]),
-            status: 200,
-        }
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/html")
+            .header("x-test", "test")
+            .body("Hello world".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -292,17 +318,15 @@ async fn return_status() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response {
-            body: "Moved permanently".into(),
-            headers: Some(vec![(
-                "content-type".into(),
-                vec!["text/plain;charset=UTF-8".into()],
-            )]),
-            status: 302,
-        }
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .status(302)
+            .body("Moved permanently".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -318,13 +342,11 @@ async fn return_uint8array() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response {
-            body: "Hello world".into(),
-            ..Default::default()
-        }
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().body("Hello world".into()).unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -344,10 +366,14 @@ async fn console_log() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -361,10 +387,14 @@ async fn atob() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello".into())
+            .unwrap(),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -378,8 +408,12 @@ async fn btoa() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("SGVsbG8=")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("SGVsbG8=".into())
+            .unwrap(),
+    )
+    .await;
 }

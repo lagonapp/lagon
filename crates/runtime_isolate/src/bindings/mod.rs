@@ -5,7 +5,8 @@ use crypto::{
     verify_binding, verify_init,
 };
 use fetch::{fetch_binding, fetch_init};
-use lagon_runtime_http::{IntoV8, Response};
+use hyper::{body::Bytes, http::response::Parts};
+use lagon_runtime_http::response_to_v8;
 use lagon_runtime_v8_utils::{v8_boolean, v8_string, v8_uint8array};
 use pull_stream::pull_stream_binding;
 use queue_microtask::queue_microtask_binding;
@@ -31,7 +32,7 @@ pub struct BindingResult {
 }
 
 pub enum PromiseResult {
-    Response(Response),
+    Response((Parts, Bytes)),
     ArrayBuffer(Vec<u8>),
     Boolean(bool),
     Error(String),
@@ -41,7 +42,7 @@ pub enum PromiseResult {
 impl PromiseResult {
     pub fn into_value<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Value> {
         match self {
-            PromiseResult::Response(response) => response.into_v8(scope).into(),
+            PromiseResult::Response(response) => response_to_v8(response, scope).into(),
             PromiseResult::ArrayBuffer(bytes) => v8_uint8array(scope, bytes).into(),
             PromiseResult::Boolean(boolean) => v8_boolean(scope, boolean).into(),
             PromiseResult::Error(error) => v8_string(scope, &error).into(),
