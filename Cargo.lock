@@ -587,9 +587,9 @@ checksum = "8a2dd5a6fe8c6e3502f568a6353e5273bbb15193ad9a89e457b9970798efbea1"
 
 [[package]]
 name = "clickhouse"
-version = "0.11.3"
+version = "0.11.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c29e58dfff0518f6a6306b89c78397aa98ae7efbd452be871948b0f750573eb5"
+checksum = "a89358c958175765bbb206182184f27d7ce7529c14a1add04c07ae8f72c5ef9c"
 dependencies = [
  "bstr 1.4.0",
  "bytes",
