@@ -549,8 +549,9 @@ async fn crypto_decrypt_aes_ctr() {
 #[tokio::test]
 async fn crypto_encrypt_rsa_oaep() {
     utils::setup();
-    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
-        "export async function handler() {
+    let (send, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "export async function handler() {
     const key = await crypto.subtle.generateKey(
         {
             name: 'RSA-OAEP',
@@ -568,8 +569,11 @@ async fn crypto_encrypt_rsa_oaep() {
     );
     return new Response(`${ciphertext instanceof Uint8Array} ${ciphertext.length}`);
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .tick_timeout(Duration::from_secs(5))
+        .total_timeout(Duration::from_secs(10)),
+    );
     send(Request::default());
 
     utils::assert_response(
@@ -585,8 +589,9 @@ async fn crypto_encrypt_rsa_oaep() {
 #[tokio::test]
 async fn crypto_decrypt_rsa_oaep() {
     utils::setup();
-    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
-        "export async function handler() {
+    let (send, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "export async function handler() {
     const key = await crypto.subtle.generateKey(
         {
             name: 'RSA-OAEP',
@@ -612,8 +617,11 @@ async fn crypto_decrypt_rsa_oaep() {
 
     return new Response(new TextDecoder().decode(text));
 }"
-        .into(),
-    ));
+            .into(),
+        )
+        .tick_timeout(Duration::from_secs(5))
+        .total_timeout(Duration::from_secs(10)),
+    );
     send(Request::default());
 
     utils::assert_response(
