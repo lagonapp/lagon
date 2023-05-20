@@ -18,6 +18,7 @@ linked-hash-map = "0.5.6"
 lagon-runtime-v8-utils = { path = "../runtime_v8_utils" }
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-crypto = { path = "../runtime_crypto" }
+lagon-runtime-websocket = { path = "../runtime_websocket" }
 
 [features]
 default = []

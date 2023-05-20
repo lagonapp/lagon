@@ -13,11 +13,17 @@ use queue_microtask::queue_microtask_binding;
 use sleep::{sleep_binding, sleep_init};
 
 use crate::{
-    bindings::crypto::{
-        derive_bits_binding, derive_bits_init, digest_init, generate_key_binding, generate_key_init,
+    bindings::{
+        crypto::{
+            derive_bits_binding, derive_bits_init, digest_init, generate_key_binding,
+            generate_key_init,
+        },
+        websocket::ws_init,
     },
     Isolate,
 };
+
+use self::websocket::ws_info_to_v8;
 
 pub mod console;
 pub mod crypto;
@@ -25,6 +31,7 @@ pub mod fetch;
 pub mod pull_stream;
 pub mod queue_microtask;
 pub mod sleep;
+pub mod websocket;
 
 pub struct BindingResult {
     pub id: usize,
@@ -32,6 +39,8 @@ pub struct BindingResult {
 }
 
 pub enum PromiseResult {
+    WsInfo(String, String, String),
+    String(String),
     Response((Parts, Bytes)),
     ArrayBuffer(Vec<u8>),
     Boolean(bool),
@@ -46,7 +55,11 @@ impl PromiseResult {
             PromiseResult::ArrayBuffer(bytes) => v8_uint8array(scope, bytes).into(),
             PromiseResult::Boolean(boolean) => v8_boolean(scope, boolean).into(),
             PromiseResult::Error(error) => v8_string(scope, &error).into(),
+            PromiseResult::String(str) => v8_string(scope, &str).into(),
             PromiseResult::Undefined => v8::undefined(scope).into(),
+            PromiseResult::WsInfo(ws_id, protocols, extensions) => {
+                ws_info_to_v8((ws_id, protocols, extensions), scope).into()
+            }
         }
     }
 }
@@ -166,6 +179,8 @@ pub fn bind<'a>(
             generate_key_init,
             generate_key_binding
         );
+
+        ws_init(scope, &lagon_object);
 
         global.set(v8_string(scope, "LagonAsync").into(), lagon_object.into());
     }
