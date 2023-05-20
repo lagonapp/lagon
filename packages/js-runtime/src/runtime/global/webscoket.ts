@@ -102,6 +102,7 @@
         .catch(err => {
           this._readyState = WsState.CLOSED;
 
+          // @ts-ignore
           const errorEv = new Event('error', { error: err, message: err.toString() });
           this.dispatchEvent(errorEv);
 
@@ -126,6 +127,7 @@
 
         LagonAsync.websocketClose(this.wsId, code, reason).catch(err => {
           const errorEv = new Event('error', {
+            // @ts-ignore
             error: err,
             message: err.toString(),
           });
@@ -163,6 +165,7 @@
               }
 
               const event = new Event('close', {
+                // @ts-ignore
                 wasClean: true,
               });
               this.dispatchEvent(event);
@@ -170,7 +173,9 @@
             }
             default:
               this.serverHandleIdleTimeout();
+
               const event = new Event('message', {
+                // @ts-ignore
                 data,
                 origin: this._url,
               });
@@ -178,7 +183,10 @@
           }
         } catch (e: any) {
           this._readyState = WsState.CLOSED;
+
+          // @ts-ignore
           const errorEv = new Event('error', {
+            // @ts-ignore
             message: e,
           });
           this.dispatchEvent(errorEv);
@@ -205,11 +213,13 @@
                 this._readyState = WsState.CLOSED;
 
                 const errEvent = new Event('error', {
+                  // @ts-ignore
                   message: reason,
                 });
                 this.dispatchEvent(errEvent);
 
                 const event = new Event('close', {
+                  // @ts-ignore
                   wasClean: false,
                   code: 1001,
                   reason,
