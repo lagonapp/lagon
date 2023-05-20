@@ -13,22 +13,23 @@
     CLOSED = '__RUNTIME_WS_EVENT_CLOSED__',
   }
 
-  // @ts-expect-error
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   globalThis.WebSocket = class extends EventTarget {
     private _url: string;
     get url() {
       return this._url;
     }
-    private wsId: string = '';
-    private _protocols: string = '';
+    private wsId = '';
+    private _protocols = '';
     get protocols() {
       return this._protocols;
     }
-    private _extensions: string = '';
+    private _extensions = '';
     get extensions() {
       return this._extensions;
     }
-    private _readyState: WsState = WsState.CONNECTING;
+    private _readyState = WsState.CONNECTING;
     get readyState() {
       return this._readyState;
     }
@@ -48,11 +49,7 @@
       if (url instanceof URL) {
         wsURL = url;
       } else {
-        try {
-          wsURL = new URL(url);
-        } catch (e) {
-          throw e;
-        }
+        wsURL = new URL(url);
       }
 
       if (wsURL.protocol !== 'ws:' && wsURL.protocol !== 'wss:') {
@@ -101,7 +98,7 @@
         })
         .catch(err => {
           this._readyState = WsState.CLOSED;
-
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           const errorEv = new Event('error', { error: err, message: err.toString() });
           this.dispatchEvent(errorEv);
@@ -127,6 +124,7 @@
 
         LagonAsync.websocketClose(this.wsId, code, reason).catch(err => {
           const errorEv = new Event('error', {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             error: err,
             message: err.toString(),
@@ -165,27 +163,29 @@
               }
 
               const event = new Event('close', {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 wasClean: true,
               });
               this.dispatchEvent(event);
               break;
             }
-            default:
+            default: {
               this.serverHandleIdleTimeout();
-
               const event = new Event('message', {
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 data,
                 origin: this._url,
               });
               this.dispatchEvent(event);
+            }
           }
         } catch (e: any) {
           this._readyState = WsState.CLOSED;
 
-          // @ts-ignore
           const errorEv = new Event('error', {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             message: e,
           });
@@ -213,12 +213,14 @@
                 this._readyState = WsState.CLOSED;
 
                 const errEvent = new Event('error', {
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                   // @ts-ignore
                   message: reason,
                 });
                 this.dispatchEvent(errEvent);
 
                 const event = new Event('close', {
+                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                   // @ts-ignore
                   wasClean: false,
                   code: 1001,

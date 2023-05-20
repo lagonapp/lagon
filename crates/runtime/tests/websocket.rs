@@ -1,10 +1,9 @@
-use httptest::{matchers::*, responders::*, Expectation, Server};
-use hyper::{ext::Protocol, header::CONTENT_TYPE, Request, Response};
+use hyper::Request;
 use lagon_runtime_isolate::options::IsolateOptions;
-use lagon_runtime_websocket::{accept_async, Message, SendValue, StreamExt, WebSocketStream};
+use lagon_runtime_websocket::{accept_async, Message, StreamExt, WebSocketStream};
 use tokio::{
     io::{AsyncRead, AsyncWrite},
-    net::{TcpListener, TcpStream},
+    net::TcpListener,
 };
 
 mod utils;
