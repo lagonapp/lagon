@@ -561,7 +561,7 @@ async fn crypto_encrypt_rsa_oaep() {
         true,
         ['encrypt'],
     );
-    
+
     const ciphertext = await crypto.subtle.encrypt(
         { name: 'RSA-OAEP' },
         key.publicKey,

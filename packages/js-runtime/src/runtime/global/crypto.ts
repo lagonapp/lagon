@@ -125,15 +125,6 @@ interface CryptoKey {
     }
   };
 
-  const RsaOaepParamsCheck = (algorithm: RsaOaepParams) => {
-    if (
-      algorithm.label !== undefined &&
-      !(algorithm.label instanceof ArrayBuffer || algorithm.label instanceof Uint8Array)
-    ) {
-      throw new TypeError('label must be Uint8Array');
-    }
-  };
-
   globalThis.CryptoKey = class {
     readonly algorithm: KeyAlgorithm;
     readonly extractable: boolean;
@@ -167,9 +158,6 @@ interface CryptoKey {
       key: CryptoKey,
       data: BufferSource,
     ): Promise<ArrayBuffer> {
-      if (typeof algorithm === 'object' && algorithm.name === 'RSA-OAEP') {
-        RsaOaepParamsCheck(algorithm as RsaOaepParams);
-      }
       return LagonAsync.decrypt(algorithm, key, data);
     }
 
@@ -207,9 +195,6 @@ interface CryptoKey {
       key: CryptoKey,
       data: BufferSource,
     ): Promise<ArrayBuffer> {
-      if (typeof algorithm === 'object' && algorithm.name === 'RSA-OAEP') {
-        RsaOaepParamsCheck(algorithm as RsaOaepParams);
-      }
       return LagonAsync.encrypt(algorithm, key, data);
     }
 

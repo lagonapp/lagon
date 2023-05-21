@@ -44,10 +44,7 @@ pub fn encrypt(algorithm: Algorithm, key_value: Vec<u8>, data: Vec<u8>) -> Resul
             let public_key = RsaPrivateKey::from_pkcs1_der(&key_value)?.to_public_key();
             let mut rng = OsRng;
             let padding = match label {
-                Some(buf) => {
-                    let s = String::from_utf8(buf)?;
-                    Oaep::new_with_label::<Sha256, String>(s)
-                }
+                Some(buf) => Oaep::new_with_label::<Sha256, String>(String::from_utf8(buf)?),
                 None => Oaep::new::<Sha256>(),
             };
             let encrypted = public_key

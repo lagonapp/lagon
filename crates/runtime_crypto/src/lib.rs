@@ -128,10 +128,7 @@ pub fn extract_algorithm_object(
         if name == "RSA-OAEP" {
             let label_key = v8_string(scope, "label").into();
             let label = match algorithm.get(scope, label_key) {
-                Some(label) => match label.is_uint8_array() {
-                    false => None,
-                    true => Some(extract_v8_uint8array(label)?),
-                },
+                Some(label) => Some(extract_v8_uint8array(label)?),
                 None => None,
             };
 

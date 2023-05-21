@@ -45,10 +45,7 @@ pub fn decrypt(algorithm: Algorithm, key_value: Vec<u8>, data: Vec<u8>) -> Resul
         Algorithm::RsaOaep(label) => {
             let private_key = RsaPrivateKey::from_pkcs1_der(&key_value)?;
             let padding = match label {
-                Some(buf) => {
-                    let s = String::from_utf8(buf)?;
-                    Oaep::new_with_label::<Sha256, String>(s)
-                }
+                Some(buf) => Oaep::new_with_label::<Sha256, String>(String::from_utf8(buf)?),
                 None => Oaep::new::<Sha256>(),
             };
 
