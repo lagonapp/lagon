@@ -10,7 +10,7 @@ mod utils;
 
 async fn run_connection<S>(
     connection: WebSocketStream<S>,
-    msg_tx: futures_channel::oneshot::Sender<Vec<Message>>,
+    msg_tx: tokio::sync::oneshot::Sender<Vec<Message>>,
 ) where
     S: AsyncRead + AsyncWrite + Unpin,
 {
@@ -27,8 +27,8 @@ async fn run_connection<S>(
 async fn websocket_test() {
     utils::setup();
 
-    let (con_tx, con_rx) = futures_channel::oneshot::channel();
-    let (msg_tx, msg_rx) = futures_channel::oneshot::channel();
+    let (con_tx, con_rx) = tokio::sync::oneshot::channel();
+    let (msg_tx, msg_rx) = tokio::sync::oneshot::channel();
 
     let f = async move {
         let listener = TcpListener::bind("127.0.0.1:12345").await.unwrap();

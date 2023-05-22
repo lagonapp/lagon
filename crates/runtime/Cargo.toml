@@ -16,7 +16,6 @@ lagon-runtime-websocket = { path = "../runtime_websocket" }
 log = { version = "0.4.17", features = ["std", "kv_unstable", "kv_unstable_serde"] }
 serial_test = "2.0.0"
 hyper = { version = "0.14.26", features = [] }
-futures-channel = "0.3.28"
 
 [features]
 default = []

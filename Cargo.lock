@@ -1816,7 +1816,6 @@ name = "lagon-runtime"
 version = "0.1.0"
 dependencies = [
  "flume",
- "futures-channel",
  "httptest",
  "hyper",
  "lagon-runtime-http",

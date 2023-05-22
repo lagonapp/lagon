@@ -5,9 +5,7 @@ use std::{
 
 use anyhow::Result;
 use lagon_runtime_v8_utils::v8_string;
-use lagon_runtime_websocket::{
-    close_ws, get_ws_event, new_ws, send_ws_event, SendValue, Uuid, Ws, WsId,
-};
+use lagon_runtime_websocket::{new_ws, SendValue, Uuid, Ws, WsId};
 use v8::{Local, ObjectTemplate};
 
 use crate::Isolate;
@@ -136,7 +134,7 @@ pub async fn websocket_event_binding(
     let ws = table.get_mut(&uuid);
 
     match ws {
-        Some(ws) => match get_ws_event(ws).await {
+        Some(ws) => match ws.get_ws_event().await {
             Ok(res) => match res {
                 lagon_runtime_websocket::EventResponse::String(str) => BindingResult {
                     id,
@@ -147,7 +145,7 @@ pub async fn websocket_event_binding(
                     result: PromiseResult::ArrayBuffer(buf),
                 },
                 lagon_runtime_websocket::EventResponse::Close { code, reason } => {
-                    match close_ws(ws, Some(code), Some(reason)).await {
+                    match ws.close_ws(Some(code), Some(reason)).await {
                         Ok(_) => BindingResult {
                             id,
                             result: PromiseResult::String(
@@ -241,7 +239,7 @@ pub async fn websocket_send_binding(
     let ws = table.get_mut(&uuid);
 
     match ws {
-        Some(ws) => match send_ws_event(ws, value).await {
+        Some(ws) => match ws.send_ws_event(value).await {
             Ok(_) => BindingResult {
                 id,
                 result: PromiseResult::Undefined,
@@ -305,7 +303,7 @@ pub async fn websocket_close_binding(
     };
 
     match table.remove(&uuid) {
-        Some(ref mut ws) => match close_ws(ws, code, reason).await {
+        Some(ref mut ws) => match ws.close_ws(code, reason).await {
             Ok(_) => BindingResult {
                 id,
                 result: PromiseResult::Undefined,
