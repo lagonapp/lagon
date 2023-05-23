@@ -1,6 +1,6 @@
 {
   "name": "@lagon/runtime",
-  "version": "0.3.13",
+  "version": "0.3.14",
   "description": "JavaScript Serverless Runtime for Lagon",
   "private": true,
   "scripts": {

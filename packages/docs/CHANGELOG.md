@@ -1,5 +1,11 @@
 # @lagon/docs
 
+## 0.3.10
+
+### Patch Changes
+
+- [#874](https://github.com/lagonapp/lagon/pull/874) [`be5dbde`](https://github.com/lagonapp/lagon/commit/be5dbdec750c62256d5bfef3496ccb2a409f12fa) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Upstash examples
+
 ## 0.3.9
 
 ### Patch Changes
