@@ -8,11 +8,11 @@ lagon-runtime = { path = "../runtime" }
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-isolate = { path = "../runtime_isolate" }
 lagon-runtime-utils = { path = "../runtime_utils" }
-clap = { version = "4.2.7", features = ["derive"] }
+clap = { version = "4.3.0", features = ["derive"] }
 dialoguer = { version = "0.10.4", features = ["password"] }
 indicatif = "0.17.3"
 dirs = "5.0.1"
-webbrowser = "0.8.9"
+webbrowser = "0.8.10"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "sync"] }
 hyper = { version = "0.14.26", features = ["client", "server", "http1", "runtime", "stream"] }
 serde = { version = "1.0", features = ["derive"] }
@@ -22,7 +22,7 @@ pathdiff = "0.2.1"
 hyper-tls = { version = "0.5.0", features = ["vendored"] }
 flume = "0.10.14"
 chrono = "0.4.24"
-notify = "5.1.0"
+notify = "6.0.0"
 envfile = "0.2.1"
 anyhow = "1.0.71"
 urlencoding = "2.1.2"

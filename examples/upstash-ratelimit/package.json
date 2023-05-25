@@ -1,0 +1,12 @@
+{
+  "name": "@lagon/example-upstash-ratelimit",
+  "version": "0.1.1",
+  "private": true,
+  "scripts": {
+    "lagon-dev": "lagon dev index.ts"
+  },
+  "dependencies": {
+    "@upstash/ratelimit": "^0.4.3",
+    "@upstash/redis": "^1.20.6"
+  }
+}

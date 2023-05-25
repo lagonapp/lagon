@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { Button, Card, Form, Input, Text, TagsInput, Dialog, Menu, Divider } from '@lagon/ui';
+import { Button, Card, Form, Input, Text, TagsInput, Dialog, Menu } from '@lagon/ui';
 import { getCurrentDomain } from 'lib/utils';
 import {
   composeValidators,
@@ -229,20 +229,14 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                       event.preventDefault();
                     }
                   }}
-                  validator={composeValidators(
-                    requiredValidator,
-                    maxLengthValidator(ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH),
-                  )}
+                  validator={maxLengthValidator(ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH)}
                 />
                 <Input
                   name="envValue"
                   placeholder={t('env.placeholder.value')}
                   type="password"
                   disabled={updateFunction.isLoading}
-                  validator={composeValidators(
-                    requiredValidator,
-                    maxLengthValidator(ENVIRONMENT_VARIABLE_VALUE_MAX_SIZE),
-                  )}
+                  validator={maxLengthValidator(ENVIRONMENT_VARIABLE_VALUE_MAX_SIZE)}
                 />
                 <Button
                   disabled={updateFunction.isLoading}
