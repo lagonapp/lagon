@@ -30,9 +30,9 @@ pub fn get_bucket() -> Result<Bucket> {
             },
             credentials,
         )?
-        .with_path_style();
+        .with_path_style()
     } else {
-        Bucket::new(&bucket_name, bucket_name.parse()?, credentials)?;
+        Bucket::new(&bucket_name, bucket_name.parse()?, credentials)?
     };
 
     Ok(bucket)
