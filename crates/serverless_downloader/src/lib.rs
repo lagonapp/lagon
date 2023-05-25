@@ -21,19 +21,19 @@ pub fn get_bucket() -> Result<Bucket> {
     )?;
 
     let endpoint = env::var("S3_ENDPOINT");
-    let region = if endpoint.is_ok() {
-        Region::Custom {
-            region: bucket_region.parse()?,
-            endpoint: endpoint.unwrap(),
-        }
+    let bucket = if endpoint.is_ok() {
+        Bucket::new(
+            &bucket_name,
+            Region::Custom {
+                region: bucket_region.parse()?,
+                endpoint: endpoint.unwrap(),
+            },
+            credentials,
+        )?
+        .with_path_style();
     } else {
-        bucket_name.parse()?
+        Bucket::new(&bucket_name, bucket_name.parse()?, credentials)?;
     };
-
-    let mut bucket = Bucket::new(&bucket_name, region, credentials)?;
-
-    // TODO: only set path style if endpoint is set
-    bucket.set_path_style();
 
     Ok(bucket)
 }
