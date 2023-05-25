@@ -46,13 +46,13 @@ If you want to contribute to the Dashboard / Serverless / CLI:
 
 ##### In `packages/dashboard/.env` and `crates/serverless/.env`:
 
-- `S3_REGION`, `S3_BUCKET`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY` are credentials to an S3 bucket you own
 - (optional) `AXIOM_ORG_ID`, `AXIOM_TOKEN` to send and get logs to Axiom
 
 ##### In `packages/dashboard/.env`:
 
 - `NEXTAUTH_SECRET` is a random secret for [NextAuth.js](https://authjs.dev/getting-started/oauth-tutorial#adding-environment-variables). Generate one using `$ openssl rand -base64 32`
-- `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` are GitHub OAuth credentials. [Create a GitHub OAuth App](https://github.com/settings/developers)
+- (optional) `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET` are GitHub OAuth credentials. [Create a GitHub OAuth App](https://github.com/settings/developers)
+- (optional) `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` are Google OAuth credentials. [Create a Google OAuth App](https://console.developers.google.com/apis/credentials)
 - (optional) `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM` are SMTP credentials to send emails
 
 #### www

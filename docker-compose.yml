@@ -51,7 +51,7 @@ services:
       - 9002:9002
       - 9001:9001
     volumes:
-      - minio-data:/data
+      - minio:/data
     environment:
       MINIO_ROOT_USER: ${S3_ACCESS_KEY:-root}
       MINIO_ROOT_PASSWORD: ${S3_SECRET_KEY:-supersecret}
@@ -63,4 +63,4 @@ volumes:
   prometheus:
   grafana:
   clickhouse:
-  minio-data:
+  minio:
