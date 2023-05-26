@@ -1,7 +1,7 @@
 import { useRouter } from 'next/router';
 import toast from 'react-hot-toast';
-import { Button, Card, Form, Input, Text, TagsInput, Dialog, Menu } from '@lagon/ui';
-import { getCurrentDomain } from 'lib/utils';
+import { Button, Card, Form, Input, Text, Dialog, Menu, Divider, Dot } from '@lagon/ui';
+import { getCurrentDomain, getFullDomain } from 'lib/utils';
 import {
   composeValidators,
   cronValidator,
@@ -23,17 +23,112 @@ import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from '@tanstack/react-query';
 import { useScopedI18n } from 'locales';
+import { Copiable, Link } from '@lagon/ui';
+import { ComponentProps, ReactNode, useEffect, useState } from 'react';
 
 type FunctionSettingsProps = {
   func: ReturnType<typeof useFunction>['data'];
   refetch: QueryObserverBaseResult['refetch'];
 };
 
+type DomainStatus = {
+  status: ComponentProps<typeof Dot>['status'];
+  help: string | ReactNode;
+};
+
+type DomainsStatus = Record<string, DomainStatus>;
+
 const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
   const router = useRouter();
   const t = useScopedI18n('functions.settings');
   const updateFunction = trpc.functionUpdate.useMutation();
   const deleteFunction = trpc.functionDelete.useMutation();
+  const [domainsStatus, setDomainsStatus] = useState<DomainsStatus>({});
+
+  const defaultDomain = func ? getCurrentDomain(func) : '';
+
+  const deleteDomain = async (domain: string) => {
+    if (!func) {
+      return;
+    }
+
+    await updateFunction.mutateAsync({
+      functionId: func.id,
+      domains: func.domains.filter(current => current !== domain),
+    });
+
+    await refetch();
+
+    toast.success(t('domains.list.delete.success'));
+  };
+
+  useEffect(() => {
+    if (func?.domains) {
+      setDomainsStatus(
+        func.domains.reduce(
+          (acc, current) => ({
+            ...acc,
+            [current]: {
+              status: 'info',
+              help: '',
+            },
+          }),
+          {},
+        ),
+      );
+
+      const promises = func.domains.map(async domain => {
+        const response = await fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=A`, {
+          headers: {
+            accept: 'application/dns-json',
+          },
+        });
+        const result = await response.json();
+
+        return {
+          result,
+          domain,
+        };
+      });
+
+      Promise.all(promises).then(results => {
+        const newDomainsStatus = results.reduce<DomainsStatus>((acc, current) => {
+          const { domain, result } = current;
+
+          let domainStatus: DomainStatus;
+
+          if (result.Answer?.[0]?.name === domain && result.Answer?.[0]?.data === `${defaultDomain}.`) {
+            domainStatus = {
+              status: 'success',
+              help: t('domains.list.valid'),
+            };
+          } else {
+            domainStatus = {
+              status: 'danger',
+              help: t('domains.list.invalid', {
+                domain: result.Answer?.[0]?.data ?? '""',
+                target: (
+                  <Copiable value={defaultDomain} className="inline-flex">
+                    <Text size="sm" strong>
+                      {defaultDomain}
+                    </Text>
+                  </Copiable>
+                ),
+              }),
+            };
+          }
+
+          return {
+            ...acc,
+            [domain]: domainStatus,
+          };
+        }, {});
+
+        setDomainsStatus(newDomainsStatus);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [func?.domains, defaultDomain]);
 
   return (
     <div className="flex flex-col gap-8">
@@ -76,51 +171,103 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           </div>
         </Card>
       </Form>
-      <Form
-        initialValues={{
-          domains: func?.domains,
-        }}
-        onSubmit={async ({ domains }) => {
-          if (!func) {
-            return;
-          }
-
-          await updateFunction.mutateAsync({
-            functionId: func.id,
-            domains,
-          });
-
-          await refetch();
-        }}
-        onSubmitSuccess={() => {
-          toast.success(t('domains.success'));
-        }}
-      >
-        <Card title={t('domains.title')} description={t('domains.description')}>
-          <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:gap-0">
-            <div className="flex flex-1 flex-col gap-1">
-              <Text size="lg">{t('domains.default')}</Text>
-              {func ? <Text>{getCurrentDomain(func)}</Text> : null}
-            </div>
-            <div className="flex flex-1 flex-col items-start gap-4">
-              <div className="flex flex-col gap-1">
-                <Text size="lg">{t('domains.custom')}</Text>
-                <div className="flex items-center gap-2">
-                  <TagsInput
-                    name="domains"
-                    placeholder={t('domains.custom.placeholder')}
-                    disabled={updateFunction.isLoading}
-                    validator={domainNameValidator}
-                  />
-                </div>
-              </div>
-              <Button variant="primary" disabled={updateFunction.isLoading} submit>
-                {t('domains.update')}
+      <Card
+        title={t('domains.title')}
+        description={t('domains.description')}
+        rightItem={
+          <Dialog
+            title={t('domains.add.modal.title')}
+            description={t('domains.add.modal.description')}
+            disclosure={
+              <Button variant="primary" disabled={updateFunction.isLoading}>
+                {t('domains.add')}
               </Button>
+            }
+          >
+            <Form
+              onSubmit={async ({ domain }) => {
+                if (!func) {
+                  return;
+                }
+
+                await updateFunction.mutateAsync({
+                  functionId: func.id,
+                  domains: [...(func.domains ?? []), domain],
+                });
+
+                await refetch();
+              }}
+              onSubmitSuccess={() => {
+                toast.success(t('domains.add.success'));
+              }}
+            >
+              {({ handleSubmit }) => (
+                <>
+                  <div className="flex flex-col gap-6">
+                    <Text>
+                      {t('domains.add.modal.cname', {
+                        domain: (
+                          <Copiable value={defaultDomain} className="inline-flex">
+                            <Text strong>{defaultDomain}</Text>
+                          </Copiable>
+                        ),
+                      })}
+                      &nbsp;
+                      <Link href="https://docs.lagon.app/cloud/domains" target="_blank">
+                        {t('domains.add.modal.doc')}
+                      </Link>
+                    </Text>
+                    <Input
+                      name="domain"
+                      placeholder="www.example.com"
+                      validator={composeValidators(domainNameValidator, requiredValidator)}
+                    />
+                  </div>
+                  <Dialog.Buttons>
+                    <Dialog.Cancel disabled={updateFunction.isLoading} />
+                    <Dialog.Action variant="primary" onClick={handleSubmit} disabled={updateFunction.isLoading}>
+                      {t('domains.add.modal.submit')}
+                    </Dialog.Action>
+                  </Dialog.Buttons>
+                </>
+              )}
+            </Form>
+          </Dialog>
+        }
+      >
+        <div>
+          <Divider />
+          <div className="flex items-center justify-between gap-4 px-4">
+            <div className="flex items-center">
+              <Dot status="success" />
+              <Link href={getFullDomain(defaultDomain)} target="_blank">
+                {defaultDomain}
+              </Link>
             </div>
+            <Text size="sm">{t('domains.list.default')}</Text>
+            <Button variant="danger" disabled>
+              {t('domains.list.delete')}
+            </Button>
           </div>
-        </Card>
-      </Form>
+          {func?.domains?.map(domain => (
+            <>
+              <Divider />
+              <div className="flex items-center justify-between gap-4 px-4" key={domain}>
+                <div className="flex items-center">
+                  <Dot status={domainsStatus[domain]?.status ?? 'info'} />
+                  <Link href={getFullDomain(domain)} target="_blank">
+                    {domain}
+                  </Link>
+                </div>
+                <Text size="sm">{domainsStatus[domain]?.help}</Text>
+                <Button variant="danger" disabled={updateFunction.isLoading} onClick={() => deleteDomain(domain)}>
+                  {t('domains.list.delete')}
+                </Button>
+              </div>
+            </>
+          ))}
+        </div>
+      </Card>
       <Form
         initialValues={{
           cron: func?.cron,
