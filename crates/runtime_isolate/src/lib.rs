@@ -13,10 +13,11 @@ use std::{
     collections::{BTreeMap, HashMap},
     pin::Pin,
     rc::Rc,
-    sync::{Arc, Mutex, RwLock},
+    sync::{Arc, RwLock},
     task::{Context, Poll},
     time::Instant,
 };
+use tokio::sync::Mutex;
 use v8::MapFnTo;
 
 use self::{
