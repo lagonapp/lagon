@@ -145,11 +145,10 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
             functionId: func.id,
             name,
           });
-
-          await refetch();
         }}
-        onSubmitSuccess={() => {
+        onSubmitSuccess={async () => {
           toast.success(t('name.success'));
+          await refetch();
         }}
       >
         <Card title={t('name.title')} description={t('name.description')}>
@@ -183,55 +182,47 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                 {t('domains.add')}
               </Button>
             }
+            onSubmit={async ({ domain }) => {
+              if (!func) {
+                return;
+              }
+
+              await updateFunction.mutateAsync({
+                functionId: func.id,
+                domains: [...(func.domains ?? []), domain],
+              });
+            }}
+            onSubmitSuccess={async () => {
+              toast.success(t('domains.add.success'));
+              await refetch();
+            }}
           >
-            <Form
-              onSubmit={async ({ domain }) => {
-                if (!func) {
-                  return;
-                }
-
-                await updateFunction.mutateAsync({
-                  functionId: func.id,
-                  domains: [...(func.domains ?? []), domain],
-                });
-
-                await refetch();
-              }}
-              onSubmitSuccess={() => {
-                toast.success(t('domains.add.success'));
-              }}
-            >
-              {({ handleSubmit }) => (
-                <>
-                  <div className="flex flex-col gap-6">
-                    <Text>
-                      {t('domains.add.modal.cname', {
-                        domain: (
-                          <Copiable value={defaultDomain} className="inline-flex">
-                            <Text strong>{defaultDomain}</Text>
-                          </Copiable>
-                        ),
-                      })}
-                      &nbsp;
-                      <Link href="https://docs.lagon.app/cloud/domains#pointing-your-domain-to-lagon" target="_blank">
-                        {t('domains.add.modal.doc')}
-                      </Link>
-                    </Text>
-                    <Input
-                      name="domain"
-                      placeholder="www.example.com"
-                      validator={composeValidators(domainNameValidator, requiredValidator)}
-                    />
-                  </div>
-                  <Dialog.Buttons>
-                    <Dialog.Cancel disabled={updateFunction.isLoading} />
-                    <Dialog.Action variant="primary" onClick={handleSubmit} disabled={updateFunction.isLoading}>
-                      {t('domains.add.modal.submit')}
-                    </Dialog.Action>
-                  </Dialog.Buttons>
-                </>
-              )}
-            </Form>
+            <div className="flex flex-col gap-6">
+              <Text>
+                {t('domains.add.modal.cname', {
+                  domain: (
+                    <Copiable value={defaultDomain} className="inline-flex">
+                      <Text strong>{defaultDomain}</Text>
+                    </Copiable>
+                  ),
+                })}
+                &nbsp;
+                <Link href="https://docs.lagon.app/cloud/domains#pointing-your-domain-to-lagon" target="_blank">
+                  {t('domains.add.modal.doc')}
+                </Link>
+              </Text>
+              <Input
+                name="domain"
+                placeholder="www.example.com"
+                validator={composeValidators(domainNameValidator, requiredValidator)}
+              />
+            </div>
+            <Dialog.Buttons>
+              <Dialog.Cancel disabled={updateFunction.isLoading} />
+              <Dialog.Action variant="primary" disabled={updateFunction.isLoading}>
+                {t('domains.add.modal.submit')}
+              </Dialog.Action>
+            </Dialog.Buttons>
           </Dialog>
         }
       >
@@ -283,11 +274,10 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
             cron: cron || null,
             cronRegion: cronRegion,
           });
-
-          await refetch();
         }}
-        onSubmitSuccess={() => {
+        onSubmitSuccess={async () => {
           toast.success(t('cron.success'));
+          await refetch();
         }}
       >
         {({ values, form }) => (
@@ -342,11 +332,10 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
               [] as { key: string; value: string }[],
             ),
           });
-
-          await refetch();
         }}
-        onSubmitSuccess={() => {
+        onSubmitSuccess={async () => {
           toast.success('Function environment variables updated successfully.');
+          await refetch();
         }}
       >
         {({ values, form }) => (
@@ -443,39 +432,31 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                 {t('delete.submit')}
               </Button>
             }
+            onSubmit={async () => {
+              if (!func) {
+                return;
+              }
+
+              await deleteFunction.mutateAsync({
+                functionId: func.id,
+              });
+            }}
+            onSubmitSuccess={() => {
+              toast.success(t('delete.success'));
+              router.push('/');
+            }}
           >
-            <Form
-              onSubmit={async () => {
-                if (!func) {
-                  return;
-                }
-
-                await deleteFunction.mutateAsync({
-                  functionId: func.id,
-                });
-              }}
-              onSubmitSuccess={() => {
-                toast.success(t('delete.success'));
-
-                router.push('/');
-              }}
-            >
-              {({ handleSubmit }) => (
-                <>
-                  <Input
-                    name="confirm"
-                    placeholder={func?.name}
-                    validator={value => (value !== func?.name ? t('delete.modal.confirm') : undefined)}
-                  />
-                  <Dialog.Buttons>
-                    <Dialog.Cancel disabled={deleteFunction.isLoading} />
-                    <Dialog.Action variant="danger" onClick={handleSubmit} disabled={deleteFunction.isLoading}>
-                      {t('delete.modal.submit')}
-                    </Dialog.Action>
-                  </Dialog.Buttons>
-                </>
-              )}
-            </Form>
+            <Input
+              name="confirm"
+              placeholder={func?.name}
+              validator={value => (value !== func?.name ? t('delete.modal.confirm') : undefined)}
+            />
+            <Dialog.Buttons>
+              <Dialog.Cancel disabled={deleteFunction.isLoading} />
+              <Dialog.Action variant="danger" disabled={deleteFunction.isLoading}>
+                {t('delete.modal.submit')}
+              </Dialog.Action>
+            </Dialog.Buttons>
           </Dialog>
         </div>
       </Card>

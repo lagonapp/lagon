@@ -1,4 +1,3 @@
-import { useCallback } from 'react';
 import toast from 'react-hot-toast';
 import { getCurrentDomain, getFullCurrentDomain, getFullDomain } from 'lib/utils';
 import { Button, Card, EmptyState, Link, Text, Dialog } from '@lagon/ui';
@@ -17,32 +16,6 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
   const t = useScopedI18n('functions.deployments');
   const undeployDeployment = trpc.deploymentUndeploy.useMutation();
   const promoteDeployment = trpc.deploymentPromote.useMutation();
-
-  const removeDeplomyent = useCallback(
-    async (deployment: { id: string }) => {
-      await undeployDeployment.mutateAsync({
-        functionId: func?.id || '',
-        deploymentId: deployment.id,
-      });
-
-      await refetch();
-      toast.success(t('delete.success'));
-    },
-    [func?.id, undeployDeployment, refetch, t],
-  );
-
-  const promoteDeploymentHandler = useCallback(
-    async (deployment: { id: string }) => {
-      await promoteDeployment.mutateAsync({
-        functionId: func?.id || '',
-        deploymentId: deployment.id,
-      });
-
-      await refetch();
-      toast.success(t('promote.success'));
-    },
-    [func?.id, promoteDeployment, refetch, t],
-  );
 
   return (
     <div className="flex flex-col gap-4">
@@ -111,15 +84,20 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                         {t('promote')}
                       </Button>
                     }
+                    onSubmit={async () => {
+                      await promoteDeployment.mutateAsync({
+                        functionId: func?.id || '',
+                        deploymentId: deployment.id,
+                      });
+                    }}
+                    onSubmitSuccess={async () => {
+                      toast.success(t('promote.success'));
+                      await refetch();
+                    }}
                   >
                     <Dialog.Buttons>
                       <Dialog.Cancel disabled={undeployDeployment.isLoading} />
-                      <Dialog.Action
-                        onClick={() => promoteDeploymentHandler(deployment)}
-                        disabled={undeployDeployment.isLoading}
-                      >
-                        {t('promote.modal.submit')}
-                      </Dialog.Action>
+                      <Dialog.Action disabled={undeployDeployment.isLoading}>{t('promote.modal.submit')}</Dialog.Action>
                     </Dialog.Buttons>
                   </Dialog>
                   <Dialog
@@ -130,14 +108,20 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                         {t('delete')}
                       </Button>
                     }
+                    onSubmit={async () => {
+                      await undeployDeployment.mutateAsync({
+                        functionId: func?.id || '',
+                        deploymentId: deployment.id,
+                      });
+                    }}
+                    onSubmitSuccess={async () => {
+                      toast.success(t('delete.success'));
+                      await refetch();
+                    }}
                   >
                     <Dialog.Buttons>
                       <Dialog.Cancel disabled={undeployDeployment.isLoading} />
-                      <Dialog.Action
-                        variant="danger"
-                        onClick={() => removeDeplomyent(deployment)}
-                        disabled={undeployDeployment.isLoading}
-                      >
+                      <Dialog.Action variant="danger" disabled={undeployDeployment.isLoading}>
                         {t('delete.modal.submit')}
                       </Dialog.Action>
                     </Dialog.Buttons>
