@@ -9,9 +9,8 @@ on:
   pull_request:
 
 env:
-  REGISTRY: ghcr.io
+  DOCKER_HUB_USER: TODO
   IMAGE_NAME: serverless
-  IMAGE_OWNER: ${{ github.repository_owner }}
 
 jobs:
   release-containerimage:
@@ -33,19 +32,28 @@ jobs:
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_OWNER }}/${{ env.IMAGE_NAME }}
+          images: |
+            ${{ env.DOCKER_HUB_USER }}/${{ env.IMAGE_NAME }}
+            ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=tag
             type=ref,event=pr
             type=raw,value=next,enable={{is_default_branch}}
 
-      - name: Login to registry
+      - name: Login to ghcr.io registry
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v2
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ env.DOCKER_HUB_USER }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v4
