@@ -1,4 +1,5 @@
 import { Card, Text, Input, Button, Form, Dialog, Divider, Skeleton } from '@lagon/ui';
+import { composeValidators, emailValidator, requiredValidator } from 'lib/form/validators';
 import useOrganizationMembers from 'lib/hooks/useOrganizationMembers';
 import { trpc } from 'lib/trpc';
 import { useScopedI18n } from 'locales';
@@ -71,14 +72,13 @@ const Members = () => {
                   {t('remove')}
                 </Button>
               }
+              onSubmit={async () => {
+                await removeMember(member.user.id);
+              }}
             >
               <Dialog.Buttons>
                 <Dialog.Cancel disabled={organizationRemoveMember.isLoading} />
-                <Dialog.Action
-                  variant="danger"
-                  onClick={async () => removeMember(member.user.id)}
-                  disabled={organizationRemoveMember.isLoading}
-                >
+                <Dialog.Action variant="danger" disabled={organizationRemoveMember.isLoading}>
                   {t('remove.modal.submit')}
                 </Dialog.Action>
               </Dialog.Buttons>
@@ -93,7 +93,7 @@ const Members = () => {
 const SettingsMember = () => {
   const t = useScopedI18n('settings');
   const { data: session } = useSession();
-  const { data: organizationMembers } = useOrganizationMembers();
+  const { data: organizationMembers, refetch } = useOrganizationMembers();
 
   const isOrganizationOwner = session?.user.id === organizationMembers?.owner.id;
   const organizationAddMember = trpc.organizationAddMember.useMutation();
@@ -112,29 +112,28 @@ const SettingsMember = () => {
                 {t('members.invite')}
               </Button>
             }
+            onSubmit={async ({ email }) => {
+              await organizationAddMember.mutateAsync({
+                email,
+              });
+            }}
+            onSubmitSuccess={async () => {
+              toast.success(t('members.invite.success'));
+              await refetch();
+            }}
           >
-            <Form
-              onSubmit={async ({ email }) => {
-                await organizationAddMember.mutateAsync({
-                  email,
-                });
-              }}
-              onSubmitSuccess={() => {
-                toast.success(t('members.invite.success'));
-              }}
-            >
-              {({ handleSubmit }) => (
-                <>
-                  <Input name="email" type="email" placeholder="john@doe.com" />
-                  <Dialog.Buttons>
-                    <Dialog.Cancel disabled={organizationAddMember.isLoading} />
-                    <Dialog.Action variant="primary" onClick={handleSubmit} disabled={organizationAddMember.isLoading}>
-                      {t('members.invite.modal.submit')}
-                    </Dialog.Action>
-                  </Dialog.Buttons>
-                </>
-              )}
-            </Form>
+            <Input
+              name="email"
+              type="email"
+              placeholder="john@doe.com"
+              validator={composeValidators(requiredValidator, emailValidator)}
+            />
+            <Dialog.Buttons>
+              <Dialog.Cancel disabled={organizationAddMember.isLoading} />
+              <Dialog.Action variant="primary" disabled={organizationAddMember.isLoading}>
+                {t('members.invite.modal.submit')}
+              </Dialog.Action>
+            </Dialog.Buttons>
           </Dialog>
         }
       >
