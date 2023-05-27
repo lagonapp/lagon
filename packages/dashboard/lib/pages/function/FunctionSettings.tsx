@@ -213,7 +213,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                         ),
                       })}
                       &nbsp;
-                      <Link href="https://docs.lagon.app/cloud/domains" target="_blank">
+                      <Link href="https://docs.lagon.app/cloud/domains#pointing-your-domain-to-lagon" target="_blank">
                         {t('domains.add.modal.doc')}
                       </Link>
                     </Text>
