@@ -1,11 +1,9 @@
-use std::{
-    collections::BTreeMap,
-    sync::{Arc, Mutex},
-};
+use std::{collections::BTreeMap, sync::Arc};
 
 use anyhow::Result;
 use lagon_runtime_v8_utils::v8_string;
 use lagon_runtime_websocket::{new_ws, SendValue, Uuid, Ws, WsId};
+use tokio::sync::Mutex;
 use v8::{Local, ObjectTemplate};
 
 use crate::Isolate;
@@ -86,7 +84,7 @@ pub async fn create_websocket_binding<'a>(
 
     let res = new_ws(url, protocols).await;
 
-    let mut table = table.lock().unwrap();
+    let mut table = table.lock().await;
 
     match res {
         Ok((ws, protocols, extensions)) => {
@@ -119,7 +117,7 @@ pub async fn websocket_event_binding(
     id: usize,
     ws_id: EventArg,
 ) -> BindingResult {
-    let mut table = table.lock().unwrap();
+    let mut table = table.lock().await;
 
     let uuid = match Uuid::parse_str(&ws_id) {
         Ok(uuid) => uuid,
@@ -224,7 +222,7 @@ pub async fn websocket_send_binding(
     let ws_id = arg.0;
     let value = arg.1;
 
-    let mut table = table.lock().unwrap();
+    let mut table = table.lock().await;
 
     let uuid = match Uuid::parse_str(&ws_id) {
         Ok(uuid) => uuid,
@@ -290,7 +288,7 @@ pub async fn websocket_close_binding(
     let code = arg.1;
     let reason = arg.2;
 
-    let mut table = table.lock().unwrap();
+    let mut table = table.lock().await;
 
     let uuid = match Uuid::parse_str(&ws_id) {
         Ok(uuid) => uuid,
