@@ -51,12 +51,20 @@ static TEST_HARNESS: Lazy<String> = Lazy::new(|| {
         .replace("debug: false", "debug: true")
 });
 
-const SKIP_TESTS: [&str; 15] = [
+const SKIP_TESTS: [&str; 22] = [
     // response
     "response-cancel-stream.any.js",           // "undefined"
     "response-error-from-stream.any.js",       // "Start error"
     "response-stream-with-broken-then.any.js", // "Cannot destructure property 'done' of 'undefined' as it is undefine"
     "response-stream-disturbed-4.any.js",
+    // request
+    "request-cache-default-conditional.any.js", // fetch a python server
+    "request-cache-default.any.js",             // fetch a python server
+    "request-cache-force-cache.any.js",         // fetch a python server
+    "request-cache-no-cache.any.js",            // fetch a python server
+    "request-cache-no-store.any.js",            // fetch a python server
+    "request-cache-only-if-cached.any.js",      // fetch a python server
+    "request-cache-reload.any.js",              // fetch a python server
     // url
     "idlharness.any.js",            // load webidl stuff, not supported
     "url-setters.any.js",           // fetch an json file, find a way to run it

@@ -139,115 +139,13 @@ TEST DONE 1 Request() with a forbidden method connect must throw.
 TEST DONE 1 Request() with a forbidden method trace must throw.
 TEST DONE 1 Request() with a forbidden method track must throw.
 Running ../../tools/wpt/fetch/api/request/request-bad-port.any.js
-Running ../../tools/wpt/fetch/api/request/request-cache-default-conditional.any.js
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Last-Modified and fresh response
-Running ../../tools/wpt/fetch/api/request/request-cache-default.any.js
-TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and goes to the network for stale responses with Etag and stale response
-TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and goes to the network for stale responses with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and avoids going to the network if a fresh response exists with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and avoids going to the network if a fresh response exists with Last-Modified and fresh response
-TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Etag and stale response
-TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Last-Modified and stale response
-TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Etag and fresh response
-TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Last-Modified and fresh response
-Running ../../tools/wpt/fetch/api/request/request-cache-force-cache.any.js
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for stale responses with Etag and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for stale responses with Last-Modified and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for fresh responses with Etag and fresh response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for fresh responses with Last-Modified and fresh response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Etag and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Last-Modified and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Etag and fresh response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Last-Modified and fresh response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Etag and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Last-Modified and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Etag and fresh response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Last-Modified and fresh response
-TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Etag and stale response
-TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Last-Modified and stale response
-TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Etag and fresh response
-TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Last-Modified and fresh response
-Running ../../tools/wpt/fetch/api/request/request-cache-no-cache.any.js
-TEST DONE 1 RequestCache "no-cache" mode revalidates stale responses found in the cache with Etag and stale response
-TEST DONE 1 RequestCache "no-cache" mode revalidates stale responses found in the cache with Last-Modified and stale response
-TEST DONE 1 RequestCache "no-cache" mode revalidates fresh responses found in the cache with Etag and fresh response
-TEST DONE 1 RequestCache "no-cache" mode revalidates fresh responses found in the cache with Last-Modified and fresh response
-Running ../../tools/wpt/fetch/api/request/request-cache-no-store.any.js
-TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Etag and stale response
-TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and stale response
-TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Etag and fresh response
-TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and fresh response
-TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Etag and stale response
-TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Last-Modified and stale response
-TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Etag and fresh response
-TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Last-Modified and fresh response
-Running ../../tools/wpt/fetch/api/request/request-cache-only-if-cached.any.js
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for stale responses with Etag and stale response
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for stale responses with Last-Modified and stale response
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for fresh responses with Etag and fresh response
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for fresh responses with Last-Modified and fresh response
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and does not go to the network if a cached response is not found with Etag and fresh response
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and does not go to the network if a cached response is not found with Last-Modified and fresh response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Etag and fresh response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Last-Modified and fresh response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Etag and stale response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Last-Modified and stale response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Etag and fresh response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Last-Modified and fresh response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Etag and stale response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Last-Modified and stale response
-Running ../../tools/wpt/fetch/api/request/request-cache-reload.any.js
-TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Etag and stale response
-TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and stale response
-TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Etag and fresh response
-TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and fresh response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Etag and stale response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Last-Modified and stale response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Etag and fresh response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Last-Modified and fresh response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Etag and stale response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Last-Modified and stale response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Etag and fresh response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Last-Modified and fresh response
+Skipping ../../tools/wpt/fetch/api/request/request-cache-default-conditional.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-default.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-force-cache.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-no-cache.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-no-store.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-only-if-cached.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-reload.any.js
 Running ../../tools/wpt/fetch/api/request/request-consume-empty.any.js
 TEST DONE 1 Consume request's body as text
 TEST DONE 1 Consume request's body as blob
@@ -1507,5 +1405,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1379 tests, 619 passed, 755 failed (5 not completed)
- -> 45% conformance
+1277 tests, 619 passed, 653 failed (5 not completed)
+ -> 48% conformance

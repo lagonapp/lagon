@@ -1,5 +1,6 @@
 (globalThis => {
   const SET_COOKIE = 'set-cookie';
+  // eslint-disable-next-line no-control-regex
   const NORMALIZE_VALUE_REGEX = new RegExp('^[\x0A\x0D\x09\x20]+|[\x0A\x0D\x09\x20]+$', 'g');
 
   globalThis.Headers = class {
