@@ -147,7 +147,12 @@ export class RequestResponseBody {
   }
 
   async formData(): Promise<FormData> {
+    if (this.bodyUsed) {
+      throw new TypeError('Body is already used');
+    }
+
     if (this.theBody instanceof FormData) {
+      this.bodyUsed = true;
       return this.theBody;
     }
 

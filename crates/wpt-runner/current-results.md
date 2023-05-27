@@ -164,15 +164,15 @@ TEST DONE 0 Consume empty ArrayBuffer request body as text
 Running ../../tools/wpt/fetch/api/request/request-consume.any.js
 TEST DONE 0 Consume String request's body as text
 TEST DONE 0 Consume String request's body as blob
-TEST DONE 1 Consume String request's body as arrayBuffer
+TEST DONE 0 Consume String request's body as arrayBuffer
 TEST DONE 0 Consume String request's body as JSON
 TEST DONE 0 Consume ArrayBuffer request's body as text
 TEST DONE 0 Consume ArrayBuffer request's body as blob
-TEST DONE 1 Consume ArrayBuffer request's body as arrayBuffer
+TEST DONE 0 Consume ArrayBuffer request's body as arrayBuffer
 TEST DONE 0 Consume ArrayBuffer request's body as JSON
 TEST DONE 0 Consume Uint8Array request's body as text
 TEST DONE 0 Consume Uint8Array request's body as blob
-TEST DONE 1 Consume Uint8Array request's body as arrayBuffer
+TEST DONE 0 Consume Uint8Array request's body as arrayBuffer
 TEST DONE 0 Consume Uint8Array request's body as JSON
 TEST DONE 1 Consume Int8Array request's body as text
 TEST DONE 1 Consume Int8Array request's body as blob
@@ -186,11 +186,11 @@ TEST DONE 1 Consume DataView request's body as text
 TEST DONE 1 Consume DataView request's body as blob
 TEST DONE 1 Consume DataView request's body as arrayBuffer
 TEST DONE 1 Consume DataView request's body as JSON
-TEST DONE 1 Consume FormData request's body as FormData
+TEST DONE 0 Consume FormData request's body as FormData
 TEST DONE 0 Consume blob response's body as blob
 TEST DONE 0 Consume blob response's body as text
 TEST DONE 0 Consume blob response's body as json
-TEST DONE 1 Consume blob response's body as arrayBuffer
+TEST DONE 0 Consume blob response's body as arrayBuffer
 TEST DONE 0 Consume blob response's body as blob (empty blob as input)
 TEST DONE 0 Consume JSON from text: '"null"'
 TEST DONE 0 Consume JSON from text: '"1"'
@@ -388,8 +388,8 @@ Skipping ../../tools/wpt/fetch/api/response/response-cancel-stream.any.js
 Running ../../tools/wpt/fetch/api/response/response-clone.any.js
 TEST DONE 0 Check Response's clone with default values, without body
 TEST DONE 0 Check Response's clone has the expected attribute values
-TEST DONE 1 Check orginal response's body after cloning
-TEST DONE 1 Check cloned response's body
+TEST DONE 0 Check orginal response's body after cloning
+TEST DONE 0 Check cloned response's body
 TEST DONE 1 Cannot clone a disturbed response
 TEST DONE 1 Cloned responses should provide the same data
 TEST DONE 1 Cancelling stream should not affect cloned one
@@ -425,10 +425,10 @@ Running ../../tools/wpt/fetch/api/response/response-consume-stream.any.js
 TEST DONE 0 Getting an error Response stream
 TEST DONE 0 Getting a redirect Response stream
 TEST DONE 1 Read empty text response's body as readableStream
-TEST DONE 1 Read empty blob response's body as readableStream
-TEST DONE 1 Read blob response's body as readableStream with mode=undefined
-TEST DONE 1 Read text response's body as readableStream with mode=undefined
-TEST DONE 1 Read URLSearchParams response's body as readableStream with mode=undefined
+TEST DONE 0 Read empty blob response's body as readableStream
+TEST DONE 0 Read blob response's body as readableStream with mode=undefined
+TEST DONE 0 Read text response's body as readableStream with mode=undefined
+TEST DONE 0 Read URLSearchParams response's body as readableStream with mode=undefined
 TEST DONE 1 Read array buffer response's body as readableStream with mode=undefined
 TEST DONE 1 Read form data response's body as readableStream with mode=undefined
 TEST DONE 1 Read blob response's body as readableStream with mode=byob
@@ -470,7 +470,7 @@ TEST DONE 0 Initialize Response's body with application/octet-binary
 TEST DONE 1 Initialize Response's body with multipart/form-data
 TEST DONE 0 Initialize Response's body with application/x-www-form-urlencoded;charset=UTF-8
 TEST DONE 0 Initialize Response's body with text/plain;charset=UTF-8
-TEST DONE 1 Read Response's body as readableStream
+TEST DONE 0 Read Response's body as readableStream
 TEST DONE 1 Testing empty Response Content-Type header
 Running ../../tools/wpt/fetch/api/response/response-init-contenttype.any.js
 TEST DONE 0 Default Content-Type for Response with empty body
@@ -1405,5 +1405,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1277 tests, 630 passed, 642 failed (5 not completed)
- -> 49% conformance
+1277 tests, 642 passed, 630 failed (5 not completed)
+ -> 50% conformance

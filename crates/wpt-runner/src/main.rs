@@ -34,6 +34,7 @@ const ENCODING_TABLE: &str = r#"const encodings_table =
 ]"#;
 const REQUEST_CACHE: &str = include_str!("../../../tools/wpt/fetch/api/request/request-cache.js");
 const REQUEST_ERROR: &str = include_str!("../../../tools/wpt/fetch/api/request/request-error.js");
+const REQUEST_UTILS: &str = include_str!("../../../tools/wpt/fetch/api/resources/utils.js");
 const SUBSET_TESTS: &str = include_str!("../../../tools/wpt/common/subset-tests.js");
 const DECODING_HELPERS: &str =
     include_str!("../../../tools/wpt/encoding/resources/decoding-helpers.js");
@@ -112,6 +113,7 @@ export function handler() {{
     {ENCODING_TABLE}
     {REQUEST_CACHE}
     {REQUEST_ERROR}
+    {REQUEST_UTILS}
     {SUBSET_TESTS}
     {DECODING_HELPERS}
     {SUPPORT_BLOB}
