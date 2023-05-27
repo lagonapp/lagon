@@ -547,6 +547,94 @@ async fn crypto_decrypt_aes_ctr() {
 }
 
 #[tokio::test]
+async fn crypto_encrypt_rsa_oaep() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "export async function handler() {
+    const key = await crypto.subtle.generateKey(
+        {
+            name: 'RSA-OAEP',
+            modulusLength: 1024,
+            publicExponent: new Uint8Array([1, 0, 1]),
+        },
+        true,
+        ['encrypt'],
+    );
+
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: 'RSA-OAEP' },
+        key.publicKey,
+        new TextEncoder().encode('hello, world'),
+    );
+    return new Response(`${ciphertext instanceof Uint8Array} ${ciphertext.length}`);
+}"
+            .into(),
+        )
+        .tick_timeout(Duration::from_secs(5))
+        .total_timeout(Duration::from_secs(10)),
+    );
+    send(Request::default());
+
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("true 128".into())
+            .unwrap(),
+    )
+    .await;
+}
+
+#[tokio::test]
+async fn crypto_decrypt_rsa_oaep() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(
+        IsolateOptions::new(
+            "export async function handler() {
+    const key = await crypto.subtle.generateKey(
+        {
+            name: 'RSA-OAEP',
+            modulusLength: 1024,
+            publicExponent: new Uint8Array([1, 0, 1]),
+        },
+        true,
+        ['encrypt'],
+    );
+    const counter = crypto.getRandomValues(new Uint8Array(16));
+
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: 'RSA-OAEP' },
+        key.publicKey,
+        new TextEncoder().encode('hello, world'),
+    );
+
+    const text = await crypto.subtle.decrypt(
+        { name: 'RSA-OAEP' },
+        key.privateKey,
+        ciphertext,
+    );
+
+    return new Response(new TextDecoder().decode(text));
+}"
+            .into(),
+        )
+        .tick_timeout(Duration::from_secs(5))
+        .total_timeout(Duration::from_secs(10)),
+    );
+    send(Request::default());
+
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("hello, world".into())
+            .unwrap(),
+    )
+    .await;
+}
+
+#[tokio::test]
 async fn crypto_hkdf_derive_bits() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(

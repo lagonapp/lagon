@@ -18,5 +18,6 @@ export {
   TagsInput,
   Text,
   Textarea,
+  Copiable,
 } from './components';
 export type { LogsLevel } from './components';
