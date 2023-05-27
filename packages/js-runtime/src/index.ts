@@ -5,6 +5,7 @@ import './runtime/encoding/base64';
 import './runtime/core';
 import './runtime/streams';
 import './runtime/abort';
+import './runtime/global/cache';
 import './runtime/global/context';
 import './runtime/global/event';
 import './runtime/global/blob';
@@ -105,6 +106,12 @@ declare global {
       algorithm: RsaHashedKeyGenParams | EcKeyGenParams | HmacKeyGenParams | AesKeyGenParams,
     ): Promise<ArrayBuffer>;
     sleep: (ms: number) => Promise<void>;
+    cacheMatch: (url: string) => Promise<{ b: string; s: number; st: string; h?: Record<string, string> }>;
+    cacheDel: (url: string) => Promise<boolean>;
+    cachePut: (
+      req: { h?: Map<string, string>; u: string },
+      res: { h?: Map<string, string>; s: number; b?: string },
+    ) => Promise<void>;
   };
   var __lagon__: {
     isIterable: (value: unknown) => value is ArrayBuffer;

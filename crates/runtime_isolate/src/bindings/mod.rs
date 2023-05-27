@@ -13,8 +13,12 @@ use queue_microtask::queue_microtask_binding;
 use sleep::{sleep_binding, sleep_init};
 
 use crate::{
-    bindings::crypto::{
-        derive_bits_binding, derive_bits_init, digest_init, generate_key_binding, generate_key_init,
+    bindings::{
+        cache::cache_init,
+        crypto::{
+            derive_bits_binding, derive_bits_init, digest_init, generate_key_binding,
+            generate_key_init,
+        },
     },
     Isolate,
 };
@@ -169,6 +173,8 @@ pub fn bind<'a>(
             generate_key_init,
             generate_key_binding
         );
+
+        cache_init(scope, &lagon_object);
 
         global.set(v8_string(scope, "LagonAsync").into(), lagon_object.into());
     }

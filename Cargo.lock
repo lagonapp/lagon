@@ -1744,6 +1744,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c4a1e36c821dbe04574f602848a19f742f4fb3c98d40449f11bcad18d6b17421"
 
 [[package]]
+name = "httpstatus"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cbcf281a2062fc93deb46c99bd072cda6888a560c8a4f223d6824c1128832002"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "httptest"
 version = "0.15.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2139,6 +2148,7 @@ name = "lagon-runtime-v8-utils"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "httpstatus",
  "hyper",
  "serde",
  "serde_json",

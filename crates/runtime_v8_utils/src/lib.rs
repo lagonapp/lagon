@@ -1,3 +1,4 @@
+use httpstatus::{StatusClass, StatusCode};
 use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
@@ -229,4 +230,140 @@ pub fn cache_response_to_v8<'a>(
 
     let null = v8::null(scope).into();
     v8::Object::with_prototype_and_properties(scope, null, &names, &values)
+}
+
+fn get_headers_vec<'a>(
+    scope: &mut v8::HandleScope<'a>,
+    request: v8::Local<'a, v8::Object>,
+) -> Result<Vec<u8>> {
+    let mut headers_map = HashMap::<String, String>::new();
+
+    let headers_key = v8_string(scope, "h");
+
+    if let Some(headers_value) = request.get(scope, headers_key.into()) {
+        if !headers_value.is_null_or_undefined() {
+            if !headers_value.is_map() {
+                return Err(anyhow!("Value is not of type 'Map'"));
+            }
+
+            let map = unsafe { v8::Local::<v8::Map>::cast(headers_value) };
+
+            if map.size() > 0 {
+                let headers_keys = map.as_array(scope);
+                let length = headers_keys.length();
+
+                for mut index in 0..length {
+                    if index % 2 != 0 {
+                        continue;
+                    }
+
+                    let key = headers_keys
+                        .get_index(scope, index)
+                        .map_or_else(String::new, |key| key.to_rust_string_lossy(scope));
+
+                    index += 1;
+
+                    for value in headers_keys.get_index(scope, index).into_iter() {
+                        if value.is_array() {
+                            let values = unsafe { v8::Local::<v8::Array>::cast(value) };
+
+                            for i in 0..values.length() {
+                                let value = values
+                                    .get_index(scope, i)
+                                    .map_or_else(String::new, |value| {
+                                        value.to_rust_string_lossy(scope)
+                                    });
+                                headers_map.insert(key.clone(), value);
+                            }
+                        } else {
+                            let value = value.to_rust_string_lossy(scope);
+
+                            headers_map.insert(key.clone(), value);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    let binding = serde_json::to_string(&headers_map)?;
+
+    Ok(binding.as_bytes().into())
+}
+
+pub fn cache_request_from_v8(
+    scope: &mut v8::HandleScope,
+    request: v8::Local<v8::Value>,
+) -> Result<(String, Vec<u8>)> {
+    let request = match request.to_object(scope) {
+        Some(request) => request,
+        None => return Err(anyhow!("Request is not an object")),
+    };
+
+    let headers = get_headers_vec(scope, request)?;
+
+    let url;
+    let url_key = v8_string(scope, "u");
+
+    if let Some(url_value) = request.get(scope, url_key.into()) {
+        url = extract_v8_string(url_value, scope)?;
+    } else {
+        return Err(anyhow!("Could not find url"));
+    }
+
+    Ok((url, headers))
+}
+
+fn status_to_text(status_code: u16) -> &'static str {
+    StatusCode::from(status_code).reason_phrase()
+}
+
+pub fn cache_response_from_v8(
+    scope: &mut v8::HandleScope,
+    response: v8::Local<v8::Value>,
+) -> Result<(Vec<u8>, Vec<u8>, u16, String)> {
+    let response = match response.to_object(scope) {
+        Some(response) => response,
+        None => return Err(anyhow!("Response is not an object")),
+    };
+
+    let headers = get_headers_vec(scope, response)?;
+
+    let mut res_status = 0;
+
+    let status_key = v8_string(scope, "s");
+
+    match response.get(scope, status_key.into()) {
+        Some(status_value) => {
+            let status = extract_v8_integer(status_value, scope)? as u16;
+
+            res_status = status;
+        }
+        None => return Err(anyhow!("Could not find status")),
+    };
+
+    let mut res_body = String::new();
+
+    let body_key = v8_string(scope, "b");
+
+    match response.get(scope, body_key.into()) {
+        Some(body_value) => match body_value.is_null_or_undefined() {
+            true => {}
+            false => {
+                let body = extract_v8_string(body_value, scope)?;
+
+                res_body = body;
+            }
+        },
+        None => return Err(anyhow!("Could not find body")),
+    };
+
+    let status_text = status_to_text(res_status);
+
+    Ok((
+        headers,
+        res_body.as_bytes().to_vec(),
+        res_status,
+        status_text.into(),
+    ))
 }

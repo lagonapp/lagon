@@ -225,6 +225,7 @@ impl BackedCache {
 
     pub async fn put(&self, request_response: CachePutRequest) -> Result<bool> {
         let unique_id = cuid2();
+
         sqlx::query(
             "INSERT INTO RequestResponseList (id, requestUrl, requestHeaders, responseHeaders, responseBody, responseStatus, responseStatusText, cacheId, lastInsertedAt)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())

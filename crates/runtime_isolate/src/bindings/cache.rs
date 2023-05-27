@@ -1,8 +1,8 @@
 use std::{rc::Rc, sync::Arc};
 
 use anyhow::{anyhow, Result};
-use lagon_runtime_cache::{BackedCache, CacheMatchRequest};
-use lagon_runtime_v8_utils::v8_string;
+use lagon_runtime_cache::{BackedCache, CacheMatchRequest, CachePutRequest};
+use lagon_runtime_v8_utils::{cache_request_from_v8, cache_response_from_v8, v8_string};
 use tokio::sync::Mutex;
 use v8::{Local, ObjectTemplate};
 
@@ -12,6 +12,7 @@ use super::{BindingResult, PromiseResult};
 
 type MatchArg = String;
 type DelArg = String;
+type PutArg = ((String, Vec<u8>), (Vec<u8>, Vec<u8>, u16, String));
 
 const CACHE_NAME: &str = "__LAGON_CACHE_NAME__";
 
@@ -34,12 +35,12 @@ macro_rules! async_cache_binding {
 
             match $init(scope, args) {
                 Ok(args) => {
-                    let mut state = isolate_state.borrow_mut();
+                    let state = isolate_state.borrow();
                     let metadata = Rc::clone(&state.metadata);
+                    let cache = Arc::clone(&state.cache);
                     match &*metadata {
                         Some((_, func_id)) => {
-                            let table = &mut state.cache;
-                            let future = $binding(Arc::clone(table), func_id.clone(), id, args);
+                            let future = $binding(cache, func_id.clone(), id, args);
 
                             state.promises.push(Box::pin(future));
                         }
@@ -172,11 +173,71 @@ pub async fn cache_del_binding(
     }
 }
 
+pub fn cache_put_init(
+    scope: &mut v8::HandleScope,
+    args: v8::FunctionCallbackArguments,
+) -> Result<PutArg> {
+    let req_meta_data = args.get(0);
+    let res_meta_data = args.get(1);
+    let req = cache_request_from_v8(scope, req_meta_data)?;
+    let res = cache_response_from_v8(scope, res_meta_data)?;
+
+    Ok((req, res))
+}
+
+pub async fn cache_put_binding(
+    cache: Arc<Mutex<Option<BackedCache>>>,
+    func_id: String,
+    id: usize,
+    arg: PutArg,
+) -> BindingResult {
+    let mut cache_lock = cache.lock().await;
+
+    let cache = match cache_lock.as_mut() {
+        Some(c) => c,
+        None => {
+            let bc = BackedCache::new().await;
+            *cache_lock = Some(bc);
+            cache_lock.as_mut().unwrap()
+        }
+    };
+
+    match cache.storage_open(CACHE_NAME.into(), func_id).await {
+        Ok(cache_id) => {
+            let put_request = CachePutRequest {
+                cache_id: cache_id,
+                request_url: arg.0 .0,
+                request_headers: arg.0 .1,
+                response_headers: arg.1 .0,
+                response_body: arg.1 .1,
+                response_status: arg.1 .2,
+                response_status_text: arg.1 .3,
+            };
+            match cache.put(put_request).await {
+                Ok(_) => {
+                    return BindingResult {
+                        id,
+                        result: PromiseResult::Undefined,
+                    }
+                }
+                Err(error) => BindingResult {
+                    id,
+                    result: PromiseResult::Error(error.to_string()),
+                },
+            }
+        }
+        Err(error) => BindingResult {
+            id,
+            result: PromiseResult::Error(error.to_string()),
+        },
+    }
+}
+
 pub fn cache_init<'a>(scope: &mut v8::HandleScope<'a, ()>, lagon_object: &Local<ObjectTemplate>) {
     async_cache_binding!(
         scope,
         lagon_object,
-        "cache_match",
+        "cacheMatch",
         cache_match_init,
         cache_match_binding
     );
@@ -184,8 +245,16 @@ pub fn cache_init<'a>(scope: &mut v8::HandleScope<'a, ()>, lagon_object: &Local<
     async_cache_binding!(
         scope,
         lagon_object,
-        "cache_del",
+        "cacheDel",
         cache_del_init,
         cache_del_binding
+    );
+
+    async_cache_binding!(
+        scope,
+        lagon_object,
+        "cachePut",
+        cache_put_init,
+        cache_put_binding
     );
 }
