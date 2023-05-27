@@ -4,19 +4,12 @@ use rand::Rng;
 use redis::AsyncCommands;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use sqlx::types::Json;
 use sqlx::{
     mysql::{MySqlPoolOptions, MySqlRow},
     MySql, Pool, Row,
 };
 use std::env;
 use std::sync::{Arc, Mutex};
-
-struct CacheStorage {
-    id: String,
-    cache_name: String,
-    func_id: String,
-}
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct CachePutRequest {
@@ -89,7 +82,7 @@ impl BackedCache {
 
         let redis_url = env::var("REDIS_URL").expect("REDIS_URL must be set");
         let client = redis::Client::open(redis_url).expect("failed to parse redis url");
-        let mut redis_conn = client
+        let redis_conn = client
             .get_async_connection()
             .await
             .expect("Failed to create Redis connection");
@@ -320,6 +313,55 @@ impl BackedCache {
             }
         }
     }
+
+    pub async fn del(&self, request: CacheMatchRequest) -> Result<bool> {
+        let transaction = self
+            .mysql_pool
+            .begin()
+            .await
+            .expect("Failed to start database transaction");
+
+        let _result =
+            sqlx::query("DELETE FROM RequestResponseList WHERE cacheId = ? AND requestUrl = ?")
+                .bind(&request.cache_id)
+                .bind(&request.request_url)
+                .execute(&self.mysql_pool)
+                .await?;
+
+        transaction
+            .commit()
+            .await
+            .expect("Failed to commit database transaction");
+        let mut conn = self.redis_conn.lock().unwrap();
+
+        let redis_key = format!("{}__{}", request.cache_id, request.request_url);
+
+        let cache_put_request_json: Option<String> = conn.get(redis_key.clone()).await?;
+
+        match cache_put_request_json {
+            Some(_) => {
+                conn.del(redis_key.clone()).await?;
+                return Ok(true);
+            }
+            None => return Ok(true),
+        }
+    }
+
+    pub async fn res_has(&self, cache_id: String, request_url: String) -> Result<bool> {
+        let cache_exists = sqlx::query(
+            "SELECT count(id) FROM RequestResponseList WHERE cacheId = ? AND requestUrl = ?",
+        )
+        .bind(cache_id)
+        .bind(request_url)
+        .map(|row: MySqlRow| {
+            let count: i64 = row.get("count(id)");
+            count > 0
+        })
+        .fetch_one(&self.mysql_pool)
+        .await
+        .unwrap_or(false);
+        Ok(cache_exists)
+    }
 }
 
 #[cfg(test)]
@@ -416,6 +458,43 @@ mod tests {
                 response_status_text: "Not Found".to_string(),
             }
         );
+
+        let put_request = CachePutRequest {
+            cache_id: cache_id.clone(),
+            request_url: "test_url_2".to_string(),
+            request_headers: "{\"Host\": \"https://lagon.app/\"}".as_bytes().to_vec(),
+            response_headers: "{\"Content-Encoding\": \"gzip\"}".as_bytes().to_vec(),
+            response_body: "{\"data\": \"https://lagon.app/\"}".as_bytes().to_vec(),
+            response_status: 200,
+            response_status_text: "Ok".to_string(),
+        };
+
+        let put_res = cache.put(put_request).await.unwrap();
+
+        assert_eq!(put_res, true);
+
+        let res_has_res = cache
+            .res_has(cache_id.clone(), "test_url_2".to_string())
+            .await
+            .unwrap();
+
+        assert_eq!(res_has_res, true);
+
+        let del_request = CacheMatchRequest {
+            cache_id: cache_id.clone(),
+            request_url: "test_url_2".to_string(),
+        };
+
+        let del_res = cache.del(del_request).await.unwrap();
+
+        assert_eq!(del_res, true);
+
+        let res_has_res = cache
+            .res_has(cache_id.clone(), "test_url_2".to_string())
+            .await
+            .unwrap();
+
+        assert_eq!(res_has_res, false);
 
         let storage_delete_res = cache
             .storage_delete(cache_name.into(), func_id.into())
