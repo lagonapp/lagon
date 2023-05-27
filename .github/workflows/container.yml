@@ -67,4 +67,4 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           file: docker/Dockerfile.${{matrix.image}}
-          platforms: ${{ github.event_name != 'pull_request' && 'linux/amd64' || 'linux/amd64,linux/arm64' }} # only build for amd64 on PRs to speed up CI job
+          platforms: ${{ github.event_name == 'pull_request' && 'linux/amd64' || 'linux/amd64,linux/arm64' }} # only build for amd64 on PRs to speed up CI job
