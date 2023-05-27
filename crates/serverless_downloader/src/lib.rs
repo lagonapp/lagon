@@ -1,6 +1,6 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use s3::{creds::Credentials, Bucket, Region};
+use s3::{creds::Credentials, Bucket};
 use std::env;
 
 mod fake;
@@ -20,18 +20,11 @@ pub fn get_bucket() -> Result<Bucket> {
         None,
     )?;
 
-    let region = bucket_region.parse()?;
-    let bucket = match env::var("S3_ENDPOINT") {
-        Ok(endpoint) => Bucket::new(
-            &bucket_name,
-            Region::Custom { region, endpoint },
-            credentials,
-        )?
-        .with_path_style(),
-        Err(_) => Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?,
-    };
-
-    Ok(bucket)
+    Ok(Bucket::new(
+        &bucket_name,
+        bucket_region.parse()?,
+        credentials,
+    )?)
 }
 
 #[async_trait]
