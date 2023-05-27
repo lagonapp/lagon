@@ -113,8 +113,11 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                     }
                   >
                     <Dialog.Buttons>
-                      <Dialog.Cancel />
-                      <Dialog.Action onClick={() => promoteDeploymentHandler(deployment)}>
+                      <Dialog.Cancel disabled={undeployDeployment.isLoading} />
+                      <Dialog.Action
+                        onClick={() => promoteDeploymentHandler(deployment)}
+                        disabled={undeployDeployment.isLoading}
+                      >
                         {t('promote.modal.submit')}
                       </Dialog.Action>
                     </Dialog.Buttons>

@@ -67,14 +67,18 @@ const Members = () => {
                 organization: session?.organization.name,
               })}
               disclosure={
-                <Button variant="danger" disabled={!isOrganizationOwner}>
+                <Button variant="danger" disabled={!isOrganizationOwner || organizationRemoveMember.isLoading}>
                   {t('remove')}
                 </Button>
               }
             >
               <Dialog.Buttons>
-                <Dialog.Cancel />
-                <Dialog.Action variant="danger" onClick={async () => removeMember(member.user.id)}>
+                <Dialog.Cancel disabled={organizationRemoveMember.isLoading} />
+                <Dialog.Action
+                  variant="danger"
+                  onClick={async () => removeMember(member.user.id)}
+                  disabled={organizationRemoveMember.isLoading}
+                >
                   {t('remove.modal.submit')}
                 </Dialog.Action>
               </Dialog.Buttons>
@@ -123,8 +127,8 @@ const SettingsMember = () => {
                 <>
                   <Input name="email" type="email" placeholder="john@doe.com" />
                   <Dialog.Buttons>
-                    <Dialog.Cancel />
-                    <Dialog.Action variant="primary" onClick={handleSubmit}>
+                    <Dialog.Cancel disabled={organizationAddMember.isLoading} />
+                    <Dialog.Action variant="primary" onClick={handleSubmit} disabled={organizationAddMember.isLoading}>
                       {t('members.invite.modal.submit')}
                     </Dialog.Action>
                   </Dialog.Buttons>
