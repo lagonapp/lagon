@@ -47,6 +47,14 @@ export const cronValidator: FieldValidator<string | number> = value => {
   return undefined;
 };
 
+export const emailValidator: FieldValidator<string | number> = value => {
+  if (typeof value === 'string') {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? undefined : 'Field must be an email address';
+  }
+
+  return 'Field must be a string';
+};
+
 export const composeValidators =
   (...validators: FieldValidator<string | number>[]): FieldValidator<string | number> =>
   value => {
