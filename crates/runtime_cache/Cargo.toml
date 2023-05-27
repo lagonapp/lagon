@@ -1,0 +1,20 @@
+[package]
+name = "lagon-runtime-cache"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+v8 = "0.71.2"
+anyhow = "1.0.71"
+tokio = { version = "1", features = ["full"] }
+sqlx = { version = "0.6.2", features = [
+    "runtime-tokio-rustls",
+    "mysql",
+    "macros",
+    "json",
+] }
+cuid = "1.0.0"
+redis = { version = "0.23.0", features = ["tokio-comp"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.8.5"

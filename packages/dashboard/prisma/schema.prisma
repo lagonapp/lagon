@@ -94,20 +94,21 @@ model OrganizationMember {
 }
 
 model Function {
-  id             String        @id @default(cuid())
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
-  name           String        @unique @db.VarChar(64)
+  id             String         @id @default(cuid())
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  name           String         @unique @db.VarChar(64)
   memory         Int
-  tickTimeout    Int           @default(500)
+  tickTimeout    Int            @default(500)
   cron           String?
   organizationId String
-  cronRegion     String        @default("paris-eu-west")
-  totalTimeout   Int           @default(5000)
-  organization   Organization  @relation(fields: [organizationId], references: [id])
+  cronRegion     String         @default("paris-eu-west")
+  totalTimeout   Int            @default(5000)
+  organization   Organization   @relation(fields: [organizationId], references: [id])
   domains        Domain[]
   env            EnvVariable[]
   deployments    Deployment[]
+  CacheStorage   CacheStorage[]
 
   @@index([organizationId])
 }
@@ -176,4 +177,31 @@ model AuthorizedEmail {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   email     String   @unique
+}
+
+model CacheStorage {
+  id                  String                @id @default(cuid())
+  cacheName           String
+  funcId              String
+  func                Function              @relation(fields: [funcId], references: [id])
+  RequestResponseList RequestResponseList[]
+
+  @@unique([cacheName, funcId])
+  @@index([funcId])
+}
+
+model RequestResponseList {
+  id                 String       @id @default(cuid())
+  requestUrl         String
+  requestHeaders     Bytes        @db.Blob
+  responseHeaders    Bytes        @db.Blob
+  responseStatus     Int
+  responseStatusText String?      @db.Text
+  responseBody       Bytes?       @db.Blob
+  cacheId            String
+  lastInsertedAt     DateTime
+  cacheStorage       CacheStorage @relation(fields: [cacheId], references: [id])
+
+  @@unique([cacheId, requestUrl])
+  @@index([cacheId])
 }

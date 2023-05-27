@@ -1,5 +1,8 @@
+use std::collections::HashMap;
+
 use anyhow::{anyhow, Result};
 use hyper::{header::HeaderName, http::HeaderValue, HeaderMap};
+use serde_json::{Map, Value};
 
 const X_LAGON_ID: &str = "x-lagon-id";
 
@@ -152,4 +155,78 @@ pub fn extract_v8_uint32(scope: &mut v8::HandleScope, value: v8::Local<v8::Value
     }
 
     Err(anyhow!("Value is not an uint32"))
+}
+
+struct JsonMap(Map<String, Value>);
+
+impl Default for JsonMap {
+    fn default() -> Self {
+        JsonMap(Map::new())
+    }
+}
+
+pub fn cache_response_to_v8<'a>(
+    response: (Vec<u8>, Vec<u8>, u16, String),
+    scope: &mut v8::HandleScope<'a>,
+) -> v8::Local<'a, v8::Object> {
+    let len = 4;
+    let mut names = Vec::with_capacity(len);
+    let mut values = Vec::with_capacity(len);
+
+    names.push(v8_string(scope, "b").into());
+    values.push(v8_string(scope, unsafe { std::str::from_utf8_unchecked(&response.1) }).into());
+
+    names.push(v8_string(scope, "s").into());
+    values.push(v8_integer(scope, response.2.into()).into());
+
+    names.push(v8_string(scope, "st").into());
+    values.push(v8_string(scope, &(response.3.as_str())).into());
+
+    names.push(v8_string(scope, "h").into());
+
+    let headers = {
+        let headers_json: Value =
+            serde_json::from_str(unsafe { std::str::from_utf8_unchecked(&response.0) })
+                .unwrap_or_default();
+
+        let map: HashMap<String, String> = match headers_json {
+            Value::Object(obj) => obj
+                .into_iter()
+                .map(|(k, v)| (k, v.as_str().unwrap_or("").to_owned()))
+                .collect(),
+            _ => Default::default(),
+        };
+        let len = map.len();
+
+        let mut names = Vec::with_capacity(len);
+        let mut values = Vec::with_capacity(len);
+
+        for key in map.keys() {
+            if key != X_LAGON_ID {
+                // We guess that most of the time there will be only one header value
+                let mut elements = Vec::with_capacity(1);
+
+                let value = match map.get(key) {
+                    Some(v) => &*v.as_str(),
+                    None => "",
+                };
+
+                elements.push(v8_string(scope, value).into());
+
+                let key = v8_string(scope, key.as_str());
+                names.push(key.into());
+
+                let array = v8::Array::new_with_elements(scope, &elements);
+                values.push(array.into());
+            }
+        }
+
+        let null = v8::null(scope).into();
+        v8::Object::with_prototype_and_properties(scope, null, &names, &values)
+    };
+
+    values.push(headers.into());
+
+    let null = v8::null(scope).into();
+    v8::Object::with_prototype_and_properties(scope, null, &names, &values)
 }

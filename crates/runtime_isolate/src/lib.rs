@@ -15,6 +15,7 @@ use std::{
     task::{Context, Poll},
     time::Instant,
 };
+use tokio::sync::Mutex;
 use v8::MapFnTo;
 
 use self::{
@@ -70,6 +71,7 @@ pub struct IsolateState {
     lines: usize,
     requests_count: u32,
     log_sender: Option<flume::Sender<(String, String, Metadata)>>,
+    cache: Arc<Mutex<Option<lagon_runtime_cache::BackedCache>>>,
 }
 
 #[derive(Debug)]
@@ -197,6 +199,7 @@ impl Isolate {
                 lines: 0,
                 requests_count: 0,
                 log_sender: options.log_sender.clone(),
+                cache: Arc::new(Mutex::new(None)),
             }
         };
 

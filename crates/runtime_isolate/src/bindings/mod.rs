@@ -7,7 +7,7 @@ use crypto::{
 use fetch::{fetch_binding, fetch_init};
 use hyper::{body::Bytes, http::response::Parts};
 use lagon_runtime_http::response_to_v8;
-use lagon_runtime_v8_utils::{v8_boolean, v8_string, v8_uint8array};
+use lagon_runtime_v8_utils::{cache_response_to_v8, v8_boolean, v8_string, v8_uint8array};
 use pull_stream::pull_stream_binding;
 use queue_microtask::queue_microtask_binding;
 use sleep::{sleep_binding, sleep_init};
@@ -19,6 +19,7 @@ use crate::{
     Isolate,
 };
 
+pub mod cache;
 pub mod console;
 pub mod crypto;
 pub mod fetch;
@@ -32,6 +33,7 @@ pub struct BindingResult {
 }
 
 pub enum PromiseResult {
+    CacheResponse((Vec<u8>, Vec<u8>, u16, String)),
     Response((Parts, Bytes)),
     ArrayBuffer(Vec<u8>),
     Boolean(bool),
@@ -42,6 +44,7 @@ pub enum PromiseResult {
 impl PromiseResult {
     pub fn into_value<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Value> {
         match self {
+            PromiseResult::CacheResponse(response) => cache_response_to_v8(response, scope).into(),
             PromiseResult::Response(response) => response_to_v8(response, scope).into(),
             PromiseResult::ArrayBuffer(bytes) => v8_uint8array(scope, bytes).into(),
             PromiseResult::Boolean(boolean) => v8_boolean(scope, boolean).into(),
