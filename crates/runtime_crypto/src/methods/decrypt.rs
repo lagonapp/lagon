@@ -6,6 +6,10 @@ use ctr::cipher::StreamCipher;
 use ctr::Ctr128BE;
 use ctr::Ctr32BE;
 use ctr::Ctr64BE;
+use rsa::pkcs1::DecodeRsaPrivateKey;
+use rsa::Oaep;
+use rsa::RsaPrivateKey;
+use sha2::Sha256;
 
 use crate::{Aes256Gcm, Algorithm};
 
@@ -38,6 +42,17 @@ pub fn decrypt(algorithm: Algorithm, key_value: Vec<u8>, data: Vec<u8>) -> Resul
                 "invalid counter length. Currently supported 32/64/128 bits",
             )),
         },
+        Algorithm::RsaOaep(label) => {
+            let private_key = RsaPrivateKey::from_pkcs1_der(&key_value)?;
+            let padding = match label {
+                Some(buf) => Oaep::new_with_label::<Sha256, String>(String::from_utf8(buf)?),
+                None => Oaep::new::<Sha256>(),
+            };
+
+            private_key
+                .decrypt(padding, &data)
+                .map_err(|e| anyhow!(e.to_string()))
+        }
         _ => Err(anyhow!("Algorithm not supported")),
     }
 }

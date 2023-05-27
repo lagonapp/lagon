@@ -2,4 +2,4 @@
 '@lagon/dashboard': patch
 ---
 
-Fix environment variables deletion
+Improve custom domains UX

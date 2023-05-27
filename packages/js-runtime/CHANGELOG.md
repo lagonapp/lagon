@@ -1,5 +1,11 @@
 # @lagon/js-runtime
 
+## 0.3.14
+
+### Patch Changes
+
+- [#868](https://github.com/lagonapp/lagon/pull/868) [`33fa56c`](https://github.com/lagonapp/lagon/commit/33fa56c12b80d091a45fdffac0791c46f760e2e2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow `export as` for handler function
+
 ## 0.3.13
 
 ### Patch Changes

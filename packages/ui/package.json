@@ -51,5 +51,8 @@
     "next": "13.4.2",
     "react": "18.2.0",
     "react-hot-toast": "^2.2.0"
+  },
+  "dependencies": {
+    "react-use-clipboard": "^1.0.9"
   }
 }
