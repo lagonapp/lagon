@@ -1,5 +1,6 @@
 (globalThis => {
   const SET_COOKIE = 'set-cookie';
+  const NORMALIZE_VALUE_REGEX = new RegExp('^[\x0A\x0D\x09\x20]+|[\x0A\x0D\x09\x20]+$', 'g');
 
   globalThis.Headers = class {
     private readonly h: Map<string, string[]> = new Map();
@@ -41,7 +42,8 @@
 
     private addValue(name: string, value: string) {
       name = name.toLowerCase();
-      value = String(value);
+      value = String(value).replace(NORMALIZE_VALUE_REGEX, '');
+
       const values = this.h.get(name);
 
       if (values) {
@@ -107,7 +109,7 @@
       }
 
       name = name.toLowerCase();
-      value = String(value);
+      value = String(value).replace(NORMALIZE_VALUE_REGEX, '');
       this.h.set(name, [value]);
     }
 

@@ -95,9 +95,9 @@ TEST DONE 1 "no-cors" Headers object cannot have content-language set to , sssss
 TEST DONE 1 "no-cors" Headers object cannot have content-type set to text/plain;ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss, text/plain
 TEST DONE 1 Loading data…
 Running ../../tools/wpt/fetch/api/headers/headers-normalize.any.js
-TEST DONE 1 Create headers with not normalized values
-TEST DONE 1 Check append method with not normalized values
-TEST DONE 1 Check set method with not normalized values
+TEST DONE 0 Create headers with not normalized values
+TEST DONE 0 Check append method with not normalized values
+TEST DONE 0 Check set method with not normalized values
 Running ../../tools/wpt/fetch/api/headers/headers-record.any.js
 TEST DONE 0 Passing nothing to Headers constructor
 TEST DONE 0 Passing undefined to Headers constructor
@@ -1507,5 +1507,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1379 tests, 616 passed, 758 failed (5 not completed)
- -> 44% conformance
+1379 tests, 619 passed, 755 failed (5 not completed)
+ -> 45% conformance
