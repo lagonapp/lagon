@@ -147,12 +147,12 @@ Skipping ../../tools/wpt/fetch/api/request/request-cache-no-store.any.js
 Skipping ../../tools/wpt/fetch/api/request/request-cache-only-if-cached.any.js
 Skipping ../../tools/wpt/fetch/api/request/request-cache-reload.any.js
 Running ../../tools/wpt/fetch/api/request/request-consume-empty.any.js
-TEST DONE 1 Consume request's body as text
-TEST DONE 1 Consume request's body as blob
-TEST DONE 1 Consume request's body as arrayBuffer
-TEST DONE 1 Consume request's body as json (error case)
+TEST DONE 0 Consume request's body as text
+TEST DONE 0 Consume request's body as blob
+TEST DONE 0 Consume request's body as arrayBuffer
+TEST DONE 0 Consume request's body as json (error case)
 TEST DONE 1 Consume request's body as formData with correct multipart type (error case)
-TEST DONE 1 Consume request's body as formData with correct urlencoded type
+TEST DONE 0 Consume request's body as formData with correct urlencoded type
 TEST DONE 1 Consume request's body as formData without correct type (error case)
 TEST DONE 0 Consume empty blob request body as arrayBuffer
 TEST DONE 0 Consume empty text request body as arrayBuffer
@@ -202,7 +202,7 @@ TEST DONE 0 Trying to consume bad JSON text as JSON: 'a'
 TEST DONE 0 Trying to consume bad JSON text as JSON: '['
 Running ../../tools/wpt/fetch/api/request/request-disturbed.any.js
 TEST DONE 1 Request's body: initial state
-TEST DONE 1 Request without body cannot be disturbed
+TEST DONE 0 Request without body cannot be disturbed
 TEST DONE 1 Check cloning a disturbed request
 TEST DONE 0 Check creating a new request from a disturbed request
 TEST DONE 1 Request construction failure should not set "bodyUsed"
@@ -407,12 +407,12 @@ TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Fl
 TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Float64Arraychunk)
 TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (DataViewchunk)
 Running ../../tools/wpt/fetch/api/response/response-consume-empty.any.js
-TEST DONE 1 Consume response's body as text
-TEST DONE 1 Consume response's body as blob
-TEST DONE 1 Consume response's body as arrayBuffer
-TEST DONE 1 Consume response's body as json (error case)
+TEST DONE 0 Consume response's body as text
+TEST DONE 0 Consume response's body as blob
+TEST DONE 0 Consume response's body as arrayBuffer
+TEST DONE 0 Consume response's body as json (error case)
 TEST DONE 1 Consume response's body as formData with correct multipart type (error case)
-TEST DONE 1 Consume response's body as formData with correct urlencoded type
+TEST DONE 0 Consume response's body as formData with correct urlencoded type
 TEST DONE 1 Consume response's body as formData without correct type (error case)
 TEST DONE 0 Consume empty blob response body as arrayBuffer
 TEST DONE 0 Consume empty text response body as arrayBuffer
@@ -1405,5 +1405,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1277 tests, 619 passed, 653 failed (5 not completed)
- -> 48% conformance
+1277 tests, 630 passed, 642 failed (5 not completed)
+ -> 49% conformance

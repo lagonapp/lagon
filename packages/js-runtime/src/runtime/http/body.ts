@@ -90,8 +90,7 @@ export class RequestResponseBody {
       throw new TypeError('Body is already used');
     }
 
-    if (!this.theBody) {
-      this.bodyUsed = true;
+    if (this.theBody === null) {
       return new Uint8Array();
     }
 
@@ -166,8 +165,7 @@ export class RequestResponseBody {
       throw new TypeError('Body is already used');
     }
 
-    if (!this.theBody) {
-      this.bodyUsed = true;
+    if (this.theBody === null) {
       return '';
     }
 
