@@ -1,5 +1,15 @@
 # @lagon/cli
 
+## 0.7.2
+
+### Patch Changes
+
+- [#868](https://github.com/lagonapp/lagon/pull/868) [`33fa56c`](https://github.com/lagonapp/lagon/commit/33fa56c12b80d091a45fdffac0791c46f760e2e2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow `export as` for handler function
+
+* [#889](https://github.com/lagonapp/lagon/pull/889) [`62447ba`](https://github.com/lagonapp/lagon/commit/62447bac3dbef88eb31a2ade620f478e7c27b538) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Support RSA-OAEP for `SubtleCrypto#encrypt` & `SubtleCrypto#decrypto`
+
+- [#883](https://github.com/lagonapp/lagon/pull/883) [`00c1e66`](https://github.com/lagonapp/lagon/commit/00c1e6630d43f247e8d9893e63ff5de1ca7e64f5) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve performance by always using Hyper types
+
 ## 0.7.1
 
 ### Patch Changes
