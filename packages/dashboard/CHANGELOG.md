@@ -1,5 +1,13 @@
 # @lagon/dashboard
 
+## 0.3.8
+
+### Patch Changes
+
+- [#871](https://github.com/lagonapp/lagon/pull/871) [`de0ffb6`](https://github.com/lagonapp/lagon/commit/de0ffb677507a1cd5fa1630e9992f685fb43ce37) Thanks [@anbraten](https://github.com/anbraten)! - Use correct theme for playground editor
+
+* [#877](https://github.com/lagonapp/lagon/pull/877) [`79fd8f6`](https://github.com/lagonapp/lagon/commit/79fd8f6ccba3819e542b868b2f05733d674bd713) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix environment variables deletion
+
 ## 0.3.7
 
 ### Patch Changes

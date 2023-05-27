@@ -6,7 +6,7 @@ import { trpc } from 'lib/trpc';
 import { getLocaleProps, useScopedI18n } from 'locales';
 import { GetStaticProps } from 'next';
 import { useSession } from 'next-auth/react';
-import { Suspense, useCallback } from 'react';
+import { Suspense } from 'react';
 import { ClipboardIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 
@@ -14,18 +14,6 @@ const Tokens = () => {
   const { data: tokens = [], refetch } = useTokens();
   const deleteToken = trpc.tokensDelete.useMutation();
   const t = useScopedI18n('profile');
-
-  const removeToken = useCallback(
-    async (token: NonNullable<typeof tokens>[number]) => {
-      await deleteToken.mutateAsync({
-        tokenId: token.id,
-      });
-
-      await refetch();
-      toast.success(t('tokens.delete.success'));
-    },
-    [deleteToken, refetch, t],
-  );
 
   const copyToken = async (value: string) => {
     await navigator.clipboard.writeText(value);
@@ -62,10 +50,19 @@ const Tokens = () => {
                       {t('tokens.delete.submit')}
                     </Button>
                   }
+                  onSubmit={async () => {
+                    await deleteToken.mutateAsync({
+                      tokenId: token.id,
+                    });
+                  }}
+                  onSubmitSuccess={async () => {
+                    toast.success(t('tokens.delete.success'));
+                    await refetch();
+                  }}
                 >
                   <Dialog.Buttons>
                     <Dialog.Cancel disabled={deleteToken.isLoading} />
-                    <Dialog.Action variant="danger" onClick={() => removeToken(token)} disabled={deleteToken.isLoading}>
+                    <Dialog.Action variant="danger" disabled={deleteToken.isLoading}>
                       {t('tokens.delete.modal.submit')}
                     </Dialog.Action>
                   </Dialog.Buttons>
@@ -142,30 +139,21 @@ const Profile = () => {
                   {t('delete.submit')}
                 </Button>
               }
+              onSubmit={() => {
+                // TODO
+                toast.error('Account deletion is not implemented yet.');
+              }}
+              onSubmitSuccess={async () => null}
             >
-              <Form
-                onSubmit={() => {
-                  // TODO
-                  toast.error('Account deletion is not implemented yet.');
-                }}
-                onSubmitSuccess={async () => null}
-              >
-                {({ handleSubmit }) => (
-                  <>
-                    <Input
-                      name="confirm"
-                      placeholder={session?.user.email}
-                      validator={value => (value !== session?.user.email ? t('delete.modal.confirm') : undefined)}
-                    />
-                    <Dialog.Buttons>
-                      <Dialog.Cancel />
-                      <Dialog.Action variant="danger" onClick={handleSubmit}>
-                        {t('delete.modal.submit')}
-                      </Dialog.Action>
-                    </Dialog.Buttons>
-                  </>
-                )}
-              </Form>
+              <Input
+                name="confirm"
+                placeholder={session?.user.email}
+                validator={value => (value !== session?.user.email ? t('delete.modal.confirm') : undefined)}
+              />
+              <Dialog.Buttons>
+                <Dialog.Cancel />
+                <Dialog.Action variant="danger">{t('delete.modal.submit')}</Dialog.Action>
+              </Dialog.Buttons>
             </Dialog>
           </div>
         </Card>

@@ -2,19 +2,17 @@ import { Callout } from 'nextra-theme-docs';
 
 By default, all Functions are assigned a unique URL, which is a subdomain of `lagon.dev`, pointing to the current production Deployment. The subdomain is always the name of the Function: if your Function is named `my-function`, your unique URL will be `my-function.lagon.dev`.
 
-All domains (custom or default) are automatically assigned an SSL certificate, provided by [Let's Encrypt](https://letsencrypt.org/).
+All domains (default and custom) are automatically assigned an SSL certificate, provided by [Let's Encrypt](https://letsencrypt.org/). They are also automatically renewed before they expire. As such, the first request to a Function using a brand-new custom domain may take a few seconds to generate the SSL certificate.
+
+All requests to your Function are automatically redirected to HTTPS.
 
 ## Adding a domain
 
-<Callout type="error">
-  Custom domains aren't yet available as Lagon is still in Alpha. It will be supported for the Beta release.
-</Callout>
+You can add custom domains or subdomains to your Functions, pointing to the current production Deployment. Head over to the settings tab of your Function, and scroll to the "Domains" section. Here, you can see a list including both the default domain and any custom domains or subdomains you've added:
 
-You can add custom domains or subdomains to your Functions, pointing to the current production Deployment. Head over to the settings tab of your Function, and scroll to the "Domains" section. Here, you can see the default domain as explained above, and your custom domains.
+![Domains](/images/domains-list.png)
 
-To add a new custom domain or subdomain, write it inside the tags field and press "Enter" or "Space", and then click on "Update":
-
-![Custom domains](/images/custom-domains.png)
+To add a new custom domain or subdomain, click on "Add domain" button at the right, fill in the domain or subdomain and validate. Next, follow the instructions below to [point your domain or subdomain to Lagon](#pointing-your-domain-to-lagon).
 
 ## Pointing your domain to Lagon
 
@@ -23,25 +21,30 @@ Now that you've added a custom domain or subdomain, you must update the DNS sett
 ### For a domain
 
 <Callout type="warning">
-  Apex domains (root domains) are not supported. You can instead redirect your apex domain to a `www` subdomain.
+  Apex domains (root domains) are not supported. You can redirect your apex domain to a `www` subdomain, and then point
+  the `www` subdomain to Lagon.
 </Callout>
 
-Let's say that you have the domain `my-domain.com`, and you want to point it to your Function named `my-function`. You'll first need to redirect your apex domain to a new `www` subdomain.
+Let's say that you have the following:
 
-Then, use the following CNAME record to point your `www` subdomain to your Function:
+- A domain `www.domain.com`
+- A Function named `awesome-function` (which has the default subdomain `awesome-function.lagon.dev`)
 
-```
-www.my-domain.com.  60  IN  CNAME   my-function.lagon.dev
-```
+You should now add a new CNAME record named `www`, pointing to `awesome-function.lagon.dev`. After adding this record, go back to the settings tab of your Function, and you should now see your custom domain validated:
+
+![Custom domains](/images/www-domains-list.png)
 
 ### For a subdomain
 
-Let's say that you have the subdomain `hello.my-domain.com`, and you want to point it to your Function named `my-function`. Use the following CNAME record to point your subdomain to your Function:
+Let's say that you have the following:
 
-```
-hello.my-domain.com.  60  IN  CNAME   my-function.lagon.dev
-```
+- A subdomain `my.domain.com`
+- A Function named `awesome-function` (which has the default subdomain `awesome-function.lagon.dev`)
+
+You should now add a new CNAME record named `my`, pointing to `awesome-function.lagon.dev`. After adding this record, go back to the settings tab of your Function, and you should now see your custom subdomain validated:
+
+![Custom domains](/images/my-domains-list.png)
 
 ## Removing a domain
 
-To remove a custom domain or subdomain, click on the "X" button next to the domain name, and then click on "Update".
+To remove a custom domain or subdomain, click on the "Delete" button next to the domain name. You cannot remove the default subdomain.

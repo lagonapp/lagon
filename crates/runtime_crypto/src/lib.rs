@@ -29,6 +29,7 @@ pub enum Algorithm {
     RsaPss(u32),
     RsassaPkcs1v15,
     Ecdsa(Sha),
+    RsaOaep(Option<Vec<u8>>),
 }
 
 #[derive(Debug)]
@@ -122,6 +123,19 @@ pub fn extract_algorithm_object(
             };
 
             return Ok(Algorithm::AesCtr(counter, length));
+        }
+
+        if name == "RSA-OAEP" {
+            let label_key = v8_string(scope, "label").into();
+            let label = match algorithm.get(scope, label_key) {
+                Some(label) => match label.is_uint8_array() {
+                    false => None,
+                    true => Some(extract_v8_uint8array(label)?),
+                },
+                None => None,
+            };
+
+            return Ok(Algorithm::RsaOaep(label));
         }
     }
 
