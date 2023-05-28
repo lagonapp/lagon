@@ -8,3 +8,4 @@ dist/
 .env
 .eslintcache
 crates/serverless/deployments/
+docker/
