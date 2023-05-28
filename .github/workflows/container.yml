@@ -17,8 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        # image: [serverless, dashboard]
-        image: [serverless]
+        image: [serverless, dashboard]
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
