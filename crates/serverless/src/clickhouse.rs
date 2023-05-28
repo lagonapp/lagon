@@ -60,7 +60,7 @@ pub async fn run_migrations(client: &Client) -> Result<()> {
 )
 ENGINE = MergeTree()
 PRIMARY KEY (level, function_id, timestamp)
-TTL now() + INTERVAL 1 WEEK",
+TTL timestamp + INTERVAL 1 WEEK",
         )
         .execute()
         .await?;

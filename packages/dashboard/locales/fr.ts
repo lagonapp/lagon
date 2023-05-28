@@ -226,6 +226,7 @@ export default defineLocale({
   'functions.settings.domains.add.success': 'Domaine ajouté avec succès.',
   'functions.settings.domains.list.default': 'Domaine par défaut',
   'functions.settings.domains.list.valid': 'Domaine valide',
+  'functions.settings.domains.list.valid.cf': 'Domaine proxié par Cloudflare',
   'functions.settings.domains.list.invalid': 'Le domaine pointe vers {domain} au lieu de {target}',
   'functions.settings.domains.list.delete': 'Supprimer',
   'functions.settings.domains.list.delete.success': 'Domaine supprimé avec succès.',
