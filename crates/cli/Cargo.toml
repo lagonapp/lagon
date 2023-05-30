@@ -21,7 +21,7 @@ walkdir = "2.3.3"
 pathdiff = "0.2.1"
 hyper-tls = { version = "0.5.0", features = ["vendored"] }
 flume = "0.10.14"
-chrono = "0.4.24"
+chrono = "0.4.26"
 notify = "6.0.0"
 envfile = "0.2.1"
 anyhow = "1.0.71"
