@@ -184,8 +184,17 @@ export class RequestResponseBody {
       return globalThis.__lagon__.TEXT_DECODER.decode(this.theBody);
     }
 
-    if (this.theBody instanceof FormData || this.theBody instanceof URLSearchParams) {
+    const isFormData = this.theBody instanceof FormData;
+
+    if (isFormData || this.theBody instanceof URLSearchParams) {
       this.bodyUsed = true;
+
+      if (isFormData) {
+        return Array.from((this.theBody as FormData).entries())
+          .map(([key, value]) => `${key}=${value}`)
+          .join('&');
+      }
+
       return this.theBody.toString();
     }
 

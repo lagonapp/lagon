@@ -159,7 +159,7 @@ TEST DONE 0 Consume empty text request body as arrayBuffer
 TEST DONE 0 Consume empty blob request body as text
 TEST DONE 0 Consume empty text request body as text
 TEST DONE 0 Consume empty URLSearchParams request body as text
-TEST DONE 1 Consume empty FormData request body as text
+TEST DONE 0 Consume empty FormData request body as text
 TEST DONE 0 Consume empty ArrayBuffer request body as text
 Running ../../tools/wpt/fetch/api/request/request-consume.any.js
 TEST DONE 0 Consume String request's body as text
@@ -419,7 +419,7 @@ TEST DONE 0 Consume empty text response body as arrayBuffer
 TEST DONE 0 Consume empty blob response body as text
 TEST DONE 0 Consume empty text response body as text
 TEST DONE 0 Consume empty URLSearchParams response body as text
-TEST DONE 1 Consume empty FormData response body as text
+TEST DONE 0 Consume empty FormData response body as text
 TEST DONE 0 Consume empty ArrayBuffer response body as text
 Running ../../tools/wpt/fetch/api/response/response-consume-stream.any.js
 TEST DONE 0 Getting an error Response stream
@@ -1405,5 +1405,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1277 tests, 646 passed, 626 failed (5 not completed)
+1277 tests, 648 passed, 624 failed (5 not completed)
  -> 50% conformance
