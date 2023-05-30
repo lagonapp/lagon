@@ -439,10 +439,10 @@ TEST DONE 1 Read form data response's body as readableStream with mode=byob
 Skipping ../../tools/wpt/fetch/api/response/response-error-from-stream.any.js
 Running ../../tools/wpt/fetch/api/response/response-error.any.js
 TEST DONE 1 Throws RangeError when responseInit's status is 0
-TEST DONE 1 Throws RangeError when responseInit's status is 100
-TEST DONE 1 Throws RangeError when responseInit's status is 199
-TEST DONE 1 Throws RangeError when responseInit's status is 600
-TEST DONE 1 Throws RangeError when responseInit's status is 1000
+TEST DONE 0 Throws RangeError when responseInit's status is 100
+TEST DONE 0 Throws RangeError when responseInit's status is 199
+TEST DONE 0 Throws RangeError when responseInit's status is 600
+TEST DONE 0 Throws RangeError when responseInit's status is 1000
 TEST DONE 1 Throws TypeError when responseInit's statusText is 
 
 TEST DONE 1 Throws TypeError when responseInit's statusText is Ā
@@ -1405,5 +1405,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1277 tests, 642 passed, 630 failed (5 not completed)
+1277 tests, 646 passed, 626 failed (5 not completed)
  -> 50% conformance
