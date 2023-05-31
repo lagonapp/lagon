@@ -13,8 +13,8 @@
   "dependencies": {
     "next": "13.4.4",
     "next-sitemap": "^4.0.5",
-    "nextra": "2.5.2",
-    "nextra-theme-docs": "2.5.2",
+    "nextra": "2.6.1",
+    "nextra-theme-docs": "2.6.1",
     "posthog-js": "^1.55.1",
     "react": "18.2.0",
     "react-dom": "18.2.0"

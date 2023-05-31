@@ -522,11 +522,11 @@ importers:
         specifier: ^4.0.5
         version: 4.0.6(@next/env@13.4.4)(next@13.4.4)
       nextra:
-        specifier: 2.5.2
-        version: 2.5.2(next@13.4.4)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.6.1
+        version: 2.6.1(next@13.4.4)(react-dom@18.2.0)(react@18.2.0)
       nextra-theme-docs:
-        specifier: 2.5.2
-        version: 2.5.2(next@13.4.4)(nextra@2.5.2)(react-dom@18.2.0)(react@18.2.0)
+        specifier: 2.6.1
+        version: 2.6.1(next@13.4.4)(nextra@2.6.1)(react-dom@18.2.0)(react@18.2.0)
       posthog-js:
         specifier: ^1.55.1
         version: 1.55.1
@@ -5955,7 +5955,7 @@ packages:
       chalk: 4.1.2
       convert-source-map: 2.0.0
       fast-json-stable-stringify: 2.1.0
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       jest-haste-map: 29.5.0
       jest-regex-util: 29.4.3
       jest-util: 29.5.0
@@ -6844,7 +6844,7 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.22.3
       react: 18.2.0
 
   /@radix-ui/react-dismissable-layer@1.0.2(react-dom@18.2.0)(react@18.2.0):
@@ -6908,7 +6908,7 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.22.3
       '@radix-ui/react-use-layout-effect': 1.0.0(react@18.2.0)
       react: 18.2.0
 
@@ -6918,7 +6918,7 @@ packages:
       react: ^16.8 || ^17.0 || ^18.0
       react-dom: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.22.3
       '@radix-ui/primitive': 1.0.0
       '@radix-ui/react-collection': 1.0.1(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-compose-refs': 1.0.0(react@18.2.0)
@@ -6971,7 +6971,7 @@ packages:
       react: ^16.8 || ^17.0 || ^18.0
       react-dom: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.22.3
       '@floating-ui/react-dom': 0.7.2(@types/react@18.0.14)(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-arrow': 1.0.1(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-compose-refs': 1.0.0(react@18.2.0)
@@ -7004,7 +7004,7 @@ packages:
       react: ^16.8 || ^17.0 || ^18.0
       react-dom: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.22.3
       '@radix-ui/react-compose-refs': 1.0.0(react@18.2.0)
       '@radix-ui/react-use-layout-effect': 1.0.0(react@18.2.0)
       react: 18.2.0
@@ -7016,7 +7016,7 @@ packages:
       react: ^16.8 || ^17.0 || ^18.0
       react-dom: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.22.3
       '@radix-ui/react-slot': 1.0.1(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -7027,7 +7027,7 @@ packages:
       react: ^16.8 || ^17.0 || ^18.0
       react-dom: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.22.3
       '@radix-ui/primitive': 1.0.0
       '@radix-ui/react-collection': 1.0.1(react-dom@18.2.0)(react@18.2.0)
       '@radix-ui/react-compose-refs': 1.0.0(react@18.2.0)
@@ -7045,7 +7045,7 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.22.3
       '@radix-ui/react-compose-refs': 1.0.0(react@18.2.0)
       react: 18.2.0
 
@@ -7104,7 +7104,7 @@ packages:
     peerDependencies:
       react: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.22.3
       '@radix-ui/react-use-callback-ref': 1.0.0(react@18.2.0)
       react: 18.2.0
 
@@ -7149,7 +7149,7 @@ packages:
       react: ^16.8 || ^17.0 || ^18.0
       react-dom: ^16.8 || ^17.0 || ^18.0
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.22.3
       '@radix-ui/react-primitive': 1.0.1(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
@@ -9329,6 +9329,10 @@ packages:
     resolution: {integrity: sha512-DUlIj2nk0YnJdlWgsFuVKcX27MLW0KbKmGVoUHmFr+74FYYNUDAaj9ZqTADvsbE8rfxuVmSFc7KczYn5Y09ozg==}
     dev: false
 
+  /@types/katex@0.14.0:
+    resolution: {integrity: sha512-+2FW2CcT0K3P+JMR8YG846bmDwplKUTsWgT2ENwdQ1UdVfRk3GQrh6Mi4sTopy30gI8Uau5CEqHTDZ6YvWIUPA==}
+    dev: false
+
   /@types/keyv@3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
     dependencies:
@@ -9883,7 +9887,7 @@ packages:
       bindings: 1.5.0
       estree-walker: 2.0.2
       glob: 7.2.3
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       micromatch: 4.0.5
       node-gyp-build: 4.6.0
       resolve-from: 5.0.0
@@ -10480,7 +10484,7 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       glob: 7.2.3
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       lazystream: 1.0.1
       lodash.defaults: 4.2.0
       lodash.difference: 4.5.0
@@ -11133,7 +11137,7 @@ packages:
       chalk: 4.1.2
       cli-boxes: 3.0.0
       string-width: 5.1.2
-      type-fest: 2.16.0
+      type-fest: 2.19.0
       widest-line: 4.0.1
       wrap-ansi: 8.0.1
     dev: true
@@ -12084,7 +12088,7 @@ packages:
     resolution: {integrity: sha512-Xch4PXQ/KC8lJ+KfJ9JI6eG/nmppLrPPWg5Q+vh65Qr9EjuJEubxh/H/Le1TmCZ7+Xv7iJuNRqapyOFZB+wsxA==}
     hasBin: true
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       minimist: 1.2.8
       mkdirp: 0.5.6
       rimraf: 2.7.1
@@ -12563,7 +12567,7 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       globby: 11.1.0
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       is-glob: 4.0.3
       is-path-cwd: 2.2.0
       is-path-inside: 3.0.3
@@ -12893,7 +12897,7 @@ packages:
     resolution: {integrity: sha512-Nv9m36S/vxpsI+Hc4/ZGRs0n9mXqSWGGq49zxb/cJfPAQMbUtttJAlNPS4AQzaBdw/pKskw5bMbekT/Y7W/Wlg==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       memory-fs: 0.5.0
       tapable: 1.1.3
     dev: true
@@ -12902,7 +12906,7 @@ packages:
     resolution: {integrity: sha512-T0yTFjdpldGY8PmuXXR0PyQ1ufZpEGiHVrp7zHKB7jdR4qlmZHhONVM5AQOAWXuF/w3dnHbEQVrNptJgt7F+cQ==}
     engines: {node: '>=10.13.0'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       tapable: 2.2.1
 
   /enquirer@2.3.6:
@@ -14454,7 +14458,7 @@ packages:
     resolution: {integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==}
     engines: {node: '>=12'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       jsonfile: 6.1.0
       universalify: 2.0.0
     dev: true
@@ -14463,7 +14467,7 @@ packages:
     resolution: {integrity: sha512-0rcTq621PD5jM/e0a3EJoGC/1TC5ZBCERW82LQuwfGnCa1V8w7dpYH1yNu+SLb6E5dkeCBzKEyLGlFrnr+dUyw==}
     engines: {node: '>=14.14'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       jsonfile: 6.1.0
       universalify: 2.0.0
 
@@ -14471,7 +14475,7 @@ packages:
     resolution: {integrity: sha512-YJDaCJZEnBmcbw13fvdAM9AwNOJwOzrE4pqMqBq5nFiEqXUqHwlK4B+3pUw6JNvfSPtX05xFHtYy/1ni01eGCw==}
     engines: {node: '>=6 <7 || >=8'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       jsonfile: 4.0.0
       universalify: 0.1.2
     dev: true
@@ -14480,7 +14484,7 @@ packages:
     resolution: {integrity: sha512-yhlQgA6mnOJUKOsRUFsgJdQCvkKhcz8tlZG5HBQfReYZy46OwLcY+Zia0mtdHsOo9y/hP+CxMN0TU9QxoOtG4g==}
     engines: {node: '>=6 <7 || >=8'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       jsonfile: 4.0.0
       universalify: 0.1.2
     dev: true
@@ -14880,6 +14884,9 @@ packages:
   /graceful-fs@4.2.10:
     resolution: {integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==}
 
+  /graceful-fs@4.2.11:
+    resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
   /grapheme-splitter@1.0.4:
     resolution: {integrity: sha512-bzh50DW9kTPM00T8y4o8vQg89Di9oLJVLW/KaOGIXJWP/iqCN6WKYkbNOF04vFLJhwcpYUh9ydh/+5vpOqV4YQ==}
     dev: true
@@ -15048,6 +15055,32 @@ packages:
       unist-util-is: 5.1.1
       web-namespaces: 2.0.1
     dev: true
+
+  /hast-util-from-dom@4.2.0:
+    resolution: {integrity: sha512-t1RJW/OpJbCAJQeKi3Qrj1cAOLA0+av/iPFori112+0X7R3wng+jxLA+kXec8K4szqPRGI8vPxbbpEYvvpwaeQ==}
+    dependencies:
+      hastscript: 7.0.2
+      web-namespaces: 2.0.1
+    dev: false
+
+  /hast-util-from-html-isomorphic@1.0.0:
+    resolution: {integrity: sha512-Yu480AKeOEN/+l5LA674a+7BmIvtDj24GvOt7MtQWuhzUwlaaRWdEPXAh3Qm5vhuthpAipFb2vTetKXWOjmTvw==}
+    dependencies:
+      '@types/hast': 2.3.4
+      hast-util-from-dom: 4.2.0
+      hast-util-from-html: 1.0.2
+      unist-util-remove-position: 4.0.1
+    dev: false
+
+  /hast-util-from-html@1.0.2:
+    resolution: {integrity: sha512-LhrTA2gfCbLOGJq2u/asp4kwuG0y6NhWTXiPKP+n0qNukKy7hc10whqqCFfyvIA1Q5U5d0sp9HhNim9gglEH4A==}
+    dependencies:
+      '@types/hast': 2.3.4
+      hast-util-from-parse5: 7.1.0
+      parse5: 7.1.2
+      vfile: 5.3.4
+      vfile-message: 3.1.2
+    dev: false
 
   /hast-util-from-parse5@7.1.0:
     resolution: {integrity: sha512-m8yhANIAccpU4K6+121KpPP55sSl9/samzQSQGpb0mTExcNh2WlvjtMwSWFhg6uqD4Rr6Nfa8N6TMypQM51rzQ==}
@@ -16036,7 +16069,7 @@ packages:
       '@types/node': 18.11.18
       anymatch: 3.1.3
       fb-watchman: 2.0.1
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       jest-regex-util: 29.4.3
       jest-util: 29.5.0
       jest-worker: 29.5.0
@@ -16067,7 +16100,7 @@ packages:
       '@types/node': 18.11.18
       chalk: 4.1.2
       ci-info: 3.8.0
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       picomatch: 2.3.1
     dev: true
 
@@ -16169,7 +16202,7 @@ packages:
       babel-core: 7.0.0-bridge.0(@babel/core@7.21.0)
       chalk: 4.1.2
       flow-parser: 0.203.1
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       micromatch: 4.0.5
       neo-async: 2.6.2
       node-dir: 0.1.17
@@ -16253,7 +16286,7 @@ packages:
   /jsonfile@4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
     optionalDependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
     dev: true
 
   /jsonfile@6.1.0:
@@ -16261,7 +16294,7 @@ packages:
     dependencies:
       universalify: 2.0.0
     optionalDependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
 
   /jsonparse@1.3.1:
     resolution: {integrity: sha512-POQXvpdL69+CluYsillJ7SUhKvytYjW9vG/GKpnf+xP8UWgYEM/RaMzHHofbALDiKbbP1W8UEYmgGl39WkPZsg==}
@@ -16293,15 +16326,8 @@ packages:
       commander: 8.3.0
     dev: false
 
-  /katex@0.15.6:
-    resolution: {integrity: sha512-UpzJy4yrnqnhXvRPhjEuLA4lcPn6eRngixW7Q3TJErjg3Aw2PuLFBzTkdUb89UtumxjhHTqL3a5GDGETMSwgJA==}
-    hasBin: true
-    dependencies:
-      commander: 8.3.0
-    dev: false
-
-  /katex@0.16.4:
-    resolution: {integrity: sha512-WudRKUj8yyBeVDI4aYMNxhx5Vhh2PjpzQw1GRu/LVGqL4m1AxwD1GcUp0IMbdJaf5zsjtj8ghP0DOQRYhroNkw==}
+  /katex@0.16.7:
+    resolution: {integrity: sha512-Xk9C6oGKRwJTfqfIbtr0Kes9OSv6IFsuhFGc7tW4urlpMJtuh+7YhzU6YEG9n8gmWKcMAFzkp7nr+r69kV0zrA==}
     hasBin: true
     dependencies:
       commander: 8.3.0
@@ -16402,7 +16428,7 @@ packages:
       tslib: 2.4.0
     optionalDependencies:
       errno: 0.1.8
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       image-size: 0.5.5
       make-dir: 2.1.0
       mime: 1.6.0
@@ -16479,7 +16505,7 @@ packages:
     resolution: {integrity: sha512-OfCBkGEw4nN6JLtgRidPX6QxjBQGQf72q3si2uvqyFEMbycSFFHwAZeXx6cJgFM9wmLrf9zBwCP3Ivqa+LLZPw==}
     engines: {node: '>=6'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       js-yaml: 3.14.1
       pify: 4.0.1
       strip-bom: 3.0.0
@@ -17814,11 +17840,11 @@ packages:
       - '@babel/core'
       - babel-plugin-macros
 
-  /nextra-theme-docs@2.5.2(next@13.4.4)(nextra@2.5.2)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-DLrAtMtlUx3y3QsHcnIHhkb8b/VUFSvU5Cgb0Tzm7VlngKJW8ftPg9IxgoRZouqgQvkvvxbMLTPgBw+8n0VZTw==}
+  /nextra-theme-docs@2.6.1(next@13.4.4)(nextra@2.6.1)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-25Va2D5bzFRIE7uIZ75QfmvsdurXI+xzoWBNMQTnG+ONv9yiQSWRYjfw/Yep1OXF6ahDaaNqbCb8HmRoX7sqRg==}
     peerDependencies:
       next: '>=9.5.3'
-      nextra: 2.5.2
+      nextra: 2.6.1
       react: '>=16.13.1'
       react-dom: '>=16.13.1'
     dependencies:
@@ -17833,15 +17859,15 @@ packages:
       next: 13.4.4(@babel/core@7.21.0)(react-dom@18.2.0)(react@18.2.0)
       next-seo: 6.0.0(next@13.4.4)(react-dom@18.2.0)(react@18.2.0)
       next-themes: 0.2.1(next@13.4.4)(react-dom@18.2.0)(react@18.2.0)
-      nextra: 2.5.2(next@13.4.4)(react-dom@18.2.0)(react@18.2.0)
+      nextra: 2.6.1(next@13.4.4)(react-dom@18.2.0)(react@18.2.0)
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
       scroll-into-view-if-needed: 3.0.3
       zod: 3.21.4
     dev: false
 
-  /nextra@2.5.2(next@13.4.4)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-22kw8s2OShvA625cKi3P9JioUybL5hEcCn1txXyQh+Mn3jmQXlXdbzmuT4BdYRNWo5lGqmYwm2h73igXjbssRQ==}
+  /nextra@2.6.1(next@13.4.4)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-5NN+aTFzW17/42AWp3qAvBTlgZvSQVpHOUb2MdHI6gnslpjik6z7DS1gZJ9zJ/I8veVxdLhdE70TfksAZ9tgxQ==}
     engines: {node: '>=16'}
     peerDependencies:
       next: '>=9.5.3'
@@ -17851,17 +17877,18 @@ packages:
       '@mdx-js/mdx': 2.3.0
       '@mdx-js/react': 2.3.0(react@18.2.0)
       '@napi-rs/simple-git': 0.1.8
+      clsx: 1.2.1
       github-slugger: 2.0.0
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       gray-matter: 4.0.3
-      katex: 0.16.4
+      katex: 0.16.7
       lodash.get: 4.4.2
       next: 13.4.4(@babel/core@7.21.0)(react-dom@18.2.0)(react@18.2.0)
       next-mdx-remote: 4.2.1(react-dom@18.2.0)(react@18.2.0)
       p-limit: 3.1.0
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-      rehype-katex: 6.0.2
+      rehype-katex: 6.0.3
       rehype-pretty-code: 0.9.4(shiki@0.14.2)
       remark-gfm: 3.0.1
       remark-math: 5.1.1
@@ -18735,12 +18762,12 @@ packages:
 
   /parse5@6.0.1:
     resolution: {integrity: sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw==}
+    dev: true
 
   /parse5@7.1.2:
     resolution: {integrity: sha512-Czj1WaSVpaoj0wbhMzLmWD69anp2WH7FXMB9n1Sy8/ZFF9jolSQVMu1Ij5WIyGmcBmhk7EOndpO4mIpihVqAXw==}
     dependencies:
       entities: 4.4.0
-    dev: true
 
   /parseley@0.11.0:
     resolution: {integrity: sha512-VfcwXlBWgTF+unPcr7yu3HSSA6QUdDaDnrHcytVfj5Z8azAyKBDrYnSIfeSxlrEayndNcLmrXzg+Vxbo6DWRXQ==}
@@ -18937,7 +18964,7 @@ packages:
     resolution: {integrity: sha512-Sz2Lkdxz6F2Pgnpi9U5Ng/WdWAUZxmHrNPoVlm3aAemxoy2Qy7LGjQg4uf8qKelDAUW94F4np3iH2YPf2qefcQ==}
     engines: {node: '>=10'}
     dependencies:
-      '@babel/runtime': 7.20.13
+      '@babel/runtime': 7.22.3
     dev: true
 
   /postcss-calc@8.2.4(postcss@8.4.22):
@@ -20224,7 +20251,7 @@ packages:
     resolution: {integrity: sha512-VIMnQi/Z4HT2Fxuwg5KrY174U1VdUIASQVWXXyqtNRtxSr9IYkn1rsI6Tb6HsrHCmB7gVpNwX6JxPTHcH6IoTA==}
     engines: {node: '>=6'}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       js-yaml: 3.14.1
       pify: 4.0.1
       strip-bom: 3.0.0
@@ -20447,16 +20474,14 @@ packages:
       jsesc: 0.5.0
     dev: true
 
-  /rehype-katex@6.0.2:
-    resolution: {integrity: sha512-C4gDAlS1+l0hJqctyiU64f9CvT00S03qV1T6HiMzbSuLBgWUtcqydWHY9OpKrm0SpkK16FNd62CDKyWLwV2ppg==}
+  /rehype-katex@6.0.3:
+    resolution: {integrity: sha512-ByZlRwRUcWegNbF70CVRm2h/7xy7jQ3R9LaY4VVSvjnoVWwWVhNL60DiZsBpC5tSzYQOCvDbzncIpIjPZWodZA==}
     dependencies:
       '@types/hast': 2.3.4
-      '@types/katex': 0.11.1
+      '@types/katex': 0.14.0
+      hast-util-from-html-isomorphic: 1.0.0
       hast-util-to-text: 3.1.1
-      katex: 0.15.6
-      rehype-parse: 8.0.4
-      unified: 10.1.2
-      unist-util-remove-position: 4.0.1
+      katex: 0.16.7
       unist-util-visit: 4.1.1
     dev: false
 
@@ -20467,6 +20492,7 @@ packages:
       hast-util-from-parse5: 7.1.0
       parse5: 6.0.1
       unified: 10.1.2
+    dev: true
 
   /rehype-pretty-code@0.9.4(shiki@0.14.2):
     resolution: {integrity: sha512-3m4aQT15n8C+UizcZL0enaahoZwCDm5K1qKQ3DGgHE7U8l/DEEEJ/hm+uDe9yyK4sxVOSfZcRIMHrpJwLQi+Rg==}
@@ -23502,7 +23528,7 @@ packages:
     engines: {node: '>=10.13.0'}
     dependencies:
       glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
 
   /wcwidth@1.0.1:
     resolution: {integrity: sha512-XHPEwS0q6TaxcvG85+8EYkbiCux2XtWG2mkc47Ng2A77BQu9+DqIOJldST4HgPkuea7dvKSj5VgX3P1d4rW8Tg==}
@@ -23582,7 +23608,7 @@ packages:
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       json-parse-even-better-errors: 2.3.1
       loader-runner: 4.3.0
       mime-types: 2.1.35
@@ -23622,7 +23648,7 @@ packages:
       eslint-scope: 5.1.1
       events: 3.3.0
       glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       json-parse-even-better-errors: 2.3.1
       loader-runner: 4.3.0
       mime-types: 2.1.35
@@ -23780,7 +23806,7 @@ packages:
   /write-file-atomic@2.4.3:
     resolution: {integrity: sha512-GaETH5wwsX+GcnzhPgKcKjJ6M2Cq3/iZp1WyY/X1CSqrW+jVNM9Y7D8EC2sM4ZG/V8wZlSniJnCKWPmBYAucRQ==}
     dependencies:
-      graceful-fs: 4.2.10
+      graceful-fs: 4.2.11
       imurmurhash: 0.1.4
       signal-exit: 3.0.7
     dev: true
