@@ -219,6 +219,7 @@ export default {
   'functions.settings.domains.add.success': 'Domain added successfully.',
   'functions.settings.domains.list.default': 'Default domain',
   'functions.settings.domains.list.valid': 'Domain is valid',
+  'functions.settings.domains.list.valid.cf': 'Domain proxied through Cloudflare',
   'functions.settings.domains.list.invalid': 'Domain is pointing to {domain} instead of {target}',
   'functions.settings.domains.list.delete': 'Delete',
   'functions.settings.domains.list.delete.success': 'Domain deleted successfully.',

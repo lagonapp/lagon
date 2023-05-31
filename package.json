@@ -10,7 +10,7 @@
     "build": "turbo build --continue --filter=!@lagon/example-*",
     "lint": "turbo lint --continue",
     "typecheck": "turbo typecheck --continue",
-    "docker:build": "docker build -t lagon/serverless -f docker/Dockerfile .",
+    "docker:build": "docker build -t lagon/serverless -f docker/Dockerfile.serverless .",
     "docker:start": "docker run --rm -p 4000:4000 --env-file crates/serverless/.env lagon/serverless",
     "release": "pnpm build --filter=@lagon/astro --filter=@lagon/remix && pnpm changeset publish"
   },
@@ -34,7 +34,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
     "prettier": "^2.8.7",
-    "prettier-plugin-tailwindcss": "^0.2.7",
+    "prettier-plugin-tailwindcss": "^0.3.0",
     "tsup": "^6.6.0",
     "turbo": "^1.9.3",
     "typescript": "^5.0.2",

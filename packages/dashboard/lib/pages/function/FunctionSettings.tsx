@@ -78,7 +78,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
       );
 
       const promises = func.domains.map(async domain => {
-        const response = await fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=A`, {
+        const response = await fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=CNAME`, {
           headers: {
             accept: 'application/dns-json',
           },
@@ -97,10 +97,15 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
 
           let domainStatus: DomainStatus;
 
-          if (result.Answer?.[0]?.name === domain && result.Answer?.[0]?.data === `${defaultDomain}.`) {
+          if (result.Answer?.[0]?.data === `${defaultDomain}.`) {
             domainStatus = {
               status: 'success',
               help: t('domains.list.valid'),
+            };
+          } else if (result.Authority?.[0].data?.includes('dns.cloudflare.com.')) {
+            domainStatus = {
+              status: 'info',
+              help: t('domains.list.valid.cf'),
             };
           } else {
             domainStatus = {
