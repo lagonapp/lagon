@@ -9,7 +9,8 @@ use sqlx::{
     MySql, Pool, Row,
 };
 use std::env;
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+use tokio::sync::Mutex;
 
 #[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub struct CachePutRequest {
@@ -216,7 +217,7 @@ impl BackedCache {
             .await
             .expect("Failed to commit database transaction");
 
-        let mut conn = self.redis_conn.lock().unwrap();
+        let mut conn = self.redis_conn.lock().await;
 
         redis::pipe().del(redis_ids).query_async(&mut *conn).await?;
 
@@ -247,7 +248,7 @@ impl BackedCache {
         .execute(&self.mysql_pool)
         .await?;
 
-        let mut conn = self.redis_conn.lock().unwrap();
+        let mut conn = self.redis_conn.lock().await;
 
         let cache_put_request_json = serde_json::to_string(&request_response)?;
 
@@ -266,7 +267,7 @@ impl BackedCache {
     }
 
     pub async fn get(&self, request: CacheMatchRequest) -> Result<CachePutRequest> {
-        let mut conn = self.redis_conn.lock().unwrap();
+        let mut conn = self.redis_conn.lock().await;
         let cache_put_request_json: Option<String> = conn
             .get(format!("{}__{}", request.cache_id, request.request_url))
             .await?;
@@ -333,7 +334,7 @@ impl BackedCache {
             .commit()
             .await
             .expect("Failed to commit database transaction");
-        let mut conn = self.redis_conn.lock().unwrap();
+        let mut conn = self.redis_conn.lock().await;
 
         let redis_key = format!("{}__{}", request.cache_id, request.request_url);
 
