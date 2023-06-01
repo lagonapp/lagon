@@ -1,0 +1,13 @@
+{
+  "dependencies": {
+    "itty-router-extras": "0.4.2",
+    "sidra": "^0.1.7"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.4"
+  },
+  "scripts": {
+    "dev": "lagon dev",
+    "deploy": "lagon deploy"
+  }
+}
