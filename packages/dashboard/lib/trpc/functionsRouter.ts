@@ -141,9 +141,8 @@ FROM serverless.logs
 WHERE
   function_id = '${input.functionId}'
 AND
-  timestamp >= toDateTime(now() - INTERVAL ${
-    input.timeframe === 'Last hour' ? '1 HOUR' : input.timeframe === 'Last 24 hours' ? '1 DAY' : '1 WEEK'
-  })
+  timestamp >= toDateTime(now() - INTERVAL ${input.timeframe === 'Last hour' ? '1 HOUR' : input.timeframe === 'Last 24 hours' ? '1 DAY' : '1 WEEK'
+            })
 ${input.level !== 'all' ? `AND level = '${input.level}'` : ''}
 ORDER BY timestamp DESC
 LIMIT 100`,
@@ -437,7 +436,7 @@ LIMIT 100`,
             },
             {
               ...deployment,
-              assets: deployment.assets.map(({ name }) => name),
+              assets: deployment.assets as string[],
             },
             oldDomains,
           );
@@ -490,12 +489,6 @@ LIMIT 100`,
             deployments: {
               select: {
                 id: true,
-                triggerer: true,
-                commit: true,
-                isProduction: true,
-                assets: true,
-                createdAt: true,
-                updatedAt: true,
               },
             },
           },

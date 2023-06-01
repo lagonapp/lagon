@@ -144,20 +144,9 @@ model Deployment {
   commit       String?
   isProduction Boolean  @default(false)
   function     Function @relation(fields: [functionId], references: [id])
-  assets       Asset[]
+  assets       Json
 
   @@index([functionId])
-}
-
-model Asset {
-  id           String     @id @default(cuid())
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  name         String
-  deploymentId String
-  deployment   Deployment @relation(fields: [deploymentId], references: [id])
-
-  @@index([deploymentId])
 }
 
 model Token {
