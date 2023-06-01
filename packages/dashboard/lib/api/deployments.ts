@@ -318,11 +318,20 @@ export async function removeFunction(func: {
   );
 
   await Promise.all(deleteDeployments);
-  await prisma.domain.deleteMany({
+
+  const deleteDomains = prisma.domain.deleteMany({
     where: {
       functionId: func.id,
     },
   });
+
+  const deleteEnvVariables = prisma.envVariable.deleteMany({
+    where: {
+      functionId: func.id,
+    },
+  });
+
+  await Promise.all([deleteDomains, deleteEnvVariables]);
 
   await prisma.function.delete({
     where: {
