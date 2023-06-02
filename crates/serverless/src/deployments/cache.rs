@@ -1,5 +1,5 @@
 use super::{pubsub::clear_deployment_cache, Deployments};
-use crate::{serverless::Workers, REGION};
+use crate::{get_region, serverless::Workers};
 use clickhouse::{Client, Row};
 use serde::Deserialize;
 use std::{collections::HashSet, env, sync::Arc, time::Duration};
@@ -33,7 +33,7 @@ pub fn run_cache_clear_task(client: &Client, deployments: Deployments, workers: 
                 let query = client
                     .query("SELECT count(*) as count FROM serverless.requests WHERE timestamp >= subtractSeconds(now(), ?) AND region = ? AND deployment_id = ?")
                     .bind(isolates_cache_seconds.as_secs())
-                    .bind(REGION.clone())
+                    .bind(get_region())
                     .bind(deployment_id.clone())
                     .fetch_one::<MyRow>().await;
 

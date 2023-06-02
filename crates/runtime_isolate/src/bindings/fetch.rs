@@ -3,14 +3,13 @@ use async_recursion::async_recursion;
 use hyper::{client::HttpConnector, header::LOCATION, http::Uri, Body, Client, Request, Response};
 use hyper_tls::HttpsConnector;
 use lagon_runtime_http::request_from_v8;
-use once_cell::sync::Lazy;
+use std::sync::OnceLock;
 
 use crate::{bindings::PromiseResult, Isolate};
 
 use super::BindingResult;
 
-static CLIENT: Lazy<Client<HttpsConnector<HttpConnector>>> =
-    Lazy::new(|| Client::builder().build::<_, Body>(HttpsConnector::new()));
+static CLIENT: OnceLock<Client<HttpsConnector<HttpConnector>>> = OnceLock::new();
 
 type Arg = Request<Body>;
 
@@ -84,7 +83,8 @@ async fn make_request(
     let uri = request.uri().clone();
 
     let (request_a, request_b) = clone_response(request).await?;
-    let response = CLIENT.request(request_a).await?;
+    let client = CLIENT.get_or_init(|| Client::builder().build::<_, Body>(HttpsConnector::new()));
+    let response = client.request(request_a).await?;
 
     if response.status().is_redirection() {
         let mut redirect_url = match response.headers().get(LOCATION) {

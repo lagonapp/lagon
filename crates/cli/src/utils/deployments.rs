@@ -1,7 +1,7 @@
 use super::{
     validate_assets_dir, validate_code_file, Config, MAX_ASSET_SIZE_MB, MAX_FUNCTION_SIZE_MB,
 };
-use crate::utils::{print_progress, TrpcClient, THEME};
+use crate::utils::{get_theme, print_progress, TrpcClient};
 use anyhow::{anyhow, Result};
 use dialoguer::console::style;
 use dialoguer::{Confirm, Input};
@@ -58,7 +58,7 @@ impl FunctionConfig {
                     index
                 }
                 None => {
-                    let index = Input::<String>::with_theme(&*THEME)
+                    let index = Input::<String>::with_theme(get_theme())
                         .with_prompt(format!(
                             "Path to your Function's entrypoint? {}",
                             style(format!("(relative to {:?})", root.canonicalize()?))
@@ -83,13 +83,13 @@ impl FunctionConfig {
                     );
                     Some(assets)
                 }
-                None => match Confirm::with_theme(&*THEME)
+                None => match Confirm::with_theme(get_theme())
                     .with_prompt("Do you have a public directory to serve assets from?")
                     .default(false)
                     .interact()?
                 {
                     true => {
-                        let assets = Input::<String>::with_theme(&*THEME)
+                        let assets = Input::<String>::with_theme(get_theme())
                             .with_prompt(format!(
                                 "Path to your Function's public directory? {}",
                                 style(format!("(relative to {:?})", root.canonicalize()?))

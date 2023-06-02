@@ -1784,7 +1784,6 @@ dependencies = [
  "lagon-runtime-isolate",
  "lagon-runtime-utils",
  "notify",
- "once_cell",
  "pathdiff",
  "serde",
  "serde_json",
@@ -1821,7 +1820,6 @@ dependencies = [
  "hmac",
  "lagon-runtime-v8-utils",
  "num-traits",
- "once_cell",
  "p256",
  "p384",
  "rand",
@@ -1858,7 +1856,6 @@ dependencies = [
  "lagon-runtime-v8-utils",
  "linked-hash-map",
  "log",
- "once_cell",
  "tokio",
  "v8",
 ]
@@ -1906,7 +1903,6 @@ dependencies = [
  "metrics",
  "metrics-exporter-prometheus",
  "mysql",
- "once_cell",
  "reqwest",
  "serde",
  "serde_json",
@@ -1960,7 +1956,6 @@ dependencies = [
  "lagon-runtime",
  "lagon-runtime-http",
  "lagon-runtime-isolate",
- "once_cell",
  "tokio",
 ]
 

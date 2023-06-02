@@ -1,5 +1,5 @@
 use super::{download_deployment, filesystem::rm_deployment, Deployment, Deployments};
-use crate::{serverless::Workers, REGION};
+use crate::{get_region, serverless::Workers};
 use anyhow::Result;
 use futures::StreamExt;
 use lagon_runtime_isolate::IsolateEvent;
@@ -43,7 +43,7 @@ where
 
         // Ignore deployments that have a cron set but where
         // the region isn't this node' region
-        if cron.is_some() && cron_region != REGION.to_string() {
+        if cron.is_some() && &cron_region != get_region() {
             continue;
         }
 
@@ -89,7 +89,6 @@ where
                             "status" => "success",
                             "deployment" => deployment.id.clone(),
                             "function" => deployment.function_id.clone(),
-                            "region" => REGION.clone(),
                         );
 
                         let domains = deployment.get_domains();
@@ -114,7 +113,6 @@ where
                             "status" => "error",
                             "deployment" => deployment.id.clone(),
                             "function" => deployment.function_id.clone(),
-                            "region" => REGION.clone(),
                         );
                         error!(
                             deployment = deployment.id;
@@ -131,7 +129,6 @@ where
                             "status" => "success",
                             "deployment" => deployment.id.clone(),
                             "function" => deployment.function_id.clone(),
-                            "region" => REGION.clone(),
                         );
 
                         let domains = deployment.get_domains();
@@ -161,7 +158,6 @@ where
                             "status" => "error",
                             "deployment" => deployment.id.clone(),
                             "function" => deployment.function_id.clone(),
-                            "region" => REGION.clone(),
                         );
                         error!(deployment = deployment.id; "Failed to delete deployment: {}", error);
                     }
@@ -172,7 +168,6 @@ where
                     "lagon_promotion",
                     "deployment" => deployment.id.clone(),
                     "function" => deployment.function_id.clone(),
-                    "region" => REGION.clone(),
                 );
 
                 let previous_id = value["previousDeploymentId"].as_str().unwrap();

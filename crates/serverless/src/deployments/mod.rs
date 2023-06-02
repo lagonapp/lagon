@@ -1,4 +1,4 @@
-use crate::REGION;
+use crate::get_region;
 use anyhow::{anyhow, Result};
 use dashmap::DashMap;
 use futures::{stream::FuturesUnordered, StreamExt};
@@ -111,7 +111,7 @@ WHERE
 OR
     Function.cronRegion = '{}'
 ",
-            REGION.as_str()
+            get_region()
         ),
         |(
             id,
