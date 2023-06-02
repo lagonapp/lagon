@@ -64,7 +64,7 @@ export enum ESBuildStatus {
 }
 
 class EsBuildSingleton {
-  static isFirst: boolean = true;
+  static isFirst = true;
   static getIsFirst = () => {
     if (EsBuildSingleton.isFirst) {
       EsBuildSingleton.isFirst = false;
