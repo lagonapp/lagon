@@ -113,8 +113,8 @@ export async function removeDeployment(
 
 export async function unpromoteProductionDeployment(functionId: string): Promise<
   | {
-    id: string;
-  }
+      id: string;
+    }
   | undefined
 > {
   const currentDeployment = await prisma.deployment.findFirst({
