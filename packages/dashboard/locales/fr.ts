@@ -166,6 +166,8 @@ export default defineLocale({
   'function.nav.logs': 'Logs',
   'function.nav.settings': 'Paramètres',
   'function.nav.cron': 'Cron',
+  'playground.esbuild.error': `Étant donné que votre navigateur ne prend pas en charge wasm, vous ne pouvez pas utiliser le typescript.`,
+  'playground.esbuild.loading': `esbuild est en cours d'initialisation`,
 
   'functions.overview.usage': 'Utilisation & Limites',
   'functions.overview.usage.requests': 'Requêtes',

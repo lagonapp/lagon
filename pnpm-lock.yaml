@@ -437,6 +437,9 @@ importers:
       clickhouse:
         specifier: ^2.6.0
         version: 2.6.0
+      esbuild-wasm:
+        specifier: 0.17.19
+        version: 0.17.19
       final-form:
         specifier: ^4.20.7
         version: 4.20.7
@@ -12985,6 +12988,12 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
+
+  /esbuild-wasm@0.17.19:
+    resolution: {integrity: sha512-X9UQEMJMZXwlGCfqcBmJ1jEa+KrLfd+gCBypO/TSzo5hZvbVwFqpxj1YCuX54ptTF75wxmrgorR4RL40AKtLVg==}
+    engines: {node: '>=12'}
+    hasBin: true
+    dev: false
 
   /esbuild-windows-32@0.15.15:
     resolution: {integrity: sha512-MDkJ3QkjnCetKF0fKxCyYNBnOq6dmidcwstBVeMtXSgGYTy8XSwBeIE4+HuKiSsG6I/mXEb++px3IGSmTN0XiA==}

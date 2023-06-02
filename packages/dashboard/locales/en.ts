@@ -153,6 +153,8 @@ export default {
   'playground.deploy.success': 'Function deployed successfully.',
   'playground.deploy.error': 'Failed to deploy Function.',
   'playground.reload': 'Reload',
+  'playground.esbuild.error': `Since your browser doesn't support wasm, you can't use typescript.`,
+  'playground.esbuild.loading': 'Initializing esbuild',
 
   'function.nav.playground': 'Playground',
   'function.nav.overview': 'Overview',

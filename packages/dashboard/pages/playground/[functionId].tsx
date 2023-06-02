@@ -1,16 +1,32 @@
 import { useMonaco } from '@monaco-editor/react';
 import { useRouter } from 'next/router';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import toast from 'react-hot-toast';
 import FunctionLinks from 'lib/components/FunctionLinks';
 import Playground from 'lib/components/Playground';
 import useFunction from 'lib/hooks/useFunction';
 import { getFullCurrentDomain } from 'lib/utils';
-import { Text, Button, Form } from '@lagon/ui';
+import { Text, Button, Form, LogLine } from '@lagon/ui';
 import { PlayIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import useFunctionCode from 'lib/hooks/useFunctionCode';
 import { useScopedI18n } from 'locales';
 import { trpc } from 'lib/trpc';
+import useEsbuild, { ESBuildStatus } from 'lib/hooks/useEsbuild';
+
+const EsBuildTip: React.FC<{ esbuildStatus: ESBuildStatus }> = ({ esbuildStatus }) => {
+  const t = useScopedI18n('playground');
+  return [ESBuildStatus.Fail, ESBuildStatus.Loading].includes(esbuildStatus) ? (
+    <div className=" w-full">
+      <LogLine
+        level={esbuildStatus === ESBuildStatus.Loading ? 'warn' : 'error'}
+        message={esbuildStatus === ESBuildStatus.Loading ? t('esbuild.loading') : t('esbuild.error')}
+        hiddenCopy
+      />
+    </div>
+  ) : (
+    <></>
+  );
+};
 
 const PlaygroundPage = () => {
   const {
@@ -23,6 +39,7 @@ const PlaygroundPage = () => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const monaco = useMonaco();
   const t = useScopedI18n('playground');
+  const { isEsbuildLoading, esbuildStatus, build } = useEsbuild();
   const [isLoading, setIsLoading] = useState(false);
 
   const reloadIframe = useCallback(() => {
@@ -47,6 +64,28 @@ const PlaygroundPage = () => {
             }
 
             setIsLoading(true);
+
+            if (esbuildStatus === ESBuildStatus.Success) {
+              try {
+                const files = new Map<string, { content: string }>();
+
+                files.set('index.ts', {
+                  content: code,
+                });
+
+                const esbuildResult = await build(files);
+
+                if (esbuildResult.outputFiles?.[0]) {
+                  code = esbuildResult.outputFiles[0].text;
+                } else {
+                  esbuildResult.errors.forEach(e => {
+                    console.error(e);
+                  });
+                }
+              } catch (e) {
+                console.error(e);
+              }
+            }
 
             const deployment = await createDeployment.mutateAsync({
               functionId: func.id,
@@ -87,7 +126,12 @@ const PlaygroundPage = () => {
             </Text>
             <div className="flex items-center gap-2">
               <Button href={`/functions/${func?.id}`}>{t('back')}</Button>
-              <Button variant="primary" leftIcon={<PlayIcon className="h-4 w-4" />} submit disabled={isLoading}>
+              <Button
+                variant="primary"
+                leftIcon={<PlayIcon className="h-4 w-4" />}
+                submit
+                disabled={isLoading || isEsbuildLoading}
+              >
                 {t('deploy')}
               </Button>
             </div>
@@ -102,7 +146,8 @@ const PlaygroundPage = () => {
       </div>
       <div className="flex w-screen" style={{ height: 'calc(100vh - 4rem - 3rem)' }}>
         <Playground defaultValue={functionCode?.code || ''} width="50vw" height="100%" />
-        <div className="w-[50vw] border-l border-l-stone-200 dark:border-b-stone-700">
+        <div className="flex w-[50vw] flex-col border-l border-l-stone-200 dark:border-b-stone-700">
+          <EsBuildTip esbuildStatus={esbuildStatus} />
           {func ? <iframe ref={iframeRef} className="h-full w-full" src={getFullCurrentDomain(func)} /> : null}
         </div>
       </div>
