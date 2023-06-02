@@ -131,8 +131,6 @@ OR
                 .map(|asset_obj| asset_obj.0)
                 .unwrap_or_default();
 
-            println!("found assets: {:?}", assets);
-
             deployments_list
                 .entry(id.clone())
                 .and_modify(|deployment| {
