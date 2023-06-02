@@ -263,6 +263,15 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0
 
+  examples/sidra:
+    dependencies:
+      itty-router-extras:
+        specifier: 0.4.2
+        version: 0.4.2
+      sidra:
+        specifier: ^0.1.7
+        version: 0.1.7
+
   examples/trpc:
     dependencies:
       '@trpc/server':
@@ -345,7 +354,7 @@ importers:
     dependencies:
       '@xata.io/client':
         specifier: ^0.23.5
-        version: 0.23.5(typescript@5.0.2)
+        version: 0.23.5(typescript@5.0.4)
 
   packages/dashboard:
     dependencies:
@@ -9310,6 +9319,12 @@ packages:
       '@types/istanbul-lib-report': 3.0.0
     dev: true
 
+  /@types/itty-router-extras@0.4.0:
+    resolution: {integrity: sha512-IcXmXB8vVbjWy4McZjKzo+3sdQyzMpyHi5mQ4iViu6yX9cS/SVlGR+6H/AgzfG32svaQJeOhl2gfXYwf1AKEgg==}
+    dependencies:
+      itty-router: 2.6.6
+    dev: false
+
   /@types/js-yaml@4.0.5:
     resolution: {integrity: sha512-FhpRzf927MNQdRZP0J5DLIdTXhjLYzeUTmLAu69mnVksLH9CJY3IuSeEgbKUki7GQZm0WqDkGzyxju2EZGD2wA==}
     dev: false
@@ -10214,12 +10229,12 @@ packages:
       '@webassemblyjs/ast': 1.11.1
       '@xtuc/long': 4.2.2
 
-  /@xata.io/client@0.23.5(typescript@5.0.2):
+  /@xata.io/client@0.23.5(typescript@5.0.4):
     resolution: {integrity: sha512-xNi6eLW6kXi6Ka8Q/TD/4+uGsfAUQ/Mna4CrPZGEQmPHRCqcwuSyaixPcJIaEO0mYfFGFjn5iUyvc4PLQ0rtiw==}
     peerDependencies:
       typescript: '>=4.5'
     dependencies:
-      typescript: 5.0.2
+      typescript: 5.0.4
     dev: false
 
   /@xtuc/ieee754@1.2.0:
@@ -16012,6 +16027,18 @@ packages:
       istanbul-lib-report: 3.0.0
     dev: true
 
+  /itty-router-extras@0.4.2:
+    resolution: {integrity: sha512-ppHaBzcTXs7idFSDISehG+8kif2/4aqLCfyY/Y/uIZv79sfEfNmTq9G+rDeqblun/VZRBiXZD8ztYmMS8EOsKw==}
+    dev: false
+
+  /itty-router@2.6.6:
+    resolution: {integrity: sha512-hIPHtXGymCX7Lzb2I4G6JgZFE4QEEQwst9GORK7sMYUpJvLfy4yZJr95r04e8DzoAnj6HcxM2m4TbK+juu+18g==}
+    dev: false
+
+  /itty-router@3.0.12:
+    resolution: {integrity: sha512-s98XTPhle6GGbaFf0kYrOD3Q8gyhnqvOqkwYijC3AmkceNKqWUp13YHg6dWmqmVv4pP7l7c94XI92I0EXVGO0w==}
+    dev: false
+
   /jake@10.8.5:
     resolution: {integrity: sha512-sVpxYeuAhWt0OTWITwT98oyV0GsXyMlXCF+3L1SuafBVUIr/uILGRB+NqwkzhgXKvoJpDIpQvqkUALgdmQsQxw==}
     engines: {node: '>=10'}
@@ -20340,6 +20367,10 @@ packages:
       '@redis/time-series': 1.0.4(@redis/client@1.5.6)
     dev: false
 
+  /reflect-metadata@0.1.13:
+    resolution: {integrity: sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==}
+    dev: false
+
   /regenerate-unicode-properties@10.0.1:
     resolution: {integrity: sha512-vn5DU6yg6h8hP/2OkQo3K7uVILvY4iu0oI4t3HFa81UPkhGJwkRwM10JEc3upjdhHjs/k8GJY1sRBhk5sr69Bw==}
     engines: {node: '>=4'}
@@ -21223,6 +21254,15 @@ packages:
       call-bind: 1.0.2
       get-intrinsic: 1.1.3
       object-inspect: 1.12.2
+
+  /sidra@0.1.7:
+    resolution: {integrity: sha512-kQp0uaKdyLFbjDAK5fO/eT4sW/hCtwCKx62ZmJhyMiIs0+VjygfTq7+SlZM6vSbu5OU3xGf7YNEaKydvcJVWpg==}
+    dependencies:
+      '@types/itty-router-extras': 0.4.0
+      itty-router: 3.0.12
+      itty-router-extras: 0.4.2
+      reflect-metadata: 0.1.13
+    dev: false
 
   /siginfo@2.0.0:
     resolution: {integrity: sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g==}
@@ -22487,6 +22527,12 @@ packages:
     resolution: {integrity: sha512-wVORMBGO/FAs/++blGNeAVdbNKtIh1rbBL2EyQ1+J9lClJ93KiiKe8PmFIVdXhHcyv44SL9oglmfeSsndo0jRw==}
     engines: {node: '>=12.20'}
     hasBin: true
+
+  /typescript@5.0.4:
+    resolution: {integrity: sha512-cW9T5W9xY37cc+jfEnaUvX91foxtHkza3Nw3wkoF4sSlKn0MONdkdEndig/qPBWXNkmplh3NzayQzCiHM4/hqw==}
+    engines: {node: '>=12.20'}
+    hasBin: true
+    dev: false
 
   /ufo@1.1.0:
     resolution: {integrity: sha512-LQc2s/ZDMaCN3QLpa+uzHUOQ7SdV0qgv3VBXOolQGXTaaZpIur6PwUclF5nN2hNkiTRcUugXd1zFOW3FLJ135Q==}
