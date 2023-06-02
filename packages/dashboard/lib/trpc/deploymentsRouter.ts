@@ -159,7 +159,7 @@ export const deploymentsRouter = (t: T) =>
             cronRegion: func.cronRegion,
             env: envStringToObject(func.env),
             isProduction: deployment.isProduction,
-            assets: deployment.assets.map(({ name }) => name),
+            assets: deployment.assets,
           }),
         );
 
