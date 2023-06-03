@@ -10,7 +10,7 @@ import Head from 'next/head';
 import LayoutTitle from 'lib/components/LayoutTitle';
 import FunctionLinks from 'lib/components/FunctionLinks';
 import { useScopedI18n } from 'locales';
-import cronstrue from 'cronstrue';
+import { getHumanFriendlyCron } from 'lib/utils';
 
 const Function = () => {
   const {
@@ -18,7 +18,7 @@ const Function = () => {
   } = useRouter();
   const t = useScopedI18n('function.nav');
 
-  const { data: func, refetch } = useFunction(functionId as string);
+  const { data: func, refetch } = useFunction(functionId as string, false);
 
   return (
     <LayoutTitle
@@ -28,7 +28,7 @@ const Function = () => {
         func?.cron === null ? (
           <FunctionLinks func={func} />
         ) : (
-          <span className="text-sm text-blue-500">{cronstrue.toString(func?.cron ?? '')}</span>
+          <span className="text-sm text-blue-500">{getHumanFriendlyCron(func?.cron)}</span>
         )
       }
     >

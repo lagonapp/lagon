@@ -25,7 +25,7 @@ import { QueryObserverBaseResult } from '@tanstack/react-query';
 import { useScopedI18n } from 'locales';
 import { Copiable, Link } from '@lagon/ui';
 import { ComponentProps, ReactNode, useEffect, useState } from 'react';
-import cronstrue from 'cronstrue';
+import { getHumanFriendlyCron } from 'lib/utils';
 
 type FunctionSettingsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -316,15 +316,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                   disabled={updateFunction.isLoading}
                   validator={cronValidator}
                 />
-                <Text size="sm">
-                  {(() => {
-                    try {
-                      return cronstrue.toString(values.cron);
-                    } catch {
-                      return '';
-                    }
-                  })()}
-                </Text>
+                <Text size="sm">{getHumanFriendlyCron(func?.cron)}</Text>
               </div>
               <div className="flex flex-1 flex-col items-start gap-1">
                 <Text size="lg">{t('cron.region')}</Text>
