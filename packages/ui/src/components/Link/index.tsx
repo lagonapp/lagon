@@ -1,7 +1,7 @@
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
 import NextLink from 'next/link';
 import { HTMLAttributeAnchorTarget } from 'react';
-import { variants } from './styles'
+import { variants } from './styles';
 import { VariantProps } from 'class-variance-authority';
 
 type LinkProps = {
@@ -11,14 +11,10 @@ type LinkProps = {
 } & VariantProps<typeof variants>;
 
 export const Link = ({ href, target, inline, children }: LinkProps) => {
-  const styles = variants({ inline })
+  const styles = variants({ inline });
 
   return (
-    <NextLink
-      href={href}
-      target={target}
-      className={styles}
-    >
+    <NextLink href={href} target={target} className={styles}>
       {children}
       {target === '_blank' ? <ArrowTopRightOnSquareIcon className="h-4 w-4" /> : null}
     </NextLink>
