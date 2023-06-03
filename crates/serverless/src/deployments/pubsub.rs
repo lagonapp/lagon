@@ -42,8 +42,12 @@ where
         let cron_region = value["cronRegion"].as_str().unwrap().to_string();
 
         // Ignore deployments that have a cron set but where
-        // the region isn't this node' region
-        if cron.is_some() && cron_region != REGION.to_string() {
+        // the region isn't this node' region, except for undeploys
+        // because we might remove the cron from the old region
+        if cron.is_some()
+            && cron_region != REGION.to_string()
+            && kind != PubSubMessageKind::Undeploy
+        {
             continue;
         }
 
@@ -202,8 +206,13 @@ where
                 clear_deployment_cache(previous_id.to_string(), workers, String::from("promotion"))
                     .await;
 
+                let mut cronjob = cronjob.lock().await;
+
+                if let Err(error) = cronjob.remove(&previous_id.to_string()).await {
+                    error!(deployment = deployment.id; "Failed to remove cron: {}", error);
+                }
+
                 if deployment.should_run_cron() {
-                    let mut cronjob = cronjob.lock().await;
                     let id = deployment.id.clone();
 
                     if let Err(error) = cronjob.add(deployment).await {
