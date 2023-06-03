@@ -33,7 +33,6 @@ export default {
   'home.empty.description': 'Get started by creating a Function on the Dashboard, or use the CLI to test and deploy.',
   'home.empty.action': 'Get Started guide',
   'home.list.lastUpdate': 'Last update:',
-  'home.list.cron': 'Cron',
 
   'settings.title': 'Settings',
   'settings.general': 'General',
@@ -163,13 +162,20 @@ export default {
 
   'functions.overview.usage': 'Usage & Limits',
   'functions.overview.usage.requests': 'Requests',
+  'functions.overview.usage.crons': 'Cron executions',
   'functions.overview.usage.avgCpu': 'Avg. CPU time',
   'functions.overview.usage.avgInBytes': 'Avg. IN bytes',
   'functions.overview.usage.avgOutBytes': 'Avg. OUT bytes',
+  'functions.overview.usage.lastCron': 'Last Cron',
+  'functions.overview.usage.lastCron.label': '{time} ago',
+  'functions.overview.usage.nextCron': 'Next Cron',
+  'functions.overview.usage.nextCron.label': 'In {time}',
   'functions.overview.usage.lastUpdate': 'Last update:',
   'functions.overview.usage.created': 'Created:',
   'functions.overview.requests': 'Requests',
   'functions.overview.requests.label': 'Requests',
+  'functions.overview.crons': 'Cron executions',
+  'functions.overview.crons.label': 'Cron executions',
   'functions.overview.cpuTime': 'CPU time',
   'functions.overview.cpuTime.label': 'CPU time',
   'functions.overview.network': 'Network',
@@ -192,7 +198,6 @@ export default {
   'functions.deployments.delete.modal.description': 'Are you sure you want to delete this Deployment?',
   'functions.deployments.delete.modal.submit': 'Delete',
   'functions.deployments.delete.success': 'Deployment deleted successfully.',
-  'functions.deployments.cron': 'Cron',
 
   'functions.logs.title': 'Live Logs & Errors',
   'functions.logs.logLevel': 'Log level:',
@@ -209,6 +214,7 @@ export default {
   'functions.settings.domains.title': 'Domains',
   'functions.settings.domains.description':
     "The default domain is based on this Function's name. You can also add custom domains.",
+  'functions.settings.domains.doc': 'Learn more about Domains',
   'functions.settings.domains.add': 'Add domain',
   'functions.settings.domains.add.modal.title': 'Add a new domain',
   'functions.settings.domains.add.modal.description':
@@ -226,6 +232,7 @@ export default {
   'functions.settings.cron.title': 'Cron',
   'functions.settings.cron.description':
     'Run this Function automatically at a scheduled rate using a Cron expression. You can also choose in which Region to run the Function.',
+  'functions.settings.cron.doc': 'Learn more about Cron expressions',
   'functions.settings.cron.expression': 'Expression',
   'functions.settings.cron.expression.placeholder': '* */12 * * *',
   'functions.settings.cron.region': 'Region',
@@ -233,6 +240,7 @@ export default {
   'functions.settings.cron.success': 'Function Cron updated successfully.',
   'functions.settings.env.title': 'Environment variables',
   'functions.settings.env.description': 'Environment variables are injected into your Function at runtime.',
+  'functions.settings.env.doc': 'Learn more about Environment variables',
   'functions.settings.env.placeholder.key': 'e.g MY_KEY',
   'functions.settings.env.placeholder.value': 'e.g value',
   'functions.settings.env.add': 'Add',

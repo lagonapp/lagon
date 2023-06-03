@@ -10,6 +10,7 @@ import Head from 'next/head';
 import LayoutTitle from 'lib/components/LayoutTitle';
 import FunctionLinks from 'lib/components/FunctionLinks';
 import { useScopedI18n } from 'locales';
+import cronstrue from 'cronstrue'
 
 const Function = () => {
   const {
@@ -23,7 +24,9 @@ const Function = () => {
     <LayoutTitle
       title={func?.name || 'Loading...'}
       titleStatus="success"
-      rightItem={func?.cron === null ? <FunctionLinks func={func} /> : undefined}
+      rightItem={func?.cron === null ? <FunctionLinks func={func} /> : (
+        <span className="text-sm text-blue-500">{cronstrue.toString(func?.cron ?? '')}</span>
+      )}
     >
       {func?.name ? (
         <Head>

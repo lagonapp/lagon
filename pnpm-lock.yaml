@@ -437,6 +437,12 @@ importers:
       clickhouse:
         specifier: ^2.6.0
         version: 2.6.0
+      cron-parser:
+        specifier: ^4.8.1
+        version: 4.8.1
+      cronstrue:
+        specifier: ^2.27.0
+        version: 2.27.0
       final-form:
         specifier: ^4.20.7
         version: 4.20.7
@@ -11946,6 +11952,18 @@ packages:
   /create-require@1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
 
+  /cron-parser@4.8.1:
+    resolution: {integrity: sha512-jbokKWGcyU4gl6jAfX97E1gDpY12DJ1cLJZmoDzaAln/shZ+S3KBFBuA2Q6WeUN4gJf/8klnV1EfvhA2lK5IRQ==}
+    engines: {node: '>=12.0.0'}
+    dependencies:
+      luxon: 3.3.0
+    dev: false
+
+  /cronstrue@2.27.0:
+    resolution: {integrity: sha512-p+w818EttA27EfIeZP5Z3k3ps9hy6DlRv3txbWxysTIlWEAE6DdYIjCaaeZhWaNfcowuXZrg0HVFWLTqGb85hg==}
+    hasBin: true
+    dev: false
+
   /cross-env@7.0.3:
     resolution: {integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw==}
     engines: {node: '>=10.14', npm: '>=6', yarn: '>=1'}
@@ -16510,6 +16528,11 @@ packages:
 
   /lru_map@0.3.3:
     resolution: {integrity: sha512-Pn9cox5CsMYngeDbmChANltQl+5pi6XmTrraMSzhPmMBbmgcxmqWry0U3PGapCU1yB4/LqCcom7qhHZiF/jGfQ==}
+    dev: false
+
+  /luxon@3.3.0:
+    resolution: {integrity: sha512-An0UCfG/rSiqtAIiBPO0Y9/zAnHUZxAMiCpTd5h2smgsj7GGmcenvrvww2cqNA8/4A5ZrD1gJpHN2mIHZQF+Mg==}
+    engines: {node: '>=12'}
     dev: false
 
   /lz-string@1.4.4:
