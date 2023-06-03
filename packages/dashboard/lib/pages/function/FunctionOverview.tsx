@@ -8,7 +8,7 @@ import useFunction from 'lib/hooks/useFunction';
 import { useScopedI18n } from 'locales';
 import { getPlanFromPriceId } from 'lib/plans';
 import { useSession } from 'next-auth/react';
-import cron from 'cron-parser'
+import cron from 'cron-parser';
 
 function formatBytes(bytes = 0) {
   if (bytes === 0) return '0 bytes';
@@ -68,49 +68,50 @@ const Usage = ({ func, timeframe }: UsageProps) => {
   }, [data]);
 
   const calculateCron = (next: boolean) => {
-    const now = new Date()
+    const now = new Date();
     const expression = cron.parseExpression(func?.cron ?? '');
 
-    const date = (next ? expression.next() : expression.prev()).toDate()
-    const diff = next ? date.getTime() - now.getTime() : now.getTime() - date.getTime()
+    const date = (next ? expression.next() : expression.prev()).toDate();
+    const diff = next ? date.getTime() - now.getTime() : now.getTime() - date.getTime();
 
-    const hours = Math.floor(diff / 1000 / 60 / 60)
-    const minutes = Math.floor(diff / 1000 / 60) - (hours * 60)
-    const seconds = Math.floor(diff / 1000) - (minutes * 60) - (hours * 60 * 60)
+    const hours = Math.floor(diff / 1000 / 60 / 60);
+    const minutes = Math.floor(diff / 1000 / 60) - hours * 60;
+    const seconds = Math.floor(diff / 1000) - minutes * 60 - hours * 60 * 60;
 
-    let time = ''
+    let time = '';
 
     if (hours > 24) {
-      time = `${Math.floor(hours / 24)}d`
+      time = `${Math.floor(hours / 24)}d`;
     } else if (minutes > 60) {
-      time = `${hours}h ${minutes}m`
+      time = `${hours}h ${minutes}m`;
     } else {
-      time = `${minutes}m ${seconds}s`
+      time = `${minutes}m ${seconds}s`;
     }
 
-    return next ? t('usage.nextCron.label', {
-      time
-    }) :
-      t('usage.lastCron.label', {
-        time,
-      })
-  }
+    return next
+      ? t('usage.nextCron.label', {
+          time,
+        })
+      : t('usage.lastCron.label', {
+          time,
+        });
+  };
 
-  const [lastCron, setLastCron] = useState(() => calculateCron(false))
-  const [nextCron, setNextCron] = useState(() => calculateCron(true))
+  const [lastCron, setLastCron] = useState(() => calculateCron(false));
+  const [nextCron, setNextCron] = useState(() => calculateCron(true));
 
   useEffect(() => {
     if (func?.cron !== null) {
       const interval = setInterval(() => {
-        setLastCron(calculateCron(false))
-        setNextCron(calculateCron(true))
-      }, 1000)
+        setLastCron(calculateCron(false));
+        setNextCron(calculateCron(true));
+      }, 1000);
 
       return () => {
-        clearInterval(interval)
-      }
+        clearInterval(interval);
+      };
     }
-  }, [func?.cron, t])
+  }, [func?.cron, t]);
 
   return (
     <>
@@ -134,12 +135,8 @@ const Usage = ({ func, timeframe }: UsageProps) => {
         </>
       ) : (
         <>
-          <Description title={t('usage.lastCron')}>
-            {lastCron}
-          </Description>
-          <Description title={t('usage.nextCron')}>
-            {nextCron}
-          </Description>
+          <Description title={t('usage.lastCron')}>{lastCron}</Description>
+          <Description title={t('usage.nextCron')}>{nextCron}</Description>
         </>
       )}
     </>

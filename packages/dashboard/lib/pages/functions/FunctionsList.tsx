@@ -2,7 +2,7 @@ import FunctionLinks from 'lib/components/FunctionLinks';
 import useFunctions from 'lib/hooks/useFunctions';
 import { Card, Dot, Text, Button, EmptyState } from '@lagon/ui';
 import { useScopedI18n } from 'locales';
-import cronstrue from 'cronstrue'
+import cronstrue from 'cronstrue';
 
 const FunctionsList = () => {
   const { data: functions } = useFunctions();

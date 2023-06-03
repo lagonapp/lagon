@@ -25,7 +25,7 @@ import { QueryObserverBaseResult } from '@tanstack/react-query';
 import { useScopedI18n } from 'locales';
 import { Copiable, Link } from '@lagon/ui';
 import { ComponentProps, ReactNode, useEffect, useState } from 'react';
-import cronstrue from 'cronstrue'
+import cronstrue from 'cronstrue';
 
 type FunctionSettingsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -182,7 +182,9 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           description={
             <>
               {t('domains.description')}&nbsp;
-              <Link inline href="https://docs.lagon.app/cloud/domains" target="_blank">{t('domains.doc')}</Link>
+              <Link inline href="https://docs.lagon.app/cloud/domains" target="_blank">
+                {t('domains.doc')}
+              </Link>
             </>
           }
           rightItem={
@@ -294,12 +296,17 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         }}
       >
         {({ values, form }) => (
-          <Card title={t('cron.title')} description={
-            <>
-              {t('cron.description')}&nbsp;
-              <Link inline href="https://docs.lagon.app/cloud/cron" target="_blank">{t('cron.doc')}</Link>
-            </>
-          }>
+          <Card
+            title={t('cron.title')}
+            description={
+              <>
+                {t('cron.description')}&nbsp;
+                <Link inline href="https://docs.lagon.app/cloud/cron" target="_blank">
+                  {t('cron.doc')}
+                </Link>
+              </>
+            }
+          >
             <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:gap-0">
               <div className="flex flex-1 flex-col items-start gap-1">
                 <Text size="lg">{t('cron.expression')}</Text>
@@ -309,13 +316,15 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                   disabled={updateFunction.isLoading}
                   validator={cronValidator}
                 />
-                <Text size="sm">{(() => {
-                  try {
-                    return cronstrue.toString(values.cron)
-                  } catch {
-                    return ''
-                  }
-                })()}</Text>
+                <Text size="sm">
+                  {(() => {
+                    try {
+                      return cronstrue.toString(values.cron);
+                    } catch {
+                      return '';
+                    }
+                  })()}
+                </Text>
               </div>
               <div className="flex flex-1 flex-col items-start gap-1">
                 <Text size="lg">{t('cron.region')}</Text>
@@ -367,12 +376,17 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         }}
       >
         {({ values, form }) => (
-          <Card title={t('env.title')} description={
-            <>
-              {t('env.description')}&nbsp;
-              <Link inline href="https://docs.lagon.app/cloud/environment-variables" target="_blank">{t('env.doc')}</Link>
-            </>
-          }>
+          <Card
+            title={t('env.title')}
+            description={
+              <>
+                {t('env.description')}&nbsp;
+                <Link inline href="https://docs.lagon.app/cloud/environment-variables" target="_blank">
+                  {t('env.doc')}
+                </Link>
+              </>
+            }
+          >
             <div className="flex flex-col items-start gap-4">
               <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
                 <Input
