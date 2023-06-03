@@ -44,7 +44,7 @@ where
         // Ignore deployments that have a cron set but where
         // the region isn't this node' region, except for undeploys
         // because we might remove the cron from the old region
-        if cron.is_some() && cron_region != get_region() && kind != PubSubMessageKind::Undeploy {
+        if cron.is_some() && &cron_region != get_region() && kind != PubSubMessageKind::Undeploy {
             continue;
         }
 
