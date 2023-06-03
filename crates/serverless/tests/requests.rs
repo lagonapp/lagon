@@ -41,7 +41,6 @@ async fn returns_correct_http() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -83,7 +82,6 @@ async fn returns_correct_path() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -133,7 +131,6 @@ async fn forwards_headers() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -174,7 +171,6 @@ async fn stream_sequentially() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);

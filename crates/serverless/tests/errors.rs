@@ -25,7 +25,6 @@ async fn return_404_no_deployment_found() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -64,7 +63,6 @@ async fn return_403_cron_deployment() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -103,7 +101,6 @@ async fn return_500_unknown_code() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -142,7 +139,6 @@ async fn return_502_timeout_execution() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -181,7 +177,6 @@ async fn return_502_timeout_init() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -220,7 +215,6 @@ async fn return_500_code_invalid() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -259,7 +253,6 @@ async fn return_500_throw_error() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);

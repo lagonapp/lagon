@@ -6,6 +6,7 @@ import { trpc } from 'lib/trpc';
 import useFunction from 'lib/hooks/useFunction';
 import { QueryObserverBaseResult } from '@tanstack/react-query';
 import { useScopedI18n } from 'locales';
+import cronstrue from 'cronstrue';
 
 type FunctionDeploymentsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -55,7 +56,7 @@ const FunctionDeployments = ({ func, refetch }: FunctionDeploymentsProps) => {
                   ) : null}
                 </>
               ) : (
-                <p className="text-sm text-blue-500">{t('cron')}</p>
+                <p className="text-sm text-blue-500">{deployment.id}</p>
               )}
               <Text size="sm">
                 {new Date(deployment.createdAt).toLocaleString('en-US', {

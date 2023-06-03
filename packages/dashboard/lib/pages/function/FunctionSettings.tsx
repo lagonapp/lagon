@@ -25,6 +25,7 @@ import { QueryObserverBaseResult } from '@tanstack/react-query';
 import { useScopedI18n } from 'locales';
 import { Copiable, Link } from '@lagon/ui';
 import { ComponentProps, ReactNode, useEffect, useState } from 'react';
+import { getHumanFriendlyCron } from 'lib/utils';
 
 type FunctionSettingsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -175,95 +176,104 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           </div>
         </Card>
       </Form>
-      <Card
-        title={t('domains.title')}
-        description={t('domains.description')}
-        rightItem={
-          <Dialog
-            title={t('domains.add.modal.title')}
-            description={t('domains.add.modal.description')}
-            disclosure={
-              <Button variant="primary" disabled={updateFunction.isLoading}>
-                {t('domains.add')}
-              </Button>
-            }
-            onSubmit={async ({ domain }) => {
-              if (!func) {
-                return;
-              }
-
-              await updateFunction.mutateAsync({
-                functionId: func.id,
-                domains: [...(func.domains ?? []), domain],
-              });
-            }}
-            onSubmitSuccess={async () => {
-              toast.success(t('domains.add.success'));
-              await refetch();
-            }}
-          >
-            <div className="flex flex-col gap-6">
-              <Text>
-                {t('domains.add.modal.cname', {
-                  domain: (
-                    <Copiable value={defaultDomain} className="inline-flex">
-                      <Text strong>{defaultDomain}</Text>
-                    </Copiable>
-                  ),
-                })}
-                &nbsp;
-                <Link href="https://docs.lagon.app/cloud/domains#pointing-your-domain-to-lagon" target="_blank">
-                  {t('domains.add.modal.doc')}
-                </Link>
-              </Text>
-              <Input
-                name="domain"
-                placeholder="www.example.com"
-                validator={composeValidators(domainNameValidator, requiredValidator)}
-              />
-            </div>
-            <Dialog.Buttons>
-              <Dialog.Cancel disabled={updateFunction.isLoading} />
-              <Dialog.Action variant="primary" disabled={updateFunction.isLoading}>
-                {t('domains.add.modal.submit')}
-              </Dialog.Action>
-            </Dialog.Buttons>
-          </Dialog>
-        }
-      >
-        <div>
-          <Divider />
-          <div className="flex items-center justify-between gap-4 px-4">
-            <div className="flex items-center">
-              <Dot status="success" />
-              <Link href={getFullDomain(defaultDomain)} target="_blank">
-                {defaultDomain}
-              </Link>
-            </div>
-            <Text size="sm">{t('domains.list.default')}</Text>
-            <Button variant="danger" disabled>
-              {t('domains.list.delete')}
-            </Button>
-          </div>
-          {func?.domains?.map(domain => (
+      {func?.cron === null ? (
+        <Card
+          title={t('domains.title')}
+          description={
             <>
-              <Divider />
-              <div className="flex items-center justify-between gap-4 px-4" key={domain}>
-                <div className="flex items-center">
-                  <Dot status={domainsStatus[domain]?.status ?? 'info'} />
-                  <Link href={getFullDomain(domain)} target="_blank">
-                    {domain}
-                  </Link>
-                </div>
-                <Text size="sm">{domainsStatus[domain]?.help}</Text>
-                <Button variant="danger" disabled={updateFunction.isLoading} onClick={() => deleteDomain(domain)}>
-                  {t('domains.list.delete')}
-                </Button>
-              </div>
+              {t('domains.description')}&nbsp;
+              <Link inline href="https://docs.lagon.app/cloud/domains" target="_blank">
+                {t('domains.doc')}
+              </Link>
             </>
-          ))}
-        </div>
-      </Card>
+          }
+          rightItem={
+            <Dialog
+              title={t('domains.add.modal.title')}
+              description={t('domains.add.modal.description')}
+              disclosure={
+                <Button variant="primary" disabled={updateFunction.isLoading}>
+                  {t('domains.add')}
+                </Button>
+              }
+              onSubmit={async ({ domain }) => {
+                if (!func) {
+                  return;
+                }
+
+                await updateFunction.mutateAsync({
+                  functionId: func.id,
+                  domains: [...(func.domains ?? []), domain],
+                });
+              }}
+              onSubmitSuccess={async () => {
+                toast.success(t('domains.add.success'));
+                await refetch();
+              }}
+            >
+              <div className="flex flex-col gap-6">
+                <Text>
+                  {t('domains.add.modal.cname', {
+                    domain: (
+                      <Copiable value={defaultDomain} className="inline-flex">
+                        <Text strong>{defaultDomain}</Text>
+                      </Copiable>
+                    ),
+                  })}
+                  &nbsp;
+                  <Link href="https://docs.lagon.app/cloud/domains#pointing-your-domain-to-lagon" target="_blank">
+                    {t('domains.add.modal.doc')}
+                  </Link>
+                </Text>
+                <Input
+                  name="domain"
+                  placeholder="www.example.com"
+                  validator={composeValidators(domainNameValidator, requiredValidator)}
+                />
+              </div>
+              <Dialog.Buttons>
+                <Dialog.Cancel disabled={updateFunction.isLoading} />
+                <Dialog.Action variant="primary" disabled={updateFunction.isLoading}>
+                  {t('domains.add.modal.submit')}
+                </Dialog.Action>
+              </Dialog.Buttons>
+            </Dialog>
+          }
+        >
+          <div>
+            <Divider />
+            <div className="flex items-center justify-between gap-4 px-4">
+              <div className="flex items-center">
+                <Dot status="success" />
+                <Link href={getFullDomain(defaultDomain)} target="_blank">
+                  {defaultDomain}
+                </Link>
+              </div>
+              <Text size="sm">{t('domains.list.default')}</Text>
+              <Button variant="danger" disabled>
+                {t('domains.list.delete')}
+              </Button>
+            </div>
+            {func?.domains?.map(domain => (
+              <>
+                <Divider />
+                <div className="flex items-center justify-between gap-4 px-4" key={domain}>
+                  <div className="flex items-center">
+                    <Dot status={domainsStatus[domain]?.status ?? 'info'} />
+                    <Link href={getFullDomain(domain)} target="_blank">
+                      {domain}
+                    </Link>
+                  </div>
+                  <Text size="sm">{domainsStatus[domain]?.help}</Text>
+                  <Button variant="danger" disabled={updateFunction.isLoading} onClick={() => deleteDomain(domain)}>
+                    {t('domains.list.delete')}
+                  </Button>
+                </div>
+              </>
+            ))}
+          </div>
+        </Card>
+      ) : null}
       <Form
         initialValues={{
           cron: func?.cron,
@@ -286,7 +296,17 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         }}
       >
         {({ values, form }) => (
-          <Card title={t('cron.title')} description={t('cron.description')}>
+          <Card
+            title={t('cron.title')}
+            description={
+              <>
+                {t('cron.description')}&nbsp;
+                <Link inline href="https://docs.lagon.app/cloud/cron" target="_blank">
+                  {t('cron.doc')}
+                </Link>
+              </>
+            }
+          >
             <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:gap-0">
               <div className="flex flex-1 flex-col items-start gap-1">
                 <Text size="lg">{t('cron.expression')}</Text>
@@ -296,12 +316,13 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                   disabled={updateFunction.isLoading}
                   validator={cronValidator}
                 />
+                <Text size="sm">{getHumanFriendlyCron(func?.cron)}</Text>
               </div>
               <div className="flex flex-1 flex-col items-start gap-1">
                 <Text size="lg">{t('cron.region')}</Text>
                 <Menu>
                   <Menu.Button>
-                    <Button>{REGIONS[values.cronRegion as Regions] || REGIONS['paris-eu-west']}</Button>
+                    <Button>{REGIONS[values.cronRegion as Regions] || values.cronRegion}</Button>
                   </Menu.Button>
                   <Menu.Items>
                     {Object.entries(REGIONS).map(([key, value]) => (
@@ -309,6 +330,9 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                         {value}
                       </Menu.Item>
                     ))}
+                    {process.env.NODE_ENV === 'development' ? (
+                      <Menu.Item onClick={() => form.change('cronRegion', 'local')}>Local</Menu.Item>
+                    ) : null}
                   </Menu.Items>
                 </Menu>
               </div>
@@ -344,7 +368,17 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         }}
       >
         {({ values, form }) => (
-          <Card title={t('env.title')} description={t('env.description')}>
+          <Card
+            title={t('env.title')}
+            description={
+              <>
+                {t('env.description')}&nbsp;
+                <Link inline href="https://docs.lagon.app/cloud/environment-variables" target="_blank">
+                  {t('env.doc')}
+                </Link>
+              </>
+            }
+          >
             <div className="flex flex-col items-start gap-4">
               <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
                 <Input

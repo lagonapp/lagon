@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 type CardProps = {
   title?: string;
-  description?: string;
+  description?: ReactNode;
   rightItem?: ReactElement;
   fullWidth?: boolean;
   href?: string;
