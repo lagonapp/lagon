@@ -1,5 +1,5 @@
 use super::{download_deployment, filesystem::rm_deployment, Deployment, Deployments};
-use crate::{serverless::Workers, REGION};
+use crate::{cronjob::Cronjob, serverless::Workers, REGION};
 use anyhow::Result;
 use futures::StreamExt;
 use lagon_runtime_isolate::IsolateEvent;
@@ -23,7 +23,7 @@ async fn run<D, P>(
     downloader: Arc<D>,
     deployments: Deployments,
     workers: Workers,
-    // cronjob: Arc<Mutex<Cronjob>>,
+    cronjob: Arc<Mutex<Cronjob>>,
     pubsub: Arc<Mutex<P>>,
 ) -> Result<()>
 where
@@ -99,14 +99,14 @@ where
                             deployments.insert(domain.clone(), Arc::clone(&deployment));
                         }
 
-                        // if deployment.should_run_cron() {
-                        //     let mut cronjob = cronjob.lock().await;
-                        //     let id = deployment.id.clone();
+                        if deployment.should_run_cron() {
+                            let mut cronjob = cronjob.lock().await;
+                            let id = deployment.id.clone();
 
-                        //     if let Err(error) = cronjob.add(deployment).await {
-                        //         error!(deployment = id; "Failed to register cron: {}", error);
-                        //     }
-                        // }
+                            if let Err(error) = cronjob.add(deployment).await {
+                                error!(deployment = id; "Failed to register cron: {}", error);
+                            }
+                        }
                     }
                     Err(error) => {
                         increment_counter!(
@@ -147,13 +147,13 @@ where
                         )
                         .await;
 
-                        // if deployment.should_run_cron() {
-                        //     let mut cronjob = cronjob.lock().await;
+                        if deployment.should_run_cron() {
+                            let mut cronjob = cronjob.lock().await;
 
-                        //     if let Err(error) = cronjob.remove(&deployment.id).await {
-                        //         error!(deployment = deployment.id; "Failed to remove cron: {}", error);
-                        //     }
-                        // }
+                            if let Err(error) = cronjob.remove(&deployment.id).await {
+                                error!(deployment = deployment.id; "Failed to remove cron: {}", error);
+                            }
+                        }
                     }
                     Err(error) => {
                         increment_counter!(
@@ -202,14 +202,14 @@ where
                 clear_deployment_cache(previous_id.to_string(), workers, String::from("promotion"))
                     .await;
 
-                // if deployment.should_run_cron() {
-                //     let mut cronjob = cronjob.lock().await;
-                //     let id = deployment.id.clone();
+                if deployment.should_run_cron() {
+                    let mut cronjob = cronjob.lock().await;
+                    let id = deployment.id.clone();
 
-                //     if let Err(error) = cronjob.add(deployment).await {
-                //         error!(deployment = id; "Failed to register cron: {}", error);
-                //     }
-                // }
+                    if let Err(error) = cronjob.add(deployment).await {
+                        error!(deployment = id; "Failed to register cron: {}", error);
+                    }
+                }
             }
             _ => warn!("Unknown message kind: {:?}, {}", kind, payload),
         };
@@ -222,7 +222,7 @@ pub fn listen_pub_sub<D, P>(
     downloader: Arc<D>,
     deployments: Deployments,
     workers: Workers,
-    // cronjob: Arc<Mutex<Cronjob>>,
+    cronjob: Arc<Mutex<Cronjob>>,
     pubsub: Arc<Mutex<P>>,
 ) where
     D: Downloader + Send + Sync + 'static,
@@ -236,7 +236,7 @@ pub fn listen_pub_sub<D, P>(
                     Arc::clone(&downloader),
                     Arc::clone(&deployments),
                     Arc::clone(&workers),
-                    // Arc::clone(&cronjob),
+                    Arc::clone(&cronjob),
                     Arc::clone(&pubsub),
                 )
                 .await

@@ -301,7 +301,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                 <Text size="lg">{t('cron.region')}</Text>
                 <Menu>
                   <Menu.Button>
-                    <Button>{REGIONS[values.cronRegion as Regions] || REGIONS['paris-eu-west']}</Button>
+                    <Button>{REGIONS[values.cronRegion as Regions] || values.cronRegion}</Button>
                   </Menu.Button>
                   <Menu.Items>
                     {Object.entries(REGIONS).map(([key, value]) => (
@@ -309,6 +309,9 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                         {value}
                       </Menu.Item>
                     ))}
+                    {process.env.NODE_ENV === 'development' ? (
+                      <Menu.Item onClick={() => form.change('cronRegion', 'local')}>Local</Menu.Item>
+                    ) : null}
                   </Menu.Items>
                 </Menu>
               </div>

@@ -76,16 +76,11 @@ type QueryResult = (
     Option<String>,
 );
 
-pub async fn get_deployments<D>(
-    mut conn: PooledConn,
-    downloader: Arc<D>,
-    // cronjob: Arc<Mutex<Cronjob>>,
-) -> Result<Deployments>
+pub async fn get_deployments<D>(mut conn: PooledConn, downloader: Arc<D>) -> Result<Deployments>
 where
     D: Downloader,
 {
     let deployments = Arc::new(DashMap::new());
-
     let mut deployments_list: HashMap<String, Deployment> = HashMap::new();
 
     conn.query_map(
@@ -187,12 +182,6 @@ OR
         for domain in deployment.get_domains() {
             deployments.insert(domain, Arc::clone(&deployment));
         }
-
-        // if deployment.should_run_cron() {
-        //     if let Err(error) = cronjob.add(deployment).await {
-        //         error!("Failed to register cron: {}", error);
-        //     }
-        // }
     }))
     .await;
 

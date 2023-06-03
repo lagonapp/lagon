@@ -1921,6 +1921,7 @@ dependencies = [
  "tokio",
  "tokio-cron-scheduler",
  "tokio-util",
+ "uuid",
 ]
 
 [[package]]
