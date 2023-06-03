@@ -1,5 +1,6 @@
 use crate::{
     clickhouse::{LogRow, RequestRow},
+    cronjob::Cronjob,
     deployments::{cache::run_cache_clear_task, pubsub::listen_pub_sub, Deployments},
     get_region, SNAPSHOT_BLOB,
 };
@@ -29,6 +30,7 @@ use lagon_serverless_pubsub::PubSubListener;
 use log::{as_debug, error, info, warn};
 use metrics::{decrement_gauge, histogram, increment_counter, increment_gauge};
 use std::{
+    collections::HashSet,
     convert::Infallible,
     env,
     future::Future,
@@ -326,7 +328,6 @@ pub async fn start<D, P>(
     downloader: Arc<D>,
     pubsub: P,
     client: Client,
-    // cronjob: Arc<Mutex<Cronjob>>,
 ) -> Result<impl Future<Output = ()> + Send>
 where
     D: Downloader + Send + Sync + 'static,
@@ -334,15 +335,6 @@ where
 {
     let workers = Arc::new(DashMap::new());
     let pubsub = Arc::new(TokioMutex::new(pubsub));
-
-    listen_pub_sub(
-        Arc::clone(&downloader),
-        Arc::clone(&deployments),
-        Arc::clone(&workers),
-        // Arc::clone(&cronjob),
-        pubsub,
-    );
-    run_cache_clear_task(&client, Arc::clone(&deployments), Arc::clone(&workers));
 
     let insertion_interval = Duration::from_secs(1);
     let inserters = Arc::new(Mutex::new((
@@ -353,6 +345,44 @@ where
             .inserter::<LogRow>("serverless.logs")?
             .with_period(Some(insertion_interval)),
     )));
+
+    let (log_sender, log_receiver) = flume::unbounded::<(String, String, Metadata)>();
+    let cronjob = Arc::new(TokioMutex::new(
+        Cronjob::new(log_sender.clone(), Arc::clone(&inserters)).await,
+    ));
+
+    let mut cron_deployments = HashSet::new();
+
+    for deployment in deployments.iter() {
+        let deployment = deployment.value();
+
+        // Make sure we only register the cron once, since each
+        // deployment can have multiple domains
+        if cron_deployments.contains(&deployment.id) {
+            continue;
+        }
+
+        cron_deployments.insert(deployment.id.clone());
+
+        if deployment.should_run_cron() {
+            let mut cronjob = cronjob.lock().await;
+
+            if let Err(error) = cronjob.add(deployment.clone()).await {
+                error!("Failed to register cron: {}", error);
+            }
+        }
+    }
+
+    drop(cron_deployments);
+
+    listen_pub_sub(
+        Arc::clone(&downloader),
+        Arc::clone(&deployments),
+        Arc::clone(&workers),
+        Arc::clone(&cronjob),
+        pubsub,
+    );
+    run_cache_clear_task(&client, Arc::clone(&deployments), Arc::clone(&workers));
 
     let inserters_handle = Arc::clone(&inserters);
     tokio::spawn(async move {
@@ -371,12 +401,10 @@ where
         }
     });
 
-    let (log_sender, log_receiver) = flume::unbounded::<(String, String, Metadata)>();
     let inserters_handle = Arc::clone(&inserters);
     tokio::spawn(async move {
         while let Ok(log) = log_receiver.recv_async().await {
             let mut inserters = inserters_handle.lock().await;
-
             if let Err(error) = inserters
                 .1
                 .write(&LogRow {

@@ -8,7 +8,7 @@ mod redis;
 pub use crate::redis::RedisPubSub;
 pub use fake::FakePubSub;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum PubSubMessageKind {
     Deploy,
     Undeploy,

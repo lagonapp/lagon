@@ -60,7 +60,6 @@ async fn main() -> Result<()> {
     let pool = Pool::new(opts)?;
     let conn = pool.get_conn()?;
 
-    // let cronjob = Arc::new(Mutex::new(Cronjob::new().await));
     let bucket = get_bucket()?;
     let downloader = Arc::new(S3BucketDownloader::new(bucket));
 
@@ -70,19 +69,8 @@ async fn main() -> Result<()> {
     let client = create_client();
     run_migrations(&client).await?;
 
-    let deployments = get_deployments(
-        conn,
-        Arc::clone(&downloader), /*, Arc::clone(&cronjob)*/
-    )
-    .await?;
-    let serverless = start(
-        deployments,
-        addr,
-        downloader,
-        pubsub,
-        client, /*, cronjob*/
-    )
-    .await?;
+    let deployments = get_deployments(conn, Arc::clone(&downloader)).await?;
+    let serverless = start(deployments, addr, downloader, pubsub, client).await?;
     tokio::spawn(serverless).await?;
 
     runtime.dispose();

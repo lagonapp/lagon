@@ -1,8 +1,7 @@
 use std::{env, sync::OnceLock};
 
-// TODO add back cron jobs
-// pub mod cronjob;
 pub mod clickhouse;
+pub mod cronjob;
 pub mod deployments;
 pub mod serverless;
 
