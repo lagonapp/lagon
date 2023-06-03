@@ -1,5 +1,21 @@
 # @lagon/serverless
 
+## 0.2.0
+
+### Minor Changes
+
+- [#873](https://github.com/lagonapp/lagon/pull/873) [`dd2b64e`](https://github.com/lagonapp/lagon/commit/dd2b64ef9cff03c079af60faf6e22c708d5aa78e) Thanks [@anbraten](https://github.com/anbraten)! - Release container image
+
+### Patch Changes
+
+- [#835](https://github.com/lagonapp/lagon/pull/835) [`12ff778`](https://github.com/lagonapp/lagon/commit/12ff77821b74bffc483a216c46053e270ddde64a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve implementation of Headers, Request, Response and URLSearchParams
+
+- [#907](https://github.com/lagonapp/lagon/pull/907) [`6a593cb`](https://github.com/lagonapp/lagon/commit/6a593cbc3b1a853a6b2170a8d1d696ddf0e101d6) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix logs time-to-live
+
+- [#920](https://github.com/lagonapp/lagon/pull/920) [`10d4086`](https://github.com/lagonapp/lagon/commit/10d40869d96f1d4ee590d5144a36941aee8d6b71) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Cron Functions
+
+- [#915](https://github.com/lagonapp/lagon/pull/915) [`f05147b`](https://github.com/lagonapp/lagon/commit/f05147b663e788c04680d76a1ce8a7c9a0f87959) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Replace assets table with a json column
+
 ## 0.1.33
 
 ### Patch Changes
