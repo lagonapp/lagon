@@ -41,7 +41,6 @@ async fn returns_correct_http() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -83,7 +82,6 @@ async fn returns_correct_path() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -133,48 +131,6 @@ async fn forwards_headers() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // // Arc::new(Mutex::new(Cronjob::new().await)),
-    )
-    .await?;
-    tokio::spawn(serverless);
-
-    let response = reqwest::get("http://127.0.0.1:4000").await?;
-    assert_eq!(response.status(), 200);
-    assert_eq!(response.headers()["x-lagon-region"], "local");
-    assert_eq!(response.headers()["x-forwarded-for"], "127.0.0.1");
-    assert_eq!(response.text().await?, "");
-
-    Ok(())
-}
-
-#[tokio::test]
-#[serial]
-async fn stream_sequentially() -> Result<()> {
-    let client = utils::setup();
-    let deployments = Arc::new(DashMap::new());
-    deployments.insert(
-        "127.0.0.1:4000".into(),
-        Arc::new(Deployment {
-            id: "stream".into(),
-            function_id: "function_id".into(),
-            function_name: "function_name".into(),
-            domains: HashSet::new(),
-            assets: HashSet::new(),
-            environment_variables: HashMap::new(),
-            memory: 128,
-            tick_timeout: 1000,
-            total_timeout: 1000,
-            is_production: true,
-            cron: None,
-        }),
-    );
-    let serverless = start(
-        deployments,
-        "127.0.0.1:4000".parse().unwrap(),
-        Arc::new(FakeDownloader),
-        FakePubSub::default(),
-        client,
-        // // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);

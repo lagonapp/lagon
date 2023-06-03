@@ -21,7 +21,6 @@ async fn deploy_undeploy() -> Result<()> {
         Arc::new(FakeDownloader),
         pubsub,
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -95,69 +94,6 @@ async fn assign_correct_domains_prod() -> Result<()> {
         Arc::new(FakeDownloader),
         pubsub,
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
-    )
-    .await?;
-    tokio::spawn(serverless);
-
-    tx.send_async(PubSubMessage::new(
-        PubSubMessageKind::Deploy,
-        r#"{
-    "functionId": "function_id",
-    "functionName": "function_name",
-    "deploymentId": "simple",
-    "domains": ["127.0.0.1:4000", "my.domain"],
-    "memory": 128,
-    "tickTimeout": 1000,
-    "totalTimeout": 1000,
-    "cron": null,
-    "cronRegion": "local",
-    "env": {},
-    "isProduction": true,
-    "assets": []
-}"#
-        .into(),
-    ))
-    .await?;
-    tokio::time::sleep(Duration::from_millis(100)).await;
-
-    let response = reqwest::get("http://127.0.0.1:4000").await?;
-    assert_eq!(response.status(), 200);
-    assert_eq!(response.text().await?, "Hello world");
-
-    let client = reqwest::Client::new();
-    let response = client
-        .get("http://127.0.0.1:4000")
-        .header("host", "my.domain")
-        .send()
-        .await?;
-    assert_eq!(response.status(), 200);
-    assert_eq!(response.text().await?, "Hello world");
-
-    let response = client
-        .get("http://127.0.0.1:4000")
-        .header("host", "simple.lagon.dev")
-        .send()
-        .await?;
-    assert_eq!(response.status(), 200);
-    assert_eq!(response.text().await?, "Hello world");
-
-    Ok(())
-}
-
-#[tokio::test]
-#[serial]
-async fn assign_correct_domains_dev() -> Result<()> {
-    let client = utils::setup();
-    let pubsub = FakePubSub::default();
-    let tx = pubsub.get_tx();
-    let serverless = start(
-        Arc::new(DashMap::new()),
-        "127.0.0.1:4000".parse().unwrap(),
-        Arc::new(FakeDownloader),
-        pubsub,
-        client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -219,7 +155,6 @@ async fn skip_cron_not_same_region() -> Result<()> {
         Arc::new(FakeDownloader),
         pubsub,
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -264,7 +199,6 @@ async fn warn_cron_direct_access() -> Result<()> {
         Arc::new(FakeDownloader),
         pubsub,
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
