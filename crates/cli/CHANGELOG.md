@@ -1,5 +1,13 @@
 # @lagon/cli
 
+## 0.7.3
+
+### Patch Changes
+
+- [#907](https://github.com/lagonapp/lagon/pull/907) [`6a593cb`](https://github.com/lagonapp/lagon/commit/6a593cbc3b1a853a6b2170a8d1d696ddf0e101d6) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Reduce loading animation ticks
+
+- [#835](https://github.com/lagonapp/lagon/pull/835) [`12ff778`](https://github.com/lagonapp/lagon/commit/12ff77821b74bffc483a216c46053e270ddde64a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve implementation of Headers, Request, Response and URLSearchParams
+
 ## 0.7.2
 
 ### Patch Changes
