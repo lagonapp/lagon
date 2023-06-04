@@ -19,7 +19,7 @@ jobs:
       matrix:
         image: [serverless, dashboard]
     steps:
-      - name: Checkout 🛎️
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0

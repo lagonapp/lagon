@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:20.2.0-bullseye-slim AS base
 RUN yarn global add pnpm
 WORKDIR /app
 
@@ -41,8 +41,6 @@ COPY --from=builder /app/packages/dashboard/public ./public
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/packages/dashboard/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/packages/dashboard/.next/static ./packages/dashboard/.next/static
-
-RUN ls -la .
 
 USER nextjs
 
