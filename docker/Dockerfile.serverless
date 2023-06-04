@@ -1,10 +1,3 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1.70.0 AS chef
-WORKDIR /app
-
-FROM chef AS planner
-COPY . .
-RUN cargo chef prepare --recipe-path recipe.json
-
 FROM node:20.2.0-bullseye-slim as js-runtime
 WORKDIR /app
 COPY ./packages/js-runtime/src/ ./src
@@ -13,10 +6,10 @@ RUN npm install --global esbuild
 RUN npm install
 RUN npm run build
 
-FROM chef AS builder
-COPY --from=planner /app/recipe.json recipe.json
-RUN cargo chef cook --release --recipe-path recipe.json
-COPY . .
+FROM rust:1.70.0 AS builder
+WORKDIR /app
+COPY Cargo.lock Cargo.toml ./
+COPY crates/ ./crates
 COPY --from=js-runtime /app/dist/index.js /app/crates/runtime_isolate/runtime.js
 RUN cargo build --release --bin lagon-serverless
 
