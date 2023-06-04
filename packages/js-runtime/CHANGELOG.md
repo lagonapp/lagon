@@ -1,5 +1,11 @@
 # @lagon/js-runtime
 
+## 0.3.15
+
+### Patch Changes
+
+- [#835](https://github.com/lagonapp/lagon/pull/835) [`12ff778`](https://github.com/lagonapp/lagon/commit/12ff77821b74bffc483a216c46053e270ddde64a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve implementation of Headers, Request, Response and URLSearchParams
+
 ## 0.3.14
 
 ### Patch Changes

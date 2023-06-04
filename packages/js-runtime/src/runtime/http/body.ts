@@ -90,8 +90,7 @@ export class RequestResponseBody {
       throw new TypeError('Body is already used');
     }
 
-    if (!this.theBody) {
-      this.bodyUsed = true;
+    if (this.theBody === null) {
       return new Uint8Array();
     }
 
@@ -148,7 +147,12 @@ export class RequestResponseBody {
   }
 
   async formData(): Promise<FormData> {
+    if (this.bodyUsed) {
+      throw new TypeError('Body is already used');
+    }
+
     if (this.theBody instanceof FormData) {
+      this.bodyUsed = true;
       return this.theBody;
     }
 
@@ -166,8 +170,7 @@ export class RequestResponseBody {
       throw new TypeError('Body is already used');
     }
 
-    if (!this.theBody) {
-      this.bodyUsed = true;
+    if (this.theBody === null) {
       return '';
     }
 
@@ -181,8 +184,17 @@ export class RequestResponseBody {
       return globalThis.__lagon__.TEXT_DECODER.decode(this.theBody);
     }
 
-    if (this.theBody instanceof FormData || this.theBody instanceof URLSearchParams) {
+    const isFormData = this.theBody instanceof FormData;
+
+    if (isFormData || this.theBody instanceof URLSearchParams) {
       this.bodyUsed = true;
+
+      if (isFormData) {
+        return Array.from((this.theBody as FormData).entries())
+          .map(([key, value]) => `${key}=${value}`)
+          .join('&');
+      }
+
       return this.theBody.toString();
     }
 

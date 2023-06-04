@@ -39,7 +39,6 @@ async fn html_assets() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -95,7 +94,6 @@ async fn assets_nested() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -148,15 +146,16 @@ async fn set_content_type() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
 
-    // TODO: set default content type?
-    // let response = reqwest::get("http://127.0.0.1:4000").await?;
-    // assert_eq!(response.status(), 200);
-    // assert_eq!(response.headers()["content-type"], "");
+    let response = reqwest::get("http://127.0.0.1:4000").await?;
+    assert_eq!(response.status(), 200);
+    assert_eq!(
+        response.headers()["content-type"],
+        "text/plain;charset=UTF-8"
+    );
 
     let response = reqwest::get("http://127.0.0.1:4000/hello").await?;
     assert_eq!(response.status(), 200);

@@ -1,5 +1,11 @@
 # @lagon/wpt-runner
 
+## 0.1.5
+
+### Patch Changes
+
+- [#835](https://github.com/lagonapp/lagon/pull/835) [`12ff778`](https://github.com/lagonapp/lagon/commit/12ff77821b74bffc483a216c46053e270ddde64a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add not completed tests to results
+
 ## 0.1.4
 
 ### Patch Changes

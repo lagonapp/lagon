@@ -21,7 +21,6 @@ async fn deploy_undeploy() -> Result<()> {
         Arc::new(FakeDownloader),
         pubsub,
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -95,7 +94,6 @@ async fn assign_correct_domains_prod() -> Result<()> {
         Arc::new(FakeDownloader),
         pubsub,
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -157,7 +155,6 @@ async fn assign_correct_domains_dev() -> Result<()> {
         Arc::new(FakeDownloader),
         pubsub,
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -219,7 +216,6 @@ async fn skip_cron_not_same_region() -> Result<()> {
         Arc::new(FakeDownloader),
         pubsub,
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -264,7 +260,6 @@ async fn warn_cron_direct_access() -> Result<()> {
         Arc::new(FakeDownloader),
         pubsub,
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);

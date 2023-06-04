@@ -48,7 +48,7 @@
     }
 
     readAsBinaryString(blob: Blob) {
-      this.read(blob.arrayBuffer());
+      this.read(blob.text());
     }
 
     readAsDataURL(blob: Blob) {

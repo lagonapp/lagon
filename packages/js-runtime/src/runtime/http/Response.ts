@@ -22,6 +22,10 @@ import { RequestResponseBody } from './body';
       }
 
       if (init?.status) {
+        if (init.status < 200 || init.status > 599) {
+          throw new RangeError('Invalid status code');
+        }
+
         this.ok = init.status >= 200 && init.status < 300;
       } else {
         this.ok = true;

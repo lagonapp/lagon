@@ -1,9 +1,8 @@
 use once_cell::sync::Lazy;
 use std::env;
 
-// TODO add back cron jobs
-// pub mod cronjob;
 pub mod clickhouse;
+pub mod cronjob;
 pub mod deployments;
 pub mod serverless;
 

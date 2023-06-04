@@ -2,6 +2,7 @@ import FunctionLinks from 'lib/components/FunctionLinks';
 import useFunctions from 'lib/hooks/useFunctions';
 import { Card, Dot, Text, Button, EmptyState } from '@lagon/ui';
 import { useScopedI18n } from 'locales';
+import { getHumanFriendlyCron } from 'lib/utils';
 
 const FunctionsList = () => {
   const { data: functions } = useFunctions();
@@ -35,7 +36,7 @@ const FunctionsList = () => {
             {func.cron === null ? (
               <FunctionLinks onClick={handleLinkClick} func={func} />
             ) : (
-              <span className="text-sm text-blue-500">{t('list.cron')}</span>
+              <span className="text-sm text-blue-500">{getHumanFriendlyCron(func.cron)}</span>
             )}
           </div>
           <Text size="sm">

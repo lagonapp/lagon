@@ -24,13 +24,7 @@ export async function createDeployment(
   return prisma.deployment.create({
     data: {
       isProduction: false,
-      assets: {
-        createMany: {
-          data: assets.map(name => ({
-            name,
-          })),
-        },
-      },
+      assets,
       functionId: func.id,
       triggerer,
     },
@@ -39,11 +33,6 @@ export async function createDeployment(
       createdAt: true,
       updatedAt: true,
       isProduction: true,
-      assets: {
-        select: {
-          name: true,
-        },
-      },
       functionId: true,
     },
   });
@@ -63,12 +52,6 @@ export async function removeDeployment(
   },
   deploymentId: string,
 ) {
-  await prisma.asset.deleteMany({
-    where: {
-      deploymentId,
-    },
-  });
-
   const deployment = await prisma.deployment.delete({
     where: {
       id: deploymentId,
@@ -79,11 +62,7 @@ export async function removeDeployment(
       updatedAt: true,
       functionId: true,
       isProduction: true,
-      assets: {
-        select: {
-          name: true,
-        },
-      },
+      assets: true,
     },
   });
 
@@ -96,7 +75,7 @@ export async function removeDeployment(
     ),
   ];
 
-  if (deployment.assets.length > 0) {
+  if (Array.isArray(deployment.assets) && deployment.assets.length > 0) {
     deletePromises.push(
       s3.send(
         new DeleteObjectsCommand({
@@ -127,7 +106,7 @@ export async function removeDeployment(
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isProduction: deployment.isProduction,
-      assets: deployment.assets.map(({ name }) => name),
+      assets: deployment.assets,
     }),
   );
 }
@@ -208,11 +187,7 @@ export async function promoteProductionDeployment(functionId: string, newDeploym
       createdAt: true,
       updatedAt: true,
       isProduction: true,
-      assets: {
-        select: {
-          name: true,
-        },
-      },
+      assets: true,
     },
   });
 
@@ -231,7 +206,7 @@ export async function promoteProductionDeployment(functionId: string, newDeploym
       cronRegion: func.cronRegion,
       env: envStringToObject(func.env),
       isProduction: true,
-      assets: deployment.assets.map(({ name }) => name),
+      assets: deployment.assets,
     }),
   );
 }
@@ -318,11 +293,20 @@ export async function removeFunction(func: {
   );
 
   await Promise.all(deleteDeployments);
-  await prisma.domain.deleteMany({
+
+  const deleteDomains = prisma.domain.deleteMany({
     where: {
       functionId: func.id,
     },
   });
+
+  const deleteEnvVariables = prisma.envVariable.deleteMany({
+    where: {
+      functionId: func.id,
+    },
+  });
+
+  await Promise.all([deleteDomains, deleteEnvVariables]);
 
   await prisma.function.delete({
     where: {

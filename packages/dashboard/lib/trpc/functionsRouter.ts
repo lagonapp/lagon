@@ -437,7 +437,7 @@ LIMIT 100`,
             },
             {
               ...deployment,
-              assets: deployment.assets.map(({ name }) => name),
+              assets: deployment.assets as string[],
             },
             oldDomains,
           );
@@ -490,12 +490,6 @@ LIMIT 100`,
             deployments: {
               select: {
                 id: true,
-                triggerer: true,
-                commit: true,
-                isProduction: true,
-                assets: true,
-                createdAt: true,
-                updatedAt: true,
               },
             },
           },
