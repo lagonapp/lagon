@@ -316,7 +316,9 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                   disabled={updateFunction.isLoading}
                   validator={cronValidator}
                 />
-                <Text size="sm">{getHumanFriendlyCron(func?.cron)}</Text>
+                {getHumanFriendlyCron(values.cron) === values.cron ? null : (
+                  <Text size="sm">{getHumanFriendlyCron(values.cron)}</Text>
+                )}
               </div>
               <div className="flex flex-1 flex-col items-start gap-1">
                 <Text size="lg">{t('cron.region')}</Text>
