@@ -1,3 +1,4 @@
+use bindings::compression::CompressionInner;
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
 use hyper::{
     body::Bytes,
@@ -8,7 +9,7 @@ use lagon_runtime_v8_utils::v8_string;
 use linked_hash_map::LinkedHashMap;
 use std::{
     cell::{RefCell, RefMut},
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     pin::Pin,
     rc::Rc,
     sync::{Arc, RwLock},
@@ -70,6 +71,7 @@ pub struct IsolateState {
     lines: usize,
     requests_count: u32,
     log_sender: Option<flume::Sender<(String, String, Metadata)>>,
+    compression_table: BTreeMap<String, CompressionInner>,
 }
 
 #[derive(Debug)]
@@ -197,6 +199,7 @@ impl Isolate {
                 lines: 0,
                 requests_count: 0,
                 log_sender: options.log_sender.clone(),
+                compression_table: BTreeMap::<String, CompressionInner>::new(),
             }
         };
 

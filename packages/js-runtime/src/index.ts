@@ -13,6 +13,7 @@ import './runtime/global/console';
 import './runtime/global/process';
 import './runtime/global/crypto';
 import './runtime/global/navigator';
+import './runtime/global/compression';
 import './runtime/global/timers';
 import './runtime/http/URLSearchParams';
 import './runtime/http/URL';
@@ -59,6 +60,9 @@ declare global {
     randomValues: <T extends ArrayBufferView | null>(array: T) => void;
     getKeyValue: () => ArrayBuffer;
     queueMicrotask: (callback: () => void) => void;
+    compressionCreate: (format: 'deflate' | 'deflate-raw' | 'gzip', isDecoder: boolean) => string;
+    compressionWrite: (id: string, buf: Uint8Array) => Uint8Array;
+    compressionFinish: (id: string) => Uint8Array;
   };
 
   var LagonAsync: {

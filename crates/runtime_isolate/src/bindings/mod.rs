@@ -13,12 +13,17 @@ use queue_microtask::queue_microtask_binding;
 use sleep::{sleep_binding, sleep_init};
 
 use crate::{
-    bindings::crypto::{
-        derive_bits_binding, derive_bits_init, digest_init, generate_key_binding, generate_key_init,
+    bindings::{
+        compression::compression_init,
+        crypto::{
+            derive_bits_binding, derive_bits_init, digest_init, generate_key_binding,
+            generate_key_init,
+        },
     },
     Isolate,
 };
 
+pub mod compression;
 pub mod console;
 pub mod crypto;
 pub mod fetch;
@@ -126,6 +131,8 @@ pub fn bind<'a>(
             "queueMicrotask",
             queue_microtask_binding
         );
+
+        compression_init(scope, &lagon_object);
 
         global.set(v8_string(scope, "LagonSync").into(), lagon_object.into());
     }
