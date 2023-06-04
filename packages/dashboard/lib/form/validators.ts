@@ -60,6 +60,16 @@ export const emailValidator: FieldValidator<string | number> = value => {
   return 'Field must be a string';
 };
 
+export const alphaNumUnderscoreValidator: FieldValidator<string | number> = value => {
+  if (typeof value === 'string') {
+    return /^[a-zA-Z0-9_]+$/.test(value)
+      ? undefined
+      : 'Field must only contain alphanumeric characters and underscores';
+  }
+
+  return undefined;
+};
+
 export const composeValidators =
   (...validators: FieldValidator<string | number>[]): FieldValidator<string | number> =>
   value => {

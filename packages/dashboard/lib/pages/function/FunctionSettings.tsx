@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { Button, Card, Form, Input, Text, Dialog, Menu, Divider, Dot } from '@lagon/ui';
 import { getCurrentDomain, getFullDomain } from 'lib/utils';
 import {
+  alphaNumUnderscoreValidator,
   composeValidators,
   cronValidator,
   domainNameValidator,
@@ -406,7 +407,10 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                       event.preventDefault();
                     }
                   }}
-                  validator={maxLengthValidator(ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH)}
+                  validator={composeValidators(
+                    maxLengthValidator(ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH),
+                    alphaNumUnderscoreValidator,
+                  )}
                 />
                 <Input
                   name="envValue"
