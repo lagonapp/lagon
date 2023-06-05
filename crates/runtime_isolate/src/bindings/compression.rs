@@ -225,20 +225,3 @@ pub fn compression_finish_binding(
         }
     }
 }
-
-// (async () => {
-//     const data = JSON.stringify({data: 'aa', bb: 'bb', cc: 'cc', dd: 'dd'});
-//     const  enc = new TextEncoder();
-//     console.log(enc.encode(data))
-//     const stream = new Blob([data], {
-//     type: 'application/json',
-// }).stream();
-//     const compressedReadableStream = stream.pipeThrough(
-//     new CompressionStream("gzip")
-// );
-//     const compressedResponse =
-//   await new Response(compressedReadableStream);
-//     const blob = await compressedResponse.blob();
-//     const res = await blob.text();
-//     console.log(enc.encode(res))
-// })()
