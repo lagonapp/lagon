@@ -42,12 +42,8 @@ interface DecompressionStream {
 
 declare global {
   namespace globalThis {
-    var CompressionStream: {
-      new (format: 'deflate' | 'deflate-raw' | 'gzip'): CompressionStream;
-    };
-    var DecompressionStream: {
-      new (format: 'deflate' | 'deflate-raw' | 'gzip'): DecompressionStream;
-    };
+    var CompressionStream: new (format: 'deflate' | 'deflate-raw' | 'gzip') => CompressionStream;
+    var DecompressionStream: new (format: 'deflate' | 'deflate-raw' | 'gzip') => DecompressionStream;
   }
 
   interface AsyncContextConstructor {
