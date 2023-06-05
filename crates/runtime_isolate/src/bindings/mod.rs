@@ -14,7 +14,9 @@ use sleep::{sleep_binding, sleep_init};
 
 use crate::{
     bindings::{
-        compression::compression_init,
+        compression::{
+            compression_create_binding, compression_finish_binding, compression_write_binding,
+        },
         crypto::{
             derive_bits_binding, derive_bits_init, digest_init, generate_key_binding,
             generate_key_init,
@@ -132,7 +134,26 @@ pub fn bind<'a>(
             queue_microtask_binding
         );
 
-        compression_init(scope, &lagon_object);
+        binding!(
+            scope,
+            lagon_object,
+            "compressionCreate",
+            compression_create_binding
+        );
+
+        binding!(
+            scope,
+            lagon_object,
+            "compressionWrite",
+            compression_write_binding
+        );
+
+        binding!(
+            scope,
+            lagon_object,
+            "compressionFinish",
+            compression_finish_binding
+        );
 
         global.set(v8_string(scope, "LagonSync").into(), lagon_object.into());
     }

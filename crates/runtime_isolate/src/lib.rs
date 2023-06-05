@@ -149,6 +149,15 @@ impl Isolate {
             v8::ExternalReference {
                 function: bindings::queue_microtask::queue_microtask_binding.map_fn_to(),
             },
+            v8::ExternalReference {
+                function: bindings::compression::compression_create_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::compression::compression_finish_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::compression::compression_write_binding.map_fn_to(),
+            },
         ];
 
         let refs = v8::ExternalReferences::new(&references);

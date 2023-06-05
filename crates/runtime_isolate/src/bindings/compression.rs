@@ -1,9 +1,6 @@
 use anyhow::Result;
-use lagon_runtime_v8_utils::v8_string;
 use std::io::Write;
 use uuid::Uuid;
-use v8::Local;
-use v8::ObjectTemplate;
 
 use lagon_runtime_v8_utils::v8_exception;
 
@@ -40,7 +37,7 @@ enum CompressionFormat {
     DeflateRaw,
 }
 
-fn compression_create_binding(
+fn compression_create(
     scope: &mut v8::HandleScope,
     args: v8::FunctionCallbackArguments,
 ) -> Result<String> {
@@ -84,7 +81,31 @@ fn compression_create_binding(
     Ok(id)
 }
 
-fn compression_write_binding(
+pub fn compression_create_binding(
+    scope: &mut v8::HandleScope,
+    args: v8::FunctionCallbackArguments,
+    mut retval: v8::ReturnValue,
+) {
+    match compression_create(scope, args) {
+        Ok(res) => {
+            match serde_v8::to_v8(scope, res) {
+                Ok(v8_val) => {
+                    retval.set(v8_val.into());
+                }
+                Err(err) => {
+                    let exception = v8_exception(scope, err.to_string().as_str());
+                    scope.throw_exception(exception);
+                }
+            };
+        }
+        Err(err) => {
+            let exception = v8_exception(scope, err.to_string().as_str());
+            scope.throw_exception(exception);
+        }
+    }
+}
+
+fn compression_write(
     scope: &mut v8::HandleScope,
     args: v8::FunctionCallbackArguments,
 ) -> Result<ZeroCopyBuf> {
@@ -134,7 +155,31 @@ fn compression_write_binding(
     Ok(out.into())
 }
 
-fn compression_finish_binding(
+pub fn compression_write_binding(
+    scope: &mut v8::HandleScope,
+    args: v8::FunctionCallbackArguments,
+    mut retval: v8::ReturnValue,
+) {
+    match compression_write(scope, args) {
+        Ok(res) => {
+            match serde_v8::to_v8(scope, res) {
+                Ok(v8_val) => {
+                    retval.set(v8_val.into());
+                }
+                Err(err) => {
+                    let exception = v8_exception(scope, err.to_string().as_str());
+                    scope.throw_exception(exception);
+                }
+            };
+        }
+        Err(err) => {
+            let exception = v8_exception(scope, err.to_string().as_str());
+            scope.throw_exception(exception);
+        }
+    }
+}
+
+fn compression_finish(
     scope: &mut v8::HandleScope,
     args: v8::FunctionCallbackArguments,
 ) -> Result<ZeroCopyBuf> {
@@ -157,58 +202,43 @@ fn compression_finish_binding(
     Ok(out.into())
 }
 
-macro_rules! binding {
-    ($scope: ident, $lagon_object: ident, $name: literal, $binding: ident) => {
-        let binding = |scope: &mut v8::HandleScope,
-                       args: v8::FunctionCallbackArguments,
-                       mut retval: v8::ReturnValue| {
-            match $binding(scope, args) {
-                Ok(res) => {
-                    match serde_v8::to_v8(scope, res) {
-                        Ok(v8_val) => {
-                            retval.set(v8_val.into());
-                        }
-                        Err(err) => {
-                            let exception = v8_exception(scope, err.to_string().as_str());
-                            scope.throw_exception(exception);
-                        }
-                    };
+pub fn compression_finish_binding(
+    scope: &mut v8::HandleScope,
+    args: v8::FunctionCallbackArguments,
+    mut retval: v8::ReturnValue,
+) {
+    match compression_finish(scope, args) {
+        Ok(res) => {
+            match serde_v8::to_v8(scope, res) {
+                Ok(v8_val) => {
+                    retval.set(v8_val.into());
                 }
                 Err(err) => {
                     let exception = v8_exception(scope, err.to_string().as_str());
                     scope.throw_exception(exception);
                 }
-            }
-        };
-        $lagon_object.set(
-            v8_string($scope, $name).into(),
-            v8::FunctionTemplate::new($scope, binding).into(),
-        );
-    };
+            };
+        }
+        Err(err) => {
+            let exception = v8_exception(scope, err.to_string().as_str());
+            scope.throw_exception(exception);
+        }
+    }
 }
 
-pub fn compression_init<'a>(
-    scope: &mut v8::HandleScope<'a, ()>,
-    lagon_object: &Local<ObjectTemplate>,
-) {
-    binding!(
-        scope,
-        lagon_object,
-        "compressionCreate",
-        compression_create_binding
-    );
-
-    binding!(
-        scope,
-        lagon_object,
-        "compressionWrite",
-        compression_write_binding
-    );
-
-    binding!(
-        scope,
-        lagon_object,
-        "compressionFinish",
-        compression_finish_binding
-    );
-}
+// (async () => {
+//     const data = JSON.stringify({data: 'aa', bb: 'bb', cc: 'cc', dd: 'dd'});
+//     const  enc = new TextEncoder();
+//     console.log(enc.encode(data))
+//     const stream = new Blob([data], {
+//     type: 'application/json',
+// }).stream();
+//     const compressedReadableStream = stream.pipeThrough(
+//     new CompressionStream("gzip")
+// );
+//     const compressedResponse =
+//   await new Response(compressedReadableStream);
+//     const blob = await compressedResponse.blob();
+//     const res = await blob.text();
+//     console.log(enc.encode(res))
+// })()
