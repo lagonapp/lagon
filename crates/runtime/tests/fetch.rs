@@ -607,3 +607,45 @@ async fn fetch_https() {
     )
     .await;
 }
+
+#[tokio::test]
+async fn fetch_set_content_length() {
+    utils::setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(all_of![
+            any_of![
+                request::method_path("POST", "/"),
+                request::method_path("PUT", "/")
+            ],
+            request::headers(contains(("content-length", "0")))
+        ])
+        .times(2)
+        .respond_with(status_code(200)),
+    );
+    let url = server.url("/");
+
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
+    await fetch('{url}', {{
+        method: 'POST',
+    }});
+
+    await fetch('{url}', {{
+        method: 'PUT',
+    }});
+
+    return new Response('Ok');
+}}"
+    )));
+    send(Request::default());
+
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Ok".into())
+            .unwrap(),
+    )
+    .await;
+}

@@ -1,5 +1,13 @@
 # @lagon/dashboard
 
+## 0.3.10
+
+### Patch Changes
+
+- [#922](https://github.com/lagonapp/lagon/pull/922) [`6979a7c`](https://github.com/lagonapp/lagon/commit/6979a7c978a0c6fa486ba1c7a0b79063bfd7eeed) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Cron preview to update as we type
+
+- [#927](https://github.com/lagonapp/lagon/pull/927) [`968cb8d`](https://github.com/lagonapp/lagon/commit/968cb8d3922702a799165a1f71f1586f53e17435) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Only allow alphanumeric characters, numbers and underscore as environment variable keys
+
 ## 0.3.9
 
 ### Patch Changes

@@ -16,7 +16,7 @@ use notify::event::ModifyKind;
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::runtime::Handle;
@@ -25,20 +25,21 @@ use tokio::sync::Mutex;
 const LOCAL_REGION: &str = "local";
 
 fn parse_environment_variables(
-    root: &Path,
+    path: Option<PathBuf>,
     env: Option<PathBuf>,
 ) -> Result<HashMap<String, String>> {
+    let path = path.unwrap_or_else(|| PathBuf::from("."));
     let mut environment_variables = HashMap::new();
 
-    if let Some(path) = env {
-        let envfile = EnvFile::new(root.join(path))?;
+    if let Some(env) = env {
+        let envfile = EnvFile::new(env)?;
 
         for (key, value) in envfile.store {
             environment_variables.insert(key, value);
         }
 
         println!("{}", style("Loaded .env file...").black().bright());
-    } else if let Ok(envfile) = EnvFile::new(root.join(".env")) {
+    } else if let Ok(envfile) = EnvFile::new(path.join(".env")) {
         for (key, value) in envfile.store {
             environment_variables.insert(key, value);
         }
@@ -163,7 +164,7 @@ pub async fn dev(
     allow_code_generation: bool,
     prod: bool,
 ) -> Result<()> {
-    let (root, function_config) = resolve_path(path, client, public_dir)?;
+    let (root, function_config) = resolve_path(path.clone(), client, public_dir)?;
     let (index, assets) = bundle_function(&function_config, &root, prod)?;
 
     let index = Arc::new(Mutex::new(index));
@@ -183,7 +184,7 @@ pub async fn dev(
         .as_ref()
         .map(|assets| root.join(assets));
 
-    let environment_variables = match parse_environment_variables(&root, env) {
+    let environment_variables = match parse_environment_variables(path, env) {
         Ok(env) => env,
         Err(err) => return Err(anyhow!("Could not load environment variables: {:?}", err)),
     };
