@@ -7,10 +7,14 @@
     }
   ],
   "commit": false,
-  "fixed": [["@lagon/runtime", "@lagon/js-runtime"]],
+  "fixed": [
+    [
+      "@lagon/runtime",
+      "@lagon/js-runtime"
+    ]
+  ],
   "linked": [],
   "access": "public",
   "baseBranch": "main",
-  "updateInternalDependencies": "patch",
-  "privatePackages": { "version": true, "tag": true }
+  "updateInternalDependencies": "patch"
 }
