@@ -43,7 +43,7 @@ interface DecompressionStream {
 type CompressionFormat = 'deflate' | 'deflate-raw' | 'gzip';
 
 declare global {
-  // @typescript-eslint/no-namespace
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace globalThis {
     var CompressionStream: { new (format: CompressionFormat): CompressionStream; prototype: CompressionStream };
     var DecompressionStream: { new (format: CompressionFormat): DecompressionStream; prototype: DecompressionStream };
