@@ -29,7 +29,27 @@ import './runtime/http/fetch';
 //
 // NOTE: we use `var` to that we can refer to these variables
 // using `globalThis.VARIABLE`.
+
+interface CompressionStream {
+  readonly readable: ReadableStream<Uint8Array>;
+  readonly writable: WritableStream<Uint8Array>;
+}
+
+interface DecompressionStream {
+  readonly readable: ReadableStream<Uint8Array>;
+  readonly writable: WritableStream<Uint8Array>;
+}
+
 declare global {
+  namespace globalThis {
+    var CompressionStream: {
+      new (format: 'deflate' | 'deflate-raw' | 'gzip'): CompressionStream;
+    };
+    var DecompressionStream: {
+      new (format: 'deflate' | 'deflate-raw' | 'gzip'): DecompressionStream;
+    };
+  }
+
   interface AsyncContextConstructor {
     new (): AsyncContext;
     wrap(callback: (...args: unknown[]) => void): (...args: unknown[]) => void;

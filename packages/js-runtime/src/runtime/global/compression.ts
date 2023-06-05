@@ -1,13 +1,6 @@
 (globalThis => {
   const compressionFormats = ['deflate', 'deflate-raw', 'gzip'] as const;
 
-  // TODO: globalThis missing definition
-  //   declare class CompressionStream {
-  //     constructor(format: string);
-  //     readonly readable: ReadableStream<Uint8Array>;
-  //     readonly writable: WritableStream<Uint8Array>;
-  //   }
-  // @ts-ignore
   globalThis.CompressionStream = class {
     private transform;
 
@@ -46,13 +39,6 @@
     }
   };
 
-  // TODO: globalThis missing definition
-  //   declare class DecompressionStream {
-  //     constructor(format: string);
-  //     readonly readable: ReadableStream<Uint8Array>;
-  //     readonly writable: WritableStream<Uint8Array>;
-  //   }
-  // @ts-ignore
   globalThis.DecompressionStream = class {
     private transform;
 
