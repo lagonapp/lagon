@@ -40,10 +40,13 @@ interface DecompressionStream {
   readonly writable: WritableStream<Uint8Array>;
 }
 
+type CompressionFormat = 'deflate' | 'deflate-raw' | 'gzip';
+
 declare global {
+  // @typescript-eslint/no-namespace
   namespace globalThis {
-    var CompressionStream: new (format: 'deflate' | 'deflate-raw' | 'gzip') => CompressionStream;
-    var DecompressionStream: new (format: 'deflate' | 'deflate-raw' | 'gzip') => DecompressionStream;
+    var CompressionStream: { new (format: CompressionFormat): CompressionStream; prototype: CompressionStream };
+    var DecompressionStream: { new (format: CompressionFormat): DecompressionStream; prototype: DecompressionStream };
   }
 
   interface AsyncContextConstructor {
