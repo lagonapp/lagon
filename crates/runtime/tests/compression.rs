@@ -1,4 +1,3 @@
-use httptest::{matchers::*, responders::*, Expectation, Server};
 use hyper::{header::CONTENT_TYPE, Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 
