@@ -1,6 +1,6 @@
 use crate::{
     commands::deploy::{FunctionsResponse, OrganizationsResponse},
-    utils::{get_root, Config, FunctionConfig, TrpcClient, THEME},
+    utils::{get_root, get_theme, Config, FunctionConfig, TrpcClient},
 };
 use anyhow::{anyhow, Result};
 use dialoguer::{console::style, Select};
@@ -27,7 +27,7 @@ pub async fn link(directory: Option<PathBuf>) -> Result<()> {
                 .await?;
             let organizations = response.result.data;
 
-            let index = Select::with_theme(&*THEME)
+            let index = Select::with_theme(get_theme())
                 .items(&organizations)
                 .default(0)
                 .with_prompt("Which Organization would you like to link from?")
@@ -39,7 +39,7 @@ pub async fn link(directory: Option<PathBuf>) -> Result<()> {
                 .await?;
             let functions = response.result.data;
 
-            let index = Select::with_theme(&*THEME)
+            let index = Select::with_theme(get_theme())
                 .items(&functions)
                 .default(0)
                 .with_prompt("Which Function would you like to link?")

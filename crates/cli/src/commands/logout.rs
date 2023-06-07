@@ -1,4 +1,4 @@
-use crate::utils::{Config, THEME};
+use crate::utils::{get_theme, Config};
 use anyhow::{anyhow, Result};
 use dialoguer::{console::style, Confirm};
 
@@ -9,7 +9,7 @@ pub fn logout() -> Result<()> {
         return Err(anyhow!("You are not logged in."));
     }
 
-    match Confirm::with_theme(&*THEME)
+    match Confirm::with_theme(get_theme())
         .with_prompt("Do you really want to log out?")
         .default(true)
         .interact()?

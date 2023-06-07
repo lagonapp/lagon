@@ -2,8 +2,8 @@ use anyhow::Result;
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_serverless::clickhouse::{create_client, run_migrations};
 use lagon_serverless::deployments::get_deployments;
+use lagon_serverless::get_region;
 use lagon_serverless::serverless::start;
-use lagon_serverless::REGION;
 use lagon_serverless_downloader::{get_bucket, S3BucketDownloader};
 use lagon_serverless_logger::init_logger;
 use lagon_serverless_pubsub::RedisPubSub;
@@ -26,7 +26,7 @@ async fn main() -> Result<()> {
     #[cfg(debug_assertions)]
     dotenv::dotenv().expect("Failed to load .env file");
 
-    let _flush_guard = init_logger(REGION.clone()).expect("Failed to init logger");
+    let _flush_guard = init_logger(get_region().clone()).expect("Failed to init logger");
 
     let runtime = Runtime::new(RuntimeOptions::default());
     let addr: SocketAddr = env::var("LAGON_LISTEN_ADDR")
@@ -36,7 +36,9 @@ async fn main() -> Result<()> {
         .expect("PROMETHEUS_LISTEN_ADDR must be set")
         .parse()?;
 
-    let mut builder = PrometheusBuilder::new().with_http_listener(prometheus_addr);
+    let mut builder = PrometheusBuilder::new()
+        .with_http_listener(prometheus_addr)
+        .add_global_label("region", get_region());
 
     if let Ok(allowed_subnet) = env::var("PROMETHEUS_ALLOWED_SUBNET") {
         if !allowed_subnet.is_empty() {

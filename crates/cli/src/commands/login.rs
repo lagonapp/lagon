@@ -1,4 +1,4 @@
-use crate::utils::{print_progress, Config, TrpcClient, THEME};
+use crate::utils::{get_theme, print_progress, Config, TrpcClient};
 use anyhow::{anyhow, Result};
 use dialoguer::{console::style, Confirm, Password};
 use serde::{Deserialize, Serialize};
@@ -17,7 +17,7 @@ pub async fn login() -> Result<()> {
     let mut config = Config::new()?;
 
     if config.token.is_some()
-        && !Confirm::with_theme(&*THEME)
+        && !Confirm::with_theme(get_theme())
             .with_prompt("You are already logged in. Do you want to log out and log in again?")
             .default(true)
             .interact()?
@@ -45,7 +45,7 @@ pub async fn login() -> Result<()> {
     );
     println!();
 
-    let code = Password::with_theme(&*THEME)
+    let code = Password::with_theme(get_theme())
         .with_prompt("Paste the verification code from your browser here")
         .interact()?;
 

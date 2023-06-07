@@ -2,7 +2,7 @@ use crate::{
     clickhouse::{LogRow, RequestRow},
     cronjob::Cronjob,
     deployments::{cache::run_cache_clear_task, pubsub::listen_pub_sub, Deployments},
-    REGION, SNAPSHOT_BLOB,
+    get_region, SNAPSHOT_BLOB,
 };
 use anyhow::Result;
 use clickhouse::{inserter::Inserter, Client};
@@ -48,12 +48,11 @@ async fn handle_error(
     function_id: String,
     deployment_id: String,
     request_id: &String,
-    labels: &[(&'static str, String); 3],
     inserters: Arc<Mutex<(Inserter<RequestRow>, Inserter<LogRow>)>>,
 ) {
     let (level, message) = match result {
         RunResult::Timeout => {
-            increment_counter!("lagon_isolate_timeouts", labels);
+            increment_counter!("lagon_isolate_timeouts", "deployment" => deployment_id.clone(), "function" => function_id.clone());
 
             let message = "Function execution timed out";
             warn!(deployment = deployment_id, function = function_id, request = request_id; "{}", message);
@@ -61,7 +60,7 @@ async fn handle_error(
             ("warn", message.into())
         }
         RunResult::MemoryLimit => {
-            increment_counter!("lagon_isolate_memory_limits", labels);
+            increment_counter!("lagon_isolate_memory_limits", "deployment" => deployment_id.clone(), "function" => function_id.clone());
 
             let message = "Function execution memory limit reached";
             warn!(deployment = deployment_id, function = function_id, request = request_id; "{}", message);
@@ -69,7 +68,7 @@ async fn handle_error(
             ("warn", message.into())
         }
         RunResult::Error(error) => {
-            increment_counter!("lagon_isolate_errors", labels);
+            increment_counter!("lagon_isolate_errors", "deployment" => deployment_id.clone(), "function" => function_id.clone());
 
             let message = format!("Function execution error: {}", error);
             error!(deployment = deployment_id, function = function_id, request = request_id; "{}", message);
@@ -88,7 +87,7 @@ async fn handle_error(
             deployment_id,
             level: level.to_string(),
             message,
-            region: REGION.clone(),
+            region: get_region().clone(),
             timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
         })
         .await
@@ -117,7 +116,6 @@ async fn handle_request(
             increment_counter!(
                 "lagon_ignored_requests",
                 "reason" => "No hostname",
-                "region" => REGION.clone(),
             );
             warn!(req = as_debug!(req), ip = ip, request = request_id; "No Host header found in request");
 
@@ -132,7 +130,6 @@ async fn handle_request(
                 "lagon_ignored_requests",
                 "reason" => "No deployment",
                 "hostname" => hostname.clone(),
-                "region" => REGION.clone(),
             );
             warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "No deployment found for hostname");
 
@@ -145,7 +142,6 @@ async fn handle_request(
             "lagon_ignored_requests",
             "reason" => "Cron",
             "hostname" => hostname.clone(),
-            "region" => REGION.clone(),
         );
         warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "Cron deployment cannot be called directly");
 
@@ -157,12 +153,6 @@ async fn handle_request(
     let request_id_handle = request_id.clone();
     let (sender, receiver) = flume::unbounded();
     let mut bytes_in = 0;
-
-    let labels = [
-        ("deployment", deployment.id.clone()),
-        ("function", deployment.function_id.clone()),
-        ("region", REGION.clone()),
-    ];
 
     let url = req.uri().path();
     let is_favicon = url == FAVICON_URL;
@@ -204,7 +194,7 @@ async fn handle_request(
         bytes_in = body.len() as u32;
 
         parts.headers.insert(X_FORWARDED_FOR, ip.parse()?);
-        parts.headers.insert(X_LAGON_REGION, REGION.parse()?);
+        parts.headers.insert(X_LAGON_REGION, get_region().parse()?);
 
         let request = (parts, body);
 
@@ -212,11 +202,10 @@ async fn handle_request(
         let isolate_sender = workers.entry(deployment_id.clone()).or_insert_with(|| {
             let handle = Handle::current();
             let (sender, receiver) = flume::unbounded();
-            let labels = labels.clone();
 
             std::thread::Builder::new().name(String::from("isolate-") + deployment.id.as_str()).spawn(move || {
                 handle.block_on(async move {
-                    increment_gauge!("lagon_isolates", 1.0, &labels);
+                    increment_gauge!("lagon_isolates", 1.0, "deployment" => deployment.id.clone(), "function" => deployment.function_id.clone());
                     info!(deployment = deployment.id, function = deployment.function_id, request = request_id_handle; "Creating new isolate");
 
                     let code = deployment.get_code().unwrap_or_else(|error| {
@@ -240,7 +229,6 @@ async fn handle_request(
                                 let labels = [
                                     ("deployment", metadata.0.clone()),
                                     ("function", metadata.1.clone()),
-                                    ("region", REGION.clone()),
                                 ];
 
                                 decrement_gauge!("lagon_isolates", 1.0, &labels);
@@ -252,7 +240,6 @@ async fn handle_request(
                                 let labels = [
                                     ("deployment", metadata.0.clone()),
                                     ("function", metadata.1.clone()),
-                                    ("region", REGION.clone()),
                                 ];
 
                                 histogram!(
@@ -290,7 +277,6 @@ async fn handle_request(
         let function_id = function_id.clone();
         let deployment_id = deployment_id.clone();
         let request_id = request_id.clone();
-        let labels = labels.clone();
 
         async move {
             match event {
@@ -304,7 +290,7 @@ async fn handle_request(
                         .write(&RequestRow {
                             function_id,
                             deployment_id,
-                            region: REGION.clone(),
+                            region: get_region().clone(),
                             bytes_in,
                             bytes_out: bytes as u32,
                             cpu_time_micros,
@@ -321,32 +307,15 @@ async fn handle_request(
                         function_id,
                         deployment_id,
                         &request_id,
-                        &labels,
                         inserters,
                     )
                     .await;
                 }
                 ResponseEvent::UnexpectedStreamResult(result) => {
-                    handle_error(
-                        result,
-                        function_id,
-                        deployment_id,
-                        &request_id,
-                        &labels,
-                        inserters,
-                    )
-                    .await;
+                    handle_error(result, function_id, deployment_id, &request_id, inserters).await;
                 }
                 ResponseEvent::LimitsReached(result) | ResponseEvent::Error(result) => {
-                    handle_error(
-                        result,
-                        function_id,
-                        deployment_id,
-                        &request_id,
-                        &labels,
-                        inserters,
-                    )
-                    .await;
+                    handle_error(result, function_id, deployment_id, &request_id, inserters).await;
                 }
             }
 
@@ -453,7 +422,7 @@ where
                         .map_or_else(String::new, |metadata| metadata.0.clone()),
                     level: log.0,
                     message: log.1,
-                    region: REGION.clone(),
+                    region: get_region().clone(),
                     timestamp: UNIX_EPOCH.elapsed().unwrap().as_secs() as u32,
                 })
                 .await
