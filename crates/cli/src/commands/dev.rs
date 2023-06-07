@@ -16,7 +16,7 @@ use notify::event::ModifyKind;
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::runtime::Handle;
@@ -25,20 +25,21 @@ use tokio::sync::Mutex;
 const LOCAL_REGION: &str = "local";
 
 fn parse_environment_variables(
-    root: &Path,
+    path: Option<PathBuf>,
     env: Option<PathBuf>,
 ) -> Result<HashMap<String, String>> {
+    let path = path.unwrap_or_else(|| PathBuf::from("."));
     let mut environment_variables = HashMap::new();
 
-    if let Some(path) = env {
-        let envfile = EnvFile::new(root.join(path))?;
+    if let Some(env) = env {
+        let envfile = EnvFile::new(env)?;
 
         for (key, value) in envfile.store {
             environment_variables.insert(key, value);
         }
 
         println!("{}", style("Loaded .env file...").black().bright());
-    } else if let Ok(envfile) = EnvFile::new(root.join(".env")) {
+    } else if let Ok(envfile) = EnvFile::new(path.join(".env")) {
         for (key, value) in envfile.store {
             environment_variables.insert(key, value);
         }
@@ -163,10 +164,10 @@ pub async fn dev(
     allow_code_generation: bool,
     prod: bool,
 ) -> Result<()> {
-    let (root, function_config) = resolve_path(path, client, public_dir)?;
+    let (root, function_config) = resolve_path(path.clone(), client, public_dir)?;
     let (index, assets) = bundle_function(&function_config, &root, prod)?;
 
-    let server_index = index.clone();
+    let index = Arc::new(Mutex::new(index));
     let assets = Arc::new(Mutex::new(assets));
 
     let runtime =
@@ -183,41 +184,37 @@ pub async fn dev(
         .as_ref()
         .map(|assets| root.join(assets));
 
-    let environment_variables = match parse_environment_variables(&root, env) {
+    let environment_variables = match parse_environment_variables(path, env) {
         Ok(env) => env,
         Err(err) => return Err(anyhow!("Could not load environment variables: {:?}", err)),
     };
 
-    let (tx, rx) = flume::unbounded();
-    let (index_tx, index_rx) = flume::unbounded();
+    let (isolate_tx, isolate_rx) = flume::unbounded();
     let (log_sender, log_receiver) = flume::unbounded();
+
     let handle = Handle::current();
+    let index_handle = Arc::clone(&index);
 
     std::thread::spawn(move || {
         handle.block_on(async move {
-            let mut index = server_index;
-
             loop {
+                let code = {
+                    let index = index_handle.lock().await;
+                    String::from_utf8(index.to_vec()).expect("Code is not UTF-8")
+                };
+
                 let mut isolate = Isolate::new(
-                    IsolateOptions::new(
-                        String::from_utf8(index.clone()).expect("Code is not UTF-8"),
-                    )
-                    .tick_timeout(Duration::from_millis(500))
-                    .total_timeout(Duration::from_secs(30))
-                    .metadata(Some((String::from(""), String::from(""))))
-                    .environment_variables(environment_variables.clone())
-                    .log_sender(log_sender.clone()),
-                    rx.clone(),
+                    IsolateOptions::new(code)
+                        .tick_timeout(Duration::from_millis(500))
+                        .total_timeout(Duration::from_secs(30))
+                        .metadata(Some((String::from(""), String::from(""))))
+                        .environment_variables(environment_variables.clone())
+                        .log_sender(log_sender.clone()),
+                    isolate_rx.clone(),
                 );
 
                 isolate.evaluate();
-
-                tokio::select! {
-                    _ = isolate.run_event_loop() => {},
-                    new_index = index_rx.recv_async() => {
-                        index = new_index.unwrap();
-                    }
-                }
+                isolate.run_event_loop().await;
             }
         });
     });
@@ -235,11 +232,13 @@ pub async fn dev(
         }
     });
 
-    let server_assets = Arc::clone(&assets);
+    let assets_handle = Arc::clone(&assets);
+    let tx_handle = isolate_tx.clone();
+
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let public_dir = server_public_dir.clone();
-        let assets = Arc::clone(&server_assets);
-        let tx = tx.clone();
+        let assets = Arc::clone(&assets_handle);
+        let tx = tx_handle.clone();
 
         let addr = conn.remote_addr();
         let ip = addr.ip().to_string();
@@ -284,7 +283,12 @@ pub async fn dev(
                 let (new_index, new_assets) = bundle_function(&function_config, &root, prod)?;
 
                 *assets.lock().await = new_assets;
-                index_tx.send_async(new_index).await.unwrap();
+                *index.lock().await = new_index;
+
+                isolate_tx
+                    .send_async(IsolateEvent::Terminate(String::from("Hot Reload")))
+                    .await
+                    .unwrap();
 
                 println!();
                 println!(" {} Dev Server ready!", style("◼").magenta());

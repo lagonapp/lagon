@@ -1,6 +1,6 @@
 {
   "name": "@lagon/dashboard",
-  "version": "0.3.8",
+  "version": "0.3.10",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -51,7 +51,6 @@
     "node-fetch": "^3.2.10",
     "nodemailer": "^6.9.0",
     "posthog-js": "^1.55.1",
-    "raw-body": "^2.5.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-final-form": "^6.5.9",

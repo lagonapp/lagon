@@ -1,5 +1,19 @@
 # @lagon/docs
 
+## 1.0.0
+
+### Major Changes
+
+- [#914](https://github.com/lagonapp/lagon/pull/914) [`00b30bc`](https://github.com/lagonapp/lagon/commit/00b30bcac6176d99a3f0f009e7d21288f8eea126) Thanks [@barbarbar338](https://github.com/barbarbar338)! - Add Sidra example.
+
+### Patch Changes
+
+- [#872](https://github.com/lagonapp/lagon/pull/872) [`a90e9e9`](https://github.com/lagonapp/lagon/commit/a90e9e971d3b9288bc6a40d098aa4552fa86307c) Thanks [@anbraten](https://github.com/anbraten)! - Update contributing environment variables setup
+
+- [#920](https://github.com/lagonapp/lagon/pull/920) [`10d4086`](https://github.com/lagonapp/lagon/commit/10d40869d96f1d4ee590d5144a36941aee8d6b71) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Cron Functions
+
+- [#899](https://github.com/lagonapp/lagon/pull/899) [`be0dded`](https://github.com/lagonapp/lagon/commit/be0ddedb0e00da72304360a0647225dc4ff4b204) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Update custom domains documentation
+
 ## 0.3.10
 
 ### Patch Changes

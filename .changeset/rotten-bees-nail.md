@@ -2,4 +2,4 @@
 '@lagon/dashboard': patch
 ---
 
-Improve custom domains UX
+Fix Stripe subscription

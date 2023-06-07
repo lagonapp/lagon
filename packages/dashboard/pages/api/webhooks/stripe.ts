@@ -2,8 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import * as Sentry from '@sentry/nextjs';
 import { stripe } from 'lib/stripe';
 import type Stripe from 'stripe';
-import rawBody from 'raw-body';
 import prisma from 'lib/prisma';
+import { Readable } from 'node:stream';
 
 export const config = {
   api: {
@@ -11,17 +11,32 @@ export const config = {
   },
 };
 
+async function buffer(readable: Readable) {
+  const chunks = [];
+
+  for await (const chunk of readable) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+  }
+
+  return Buffer.concat(chunks);
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const body = await rawBody(req);
+  if (req.method !== 'POST') {
+    return res.status(405).end();
+  }
+
+  const buf = await buffer(req);
   let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
-      body,
+      buf,
       req.headers['stripe-signature'] as string,
       process.env.STRIPE_WEBHOOK_SECRET!,
     );
   } catch (err) {
+    console.log(err);
     Sentry.captureException(err);
 
     return res.status(400).end();
@@ -40,6 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         stripeSubscriptionId: subscription.id,
         stripeCustomerId: subscription.customer as string,
         stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
+        stripePriceId: subscription.items.data[0].price.id,
       },
     });
   }
@@ -57,5 +73,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   }
 
-  res.end();
+  res.json({ received: true });
 }

@@ -1,5 +1,23 @@
 # @lagon/cli
 
+## 0.7.4
+
+### Patch Changes
+
+- [#928](https://github.com/lagonapp/lagon/pull/928) [`28bd4c6`](https://github.com/lagonapp/lagon/commit/28bd4c644db583b54827f5f1a6bee7ce0f64b4bb) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Set content-length header to 0 when body is null and method POST or PUT in `fetch()`
+
+- [#925](https://github.com/lagonapp/lagon/pull/925) [`102bb75`](https://github.com/lagonapp/lagon/commit/102bb7550a14453c96866a4aa011d4517ed11185) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix `lagon dev` hot reloading updating after the 2nd request
+
+- [`dfdb662`](https://github.com/lagonapp/lagon/commit/dfdb6626e86b9c81bff2275ec03944aaa9259c69) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Load environment variable file based on current directory
+
+## 0.7.3
+
+### Patch Changes
+
+- [#907](https://github.com/lagonapp/lagon/pull/907) [`6a593cb`](https://github.com/lagonapp/lagon/commit/6a593cbc3b1a853a6b2170a8d1d696ddf0e101d6) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Reduce loading animation ticks
+
+- [#835](https://github.com/lagonapp/lagon/pull/835) [`12ff778`](https://github.com/lagonapp/lagon/commit/12ff77821b74bffc483a216c46053e270ddde64a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve implementation of Headers, Request, Response and URLSearchParams
+
 ## 0.7.2
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @lagon/ui
 
+## 0.2.4
+
+### Patch Changes
+
+- [#899](https://github.com/lagonapp/lagon/pull/899) [`be0dded`](https://github.com/lagonapp/lagon/commit/be0ddedb0e00da72304360a0647225dc4ff4b204) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Copiable component
+
 ## 0.2.3
 
 ### Patch Changes

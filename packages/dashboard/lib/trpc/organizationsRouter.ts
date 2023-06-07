@@ -339,6 +339,7 @@ export const organizationsRouter = (t: T) =>
       .input(
         z.object({
           priceId: z.string(),
+          priceIdMetered: z.string(),
         }),
       )
       .mutation(async ({ input, ctx }) => {
@@ -353,6 +354,9 @@ export const organizationsRouter = (t: T) =>
             {
               price: input.priceId,
               quantity: 1,
+            },
+            {
+              price: input.priceIdMetered,
             },
           ],
           mode: 'subscription',

@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 import { Button, Card, Form, Input, Text, Dialog, Menu, Divider, Dot } from '@lagon/ui';
 import { getCurrentDomain, getFullDomain } from 'lib/utils';
 import {
+  alphaNumUnderscoreValidator,
   composeValidators,
   cronValidator,
   domainNameValidator,
@@ -316,7 +317,9 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                   disabled={updateFunction.isLoading}
                   validator={cronValidator}
                 />
-                <Text size="sm">{getHumanFriendlyCron(func?.cron)}</Text>
+                {getHumanFriendlyCron(values.cron) === values.cron ? null : (
+                  <Text size="sm">{getHumanFriendlyCron(values.cron)}</Text>
+                )}
               </div>
               <div className="flex flex-1 flex-col items-start gap-1">
                 <Text size="lg">{t('cron.region')}</Text>
@@ -404,7 +407,10 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                       event.preventDefault();
                     }
                   }}
-                  validator={maxLengthValidator(ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH)}
+                  validator={composeValidators(
+                    maxLengthValidator(ENVIRONMENT_VARIABLE_KEY_MAX_LENGTH),
+                    alphaNumUnderscoreValidator,
+                  )}
                 />
                 <Input
                   name="envValue"

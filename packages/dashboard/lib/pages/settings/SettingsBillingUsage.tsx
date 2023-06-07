@@ -70,10 +70,11 @@ const SettingsBillingUsage = () => {
     }
   };
 
-  const checkout = async (priceId: string) => {
+  const checkout = async (priceId: string, priceIdMetered: string) => {
     redirectStripe(async () => {
       const result = await organizationCheckout.mutateAsync({
         priceId,
+        priceIdMetered,
       });
 
       return result.url;
@@ -85,6 +86,7 @@ const SettingsBillingUsage = () => {
       const result = await organizationPlan.mutateAsync({
         stripeCustomerId: session?.organization?.stripeCustomerId || '',
       });
+
       return result.url;
     });
   };
@@ -132,7 +134,12 @@ const SettingsBillingUsage = () => {
             <Button
               variant="primary"
               disabled={isLoadingPlan || !isOrganizationOwner}
-              onClick={() => checkout(process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_PRICE_ID as string)}
+              onClick={() =>
+                checkout(
+                  process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_PRICE_ID as string,
+                  process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_PRICE_ID_METERED as string,
+                )
+              }
             >
               {t('subcription.upgrade.pro')}
             </Button>

@@ -1,6 +1,8 @@
 (globalThis => {
   const isHeadersObject = (headers?: HeadersInit): headers is Headers => !!headers && 'entries' in headers;
 
+  const FORCE_0_CONTENT_LENGTH_METHODS = ['POST', 'PUT'];
+
   globalThis.fetch = async (input, init) => {
     let headers: Map<string, string> | undefined = undefined;
 
@@ -27,6 +29,14 @@
 
         body = init.body;
       }
+    }
+
+    if (body === undefined && init?.method && FORCE_0_CONTENT_LENGTH_METHODS.includes(init.method)) {
+      if (!headers) {
+        headers = new Map();
+      }
+
+      headers?.set('content-length', '0');
     }
 
     const checkAborted = () => {

@@ -1,5 +1,34 @@
 # @lagon/dashboard
 
+## 0.3.10
+
+### Patch Changes
+
+- [#922](https://github.com/lagonapp/lagon/pull/922) [`6979a7c`](https://github.com/lagonapp/lagon/commit/6979a7c978a0c6fa486ba1c7a0b79063bfd7eeed) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Cron preview to update as we type
+
+- [#927](https://github.com/lagonapp/lagon/pull/927) [`968cb8d`](https://github.com/lagonapp/lagon/commit/968cb8d3922702a799165a1f71f1586f53e17435) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Only allow alphanumeric characters, numbers and underscore as environment variable keys
+
+## 0.3.9
+
+### Patch Changes
+
+- [#901](https://github.com/lagonapp/lagon/pull/901) [`3869782`](https://github.com/lagonapp/lagon/commit/38697826a3cc86fb759b281f2428e21976ef5590) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Close modals when submitting without any error
+
+- [#899](https://github.com/lagonapp/lagon/pull/899) [`be0dded`](https://github.com/lagonapp/lagon/commit/be0ddedb0e00da72304360a0647225dc4ff4b204) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve custom domains UX
+
+- [#920](https://github.com/lagonapp/lagon/pull/920) [`10d4086`](https://github.com/lagonapp/lagon/commit/10d40869d96f1d4ee590d5144a36941aee8d6b71) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add links to documentation in Function settings
+
+- [#907](https://github.com/lagonapp/lagon/pull/907) [`6a593cb`](https://github.com/lagonapp/lagon/commit/6a593cbc3b1a853a6b2170a8d1d696ddf0e101d6) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix domain status when proxied through Cloudflare
+
+- [#920](https://github.com/lagonapp/lagon/pull/920) [`10d4086`](https://github.com/lagonapp/lagon/commit/10d40869d96f1d4ee590d5144a36941aee8d6b71) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Cron Functions
+
+- [#913](https://github.com/lagonapp/lagon/pull/913) [`9753db2`](https://github.com/lagonapp/lagon/commit/9753db24762c750ef49a749721c702698c447e2f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow deleting a Function with existing environment variables
+
+- [#915](https://github.com/lagonapp/lagon/pull/915) [`f05147b`](https://github.com/lagonapp/lagon/commit/f05147b663e788c04680d76a1ce8a7c9a0f87959) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Replace assets table with a json column
+
+- Updated dependencies [[`be0dded`](https://github.com/lagonapp/lagon/commit/be0ddedb0e00da72304360a0647225dc4ff4b204)]:
+  - @lagon/ui@0.2.4
+
 ## 0.3.8
 
 ### Patch Changes
