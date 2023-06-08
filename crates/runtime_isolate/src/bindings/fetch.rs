@@ -1,15 +1,14 @@
 use anyhow::{anyhow, Result};
-use async_recursion::async_recursion;
-use hyper::{client::HttpConnector, header::LOCATION, http::Uri, Body, Client, Request, Response};
-use hyper_tls::HttpsConnector;
+use hyper::{Body, Request};
 use lagon_runtime_http::request_from_v8;
+use reqwest::{redirect::Policy, Client, ClientBuilder};
 use std::sync::OnceLock;
 
 use crate::{bindings::PromiseResult, Isolate};
 
 use super::BindingResult;
 
-static CLIENT: OnceLock<Client<HttpsConnector<HttpConnector>>> = OnceLock::new();
+static CLIENT: OnceLock<Client> = OnceLock::new();
 
 type Arg = Request<Body>;
 
@@ -43,95 +42,55 @@ pub fn fetch_init(scope: &mut v8::HandleScope, args: v8::FunctionCallbackArgumen
     request_from_v8(scope, request.into())
 }
 
-async fn clone_response(request: Request<Body>) -> Result<(Request<Body>, Request<Body>)> {
-    let uri = request.uri().clone();
-    let method = request.method().clone();
-    let headers = request.headers().clone();
-    let body_bytes = hyper::body::to_bytes(request.into_body()).await?;
-
-    let mut request_a = Request::builder().uri(uri.clone()).method(method.clone());
-    let request_a_headers = request_a.headers_mut().unwrap();
-
-    let mut request_b = Request::builder().uri(uri).method(method);
-    let request_b_headers = request_b.headers_mut().unwrap();
-
-    for (key, value) in headers.iter() {
-        request_a_headers.append(key, value.clone());
-        request_b_headers.append(key, value.clone());
-    }
-
-    let request_a = request_a.body(Body::from(body_bytes.clone()))?;
-    let request_b = request_b.body(Body::from(body_bytes))?;
-
-    Ok((request_a, request_b))
-}
-
-#[async_recursion]
-async fn make_request(
-    mut request: Request<Body>,
-    url: Option<String>,
-    mut count: u8,
-) -> Result<Response<Body>> {
-    if count >= 5 {
-        return Err(anyhow!("Too many redirects"));
-    }
-
-    if let Some(url) = url {
-        *request.uri_mut() = url.parse()?;
-    }
-
-    let uri = request.uri().clone();
-
-    let (request_a, request_b) = clone_response(request).await?;
-    let client = CLIENT.get_or_init(|| Client::builder().build::<_, Body>(HttpsConnector::new()));
-    let response = client.request(request_a).await?;
-
-    if response.status().is_redirection() {
-        let mut redirect_url = match response.headers().get(LOCATION) {
-            Some(location) => location.to_str()?.to_string(),
-            None => return Err(anyhow!("Got a redirect without Location header")),
-        };
-
-        // Construct the new URL if it's a relative path
-        if redirect_url.starts_with('/') {
-            let mut uri = uri.into_parts();
-            uri.path_and_query = Some(redirect_url.parse()?);
-
-            redirect_url = Uri::from_parts(uri)?.to_string();
-        }
-
-        count += 1;
-        return make_request(request_b, Some(redirect_url), count).await;
-    }
-
-    Ok(response)
-}
-
 pub async fn fetch_binding(id: usize, arg: Arg) -> BindingResult {
-    let hyper_response = match make_request(arg, None, 0).await {
-        Ok(hyper_response) => hyper_response,
-        Err(error) => {
-            return BindingResult {
-                id,
-                result: PromiseResult::Error(error.to_string()),
-            }
-        }
-    };
+    let client = CLIENT.get_or_init(|| {
+        ClientBuilder::new()
+            .use_rustls_tls()
+            .redirect(Policy::custom(|attempt| {
+                if attempt.previous().len() >= 5 {
+                    attempt.error("Too many redirects")
+                } else {
+                    attempt.follow()
+                }
+            }))
+            .build()
+            .unwrap()
+    });
 
-    let (parts, body) = hyper_response.into_parts();
+    let (parts, body) = arg.into_parts();
 
-    match hyper::body::to_bytes(body).await {
-        Ok(body) => {
-            let response = (parts, body);
+    match client
+        .request(parts.method.into(), parts.uri.to_string())
+        .headers(parts.headers)
+        .body(body)
+        .send()
+        .await
+    {
+        Ok(response) => {
+            let status = response.status().as_u16();
+            let headers = response.headers().clone();
+
+            let bytes = match response.bytes().await {
+                Ok(bytes) => bytes,
+                Err(error) => {
+                    return BindingResult {
+                        id,
+                        result: PromiseResult::Error(format!(
+                            "Failed to read response body: {}",
+                            error
+                        )),
+                    }
+                }
+            };
 
             BindingResult {
                 id,
-                result: PromiseResult::Response(response),
+                result: PromiseResult::Response((status, headers, bytes)),
             }
         }
         Err(error) => BindingResult {
             id,
-            result: PromiseResult::Error(error.to_string()),
+            result: PromiseResult::Error(error.without_url().to_string()),
         },
     }
 }
