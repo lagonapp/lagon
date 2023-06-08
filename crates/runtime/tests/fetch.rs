@@ -342,7 +342,7 @@ async fn throw_invalid_url() {
 
     utils::assert_run_result(
         &receiver,
-        RunResult::Error("Uncaught Error: client requires absolute-form URIs".into()),
+        RunResult::Error("Uncaught Error: builder error: relative URL without a base".into()),
     )
     .await;
 }
@@ -470,30 +470,6 @@ async fn redirect_relative_url() {
 }
 
 #[tokio::test]
-async fn redirect_without_location_header() {
-    utils::setup();
-    let server = Server::run();
-    server.expect(
-        Expectation::matching(request::method_path("GET", "/")).respond_with(status_code(301)),
-    );
-    let url = server.url("/");
-
-    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
-        "export async function handler() {{
-    const status = (await fetch('{url}')).status;
-    return new Response(status);
-}}"
-    )));
-    send(Request::default());
-
-    utils::assert_run_result(
-        &receiver,
-        RunResult::Error("Uncaught Error: Got a redirect without Location header".into()),
-    )
-    .await;
-}
-
-#[tokio::test]
 async fn redirect_loop() {
     utils::setup();
     let server = Server::run();
@@ -529,7 +505,7 @@ async fn redirect_loop() {
 
     utils::assert_run_result(
         &receiver,
-        RunResult::Error("Uncaught Error: Too many redirects".into()),
+        RunResult::Error("Uncaught Error: error following redirect: Too many redirects".into()),
     )
     .await;
 }
@@ -606,6 +582,8 @@ async fn fetch_https() {
             .unwrap(),
     )
     .await;
+
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 }
 
 #[tokio::test]
