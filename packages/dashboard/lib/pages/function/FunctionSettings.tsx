@@ -120,17 +120,6 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
           const data = result.Answer?.[0]?.data;
           let domainStatus: DomainStatus;
 
-          if (data) {
-            try {
-              if (isInSubnet(data, CLOUDFLARE_SUBNETS)) {
-                domainStatus = {
-                  status: 'info',
-                  help: t('domains.list.valid.cf'),
-                };
-              }
-            } catch {}
-          }
-
           if (data === `${defaultDomain}.`) {
             // Record pointing to the function's domain
             domainStatus = {
