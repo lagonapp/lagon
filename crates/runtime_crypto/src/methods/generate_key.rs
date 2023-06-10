@@ -1,16 +1,16 @@
 use anyhow::{anyhow, Ok, Result};
 use num_traits::FromPrimitive;
-use once_cell::sync::Lazy;
 use ring::rand::{SecureRandom, SystemRandom};
 use ring::signature::EcdsaKeyPair;
 use rsa::pkcs1::EncodeRsaPrivateKey;
 use rsa::rand_core::OsRng;
 use rsa::{BigUint, RsaPrivateKey};
+use std::sync::OnceLock;
 
 use crate::{CryptoNamedCurve, KeyGenAlgorithm, Sha};
 
-static PUB_EXPONENT_1: Lazy<BigUint> = Lazy::new(|| BigUint::from_u64(3).unwrap());
-static PUB_EXPONENT_2: Lazy<BigUint> = Lazy::new(|| BigUint::from_u64(65537).unwrap());
+static PUB_EXPONENT_1: OnceLock<BigUint> = OnceLock::new();
+static PUB_EXPONENT_2: OnceLock<BigUint> = OnceLock::new();
 
 pub fn generate_key(algorithm: KeyGenAlgorithm) -> Result<Vec<u8>> {
     match algorithm {
@@ -20,7 +20,9 @@ pub fn generate_key(algorithm: KeyGenAlgorithm) -> Result<Vec<u8>> {
         } => {
             let exponent = BigUint::from_bytes_be(public_exponent);
 
-            if exponent != *PUB_EXPONENT_1 && exponent != *PUB_EXPONENT_2 {
+            if exponent != *PUB_EXPONENT_1.get_or_init(|| BigUint::from_u64(3).unwrap())
+                && exponent != *PUB_EXPONENT_2.get_or_init(|| BigUint::from_u64(65537).unwrap())
+            {
                 return Err(anyhow!("Bad public exponent"));
             }
 

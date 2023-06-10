@@ -22,7 +22,7 @@ use uuid::Uuid;
 
 use crate::{
     clickhouse::{LogRow, RequestRow},
-    REGION, SNAPSHOT_BLOB,
+    get_region, SNAPSHOT_BLOB,
 };
 
 pub struct Cronjob {
@@ -66,7 +66,6 @@ impl Cronjob {
                     let labels = [
                         ("deployment", deployment.id.clone()),
                         ("function", deployment.function_id.clone()),
-                        ("region", REGION.clone()),
                     ];
 
                     let deployment = Arc::clone(&deployment);
@@ -107,7 +106,6 @@ impl Cronjob {
                                             let labels = [
                                                 ("deployment", metadata.0.clone()),
                                                 ("function", metadata.1.clone()),
-                                                ("region", REGION.clone()),
                                             ];
 
                                             decrement_gauge!("lagon_isolates", 1.0, &labels);
@@ -119,7 +117,6 @@ impl Cronjob {
                                             let labels = [
                                                 ("deployment", metadata.0.clone()),
                                                 ("function", metadata.1.clone()),
-                                                ("region", REGION.clone()),
                                             ];
 
                                             histogram!(
@@ -181,7 +178,7 @@ impl Cronjob {
                                     .write(&RequestRow {
                                         function_id: deployment.function_id.clone(),
                                         deployment_id: deployment.id.clone(),
-                                        region: REGION.clone(),
+                                        region: get_region().clone(),
                                         bytes_in: 0,
                                         bytes_out: 0,
                                         cpu_time_micros: elapsed.map(|duration| duration.as_micros()),

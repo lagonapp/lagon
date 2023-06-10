@@ -1,12 +1,12 @@
 use anyhow::{anyhow, Result};
-use hyper::{body::Bytes, http::response::Parts, Body, Response};
+use hyper::{body::Bytes, Body, HeaderMap, Response};
 use lagon_runtime_v8_utils::{
     extract_v8_headers_object, extract_v8_integer, extract_v8_string, v8_headers_object,
     v8_integer, v8_string,
 };
 
 pub fn response_to_v8<'a>(
-    response: (Parts, Bytes),
+    response: (u16, HeaderMap, Bytes),
     scope: &mut v8::HandleScope<'a>,
 ) -> v8::Local<'a, v8::Object> {
     let len = 3;
@@ -14,13 +14,13 @@ pub fn response_to_v8<'a>(
     let mut values = Vec::with_capacity(len);
 
     names.push(v8_string(scope, "b").into());
-    values.push(v8_string(scope, unsafe { std::str::from_utf8_unchecked(&response.1) }).into());
+    values.push(v8_string(scope, unsafe { std::str::from_utf8_unchecked(&response.2) }).into());
 
     names.push(v8_string(scope, "s").into());
-    values.push(v8_integer(scope, response.0.status.as_u16().into()).into());
+    values.push(v8_integer(scope, response.0.into()).into());
 
     names.push(v8_string(scope, "h").into());
-    values.push(v8_headers_object(scope, response.0.headers).into());
+    values.push(v8_headers_object(scope, response.1).into());
 
     let null = v8::null(scope).into();
     v8::Object::with_prototype_and_properties(scope, null, &names, &values)

@@ -1,4 +1,4 @@
-use crate::REGION;
+use crate::get_region;
 use anyhow::{anyhow, Result};
 use dashmap::DashMap;
 use futures::{stream::FuturesUnordered, StreamExt};
@@ -74,6 +74,8 @@ type QueryResult = (
     usize,
     Option<String>,
     Option<String>,
+    Option<String>,
+    Option<String>,
 );
 
 pub async fn get_deployments<D>(mut conn: PooledConn, downloader: Arc<D>) -> Result<Deployments>
@@ -96,19 +98,23 @@ SELECT
     Function.tickTimeout,
     Function.totalTimeout,
     Function.cron,
-    Domain.domain
+    Domain.domain,
+    EnvVariable.key,
+    EnvVariable.value
 FROM
     Deployment
 INNER JOIN Function
     ON Deployment.functionId = Function.id
 LEFT JOIN Domain
     ON Function.id = Domain.functionId
+LEFT JOIN EnvVariable 
+    ON Function.id = EnvVariable.functionId
 WHERE
     Function.cron IS NULL
 OR
     Function.cronRegion = '{}'
 ",
-            REGION.as_str()
+            get_region()
         ),
         |(
             id,
@@ -121,6 +127,8 @@ OR
             total_timeout,
             cron,
             domain,
+            env_key,
+            env_value,
         ): QueryResult| {
             let assets = serde_json::from_str::<AssetObj>(&assets)
                 .map(|asset_obj| asset_obj.0)
@@ -134,6 +142,12 @@ OR
                     }
 
                     deployment.assets.extend(assets.clone());
+
+                    if let Some(env_key) = env_key.clone() {
+                        deployment
+                            .environment_variables
+                            .insert(env_key, env_value.clone().unwrap_or_default());
+                    }
                 })
                 .or_insert(Deployment {
                     id,
@@ -147,7 +161,13 @@ OR
                         })
                         .unwrap_or_default(),
                     assets: HashSet::from_iter(assets.iter().cloned()),
-                    environment_variables: HashMap::new(),
+                    environment_variables: env_key
+                        .map(|key| {
+                            let mut environment_variables = HashMap::new();
+                            environment_variables.insert(key, env_value.unwrap_or_default());
+                            environment_variables
+                        })
+                        .unwrap_or_default(),
                     memory,
                     tick_timeout,
                     total_timeout,

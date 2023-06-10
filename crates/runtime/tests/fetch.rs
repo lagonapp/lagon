@@ -342,7 +342,7 @@ async fn throw_invalid_url() {
 
     utils::assert_run_result(
         &receiver,
-        RunResult::Error("Uncaught Error: client requires absolute-form URIs".into()),
+        RunResult::Error("Uncaught Error: builder error: relative URL without a base".into()),
     )
     .await;
 }
@@ -470,30 +470,6 @@ async fn redirect_relative_url() {
 }
 
 #[tokio::test]
-async fn redirect_without_location_header() {
-    utils::setup();
-    let server = Server::run();
-    server.expect(
-        Expectation::matching(request::method_path("GET", "/")).respond_with(status_code(301)),
-    );
-    let url = server.url("/");
-
-    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
-        "export async function handler() {{
-    const status = (await fetch('{url}')).status;
-    return new Response(status);
-}}"
-    )));
-    send(Request::default());
-
-    utils::assert_run_result(
-        &receiver,
-        RunResult::Error("Uncaught Error: Got a redirect without Location header".into()),
-    )
-    .await;
-}
-
-#[tokio::test]
 async fn redirect_loop() {
     utils::setup();
     let server = Server::run();
@@ -529,7 +505,7 @@ async fn redirect_loop() {
 
     utils::assert_run_result(
         &receiver,
-        RunResult::Error("Uncaught Error: Too many redirects".into()),
+        RunResult::Error("Uncaught Error: error following redirect: Too many redirects".into()),
     )
     .await;
 }
@@ -603,6 +579,50 @@ async fn fetch_https() {
         Response::builder()
             .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
             .body("200".into())
+            .unwrap(),
+    )
+    .await;
+
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+}
+
+#[tokio::test]
+async fn fetch_set_content_length() {
+    utils::setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(all_of![
+            any_of![
+                request::method_path("POST", "/"),
+                request::method_path("PUT", "/")
+            ],
+            request::headers(contains(("content-length", "0")))
+        ])
+        .times(2)
+        .respond_with(status_code(200)),
+    );
+    let url = server.url("/");
+
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
+    await fetch('{url}', {{
+        method: 'POST',
+    }});
+
+    await fetch('{url}', {{
+        method: 'PUT',
+    }});
+
+    return new Response('Ok');
+}}"
+    )));
+    send(Request::default());
+
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Ok".into())
             .unwrap(),
     )
     .await;

@@ -1,6 +1,9 @@
 use anyhow::Result;
 use flume::Receiver;
-use hyper::{body::Bytes, Body, Response};
+use hyper::{
+    body::{Bytes, HttpBody},
+    Body, Response,
+};
 use lagon_runtime_http::{RunResult, StreamResult};
 use std::future::Future;
 
@@ -11,6 +14,7 @@ pub const PAGE_500: &str = include_str!("../public/500.html");
 
 pub const FAVICON_URL: &str = "/favicon.ico";
 
+#[derive(Debug)]
 pub enum ResponseEvent {
     Bytes(usize, Option<u128>),
     StreamDoneNoDataError,
@@ -93,7 +97,9 @@ where
             Ok(response)
         }
         RunResult::Response(response, elapsed) => {
-            let event = ResponseEvent::Bytes(0, elapsed.map(|duration| duration.as_micros()));
+            let bytes = response.body().size_hint().exact().unwrap_or(0);
+            let event =
+                ResponseEvent::Bytes(bytes as usize, elapsed.map(|duration| duration.as_micros()));
             on_event(event).await?;
 
             Ok(response)
@@ -124,7 +130,13 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, |_| async { Ok(()) }).await.unwrap();
+            let mut response = handle_response(rx, |event| async move {
+                assert!(matches!(event, ResponseEvent::Bytes(11, None)));
+
+                Ok(())
+            })
+            .await
+            .unwrap();
 
             assert_eq!(response.status(), 200);
             assert_eq!(
@@ -148,7 +160,13 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, |_| async { Ok(()) }).await.unwrap();
+            let mut response = handle_response(rx, |event| async move {
+                assert!(matches!(event, ResponseEvent::Bytes(11, Some(0))));
+
+                Ok(())
+            })
+            .await
+            .unwrap();
 
             assert_eq!(response.status(), 200);
             assert_eq!(
@@ -185,7 +203,13 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, |_| async { Ok(()) }).await.unwrap();
+            let mut response = handle_response(rx, |event| async move {
+                assert!(matches!(event, ResponseEvent::Bytes(11, Some(0))));
+
+                Ok(())
+            })
+            .await
+            .unwrap();
 
             assert_eq!(response.status(), 200);
             assert_eq!(

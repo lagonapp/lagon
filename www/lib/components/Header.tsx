@@ -27,7 +27,7 @@ export const Header = () => {
         <button className="px-4 md:hidden" onClick={() => setOpen(!open)} aria-label="Open menu">
           {open ? <CloseIcon /> : <BurgerIcon />}
         </button>
-        <div className="hidden gap-12 md:flex">
+        <div className="hidden gap-6 md:flex lg:gap-12">
           <Text size="a" href="/#features" scroll={false}>
             Features
           </Text>

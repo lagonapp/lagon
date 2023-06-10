@@ -1,5 +1,15 @@
 # @lagon/serverless
 
+## 0.2.1
+
+### Patch Changes
+
+- [#928](https://github.com/lagonapp/lagon/pull/928) [`28bd4c6`](https://github.com/lagonapp/lagon/commit/28bd4c644db583b54827f5f1a6bee7ce0f64b4bb) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Set content-length header to 0 when body is null and method POST or PUT in `fetch()`
+
+- [#929](https://github.com/lagonapp/lagon/pull/929) [`0174cad`](https://github.com/lagonapp/lagon/commit/0174cad77f41def0092583880c5c88f530e345d2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Revert isolates cache eviction using ClickHouse to use local cache instead
+
+- [#924](https://github.com/lagonapp/lagon/pull/924) [`cacb962`](https://github.com/lagonapp/lagon/commit/cacb9626c2039c3b1932152220467dc6206f8389) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Retrieve environment variables when booting
+
 ## 0.2.0
 
 ### Minor Changes

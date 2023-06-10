@@ -1,8 +1,6 @@
 use anyhow::{anyhow, Result};
 use hyper::{header::HeaderName, http::HeaderValue, HeaderMap};
 
-const X_LAGON_ID: &str = "x-lagon-id";
-
 pub fn extract_v8_string(
     value: v8::Local<v8::Value>,
     scope: &mut v8::HandleScope,
@@ -117,20 +115,18 @@ pub fn v8_headers_object<'a>(
     let mut values = Vec::with_capacity(len);
 
     for key in value.keys() {
-        if key != X_LAGON_ID {
-            // We guess that most of the time there will be only one header value
-            let mut elements = Vec::with_capacity(1);
+        // We guess that most of the time there will be only one header value
+        let mut elements = Vec::with_capacity(1);
 
-            for value in value.get_all(key) {
-                elements.push(v8_string(scope, value.to_str().unwrap()).into())
-            }
-
-            let key = v8_string(scope, key.as_str());
-            names.push(key.into());
-
-            let array = v8::Array::new_with_elements(scope, &elements);
-            values.push(array.into());
+        for value in value.get_all(key) {
+            elements.push(v8_string(scope, value.to_str().unwrap()).into())
         }
+
+        let key = v8_string(scope, key.as_str());
+        names.push(key.into());
+
+        let array = v8::Array::new_with_elements(scope, &elements);
+        values.push(array.into());
     }
 
     let null = v8::null(scope).into();
