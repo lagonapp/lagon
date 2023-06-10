@@ -10,8 +10,10 @@
     "build": "turbo build --continue --filter=!@lagon/example-*",
     "lint": "turbo lint --continue",
     "typecheck": "turbo typecheck --continue",
-    "docker:build": "docker build -t lagon/serverless -f docker/Dockerfile.serverless .",
-    "docker:start": "docker run --rm -p 4000:4000 --env-file crates/serverless/.env lagon/serverless",
+    "docker:serverless:build": "docker build -t lagon/serverless -f docker/Dockerfile.serverless .",
+    "docker:serverless:start": "docker run --rm -p 4000:4000 --env-file crates/serverless/.env lagon/serverless",
+    "docker:dashboard:build": "docker build -t lagon/dashboard -f docker/Dockerfile.dashboard .",
+    "docker:dashboard:start": "docker run --rm -p 3000:3000 --env-file packages/dashboard/.env lagon/dashboard",
     "release": "pnpm build --filter=@lagon/astro --filter=@lagon/remix && pnpm changeset publish"
   },
   "lint-staged": {
