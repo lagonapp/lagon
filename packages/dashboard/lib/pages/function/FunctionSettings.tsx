@@ -27,7 +27,7 @@ import { useScopedI18n } from 'locales';
 import { Copiable, Link } from '@lagon/ui';
 import { ComponentProps, ReactNode, useEffect, useState } from 'react';
 import { getHumanFriendlyCron } from 'lib/utils';
-import { isInSubnet } from 'is-in-subnet'
+import { isInSubnet } from 'is-in-subnet';
 
 // https://www.cloudflare.com/ips-v4
 const CLOUDFLARE_SUBNETS = [
@@ -46,7 +46,7 @@ const CLOUDFLARE_SUBNETS = [
   '104.24.0.0/14',
   '172.64.0.0/13',
   '131.0.72.0/22',
-]
+];
 
 type FunctionSettingsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -128,7 +128,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                   help: t('domains.list.valid.cf'),
                 };
               }
-            } catch { }
+            } catch {}
           }
 
           if (data === `${defaultDomain}.`) {
