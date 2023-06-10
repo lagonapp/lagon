@@ -19,11 +19,6 @@ ENV NEXTJS_OUTPUT standalone
 RUN pnpm --filter @lagon/dashboard build
 
 FROM base AS runner
-#RUN apt-get update -y \
-#     && apt-get install -y ca-certificates \
-#     && apt-get autoremove -y \
-#     && apt-get clean -y \
-#     && rm -rf /var/lib/apt/lists/*
 ENV NODE_ENV production
 ENV PORT 3000
 # Uncomment the following line in case you want to disable telemetry during runtime.
