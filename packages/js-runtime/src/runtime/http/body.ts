@@ -29,10 +29,7 @@ export class RequestResponseBody {
       }
 
       if (body instanceof URLSearchParams) {
-        this.headers.set(
-          'content-type',
-          'application/x-www-form-urlencoded;charset=UTF-8',
-        );
+        this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
       }
 
       if (body instanceof Blob) {

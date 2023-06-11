@@ -5,8 +5,8 @@
   const NORMALIZE_VALUE_REGEX = new RegExp('^[\x0A\x0D\x09\x20]+|[\x0A\x0D\x09\x20]+$', 'g');
 
   globalThis.Headers = class {
-    private h: [string, string][] = []
-    private hasContentType: boolean = false;
+    private h: [string, string][] = [];
+    private hasContentType = false;
     immutable = false;
 
     constructor(init?: HeadersInit) {
@@ -35,7 +35,7 @@
           }
 
           for (const [key, value] of Object.entries(init)) {
-            this.append(key, value)
+            this.append(key, value);
           }
         }
       }
