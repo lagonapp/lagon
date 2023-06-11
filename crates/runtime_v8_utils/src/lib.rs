@@ -30,29 +30,28 @@ pub fn extract_v8_headers_object(
     }
 
     let array = unsafe { v8::Local::<v8::Array>::cast(value) };
-    let length = array.length();
 
-    for mut index in 0..length {
-        if index % 2 != 0 {
-            continue;
-        }
-
-        let key = array
-            .get_index(scope, index)
-            .map_or_else(String::new, |key| key.to_rust_string_lossy(scope));
-
-        index += 1;
-
-        for value in array.get_index(scope, index).into_iter() {
-            let values = unsafe { v8::Local::<v8::Array>::cast(value) };
-
-            for i in 0..values.length() {
-                let value = values
-                    .get_index(scope, i)
-                    .map_or_else(String::new, |value| value.to_rust_string_lossy(scope));
-
-                header_map.append(HeaderName::from_bytes(key.as_bytes())?, value.parse()?);
+    for index in 0..array.length() {
+        if let Some(entry) = array.get_index(scope, index) {
+            if !entry.is_array() {
+                return Err(anyhow!("Value is not of type 'Array'"));
             }
+
+            let entry = unsafe { v8::Local::<v8::Array>::cast(entry) };
+
+            if entry.length() != 2 {
+                return Err(anyhow!("Entry length is not 2"));
+            }
+
+            let key = entry
+                .get_index(scope, 0)
+                .map_or_else(String::new, |key| key.to_rust_string_lossy(scope));
+
+            let value = entry
+                .get_index(scope, 1)
+                .map_or_else(String::new, |value| value.to_rust_string_lossy(scope));
+
+            header_map.append(HeaderName::from_bytes(key.as_bytes())?, value.parse()?);
         }
     }
 
