@@ -25,44 +25,33 @@ pub fn extract_v8_headers_object(
     value: v8::Local<v8::Value>,
     scope: &mut v8::HandleScope,
 ) -> Result<()> {
-    if !value.is_map() {
-        return Err(anyhow!("Value is not of type 'Map'"));
+    if !value.is_array() {
+        return Err(anyhow!("Value is not of type 'Array'"));
     }
 
-    let map = unsafe { v8::Local::<v8::Map>::cast(value) };
+    let array = unsafe { v8::Local::<v8::Array>::cast(value) };
 
-    if map.size() > 0 {
-        let headers_keys = map.as_array(scope);
-        let length = headers_keys.length();
-
-        for mut index in 0..length {
-            if index % 2 != 0 {
-                continue;
+    for index in 0..array.length() {
+        if let Some(entry) = array.get_index(scope, index) {
+            if !entry.is_array() {
+                return Err(anyhow!("Value is not of type 'Array'"));
             }
 
-            let key = headers_keys
-                .get_index(scope, index)
+            let entry = unsafe { v8::Local::<v8::Array>::cast(entry) };
+
+            if entry.length() != 2 {
+                return Err(anyhow!("Entry length is not 2"));
+            }
+
+            let key = entry
+                .get_index(scope, 0)
                 .map_or_else(String::new, |key| key.to_rust_string_lossy(scope));
 
-            index += 1;
+            let value = entry
+                .get_index(scope, 1)
+                .map_or_else(String::new, |value| value.to_rust_string_lossy(scope));
 
-            for value in headers_keys.get_index(scope, index).into_iter() {
-                if value.is_array() {
-                    let values = unsafe { v8::Local::<v8::Array>::cast(value) };
-
-                    for i in 0..values.length() {
-                        let value = values
-                            .get_index(scope, i)
-                            .map_or_else(String::new, |value| value.to_rust_string_lossy(scope));
-
-                        header_map.append(HeaderName::from_bytes(key.as_bytes())?, value.parse()?);
-                    }
-                } else {
-                    let value = value.to_rust_string_lossy(scope);
-
-                    header_map.append(HeaderName::from_bytes(key.as_bytes())?, value.parse()?);
-                }
-            }
+            header_map.append(HeaderName::from_bytes(key.as_bytes())?, value.parse()?);
         }
     }
 
@@ -108,29 +97,20 @@ pub fn v8_uint8array<'a>(
 pub fn v8_headers_object<'a>(
     scope: &mut v8::HandleScope<'a>,
     value: HeaderMap<HeaderValue>,
-) -> v8::Local<'a, v8::Object> {
-    let len = value.len();
-
-    let mut names = Vec::with_capacity(len);
-    let mut values = Vec::with_capacity(len);
+) -> v8::Local<'a, v8::Array> {
+    let mut elements = Vec::with_capacity(value.len());
 
     for key in value.keys() {
-        // We guess that most of the time there will be only one header value
-        let mut elements = Vec::with_capacity(1);
+        let keypair = [
+            v8_string(scope, key.as_str()).into(),
+            v8_string(scope, value.get(key).unwrap().to_str().unwrap()).into(),
+        ];
 
-        for value in value.get_all(key) {
-            elements.push(v8_string(scope, value.to_str().unwrap()).into())
-        }
-
-        let key = v8_string(scope, key.as_str());
-        names.push(key.into());
-
-        let array = v8::Array::new_with_elements(scope, &elements);
-        values.push(array.into());
+        let keypair = v8::Array::new_with_elements(scope, &keypair);
+        elements.push(keypair.into());
     }
 
-    let null = v8::null(scope).into();
-    v8::Object::with_prototype_and_properties(scope, null, &names, &values)
+    v8::Array::new_with_elements(scope, &elements)
 }
 
 pub fn v8_boolean<'a>(scope: &mut v8::HandleScope<'a>, value: bool) -> v8::Local<'a, v8::Boolean> {

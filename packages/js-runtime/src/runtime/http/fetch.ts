@@ -1,21 +1,8 @@
 (globalThis => {
-  const isHeadersObject = (headers?: HeadersInit): headers is Headers => !!headers && 'entries' in headers;
-
   const FORCE_0_CONTENT_LENGTH_METHODS = ['POST', 'PUT'];
 
   globalThis.fetch = async (input, init) => {
-    let headers: Map<string, string> | undefined = undefined;
-
-    if (isHeadersObject(init?.headers)) {
-      headers = new Map();
-
-      for (const [key, value] of (init?.headers as Headers).entries()) {
-        headers.set(key, value);
-      }
-    } else if (init?.headers) {
-      headers = new Map(Object.entries(init.headers));
-    }
-
+    const headers = new Headers(init?.headers);
     let body: string | undefined;
 
     if (init?.body) {
@@ -32,11 +19,7 @@
     }
 
     if (body === undefined && init?.method && FORCE_0_CONTENT_LENGTH_METHODS.includes(init.method)) {
-      if (!headers) {
-        headers = new Map();
-      }
-
-      headers?.set('content-length', '0');
+      headers.set('content-length', '0');
     }
 
     const checkAborted = () => {
@@ -52,7 +35,8 @@
         m: init?.method || 'GET',
         u: input.toString(),
         b: body,
-        h: headers,
+        // @ts-expect-error private property
+        h: headers.h,
       });
 
       checkAborted();
