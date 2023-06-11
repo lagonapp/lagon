@@ -171,6 +171,8 @@ describe('fetch', () => {
     await fetch('https://google.com');
 
     expect(globalThis.LagonAsync.fetch).toHaveBeenCalledWith({
+      b: undefined,
+      h: [],
       m: 'GET',
       u: 'https://google.com',
     });
@@ -190,6 +192,7 @@ describe('fetch', () => {
 
     expect(globalThis.LagonAsync.fetch).toHaveBeenCalledWith({
       m: 'POST',
+      h: [],
       u: 'https://google.com',
       b: 'A body',
     });
