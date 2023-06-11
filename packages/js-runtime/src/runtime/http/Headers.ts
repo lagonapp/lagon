@@ -59,7 +59,7 @@
       }
 
       name = name.toLowerCase();
-      value = String(value).replace(NORMALIZE_VALUE_REGEX, '');
+      value = String(value);
 
       if (name === CONTENT_TYPE) {
         this.hasContentType = true;

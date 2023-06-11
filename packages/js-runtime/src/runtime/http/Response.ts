@@ -17,11 +17,11 @@ import { RequestResponseBody } from './body';
     constructor(body?: BodyInit | null, init?: ResponseInit) {
       super(body, init?.headers);
 
-      if (!!body && NULL_BODY_STATUS.includes(init?.status ?? 200)) {
-        throw new TypeError('Response with null body status cannot have body');
-      }
-
       if (init?.status) {
+        if (!!body && NULL_BODY_STATUS.includes(init.status)) {
+          throw new TypeError('Response with null body status cannot have body');
+        }
+
         if (init.status < 200 || init.status > 599) {
           throw new RangeError('Invalid status code');
         }
