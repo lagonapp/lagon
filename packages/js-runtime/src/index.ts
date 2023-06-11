@@ -30,7 +30,7 @@ import './runtime/http/fetch';
 // using `globalThis.VARIABLE`.
 declare global {
   interface AsyncContextConstructor {
-    new (): AsyncContext;
+    new(): AsyncContext;
     wrap(callback: (...args: unknown[]) => void): (...args: unknown[]) => void;
   }
 
@@ -42,7 +42,7 @@ declare global {
   var AsyncContext: AsyncContextConstructor;
 
   interface AsyncLocalStorageConstructor {
-    new (): AsyncLocalStorage;
+    new(): AsyncLocalStorage;
   }
 
   interface AsyncLocalStorage<T = unknown> {
