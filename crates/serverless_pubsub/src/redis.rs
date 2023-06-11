@@ -1,52 +1,45 @@
 use super::{PubSubListener, PubSubMessage};
 use anyhow::Result;
-use async_trait::async_trait;
-use futures::{Stream, StreamExt};
+use futures::Stream;
 use log::info;
-use redis::{
-    aio::{AsyncStream, PubSub},
-    Client,
-};
+use redis::Client;
 use std::pin::Pin;
 
 pub struct RedisPubSub {
     client: Client,
-    pubsub: Option<PubSub<Pin<Box<dyn AsyncStream + Send + Sync>>>>,
 }
 
 impl RedisPubSub {
     pub fn new(url: String) -> Self {
         let client = Client::open(url).expect("Failed to open Redis Client");
 
-        Self {
-            client,
-            pubsub: None,
-        }
+        Self { client }
     }
 }
 
-#[async_trait]
 impl PubSubListener for RedisPubSub {
-    async fn connect(&mut self) -> Result<()> {
-        let connection = self.client.get_async_connection().await?;
-        let mut pubsub = connection.into_pubsub();
+    fn get_stream(&mut self) -> Result<Pin<Box<dyn Stream<Item = Result<PubSubMessage>>>>> {
+        let mut connection = self.client.get_connection()?;
 
-        info!("Redis Pub/Sub connected");
+        let stream = async_stream::stream! {
+            let mut pubsub = connection.as_pubsub();
+            pubsub.set_read_timeout(None)?;
 
-        pubsub.subscribe("deploy").await?;
-        pubsub.subscribe("undeploy").await?;
-        pubsub.subscribe("promote").await?;
+            info!("Redis Pub/Sub connected");
 
-        self.pubsub = Some(pubsub);
-        Ok(())
-    }
+            pubsub.subscribe("deploy")?;
+            pubsub.subscribe("undeploy")?;
+            pubsub.subscribe("promote")?;
 
-    fn get_stream(&mut self) -> Box<dyn Stream<Item = PubSubMessage> + Unpin + Send + '_> {
-        Box::new(self.pubsub.as_mut().unwrap().on_message().map(|msg| {
-            let kind = msg.get_channel_name().to_string().into();
-            let payload = msg.get_payload::<String>().unwrap();
+            loop {
+                let msg = pubsub.get_message()?;
+                let kind = msg.get_channel_name().to_string().into();
+                let payload = msg.get_payload::<String>()?;
 
-            PubSubMessage { kind, payload }
-        }))
+                yield Ok(PubSubMessage { kind, payload });
+            }
+        };
+
+        Ok(Box::pin(stream))
     }
 }
