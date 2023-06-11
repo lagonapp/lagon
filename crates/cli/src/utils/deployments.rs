@@ -5,7 +5,6 @@ use crate::utils::{get_theme, print_progress, TrpcClient};
 use anyhow::{anyhow, Result};
 use dialoguer::console::style;
 use dialoguer::{Confirm, Input};
-use hyper::{Body, Method, Request};
 use pathdiff::diff_paths;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -428,12 +427,12 @@ pub async fn create_deployment(
 
     let end_progress = print_progress("Uploading files");
 
-    let request = Request::builder()
-        .method(Method::PUT)
-        .uri(code_url)
-        .body(Body::from(index))?;
-
-    trpc_client.client.request(request).await?;
+    trpc_client
+        .client
+        .request("PUT".parse()?, code_url)
+        .body(index)
+        .send()
+        .await?;
 
     let mut join_set = tokio::task::JoinSet::new();
     for (asset, url) in assets_urls {
@@ -484,11 +483,12 @@ pub async fn create_deployment(
 }
 
 async fn upload_asset(trpc_client: Arc<TrpcClient>, asset: Vec<u8>, url: String) -> Result<()> {
-    let request = Request::builder()
-        .method(Method::PUT)
-        .uri(url)
-        .body(Body::from(asset))?;
+    trpc_client
+        .client
+        .request("PUT".parse()?, url)
+        .body(asset)
+        .send()
+        .await?;
 
-    trpc_client.client.request(request).await?;
     Ok(())
 }

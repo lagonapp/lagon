@@ -15,7 +15,7 @@ lagon-serverless-logger = { path = "../serverless_logger" }
 lagon-serverless-downloader = { path = "../serverless_downloader" }
 lagon-serverless-pubsub = { path = "../serverless_pubsub" }
 flume = "0.10.14"
-mysql = "24.0.0"
+mysql = { version = "24.0.0", default-features = false, features = ["default-rustls"] }
 dotenv = "0.15.0"
 serde_json = "1.0"
 metrics = "0.21.0"
@@ -36,7 +36,7 @@ lagon-runtime-isolate = { path = "../runtime_isolate" }
 flume = "0.10.14"
 
 [dev-dependencies]
-reqwest = "0.11.18"
+reqwest = { version = "0.11.18", default-features = false, features = ["rustls-tls"] }
 serial_test = "2.0.0"
 clickhouse = { version = "0.11.4", features = ["test-util"] }
 

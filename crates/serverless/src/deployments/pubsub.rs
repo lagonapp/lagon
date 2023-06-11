@@ -27,15 +27,13 @@ async fn run<D, P>(
     pubsub: Arc<Mutex<P>>,
 ) -> Result<()>
 where
-    D: Downloader + Send + 'static,
-    P: PubSubListener + Unpin + Send,
+    D: Downloader,
+    P: PubSubListener,
 {
     let mut pubsub = pubsub.lock().await;
-    pubsub.connect().await?;
+    let mut stream = pubsub.get_stream()?;
 
-    let mut stream = pubsub.get_stream();
-
-    while let Some(PubSubMessage { kind, payload }) = stream.next().await {
+    while let Some(Ok(PubSubMessage { kind, payload })) = stream.next().await {
         let value: Value = serde_json::from_str(&payload)?;
 
         let cron = value["cron"].as_str();
@@ -227,7 +225,7 @@ pub fn listen_pub_sub<D, P>(
     pubsub: Arc<Mutex<P>>,
 ) where
     D: Downloader + Send + Sync + 'static,
-    P: PubSubListener + Unpin + Send + 'static,
+    P: PubSubListener + 'static,
 {
     let handle = Handle::current();
     std::thread::spawn(move || {
