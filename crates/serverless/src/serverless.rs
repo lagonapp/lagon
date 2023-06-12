@@ -15,7 +15,7 @@ use hyper::{
     service::{make_service_fn, service_fn},
     Body, Request, Response, Server,
 };
-use lagon_runtime_http::{RunResult, X_FORWARDED_FOR, X_LAGON_ID, X_LAGON_REGION, X_REAL_IP};
+use lagon_runtime_http::{RunResult, X_LAGON_ID};
 use lagon_runtime_isolate::{
     options::{IsolateOptions, Metadata},
     Isolate, IsolateEvent, IsolateRequest,
@@ -148,14 +148,11 @@ async fn handle_request(
         return Ok(Response::builder().status(403).body(PAGE_403.into())?);
     }
 
-    let function_id = deployment.function_id.clone();
-    let deployment_id = deployment.id.clone();
     let request_id_handle = request_id.clone();
     let (sender, receiver) = flume::unbounded();
     let mut bytes_in = 0;
 
     let url = req.uri().path();
-    let is_favicon = url == FAVICON_URL;
 
     if let Some(asset) = find_asset(url, &deployment.assets) {
         let root = Path::new(env::current_dir().unwrap().as_path())
@@ -172,7 +169,7 @@ async fn handle_request(
         };
 
         sender.send_async(run_result).await.unwrap_or(());
-    } else if is_favicon {
+    } else if url == FAVICON_URL {
         sender
             .send_async(RunResult::Response(
                 Response::builder().status(404).body(Body::empty())?,
@@ -181,25 +178,18 @@ async fn handle_request(
             .await
             .unwrap_or(());
     } else {
-        last_requests.insert(deployment_id.clone(), Instant::now());
+        last_requests.insert(deployment.id.clone(), Instant::now());
 
-        // Try to Extract the X-Real-Ip header or fallback to remote addr IP
-        let ip = req.headers().get(X_REAL_IP).map_or(ip.clone(), |header| {
-            header.clone().to_str().map_or(ip, |ip| ip.to_string())
-        });
-
-        let (mut parts, body) = req.into_parts();
+        let (parts, body) = req.into_parts();
         let body = hyper::body::to_bytes(body).await?;
 
         bytes_in = body.len() as u32;
-
-        parts.headers.insert(X_FORWARDED_FOR, ip.parse()?);
-        parts.headers.insert(X_LAGON_REGION, get_region().parse()?);
-
         let request = (parts, body);
 
+        let deployment = Arc::clone(&deployment);
         let isolate_workers = Arc::clone(&workers);
-        let isolate_sender = workers.entry(deployment_id.clone()).or_insert_with(|| {
+
+        let isolate_sender = workers.entry(deployment.id.clone()).or_insert_with(|| {
             let handle = Handle::current();
             let (sender, receiver) = flume::unbounded();
 
@@ -272,11 +262,10 @@ async fn handle_request(
             .unwrap_or(());
     }
 
-    handle_response(receiver, move |event| {
+    handle_response(receiver, Arc::clone(&deployment), move |event| {
         let inserters = Arc::clone(&inserters);
-        let function_id = function_id.clone();
-        let deployment_id = deployment_id.clone();
         let request_id = request_id.clone();
+        let deployment = Arc::clone(&deployment);
 
         async move {
             match event {
@@ -288,8 +277,8 @@ async fn handle_request(
                         .await
                         .0
                         .write(&RequestRow {
-                            function_id,
-                            deployment_id,
+                            function_id: deployment.function_id.clone(),
+                            deployment_id: deployment.id.clone(),
                             region: get_region().clone(),
                             bytes_in,
                             bytes_out: bytes as u32,
@@ -304,18 +293,32 @@ async fn handle_request(
                         RunResult::Error(
                             "The stream was done before sending a response/data".into(),
                         ),
-                        function_id,
-                        deployment_id,
+                        deployment.function_id.clone(),
+                        deployment.id.clone(),
                         &request_id,
                         inserters,
                     )
                     .await;
                 }
                 ResponseEvent::UnexpectedStreamResult(result) => {
-                    handle_error(result, function_id, deployment_id, &request_id, inserters).await;
+                    handle_error(
+                        result,
+                        deployment.function_id.clone(),
+                        deployment.id.clone(),
+                        &request_id,
+                        inserters,
+                    )
+                    .await;
                 }
                 ResponseEvent::LimitsReached(result) | ResponseEvent::Error(result) => {
-                    handle_error(result, function_id, deployment_id, &request_id, inserters).await;
+                    handle_error(
+                        result,
+                        deployment.function_id.clone(),
+                        deployment.id.clone(),
+                        &request_id,
+                        inserters,
+                    )
+                    .await;
                 }
             }
 

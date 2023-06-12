@@ -1,3 +1,4 @@
+use crate::Deployment;
 use anyhow::Result;
 use flume::Receiver;
 use hyper::{
@@ -5,13 +6,12 @@ use hyper::{
     Body, Response,
 };
 use lagon_runtime_http::{RunResult, StreamResult};
-use std::future::Future;
+use std::{future::Future, sync::Arc};
 
 pub const PAGE_404: &str = include_str!("../public/404.html");
 pub const PAGE_403: &str = include_str!("../public/403.html");
 pub const PAGE_502: &str = include_str!("../public/502.html");
 pub const PAGE_500: &str = include_str!("../public/500.html");
-
 pub const FAVICON_URL: &str = "/favicon.ico";
 
 #[derive(Debug)]
@@ -23,8 +23,22 @@ pub enum ResponseEvent {
     Error(RunResult),
 }
 
+const X_ROBOTS_TAGS: &str = "x-robots-tag";
+
+fn enrich_response(response: &mut Response<Body>, deployment: &Deployment) {
+    // We automatically add a X-Robots-Tag: noindex header to
+    // all preview deployments to prevent them from being
+    // indexed by search engines
+    if !deployment.is_production {
+        response
+            .headers_mut()
+            .insert(X_ROBOTS_TAGS, "noindex".parse().unwrap());
+    }
+}
+
 pub async fn handle_response<F>(
     rx: Receiver<RunResult>,
+    deployment: Arc<Deployment>,
     on_event: impl Fn(ResponseEvent) -> F + Send + Sync + 'static,
 ) -> Result<Response<Body>>
 where
@@ -92,11 +106,15 @@ where
             });
 
             let response_builder = response_builder_rx.recv_async().await?;
-            let response = response_builder.body(body)?;
+            let mut response = response_builder.body(body)?;
+
+            enrich_response(&mut response, &deployment);
 
             Ok(response)
         }
-        RunResult::Response(response, elapsed) => {
+        RunResult::Response(mut response, elapsed) => {
+            enrich_response(&mut response, &deployment);
+
             let bytes = response.body().size_hint().exact().unwrap_or(0);
             let event =
                 ResponseEvent::Bytes(bytes as usize, elapsed.map(|duration| duration.as_micros()));
@@ -130,7 +148,8 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, |event| async move {
+            let deployment = Arc::new(Deployment::default());
+            let mut response = handle_response(rx, deployment, |event| async move {
                 assert!(matches!(event, ResponseEvent::Bytes(11, None)));
 
                 Ok(())
@@ -143,6 +162,43 @@ mod tests {
                 to_bytes(response.body_mut()).await.unwrap(),
                 Bytes::from("Hello World")
             );
+            assert!(response.headers().get(X_ROBOTS_TAGS).is_some());
+        });
+
+        tx.send_async(RunResult::Response(
+            Response::new("Hello World".into()),
+            None,
+        ))
+        .await
+        .unwrap();
+
+        handle.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn sequential_production() {
+        let (tx, rx) = flume::unbounded::<RunResult>();
+
+        let handle = tokio::spawn(async move {
+            let deployment = Arc::new(Deployment {
+                is_production: true,
+                ..Deployment::default()
+            });
+
+            let mut response = handle_response(rx, deployment, |event| async move {
+                assert!(matches!(event, ResponseEvent::Bytes(11, None)));
+
+                Ok(())
+            })
+            .await
+            .unwrap();
+
+            assert_eq!(response.status(), 200);
+            assert_eq!(
+                to_bytes(response.body_mut()).await.unwrap(),
+                Bytes::from("Hello World")
+            );
+            assert!(response.headers().get(X_ROBOTS_TAGS).is_none());
         });
 
         tx.send_async(RunResult::Response(
@@ -160,7 +216,8 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, |event| async move {
+            let deployment = Arc::new(Deployment::default());
+            let mut response = handle_response(rx, deployment, |event| async move {
                 assert!(matches!(event, ResponseEvent::Bytes(11, Some(0))));
 
                 Ok(())
@@ -173,6 +230,56 @@ mod tests {
                 to_bytes(response.body_mut()).await.unwrap(),
                 Bytes::from("Hello world")
             );
+            assert!(response.headers().get(X_ROBOTS_TAGS).is_some());
+        });
+
+        tx.send_async(RunResult::Stream(StreamResult::Start(Response::builder())))
+            .await
+            .unwrap();
+
+        tx.send_async(RunResult::Stream(StreamResult::Data(b"Hello".to_vec())))
+            .await
+            .unwrap();
+
+        tx.send_async(RunResult::Stream(StreamResult::Data(b" world".to_vec())))
+            .await
+            .unwrap();
+
+        tx.send_async(RunResult::Stream(StreamResult::Done(Duration::from_secs(
+            0,
+        ))))
+        .await
+        .unwrap();
+
+        drop(tx);
+
+        handle.await.unwrap();
+    }
+
+    #[tokio::test]
+    async fn stream_production() {
+        let (tx, rx) = flume::unbounded::<RunResult>();
+
+        let handle = tokio::spawn(async move {
+            let deployment = Arc::new(Deployment {
+                is_production: true,
+                ..Deployment::default()
+            });
+
+            let mut response = handle_response(rx, deployment, |event| async move {
+                assert!(matches!(event, ResponseEvent::Bytes(11, Some(0))));
+
+                Ok(())
+            })
+            .await
+            .unwrap();
+
+            assert_eq!(response.status(), 200);
+            assert_eq!(
+                to_bytes(response.body_mut()).await.unwrap(),
+                Bytes::from("Hello world")
+            );
+            assert!(response.headers().get(X_ROBOTS_TAGS).is_none());
         });
 
         tx.send_async(RunResult::Stream(StreamResult::Start(Response::builder())))
@@ -203,7 +310,8 @@ mod tests {
         let (tx, rx) = flume::unbounded::<RunResult>();
 
         let handle = tokio::spawn(async move {
-            let mut response = handle_response(rx, |event| async move {
+            let deployment = Arc::new(Deployment::default());
+            let mut response = handle_response(rx, deployment, |event| async move {
                 assert!(matches!(event, ResponseEvent::Bytes(11, Some(0))));
 
                 Ok(())
@@ -216,6 +324,7 @@ mod tests {
                 to_bytes(response.body_mut()).await.unwrap(),
                 Bytes::from("Hello world")
             );
+            assert!(response.headers().get(X_ROBOTS_TAGS).is_some());
         });
 
         tx.send_async(RunResult::Stream(StreamResult::Data(b"Hello".to_vec())))
