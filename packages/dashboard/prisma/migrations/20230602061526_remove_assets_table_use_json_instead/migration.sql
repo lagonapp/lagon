@@ -19,7 +19,7 @@ UPDATE
 		GROUP BY
 			deploymentId) AS res SET deployment.assets = res.assets
 WHERE
-	deployment.id = res.deploymentId
+	deployment.id = res.deploymentId;
 
 -- DropTable
 DROP TABLE `Asset`;
