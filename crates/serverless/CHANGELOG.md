@@ -1,5 +1,25 @@
 # @lagon/serverless
 
+## 0.2.2
+
+### Patch Changes
+
+- [#916](https://github.com/lagonapp/lagon/pull/916) [`a8a02dd`](https://github.com/lagonapp/lagon/commit/a8a02dd0bd244599d9c6be622e79c6f4cb1b3db4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Replace once_cell with std's OnceLock
+
+- [#949](https://github.com/lagonapp/lagon/pull/949) [`d003a29`](https://github.com/lagonapp/lagon/commit/d003a2937775f00c17e1bf6b83d46310355c077d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve performance of Headers & Body (Request & Response)
+
+- [#952](https://github.com/lagonapp/lagon/pull/952) [`1a63dc7`](https://github.com/lagonapp/lagon/commit/1a63dc7e2ed22408455758265a901992bc059ab8) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add x-robots-tag: noindex header to preview deployments responses
+
+- [#948](https://github.com/lagonapp/lagon/pull/948) [`1075ea8`](https://github.com/lagonapp/lagon/commit/1075ea823e1fb810642e883460240ffaa82cd713) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix redis pub/sub sometimes disconnecting
+
+- [#916](https://github.com/lagonapp/lagon/pull/916) [`a8a02dd`](https://github.com/lagonapp/lagon/commit/a8a02dd0bd244599d9c6be622e79c6f4cb1b3db4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Set region label for prometheus exporter globally
+
+- [#941](https://github.com/lagonapp/lagon/pull/941) [`2dcce72`](https://github.com/lagonapp/lagon/commit/2dcce72d3d0033472c36d2817d8e13153aeaa1bf) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support HTTP/2 (along with HTTP/1.1) in `fetch()`
+
+- [#939](https://github.com/lagonapp/lagon/pull/939) [`079c008`](https://github.com/lagonapp/lagon/commit/079c008d7e140328a1e128dac0ec167509457028) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix sync responses bytes length
+
+- [#948](https://github.com/lagonapp/lagon/pull/948) [`1075ea8`](https://github.com/lagonapp/lagon/commit/1075ea823e1fb810642e883460240ffaa82cd713) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use rustls-ls instead of native-tls
+
 ## 0.2.1
 
 ### Patch Changes

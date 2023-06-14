@@ -1,5 +1,19 @@
 # @lagon/dashboard
 
+## 0.3.11
+
+### Patch Changes
+
+- [#906](https://github.com/lagonapp/lagon/pull/906) [`89f40a5`](https://github.com/lagonapp/lagon/commit/89f40a5c464454eb37cc719187bb27e8b78f4d81) Thanks [@anbraten](https://github.com/anbraten)! - Add Dockerfile & publish to Docker Hub
+
+- [#945](https://github.com/lagonapp/lagon/pull/945) [`1422cab`](https://github.com/lagonapp/lagon/commit/1422cab140907c3e0c7dc294010ffbd7d05df3c9) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve domains validation status
+
+- [#954](https://github.com/lagonapp/lagon/pull/954) [`6eab245`](https://github.com/lagonapp/lagon/commit/6eab245f0411197011557765a5210bd1d6cdd9a2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix wrong Prisma migration file
+
+- [#959](https://github.com/lagonapp/lagon/pull/959) [`f97aa7e`](https://github.com/lagonapp/lagon/commit/f97aa7e43e059afd48190198a414f05a2504a7ca) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Properly set session information when authenticating via a token
+
+- [#936](https://github.com/lagonapp/lagon/pull/936) [`b996b23`](https://github.com/lagonapp/lagon/commit/b996b234d9fe36dad6e68c0825705970ddfa2d7a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Stripe subscription
+
 ## 0.3.10
 
 ### Patch Changes

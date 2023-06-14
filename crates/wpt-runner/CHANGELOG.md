@@ -1,5 +1,11 @@
 # @lagon/wpt-runner
 
+## 0.1.6
+
+### Patch Changes
+
+- [#916](https://github.com/lagonapp/lagon/pull/916) [`a8a02dd`](https://github.com/lagonapp/lagon/commit/a8a02dd0bd244599d9c6be622e79c6f4cb1b3db4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Replace once_cell with std's OnceLock
+
 ## 0.1.5
 
 ### Patch Changes

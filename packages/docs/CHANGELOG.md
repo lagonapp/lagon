@@ -1,5 +1,11 @@
 # @lagon/docs
 
+## 1.0.1
+
+### Patch Changes
+
+- [#941](https://github.com/lagonapp/lagon/pull/941) [`2dcce72`](https://github.com/lagonapp/lagon/commit/2dcce72d3d0033472c36d2817d8e13153aeaa1bf) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support HTTP/2 (along with HTTP/1.1) in `fetch()`
+
 ## 1.0.0
 
 ### Major Changes
