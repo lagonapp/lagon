@@ -43,6 +43,7 @@ const createContext = async ({
           select: {
             id: true,
             email: true,
+            name: true,
             currentOrganizationId: true,
           },
         },
@@ -55,25 +56,46 @@ const createContext = async ({
       });
     }
 
-    // We shouldn't use anything other than ID in the session when
-    // authenticating with tokens
+    const organization = await prisma.organization.findFirst({
+      where: {
+        id: token.user.currentOrganizationId ?? '',
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        stripeSubscriptionId: true,
+        stripePriceId: true,
+        stripeCustomerId: true,
+        stripeCurrentPeriodEnd: true,
+        createdAt: true,
+      },
+    });
+
+    Sentry.setUser({
+      id: token.user.id,
+      username: token.user.name ?? 'Unknown',
+      email: token.user.email ?? 'Unknown',
+    });
+
     return {
       req,
       res,
       session: {
         user: {
           id: token.user.id,
-          name: '',
+          name: token.user.name ?? '',
           email: token.user.email ?? '',
         },
         organization: {
-          id: token.user.currentOrganizationId ?? '',
-          name: '',
-          stripePriceId: null,
-          stripeCustomerId: null,
-          stripeSubscriptionId: null,
-          stripeCurrentPeriodEnd: null,
-          createdAt: new Date(),
+          id: organization?.id ?? '',
+          name: organization?.name ?? '',
+          description: organization?.description ?? '',
+          stripeSubscriptionId: organization?.stripeSubscriptionId ?? '',
+          stripePriceId: organization?.stripePriceId ?? '',
+          stripeCustomerId: organization?.stripeCustomerId ?? '',
+          stripeCurrentPeriodEnd: organization?.stripeCurrentPeriodEnd ?? new Date(),
+          createdAt: organization?.createdAt ?? new Date(),
         },
         expires: '',
       },
