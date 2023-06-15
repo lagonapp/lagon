@@ -1,5 +1,17 @@
 # @lagon/cli
 
+## 0.7.5
+
+### Patch Changes
+
+- [#916](https://github.com/lagonapp/lagon/pull/916) [`a8a02dd`](https://github.com/lagonapp/lagon/commit/a8a02dd0bd244599d9c6be622e79c6f4cb1b3db4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Replace once_cell with std's OnceLock
+
+- [#949](https://github.com/lagonapp/lagon/pull/949) [`d003a29`](https://github.com/lagonapp/lagon/commit/d003a2937775f00c17e1bf6b83d46310355c077d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve performance of Headers & Body (Request & Response)
+
+- [#941](https://github.com/lagonapp/lagon/pull/941) [`2dcce72`](https://github.com/lagonapp/lagon/commit/2dcce72d3d0033472c36d2817d8e13153aeaa1bf) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support HTTP/2 (along with HTTP/1.1) in `fetch()`
+
+- [#948](https://github.com/lagonapp/lagon/pull/948) [`1075ea8`](https://github.com/lagonapp/lagon/commit/1075ea823e1fb810642e883460240ffaa82cd713) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use rustls-ls instead of native-tls
+
 ## 0.7.4
 
 ### Patch Changes
