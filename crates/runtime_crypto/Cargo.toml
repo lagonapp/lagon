@@ -12,7 +12,7 @@ lagon-runtime-v8-utils = { path = "../runtime_v8_utils" }
 # Crypto
 hmac = "0.12.1"
 sha1 = "0.10.5"
-sha2 = "0.10.6"
+sha2 = "0.10.7"
 aes = "0.8.2"
 aes-gcm = "0.10.2"
 cbc = { version = "0.1.2", features = ["std"] }
