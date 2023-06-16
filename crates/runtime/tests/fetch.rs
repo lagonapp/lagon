@@ -627,3 +627,85 @@ async fn fetch_set_content_length() {
     )
     .await;
 }
+
+#[tokio::test]
+async fn fetch_input_request() {
+    utils::setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(all_of![
+            request::method_path("POST", "/"),
+            request::headers(contains(("x-token", "hello"))),
+            request::body("Hello!"),
+        ])
+        .respond_with(status_code(200).body("Hello, World")),
+    );
+    let url = server.url("/");
+
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
+    const body = await fetch(new Request('{url}', {{
+        method: 'POST',
+        headers: {{
+            'x-token': 'hello'
+        }},
+        body: 'Hello!'
+    }})).then(res => res.text());
+    return new Response(body);
+}}"
+    )));
+    send(Request::default());
+
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello, World".into())
+            .unwrap(),
+    )
+    .await;
+}
+
+#[tokio::test]
+async fn fetch_input_request_init() {
+    utils::setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(all_of![
+            request::method_path("POST", "/"),
+            request::headers(contains(("x-token", "hello"))),
+            request::body("Hello!"),
+        ])
+        .respond_with(status_code(200).body("Hello, World")),
+    );
+    let url = server.url("/");
+
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
+    const body = await fetch(new Request('{url}', {{
+        method: 'GET',
+        headers: {{
+            'hello': 'world'
+        }},
+        body: 'No'
+    }}), {{
+        method: 'POST',
+        headers: {{
+            'x-token': 'hello'
+        }},
+        body: 'Hello!'
+    }}).then(res => res.text());
+    return new Response(body);
+}}"
+    )));
+    send(Request::default());
+
+    utils::assert_response(
+        &receiver,
+        Response::builder()
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
+            .body("Hello, World".into())
+            .unwrap(),
+    )
+    .await;
+}
