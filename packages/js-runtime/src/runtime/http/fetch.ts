@@ -5,7 +5,7 @@
     const headers = new Headers(init?.headers);
     let body: string | undefined;
 
-    const isInputRequest = input instanceof Request
+    const isInputRequest = input instanceof Request;
 
     if (init?.body || (isInputRequest && (input as Request).body)) {
       const paramBody = init?.body || (input as Request).body;
@@ -15,16 +15,9 @@
       } else if (paramBody instanceof ReadableStream) {
         body = '';
 
-        const reader = paramBody.getReader();
-
-        while (true) {
-          const { done, value } = await reader.read();
-
-          if (done) {
-            break;
-          }
-
-          body += globalThis.__lagon__.TEXT_DECODER.decode(value);
+        // @ts-expect-error iterate over the stream
+        for await (const chunk of paramBody) {
+          body += globalThis.__lagon__.TEXT_DECODER.decode(chunk);
         }
       } else {
         if (typeof paramBody !== 'string') {
@@ -32,7 +25,7 @@
           throw new Error('Body must be a string or an iterable');
         }
 
-        body = paramBody
+        body = paramBody;
       }
     }
 
