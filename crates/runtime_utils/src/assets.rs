@@ -7,6 +7,11 @@ use std::{
 };
 
 pub fn find_asset<'a>(url: &'a str, assets: &'a HashSet<String>) -> Option<&'a String> {
+    // Fast path to return early if there are no assets
+    if assets.len() == 0 {
+        return None;
+    }
+
     // Remove the leading '/' from the url
     let url = &url[1..];
 

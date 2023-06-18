@@ -11,7 +11,6 @@ use futures::lock::Mutex;
 use hyper::{
     header::HOST,
     http::response::Builder,
-    server::conn::AddrStream,
     service::{make_service_fn, service_fn},
     Body, Request, Response, Server,
 };
@@ -98,7 +97,6 @@ async fn handle_error(
 
 async fn handle_request(
     req: Request<Body>,
-    ip: String,
     deployments: Deployments,
     last_requests: Arc<DashMap<String, Instant>>,
     workers: Workers,
@@ -117,7 +115,7 @@ async fn handle_request(
                 "lagon_ignored_requests",
                 "reason" => "No hostname",
             );
-            warn!(req = as_debug!(req), ip = ip, request = request_id; "No Host header found in request");
+            warn!(req = as_debug!(req), request = request_id; "No Host header found in request");
 
             return Ok(Builder::new().status(404).body(PAGE_404.into())?);
         }
@@ -131,7 +129,7 @@ async fn handle_request(
                 "reason" => "No deployment",
                 "hostname" => hostname.clone(),
             );
-            warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "No deployment found for hostname");
+            warn!(req = as_debug!(req), hostname = hostname, request = request_id; "No deployment found for hostname");
 
             return Ok(Response::builder().status(404).body(PAGE_404.into())?);
         }
@@ -143,7 +141,7 @@ async fn handle_request(
             "reason" => "Cron",
             "hostname" => hostname.clone(),
         );
-        warn!(req = as_debug!(req), ip = ip, hostname = hostname, request = request_id; "Cron deployment cannot be called directly");
+        warn!(req = as_debug!(req), hostname = hostname, request = request_id; "Cron deployment cannot be called directly");
 
         return Ok(Response::builder().status(403).body(PAGE_403.into())?);
     }
@@ -435,21 +433,17 @@ where
         }
     });
 
-    let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
+    let server = Server::bind(&addr).serve(make_service_fn(move |_| {
         let deployments = Arc::clone(&deployments);
         let last_requests = Arc::clone(&last_requests);
         let workers = Arc::clone(&workers);
         let inserters = Arc::clone(&inserters);
         let log_sender = log_sender.clone();
 
-        let addr = conn.remote_addr();
-        let ip = addr.ip().to_string();
-
         async move {
             Ok::<_, Infallible>(service_fn(move |req| {
                 handle_request(
                     req,
-                    ip.clone(),
                     Arc::clone(&deployments),
                     Arc::clone(&last_requests),
                     Arc::clone(&workers),
