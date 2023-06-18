@@ -94,6 +94,10 @@ This example uses [Astro](https://astro.build), a static site generator, with bo
 
 This example uses [Nuxt](https://nuxt.com), the intuitive web framework for Vue, with SSR via Lagon's preset. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/nuxt)
 
+### Nuxt Complex
+
+This example uses [Nuxt](https://nuxt.com) with multiple pages, layouts, api routes and more. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/nuxt-complex)
+
 ### Rakkas
 
 This example uses [Rakkas](https://rakkasjs.org), a React framework powered by Vite, with SSR via Lagon's adapter. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/rakkas)
