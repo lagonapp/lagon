@@ -890,6 +890,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "dashmap"
+version = "5.4.0"
+source = "git+https://github.com/xacrimon/dashmap.git?rev=7f9522c5286cfbbb78df15f00f87b8331cb875d6#7f9522c5286cfbbb78df15f00f87b8331cb875d6"
+dependencies = [
+ "cfg-if",
+ "hashbrown 0.12.3",
+ "lock_api",
+ "once_cell",
+ "parking_lot_core",
+]
+
+[[package]]
 name = "der"
 version = "0.7.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1912,7 +1924,7 @@ dependencies = [
  "anyhow",
  "bytes",
  "clickhouse",
- "dashmap",
+ "dashmap 5.4.0 (git+https://github.com/xacrimon/dashmap.git?rev=7f9522c5286cfbbb78df15f00f87b8331cb875d6)",
  "dotenv",
  "flume",
  "futures",
@@ -3524,7 +3536,7 @@ version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e56dd856803e253c8f298af3f4d7eb0ae5e23a737252cd90bb4f3b435033b2d"
 dependencies = [
- "dashmap",
+ "dashmap 5.4.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures",
  "lazy_static",
  "log",
