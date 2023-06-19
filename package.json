@@ -19,7 +19,7 @@
   "lint-staged": {
     "*.{ts,tsx}": "eslint --fix"
   },
-  "packageManager": "pnpm@8.6.2",
+  "packageManager": "pnpm@8.6.3",
   "engines": {
     "node": ">=16.0.0",
     "pnpm": ">=8.0.0"
