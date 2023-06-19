@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "private": true,
   "scripts": {
-    "lagon-dev": "lagon dev index.ts"
+    "lagon-dev": "lagon dev index.ts -e .env"
   },
   "dependencies": {
     "@libsql/client": "^0.1.3"
