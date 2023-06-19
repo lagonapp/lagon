@@ -92,11 +92,11 @@ const Usage = ({ func, timeframe }: UsageProps) => {
 
       return next
         ? t('usage.nextCron.label', {
-          time,
-        })
+            time,
+          })
         : t('usage.lastCron.label', {
-          time,
-        });
+            time,
+          });
     } catch (err) {
       Sentry.captureException(err, {
         tags: {
