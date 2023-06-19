@@ -170,6 +170,7 @@ export default {
   'functions.overview.usage.lastCron.label': '{time} ago',
   'functions.overview.usage.nextCron': 'Next Cron',
   'functions.overview.usage.nextCron.label': 'In {time}',
+  'functions.overview.usage.nextCron.label.invalid': 'Invalid',
   'functions.overview.usage.lastUpdate': 'Last update:',
   'functions.overview.usage.created': 'Created:',
   'functions.overview.requests': 'Requests',

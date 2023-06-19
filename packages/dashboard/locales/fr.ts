@@ -176,6 +176,7 @@ export default defineLocale({
   'functions.overview.usage.lastCron.label': 'Il y a {time}',
   'functions.overview.usage.nextCron': 'Prochain Cron',
   'functions.overview.usage.nextCron.label': 'Dans {time}',
+  'functions.overview.usage.nextCron.label.invalid': 'Invalide',
   'functions.overview.usage.lastUpdate': 'Dernière mise à jour :',
   'functions.overview.usage.created': 'Créé :',
   'functions.overview.requests': 'Requêtes',

@@ -1,4 +1,5 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
+import * as Sentry from '@sentry/nextjs';
 import { useRouter } from 'next/router';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { Button, Card, Chart, Description, Divider, Menu, Skeleton, Text } from '@lagon/ui';
@@ -68,33 +69,43 @@ const Usage = ({ func, timeframe }: UsageProps) => {
   }, [data]);
 
   const calculateCron = (next: boolean) => {
-    const now = new Date();
-    const expression = cron.parseExpression(func?.cron ?? '');
+    try {
+      const now = new Date();
+      const expression = cron.parseExpression(func?.cron ?? '');
 
-    const date = (next ? expression.next() : expression.prev()).toDate();
-    const diff = next ? date.getTime() - now.getTime() : now.getTime() - date.getTime();
+      const date = (next ? expression.next() : expression.prev()).toDate();
+      const diff = next ? date.getTime() - now.getTime() : now.getTime() - date.getTime();
 
-    const hours = Math.floor(diff / 1000 / 60 / 60);
-    const minutes = Math.floor(diff / 1000 / 60) - hours * 60;
-    const seconds = Math.floor(diff / 1000) - minutes * 60 - hours * 60 * 60;
+      const hours = Math.floor(diff / 1000 / 60 / 60);
+      const minutes = Math.floor(diff / 1000 / 60) - hours * 60;
+      const seconds = Math.floor(diff / 1000) - minutes * 60 - hours * 60 * 60;
 
-    let time = '';
+      let time = '';
 
-    if (hours > 24) {
-      time = `${Math.floor(hours / 24)}d`;
-    } else if (minutes > 60) {
-      time = `${hours}h ${minutes}m`;
-    } else {
-      time = `${minutes}m ${seconds}s`;
-    }
+      if (hours > 24) {
+        time = `${Math.floor(hours / 24)}d`;
+      } else if (minutes > 60) {
+        time = `${hours}h ${minutes}m`;
+      } else {
+        time = `${minutes}m ${seconds}s`;
+      }
 
-    return next
-      ? t('usage.nextCron.label', {
+      return next
+        ? t('usage.nextCron.label', {
           time,
         })
-      : t('usage.lastCron.label', {
+        : t('usage.lastCron.label', {
           time,
         });
+    } catch (err) {
+      Sentry.captureException(err, {
+        tags: {
+          cron: func?.cron,
+        },
+      });
+
+      return t('usage.nextCron.label.invalid');
+    }
   };
 
   const [lastCron, setLastCron] = useState(() => calculateCron(false));
