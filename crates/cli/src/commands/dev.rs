@@ -32,7 +32,6 @@ fn parse_environment_variables(
     path: Option<PathBuf>,
     env: Option<PathBuf>,
 ) -> Result<HashMap<String, String>> {
-    let path = path.unwrap_or_else(|| PathBuf::from("."));
     let mut environment_variables = HashMap::new();
 
     if let Some(env) = env {
@@ -43,15 +42,28 @@ fn parse_environment_variables(
         }
 
         println!("{}", style("Loaded .env file...").black().bright());
-    } else if let Ok(envfile) = EnvFile::new(path.join(".env")) {
-        for (key, value) in envfile.store {
-            environment_variables.insert(key, value);
-        }
-
-        println!(
-            "{}",
-            style("Automatically loaded .env file...").black().bright()
+    } else {
+        let path = path.map_or_else(
+            || PathBuf::from("."),
+            |path| {
+                if path.is_file() {
+                    PathBuf::from(".")
+                } else {
+                    path
+                }
+            },
         );
+
+        if let Ok(envfile) = EnvFile::new(path.join(".env")) {
+            for (key, value) in envfile.store {
+                environment_variables.insert(key, value);
+            }
+
+            println!(
+                "{}",
+                style("Automatically loaded .env file...").black().bright()
+            );
+        }
     }
 
     Ok(environment_variables)
