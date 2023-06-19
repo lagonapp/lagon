@@ -5,7 +5,7 @@
   "scripts": {
     "generate": "pnpm drizzle-kit generate:sqlite --schema=./schema.ts",
     "push": "pnpm drizzle-kit push:sqlite",
-    "lagon-dev": "pnpm generate && pnpm push && lagon dev index.ts -e .env"
+    "lagon-dev": "pnpm generate && pnpm push && lagon dev index.ts"
   },
   "dependencies": {
     "@libsql/client": "^0.1.3",
