@@ -157,7 +157,8 @@ impl Cronjob {
 
                                 (String::from("warn"), String::from("Cron Functions can't return a stream"))
                             }
-                            RunResult::Response(response, elapsed) => {
+                            RunResult::Response(response_builder, body, elapsed) => {
+                                let response = response_builder.body(body).unwrap();
                                 let status = response.status();
                                 let body = body::to_bytes(response.into_body()).await.unwrap_or_else(|error| {
                                     error!(

@@ -1,8 +1,7 @@
-use std::env;
-
 use anyhow::Result;
 use clickhouse::{Client, Row};
 use serde::{Deserialize, Serialize};
+use std::env;
 
 #[derive(Row, Serialize, Deserialize)]
 pub struct LogRow {

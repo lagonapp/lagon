@@ -3,6 +3,7 @@ use anyhow::Result;
 use flume::Receiver;
 use hyper::{
     body::{Bytes, HttpBody},
+    http::response::Builder,
     Body, Response,
 };
 use lagon_runtime_http::{RunResult, StreamResult};
@@ -17,7 +18,6 @@ pub const FAVICON_URL: &str = "/favicon.ico";
 #[derive(Debug)]
 pub enum ResponseEvent {
     Bytes(usize, Option<u128>),
-    StreamDoneNoDataError,
     UnexpectedStreamResult(RunResult),
     LimitsReached(RunResult),
     Error(RunResult),
@@ -25,21 +25,26 @@ pub enum ResponseEvent {
 
 const X_ROBOTS_TAGS: &str = "x-robots-tag";
 
-fn enrich_response(response: &mut Response<Body>, deployment: &Deployment) {
+fn build_response(
+    response_builder: Builder,
+    deployment: &Deployment,
+    body: Body,
+) -> Result<Response<Body>> {
     // We automatically add a X-Robots-Tag: noindex header to
     // all preview deployments to prevent them from being
     // indexed by search engines
-    if !deployment.is_production {
-        response
-            .headers_mut()
-            .insert(X_ROBOTS_TAGS, "noindex".parse().unwrap());
-    }
+    let response_builder = match deployment.is_production {
+        true => response_builder,
+        false => response_builder.header(X_ROBOTS_TAGS, "noindex"),
+    };
+
+    Ok(response_builder.body(body)?)
 }
 
 pub async fn handle_response<F>(
     rx: Receiver<RunResult>,
     deployment: Arc<Deployment>,
-    on_event: impl Fn(ResponseEvent) -> F + Send + Sync + 'static,
+    on_event: impl FnOnce(ResponseEvent) -> F + Send + Sync + 'static,
 ) -> Result<Response<Body>>
 where
     F: Future<Output = Result<()>> + Send,
@@ -65,14 +70,14 @@ where
                     stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                 }
                 StreamResult::Done(_) => {
-                    on_event(ResponseEvent::StreamDoneNoDataError).await?;
-
                     // Close the stream by sending empty bytes
                     stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
                 }
             }
 
             tokio::spawn(async move {
+                let mut event = None;
+
                 while let Ok(result) = rx.recv_async().await {
                     match result {
                         RunResult::Stream(StreamResult::Start(response)) => {
@@ -85,17 +90,14 @@ where
                             stream_tx.send_async(Ok(bytes)).await.unwrap_or(());
                         }
                         RunResult::Stream(StreamResult::Done(elapsed)) => {
-                            on_event(ResponseEvent::Bytes(total_bytes, Some(elapsed.as_micros())))
-                                .await
-                                .unwrap_or(());
+                            event =
+                                Some(ResponseEvent::Bytes(total_bytes, Some(elapsed.as_micros())));
 
                             // Close the stream by sending empty bytes
                             stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
                         }
                         _ => {
-                            on_event(ResponseEvent::UnexpectedStreamResult(result))
-                                .await
-                                .unwrap_or(());
+                            event = Some(ResponseEvent::UnexpectedStreamResult(result));
 
                             // Close the stream by sending empty bytes
                             stream_tx.send_async(Ok(Bytes::new())).await.unwrap_or(());
@@ -103,19 +105,23 @@ where
                         }
                     }
                 }
+
+                if let Some(event) = event {
+                    on_event(event).await.unwrap_or(());
+                }
             });
 
             let response_builder = response_builder_rx.recv_async().await?;
-            let mut response = response_builder.body(body)?;
+            let response = build_response(response_builder, &deployment, body)?;
 
-            enrich_response(&mut response, &deployment);
+            println!("send res");
 
             Ok(response)
         }
-        RunResult::Response(mut response, elapsed) => {
-            enrich_response(&mut response, &deployment);
-
+        RunResult::Response(response_builder, body, elapsed) => {
+            let response = build_response(response_builder, &deployment, body)?;
             let bytes = response.body().size_hint().exact().unwrap_or(0);
+
             let event =
                 ResponseEvent::Bytes(bytes as usize, elapsed.map(|duration| duration.as_micros()));
             on_event(event).await?;
@@ -166,7 +172,8 @@ mod tests {
         });
 
         tx.send_async(RunResult::Response(
-            Response::new("Hello World".into()),
+            Builder::new(),
+            Body::from("Hello World"),
             None,
         ))
         .await
@@ -202,7 +209,8 @@ mod tests {
         });
 
         tx.send_async(RunResult::Response(
-            Response::new("Hello World".into()),
+            Builder::new(),
+            Body::from("Hello World"),
             None,
         ))
         .await

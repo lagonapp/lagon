@@ -94,14 +94,15 @@ async fn handle_request(
         );
 
         let run_result = match handle_asset(public_dir.unwrap(), asset) {
-            Ok(response) => RunResult::Response(response, None),
+            Ok((response_builder, body)) => RunResult::Response(response_builder, body, None),
             Err(error) => RunResult::Error(format!("Could not retrieve asset ({asset}): {error}")),
         };
 
         tx.send_async(run_result).await.unwrap_or(());
     } else if url == FAVICON_URL {
         tx.send_async(RunResult::Response(
-            Response::builder().status(404).body(Body::empty())?,
+            Response::builder().status(404),
+            Body::empty(),
             None,
         ))
         .await
@@ -143,12 +144,6 @@ async fn handle_request(
 
     handle_response(rx, deployment, |event| async move {
         match event {
-            ResponseEvent::StreamDoneNoDataError => {
-                println!(
-                    "{} The stream was done before sending a response/data",
-                    style("✕").red()
-                );
-            }
             ResponseEvent::UnexpectedStreamResult(result) => {
                 println!(
                     "{} Unexpected stream result: {:?}",
