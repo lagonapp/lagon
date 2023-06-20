@@ -1,4 +1,7 @@
-use hyper::{http::Request, Body, Response};
+use hyper::{
+    http::{response::Builder, Request},
+    Body,
+};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::{RunResult, StreamResult};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateEvent, IsolateRequest};
@@ -99,8 +102,8 @@ pub async fn assert_run_result(receiver: &flume::Receiver<RunResult>, run_result
     let result = receiver.recv_async().await.unwrap();
 
     match run_result {
-        RunResult::Response(response, _) => {
-            assert_response_inner(response, result.as_response()).await;
+        RunResult::Response(response, body, _) => {
+            assert_response_inner((response, body), result.as_response()).await;
         }
         RunResult::Error(error) => {
             assert_eq!(error, result.as_error());
@@ -149,16 +152,17 @@ pub async fn assert_run_result(receiver: &flume::Receiver<RunResult>, run_result
                     _ => unreachable!(),
                 };
 
-                let response = response.body(Body::empty()).unwrap();
-                let result_response = result_response.body(Body::empty()).unwrap();
-
-                assert_response_inner(response, result_response).await;
+                assert_response_inner((response, Body::empty()), (result_response, Body::empty()))
+                    .await;
             }
         },
     }
 }
 
-async fn assert_response_inner(first: Response<Body>, second: Response<Body>) {
+async fn assert_response_inner(first: (Builder, Body), second: (Builder, Body)) {
+    let first = first.0.body(first.1).unwrap();
+    let second = second.0.body(second.1).unwrap();
+
     assert_eq!(first.status(), second.status(), "Status mismatch");
     assert_eq!(first.headers(), second.headers(), "Headers mismatch");
 
@@ -169,8 +173,12 @@ async fn assert_response_inner(first: Response<Body>, second: Response<Body>) {
 }
 
 #[allow(dead_code)]
-pub async fn assert_response(receiver: &flume::Receiver<RunResult>, response: Response<Body>) {
+pub async fn assert_response(
+    receiver: &flume::Receiver<RunResult>,
+    response_builder: Builder,
+    body: Body,
+) {
     let result = receiver.recv_async().await.unwrap().as_response();
 
-    assert_response_inner(result, response).await;
+    assert_response_inner(result, (response_builder, body)).await;
 }

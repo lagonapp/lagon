@@ -146,7 +146,6 @@ async fn handle_request(
         return Ok(Response::builder().status(403).body(PAGE_403.into())?);
     }
 
-    let request_id_handle = request_id.clone();
     let (sender, receiver) = flume::unbounded();
     let mut bytes_in = 0;
 
@@ -158,9 +157,9 @@ async fn handle_request(
             .join(&deployment.id);
 
         let run_result = match handle_asset(root, asset) {
-            Ok(response) => RunResult::Response(response, None),
+            Ok((response_builder, body)) => RunResult::Response(response_builder, body, None),
             Err(error) => {
-                error!(deployment = &deployment.id, asset = asset, request = request_id_handle; "Error while handing asset: {}", error);
+                error!(deployment = &deployment.id, asset = asset, request = request_id; "Error while handing asset: {}", error);
 
                 RunResult::Error("Could not retrieve asset.".into())
             }
@@ -170,7 +169,8 @@ async fn handle_request(
     } else if url == FAVICON_URL {
         sender
             .send_async(RunResult::Response(
-                Response::builder().status(404).body(Body::empty())?,
+                Response::builder().status(404),
+                Body::empty(),
                 None,
             ))
             .await
@@ -186,6 +186,7 @@ async fn handle_request(
 
         let deployment = Arc::clone(&deployment);
         let isolate_workers = Arc::clone(&workers);
+        let request_id_handle = request_id.clone();
 
         let isolate_sender = workers.entry(deployment.id.clone()).or_insert_with(|| {
             let handle = Handle::current();
@@ -260,10 +261,10 @@ async fn handle_request(
             .unwrap_or(());
     }
 
-    handle_response(receiver, Arc::clone(&deployment), move |event| {
+    let deployment_handle = Arc::clone(&deployment);
+
+    handle_response(receiver, deployment, move |event| {
         let inserters = Arc::clone(&inserters);
-        let request_id = request_id.clone();
-        let deployment = Arc::clone(&deployment);
 
         async move {
             match event {
@@ -275,8 +276,8 @@ async fn handle_request(
                         .await
                         .0
                         .write(&RequestRow {
-                            function_id: deployment.function_id.clone(),
-                            deployment_id: deployment.id.clone(),
+                            function_id: deployment_handle.function_id.clone(),
+                            deployment_id: deployment_handle.id.clone(),
                             region: get_region().clone(),
                             bytes_in,
                             bytes_out: bytes as u32,
@@ -286,23 +287,11 @@ async fn handle_request(
                         .await
                         .unwrap_or(());
                 }
-                ResponseEvent::StreamDoneNoDataError => {
-                    handle_error(
-                        RunResult::Error(
-                            "The stream was done before sending a response/data".into(),
-                        ),
-                        deployment.function_id.clone(),
-                        deployment.id.clone(),
-                        &request_id,
-                        inserters,
-                    )
-                    .await;
-                }
                 ResponseEvent::UnexpectedStreamResult(result) => {
                     handle_error(
                         result,
-                        deployment.function_id.clone(),
-                        deployment.id.clone(),
+                        deployment_handle.function_id.clone(),
+                        deployment_handle.id.clone(),
                         &request_id,
                         inserters,
                     )
@@ -311,8 +300,8 @@ async fn handle_request(
                 ResponseEvent::LimitsReached(result) | ResponseEvent::Error(result) => {
                     handle_error(
                         result,
-                        deployment.function_id.clone(),
-                        deployment.id.clone(),
+                        deployment_handle.function_id.clone(),
+                        deployment_handle.id.clone(),
                         &request_id,
                         inserters,
                     )

@@ -1,4 +1,4 @@
-use hyper::{http::response::Builder, Body, Response};
+use hyper::{http::response::Builder, Body};
 use std::time::Duration;
 
 mod headers;
@@ -22,7 +22,7 @@ pub enum StreamResult {
 pub enum RunResult {
     // Isolate responses have a duration (cpu time)
     // Assets responses don't
-    Response(Response<Body>, Option<Duration>),
+    Response(Builder, Body, Option<Duration>),
     Stream(StreamResult),
     Timeout,
     MemoryLimit,
@@ -46,9 +46,9 @@ impl RunResult {
         panic!("RunResult is not an Error: {:?}", self);
     }
 
-    pub fn as_response(self) -> Response<Body> {
-        if let RunResult::Response(response, _) = self {
-            return response;
+    pub fn as_response(self) -> (Builder, Body) {
+        if let RunResult::Response(response_builder, body, _) = self {
+            return (response_builder, body);
         }
 
         panic!("RunResult is not a Response: {:?}", self);

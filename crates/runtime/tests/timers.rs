@@ -1,4 +1,4 @@
-use hyper::{header::CONTENT_TYPE, Request, Response};
+use hyper::{header::CONTENT_TYPE, Body, Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 use serial_test::serial;
 
@@ -22,10 +22,8 @@ async fn set_timeout() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("test".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("test"),
     )
     .await;
 }
@@ -58,10 +56,8 @@ async fn set_timeout_not_blocking_response() {
     );
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello!".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello!"),
     )
     .await;
     assert_eq!(
@@ -93,10 +89,8 @@ async fn set_timeout_clear() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("second".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("second"),
     )
     .await;
 }
@@ -123,10 +117,8 @@ async fn set_timeout_clear_correct() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("first".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("first"),
     )
     .await;
 }
@@ -180,10 +172,8 @@ async fn set_interval() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
     )
     .await;
 }
@@ -221,10 +211,8 @@ async fn queue_microtask() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
     )
     .await;
 }
@@ -284,10 +272,8 @@ async fn timers_order() {
     );
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
     )
     .await;
 }
