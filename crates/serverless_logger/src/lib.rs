@@ -1,13 +1,12 @@
 use axiom_rs::Client;
 use chrono::prelude::Local;
 use flume::Sender;
-use serde_json::{json, Value};
-use std::sync::{Arc, RwLock};
-
 use log::{
-    as_debug, kv::source::as_map, set_boxed_logger, set_max_level, Level, LevelFilter, Log,
+    as_serde, kv::source::as_map, set_boxed_logger, set_max_level, Level, LevelFilter, Log,
     Metadata, Record, SetLoggerError,
 };
+use serde_json::{json, Value};
+use std::sync::{Arc, RwLock};
 
 struct SimpleLogger {
     tx: Arc<RwLock<Option<Sender<Value>>>>,
@@ -54,7 +53,7 @@ impl Log for SimpleLogger {
                 Local::now(),
                 record.level(),
                 record.args(),
-                as_debug!(metadata),
+                as_serde!(metadata),
             );
 
             // Axiom is optional, so tx can have no listeners

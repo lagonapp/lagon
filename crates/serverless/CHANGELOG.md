@@ -1,5 +1,51 @@
 # @lagon/serverless
 
+## 0.2.2
+
+### Patch Changes
+
+- [#916](https://github.com/lagonapp/lagon/pull/916) [`a8a02dd`](https://github.com/lagonapp/lagon/commit/a8a02dd0bd244599d9c6be622e79c6f4cb1b3db4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Replace once_cell with std's OnceLock
+
+- [#949](https://github.com/lagonapp/lagon/pull/949) [`d003a29`](https://github.com/lagonapp/lagon/commit/d003a2937775f00c17e1bf6b83d46310355c077d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve performance of Headers & Body (Request & Response)
+
+- [#952](https://github.com/lagonapp/lagon/pull/952) [`1a63dc7`](https://github.com/lagonapp/lagon/commit/1a63dc7e2ed22408455758265a901992bc059ab8) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add x-robots-tag: noindex header to preview deployments responses
+
+- [#948](https://github.com/lagonapp/lagon/pull/948) [`1075ea8`](https://github.com/lagonapp/lagon/commit/1075ea823e1fb810642e883460240ffaa82cd713) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix redis pub/sub sometimes disconnecting
+
+- [#916](https://github.com/lagonapp/lagon/pull/916) [`a8a02dd`](https://github.com/lagonapp/lagon/commit/a8a02dd0bd244599d9c6be622e79c6f4cb1b3db4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Set region label for prometheus exporter globally
+
+- [#941](https://github.com/lagonapp/lagon/pull/941) [`2dcce72`](https://github.com/lagonapp/lagon/commit/2dcce72d3d0033472c36d2817d8e13153aeaa1bf) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support HTTP/2 (along with HTTP/1.1) in `fetch()`
+
+- [#939](https://github.com/lagonapp/lagon/pull/939) [`079c008`](https://github.com/lagonapp/lagon/commit/079c008d7e140328a1e128dac0ec167509457028) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix sync responses bytes length
+
+- [#948](https://github.com/lagonapp/lagon/pull/948) [`1075ea8`](https://github.com/lagonapp/lagon/commit/1075ea823e1fb810642e883460240ffaa82cd713) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use rustls-ls instead of native-tls
+
+## 0.2.1
+
+### Patch Changes
+
+- [#928](https://github.com/lagonapp/lagon/pull/928) [`28bd4c6`](https://github.com/lagonapp/lagon/commit/28bd4c644db583b54827f5f1a6bee7ce0f64b4bb) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Set content-length header to 0 when body is null and method POST or PUT in `fetch()`
+
+- [#929](https://github.com/lagonapp/lagon/pull/929) [`0174cad`](https://github.com/lagonapp/lagon/commit/0174cad77f41def0092583880c5c88f530e345d2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Revert isolates cache eviction using ClickHouse to use local cache instead
+
+- [#924](https://github.com/lagonapp/lagon/pull/924) [`cacb962`](https://github.com/lagonapp/lagon/commit/cacb9626c2039c3b1932152220467dc6206f8389) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Retrieve environment variables when booting
+
+## 0.2.0
+
+### Minor Changes
+
+- [#873](https://github.com/lagonapp/lagon/pull/873) [`dd2b64e`](https://github.com/lagonapp/lagon/commit/dd2b64ef9cff03c079af60faf6e22c708d5aa78e) Thanks [@anbraten](https://github.com/anbraten)! - Release container image
+
+### Patch Changes
+
+- [#835](https://github.com/lagonapp/lagon/pull/835) [`12ff778`](https://github.com/lagonapp/lagon/commit/12ff77821b74bffc483a216c46053e270ddde64a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve implementation of Headers, Request, Response and URLSearchParams
+
+- [#907](https://github.com/lagonapp/lagon/pull/907) [`6a593cb`](https://github.com/lagonapp/lagon/commit/6a593cbc3b1a853a6b2170a8d1d696ddf0e101d6) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix logs time-to-live
+
+- [#920](https://github.com/lagonapp/lagon/pull/920) [`10d4086`](https://github.com/lagonapp/lagon/commit/10d40869d96f1d4ee590d5144a36941aee8d6b71) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Cron Functions
+
+- [#915](https://github.com/lagonapp/lagon/pull/915) [`f05147b`](https://github.com/lagonapp/lagon/commit/f05147b663e788c04680d76a1ce8a7c9a0f87959) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Replace assets table with a json column
+
 ## 0.1.33
 
 ### Patch Changes

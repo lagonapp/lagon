@@ -15,20 +15,25 @@ lagon-serverless-logger = { path = "../serverless_logger" }
 lagon-serverless-downloader = { path = "../serverless_downloader" }
 lagon-serverless-pubsub = { path = "../serverless_pubsub" }
 flume = "0.10.14"
-mysql = "24.0.0"
+mysql = { version = "24.0.0", default-features = false, features = ["default-rustls"] }
 dotenv = "0.15.0"
 serde_json = "1.0"
 metrics = "0.21.0"
 metrics-exporter-prometheus = { version = "0.12.1", default-features = false, features = ["http-listener"] }
-log = { version = "0.4.18", features = ["std", "kv_unstable", "kv_unstable_serde"] }
-once_cell = "1.17.1"
+log = { version = "0.4.19", features = ["std", "kv_unstable", "kv_unstable_serde"] }
 anyhow = "1.0.71"
 tokio-cron-scheduler = "0.9.4"
-dashmap = "5.4.0"
+# TODO: use a specific version of dashmap when the inline feature is released
+dashmap = { git = "https://github.com/xacrimon/dashmap.git", rev = "7f9522c5286cfbbb78df15f00f87b8331cb875d6", features = ["inline"] }
 futures = "0.3.28"
-clickhouse = "0.11.4"
+clickhouse = "0.11.5"
 bytes = "1.4.0"
 serde = { version = "1.0", features = ["derive"] }
+uuid = "1.3.4"
+
+# Jemalloc does not work on Windows
+[target.'cfg(not(target_env = "msvc"))'.dependencies]
+tikv-jemallocator = "0.5"
 
 [build-dependencies]
 lagon-runtime = { path = "../runtime" }
@@ -36,9 +41,9 @@ lagon-runtime-isolate = { path = "../runtime_isolate" }
 flume = "0.10.14"
 
 [dev-dependencies]
-reqwest = "0.11.18"
+reqwest = { version = "0.11.18", default-features = false, features = ["rustls-tls"] }
 serial_test = "2.0.0"
-clickhouse = { version = "0.11.4", features = ["test-util"] }
+clickhouse = { version = "0.11.5", features = ["test-util"] }
 
 [features]
 default = []

@@ -14,6 +14,12 @@ const inter = Inter({
 export const metadata = {
   description: `${SHORT_DESCRIPTION}. ${DESCRIPTION}`,
   themeColor: tailwind.theme.extend.colors.dark,
+  icons: {
+    icon: [
+      { url: '/favicon-black.ico', media: '(prefers-color-scheme: light)' },
+      { url: '/favicon-white.ico', media: '(prefers-color-scheme: dark)' },
+    ],
+  },
   openGraph: {
     url: 'https://lagon.app',
     type: 'website',

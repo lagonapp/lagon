@@ -1,6 +1,6 @@
 use anyhow::Result;
-use async_trait::async_trait;
 use futures::{Stream, StreamExt};
+use std::pin::Pin;
 
 use crate::{PubSubListener, PubSubMessage};
 
@@ -27,13 +27,14 @@ impl Default for FakePubSub {
     }
 }
 
-#[async_trait]
 impl PubSubListener for FakePubSub {
-    async fn connect(&mut self) -> Result<()> {
-        Ok(())
-    }
-
-    fn get_stream(&mut self) -> Box<dyn Stream<Item = PubSubMessage> + Unpin + Send + '_> {
-        Box::new(self.rx.clone().into_stream().boxed())
+    fn get_stream(&mut self) -> Result<Pin<Box<dyn Stream<Item = Result<PubSubMessage>>>>> {
+        Ok(Box::pin(
+            self.rx
+                .clone()
+                .into_stream()
+                .map(|result| Ok(result))
+                .boxed(),
+        ))
     }
 }

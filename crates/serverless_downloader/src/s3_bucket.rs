@@ -16,7 +16,7 @@ impl S3BucketDownloader {
 
 #[async_trait]
 impl Downloader for S3BucketDownloader {
-    async fn download(&self, path: String) -> Result<Vec<u8>> {
+    async fn download(&self, path: &str) -> Result<Vec<u8>> {
         let object = self.bucket.get_object(path).await?;
         Ok(object.bytes().to_vec())
     }

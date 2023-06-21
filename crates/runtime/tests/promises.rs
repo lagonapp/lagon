@@ -1,5 +1,5 @@
 use httptest::{matchers::*, responders::*, Expectation, Server};
-use hyper::{header::CONTENT_TYPE, Request, Response};
+use hyper::{header::CONTENT_TYPE, Body, Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -17,10 +17,8 @@ async fn execute_async_handler() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Async handler".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Async handler"),
     )
     .await;
 }
@@ -45,10 +43,8 @@ async fn execute_promise() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello, World".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello, World"),
     )
     .await;
 }

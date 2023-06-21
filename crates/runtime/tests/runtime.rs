@@ -20,10 +20,8 @@ async fn execute_function() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
     )
     .await;
 }
@@ -43,10 +41,8 @@ export { hello as handler }"
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
     )
     .await;
 }
@@ -64,10 +60,8 @@ async fn execute_function_twice() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
     )
     .await;
 
@@ -75,10 +69,8 @@ async fn execute_function_twice() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
     )
     .await;
 }
@@ -103,10 +95,8 @@ async fn environment_variables() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
     )
     .await;
 }
@@ -162,10 +152,8 @@ async fn get_body() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
     )
     .await;
 }
@@ -190,10 +178,8 @@ async fn get_input() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("https://hello.world/hello".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("https://hello.world/hello"),
     )
     .await;
 }
@@ -217,10 +203,8 @@ async fn get_method() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("POST".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("POST"),
     )
     .await;
 }
@@ -243,10 +227,8 @@ async fn get_headers() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("token".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("token"),
     )
     .await;
 }
@@ -271,9 +253,8 @@ async fn return_headers() {
         &receiver,
         Response::builder()
             .header(CONTENT_TYPE, "text/html")
-            .header("x-test", "test")
-            .body("Hello world".into())
-            .unwrap(),
+            .header("x-test", "test"),
+        Body::from("Hello world"),
     )
     .await;
 }
@@ -298,9 +279,8 @@ async fn return_headers_from_headers_api() {
         &receiver,
         Response::builder()
             .header(CONTENT_TYPE, "text/html")
-            .header("x-test", "test")
-            .body("Hello world".into())
-            .unwrap(),
+            .header("x-test", "test"),
+        Body::from("Hello world"),
     )
     .await;
 }
@@ -322,9 +302,8 @@ async fn return_status() {
         &receiver,
         Response::builder()
             .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .status(302)
-            .body("Moved permanently".into())
-            .unwrap(),
+            .status(302),
+        Body::from("Moved permanently"),
     )
     .await;
 }
@@ -342,11 +321,7 @@ async fn return_uint8array() {
     ));
     send(Request::default());
 
-    utils::assert_response(
-        &receiver,
-        Response::builder().body("Hello world".into()).unwrap(),
-    )
-    .await;
+    utils::assert_response(&receiver, Response::builder(), Body::from("Hello world")).await;
 }
 
 #[tokio::test]
@@ -368,10 +343,8 @@ async fn console_log() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from(""),
     )
     .await;
 }
@@ -389,10 +362,8 @@ async fn atob() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello"),
     )
     .await;
 }
@@ -410,10 +381,8 @@ async fn btoa() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("SGVsbG8=".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("SGVsbG8="),
     )
     .await;
 }

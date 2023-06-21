@@ -41,7 +41,6 @@ async fn returns_correct_http() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -83,7 +82,6 @@ async fn returns_correct_path() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -133,15 +131,15 @@ async fn forwards_headers() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
 
     let response = reqwest::get("http://127.0.0.1:4000").await?;
     assert_eq!(response.status(), 200);
-    assert_eq!(response.headers()["x-lagon-region"], "local");
-    assert_eq!(response.headers()["x-forwarded-for"], "127.0.0.1");
+    assert_eq!(response.headers()["accept"], "*/*");
+    assert_eq!(response.headers()["accept-encoding"], "gzip");
+    assert_eq!(response.headers()["host"], "127.0.0.1:4000");
     assert_eq!(response.text().await?, "");
 
     Ok(())
@@ -174,7 +172,6 @@ async fn stream_sequentially() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);

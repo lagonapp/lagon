@@ -1,4 +1,4 @@
-use hyper::{header::CONTENT_TYPE, Request, Response};
+use hyper::{header::CONTENT_TYPE, Body, Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -24,10 +24,8 @@ export function handler() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true"),
     )
     .await;
 }
@@ -51,7 +49,7 @@ export function handler() {
     ));
     send(Request::default());
 
-    utils::assert_response(&receiver, Response::default()).await;
+    utils::assert_response(&receiver, Response::builder(), Body::empty()).await;
 }
 
 #[tokio::test]
@@ -74,7 +72,7 @@ export function handler() {
     ));
     send(Request::default());
 
-    utils::assert_response(&receiver, Response::default()).await;
+    utils::assert_response(&receiver, Response::builder(), Body::empty()).await;
 }
 
 #[tokio::test]
@@ -111,7 +109,7 @@ export function handler() {
     ));
     send(Request::default());
 
-    utils::assert_response(&receiver, Response::default()).await;
+    utils::assert_response(&receiver, Response::builder(), Body::empty()).await;
 }
 
 #[tokio::test]
@@ -160,7 +158,7 @@ export function handler() {
     ));
     send(Request::default());
 
-    utils::assert_response(&receiver, Response::default()).await;
+    utils::assert_response(&receiver, Response::builder(), Body::empty()).await;
 }
 
 #[tokio::test]
@@ -193,10 +191,8 @@ export async function handler() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("2".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("2"),
     )
     .await;
 
@@ -204,10 +200,8 @@ export async function handler() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("4".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("4"),
     )
     .await;
 
