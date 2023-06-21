@@ -336,7 +336,9 @@ export async function getDeploymentCode(deploymentId: string) {
     if (tsContent.Body instanceof Readable) {
       return streamToString(tsContent.Body);
     }
-  } catch (e) {}
+  } catch (e) {
+    console.warn(`${deploymentId} haven't ts file, e: ${(e as Error).message}`);
+  }
 
   const content = await s3.send(
     new GetObjectCommand({
