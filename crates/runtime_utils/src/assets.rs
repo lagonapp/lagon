@@ -6,7 +6,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-pub fn find_asset<'a>(url: &'a str, assets: &'a HashSet<String>) -> Option<&'a String> {
+pub fn find_asset<'a>(url: &'a str, assets: &'a HashSet<String>) -> Option<&'a str> {
     // Fast path to return early if there are no assets
     if assets.len() == 0 {
         return None;
@@ -15,12 +15,15 @@ pub fn find_asset<'a>(url: &'a str, assets: &'a HashSet<String>) -> Option<&'a S
     // Remove the leading '/' from the url
     let url = &url[1..];
 
-    assets.iter().find(|asset| {
-        **asset == url
-            || asset.replace(".html", "") == url
-            || asset.replace("/index.html", "") == url
-            || asset.replace("index.html", "") == url
-    })
+    assets
+        .iter()
+        .find(|asset| {
+            **asset == url
+                || asset.replace(".html", "") == url
+                || asset.replace("/index.html", "") == url
+                || asset.replace("index.html", "") == url
+        })
+        .map(|asset| asset.as_str())
 }
 
 pub fn handle_asset(root: PathBuf, asset: &str) -> Result<(Builder, Body)> {
@@ -64,15 +67,12 @@ mod tests {
         .into_iter()
         .collect::<HashSet<String>>();
 
-        assert_eq!(find_asset("/", &assets), Some(&"index.html".into()));
-        assert_eq!(find_asset("/about", &assets), Some(&"about.html".into()));
-        assert_eq!(
-            find_asset("/hello", &assets),
-            Some(&"hello/index.html".into())
-        );
+        assert_eq!(find_asset("/", &assets), Some("index.html"));
+        assert_eq!(find_asset("/about", &assets), Some("about.html"));
+        assert_eq!(find_asset("/hello", &assets), Some("hello/index.html"));
         assert_eq!(
             find_asset("/hello/world", &assets),
-            Some(&"hello/world.html".into())
+            Some("hello/world.html")
         );
     }
 
@@ -87,21 +87,15 @@ mod tests {
         .into_iter()
         .collect::<HashSet<String>>();
 
-        assert_eq!(
-            find_asset("/index.html", &assets),
-            Some(&"index.html".into())
-        );
-        assert_eq!(
-            find_asset("/about.html", &assets),
-            Some(&"about.html".into())
-        );
+        assert_eq!(find_asset("/index.html", &assets), Some("index.html"));
+        assert_eq!(find_asset("/about.html", &assets), Some("about.html"));
         assert_eq!(
             find_asset("/hello/index.html", &assets),
-            Some(&"hello/index.html".into())
+            Some("hello/index.html")
         );
         assert_eq!(
             find_asset("/hello/world.html", &assets),
-            Some(&"hello/world.html".into())
+            Some("hello/world.html")
         );
     }
 
