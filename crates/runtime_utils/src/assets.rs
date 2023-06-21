@@ -23,7 +23,7 @@ pub fn find_asset<'a>(url: &'a str, assets: &'a HashSet<String>) -> Option<&'a S
     })
 }
 
-pub fn handle_asset(root: PathBuf, asset: &String) -> Result<(Builder, Body)> {
+pub fn handle_asset(root: PathBuf, asset: &str) -> Result<(Builder, Body)> {
     let path = root.join(asset);
     let body = fs::read(path)?;
 

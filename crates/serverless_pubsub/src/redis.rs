@@ -1,4 +1,4 @@
-use super::{PubSubListener, PubSubMessage};
+use super::{PubSubListener, PubSubMessage, PubSubMessageKind};
 use anyhow::Result;
 use futures::Stream;
 use log::info;
@@ -33,7 +33,7 @@ impl PubSubListener for RedisPubSub {
 
             loop {
                 let msg = pubsub.get_message()?;
-                let kind = msg.get_channel_name().to_string().into();
+                let kind = PubSubMessageKind::from(msg.get_channel_name());
                 let payload = msg.get_payload::<String>()?;
 
                 yield Ok(PubSubMessage { kind, payload });

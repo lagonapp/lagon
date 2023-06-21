@@ -46,7 +46,7 @@ async fn handle_error(
     result: RunResult,
     function_id: String,
     deployment_id: String,
-    request_id: &String,
+    request_id: &str,
     inserters: Arc<Mutex<(Inserter<RequestRow>, Inserter<LogRow>)>>,
 ) {
     let (level, message) = match result {
