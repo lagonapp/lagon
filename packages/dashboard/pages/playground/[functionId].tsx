@@ -63,10 +63,13 @@ const PlaygroundPage = () => {
               code = monaco.editor.getModels()[1].getValue();
             }
 
+            let tsCode = '';
+
             setIsLoading(true);
 
             if (esbuildStatus === ESBuildStatus.Success) {
               try {
+                tsCode = code;
                 const files = new Map<string, { content: string }>();
 
                 files.set('index.ts', {
@@ -90,16 +93,30 @@ const PlaygroundPage = () => {
             const deployment = await createDeployment.mutateAsync({
               functionId: func.id,
               functionSize: new TextEncoder().encode(code).length,
+              tsSize: new TextEncoder().encode(tsCode).length,
               assets: [],
             });
 
-            await fetch(deployment.codeUrl, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'text/javascript',
-              },
-              body: code,
-            });
+            await Promise.all([
+              fetch(deployment.codeUrl, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'text/javascript',
+                },
+                body: code,
+              }),
+              ...(tsCode.length > 0
+                ? [
+                    fetch(deployment.tsCodeUrl!, {
+                      method: 'PUT',
+                      headers: {
+                        'Content-Type': 'text/javascript',
+                      },
+                      body: tsCode,
+                    }),
+                  ]
+                : []),
+            ]);
 
             await deployDeployment.mutateAsync({
               functionId: func.id,
