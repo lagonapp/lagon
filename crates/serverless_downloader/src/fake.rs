@@ -9,7 +9,7 @@ pub struct FakeDownloader;
 
 #[async_trait]
 impl Downloader for FakeDownloader {
-    async fn download(&self, path: String) -> Result<Vec<u8>> {
+    async fn download(&self, path: &str) -> Result<Vec<u8>> {
         let path = Path::new(DEPLOYMENTS_DIR).join(path);
         let bytes = fs::read(path)?;
         Ok(bytes)
