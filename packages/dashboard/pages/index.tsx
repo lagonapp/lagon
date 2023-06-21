@@ -6,7 +6,7 @@ import { trpc } from 'lib/trpc';
 import { useRouter } from 'next/router';
 import { getLocaleProps, useScopedI18n } from 'locales';
 import { GetStaticProps } from 'next';
-import { DEFAULT_FUNCTION } from 'lib/constants';
+import { DEFAULT_FUNCTION, DEFAULT_TS_FUNCTION } from 'lib/constants';
 
 const Home = () => {
   const createFunction = trpc.functionCreate.useMutation();
@@ -35,16 +35,26 @@ const Home = () => {
             const deployment = await createDeployment.mutateAsync({
               functionId: func.id,
               functionSize: new TextEncoder().encode(DEFAULT_FUNCTION).length,
+              tsSize: new TextEncoder().encode(DEFAULT_TS_FUNCTION).length,
               assets: [],
             });
 
-            await fetch(deployment.codeUrl, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'text/javascript',
-              },
-              body: DEFAULT_FUNCTION,
-            });
+            await await Promise.all([
+              fetch(deployment.codeUrl, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'text/javascript',
+                },
+                body: DEFAULT_FUNCTION,
+              }),
+              fetch(deployment.tsCodeUrl!, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'text/javascript',
+                },
+                body: DEFAULT_TS_FUNCTION,
+              }),
+            ]);
 
             await deployDeployment.mutateAsync({
               functionId: func.id,

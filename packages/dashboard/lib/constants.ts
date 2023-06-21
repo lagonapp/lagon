@@ -44,3 +44,7 @@ export type Regions = keyof typeof REGIONS;
 export const DEFAULT_FUNCTION = `export function handler(request) {
   return new Response("Hello World!")
 }`;
+
+export const DEFAULT_TS_FUNCTION = `export function handler(request: Request) {
+  return new Response("Hello World!")
+}`;
