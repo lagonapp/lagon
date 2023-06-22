@@ -315,6 +315,78 @@ export async function removeFunction(func: {
   });
 }
 
+export async function upgradeFunctions({ plan, organizationId }: { plan: Plan; organizationId: string }) {
+  await prisma.function.updateMany({
+    where: {
+      organizationId,
+    },
+    data: {
+      tickTimeout: plan.tickTimeout,
+      totalTimeout: plan.totalTimeout,
+    },
+  });
+
+  const functions = await prisma.function.findMany({
+    where: {
+      organizationId,
+    },
+    select: {
+      id: true,
+      createdAt: true,
+      updatedAt: true,
+      name: true,
+      domains: {
+        select: {
+          domain: true,
+        },
+      },
+      memory: true,
+      tickTimeout: true,
+      totalTimeout: true,
+      cron: true,
+      cronRegion: true,
+      env: {
+        select: {
+          key: true,
+          value: true,
+        },
+      },
+      deployments: {
+        select: {
+          id: true,
+          triggerer: true,
+          commit: true,
+          isProduction: true,
+          assets: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      },
+    },
+  });
+
+  const promises = functions.map(async func => {
+    const domains = func.domains.map(({ domain }) => domain);
+    const deployment = func.deployments.find(deployment => deployment.isProduction);
+
+    if (deployment) {
+      await redeploy(
+        {
+          ...func,
+          domains,
+        },
+        {
+          ...deployment,
+          assets: deployment.assets as string[],
+        },
+        domains,
+      );
+    }
+  });
+
+  await Promise.all(promises);
+}
+
 async function streamToString(stream: Readable): Promise<string> {
   return await new Promise((resolve, reject) => {
     const chunks: Uint8Array[] = [];
