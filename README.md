@@ -70,3 +70,9 @@ Starting an Isolate is a lot faster than starting a whole Node.js process, which
 ## License
 
 [GNU AGPLv3](./LICENSE)
+
+## Sponsors ❤️
+
+Thanks a lot to every current and past sponsor!
+
+![./assets/sponsors.svg](Sponsors list)
