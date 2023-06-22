@@ -38,6 +38,7 @@ pub async fn promote(deployment_id: String, directory: Option<PathBuf>) -> Resul
             println!();
             let end_progress = print_progress("Promoting Deployment");
             TrpcClient::new(config)
+                .set_organization_id(function_config.organization_id.clone())
                 .mutation::<PromoteDeploymentRequest, PromoteDeploymentResponse>(
                     "deploymentPromote",
                     PromoteDeploymentRequest {
