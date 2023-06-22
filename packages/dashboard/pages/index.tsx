@@ -39,7 +39,7 @@ const Home = () => {
               assets: [],
             });
 
-            await await Promise.all([
+            await Promise.all([
               fetch(deployment.codeUrl, {
                 method: 'PUT',
                 headers: {

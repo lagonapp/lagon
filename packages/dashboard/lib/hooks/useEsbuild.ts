@@ -96,6 +96,7 @@ export const useEsbuild = () => {
     }
   }, [isEsbuildLoading, esbuildStatus]);
 
+  // these options should match the ones in crates/cli/src/utils/deployments.rs
   const build = useCallback(
     (files: EsbuildFileSystem) =>
       esbuild.build({
@@ -107,6 +108,7 @@ export const useEsbuild = () => {
         target: 'esnext',
         platform: 'browser',
         conditions: ['lagon', 'worker'],
+        define: { 'process.env.NODE_ENV': 'production' },
         plugins: [resolvePlugin(files)],
       }),
     [isEsbuildLoading, esbuildStatus],
