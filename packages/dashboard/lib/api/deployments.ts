@@ -113,8 +113,8 @@ export async function removeDeployment(
 
 export async function unpromoteProductionDeployment(functionId: string): Promise<
   | {
-    id: string;
-  }
+      id: string;
+    }
   | undefined
 > {
   const currentDeployment = await prisma.deployment.findFirst({
@@ -315,7 +315,7 @@ export async function removeFunction(func: {
   });
 }
 
-export async function upgradeFunctions({ plan, organizationId }: { plan: Plan, organizationId: string }) {
+export async function upgradeFunctions({ plan, organizationId }: { plan: Plan; organizationId: string }) {
   await prisma.function.updateMany({
     where: {
       organizationId,
@@ -323,8 +323,8 @@ export async function upgradeFunctions({ plan, organizationId }: { plan: Plan, o
     data: {
       tickTimeout: plan.tickTimeout,
       totalTimeout: plan.totalTimeout,
-    }
-  })
+    },
+  });
 
   const functions = await prisma.function.findMany({
     where: {
@@ -361,8 +361,8 @@ export async function upgradeFunctions({ plan, organizationId }: { plan: Plan, o
           createdAt: true,
           updatedAt: true,
         },
-      }
-    }
+      },
+    },
   });
 
   const promises = functions.map(async func => {
@@ -374,12 +374,15 @@ export async function upgradeFunctions({ plan, organizationId }: { plan: Plan, o
         {
           ...func,
           domains,
-        }, {
-        ...deployment,
-        assets: deployment.assets as string[],
-      }, domains)
+        },
+        {
+          ...deployment,
+          assets: deployment.assets as string[],
+        },
+        domains,
+      );
     }
-  })
+  });
 
   await Promise.all(promises);
 }

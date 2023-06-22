@@ -50,8 +50,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
 
     const organizationId = session.metadata!.organizationId;
-    const priceId = subscription.items.data[0].price.id
-    const currentPeriodEnd = new Date(subscription.current_period_end * 1000)
+    const priceId = subscription.items.data[0].price.id;
+    const currentPeriodEnd = new Date(subscription.current_period_end * 1000);
 
     await prisma.organization.update({
       where: {
@@ -70,7 +70,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       currentPeriodEnd,
     });
 
-    await upgradeFunctions({ plan, organizationId })
+    await upgradeFunctions({ plan, organizationId });
   }
 
   if (event.type === 'invoice.payment_succeeded') {
