@@ -6,7 +6,7 @@ use lagon_runtime_v8_utils::v8_string;
 use linked_hash_map::LinkedHashMap;
 use std::{
     cell::{RefCell, RefMut},
-    collections::{BTreeMap, HashMap},
+    collections::HashMap,
     pin::Pin,
     rc::Rc,
     sync::{Arc, RwLock},
@@ -68,7 +68,7 @@ pub struct IsolateState {
     lines: usize,
     requests_count: u32,
     log_sender: Option<flume::Sender<(String, String, Metadata)>>,
-    compression_table: BTreeMap<String, CompressionInner>,
+    compression_table: HashMap<String, CompressionInner>,
 }
 
 #[derive(Debug)]
@@ -205,7 +205,7 @@ impl Isolate {
                 lines: 0,
                 requests_count: 0,
                 log_sender: options.log_sender.clone(),
-                compression_table: BTreeMap::<String, CompressionInner>::new(),
+                compression_table: HashMap::<String, CompressionInner>::new(),
             }
         };
 
