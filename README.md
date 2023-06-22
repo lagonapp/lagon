@@ -75,4 +75,4 @@ Starting an Isolate is a lot faster than starting a whole Node.js process, which
 
 Thanks a lot to every current and past sponsor!
 
-![./assets/sponsors.svg](Sponsors list)
+![./assets/sponsors.png](Sponsors list)
