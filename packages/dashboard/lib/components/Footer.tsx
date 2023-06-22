@@ -3,6 +3,7 @@ import Link from 'next/link';
 import packageJson from '../../package.json';
 import { GitHubIcon } from './GitHubIcon';
 import { TwitterIcon } from './TwitterIcon';
+import { StatusBadge } from './StatusBadge';
 
 type FooterLinkProps = {
   children: ReactNode;
@@ -24,7 +25,8 @@ const Footer = () => {
   return (
     <footer className="flex h-16 items-center justify-center border-t border-t-stone-200 bg-white text-sm text-stone-500 dark:border-t-stone-700 dark:bg-stone-900 dark:text-stone-400">
       <div className="flex w-full max-w-4xl items-center justify-center gap-8">
-        <span className="mr-auto">v{packageJson.version}</span>
+        <span>v{packageJson.version}</span>
+        <StatusBadge />
         <FooterLink href="https://github.com/lagonapp/lagon">
           <GitHubIcon className="h-4" />
           GitHub
