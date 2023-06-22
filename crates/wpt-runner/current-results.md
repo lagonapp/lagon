@@ -39,7 +39,7 @@ TEST DONE 0 Create headers with 1 should throw
 TEST DONE 0 Create headers with sequence
 TEST DONE 0 Create headers with record
 TEST DONE 0 Create headers with existing headers
-TEST DONE 0 Create headers with existing headers with custom iterator
+TEST DONE 1 Create headers with existing headers with custom iterator
 TEST DONE 0 Check append method
 TEST DONE 0 Check set method
 TEST DONE 0 Check has method
@@ -95,9 +95,9 @@ TEST DONE 1 "no-cors" Headers object cannot have content-language set to , sssss
 TEST DONE 1 "no-cors" Headers object cannot have content-type set to text/plain;ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss, text/plain
 TEST DONE 1 Loading data…
 Running ../../tools/wpt/fetch/api/headers/headers-normalize.any.js
-TEST DONE 0 Create headers with not normalized values
-TEST DONE 0 Check append method with not normalized values
-TEST DONE 0 Check set method with not normalized values
+TEST DONE 1 Create headers with not normalized values
+TEST DONE 1 Check append method with not normalized values
+TEST DONE 1 Check set method with not normalized values
 Running ../../tools/wpt/fetch/api/headers/headers-record.any.js
 TEST DONE 0 Passing nothing to Headers constructor
 TEST DONE 0 Passing undefined to Headers constructor
@@ -294,7 +294,7 @@ TEST DONE 1 Request should get its content-type from the body if none is provide
 TEST DONE 1 Request should get its content-type from init headers if one is provided
 TEST DONE 0 Testing request header creations with various objects
 TEST DONE 0 Test that Request.headers has the [SameObject] extended attribute
-TEST DONE 1 Testing empty Request Content-Type header
+TEST DONE 0 Testing empty Request Content-Type header
 Running ../../tools/wpt/fetch/api/request/request-init-002.any.js
 TEST DONE 0 Initialize Request with headers values
 TEST DONE 0 Initialize Request's body with "undefined", undefined
@@ -471,7 +471,7 @@ TEST DONE 1 Initialize Response's body with multipart/form-data
 TEST DONE 0 Initialize Response's body with application/x-www-form-urlencoded;charset=UTF-8
 TEST DONE 0 Initialize Response's body with text/plain;charset=UTF-8
 TEST DONE 0 Read Response's body as readableStream
-TEST DONE 1 Testing empty Response Content-Type header
+TEST DONE 0 Testing empty Response Content-Type header
 Running ../../tools/wpt/fetch/api/response/response-init-contenttype.any.js
 TEST DONE 0 Default Content-Type for Response with empty body
 TEST DONE 0 Default Content-Type for Response with Blob body (no type set)
@@ -1405,5 +1405,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1277 tests, 648 passed, 624 failed (5 not completed)
+1277 tests, 646 passed, 626 failed (5 not completed)
  -> 50% conformance

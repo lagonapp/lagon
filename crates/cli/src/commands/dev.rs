@@ -7,11 +7,15 @@ use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
 use hyper::{Body, Request, Response, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
-use lagon_runtime_http::{RunResult, X_FORWARDED_FOR, X_LAGON_REGION};
+use lagon_runtime_http::{
+    RunResult, X_FORWARDED_FOR, X_FORWARDED_HOST, X_FORWARDED_PROTO, X_LAGON_ID, X_LAGON_REGION,
+    X_REAL_IP,
+};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use lagon_runtime_isolate::{IsolateEvent, IsolateRequest};
 use lagon_runtime_utils::assets::{find_asset, handle_asset};
 use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL};
+use lagon_runtime_utils::Deployment;
 use notify::event::ModifyKind;
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
@@ -28,7 +32,6 @@ fn parse_environment_variables(
     path: Option<PathBuf>,
     env: Option<PathBuf>,
 ) -> Result<HashMap<String, String>> {
-    let path = path.unwrap_or_else(|| PathBuf::from("."));
     let mut environment_variables = HashMap::new();
 
     if let Some(env) = env {
@@ -39,15 +42,28 @@ fn parse_environment_variables(
         }
 
         println!("{}", style("Loaded .env file...").black().bright());
-    } else if let Ok(envfile) = EnvFile::new(path.join(".env")) {
-        for (key, value) in envfile.store {
-            environment_variables.insert(key, value);
-        }
-
-        println!(
-            "{}",
-            style("Automatically loaded .env file...").black().bright()
+    } else {
+        let path = path.map_or_else(
+            || PathBuf::from("."),
+            |path| {
+                if path.is_file() {
+                    PathBuf::from(".")
+                } else {
+                    path
+                }
+            },
         );
+
+        if let Ok(envfile) = EnvFile::new(path.join(".env")) {
+            for (key, value) in envfile.store {
+                environment_variables.insert(key, value);
+            }
+
+            println!(
+                "{}",
+                style("Automatically loaded .env file...").black().bright()
+            );
+        }
     }
 
     Ok(environment_variables)
@@ -68,8 +84,6 @@ async fn handle_request(
     let (tx, rx) = flume::unbounded();
     let assets = assets.lock().await.to_owned();
 
-    let is_favicon = url == FAVICON_URL;
-
     if let Some(asset) = find_asset(url, &assets.keys().cloned().collect()) {
         println!(
             "{} {} {} {}",
@@ -80,14 +94,15 @@ async fn handle_request(
         );
 
         let run_result = match handle_asset(public_dir.unwrap(), asset) {
-            Ok(response) => RunResult::Response(response, None),
+            Ok((response_builder, body)) => RunResult::Response(response_builder, body, None),
             Err(error) => RunResult::Error(format!("Could not retrieve asset ({asset}): {error}")),
         };
 
         tx.send_async(run_result).await.unwrap_or(());
-    } else if is_favicon {
+    } else if url == FAVICON_URL {
         tx.send_async(RunResult::Response(
-            Response::builder().status(404).body(Body::empty())?,
+            Response::builder().status(404),
+            Body::empty(),
             None,
         ))
         .await
@@ -104,7 +119,12 @@ async fn handle_request(
         let body = hyper::body::to_bytes(body).await?;
 
         parts.headers.insert(X_FORWARDED_FOR, ip.parse()?);
+        parts.headers.insert(X_FORWARDED_PROTO, "http".parse()?);
+        parts.headers.insert(X_FORWARDED_HOST, "localhost".parse()?);
+        parts.headers.insert(X_REAL_IP, ip.parse()?);
+
         parts.headers.insert(X_LAGON_REGION, LOCAL_REGION.parse()?);
+        parts.headers.insert(X_LAGON_ID, "".parse()?);
 
         let request = (parts, body);
 
@@ -117,14 +137,13 @@ async fn handle_request(
             .unwrap_or(());
     }
 
-    handle_response(rx, |event| async move {
+    let deployment = Arc::new(Deployment {
+        is_production: false,
+        ..Deployment::default()
+    });
+
+    handle_response(rx, deployment, |event| async move {
         match event {
-            ResponseEvent::StreamDoneNoDataError => {
-                println!(
-                    "{} The stream was done before sending a response/data",
-                    style("✕").red()
-                );
-            }
             ResponseEvent::UnexpectedStreamResult(result) => {
                 println!(
                     "{} Unexpected stream result: {:?}",

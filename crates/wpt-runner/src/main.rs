@@ -3,12 +3,11 @@ use hyper::{http::Request, Body};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_runtime_http::RunResult;
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate, IsolateEvent, IsolateRequest};
-use once_cell::sync::Lazy;
 use std::{
     env, fs,
     path::{Path, PathBuf},
     process::exit,
-    sync::Mutex,
+    sync::{Mutex, OnceLock},
 };
 use tokio::runtime::Handle;
 
@@ -43,14 +42,9 @@ const SUPPORT_FORMDATA: &str =
     include_str!("../../../tools/wpt/FileAPI/support/send-file-formdata-helper.js");
 const STREAM_DISTURBED_UTIL: &str =
     include_str!("../../../tools/wpt/fetch/api/response/response-stream-disturbed-util.js");
+const TEST_HARNESS: &str = include_str!("../../../tools/wpt/resources/testharness.js");
 
-static RESULT: Lazy<Mutex<(usize, usize, usize)>> = Lazy::new(|| Mutex::new((0, 0, 0)));
-static TEST_HARNESS: Lazy<String> = Lazy::new(|| {
-    include_str!("../../../tools/wpt/resources/testharness.js")
-        .to_owned()
-        .replace("})(self);", "})(globalThis);")
-        .replace("debug: false", "debug: true")
-});
+static RESULT: OnceLock<Mutex<(usize, usize, usize)>> = OnceLock::new();
 
 const SKIP_TESTS: [&str; 22] = [
     // response
@@ -122,7 +116,9 @@ export function handler() {{
     {code}
     return new Response()
 }}",
-        TEST_HARNESS.as_str(),
+        TEST_HARNESS
+            .replace("})(self);", "})(globalThis);")
+            .replace("debug: false", "debug: true"),
     )
     .replace("self.", "globalThis.");
 
@@ -142,14 +138,16 @@ export function handler() {{
         while let Ok(log) = logs_receiver.recv_async().await {
             let content = log.1;
 
+            let result = RESULT.get_or_init(|| Mutex::new((0, 0, 0)));
+
             if content.starts_with("TEST DONE 0") {
-                RESULT.lock().unwrap().1 += 1;
+                result.lock().unwrap().1 += 1;
                 println!("{}", style(content).green());
             } else if content.starts_with("TEST DONE 1") {
-                RESULT.lock().unwrap().2 += 1;
+                result.lock().unwrap().2 += 1;
                 println!("{}", style(content).red());
             } else if content.starts_with("TEST START") {
-                RESULT.lock().unwrap().0 += 1;
+                result.lock().unwrap().0 += 1;
             } else {
                 // println!("{}", content);
             }
@@ -223,23 +221,25 @@ async fn main() {
         test_directory(Path::new("../../tools/wpt/urlpattern")).await;
     }
 
-    let result = RESULT.lock().unwrap();
-    println!();
-    println!(
-        "{} tests, {} passed, {} failed ({} not completed)",
-        result.0,
-        style(result.1.to_string()).green(),
-        style(result.2.to_string()).red(),
-        result.0 - (result.1 + result.2)
-    );
-
-    if result.2 == 0 {
-        println!(" -> 100% conformance");
-    } else {
+    if let Some(result) = RESULT.get() {
+        let result = result.lock().unwrap();
+        println!();
         println!(
-            " -> {}% conformance",
-            (result.1 * 100) / (result.1 + result.2)
+            "{} tests, {} passed, {} failed ({} not completed)",
+            result.0,
+            style(result.1.to_string()).green(),
+            style(result.2.to_string()).red(),
+            result.0 - (result.1 + result.2)
         );
+
+        if result.2 == 0 {
+            println!(" -> 100% conformance");
+        } else {
+            println!(
+                " -> {}% conformance",
+                (result.1 * 100) / (result.1 + result.2)
+            );
+        }
     }
 
     runtime.dispose();

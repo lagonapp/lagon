@@ -27,6 +27,26 @@ import { useScopedI18n } from 'locales';
 import { Copiable, Link } from '@lagon/ui';
 import { ComponentProps, ReactNode, useEffect, useState } from 'react';
 import { getHumanFriendlyCron } from 'lib/utils';
+import { isInSubnet } from 'is-in-subnet';
+
+// https://www.cloudflare.com/ips-v4
+const CLOUDFLARE_SUBNETS = [
+  '173.245.48.0/20',
+  '103.21.244.0/22',
+  '103.22.200.0/22',
+  '103.31.4.0/22',
+  '141.101.64.0/18',
+  '108.162.192.0/18',
+  '190.93.240.0/20',
+  '188.114.96.0/20',
+  '197.234.240.0/22',
+  '198.41.128.0/17',
+  '162.158.0.0/15',
+  '104.16.0.0/13',
+  '104.24.0.0/14',
+  '172.64.0.0/13',
+  '131.0.72.0/22',
+];
 
 type FunctionSettingsProps = {
   func: ReturnType<typeof useFunction>['data'];
@@ -80,7 +100,7 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
       );
 
       const promises = func.domains.map(async domain => {
-        const response = await fetch(`https://cloudflare-dns.com/dns-query?name=${domain}&type=CNAME`, {
+        const response = await fetch(`https://cloudflare-dns.com/dns-query?name=${domain}`, {
           headers: {
             accept: 'application/dns-json',
           },
@@ -97,23 +117,41 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         const newDomainsStatus = results.reduce<DomainsStatus>((acc, current) => {
           const { domain, result } = current;
 
+          const data = result.Answer?.[0]?.data;
           let domainStatus: DomainStatus;
 
-          if (result.Answer?.[0]?.data === `${defaultDomain}.`) {
+          if (data === `${defaultDomain}.`) {
+            // Record pointing to the function's domain
             domainStatus = {
               status: 'success',
               help: t('domains.list.valid'),
             };
-          } else if (result.Authority?.[0].data?.includes('dns.cloudflare.com.')) {
+          } else if (data && isInSubnet(data, CLOUDFLARE_SUBNETS)) {
+            // Proxied behind Cloudflare, can't check if set up properly
             domainStatus = {
               status: 'info',
               help: t('domains.list.valid.cf'),
             };
-          } else {
+          } else if (data) {
+            // Record set but wrong
             domainStatus = {
               status: 'danger',
               help: t('domains.list.invalid', {
-                domain: result.Answer?.[0]?.data ?? '""',
+                domain: result.Answer?.[0]?.data ?? '',
+                target: (
+                  <Copiable value={defaultDomain} className="inline-flex">
+                    <Text size="sm" strong>
+                      {defaultDomain}
+                    </Text>
+                  </Copiable>
+                ),
+              }),
+            };
+          } else {
+            // No record set
+            domainStatus = {
+              status: 'danger',
+              help: t('domains.list.invalid.none', {
                 target: (
                   <Copiable value={defaultDomain} className="inline-flex">
                     <Text size="sm" strong>

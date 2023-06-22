@@ -1,4 +1,4 @@
-use crate::REGION;
+use crate::get_region;
 use anyhow::{anyhow, Result};
 use dashmap::DashMap;
 use futures::{stream::FuturesUnordered, StreamExt};
@@ -26,7 +26,9 @@ pub async fn download_deployment<D>(deployment: &Deployment, downloader: Arc<D>)
 where
     D: Downloader,
 {
-    match downloader.download(deployment.id.clone() + ".js").await {
+    let path = format!("{}.js", deployment.id);
+
+    match downloader.download(&path).await {
         Ok(object) => {
             deployment.write_code(&object)?;
             info!(deployment = deployment.id; "Wrote deployment");
@@ -36,8 +38,9 @@ where
 
                 for asset in &deployment.assets {
                     futures.push(async {
-                        let future =
-                            downloader.download(deployment.id.clone() + "/" + asset.as_str());
+                        let path = format!("{}/{}", deployment.id, asset.clone());
+                        let future = downloader.download(&path);
+
                         (future.await, asset.clone())
                     });
                 }
@@ -114,7 +117,7 @@ WHERE
 OR
     Function.cronRegion = '{}'
 ",
-            REGION.as_str()
+            get_region()
         ),
         |(
             id,

@@ -5,7 +5,7 @@ use crypto::{
     verify_binding, verify_init,
 };
 use fetch::{fetch_binding, fetch_init};
-use hyper::{body::Bytes, http::response::Parts};
+use hyper::{body::Bytes, HeaderMap};
 use lagon_runtime_http::response_to_v8;
 use lagon_runtime_v8_utils::{v8_boolean, v8_string, v8_uint8array};
 use pull_stream::pull_stream_binding;
@@ -39,7 +39,7 @@ pub struct BindingResult {
 }
 
 pub enum PromiseResult {
-    Response((Parts, Bytes)),
+    Response((u16, HeaderMap, Bytes)),
     ArrayBuffer(Vec<u8>),
     Boolean(bool),
     Error(String),

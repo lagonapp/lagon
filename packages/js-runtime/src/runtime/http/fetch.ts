@@ -1,42 +1,48 @@
 (globalThis => {
-  const isHeadersObject = (headers?: HeadersInit): headers is Headers => !!headers && 'entries' in headers;
-
   const FORCE_0_CONTENT_LENGTH_METHODS = ['POST', 'PUT'];
 
   globalThis.fetch = async (input, init) => {
-    let headers: Map<string, string> | undefined = undefined;
-
-    if (isHeadersObject(init?.headers)) {
-      headers = new Map();
-
-      for (const [key, value] of (init?.headers as Headers).entries()) {
-        headers.set(key, value);
-      }
-    } else if (init?.headers) {
-      headers = new Map(Object.entries(init.headers));
-    }
-
+    const headers = new Headers(init?.headers);
     let body: string | undefined;
 
-    if (init?.body) {
-      if (globalThis.__lagon__.isIterable(init.body)) {
-        body = globalThis.__lagon__.TEXT_DECODER.decode(init.body);
+    const isInputRequest = input instanceof Request;
+
+    if (init?.body || (isInputRequest && (input as Request).body)) {
+      const paramBody = init?.body || (input as Request).body;
+
+      if (globalThis.__lagon__.isIterable(paramBody)) {
+        body = globalThis.__lagon__.TEXT_DECODER.decode(paramBody);
+      } else if (paramBody instanceof ReadableStream) {
+        body = '';
+
+        // @ts-expect-error iterate over the stream
+        for await (const chunk of paramBody) {
+          body += globalThis.__lagon__.TEXT_DECODER.decode(chunk);
+        }
       } else {
-        if (typeof init.body !== 'string') {
+        if (typeof paramBody !== 'string') {
           // TODO: Support other body types
           throw new Error('Body must be a string or an iterable');
         }
 
-        body = init.body;
+        body = paramBody;
       }
     }
 
-    if (body === undefined && init?.method && FORCE_0_CONTENT_LENGTH_METHODS.includes(init.method)) {
-      if (!headers) {
-        headers = new Map();
+    let method = init?.method || 'GET';
+    let url = input.toString();
+
+    if (isInputRequest) {
+      for (const [key, value] of (input as Request).headers.entries()) {
+        headers.set(key, value);
       }
 
-      headers?.set('content-length', '0');
+      method = init?.method || (input as Request).method;
+      url = (input as Request).url.toString();
+    }
+
+    if (body === undefined && init?.method && FORCE_0_CONTENT_LENGTH_METHODS.includes(init.method)) {
+      headers.set('content-length', '0');
     }
 
     const checkAborted = () => {
@@ -49,10 +55,11 @@
       checkAborted();
 
       const response = await LagonAsync.fetch({
-        m: init?.method || 'GET',
-        u: input.toString(),
+        m: method,
+        u: url,
         b: body,
-        h: headers,
+        // @ts-expect-error private property
+        h: headers.h,
       });
 
       checkAborted();

@@ -1,6 +1,6 @@
 use anyhow::Result;
-use async_trait::async_trait;
 use futures::Stream;
+use std::pin::Pin;
 
 mod fake;
 mod redis;
@@ -27,9 +27,9 @@ impl PubSubMessage {
     }
 }
 
-impl From<String> for PubSubMessageKind {
-    fn from(value: String) -> Self {
-        match value.as_str() {
+impl From<&str> for PubSubMessageKind {
+    fn from(value: &str) -> Self {
+        match value {
             "deploy" => Self::Deploy,
             "undeploy" => Self::Undeploy,
             "promote" => Self::Promote,
@@ -38,9 +38,6 @@ impl From<String> for PubSubMessageKind {
     }
 }
 
-#[async_trait]
-pub trait PubSubListener: Send + Sized {
-    async fn connect(&mut self) -> Result<()>;
-
-    fn get_stream(&mut self) -> Box<dyn Stream<Item = PubSubMessage> + Unpin + Send + '_>;
+pub trait PubSubListener: Send {
+    fn get_stream(&mut self) -> Result<Pin<Box<dyn Stream<Item = Result<PubSubMessage>>>>>;
 }

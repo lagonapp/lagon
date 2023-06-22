@@ -17,7 +17,7 @@ pub const DEPLOYMENTS_DIR: &str = "deployments";
 #[cfg(feature = "test")]
 pub const DEPLOYMENTS_DIR: &str = "deployments_test";
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Deployment {
     pub id: String,
     pub function_id: String,

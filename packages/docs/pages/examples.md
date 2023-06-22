@@ -16,6 +16,10 @@ This example replies with JSON, setting the proper `Content-Type` header. [See t
 
 ## Libraries
 
+### Drizzle with Turso
+
+This example uses [Drizzle](https://github.com/drizzle-team/drizzle-orm), a TypeScript ORM that has a SQL-like syntax with [Turso](https://turso.tech) as a distributed SQLite database, with typesafe queries and migrations. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/drizzle-turso)
+
 ### HatTip
 
 This example uses [HatTip](https://github.com/hattipjs/hattip), a minimalist express-like library that runs anywhere, via Lagon's adapter. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/hattip)
@@ -93,6 +97,10 @@ This example uses [Astro](https://astro.build), a static site generator, with bo
 ### Nuxt
 
 This example uses [Nuxt](https://nuxt.com), the intuitive web framework for Vue, with SSR via Lagon's preset. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/nuxt)
+
+### Nuxt Complex
+
+This example uses [Nuxt](https://nuxt.com) with multiple pages, layouts, api routes and more. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/nuxt-complex)
 
 ### Rakkas
 

@@ -1,5 +1,5 @@
 use super::{download_deployment, filesystem::rm_deployment, Deployment, Deployments};
-use crate::{cronjob::Cronjob, serverless::Workers, REGION};
+use crate::{cronjob::Cronjob, get_region, serverless::Workers};
 use anyhow::Result;
 use futures::StreamExt;
 use lagon_runtime_isolate::IsolateEvent;
@@ -27,15 +27,13 @@ async fn run<D, P>(
     pubsub: Arc<Mutex<P>>,
 ) -> Result<()>
 where
-    D: Downloader + Send + 'static,
-    P: PubSubListener + Unpin + Send,
+    D: Downloader,
+    P: PubSubListener,
 {
     let mut pubsub = pubsub.lock().await;
-    pubsub.connect().await?;
+    let mut stream = pubsub.get_stream()?;
 
-    let mut stream = pubsub.get_stream();
-
-    while let Some(PubSubMessage { kind, payload }) = stream.next().await {
+    while let Some(Ok(PubSubMessage { kind, payload })) = stream.next().await {
         let value: Value = serde_json::from_str(&payload)?;
 
         let cron = value["cron"].as_str();
@@ -44,10 +42,7 @@ where
         // Ignore deployments that have a cron set but where
         // the region isn't this node' region, except for undeploys
         // because we might remove the cron from the old region
-        if cron.is_some()
-            && cron_region != REGION.to_string()
-            && kind != PubSubMessageKind::Undeploy
-        {
+        if cron.is_some() && &cron_region != get_region() && kind != PubSubMessageKind::Undeploy {
             continue;
         }
 
@@ -93,7 +88,6 @@ where
                             "status" => "success",
                             "deployment" => deployment.id.clone(),
                             "function" => deployment.function_id.clone(),
-                            "region" => REGION.clone(),
                         );
 
                         let domains = deployment.get_domains();
@@ -118,7 +112,6 @@ where
                             "status" => "error",
                             "deployment" => deployment.id.clone(),
                             "function" => deployment.function_id.clone(),
-                            "region" => REGION.clone(),
                         );
                         error!(
                             deployment = deployment.id;
@@ -135,7 +128,6 @@ where
                             "status" => "success",
                             "deployment" => deployment.id.clone(),
                             "function" => deployment.function_id.clone(),
-                            "region" => REGION.clone(),
                         );
 
                         let domains = deployment.get_domains();
@@ -165,7 +157,6 @@ where
                             "status" => "error",
                             "deployment" => deployment.id.clone(),
                             "function" => deployment.function_id.clone(),
-                            "region" => REGION.clone(),
                         );
                         error!(deployment = deployment.id; "Failed to delete deployment: {}", error);
                     }
@@ -176,7 +167,6 @@ where
                     "lagon_promotion",
                     "deployment" => deployment.id.clone(),
                     "function" => deployment.function_id.clone(),
-                    "region" => REGION.clone(),
                 );
 
                 let previous_id = value["previousDeploymentId"].as_str().unwrap();
@@ -235,7 +225,7 @@ pub fn listen_pub_sub<D, P>(
     pubsub: Arc<Mutex<P>>,
 ) where
     D: Downloader + Send + Sync + 'static,
-    P: PubSubListener + Unpin + Send + 'static,
+    P: PubSubListener + 'static,
 {
     let handle = Handle::current();
     std::thread::spawn(move || {

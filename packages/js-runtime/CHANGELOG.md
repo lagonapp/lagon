@@ -1,5 +1,11 @@
 # @lagon/js-runtime
 
+## 0.3.17
+
+### Patch Changes
+
+- [#949](https://github.com/lagonapp/lagon/pull/949) [`d003a29`](https://github.com/lagonapp/lagon/commit/d003a2937775f00c17e1bf6b83d46310355c077d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve performance of Headers & Body (Request & Response)
+
 ## 0.3.16
 
 ### Patch Changes

@@ -1,11 +1,10 @@
 use super::{
     validate_assets_dir, validate_code_file, Config, MAX_ASSET_SIZE_MB, MAX_FUNCTION_SIZE_MB,
 };
-use crate::utils::{print_progress, TrpcClient, THEME};
+use crate::utils::{get_theme, print_progress, TrpcClient};
 use anyhow::{anyhow, Result};
 use dialoguer::console::style;
 use dialoguer::{Confirm, Input};
-use hyper::{Body, Method, Request};
 use pathdiff::diff_paths;
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
@@ -58,7 +57,7 @@ impl FunctionConfig {
                     index
                 }
                 None => {
-                    let index = Input::<String>::with_theme(&*THEME)
+                    let index = Input::<String>::with_theme(get_theme())
                         .with_prompt(format!(
                             "Path to your Function's entrypoint? {}",
                             style(format!("(relative to {:?})", root.canonicalize()?))
@@ -83,13 +82,13 @@ impl FunctionConfig {
                     );
                     Some(assets)
                 }
-                None => match Confirm::with_theme(&*THEME)
+                None => match Confirm::with_theme(get_theme())
                     .with_prompt("Do you have a public directory to serve assets from?")
                     .default(false)
                     .interact()?
                 {
                     true => {
-                        let assets = Input::<String>::with_theme(&*THEME)
+                        let assets = Input::<String>::with_theme(get_theme())
                             .with_prompt(format!(
                                 "Path to your Function's public directory? {}",
                                 style(format!("(relative to {:?})", root.canonicalize()?))
@@ -428,12 +427,12 @@ pub async fn create_deployment(
 
     let end_progress = print_progress("Uploading files");
 
-    let request = Request::builder()
-        .method(Method::PUT)
-        .uri(code_url)
-        .body(Body::from(index))?;
-
-    trpc_client.client.request(request).await?;
+    trpc_client
+        .client
+        .request("PUT".parse()?, code_url)
+        .body(index)
+        .send()
+        .await?;
 
     let mut join_set = tokio::task::JoinSet::new();
     for (asset, url) in assets_urls {
@@ -484,11 +483,12 @@ pub async fn create_deployment(
 }
 
 async fn upload_asset(trpc_client: Arc<TrpcClient>, asset: Vec<u8>, url: String) -> Result<()> {
-    let request = Request::builder()
-        .method(Method::PUT)
-        .uri(url)
-        .body(Body::from(asset))?;
+    trpc_client
+        .client
+        .request("PUT".parse()?, url)
+        .body(asset)
+        .send()
+        .await?;
 
-    trpc_client.client.request(request).await?;
     Ok(())
 }

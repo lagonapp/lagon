@@ -1,4 +1,4 @@
-use hyper::{header::CONTENT_TYPE, Request, Response};
+use hyper::{header::CONTENT_TYPE, Body, Request, Response};
 use lagon_runtime_http::RunResult;
 use lagon_runtime_isolate::options::IsolateOptions;
 use std::time::Duration;
@@ -20,10 +20,8 @@ async fn crypto_random_uuid() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("string 36 false".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("string 36 false"),
     )
     .await;
 }
@@ -43,10 +41,8 @@ async fn crypto_get_random_values() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true 3 3 false false".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true 3 3 false false"),
     )
     .await;
 }
@@ -66,10 +62,8 @@ async fn crypto_get_random_values_update_in_place() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("3 false".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("3 false"),
     )
     .await;
 }
@@ -117,10 +111,8 @@ async fn crypto_key_value() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("object 6".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("object 6"),
     )
     .await;
 }
@@ -153,10 +145,8 @@ async fn crypto_unique_key_value() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("false".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("false"),
     )
     .await;
 }
@@ -186,10 +176,8 @@ async fn crypto_sign() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true 32".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true 32"),
     )
     .await;
 }
@@ -223,10 +211,8 @@ async fn crypto_verify() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true"),
     )
     .await;
 }
@@ -246,12 +232,8 @@ async fn crypto_digest_sha1() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body(
-                "20 183,226,62,194,154,242,43,11,78,65,218,49,232,104,213,114,38,18,28,132".into(),
-            )
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("20 183,226,62,194,154,242,43,11,78,65,218,49,232,104,213,114,38,18,28,132"),
     )
     .await;
 }
@@ -272,11 +254,10 @@ async fn crypto_digest_string() {
     utils::assert_response(
         &receiver,
         Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body(
-                "32 9,202,126,78,170,110,138,233,199,210,97,22,113,41,24,72,131,100,77,7,223,186,124,191,188,76,138,46,8,54,13,91".into(),
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+            Body::from(
+                "32 9,202,126,78,170,110,138,233,199,210,97,22,113,41,24,72,131,100,77,7,223,186,124,191,188,76,138,46,8,54,13,91"
             )
-            .unwrap(),
     )
     .await;
 }
@@ -297,11 +278,10 @@ async fn crypto_digest_object() {
     utils::assert_response(
         &receiver,
         Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body(
-                "32 9,202,126,78,170,110,138,233,199,210,97,22,113,41,24,72,131,100,77,7,223,186,124,191,188,76,138,46,8,54,13,91".into(),
+            .header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+            Body::from(
+                "32 9,202,126,78,170,110,138,233,199,210,97,22,113,41,24,72,131,100,77,7,223,186,124,191,188,76,138,46,8,54,13,91"
             )
-            .unwrap(),
     )
     .await;
 }
@@ -335,10 +315,8 @@ async fn crypto_encrypt_aes_gcm() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true 28".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true 28"),
     )
     .await;
 }
@@ -378,10 +356,8 @@ async fn crypto_decrypt_aes_gcm() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("hello, world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("hello, world"),
     )
     .await;
 }
@@ -415,10 +391,8 @@ async fn crypto_encrypt_aes_cbc() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true 16".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true 16"),
     )
     .await;
 }
@@ -458,10 +432,8 @@ async fn crypto_decrypt_aes_cbc() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("hello, world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("hello, world"),
     )
     .await;
 }
@@ -495,10 +467,8 @@ async fn crypto_encrypt_aes_ctr() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true 12".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true 12"),
     )
     .await;
 }
@@ -538,10 +508,8 @@ async fn crypto_decrypt_aes_ctr() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("hello, world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("hello, world"),
     )
     .await;
 }
@@ -578,10 +546,8 @@ async fn crypto_encrypt_rsa_oaep() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true 128".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true 128"),
     )
     .await;
 }
@@ -626,10 +592,8 @@ async fn crypto_decrypt_rsa_oaep() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("hello, world".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("hello, world"),
     )
     .await;
 }
@@ -666,10 +630,8 @@ async fn crypto_hkdf_derive_bits() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("16".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("16"),
     )
     .await;
 }
@@ -706,10 +668,8 @@ async fn crypto_pbkdf2_derive_bits() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("16".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("16"),
     )
     .await;
 }
@@ -766,10 +726,8 @@ async fn crypto_ecdh_derive_bits() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("256 384".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("256 384"),
     )
     .await;
 }
@@ -812,10 +770,8 @@ async fn crypto_derive_key() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true true true true true".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true true true true true"),
     )
     .await;
 }
@@ -856,10 +812,8 @@ async fn crypto_ecdsa_sign_verify() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true"),
     )
     .await;
 }
@@ -905,10 +859,8 @@ async fn crypto_rsa_pss_sign_verify() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true"),
     )
     .await;
 }
@@ -954,10 +906,8 @@ async fn crypto_rsa_ssa_sign_verify() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("true".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true"),
     )
     .await;
 }

@@ -1,7 +1,6 @@
 use super::Config;
 use anyhow::{anyhow, Result};
-use hyper::{body, client::HttpConnector, Body, Client, Method, Request};
-use hyper_tls::HttpsConnector;
+use reqwest::{Client, ClientBuilder};
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use urlencoding::encode;
 
@@ -26,13 +25,13 @@ pub struct TrpcErrorResult {
 }
 
 pub struct TrpcClient {
-    pub client: Client<HttpsConnector<HttpConnector>>,
+    pub client: Client,
     config: Config,
 }
 
 impl TrpcClient {
     pub fn new(config: Config) -> Self {
-        let client = Client::builder().build::<_, Body>(HttpsConnector::new());
+        let client = ClientBuilder::new().use_rustls_tls().build().unwrap();
 
         Self { client, config }
     }
@@ -47,21 +46,18 @@ impl TrpcClient {
             None => String::new(),
         };
 
-        let request = Request::builder()
-            .method(Method::GET)
-            .uri(format!(
-                "{}/api/trpc/{}{}",
-                self.config.site_url.clone(),
-                key,
-                input,
-            ))
+        let response = self
+            .client
+            .request(
+                "GET".parse()?,
+                format!("{}/api/trpc/{}{}", self.config.site_url.clone(), key, input,),
+            )
             .header("content-type", "application/json")
             .header("x-lagon-token", self.config.token.as_ref().unwrap())
-            .body(Body::empty())?;
+            .send()
+            .await?;
 
-        let response = self.client.request(request).await?;
-        let body = body::to_bytes(response.into_body()).await?;
-        let body = String::from_utf8(body.to_vec())?;
+        let body = response.text().await?;
 
         match serde_json::from_str::<TrpcResponse<R>>(&body) {
             Ok(response) => Ok(response),
@@ -79,16 +75,19 @@ impl TrpcClient {
     {
         let body = serde_json::to_string(&body)?;
 
-        let request = Request::builder()
-            .method(Method::POST)
-            .uri(format!("{}/api/trpc/{}", self.config.site_url.clone(), key))
+        let response = self
+            .client
+            .request(
+                "POST".parse()?,
+                format!("{}/api/trpc/{}", self.config.site_url.clone(), key),
+            )
             .header("content-type", "application/json")
             .header("x-lagon-token", self.config.token.as_ref().unwrap())
-            .body(Body::from(body))?;
+            .body(body)
+            .send()
+            .await?;
 
-        let response = self.client.request(request).await?;
-        let body = body::to_bytes(response.into_body()).await?;
-        let body = String::from_utf8(body.to_vec())?;
+        let body = response.text().await?;
 
         match serde_json::from_str::<TrpcResponse<R>>(&body) {
             Ok(response) => Ok(response),

@@ -1,4 +1,4 @@
-use hyper::{header::CONTENT_TYPE, Request, Response};
+use hyper::{header::CONTENT_TYPE, Body, Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -17,10 +17,8 @@ return new Response(result)
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("2".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("2"),
     )
     .await;
 }
@@ -39,10 +37,8 @@ async fn allow_function() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("2".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("2"),
     )
     .await;
 }

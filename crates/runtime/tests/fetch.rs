@@ -1,5 +1,5 @@
 use httptest::{matchers::*, responders::*, Expectation, Server};
-use hyper::{header::CONTENT_TYPE, Request, Response};
+use hyper::{header::CONTENT_TYPE, Body, Request, Response};
 use lagon_runtime_http::RunResult;
 use lagon_runtime_isolate::options::IsolateOptions;
 
@@ -25,10 +25,8 @@ async fn basic_fetch() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello, World".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello, World"),
     )
     .await;
 }
@@ -56,10 +54,8 @@ async fn request_method() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello, World".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello, World"),
     )
     .await;
 }
@@ -87,10 +83,8 @@ async fn request_method_fallback() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello, World".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello, World"),
     )
     .await;
 }
@@ -123,10 +117,8 @@ async fn request_headers() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello, World".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello, World"),
     )
     .await;
 }
@@ -159,10 +151,8 @@ async fn request_headers_class() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello, World".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello, World"),
     )
     .await;
 }
@@ -194,10 +184,8 @@ async fn request_body() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Hello, World".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello, World"),
     )
     .await;
 }
@@ -231,10 +219,8 @@ async fn response_headers() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("content-length: 0 content-type: text/plain;charset=UTF-8 x-token: hello".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("content-length: 0 content-type: text/plain;charset=UTF-8 x-token: hello"),
     )
     .await;
 }
@@ -265,10 +251,8 @@ async fn response_status() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Moved: 200".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Moved: 200"),
     )
     .await;
 }
@@ -295,10 +279,8 @@ async fn response_json() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body(r#"object {"hello":"world"}"#.into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from(r#"object {"hello":"world"}"#),
     )
     .await;
 }
@@ -323,7 +305,7 @@ async fn response_array_buffer() {
     )));
     send(Request::default());
 
-    utils::assert_response(&receiver, Response::new("Hello, World".into())).await;
+    utils::assert_response(&receiver, Response::builder(), Body::from("Hello, World")).await;
 }
 
 #[tokio::test]
@@ -342,7 +324,7 @@ async fn throw_invalid_url() {
 
     utils::assert_run_result(
         &receiver,
-        RunResult::Error("Uncaught Error: client requires absolute-form URIs".into()),
+        RunResult::Error("Uncaught Error: builder error: relative URL without a base".into()),
     )
     .await;
 }
@@ -401,10 +383,8 @@ async fn abort_signal() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Aborted".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Aborted"),
     )
     .await;
 }
@@ -429,10 +409,8 @@ async fn redirect() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("200".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("200"),
     )
     .await;
 }
@@ -461,34 +439,8 @@ async fn redirect_relative_url() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("200".into())
-            .unwrap(),
-    )
-    .await;
-}
-
-#[tokio::test]
-async fn redirect_without_location_header() {
-    utils::setup();
-    let server = Server::run();
-    server.expect(
-        Expectation::matching(request::method_path("GET", "/")).respond_with(status_code(301)),
-    );
-    let url = server.url("/");
-
-    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
-        "export async function handler() {{
-    const status = (await fetch('{url}')).status;
-    return new Response(status);
-}}"
-    )));
-    send(Request::default());
-
-    utils::assert_run_result(
-        &receiver,
-        RunResult::Error("Uncaught Error: Got a redirect without Location header".into()),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("200"),
     )
     .await;
 }
@@ -529,7 +481,7 @@ async fn redirect_loop() {
 
     utils::assert_run_result(
         &receiver,
-        RunResult::Error("Uncaught Error: Too many redirects".into()),
+        RunResult::Error("Uncaught Error: error following redirect: Too many redirects".into()),
     )
     .await;
 }
@@ -578,10 +530,8 @@ export async function handler() {{
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("ok".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("ok"),
     )
     .await;
 }
@@ -600,12 +550,12 @@ async fn fetch_https() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("200".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("200"),
     )
     .await;
+
+    tokio::time::sleep(std::time::Duration::from_secs(1)).await;
 }
 
 #[tokio::test]
@@ -642,10 +592,86 @@ async fn fetch_set_content_length() {
 
     utils::assert_response(
         &receiver,
-        Response::builder()
-            .header(CONTENT_TYPE, "text/plain;charset=UTF-8")
-            .body("Ok".into())
-            .unwrap(),
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Ok"),
+    )
+    .await;
+}
+
+#[tokio::test]
+async fn fetch_input_request() {
+    utils::setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(all_of![
+            request::method_path("POST", "/"),
+            request::headers(contains(("x-token", "hello"))),
+            request::body("Hello!"),
+        ])
+        .respond_with(status_code(200).body("Hello, World")),
+    );
+    let url = server.url("/");
+
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
+    const body = await fetch(new Request('{url}', {{
+        method: 'POST',
+        headers: {{
+            'x-token': 'hello'
+        }},
+        body: 'Hello!'
+    }})).then(res => res.text());
+    return new Response(body);
+}}"
+    )));
+    send(Request::default());
+
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello, World"),
+    )
+    .await;
+}
+
+#[tokio::test]
+async fn fetch_input_request_init() {
+    utils::setup();
+    let server = Server::run();
+    server.expect(
+        Expectation::matching(all_of![
+            request::method_path("POST", "/"),
+            request::headers(contains(("x-token", "hello"))),
+            request::body("Hello!"),
+        ])
+        .respond_with(status_code(200).body("Hello, World")),
+    );
+    let url = server.url("/");
+
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(format!(
+        "export async function handler() {{
+    const body = await fetch(new Request('{url}', {{
+        method: 'GET',
+        headers: {{
+            'hello': 'world'
+        }},
+        body: 'No'
+    }}), {{
+        method: 'POST',
+        headers: {{
+            'x-token': 'hello'
+        }},
+        body: 'Hello!'
+    }}).then(res => res.text());
+    return new Response(body);
+}}"
+    )));
+    send(Request::default());
+
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello, World"),
     )
     .await;
 }

@@ -36,5 +36,5 @@ pub fn get_bucket() -> Result<Bucket> {
 
 #[async_trait]
 pub trait Downloader {
-    async fn download(&self, path: String) -> Result<Vec<u8>>;
+    async fn download(&self, path: &str) -> Result<Vec<u8>>;
 }
