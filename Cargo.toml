@@ -13,3 +13,10 @@ panic = "abort"
 
 [profile.dev.package.num-bigint-dig]
 opt-level = 3
+
+
+[profile.bench.package.flate2]
+opt-level = 3
+
+[profile.release.package.flate2]
+opt-level = 3

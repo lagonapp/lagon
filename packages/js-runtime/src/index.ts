@@ -30,25 +30,7 @@ import './runtime/http/fetch';
 // NOTE: we use `var` to that we can refer to these variables
 // using `globalThis.VARIABLE`.
 
-interface CompressionStream {
-  readonly readable: ReadableStream<Uint8Array>;
-  readonly writable: WritableStream<Uint8Array>;
-}
-
-interface DecompressionStream {
-  readonly readable: ReadableStream<Uint8Array>;
-  readonly writable: WritableStream<Uint8Array>;
-}
-
-type CompressionFormat = 'deflate' | 'deflate-raw' | 'gzip';
-
 declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace globalThis {
-    var CompressionStream: { new (format: CompressionFormat): CompressionStream; prototype: CompressionStream };
-    var DecompressionStream: { new (format: CompressionFormat): DecompressionStream; prototype: DecompressionStream };
-  }
-
   interface AsyncContextConstructor {
     new (): AsyncContext;
     wrap(callback: (...args: unknown[]) => void): (...args: unknown[]) => void;
