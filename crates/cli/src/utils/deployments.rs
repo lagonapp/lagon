@@ -399,7 +399,11 @@ pub async fn create_deployment(
 
     let end_progress = print_progress("Creating Deployment");
 
-    let trpc_client = Arc::new(TrpcClient::new(config));
+    let mut trpc_client = TrpcClient::new(config);
+    trpc_client.set_organization_id(function_config.organization_id.clone());
+
+    let trpc_client = Arc::new(trpc_client);
+
     let response = trpc_client
         .mutation::<CreateDeploymentRequest, CreateDeploymentResponse>(
             "deploymentCreate",
@@ -440,7 +444,7 @@ pub async fn create_deployment(
             .get(&asset)
             .unwrap_or_else(|| panic!("Couldn't find asset {asset}"));
 
-        join_set.spawn(upload_asset(trpc_client.clone(), asset.clone(), url));
+        join_set.spawn(upload_asset(Arc::clone(&trpc_client), asset.clone(), url));
     }
 
     while let Some(res) = join_set.join_next().await {
