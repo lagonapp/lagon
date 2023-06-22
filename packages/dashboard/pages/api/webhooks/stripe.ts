@@ -4,6 +4,8 @@ import { stripe } from 'lib/stripe';
 import type Stripe from 'stripe';
 import prisma from 'lib/prisma';
 import { Readable } from 'node:stream';
+import { upgradeFunctions } from 'lib/api/deployments';
+import { getPlanFromPriceId } from 'lib/plans';
 
 export const config = {
   api: {
@@ -47,17 +49,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (event.type === 'checkout.session.completed') {
     const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
 
+    const organizationId = session.metadata!.organizationId;
+    const priceId = subscription.items.data[0].price.id
+    const currentPeriodEnd = new Date(subscription.current_period_end * 1000)
+
     await prisma.organization.update({
       where: {
-        id: session.metadata!.organizationId,
+        id: organizationId,
       },
       data: {
         stripeSubscriptionId: subscription.id,
         stripeCustomerId: subscription.customer as string,
-        stripeCurrentPeriodEnd: new Date(subscription.current_period_end * 1000),
-        stripePriceId: subscription.items.data[0].price.id,
+        stripeCurrentPeriodEnd: currentPeriodEnd,
+        stripePriceId: priceId,
       },
     });
+
+    const plan = getPlanFromPriceId({
+      priceId,
+      currentPeriodEnd,
+    });
+
+    await upgradeFunctions({ plan, organizationId })
   }
 
   if (event.type === 'invoice.payment_succeeded') {
