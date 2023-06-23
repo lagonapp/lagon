@@ -360,8 +360,8 @@ export const organizationsRouter = (t: T) =>
             },
           ],
           mode: 'subscription',
-          success_url: `${process.env.NEXTAUTH_URL}/settings`,
-          cancel_url: `${process.env.NEXTAUTH_URL}/settings`,
+          success_url: `${process.env.NEXTAUTH_URL}/settings?tab=billingUsage&updateSucceeded=true`,
+          cancel_url: `${process.env.NEXTAUTH_URL}/settings?tab=billingUsage&updateFailed=true`,
           customer_email: ctx.session.user.email,
           metadata: {
             organizationId: ctx.session.organization.id,
@@ -386,7 +386,7 @@ export const organizationsRouter = (t: T) =>
 
         const session = await stripe.billingPortal.sessions.create({
           customer: input.stripeCustomerId,
-          return_url: `${process.env.NEXTAUTH_URL}/settings`,
+          return_url: `${process.env.NEXTAUTH_URL}/settings?tab=billingUsage`,
         });
 
         return {
