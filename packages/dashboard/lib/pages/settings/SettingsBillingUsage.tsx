@@ -56,10 +56,10 @@ const SettingsBillingUsage = () => {
   const [isLoadingPlan, setIsLoadingPlan] = useState(false);
   const t = useScopedI18n('settings');
   const { data: organizationMembers } = useOrganizationMembers();
-  const { query } = useRouter()
+  const { query } = useRouter();
 
-  const hasPlanUpdateSucceeded = !!query.updateSucceeded
-  const hasPlanUpdateFailed = !!query.updateFailed
+  const hasPlanUpdateSucceeded = !!query.updateSucceeded;
+  const hasPlanUpdateFailed = !!query.updateFailed;
   const isOrganizationOwner = session?.user.id === organizationMembers?.owner.id;
 
   const redirectStripe = async (action: () => Promise<string | undefined | null>) => {
@@ -130,16 +130,12 @@ const SettingsBillingUsage = () => {
       </Card>
       <Card title={t('subcription.title')} description={t('subcription.description')}>
         {hasPlanUpdateSucceeded ? (
-          <Banner variant="success">
-            {t('subscription.updateSuccess')}
-          </Banner>
+          <Banner variant="success">{t('subscription.updateSuccess')}</Banner>
         ) : hasPlanUpdateFailed ? (
-          <Banner variant="error">
-            {t('subscription.updateFail')}
-          </Banner>
+          <Banner variant="error">{t('subscription.updateFail')}</Banner>
         ) : null}
         <div className="flex justify-between">
-          <div className="flex gap-1 items-center">
+          <div className="flex items-center gap-1">
             <Text>Current plan:</Text>
             <Text strong>{t(`subcription.plan.${plan.type}`)}</Text>
           </div>
