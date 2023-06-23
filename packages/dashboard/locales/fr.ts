@@ -97,7 +97,10 @@ export default defineLocale({
   'settings.usage.members': "Membres dans l'Organisation",
 
   'settings.subcription.title': 'Abonnement',
-  'settings.subcription.description': ' Upgrade and manage the subscription of this Organization.',
+  'settings.subcription.description': "Upgrader et manager l'abonnement de cette Organisation.",
+  'settings.subscription.updateSuccess': "L'abonnement de cette Organisation a été mis à jour avec succès.",
+  'settings.subscription.updateFail':
+    "L'abonnement de cette Organisation n'a pas pu être mis à jour. Merci de réessayer.",
   'settings.subcription.plan.personal': 'Personal',
   'settings.subcription.plan.pro': 'Pro',
   'settings.subcription.renew': 'Renouvellement : {date}',
