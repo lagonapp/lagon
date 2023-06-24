@@ -94,6 +94,8 @@ export default {
 
   'settings.subcription.title': 'Subscription',
   'settings.subcription.description': 'Upgrade and manage the subscription of this Organization.',
+  'settings.subscription.updateSuccess': "This Organization's subscription has been updated successfully!",
+  'settings.subscription.updateFail': "This Organization's subscription could not be updated. Please try again.",
   'settings.subcription.plan.personal': 'Personal',
   'settings.subcription.plan.pro': 'Pro',
   'settings.subcription.renew': 'Renew: {date}',

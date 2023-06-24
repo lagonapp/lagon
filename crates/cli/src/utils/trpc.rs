@@ -27,13 +27,23 @@ pub struct TrpcErrorResult {
 pub struct TrpcClient {
     pub client: Client,
     config: Config,
+    organization_id: Option<String>,
 }
 
 impl TrpcClient {
     pub fn new(config: Config) -> Self {
         let client = ClientBuilder::new().use_rustls_tls().build().unwrap();
 
-        Self { client, config }
+        Self {
+            client,
+            config,
+            organization_id: None,
+        }
+    }
+
+    pub fn set_organization_id(&mut self, organization_id: String) -> &mut Self {
+        self.organization_id = Some(organization_id);
+        self
     }
 
     pub async fn query<T, R>(&self, key: &str, body: Option<T>) -> Result<TrpcResponse<R>>
@@ -46,17 +56,20 @@ impl TrpcClient {
             None => String::new(),
         };
 
-        let response = self
+        let mut builder = self
             .client
             .request(
                 "GET".parse()?,
                 format!("{}/api/trpc/{}{}", self.config.site_url.clone(), key, input,),
             )
             .header("content-type", "application/json")
-            .header("x-lagon-token", self.config.token.as_ref().unwrap())
-            .send()
-            .await?;
+            .header("x-lagon-token", self.config.token.as_ref().unwrap());
 
+        if let Some(organization_id) = &self.organization_id {
+            builder = builder.header("x-lagon-organization-id", organization_id);
+        }
+
+        let response = builder.send().await?;
         let body = response.text().await?;
 
         match serde_json::from_str::<TrpcResponse<R>>(&body) {
@@ -75,18 +88,20 @@ impl TrpcClient {
     {
         let body = serde_json::to_string(&body)?;
 
-        let response = self
+        let mut builder = self
             .client
             .request(
                 "POST".parse()?,
                 format!("{}/api/trpc/{}", self.config.site_url.clone(), key),
             )
             .header("content-type", "application/json")
-            .header("x-lagon-token", self.config.token.as_ref().unwrap())
-            .body(body)
-            .send()
-            .await?;
+            .header("x-lagon-token", self.config.token.as_ref().unwrap());
 
+        if let Some(organization_id) = &self.organization_id {
+            builder = builder.header("x-lagon-organization-id", organization_id);
+        }
+
+        let response = builder.body(body).send().await?;
         let body = response.text().await?;
 
         match serde_json::from_str::<TrpcResponse<R>>(&body) {

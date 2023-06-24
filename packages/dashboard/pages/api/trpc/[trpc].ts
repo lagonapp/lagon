@@ -22,6 +22,7 @@ const createContext = async ({
   session: Session;
 }> => {
   const tokenValue = req.headers['x-lagon-token'] as string;
+  const organizationId = req.headers['x-lagon-organization-id'] as string | undefined;
 
   // tokensAuthenticate needs to skip authentication
   if (req.query.trpc === 'tokensAuthenticate') {
@@ -58,7 +59,7 @@ const createContext = async ({
 
     const organization = await prisma.organization.findFirst({
       where: {
-        id: token.user.currentOrganizationId ?? '',
+        id: organizationId ?? token.user.currentOrganizationId ?? '',
       },
       select: {
         id: true,
