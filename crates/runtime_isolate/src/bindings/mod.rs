@@ -1,8 +1,15 @@
+use crate::Isolate;
+use compression::{
+    compression_create_binding, compression_finish_binding, compression_write_binding,
+};
 use console::console_binding;
 use crypto::{
     decrypt_binding, decrypt_init, digest_binding, encrypt_binding, encrypt_init,
     get_key_value_binding, random_values_binding, sign_binding, sign_init, uuid_binding,
     verify_binding, verify_init,
+};
+use crypto::{
+    derive_bits_binding, derive_bits_init, digest_init, generate_key_binding, generate_key_init,
 };
 use fetch::{fetch_binding, fetch_init};
 use hyper::{body::Bytes, HeaderMap};
@@ -12,13 +19,7 @@ use pull_stream::pull_stream_binding;
 use queue_microtask::queue_microtask_binding;
 use sleep::{sleep_binding, sleep_init};
 
-use crate::{
-    bindings::crypto::{
-        derive_bits_binding, derive_bits_init, digest_init, generate_key_binding, generate_key_init,
-    },
-    Isolate,
-};
-
+pub mod compression;
 pub mod console;
 pub mod crypto;
 pub mod fetch;
@@ -125,6 +126,27 @@ pub fn bind<'a>(
             lagon_object,
             "queueMicrotask",
             queue_microtask_binding
+        );
+
+        binding!(
+            scope,
+            lagon_object,
+            "compressionCreate",
+            compression_create_binding
+        );
+
+        binding!(
+            scope,
+            lagon_object,
+            "compressionWrite",
+            compression_write_binding
+        );
+
+        binding!(
+            scope,
+            lagon_object,
+            "compressionFinish",
+            compression_finish_binding
         );
 
         global.set(v8_string(scope, "LagonSync").into(), lagon_object.into());
