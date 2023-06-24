@@ -1,8 +1,15 @@
+use crate::Isolate;
+use compression::{
+    compression_create_binding, compression_finish_binding, compression_write_binding,
+};
 use console::console_binding;
 use crypto::{
     decrypt_binding, decrypt_init, digest_binding, encrypt_binding, encrypt_init,
     get_key_value_binding, random_values_binding, sign_binding, sign_init, uuid_binding,
     verify_binding, verify_init,
+};
+use crypto::{
+    derive_bits_binding, derive_bits_init, digest_init, generate_key_binding, generate_key_init,
 };
 use fetch::{fetch_binding, fetch_init};
 use hyper::{body::Bytes, HeaderMap};
@@ -11,19 +18,6 @@ use lagon_runtime_v8_utils::{v8_boolean, v8_string, v8_uint8array};
 use pull_stream::pull_stream_binding;
 use queue_microtask::queue_microtask_binding;
 use sleep::{sleep_binding, sleep_init};
-
-use crate::{
-    bindings::{
-        compression::{
-            compression_create_binding, compression_finish_binding, compression_write_binding,
-        },
-        crypto::{
-            derive_bits_binding, derive_bits_init, digest_init, generate_key_binding,
-            generate_key_init,
-        },
-    },
-    Isolate,
-};
 
 pub mod compression;
 pub mod console;

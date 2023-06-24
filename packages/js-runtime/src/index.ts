@@ -61,7 +61,7 @@ declare global {
     randomValues: <T extends ArrayBufferView | null>(array: T) => void;
     getKeyValue: () => ArrayBuffer;
     queueMicrotask: (callback: () => void) => void;
-    compressionCreate: (format: 'deflate' | 'deflate-raw' | 'gzip', isDecoder: boolean) => string;
+    compressionCreate: (format: CompressionFormat, isDecoder: boolean) => string;
     compressionWrite: (id: string, buf: Uint8Array) => Uint8Array;
     compressionFinish: (id: string) => Uint8Array;
   };

@@ -1,6 +1,9 @@
 ---
 '@lagon/js-runtime': patch
 '@lagon/runtime': patch
+'@lagon/cli': patch
+'@lagon/serverless': patch
+'@lagon/docs': patch
 ---
 
-feat: add compression
+Add `CompressionStream` & `DecompressionStream` APIs
