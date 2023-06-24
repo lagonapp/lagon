@@ -67,6 +67,12 @@ Lagon uses V8 Isolates, which are sandboxed environments used to run plain JavaS
 
 Starting an Isolate is a lot faster than starting a whole Node.js process, which allows for almost free cold starts.
 
+## Sponsors ❤️
+
+Thanks a lot to every current and past sponsor!
+
+![Sponsors list](./assets/sponsors.png)
+
 ## License
 
 [GNU AGPLv3](./LICENSE)

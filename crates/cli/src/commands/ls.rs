@@ -39,6 +39,7 @@ pub async fn ls(directory: Option<PathBuf>) -> Result<()> {
     let end_progress = print_progress("Fetching Deployments");
 
     let function = TrpcClient::new(config)
+        .set_organization_id(function_config.organization_id.clone())
         .query::<FunctionRequest, FunctionResponse>(
             "functionGet",
             Some(FunctionRequest {

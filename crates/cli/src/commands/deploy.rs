@@ -73,7 +73,9 @@ pub async fn deploy(
         );
         println!();
 
-        let trpc_client = TrpcClient::new(config.clone());
+        let mut trpc_client = TrpcClient::new(config.clone());
+        trpc_client.set_organization_id(function_config.organization_id.clone());
+
         let response = trpc_client
             .query::<(), OrganizationsResponse>("organizationsList", None)
             .await?;

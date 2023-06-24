@@ -21,7 +21,9 @@ pub async fn link(directory: Option<PathBuf>) -> Result<()> {
     match !function_config.function_id.is_empty() {
         true => Err(anyhow!("This directory is already linked to a Function")),
         false => {
-            let trpc_client = TrpcClient::new(config);
+            let mut trpc_client = TrpcClient::new(config);
+            trpc_client.set_organization_id(function_config.organization_id.clone());
+
             let response = trpc_client
                 .query::<(), OrganizationsResponse>("organizationsList", None)
                 .await?;

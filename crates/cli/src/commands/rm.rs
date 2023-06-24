@@ -38,6 +38,7 @@ pub async fn rm(directory: Option<PathBuf>) -> Result<()> {
         true => {
             let end_progress = print_progress("Deleting Function");
             TrpcClient::new(config)
+                .set_organization_id(function_config.organization_id.clone())
                 .mutation::<DeleteFunctionRequest, DeleteFunctionResponse>(
                     "functionDelete",
                     DeleteFunctionRequest {

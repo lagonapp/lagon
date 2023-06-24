@@ -19,5 +19,6 @@ export {
   Text,
   Textarea,
   Copiable,
+  Banner,
 } from './components';
 export type { LogsLevel } from './components';
