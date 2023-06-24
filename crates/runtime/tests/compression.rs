@@ -57,7 +57,7 @@ export async function handler() {{
     utils::assert_response(
         &receiver,
         Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
-        Body::from("665 1179 true"),
+        Body::from("659 1179 true"),
     )
     .await;
 }
@@ -79,7 +79,7 @@ export async function handler() {{
     utils::assert_response(
         &receiver,
         Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
-        Body::from("659 1179 true"),
+        Body::from("653 1179 true"),
     )
     .await;
 }
@@ -101,7 +101,7 @@ export async function handler() {{
     utils::assert_response(
         &receiver,
         Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
-        Body::from("677 1179 true"),
+        Body::from("671 1179 true"),
     )
     .await;
 }

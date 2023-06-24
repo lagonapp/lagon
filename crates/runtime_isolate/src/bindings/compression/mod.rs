@@ -24,6 +24,7 @@ pub enum CompressionInner {
     GzEncoder(GzEncoder<Vec<u8>>),
 }
 
+#[derive(Debug)]
 pub enum CompressionFormat {
     Gz,
     Deflate,

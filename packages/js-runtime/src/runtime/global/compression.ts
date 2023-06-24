@@ -9,16 +9,12 @@
         transform(chunk, controller) {
           const output = LagonSync.compressionWrite(id, chunk);
 
-          if (output.length > 0) {
-            controller.enqueue(output);
-          }
+          controller.enqueue(output);
         },
         flush(controller) {
           const output = LagonSync.compressionFinish(id);
 
-          if (output.length > 0) {
-            controller.enqueue(output);
-          }
+          controller.enqueue(output);
         },
       });
     }
@@ -42,16 +38,12 @@
         transform(chunk, controller) {
           const output = LagonSync.compressionWrite(id, chunk);
 
-          if (output.length > 0) {
-            controller.enqueue(output);
-          }
+          controller.enqueue(output);
         },
         flush(controller) {
           const output = LagonSync.compressionFinish(id);
 
-          if (output.length > 0) {
-            controller.enqueue(output);
-          }
+          controller.enqueue(output);
         },
       });
     }

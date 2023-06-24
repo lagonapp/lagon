@@ -25,32 +25,26 @@ fn compression_write(
     let out: Vec<u8> = match inner {
         CompressionInner::DeflateDecoder(decoder) => {
             decoder.write_all(&input)?;
-            decoder.flush()?;
             decoder.get_mut().drain(..)
         }
         CompressionInner::DeflateEncoder(decoder) => {
             decoder.write_all(&input)?;
-            decoder.flush()?;
             decoder.get_mut().drain(..)
         }
         CompressionInner::DeflateRawDecoder(decoder) => {
             decoder.write_all(&input)?;
-            decoder.flush()?;
             decoder.get_mut().drain(..)
         }
         CompressionInner::DeflateRawEncoder(decoder) => {
             decoder.write_all(&input)?;
-            decoder.flush()?;
             decoder.get_mut().drain(..)
         }
         CompressionInner::GzDecoder(decoder) => {
             decoder.write_all(&input)?;
-            decoder.flush()?;
             decoder.get_mut().drain(..)
         }
         CompressionInner::GzEncoder(decoder) => {
             decoder.write_all(&input)?;
-            decoder.flush()?;
             decoder.get_mut().drain(..)
         }
     }
