@@ -1,3 +1,9 @@
+// All credit goes to Cloudflare wrangler-legacy and
+// the initial binary-install package, which this code
+// is heavily based on.
+//
+// Cloudflare wrangler-legacy: https://github.com/cloudflare/wrangler-legacy/blob/master/npm/binary-install.js
+// binary-install: https://github.com/EverlastingBugstopper/binary-install#readme
 import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
