@@ -1,5 +1,21 @@
 # @lagon/docs
 
+## 1.0.2
+
+### Patch Changes
+
+- [#932](https://github.com/lagonapp/lagon/pull/932) [`dd96fd0`](https://github.com/lagonapp/lagon/commit/dd96fd0bf692c01023727d12415d737b21035f7d) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add `CompressionStream` & `DecompressionStream` APIs
+
+- [#984](https://github.com/lagonapp/lagon/pull/984) [`bcbfbbb`](https://github.com/lagonapp/lagon/commit/bcbfbbb58e39540c8d6cefef6c757a410dada240) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add sponsors list
+
+- [#973](https://github.com/lagonapp/lagon/pull/973) [`3a18950`](https://github.com/lagonapp/lagon/commit/3a189507a126354eaf4196f01890707b1fd905d1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Bangalore region to be ap-west instead of ap-south
+
+- [#984](https://github.com/lagonapp/lagon/pull/984) [`bcbfbbb`](https://github.com/lagonapp/lagon/commit/bcbfbbb58e39540c8d6cefef6c757a410dada240) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix favicon
+
+- [#971](https://github.com/lagonapp/lagon/pull/971) [`7a2b184`](https://github.com/lagonapp/lagon/commit/7a2b184fd194ac19aeed3aa0ff1f4f6a5326a72a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add a Drizzle and Turso example
+
+- [#970](https://github.com/lagonapp/lagon/pull/970) [`fe5a96d`](https://github.com/lagonapp/lagon/commit/fe5a96d9cdf0227fdbb3d20fd7a06ba649da67db) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Nuxt Complex example
+
 ## 1.0.1
 
 ### Patch Changes
