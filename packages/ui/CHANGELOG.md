@@ -1,5 +1,11 @@
 # @lagon/ui
 
+## 0.2.5
+
+### Patch Changes
+
+- [#987](https://github.com/lagonapp/lagon/pull/987) [`51900f3`](https://github.com/lagonapp/lagon/commit/51900f30259dc1830b97257c264040b93ca2513d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add new `Banner` component
+
 ## 0.2.4
 
 ### Patch Changes

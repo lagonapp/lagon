@@ -1,5 +1,26 @@
 # @lagon/dashboard
 
+## 0.3.12
+
+### Patch Changes
+
+- [#987](https://github.com/lagonapp/lagon/pull/987) [`51900f3`](https://github.com/lagonapp/lagon/commit/51900f30259dc1830b97257c264040b93ca2513d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve Stripe upgrade flow with success and error banners
+
+- [#983](https://github.com/lagonapp/lagon/pull/983) [`b2c1129`](https://github.com/lagonapp/lagon/commit/b2c11293fbdd3dfde1756162bf182182326c0135) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Deploy to the specified organization instead of the current selected one
+
+- [#986](https://github.com/lagonapp/lagon/pull/986) [`b91e75d`](https://github.com/lagonapp/lagon/commit/b91e75de18d7f520748740c00f8a76feb4307fac) Thanks [@colinlienard](https://github.com/colinlienard)! - Add system status in footer
+
+- [#973](https://github.com/lagonapp/lagon/pull/973) [`3a18950`](https://github.com/lagonapp/lagon/commit/3a189507a126354eaf4196f01890707b1fd905d1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Bangalore region to be ap-west instead of ap-south
+
+- [#982](https://github.com/lagonapp/lagon/pull/982) [`7cf6208`](https://github.com/lagonapp/lagon/commit/7cf620816c1a06e2936700ee88903ac6dfaedcee) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Upgrade functions limits on plan change
+
+- [#974](https://github.com/lagonapp/lagon/pull/974) [`565864b`](https://github.com/lagonapp/lagon/commit/565864b80f7c39e762cec25a953e476c08b50975) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Do not crash when cron parsing fails
+
+- [#985](https://github.com/lagonapp/lagon/pull/985) [`a6714cd`](https://github.com/lagonapp/lagon/commit/a6714cd8e2f51736e598614140905002e73aae0d) Thanks [@colinlienard](https://github.com/colinlienard)! - Add footer with version and social links
+
+- Updated dependencies [[`51900f3`](https://github.com/lagonapp/lagon/commit/51900f30259dc1830b97257c264040b93ca2513d)]:
+  - @lagon/ui@0.2.5
+
 ## 0.3.11
 
 ### Patch Changes

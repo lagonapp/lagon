@@ -1,5 +1,13 @@
 # @lagon/js-runtime
 
+## 0.3.18
+
+### Patch Changes
+
+- [#932](https://github.com/lagonapp/lagon/pull/932) [`dd96fd0`](https://github.com/lagonapp/lagon/commit/dd96fd0bf692c01023727d12415d737b21035f7d) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add `CompressionStream` & `DecompressionStream` APIs
+
+- [#965](https://github.com/lagonapp/lagon/pull/965) [`32a2c08`](https://github.com/lagonapp/lagon/commit/32a2c08a469a5dbcd23d47bafbd91d851f8a750d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow `fetch()` with a `Request`
+
 ## 0.3.17
 
 ### Patch Changes

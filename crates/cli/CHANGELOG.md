@@ -1,5 +1,19 @@
 # @lagon/cli
 
+## 0.7.6
+
+### Patch Changes
+
+- [#983](https://github.com/lagonapp/lagon/pull/983) [`b2c1129`](https://github.com/lagonapp/lagon/commit/b2c11293fbdd3dfde1756162bf182182326c0135) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Deploy to the specified organization instead of the current selected one
+
+- [#932](https://github.com/lagonapp/lagon/pull/932) [`dd96fd0`](https://github.com/lagonapp/lagon/commit/dd96fd0bf692c01023727d12415d737b21035f7d) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add `CompressionStream` & `DecompressionStream` APIs
+
+- [#972](https://github.com/lagonapp/lagon/pull/972) [`5dc7bd9`](https://github.com/lagonapp/lagon/commit/5dc7bd9ea4d8439ddbb75726855b40b506eaf1fd) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Automatically load .env file from current directory or specified path
+
+- [#990](https://github.com/lagonapp/lagon/pull/990) [`987642d`](https://github.com/lagonapp/lagon/commit/987642dc3c19667438a79ff4d991e348a2febb38) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Refactor binary installation to be more stable
+
+- [#965](https://github.com/lagonapp/lagon/pull/965) [`32a2c08`](https://github.com/lagonapp/lagon/commit/32a2c08a469a5dbcd23d47bafbd91d851f8a750d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow `fetch()` with a `Request`
+
 ## 0.7.5
 
 ### Patch Changes
