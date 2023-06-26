@@ -1,6 +1,6 @@
 {
   "name": "@lagon/cli",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "CLI for Lagon",
   "type": "module",
   "files": [
@@ -15,7 +15,9 @@
     "postinstall": "node npm/install.js"
   },
   "dependencies": {
-    "binary-install": "^1.0.6",
+    "axios": "^1.4.0",
+    "rimraf": "^5.0.1",
+    "tar": "^6.1.15",
     "update-notifier": "^6.0.2"
   },
   "devDependencies": {

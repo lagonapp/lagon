@@ -1,5 +1,21 @@
 # @lagon/serverless
 
+## 0.2.3
+
+### Patch Changes
+
+- [#932](https://github.com/lagonapp/lagon/pull/932) [`dd96fd0`](https://github.com/lagonapp/lagon/commit/dd96fd0bf692c01023727d12415d737b21035f7d) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add `CompressionStream` & `DecompressionStream` APIs
+
+- [#976](https://github.com/lagonapp/lagon/pull/976) [`0d874be`](https://github.com/lagonapp/lagon/commit/0d874be5980287e9433ffcbfcb5364c551022356) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use Jemalloc instead of the default allocator
+
+- [#977](https://github.com/lagonapp/lagon/pull/977) [`2cda111`](https://github.com/lagonapp/lagon/commit/2cda111f85d053b467a70a3486ebfb60ddaea5cc) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Reduce `clone()`ing
+
+- [#965](https://github.com/lagonapp/lagon/pull/965) [`32a2c08`](https://github.com/lagonapp/lagon/commit/32a2c08a469a5dbcd23d47bafbd91d851f8a750d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow `fetch()` with a `Request`
+
+- [#979](https://github.com/lagonapp/lagon/pull/979) [`cbc66fa`](https://github.com/lagonapp/lagon/commit/cbc66fa4d396792fb6e823f086824954bf42f6eb) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Avoid allocating `String` where possible and use `&str` instead
+
+- [#969](https://github.com/lagonapp/lagon/pull/969) [`a232492`](https://github.com/lagonapp/lagon/commit/a232492c317c8c4fe74fac0e87a0f1a60fafb505) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add a fast path when handling assets, inline dashmap
+
 ## 0.2.2
 
 ### Patch Changes

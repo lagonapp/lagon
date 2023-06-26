@@ -1,3 +1,4 @@
+use bindings::compression::CompressionInner;
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
 use hyper::{body::Bytes, http::request::Parts};
 use lagon_runtime_http::{request_to_v8, response_from_v8, RunResult, StreamResult};
@@ -67,6 +68,7 @@ pub struct IsolateState {
     lines: usize,
     requests_count: u32,
     log_sender: Option<flume::Sender<(String, String, Metadata)>>,
+    compression_table: HashMap<String, CompressionInner>,
 }
 
 #[derive(Debug)]
@@ -144,6 +146,15 @@ impl Isolate {
             v8::ExternalReference {
                 function: bindings::queue_microtask::queue_microtask_binding.map_fn_to(),
             },
+            v8::ExternalReference {
+                function: bindings::compression::compression_create_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::compression::compression_finish_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::compression::compression_write_binding.map_fn_to(),
+            },
         ];
 
         let refs = v8::ExternalReferences::new(&references);
@@ -194,6 +205,7 @@ impl Isolate {
                 lines: 0,
                 requests_count: 0,
                 log_sender: options.log_sender.clone(),
+                compression_table: HashMap::<String, CompressionInner>::new(),
             }
         };
 
