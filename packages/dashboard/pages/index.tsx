@@ -36,6 +36,7 @@ const Home = () => {
               functionId: func.id,
               functionSize: new TextEncoder().encode(DEFAULT_FUNCTION).length,
               tsSize: new TextEncoder().encode(DEFAULT_TS_FUNCTION).length,
+              platform: 'Playground',
               assets: [],
             });
 

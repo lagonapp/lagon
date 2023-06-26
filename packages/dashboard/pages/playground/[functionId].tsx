@@ -94,6 +94,7 @@ const PlaygroundPage = () => {
               functionId: func.id,
               functionSize: new TextEncoder().encode(code).length,
               tsSize: new TextEncoder().encode(tsCode).length,
+              platform: 'Playground',
               assets: [],
             });
 

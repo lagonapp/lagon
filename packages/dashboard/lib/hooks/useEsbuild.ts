@@ -83,7 +83,7 @@ export const useEsbuild = () => {
     try {
       if (EsBuildSingleton.getIsFirst()) {
         await esbuild.initialize({
-          wasmURL: `/esbuild.wasm`,
+          wasmURL: `https://esm.sh/esbuild-wasm@0.18.7/esbuild.wasm`,
         });
       }
 

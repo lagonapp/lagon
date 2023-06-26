@@ -97,6 +97,7 @@ export const functionsRouter = (t: T) =>
                 isProduction: true,
                 commit: true,
                 triggerer: true,
+                platform: true,
               },
               orderBy: {
                 createdAt: 'desc',

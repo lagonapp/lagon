@@ -143,6 +143,7 @@ model Deployment {
   triggerer    String   @default("Lagon")
   commit       String?
   isProduction Boolean  @default(false)
+  platform     String   @default("CLI")
   function     Function @relation(fields: [functionId], references: [id])
   assets       Json     @default("[]")
 
