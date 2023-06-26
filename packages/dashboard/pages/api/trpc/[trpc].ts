@@ -59,7 +59,7 @@ const createContext = async ({
 
     const organization = await prisma.organization.findFirst({
       where: {
-        id: organizationId ?? token.user.currentOrganizationId ?? '',
+        id: organizationId?.length ? organizationId : token.user.currentOrganizationId ?? '',
       },
       select: {
         id: true,
