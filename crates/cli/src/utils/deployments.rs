@@ -306,8 +306,7 @@ pub fn bundle_function(
                 .unwrap()
                 .to_str()
                 .unwrap()
-                .replace("\\", "/")
-                .to_string()
+                .replace('\\', "/")
                 + ".js",
             client_output,
         );
@@ -339,8 +338,7 @@ pub fn bundle_function(
                     .unwrap()
                     .to_str()
                     .unwrap()
-                    .replace("\\", "/")
-                    .to_string();
+                    .replace('\\', "/");
                 let file_content = fs::read(path)?;
 
                 final_assets.insert(diff, file_content);
