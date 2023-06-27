@@ -1,5 +1,11 @@
 # @lagon/cli
 
+## 0.7.7
+
+### Patch Changes
+
+- [#997](https://github.com/lagonapp/lagon/pull/997) [`cfe19e6`](https://github.com/lagonapp/lagon/commit/cfe19e6d2b763b0ac46dd7ed4f15f8ab16a2a1f0) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix assets path delimiter on Windows
+
 ## 0.7.6
 
 ### Patch Changes

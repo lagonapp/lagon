@@ -1,5 +1,11 @@
 # @lagon/dashboard
 
+## 0.3.13
+
+### Patch Changes
+
+- [#993](https://github.com/lagonapp/lagon/pull/993) [`ec8d4f9`](https://github.com/lagonapp/lagon/commit/ec8d4f93efd382b0e825e12d882352d22a25a406) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use the token's selected organization when the provided id is empty
+
 ## 0.3.12
 
 ### Patch Changes
