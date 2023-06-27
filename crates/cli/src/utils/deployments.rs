@@ -306,6 +306,7 @@ pub fn bundle_function(
                 .unwrap()
                 .to_str()
                 .unwrap()
+                .replace("\\", "/")
                 .to_string()
                 + ".js",
             client_output,
@@ -338,6 +339,7 @@ pub fn bundle_function(
                     .unwrap()
                     .to_str()
                     .unwrap()
+                    .replace("\\", "/")
                     .to_string();
                 let file_content = fs::read(path)?;
 
