@@ -159,6 +159,10 @@ globalThis.masterHandler = async (id, handler, request) => {
 
   const response = await handler(handlerRequest);
 
+  if (!(response instanceof Response)) {
+    throw new Error('Handler function should return a Response object');
+  }
+
   if (response.isStream) {
     const responseBody = response.body;
 
