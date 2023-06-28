@@ -74,6 +74,41 @@ async fn compilation_error() {
 }
 
 #[tokio::test]
+async fn return_nothing() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Error("Uncaught Error: Handler function should return a Response object".into()),
+    )
+    .await;
+}
+
+#[tokio::test]
+async fn do_not_return_response() {
+    utils::setup();
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
+        "export function handler() {
+    return new Request('/')
+}"
+        .into(),
+    ));
+    send(Request::default());
+
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Error("Uncaught Error: Handler function should return a Response object".into()),
+    )
+    .await;
+}
+
+#[tokio::test]
 async fn import_errors() {
     utils::setup();
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
