@@ -109,3 +109,7 @@ This example uses [Rakkas](https://rakkasjs.org), a React framework powered by V
 ### Remix
 
 This example uses [Remix](https://remix.run), a full-stack React framework, with SSR via Lagon's integration. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/remix)
+
+### SvelteKit
+
+This example uses [SvelteKit](https://kit.svelte.dev), the Svelte framework, with SSR via Lagon's adapter. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/sveltekit)
