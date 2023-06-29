@@ -1,6 +1,6 @@
 {
   "name": "@lagon/serverless",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Serverless software using Lagon Runtime",
   "private": true,
   "scripts": {

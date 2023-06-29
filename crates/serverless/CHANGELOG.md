@@ -1,5 +1,11 @@
 # @lagon/serverless
 
+## 0.2.4
+
+### Patch Changes
+
+- [#1001](https://github.com/lagonapp/lagon/pull/1001) [`d71d4c5`](https://github.com/lagonapp/lagon/commit/d71d4c56256090e1dd5f7ed15209ccb4c002d951) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Throw an error if handler function do no return a Response
+
 ## 0.2.3
 
 ### Patch Changes
