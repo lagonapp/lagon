@@ -1,6 +1,6 @@
 {
   "name": "@lagon/sveltekit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SvelteKit integration to deploy your site to Lagon",
   "type": "module",
   "main": "dist/index.js",
