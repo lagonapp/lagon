@@ -18,7 +18,7 @@ flume = "0.10.14"
 mysql = { version = "24.0.0", default-features = false, features = ["default-rustls"] }
 dotenv = "0.15.0"
 serde_json = "1.0"
-metrics = "0.21.0"
+metrics = "0.21.1"
 metrics-exporter-prometheus = { version = "0.12.1", default-features = false, features = ["http-listener"] }
 log = { version = "0.4.19", features = ["std", "kv_unstable", "kv_unstable_serde"] }
 anyhow = "1.0.71"
