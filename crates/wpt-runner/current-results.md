@@ -821,9 +821,9 @@ TEST DONE 1 Invalid label "\0unicode-1-1-utf-8\0" should be rejected by TextDeco
 TEST DONE 1 Invalid label "\vunicode-1-1-utf-8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "unicode-1-1-utf-8\v" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "\vunicode-1-1-utf-8\v" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�unicode-1-1-utf-8" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "unicode-1-1-utf-8�" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�unicode-1-1-utf-8�" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode-1-1-utf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode-1-1-utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode-1-1-utf-8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " unicode-1-1-utf-8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "unicode-1-1-utf-8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " unicode-1-1-utf-8 " should be rejected by TextDecoder.
@@ -836,9 +836,9 @@ TEST DONE 1 Invalid label "\0unicode11utf8\0" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "\vunicode11utf8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "unicode11utf8\v" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "\vunicode11utf8\v" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�unicode11utf8" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "unicode11utf8�" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�unicode11utf8�" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode11utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode11utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode11utf8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " unicode11utf8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "unicode11utf8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " unicode11utf8 " should be rejected by TextDecoder.
@@ -851,9 +851,9 @@ TEST DONE 1 Invalid label "\0unicode20utf8\0" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "\vunicode20utf8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "unicode20utf8\v" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "\vunicode20utf8\v" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�unicode20utf8" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "unicode20utf8�" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�unicode20utf8�" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " unicode20utf8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " unicode20utf8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "unicode20utf8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " unicode20utf8 " should be rejected by TextDecoder.
@@ -866,9 +866,9 @@ TEST DONE 1 Invalid label "\0utf-8\0" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "\vutf-8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "utf-8\v" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "\vutf-8\v" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�utf-8" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "utf-8�" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�utf-8�" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf-8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf-8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf-8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " utf-8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "utf-8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " utf-8 " should be rejected by TextDecoder.
@@ -881,9 +881,9 @@ TEST DONE 1 Invalid label "\0utf8\0" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "\vutf8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "utf8\v" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "\vutf8\v" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�utf8" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "utf8�" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�utf8�" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " utf8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " utf8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "utf8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " utf8 " should be rejected by TextDecoder.
@@ -896,9 +896,9 @@ TEST DONE 1 Invalid label "\0x-unicode20utf8\0" should be rejected by TextDecode
 TEST DONE 1 Invalid label "\vx-unicode20utf8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "x-unicode20utf8\v" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "\vx-unicode20utf8\v" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�x-unicode20utf8" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "x-unicode20utf8�" should be rejected by TextDecoder.
-TEST DONE 1 Invalid label "�x-unicode20utf8�" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " x-unicode20utf8" should be rejected by TextDecoder.
+TEST DONE 1 Invalid label "x-unicode20utf8 " should be rejected by TextDecoder.
+TEST DONE 1 Invalid label " x-unicode20utf8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " x-unicode20utf8" should be rejected by TextDecoder.
 TEST DONE 1 Invalid label "x-unicode20utf8 " should be rejected by TextDecoder.
 TEST DONE 1 Invalid label " x-unicode20utf8 " should be rejected by TextDecoder.
@@ -1065,7 +1065,7 @@ TEST DONE 1 Blob with type "A"
 TEST DONE 0 Blob with type "text/html"
 TEST DONE 1 Blob with type "TEXT/HTML"
 TEST DONE 0 Blob with type "text/plain;charset=utf-8"
-TEST DONE 1 Blob with type "�"
+TEST DONE 1 Blob with type "å"
 TEST DONE 1 Blob with type "𐑾"
 TEST DONE 0 Blob with type " image/gif "
 TEST DONE 1 Blob with type "\timage/gif\t"
@@ -1153,7 +1153,7 @@ TEST DONE 0 Slicing test (8,1).
 TEST DONE 0 Slicing test (8,2).
 TEST DONE 0 Slicing test (8,3).
 TEST DONE 0 Slices
-TEST DONE 1 Invalid contentType ("�")
+TEST DONE 1 Invalid contentType ("ÿ")
 TEST DONE 1 Invalid contentType ("te\txt/plain")
 TEST DONE 1 Invalid contentType ("te\0xt/plain")
 TEST DONE 1 Invalid contentType ("te\x1fxt/plain")
@@ -1273,7 +1273,7 @@ TEST DONE 1 Using type in File constructor: TEXT/PLAIN
 TEST DONE 1 Using type in File constructor: 𝓽𝓮𝔁𝓽/𝔭𝔩𝔞𝔦𝔫
 TEST DONE 1 Using type in File constructor: ascii/nonprintable
 TEST DONE 1 Using type in File constructor: ascii/nonprintable
-TEST DONE 1 Using type in File constructor: nonascii�
+TEST DONE 1 Using type in File constructor: nonasciiî
 TEST DONE 1 Using type in File constructor: nonasciiሴ
 TEST DONE 0 Using type in File constructor: nonparsable
 TEST DONE 0 Using lastModified
