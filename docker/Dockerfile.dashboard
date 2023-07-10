@@ -1,4 +1,4 @@
-FROM node:20.3.1-bullseye-slim AS base
+FROM node:20.4.0-bullseye-slim AS base
 RUN corepack enable
 WORKDIR /app
 
