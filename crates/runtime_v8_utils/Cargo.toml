@@ -5,5 +5,5 @@ edition = "2021"
 
 [dependencies]
 v8 = "0.74.2"
-anyhow = "1.0.71"
+anyhow = "1.0.72"
 hyper = "0.14.27"
