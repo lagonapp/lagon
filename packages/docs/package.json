@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "next": "13.4.9",
+    "next": "13.4.10",
     "next-sitemap": "^4.0.5",
     "nextra": "2.8.0",
     "nextra-theme-docs": "2.8.0",
@@ -25,7 +25,7 @@
     "@types/react-dom": "^18.0.5",
     "autoprefixer": "^10.4.7",
     "eslint": "^8.16.0",
-    "eslint-config-next": "13.4.9",
+    "eslint-config-next": "13.4.10",
     "postcss": "^8.4.22",
     "tailwindcss": "^3.3.1",
     "typescript": "^5.1.3"
