@@ -1,7 +1,6 @@
 packages:
   - 'packages/*'
   - 'packages/integrations/*'
-  - 'examples/*'
   - 'www'
   - 'crates/cli'
   - 'crates/runtime'
