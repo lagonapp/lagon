@@ -10,7 +10,7 @@
     "lagon-dev": "pnpm build && lagon dev"
   },
   "dependencies": {
-    "@lagon/sveltekit": "workspace:*"
+    "@lagon/sveltekit": "file:../../packages/integrations/sveltekit"
   },
   "devDependencies": {
     "@fontsource/fira-mono": "^4.5.10",

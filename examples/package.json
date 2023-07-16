@@ -1,0 +1,5 @@
+{
+  "name": "@lagon/examples",
+  "description": "Examples to run various libraries and frameworsk with Lagon Runtime",
+  "private": true
+}
