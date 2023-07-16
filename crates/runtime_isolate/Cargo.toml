@@ -9,7 +9,7 @@ tokio = { version = "1", features = ["rt-multi-thread"] }
 futures = "0.3.28"
 hyper = { version = "0.14.27", features = ["client"] }
 flume = "0.10.14"
-anyhow = "1.0.71"
+anyhow = "1.0.72"
 log = { version = "0.4.19", features = ["std", "kv_unstable"] }
 linked-hash-map = "0.5.6"
 flate2 = "1.0.26"
