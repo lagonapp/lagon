@@ -13,7 +13,7 @@ anyhow = "1.0.72"
 log = { version = "0.4.19", features = ["std", "kv_unstable"] }
 linked-hash-map = "0.5.6"
 flate2 = "1.0.26"
-uuid = { version = "1.4.0", features = ["v4", "fast-rng"] }
+uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }
 lagon-runtime-v8-utils = { path = "../runtime_v8_utils" }
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-crypto = { path = "../runtime_crypto" }
