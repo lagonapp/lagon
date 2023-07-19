@@ -1,5 +1,75 @@
 # @lagon/dashboard
 
+## 0.3.13
+
+### Patch Changes
+
+- [#993](https://github.com/lagonapp/lagon/pull/993) [`ec8d4f9`](https://github.com/lagonapp/lagon/commit/ec8d4f93efd382b0e825e12d882352d22a25a406) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Use the token's selected organization when the provided id is empty
+
+## 0.3.12
+
+### Patch Changes
+
+- [#987](https://github.com/lagonapp/lagon/pull/987) [`51900f3`](https://github.com/lagonapp/lagon/commit/51900f30259dc1830b97257c264040b93ca2513d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve Stripe upgrade flow with success and error banners
+
+- [#983](https://github.com/lagonapp/lagon/pull/983) [`b2c1129`](https://github.com/lagonapp/lagon/commit/b2c11293fbdd3dfde1756162bf182182326c0135) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Deploy to the specified organization instead of the current selected one
+
+- [#986](https://github.com/lagonapp/lagon/pull/986) [`b91e75d`](https://github.com/lagonapp/lagon/commit/b91e75de18d7f520748740c00f8a76feb4307fac) Thanks [@colinlienard](https://github.com/colinlienard)! - Add system status in footer
+
+- [#973](https://github.com/lagonapp/lagon/pull/973) [`3a18950`](https://github.com/lagonapp/lagon/commit/3a189507a126354eaf4196f01890707b1fd905d1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Bangalore region to be ap-west instead of ap-south
+
+- [#982](https://github.com/lagonapp/lagon/pull/982) [`7cf6208`](https://github.com/lagonapp/lagon/commit/7cf620816c1a06e2936700ee88903ac6dfaedcee) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Upgrade functions limits on plan change
+
+- [#974](https://github.com/lagonapp/lagon/pull/974) [`565864b`](https://github.com/lagonapp/lagon/commit/565864b80f7c39e762cec25a953e476c08b50975) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Do not crash when cron parsing fails
+
+- [#985](https://github.com/lagonapp/lagon/pull/985) [`a6714cd`](https://github.com/lagonapp/lagon/commit/a6714cd8e2f51736e598614140905002e73aae0d) Thanks [@colinlienard](https://github.com/colinlienard)! - Add footer with version and social links
+
+- Updated dependencies [[`51900f3`](https://github.com/lagonapp/lagon/commit/51900f30259dc1830b97257c264040b93ca2513d)]:
+  - @lagon/ui@0.2.5
+
+## 0.3.11
+
+### Patch Changes
+
+- [#906](https://github.com/lagonapp/lagon/pull/906) [`89f40a5`](https://github.com/lagonapp/lagon/commit/89f40a5c464454eb37cc719187bb27e8b78f4d81) Thanks [@anbraten](https://github.com/anbraten)! - Add Dockerfile & publish to Docker Hub
+
+- [#945](https://github.com/lagonapp/lagon/pull/945) [`1422cab`](https://github.com/lagonapp/lagon/commit/1422cab140907c3e0c7dc294010ffbd7d05df3c9) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve domains validation status
+
+- [#954](https://github.com/lagonapp/lagon/pull/954) [`6eab245`](https://github.com/lagonapp/lagon/commit/6eab245f0411197011557765a5210bd1d6cdd9a2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix wrong Prisma migration file
+
+- [#959](https://github.com/lagonapp/lagon/pull/959) [`f97aa7e`](https://github.com/lagonapp/lagon/commit/f97aa7e43e059afd48190198a414f05a2504a7ca) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Properly set session information when authenticating via a token
+
+- [#936](https://github.com/lagonapp/lagon/pull/936) [`b996b23`](https://github.com/lagonapp/lagon/commit/b996b234d9fe36dad6e68c0825705970ddfa2d7a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Stripe subscription
+
+## 0.3.10
+
+### Patch Changes
+
+- [#922](https://github.com/lagonapp/lagon/pull/922) [`6979a7c`](https://github.com/lagonapp/lagon/commit/6979a7c978a0c6fa486ba1c7a0b79063bfd7eeed) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Cron preview to update as we type
+
+- [#927](https://github.com/lagonapp/lagon/pull/927) [`968cb8d`](https://github.com/lagonapp/lagon/commit/968cb8d3922702a799165a1f71f1586f53e17435) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Only allow alphanumeric characters, numbers and underscore as environment variable keys
+
+## 0.3.9
+
+### Patch Changes
+
+- [#901](https://github.com/lagonapp/lagon/pull/901) [`3869782`](https://github.com/lagonapp/lagon/commit/38697826a3cc86fb759b281f2428e21976ef5590) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Close modals when submitting without any error
+
+- [#899](https://github.com/lagonapp/lagon/pull/899) [`be0dded`](https://github.com/lagonapp/lagon/commit/be0ddedb0e00da72304360a0647225dc4ff4b204) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve custom domains UX
+
+- [#920](https://github.com/lagonapp/lagon/pull/920) [`10d4086`](https://github.com/lagonapp/lagon/commit/10d40869d96f1d4ee590d5144a36941aee8d6b71) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add links to documentation in Function settings
+
+- [#907](https://github.com/lagonapp/lagon/pull/907) [`6a593cb`](https://github.com/lagonapp/lagon/commit/6a593cbc3b1a853a6b2170a8d1d696ddf0e101d6) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix domain status when proxied through Cloudflare
+
+- [#920](https://github.com/lagonapp/lagon/pull/920) [`10d4086`](https://github.com/lagonapp/lagon/commit/10d40869d96f1d4ee590d5144a36941aee8d6b71) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Cron Functions
+
+- [#913](https://github.com/lagonapp/lagon/pull/913) [`9753db2`](https://github.com/lagonapp/lagon/commit/9753db24762c750ef49a749721c702698c447e2f) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow deleting a Function with existing environment variables
+
+- [#915](https://github.com/lagonapp/lagon/pull/915) [`f05147b`](https://github.com/lagonapp/lagon/commit/f05147b663e788c04680d76a1ce8a7c9a0f87959) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Replace assets table with a json column
+
+- Updated dependencies [[`be0dded`](https://github.com/lagonapp/lagon/commit/be0ddedb0e00da72304360a0647225dc4ff4b204)]:
+  - @lagon/ui@0.2.4
+
 ## 0.3.8
 
 ### Patch Changes

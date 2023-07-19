@@ -10,6 +10,7 @@ import Head from 'next/head';
 import LayoutTitle from 'lib/components/LayoutTitle';
 import FunctionLinks from 'lib/components/FunctionLinks';
 import { useScopedI18n } from 'locales';
+import { getHumanFriendlyCron } from 'lib/utils';
 
 const Function = () => {
   const {
@@ -17,13 +18,19 @@ const Function = () => {
   } = useRouter();
   const t = useScopedI18n('function.nav');
 
-  const { data: func, refetch } = useFunction(functionId as string);
+  const { data: func, refetch } = useFunction(functionId as string, false);
 
   return (
     <LayoutTitle
       title={func?.name || 'Loading...'}
       titleStatus="success"
-      rightItem={func?.cron === null ? <FunctionLinks func={func} /> : undefined}
+      rightItem={
+        func?.cron === null ? (
+          <FunctionLinks func={func} />
+        ) : (
+          <span className="text-sm text-blue-500">{getHumanFriendlyCron(func?.cron)}</span>
+        )
+      }
     >
       {func?.name ? (
         <Head>

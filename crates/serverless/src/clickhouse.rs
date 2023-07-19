@@ -1,8 +1,7 @@
-use std::env;
-
 use anyhow::Result;
 use clickhouse::{Client, Row};
 use serde::{Deserialize, Serialize};
+use std::env;
 
 #[derive(Row, Serialize, Deserialize)]
 pub struct LogRow {
@@ -60,7 +59,7 @@ pub async fn run_migrations(client: &Client) -> Result<()> {
 )
 ENGINE = MergeTree()
 PRIMARY KEY (level, function_id, timestamp)
-TTL now() + INTERVAL 1 WEEK",
+TTL timestamp + INTERVAL 1 WEEK",
         )
         .execute()
         .await?;

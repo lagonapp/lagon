@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
-import { Binary } from 'binary-install';
+import { Binary } from './binary-install.js';
 import os from 'node:os';
+import path from 'node:path';
 
 function getPlatform() {
   const type = os.type();
@@ -51,6 +52,7 @@ export function getBinary() {
   const { name: packageName, version } = customRequire('../package.json');
 
   const url = `https://github.com/lagonapp/lagon/releases/download/${packageName}@${version}/${platform}.tar.gz`;
+  const installDirectory = path.join(os.homedir(), '.lagon');
 
-  return new Binary(name, url);
+  return new Binary(url, { name, installDirectory });
 }

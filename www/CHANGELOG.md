@@ -1,5 +1,13 @@
 # @lagon/www
 
+## 1.1.5
+
+### Patch Changes
+
+- [#942](https://github.com/lagonapp/lagon/pull/942) [`f2ba25a`](https://github.com/lagonapp/lagon/commit/f2ba25ae7dae8906518ead3229cad94b2398f594) Thanks [@colinlienard](https://github.com/colinlienard)! - Add favicon color based on navigator scheme
+
+- [#933](https://github.com/lagonapp/lagon/pull/933) [`087dfaa`](https://github.com/lagonapp/lagon/commit/087dfaa972a1db308527549407faa9abcfaf1e4c) Thanks [@xanderbarkhatov](https://github.com/xanderbarkhatov)! - Decrease nav gap on smaller screens
+
 ## 1.1.4
 
 ### Patch Changes

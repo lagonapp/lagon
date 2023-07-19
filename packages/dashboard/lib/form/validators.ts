@@ -1,5 +1,6 @@
 import { FieldValidator } from 'final-form';
 import { FUNCTION_NAME_REGEX } from 'lib/constants';
+import cronstrue from 'cronstrue';
 
 export const requiredValidator: FieldValidator<string | number> = value => {
   return value ? undefined : 'Field is required';
@@ -41,7 +42,11 @@ export const domainNameValidator: FieldValidator<string | number> = value => {
 
 export const cronValidator: FieldValidator<string | number> = value => {
   if (typeof value === 'string') {
-    return /((((\d+,)+\d+|(\d+(\/|-)\d+)|\d+|\*) ?){5,7})/.test(value) ? undefined : 'Field must be a Cron expression';
+    try {
+      cronstrue.toString(value);
+    } catch (e) {
+      return 'Field must be a Cron expression';
+    }
   }
 
   return undefined;
@@ -53,6 +58,16 @@ export const emailValidator: FieldValidator<string | number> = value => {
   }
 
   return 'Field must be a string';
+};
+
+export const alphaNumUnderscoreValidator: FieldValidator<string | number> = value => {
+  if (typeof value === 'string') {
+    return /^[a-zA-Z0-9_]+$/.test(value)
+      ? undefined
+      : 'Field must only contain alphanumeric characters and underscores';
+  }
+
+  return undefined;
 };
 
 export const composeValidators =

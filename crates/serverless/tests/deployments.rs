@@ -39,7 +39,6 @@ async fn simple() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -77,7 +76,6 @@ async fn custom_domains() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -125,7 +123,6 @@ async fn reuse_isolate() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);
@@ -167,7 +164,6 @@ async fn reuse_isolate_across_domains() -> Result<()> {
         Arc::new(FakeDownloader),
         FakePubSub::default(),
         client,
-        // Arc::new(Mutex::new(Cronjob::new().await)),
     )
     .await?;
     tokio::spawn(serverless);

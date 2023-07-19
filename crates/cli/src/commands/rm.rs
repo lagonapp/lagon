@@ -1,4 +1,4 @@
-use crate::utils::{get_root, print_progress, Config, FunctionConfig, TrpcClient, THEME};
+use crate::utils::{get_root, get_theme, print_progress, Config, FunctionConfig, TrpcClient};
 use anyhow::{anyhow, Result};
 use dialoguer::{console::style, Confirm};
 use serde::{Deserialize, Serialize};
@@ -28,7 +28,7 @@ pub async fn rm(directory: Option<PathBuf>) -> Result<()> {
     let root = get_root(directory);
     let function_config = FunctionConfig::load(&root, None, None)?;
 
-    match Confirm::with_theme(&*THEME)
+    match Confirm::with_theme(get_theme())
         .with_prompt(
             "Do you really want to completely delete this Function, its Deployments, statistics and logs?",
         )
@@ -38,6 +38,7 @@ pub async fn rm(directory: Option<PathBuf>) -> Result<()> {
         true => {
             let end_progress = print_progress("Deleting Function");
             TrpcClient::new(config)
+                .set_organization_id(function_config.organization_id.clone())
                 .mutation::<DeleteFunctionRequest, DeleteFunctionResponse>(
                     "functionDelete",
                     DeleteFunctionRequest {

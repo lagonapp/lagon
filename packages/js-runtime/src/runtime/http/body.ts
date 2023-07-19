@@ -1,13 +1,11 @@
 export class RequestResponseBody {
   private theBody: string | ArrayBuffer | FormData | ReadableStream<Uint8Array> | Blob | URLSearchParams | null;
   bodyUsed: boolean;
+  headers: Headers;
 
   // isStream is not part of the spec, but required to only stream
   // responses when the body is a stream.
   readonly isStream: boolean;
-
-  private headersInit?: HeadersInit;
-  private headersCache: Headers | undefined;
 
   constructor(
     body: string | ArrayBuffer | ArrayBufferView | FormData | ReadableStream | Blob | URLSearchParams | null = null,
@@ -16,27 +14,27 @@ export class RequestResponseBody {
     const isPrimitive = typeof body === 'number' || typeof body === 'boolean';
     // @ts-expect-error we ignore ArrayBufferView
     this.theBody = isPrimitive ? String(body) : body;
-    this.headersInit = headersInit;
+    this.headers = headersInit instanceof Headers ? headersInit : new Headers(headersInit);
     this.bodyUsed = false;
     this.isStream = body instanceof ReadableStream;
 
-    if (typeof body === 'string' || isPrimitive) {
-      this.headers.set('content-type', this.headers.get('content-type') ?? 'text/plain;charset=UTF-8');
-    }
+    // @ts-expect-error we added this property
+    if (!this.headers.hasContentType) {
+      if (typeof body === 'string' || isPrimitive) {
+        this.headers.set('content-type', 'text/plain;charset=UTF-8');
+      }
 
-    if (body instanceof FormData) {
-      this.headers.set('content-type', this.headers.get('content-type') ?? 'multipart/form-data');
-    }
+      if (body instanceof FormData) {
+        this.headers.set('content-type', 'multipart/form-data');
+      }
 
-    if (body instanceof URLSearchParams) {
-      this.headers.set(
-        'content-type',
-        this.headers.get('content-type') ?? 'application/x-www-form-urlencoded;charset=UTF-8',
-      );
-    }
+      if (body instanceof URLSearchParams) {
+        this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+      }
 
-    if (body instanceof Blob) {
-      this.headers.set('content-type', this.headers.get('content-type') ?? body.type);
+      if (body instanceof Blob) {
+        this.headers.set('content-type', body.type);
+      }
     }
   }
 
@@ -67,31 +65,12 @@ export class RequestResponseBody {
     return stream.readable;
   }
 
-  get headers(): Headers {
-    if (this.headersCache) {
-      return this.headersCache;
-    }
-
-    if (this.headersInit) {
-      if (this.headersInit instanceof Headers) {
-        this.headersCache = this.headersInit;
-      } else {
-        this.headersCache = new Headers(this.headersInit);
-      }
-    } else {
-      this.headersCache = new Headers();
-    }
-
-    return this.headersCache;
-  }
-
   async arrayBuffer(): Promise<ArrayBuffer> {
     if (this.bodyUsed) {
       throw new TypeError('Body is already used');
     }
 
-    if (!this.theBody) {
-      this.bodyUsed = true;
+    if (this.theBody === null) {
       return new Uint8Array();
     }
 
@@ -148,7 +127,12 @@ export class RequestResponseBody {
   }
 
   async formData(): Promise<FormData> {
+    if (this.bodyUsed) {
+      throw new TypeError('Body is already used');
+    }
+
     if (this.theBody instanceof FormData) {
+      this.bodyUsed = true;
       return this.theBody;
     }
 
@@ -166,8 +150,7 @@ export class RequestResponseBody {
       throw new TypeError('Body is already used');
     }
 
-    if (!this.theBody) {
-      this.bodyUsed = true;
+    if (this.theBody === null) {
       return '';
     }
 
@@ -181,8 +164,17 @@ export class RequestResponseBody {
       return globalThis.__lagon__.TEXT_DECODER.decode(this.theBody);
     }
 
-    if (this.theBody instanceof FormData || this.theBody instanceof URLSearchParams) {
+    const isFormData = this.theBody instanceof FormData;
+
+    if (isFormData || this.theBody instanceof URLSearchParams) {
       this.bodyUsed = true;
+
+      if (isFormData) {
+        return Array.from((this.theBody as FormData).entries())
+          .map(([key, value]) => `${key}=${value}`)
+          .join('&');
+      }
+
       return this.theBody.toString();
     }
 

@@ -1,5 +1,47 @@
 # @lagon/docs
 
+## 1.0.3
+
+### Patch Changes
+
+- [#1000](https://github.com/lagonapp/lagon/pull/1000) [`fa37118`](https://github.com/lagonapp/lagon/commit/fa37118c82d37e770afdb55a1921539e5f1df6c4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add SvelteKit adapter and example
+
+## 1.0.2
+
+### Patch Changes
+
+- [#932](https://github.com/lagonapp/lagon/pull/932) [`dd96fd0`](https://github.com/lagonapp/lagon/commit/dd96fd0bf692c01023727d12415d737b21035f7d) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add `CompressionStream` & `DecompressionStream` APIs
+
+- [#984](https://github.com/lagonapp/lagon/pull/984) [`bcbfbbb`](https://github.com/lagonapp/lagon/commit/bcbfbbb58e39540c8d6cefef6c757a410dada240) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add sponsors list
+
+- [#973](https://github.com/lagonapp/lagon/pull/973) [`3a18950`](https://github.com/lagonapp/lagon/commit/3a189507a126354eaf4196f01890707b1fd905d1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix Bangalore region to be ap-west instead of ap-south
+
+- [#984](https://github.com/lagonapp/lagon/pull/984) [`bcbfbbb`](https://github.com/lagonapp/lagon/commit/bcbfbbb58e39540c8d6cefef6c757a410dada240) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix favicon
+
+- [#971](https://github.com/lagonapp/lagon/pull/971) [`7a2b184`](https://github.com/lagonapp/lagon/commit/7a2b184fd194ac19aeed3aa0ff1f4f6a5326a72a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add a Drizzle and Turso example
+
+- [#970](https://github.com/lagonapp/lagon/pull/970) [`fe5a96d`](https://github.com/lagonapp/lagon/commit/fe5a96d9cdf0227fdbb3d20fd7a06ba649da67db) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Nuxt Complex example
+
+## 1.0.1
+
+### Patch Changes
+
+- [#941](https://github.com/lagonapp/lagon/pull/941) [`2dcce72`](https://github.com/lagonapp/lagon/commit/2dcce72d3d0033472c36d2817d8e13153aeaa1bf) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support HTTP/2 (along with HTTP/1.1) in `fetch()`
+
+## 1.0.0
+
+### Major Changes
+
+- [#914](https://github.com/lagonapp/lagon/pull/914) [`00b30bc`](https://github.com/lagonapp/lagon/commit/00b30bcac6176d99a3f0f009e7d21288f8eea126) Thanks [@barbarbar338](https://github.com/barbarbar338)! - Add Sidra example.
+
+### Patch Changes
+
+- [#872](https://github.com/lagonapp/lagon/pull/872) [`a90e9e9`](https://github.com/lagonapp/lagon/commit/a90e9e971d3b9288bc6a40d098aa4552fa86307c) Thanks [@anbraten](https://github.com/anbraten)! - Update contributing environment variables setup
+
+- [#920](https://github.com/lagonapp/lagon/pull/920) [`10d4086`](https://github.com/lagonapp/lagon/commit/10d40869d96f1d4ee590d5144a36941aee8d6b71) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Cron Functions
+
+- [#899](https://github.com/lagonapp/lagon/pull/899) [`be0dded`](https://github.com/lagonapp/lagon/commit/be0ddedb0e00da72304360a0647225dc4ff4b204) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Update custom domains documentation
+
 ## 0.3.10
 
 ### Patch Changes

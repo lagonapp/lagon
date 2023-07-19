@@ -5,6 +5,6 @@ edition = "2021"
 
 [dependencies]
 lagon-runtime-utils = { path = "../runtime_utils" }
-anyhow = "1.0.71"
-async-trait = "0.1.68"
+anyhow = "1.0.72"
+async-trait = "0.1.71"
 rust-s3 = "0.33"

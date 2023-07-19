@@ -1,0 +1,12 @@
+{
+  "name": "@lagon/example-sidra",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "lagon-dev": "lagon dev index.ts"
+  },
+  "dependencies": {
+    "itty-router-extras": "0.4.2",
+    "sidra": "^0.1.7"
+  }
+}

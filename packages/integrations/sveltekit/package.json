@@ -1,0 +1,34 @@
+{
+  "name": "@lagon/sveltekit",
+  "version": "0.1.1",
+  "description": "SvelteKit integration to deploy your site to Lagon",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lagonapp/lagon"
+  },
+  "homepage": "https://github.com/lagonapp/lagon/tree/main/packages/integrations/sveltekit",
+  "keywords": [
+    "lagon",
+    "serverless",
+    "edge",
+    "integration",
+    "svelte",
+    "sveltekit"
+  ],
+  "scripts": {
+    "watch": "tsup-node src/index.ts --format esm --dts --watch",
+    "build": "tsup-node src/index.ts --format esm --dts",
+    "lint": "eslint --cache .",
+    "typecheck": "tsc --noEmit --emitDeclarationOnly false"
+  },
+  "peerDependencies": {
+    "@sveltejs/kit": "^1.0.0"
+  }
+}

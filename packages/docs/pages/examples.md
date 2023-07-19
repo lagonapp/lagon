@@ -16,6 +16,10 @@ This example replies with JSON, setting the proper `Content-Type` header. [See t
 
 ## Libraries
 
+### Drizzle with Turso
+
+This example uses [Drizzle](https://github.com/drizzle-team/drizzle-orm), a TypeScript ORM that has a SQL-like syntax with [Turso](https://turso.tech) as a distributed SQLite database, with typesafe queries and migrations. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/drizzle-turso)
+
 ### HatTip
 
 This example uses [HatTip](https://github.com/hattipjs/hattip), a minimalist express-like library that runs anywhere, via Lagon's adapter. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/hattip)
@@ -28,9 +32,14 @@ This example uses [Hono](https://honojs.dev), a small, simple, and ultrafast web
 
 This example uses [Nitro](https://nitro.unjs.io/), a library to build and deploy universal JavaScript servers, via Lagon's preset. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/nitro)
 
+
+### Neon
+
+This example uses [Neon](https://neon.tech) with their Serverless driver (`@neondatabase/serverless`) to make PostgreSQL queries on the edge. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/neon)
+
 ### PlanetScale Serverless Driver
 
-This example uses [PlanetScale](https://planetscale.com) with the Serverless Driver (`@planetscale/database`) to make SQL queries on the edge. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/planetscale)
+This example uses [PlanetScale](https://planetscale.com) with their Serverless Driver (`@planetscale/database`) to make SQL queries on the edge. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/planetscale)
 
 ### Preact CSR
 
@@ -55,6 +64,10 @@ This example uses [React](https://reactjs.org) to server-side render an app, str
 ### Satori
 
 This example uses [Satori](https://github.com/vercel/satori) to render React and HTML/CSS to SVG. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/satori)
+
+### Sidra
+
+This example uses [Sidra](https://npmjs.com/sidra), a library to create servers using TypeScript decorators with NestJS-like API. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/sidra)
 
 ### Turso
 
@@ -90,6 +103,10 @@ This example uses [Astro](https://astro.build), a static site generator, with bo
 
 This example uses [Nuxt](https://nuxt.com), the intuitive web framework for Vue, with SSR via Lagon's preset. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/nuxt)
 
+### Nuxt Complex
+
+This example uses [Nuxt](https://nuxt.com) with multiple pages, layouts, api routes and more. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/nuxt-complex)
+
 ### Rakkas
 
 This example uses [Rakkas](https://rakkasjs.org), a React framework powered by Vite, with SSR via Lagon's adapter. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/rakkas)
@@ -97,3 +114,7 @@ This example uses [Rakkas](https://rakkasjs.org), a React framework powered by V
 ### Remix
 
 This example uses [Remix](https://remix.run), a full-stack React framework, with SSR via Lagon's integration. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/remix)
+
+### SvelteKit
+
+This example uses [SvelteKit](https://kit.svelte.dev), the Svelte framework, with SSR via Lagon's adapter. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/sveltekit)

@@ -1,3 +1,5 @@
+import cronstrue from 'cronstrue';
+
 /**
  * Example:
  *
@@ -7,7 +9,6 @@
  *
  * -> https://hello-world.lagon.dev
  */
-
 export function getFullCurrentDomain({ name }: { name: string }): string {
   return `${process.env.NEXT_PUBLIC_LAGON_ROOT_SCHEM}://${getCurrentDomain({ name })}`;
 }
@@ -32,4 +33,14 @@ export function envStringToObject(env: { key: string; value: string }[]): Record
       [key]: value,
     };
   }, {});
+}
+
+export function getHumanFriendlyCron(cron?: string | null) {
+  if (!cron) return cron;
+
+  try {
+    return cronstrue.toString(cron);
+  } catch {
+    return cron;
+  }
 }

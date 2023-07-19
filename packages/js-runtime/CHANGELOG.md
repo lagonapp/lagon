@@ -1,5 +1,37 @@
 # @lagon/js-runtime
 
+## 0.3.19
+
+### Patch Changes
+
+- [#1001](https://github.com/lagonapp/lagon/pull/1001) [`d71d4c5`](https://github.com/lagonapp/lagon/commit/d71d4c56256090e1dd5f7ed15209ccb4c002d951) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Throw an error if handler function do no return a Response
+
+## 0.3.18
+
+### Patch Changes
+
+- [#932](https://github.com/lagonapp/lagon/pull/932) [`dd96fd0`](https://github.com/lagonapp/lagon/commit/dd96fd0bf692c01023727d12415d737b21035f7d) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add `CompressionStream` & `DecompressionStream` APIs
+
+- [#965](https://github.com/lagonapp/lagon/pull/965) [`32a2c08`](https://github.com/lagonapp/lagon/commit/32a2c08a469a5dbcd23d47bafbd91d851f8a750d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow `fetch()` with a `Request`
+
+## 0.3.17
+
+### Patch Changes
+
+- [#949](https://github.com/lagonapp/lagon/pull/949) [`d003a29`](https://github.com/lagonapp/lagon/commit/d003a2937775f00c17e1bf6b83d46310355c077d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve performance of Headers & Body (Request & Response)
+
+## 0.3.16
+
+### Patch Changes
+
+- [#928](https://github.com/lagonapp/lagon/pull/928) [`28bd4c6`](https://github.com/lagonapp/lagon/commit/28bd4c644db583b54827f5f1a6bee7ce0f64b4bb) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Set content-length header to 0 when body is null and method POST or PUT in `fetch()`
+
+## 0.3.15
+
+### Patch Changes
+
+- [#835](https://github.com/lagonapp/lagon/pull/835) [`12ff778`](https://github.com/lagonapp/lagon/commit/12ff77821b74bffc483a216c46053e270ddde64a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve implementation of Headers, Request, Response and URLSearchParams
+
 ## 0.3.14
 
 ### Patch Changes

@@ -18,6 +18,7 @@ const nextConfig = {
   sentry: {
     tunnelRoute: '/monitoring-tunnel',
   },
+  output: process.env.NEXTJS_OUTPUT,
 };
 
 const sentryWebpackPluginOptions = {

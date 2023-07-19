@@ -1,9 +1,7 @@
+use bindings::compression::CompressionInner;
 use bindings::websocket::WSResourceTable;
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
-use hyper::{
-    body::Bytes,
-    http::{request::Parts, response::Builder},
-};
+use hyper::{body::Bytes, http::request::Parts};
 use lagon_runtime_http::{request_to_v8, response_from_v8, RunResult, StreamResult};
 use lagon_runtime_v8_utils::v8_string;
 use lagon_runtime_websocket::{Ws, WsId};
@@ -74,6 +72,7 @@ pub struct IsolateState {
     requests_count: u32,
     log_sender: Option<flume::Sender<(String, String, Metadata)>>,
     ws_resource_table: WSResourceTable,
+    compression_table: HashMap<String, CompressionInner>,
 }
 
 #[derive(Debug)]
@@ -151,6 +150,15 @@ impl Isolate {
             v8::ExternalReference {
                 function: bindings::queue_microtask::queue_microtask_binding.map_fn_to(),
             },
+            v8::ExternalReference {
+                function: bindings::compression::compression_create_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::compression::compression_finish_binding.map_fn_to(),
+            },
+            v8::ExternalReference {
+                function: bindings::compression::compression_write_binding.map_fn_to(),
+            },
         ];
 
         let refs = v8::ExternalReferences::new(&references);
@@ -204,6 +212,7 @@ impl Isolate {
                 ws_resource_table: WSResourceTable::new(Arc::new(Mutex::new(
                     BTreeMap::<WsId, Ws>::new(),
                 ))),
+                compression_table: HashMap::<String, CompressionInner>::new(),
             }
         };
 
@@ -663,9 +672,10 @@ impl Isolate {
                 v8::PromiseState::Fulfilled => {
                     let response = promise.result(try_catch);
                     let (run_result, is_streaming) = match response_from_v8(try_catch, response) {
-                        Ok((response, is_streaming)) => (
+                        Ok((response_builder, body, is_streaming)) => (
                             RunResult::Response(
-                                response,
+                                response_builder,
+                                body,
                                 Some(handler_result.start_time.elapsed()),
                             ),
                             is_streaming,
@@ -674,13 +684,7 @@ impl Isolate {
                     };
 
                     if is_streaming {
-                        let response = run_result.as_response();
-                        let mut response_builder = Builder::new().status(response.status());
-                        let headers = response_builder.headers_mut().unwrap();
-
-                        for (key, value) in response.headers().iter() {
-                            headers.append(key, value.into());
-                        }
+                        let (response_builder, _) = run_result.as_response();
 
                         handler_result
                             .sender
