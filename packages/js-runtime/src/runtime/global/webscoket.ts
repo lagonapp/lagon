@@ -98,10 +98,13 @@
         })
         .catch(err => {
           this._readyState = WsState.CLOSED;
+          const errorEv = new Event('error');
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          const errorEv = new Event('error', { error: err, message: err.toString() });
-          this.dispatchEvent(errorEv);
+          errorEv.error = err;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          (errorEv.message = err.toString()), this.dispatchEvent(errorEv);
 
           const closeEv = new Event('close');
           this.dispatchEvent(closeEv);
@@ -123,13 +126,13 @@
         this._readyState = WsState.CLOSING;
 
         LagonAsync.websocketClose(this.wsId, code, reason).catch(err => {
-          const errorEv = new Event('error', {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            error: err,
-            message: err.toString(),
-          });
-          this.dispatchEvent(errorEv);
+          const errorEv = new Event('error');
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          errorEv.error = err;
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          (errorEv.message = err.toString()), this.dispatchEvent(errorEv);
 
           const closeEv = new Event('close');
           this.dispatchEvent(closeEv);
@@ -162,33 +165,34 @@
                 }
               }
 
-              const event = new Event('close', {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                wasClean: true,
-              });
+              const event = new Event('close');
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              event.wasClean = true;
               this.dispatchEvent(event);
               break;
             }
             default: {
               this.serverHandleIdleTimeout();
-              const event = new Event('message', {
-                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                // @ts-ignore
-                data,
-                origin: this._url,
-              });
+              const event = new Event('message');
+
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              event.data = data;
+
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              event.origin = this._url;
               this.dispatchEvent(event);
             }
           }
         } catch (e: any) {
           this._readyState = WsState.CLOSED;
 
-          const errorEv = new Event('error', {
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            message: e,
-          });
+          const errorEv = new Event('error');
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          errorEv.message = e;
           this.dispatchEvent(errorEv);
           const closeEv = new Event('close');
           this.dispatchEvent(closeEv);
@@ -212,20 +216,23 @@
                 await LagonAsync.websocketClose(this.wsId, 1001, reason);
                 this._readyState = WsState.CLOSED;
 
-                const errEvent = new Event('error', {
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                  // @ts-ignore
-                  message: reason,
-                });
+                const errEvent = new Event('error');
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                errEvent.message = reason;
                 this.dispatchEvent(errEvent);
 
-                const event = new Event('close', {
-                  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                  // @ts-ignore
-                  wasClean: false,
-                  code: 1001,
-                  reason,
-                });
+                const event = new Event('close');
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                event.wasClean = false;
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                event.code = 1001;
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                // @ts-ignore
+                event.reason = reason;
+
                 this.dispatchEvent(event);
               } else {
                 clearTimeout(this.idleTimeoutTimeout);

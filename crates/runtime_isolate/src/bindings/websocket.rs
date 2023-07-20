@@ -130,7 +130,6 @@ pub async fn websocket_event_binding(
     };
 
     let ws = table.get_mut(&uuid);
-
     match ws {
         Some(ws) => match ws.get_ws_event().await {
             Ok(res) => match res {
@@ -168,10 +167,13 @@ pub async fn websocket_event_binding(
                     id,
                     result: PromiseResult::Error(error),
                 },
-                lagon_runtime_websocket::EventResponse::Closed => BindingResult {
-                    id,
-                    result: PromiseResult::String("__RUNTIME_WS_EVENT_CLOSED__".to_string()),
-                },
+                lagon_runtime_websocket::EventResponse::Closed => {
+                    table.remove(&uuid);
+                    BindingResult {
+                        id,
+                        result: PromiseResult::String("__RUNTIME_WS_EVENT_CLOSED__".to_string()),
+                    }
+                }
             },
             Err(error) => BindingResult {
                 id,
@@ -300,7 +302,7 @@ pub async fn websocket_close_binding(
         }
     };
 
-    match table.remove(&uuid) {
+    match table.get_mut(&uuid) {
         Some(ref mut ws) => match ws.close_ws(code, reason).await {
             Ok(_) => BindingResult {
                 id,

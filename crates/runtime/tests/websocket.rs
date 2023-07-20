@@ -1,6 +1,6 @@
-use hyper::Request;
+use hyper::{header::CONTENT_TYPE, Body, Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
-use lagon_runtime_websocket::{accept_async, Message, StreamExt, WebSocketStream};
+use lagon_runtime_websocket::{accept_async, Message, SinkExt, StreamExt, WebSocketStream};
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::TcpListener,
@@ -18,9 +18,21 @@ async fn run_connection<S>(
     let mut messages = vec![];
     while let Some(message) = connection.next().await {
         let message = message.expect("Failed to get message");
+        match message {
+            Message::Text(_) => {
+                connection
+                    .send(Message::Text("server received message".to_string()))
+                    .await
+                    .expect("Failed to send message");
+            }
+            _ => {}
+        }
         messages.push(message);
     }
-    msg_tx.send(messages).expect("Failed to send results");
+
+    msg_tx
+        .send(messages.clone())
+        .expect("Failed to send results");
 }
 
 #[tokio::test]
@@ -43,20 +55,28 @@ async fn websocket_test() {
 
     con_rx.await.expect("Server not ready");
 
-    let (send, _) = utils::create_isolate(IsolateOptions::new(
+    let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
         const ws = new WebSocket('ws://localhost:12345/');
+        let resMsg = ''
 
         await new Promise((res) => {
           ws.addEventListener('open', () => {
             ws.send('test_ws');
-            ws.close();
-            // TODO: If you add this line, it will always block, but the correct logic is that if you don’t add this line, it will always block. I don’t understand why
-            // res();
           });
+
+          ws.addEventListener('message', (event) => {
+            resMsg = event.data;
+
+            ws.close();
+          })
+
+          ws.addEventListener('close', (event) => {
+            res();
+          })
         });
-      
-        return new Response('');
+        
+        return new Response(resMsg);
       }"
         .into(),
     ));
@@ -65,4 +85,11 @@ async fn websocket_test() {
     let messages = msg_rx.await.expect("Failed to receive messages");
 
     assert_eq!(messages[0], Message::Text("test_ws".to_string()));
+
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("server received message"),
+    )
+    .await;
 }
