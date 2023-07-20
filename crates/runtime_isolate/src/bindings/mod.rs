@@ -56,8 +56,8 @@ impl PromiseResult {
             PromiseResult::Error(error) => v8_string(scope, &error).into(),
             PromiseResult::String(str) => v8_string(scope, &str).into(),
             PromiseResult::Undefined => v8::undefined(scope).into(),
-            PromiseResult::WsInfo(ws_id, protocols, extensions) => {
-                ws_info_to_v8((ws_id, protocols, extensions), scope).into()
+            PromiseResult::WsInfo(ws_id, protocol, extensions) => {
+                ws_info_to_v8((ws_id, protocol, extensions), scope).into()
             }
         }
     }

@@ -69,9 +69,9 @@ pub fn create_websocket_init(
     args: v8::FunctionCallbackArguments,
 ) -> Result<CreateArg> {
     let url = args.get(0).to_rust_string_lossy(scope);
-    let protocols = args.get(1).to_rust_string_lossy(scope);
+    let protocol = args.get(1).to_rust_string_lossy(scope);
 
-    Ok((url, protocols))
+    Ok((url, protocol))
 }
 
 pub async fn create_websocket_binding<'a>(
@@ -80,20 +80,20 @@ pub async fn create_websocket_binding<'a>(
     arg: CreateArg,
 ) -> BindingResult {
     let url = arg.0;
-    let protocols = arg.1;
+    let protocol = arg.1;
 
-    let res = new_ws(url, protocols).await;
+    let res = new_ws(url, protocol).await;
 
     let mut table = table.lock().await;
 
     match res {
-        Ok((ws, protocols, extensions)) => {
+        Ok((ws, protocol, extensions)) => {
             let ws_id = ws.get_id().to_string();
 
             table.insert(ws.get_id(), ws);
             return BindingResult {
                 id,
-                result: PromiseResult::WsInfo(ws_id, protocols, extensions),
+                result: PromiseResult::WsInfo(ws_id, protocol, extensions),
             };
         }
         Err(error) => BindingResult {
@@ -331,7 +331,7 @@ pub fn ws_info_to_v8<'a>(
     names.push(v8_string(scope, "wsId").into());
     values.push(v8_string(scope, &ws_info.0).into());
 
-    names.push(v8_string(scope, "protocols").into());
+    names.push(v8_string(scope, "protocol").into());
     values.push(v8_string(scope, &ws_info.1).into());
 
     names.push(v8_string(scope, "extensions").into());

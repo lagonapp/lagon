@@ -15,7 +15,7 @@ import './runtime/global/crypto';
 import './runtime/global/navigator';
 import './runtime/global/compression';
 import './runtime/global/timers';
-import './runtime/global/webscoket';
+import './runtime/global/websocket';
 import './runtime/http/URLSearchParams';
 import './runtime/http/URL';
 import './runtime/http/URLPattern';
@@ -110,7 +110,7 @@ declare global {
     generateKey(
       algorithm: RsaHashedKeyGenParams | EcKeyGenParams | HmacKeyGenParams | AesKeyGenParams,
     ): Promise<ArrayBuffer>;
-    createWebsocket(url: string, protocols: string): Promise<{ wsId: string; protocols: string; extensions: string }>;
+    createWebsocket(url: string, protocol: string): Promise<{ wsId: string; protocol: string; extensions: string }>;
     websocketEvent(wsId: string): Promise<string | ArrayBuffer>;
     websocketClose(wsId: string, code?: number, reason?: string): Promise<void>;
     websocketSend(wsId: string, data: string | ArrayBuffer): Promise<void>;

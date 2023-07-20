@@ -147,14 +147,14 @@ pub fn create_default_root_cert_store() -> RootCertStore {
     root_cert_store
 }
 
-pub async fn new_ws(url: String, protocols: String) -> Result<(Ws, String, String)> {
+pub async fn new_ws(url: String, protocol: String) -> Result<(Ws, String, String)> {
     let uri: Uri = url.parse()?;
     let mut request = Request::builder().method(Method::GET).uri(&uri);
 
     request = request.header("User-Agent", "Lagon/serverless rusty_v8/0.71.2");
-
-    if !protocols.is_empty() {
-        request = request.header("Sec-WebSocket-Protocol", protocols);
+    println!("protocol: {:?}", protocol);
+    if !protocol.is_empty() {
+        request = request.header("Sec-WebSocket-Protocol", protocol);
     }
 
     let request = request.body(())?;
@@ -165,6 +165,7 @@ pub async fn new_ws(url: String, protocols: String) -> Result<(Ws, String, Strin
         _ => unreachable!(),
     });
     let addr = format!("{}:{}", domain, port);
+
     let tcp_socket = TcpStream::connect(addr).await?;
 
     let socket: MaybeTlsStream<TcpStream> = match uri.scheme_str() {

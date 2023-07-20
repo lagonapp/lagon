@@ -18,6 +18,7 @@ async fn run_connection<S>(
     let mut messages = vec![];
     while let Some(message) = connection.next().await {
         let message = message.expect("Failed to get message");
+        println!("message: {}", message.clone());
         match message {
             Message::Text(_) => {
                 connection
@@ -61,19 +62,19 @@ async fn websocket_test() {
         let resMsg = ''
 
         await new Promise((res) => {
-          ws.addEventListener('open', () => {
-            ws.send('test_ws');
-          });
+            ws.onopen(() => {
+                ws.send('test_ws');
+            });
 
-          ws.addEventListener('message', (event) => {
-            resMsg = event.data;
+            ws.onmessage((event) => {
+                resMsg = event.data;
 
-            ws.close();
-          })
+                ws.close();
+            });
 
-          ws.addEventListener('close', (event) => {
-            res();
-          })
+            ws.onclose(() => {
+                res();
+            })
         });
         
         return new Response(resMsg);
