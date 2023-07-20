@@ -152,7 +152,7 @@ pub async fn new_ws(url: String, protocol: String) -> Result<(Ws, String, String
     let mut request = Request::builder().method(Method::GET).uri(&uri);
 
     request = request.header("User-Agent", "Lagon/serverless rusty_v8/0.71.2");
-    println!("protocol: {:?}", protocol);
+
     if !protocol.is_empty() {
         request = request.header("Sec-WebSocket-Protocol", protocol);
     }

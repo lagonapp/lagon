@@ -18,7 +18,6 @@ async fn run_connection<S>(
     let mut messages = vec![];
     while let Some(message) = connection.next().await {
         let message = message.expect("Failed to get message");
-        println!("message: {}", message.clone());
         match message {
             Message::Text(_) => {
                 connection
@@ -44,7 +43,7 @@ async fn websocket_test() {
     let (msg_tx, msg_rx) = tokio::sync::oneshot::channel();
 
     let f = async move {
-        let listener = TcpListener::bind("127.0.0.1:12345").await.unwrap();
+        let listener = TcpListener::bind("127.0.0.1:12346").await.unwrap();
         con_tx.send(()).unwrap();
         let (connection, _) = listener.accept().await.expect("No connections to accept");
         let stream = accept_async(connection).await;
@@ -58,23 +57,23 @@ async fn websocket_test() {
 
     let (send, receiver) = utils::create_isolate(IsolateOptions::new(
         "export async function handler() {
-        const ws = new WebSocket('ws://localhost:12345/');
+        const ws = new WebSocket('ws://localhost:12346/');
         let resMsg = ''
 
         await new Promise((res) => {
-            ws.onopen(() => {
+            ws.onopen = () => {
                 ws.send('test_ws');
-            });
+            }
 
-            ws.onmessage((event) => {
+            ws.onmessage = (event) => {
                 resMsg = event.data;
 
                 ws.close();
-            });
+            }
 
-            ws.onclose(() => {
+            ws.onclose = () => {
                 res();
-            })
+            }
         });
         
         return new Response(resMsg);
