@@ -1,18 +1,21 @@
 use bindings::compression::CompressionInner;
+use bindings::websocket::WSResourceTable;
 use futures::{future::poll_fn, stream::FuturesUnordered, Future, StreamExt};
 use hyper::{body::Bytes, http::request::Parts};
 use lagon_runtime_http::{request_to_v8, response_from_v8, RunResult, StreamResult};
 use lagon_runtime_v8_utils::v8_string;
+use lagon_runtime_websocket::{Ws, WsId};
 use linked_hash_map::LinkedHashMap;
 use std::{
     cell::{RefCell, RefMut},
-    collections::HashMap,
+    collections::{BTreeMap, HashMap},
     pin::Pin,
     rc::Rc,
     sync::{Arc, RwLock},
     task::{Context, Poll},
     time::Instant,
 };
+use tokio::sync::Mutex;
 use v8::MapFnTo;
 
 use self::{
@@ -68,6 +71,7 @@ pub struct IsolateState {
     lines: usize,
     requests_count: u32,
     log_sender: Option<flume::Sender<(String, String, Metadata)>>,
+    ws_resource_table: WSResourceTable,
     compression_table: HashMap<String, CompressionInner>,
 }
 
@@ -205,6 +209,9 @@ impl Isolate {
                 lines: 0,
                 requests_count: 0,
                 log_sender: options.log_sender.clone(),
+                ws_resource_table: WSResourceTable::new(Arc::new(Mutex::new(
+                    BTreeMap::<WsId, Ws>::new(),
+                ))),
                 compression_table: HashMap::<String, CompressionInner>::new(),
             }
         };

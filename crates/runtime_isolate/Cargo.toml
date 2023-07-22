@@ -17,7 +17,10 @@ uuid = { version = "1.4.1", features = ["v4", "fast-rng"] }
 lagon-runtime-v8-utils = { path = "../runtime_v8_utils" }
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-crypto = { path = "../runtime_crypto" }
-reqwest = { version = "0.11.18", default-features = false, features = ["rustls-tls"] }
+lagon-runtime-websocket = { path = "../runtime_websocket" }
+reqwest = { version = "0.11.18", default-features = false, features = [
+    "rustls-tls",
+] }
 
 [features]
 default = []
