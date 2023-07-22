@@ -8,7 +8,7 @@ lagon-runtime = { path = "../runtime" }
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-isolate = { path = "../runtime_isolate" }
 lagon-runtime-utils = { path = "../runtime_utils" }
-clap = { version = "4.3.12", features = ["derive"] }
+clap = { version = "4.3.19", features = ["derive"] }
 dialoguer = { version = "0.10.4", features = ["password"] }
 indicatif = "0.17.5"
 dirs = "5.0.1"
@@ -25,4 +25,4 @@ chrono = "0.4.26"
 notify = "6.0.1"
 envfile = "0.2.1"
 anyhow = "1.0.72"
-urlencoding = "2.1.2"
+urlencoding = "2.1.3"
