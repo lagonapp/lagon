@@ -1,5 +1,11 @@
 # @lagon/serverless
 
+## 0.2.5
+
+### Patch Changes
+
+- [#1027](https://github.com/lagonapp/lagon/pull/1027) [`0fb1f28`](https://github.com/lagonapp/lagon/commit/0fb1f28818c8c2f781b9e571d7af5e8cdaea0f94) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Properly remove Cron functions
+
 ## 0.2.4
 
 ### Patch Changes
