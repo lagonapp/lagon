@@ -1,5 +1,11 @@
 # @lagon/docs
 
+## 1.0.4
+
+### Patch Changes
+
+- [#1018](https://github.com/lagonapp/lagon/pull/1018) [`3806cbb`](https://github.com/lagonapp/lagon/commit/3806cbb7fc824721783147bba2f93f8de743f8f7) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Neon example
+
 ## 1.0.3
 
 ### Patch Changes

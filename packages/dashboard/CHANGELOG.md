@@ -1,5 +1,11 @@
 # @lagon/dashboard
 
+## 0.3.14
+
+### Patch Changes
+
+- [#1048](https://github.com/lagonapp/lagon/pull/1048) [`aee172d`](https://github.com/lagonapp/lagon/commit/aee172d548fb70d47083165f7b80867574c284e1) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix organization members check
+
 ## 0.3.13
 
 ### Patch Changes
