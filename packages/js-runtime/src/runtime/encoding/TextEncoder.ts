@@ -3,6 +3,7 @@
   globalThis.TextEncoder = class {
     readonly encoding = 'utf-8';
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     encodeInto(source: string, destination: Uint8Array): TextEncoderEncodeIntoResult {
       // TODO
       throw new Error('Not implemented');

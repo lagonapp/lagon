@@ -155,7 +155,7 @@
       }
     }
 
-    forEach(callbackfn: (value: string, key: string, parent: URLSearchParams) => void, thisArg?: any) {
+    forEach(callbackfn: (value: string, key: string, parent: URLSearchParams) => void, thisArg?: unknown) {
       for (const [name, value] of this.list) {
         callbackfn.call(thisArg, value, name, this);
       }
