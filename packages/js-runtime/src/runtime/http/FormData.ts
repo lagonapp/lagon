@@ -35,7 +35,7 @@
       }
     }
 
-    forEach(callbackfn: (value: FormDataEntryValue, key: string, parent: FormData) => void, thisArg?: any) {
+    forEach(callbackfn: (value: FormDataEntryValue, key: string, parent: FormData) => void, thisArg?: unknown) {
       this.fields.forEach((values, key) => {
         values.forEach(value => {
           callbackfn.call(thisArg, value, key, this);
