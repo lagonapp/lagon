@@ -19,7 +19,7 @@ jobs:
         with:
           submodules: true
           token: ${{ secrets.PAT }}
-      - uses: pnpm/action-setup@v2.2.4
+      - uses: pnpm/action-setup@v2.4.0
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
