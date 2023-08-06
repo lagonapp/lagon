@@ -25,6 +25,7 @@ export const deploymentsRouter = (t: T) =>
         z.object({
           functionId: z.string(),
           functionSize: z.number(),
+          tsSize: z.number(),
           assets: z
             .object({
               name: z.string(),
@@ -67,6 +68,11 @@ export const deploymentsRouter = (t: T) =>
         };
 
         const codeUrl = await getPresignedUrl(`${deployment.id}.js`, input.functionSize);
+
+        let tsCodeUrl: string | undefined;
+        if (input.tsSize > 0) {
+          tsCodeUrl = await getPresignedUrl(`${deployment.id}.ts`, input.tsSize);
+        }
         const assetsUrls: Record<string, string> = {};
 
         await Promise.all(
@@ -80,6 +86,7 @@ export const deploymentsRouter = (t: T) =>
           deploymentId: deployment.id,
           codeUrl,
           assetsUrls,
+          tsCodeUrl,
         };
       }),
     deploymentDeploy: t.procedure

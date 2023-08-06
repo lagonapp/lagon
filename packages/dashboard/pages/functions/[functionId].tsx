@@ -39,11 +39,15 @@ const Function = () => {
       ) : null}
       <Nav defaultValue="overview">
         <Nav.List
-          rightItem={
-            <Button href={`/playground/${func?.id}`} leftIcon={<PlayIcon className="h-4 w-4" />}>
-              {t('playground')}
-            </Button>
-          }
+          {...(func?.platform === 'Playground'
+            ? {
+                rightItem: (
+                  <Button href={`/playground/${func?.id}`} leftIcon={<PlayIcon className="h-4 w-4" />}>
+                    {t('playground')}
+                  </Button>
+                ),
+              }
+            : {})}
         >
           <Nav.Link value="overview">{t('overview')}</Nav.Link>
           <Nav.Link value="deployments">{t('deployments')}</Nav.Link>

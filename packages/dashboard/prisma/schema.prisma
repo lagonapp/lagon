@@ -103,6 +103,7 @@ model Function {
   organizationId String
   cronRegion     String        @default("paris-eu-west")
   totalTimeout   Int           @default(5000)
+  platform       String        @default("CLI")
   organization   Organization  @relation(fields: [organizationId], references: [id])
   domains        Domain[]
   env            EnvVariable[]

@@ -397,6 +397,21 @@ async function streamToString(stream: Readable): Promise<string> {
 }
 
 export async function getDeploymentCode(deploymentId: string) {
+  try {
+    const tsContent = await s3.send(
+      new GetObjectCommand({
+        Bucket: process.env.S3_BUCKET,
+        Key: `${deploymentId}.ts`,
+      }),
+    );
+
+    if (tsContent.Body instanceof Readable) {
+      return streamToString(tsContent.Body);
+    }
+  } catch (e) {
+    console.warn(`${deploymentId} haven't ts file, e: ${(e as Error).message}`);
+  }
+
   const content = await s3.send(
     new GetObjectCommand({
       Bucket: process.env.S3_BUCKET,

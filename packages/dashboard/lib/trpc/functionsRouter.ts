@@ -102,6 +102,7 @@ export const functionsRouter = (t: T) =>
                 createdAt: 'desc',
               },
             },
+            platform: true,
           },
         });
 
@@ -197,6 +198,7 @@ LIMIT 100`,
             .array()
             .max(ENVIRONMENT_VARIABLES_PER_FUNCTION),
           cron: z.string().nullable(),
+          platform: z.enum(['CLI', 'Playground'] as const).optional(),
         }),
       )
       .mutation(async ({ ctx, input }) => {
@@ -258,6 +260,7 @@ LIMIT 100`,
               },
             },
             cron: input.cron,
+            platform: input.platform ?? 'CLI',
           },
           select: {
             id: true,
