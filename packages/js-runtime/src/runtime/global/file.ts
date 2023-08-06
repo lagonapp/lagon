@@ -19,12 +19,12 @@
   // @ts-ignore
   globalThis.FileReader = class extends EventTarget {
     readonly error: DOMException | null = null;
-    onabort: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
-    onerror: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
-    onload: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
-    onloadend: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
-    onloadstart: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
-    onprogress: ((this: FileReader, ev: ProgressEvent<FileReader>) => any) | null = null;
+    onabort: ((this: FileReader, ev: ProgressEvent<FileReader>) => unknown) | null = null;
+    onerror: ((this: FileReader, ev: ProgressEvent<FileReader>) => unknown) | null = null;
+    onload: ((this: FileReader, ev: ProgressEvent<FileReader>) => unknown) | null = null;
+    onloadend: ((this: FileReader, ev: ProgressEvent<FileReader>) => unknown) | null = null;
+    onloadstart: ((this: FileReader, ev: ProgressEvent<FileReader>) => unknown) | null = null;
+    onprogress: ((this: FileReader, ev: ProgressEvent<FileReader>) => unknown) | null = null;
     readonly readyState: number = FileReader.EMPTY;
     readonly result: string | ArrayBuffer | null = null;
 
@@ -55,6 +55,7 @@
       this.read(blob.text(), btoa);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     readAsText(blob: Blob, encoding?: string) {
       this.read(blob.text());
     }

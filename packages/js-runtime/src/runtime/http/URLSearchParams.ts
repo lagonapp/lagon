@@ -120,20 +120,23 @@
       if (this.has(name)) {
         let found = false;
 
-        this.list = this.list.reduce((acc, [currentName, currentValue]) => {
-          if (currentName === name) {
-            if (found) {
-              return acc;
+        this.list = this.list.reduce(
+          (acc, [currentName, currentValue]) => {
+            if (currentName === name) {
+              if (found) {
+                return acc;
+              }
+
+              found = true;
+              acc.push([String(name), String(value)]);
+            } else {
+              acc.push([currentName, currentValue]);
             }
 
-            found = true;
-            acc.push([String(name), String(value)]);
-          } else {
-            acc.push([currentName, currentValue]);
-          }
-
-          return acc;
-        }, [] as [string, string][]);
+            return acc;
+          },
+          [] as [string, string][],
+        );
       } else {
         this.append(name, value);
       }
@@ -152,7 +155,7 @@
       }
     }
 
-    forEach(callbackfn: (value: string, key: string, parent: URLSearchParams) => void, thisArg?: any) {
+    forEach(callbackfn: (value: string, key: string, parent: URLSearchParams) => void, thisArg?: unknown) {
       for (const [name, value] of this.list) {
         callbackfn.call(thisArg, value, name, this);
       }

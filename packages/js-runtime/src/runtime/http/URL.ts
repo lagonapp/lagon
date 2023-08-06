@@ -70,11 +70,13 @@
       }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     static createObjectURL(obj: Blob): string {
       // TODO
       throw new Error('Not implemented');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     static revokeObjectURL(url: string) {
       // TODO
       throw new Error('Not implemented');

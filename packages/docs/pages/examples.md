@@ -32,9 +32,14 @@ This example uses [Hono](https://honojs.dev), a small, simple, and ultrafast web
 
 This example uses [Nitro](https://nitro.unjs.io/), a library to build and deploy universal JavaScript servers, via Lagon's preset. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/nitro)
 
+
+### Neon
+
+This example uses [Neon](https://neon.tech) with their Serverless driver (`@neondatabase/serverless`) to make PostgreSQL queries on the edge. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/neon)
+
 ### PlanetScale Serverless Driver
 
-This example uses [PlanetScale](https://planetscale.com) with the Serverless Driver (`@planetscale/database`) to make SQL queries on the edge. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/planetscale)
+This example uses [PlanetScale](https://planetscale.com) with their Serverless Driver (`@planetscale/database`) to make SQL queries on the edge. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/planetscale)
 
 ### Preact CSR
 
@@ -109,3 +114,7 @@ This example uses [Rakkas](https://rakkasjs.org), a React framework powered by V
 ### Remix
 
 This example uses [Remix](https://remix.run), a full-stack React framework, with SSR via Lagon's integration. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/remix)
+
+### SvelteKit
+
+This example uses [SvelteKit](https://kit.svelte.dev), the Svelte framework, with SSR via Lagon's adapter. [See the code](https://github.com/lagonapp/lagon/tree/main/examples/sveltekit)

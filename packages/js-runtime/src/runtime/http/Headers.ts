@@ -1,8 +1,6 @@
 (globalThis => {
   const SET_COOKIE = 'set-cookie';
   const CONTENT_TYPE = 'content-type';
-  // eslint-disable-next-line no-control-regex
-  const NORMALIZE_VALUE_REGEX = new RegExp('^[\x0A\x0D\x09\x20]+|[\x0A\x0D\x09\x20]+$', 'g');
 
   globalThis.Headers = class {
     private h: [string, string][] = [];
@@ -157,7 +155,7 @@
       }
     }
 
-    forEach(callbackfn: (value: string, key: string, parent: Headers) => void, thisArg?: any) {
+    forEach(callbackfn: (value: string, key: string, parent: Headers) => void, thisArg?: unknown) {
       for (const [key, value] of this.entries()) {
         callbackfn.call(thisArg, value, key, this);
       }

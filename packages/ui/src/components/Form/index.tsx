@@ -8,6 +8,7 @@ type FormProps = {
   onSubmit: FinalFormFormProps['onSubmit'];
   onSubmitSuccess: FinalFormFormProps['onSubmit'];
   onSubmitError?: FinalFormFormProps['onSubmit'];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: ReactNode | (({ form, values }: { form: FormApi; values: Record<string, any> }) => ReactNode);
 };
 

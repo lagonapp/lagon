@@ -1,5 +1,17 @@
 # @lagon/cli
 
+## 0.7.8
+
+### Patch Changes
+
+- [#1001](https://github.com/lagonapp/lagon/pull/1001) [`d71d4c5`](https://github.com/lagonapp/lagon/commit/d71d4c56256090e1dd5f7ed15209ccb4c002d951) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Throw an error if handler function do no return a Response
+
+## 0.7.7
+
+### Patch Changes
+
+- [#997](https://github.com/lagonapp/lagon/pull/997) [`cfe19e6`](https://github.com/lagonapp/lagon/commit/cfe19e6d2b763b0ac46dd7ed4f15f8ab16a2a1f0) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Fix assets path delimiter on Windows
+
 ## 0.7.6
 
 ### Patch Changes

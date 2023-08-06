@@ -143,13 +143,9 @@ where
                         )
                         .await;
 
-                        if deployment.should_run_cron() {
-                            let mut cronjob = cronjob.lock().await;
+                        let mut cronjob = cronjob.lock().await;
 
-                            if let Err(error) = cronjob.remove(&deployment.id).await {
-                                error!(deployment = deployment.id; "Failed to remove cron: {}", error);
-                            }
-                        }
+                        cronjob.remove(&deployment.id).await.unwrap_or(());
                     }
                     Err(error) => {
                         increment_counter!(
