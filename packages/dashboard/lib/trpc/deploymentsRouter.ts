@@ -26,7 +26,6 @@ export const deploymentsRouter = (t: T) =>
           functionId: z.string(),
           functionSize: z.number(),
           tsSize: z.number(),
-          platform: z.enum(['CLI', 'Playground']),
           assets: z
             .object({
               name: z.string(),
@@ -52,7 +51,6 @@ export const deploymentsRouter = (t: T) =>
           {
             id: input.functionId,
           },
-          input.platform,
           input.assets.map(({ name }) => name),
           ctx.session.user.email,
         );

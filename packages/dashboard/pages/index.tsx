@@ -30,6 +30,7 @@ const Home = () => {
               domains: [],
               env: [],
               cron: null,
+              platform: 'Playground',
             });
 
             const deployment = await createDeployment.mutateAsync({

@@ -12,7 +12,6 @@ export async function createDeployment(
   func: {
     id: string;
   },
-  platform: 'CLI' | 'Playground',
   assets: string[],
   triggerer: string,
 ): Promise<{
@@ -27,7 +26,6 @@ export async function createDeployment(
       isProduction: false,
       assets,
       functionId: func.id,
-      platform,
       triggerer,
     },
     select: {

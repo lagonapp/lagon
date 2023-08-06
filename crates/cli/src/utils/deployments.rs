@@ -364,7 +364,6 @@ struct Asset {
 struct CreateDeploymentRequest {
     function_id: String,
     function_size: usize,
-    platform: String,
     assets: Vec<Asset>,
 }
 
@@ -411,7 +410,6 @@ pub async fn create_deployment(
             CreateDeploymentRequest {
                 function_id: function_config.function_id.clone(),
                 function_size: index.len(),
-                platform: "CLI".into(),
                 assets: assets
                     .iter()
                     .map(|(key, value)| Asset {

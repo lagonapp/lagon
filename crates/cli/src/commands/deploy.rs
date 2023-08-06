@@ -29,6 +29,7 @@ struct CreateFunctionRequest {
     domains: Vec<String>,
     env: Vec<String>,
     cron: Option<String>,
+    platform: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -130,6 +131,7 @@ pub async fn deploy(
                             domains: Vec::new(),
                             env: Vec::new(),
                             cron: None,
+                            platform: "CLI".into(),
                         },
                     )
                     .await?;

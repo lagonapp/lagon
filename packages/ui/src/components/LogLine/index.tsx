@@ -8,10 +8,10 @@ type LogLineProps = {
   date?: Date;
   level?: LogsLevel;
   message: string;
-  hiddenCopy?: boolean;
+  showCopy?: boolean;
 };
 
-export const LogLine = ({ date, level = 'info', message, hiddenCopy }: LogLineProps) => {
+export const LogLine = ({ date, level = 'info', message, showCopy = true }: LogLineProps) => {
   const { containerStyle, dateStyle, messageStyle } = useMemo(() => {
     switch (level) {
       case 'error':
@@ -39,10 +39,10 @@ export const LogLine = ({ date, level = 'info', message, hiddenCopy }: LogLinePr
   return (
     <div className={cx(['group flex w-full justify-between rounded-md px-2 py-1', containerStyle])}>
       <div className="flex items-start gap-4">
-        {date && <p className={cx(['w-36 whitespace-pre text-sm', dateStyle])}>{date.toLocaleString('en-US')}</p>}
+        {date ? <p className={cx(['w-36 whitespace-pre text-sm', dateStyle])}>{date.toLocaleString('en-US')}</p> : null}
         <pre className={cx(['whitespace-pre-wrap text-sm', messageStyle])}>{message}</pre>
       </div>
-      {!hiddenCopy && (
+      {showCopy && (
         <span
           className="hidden cursor-pointer text-xs text-stone-400 hover:text-stone-800 group-hover:inline dark:text-stone-400 dark:hover:text-stone-200"
           onClick={() => navigator.clipboard.writeText(message)}

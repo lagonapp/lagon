@@ -39,7 +39,7 @@ const Function = () => {
       ) : null}
       <Nav defaultValue="overview">
         <Nav.List
-          {...(func?.deployments?.filter(item => item.isProduction)?.[0]?.platform === 'Playground'
+          {...(func?.platform === 'Playground'
             ? {
                 rightItem: (
                   <Button href={`/playground/${func?.id}`} leftIcon={<PlayIcon className="h-4 w-4" />}>

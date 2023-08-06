@@ -20,7 +20,7 @@ const EsBuildTip: React.FC<{ esbuildStatus: ESBuildStatus }> = ({ esbuildStatus 
       <LogLine
         level={esbuildStatus === ESBuildStatus.Loading ? 'warn' : 'error'}
         message={esbuildStatus === ESBuildStatus.Loading ? t('esbuild.loading') : t('esbuild.error')}
-        hiddenCopy
+        showCopy={false}
       />
     </div>
   ) : (
@@ -94,7 +94,6 @@ const PlaygroundPage = () => {
               functionId: func.id,
               functionSize: new TextEncoder().encode(code).length,
               tsSize: new TextEncoder().encode(tsCode).length,
-              platform: 'Playground',
               assets: [],
             });
 
