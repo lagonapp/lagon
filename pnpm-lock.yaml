@@ -189,8 +189,8 @@ importers:
         specifier: ^4.22.1
         version: 4.22.1(next@13.4.12)(nodemailer@6.9.0)(react-dom@18.2.0)(react@18.2.0)
       next-international:
-        specifier: ^0.6.4
-        version: 0.6.4(next@13.4.12)(react@18.2.0)
+        specifier: ^0.8.0
+        version: 0.8.0
       node-fetch:
         specifier: ^3.2.10
         version: 3.2.10
@@ -1646,9 +1646,9 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0
     dependencies:
-      '@babel/compat-data': 7.22.5
+      '@babel/compat-data': 7.21.4
       '@babel/core': 7.21.0
-      '@babel/helper-validator-option': 7.22.5
+      '@babel/helper-validator-option': 7.21.0
       browserslist: 4.21.5
       lru-cache: 5.1.1
       semver: 6.3.0
@@ -13481,8 +13481,8 @@ packages:
       side-channel: 1.0.4
     dev: true
 
-  /international-types@0.6.2:
-    resolution: {integrity: sha512-2qwKP4SqqrsTR6pKxd3VBMfzXHdpCz5rPOYNAGkFIg+Z8U+p/j5yzySN6jN+/VLojckGR+g2rD4hOLho8juz0g==}
+  /international-types@0.8.0:
+    resolution: {integrity: sha512-cJwagIBzMG0FTK81TABeSBU0eReIXWmvW18m/URn8ZA+GLoWIcdL43kfjArwHVmZJ1n+IFchsBj8tQLYUqmwnA==}
     dev: false
 
   /internmap@2.0.3:
@@ -15490,16 +15490,11 @@ packages:
       uuid: 8.3.2
     dev: false
 
-  /next-international@0.6.4(next@13.4.12)(react@18.2.0):
-    resolution: {integrity: sha512-uiZMNtqV5RqCsd96IbhZijcw3Hogf+7sGPKN+d4/By0CGs8rcxhZ2/ZRgX3pXusOvD00XS7PvVK9CP0T6U/OUQ==}
-    peerDependencies:
-      next: ^13.0.0 || ^12.0.0 || ^11.0.0
-      react: ^18.0.0 || ^17.0.0
+  /next-international@0.8.0:
+    resolution: {integrity: sha512-1rM+Zmzy18rAWh4Yco47zi+nwgc9ULKu34/AuW4g5SXzQN/lc1sdgkF9s/7FY1w5okvvhp0T7R32AXUyDMpvcQ==}
     dependencies:
       client-only: 0.0.1
-      international-types: 0.6.2
-      next: 13.4.12(@babel/core@7.22.5)(react-dom@18.2.0)(react@18.2.0)
-      react: 18.2.0
+      international-types: 0.8.0
       server-only: 0.0.1
     dev: false
 
