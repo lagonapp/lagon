@@ -58,6 +58,13 @@ services:
     entrypoint: sh
     command: -c 'mkdir -p /data/lagon && minio server /data --console-address ":9001" --address ":9002"'
 
+  inbucket:
+    image: inbucket/inbucket
+    ports:
+      - 9500:9500
+      - 2500:2500
+      - 1100:1100
+
 volumes:
   redis:
   mysql:
