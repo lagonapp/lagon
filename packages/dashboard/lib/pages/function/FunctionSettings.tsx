@@ -390,22 +390,30 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
         initialValues={{
           env: func?.env || {},
         }}
-        onSubmit={async ({ env }) => {
+        onSubmit={async ({ env, envKey, envValue }) => {
           if (!func) {
             return;
           }
 
+          const newEnv = Object.entries<string>(env).reduce(
+            (acc, [key, value]) => [...acc, { key, value }],
+            [] as { key: string; value: string }[],
+          );
+
+          if (envKey && envValue) {
+            newEnv.push({ key: envKey, value: envValue });
+          }
+
           await updateFunction.mutateAsync({
             functionId: func.id,
-            env: Object.entries<string>(env).reduce(
-              (acc, [key, value]) => [...acc, { key, value }],
-              [] as { key: string; value: string }[],
-            ),
+            env: newEnv,
           });
         }}
-        onSubmitSuccess={async () => {
+        onSubmitSuccess={async (_, form) => {
           toast.success('Function environment variables updated successfully.');
           await refetch();
+          form.change('envKey', '');
+          form.change('envValue', '');
         }}
       >
         {({ values, form }) => (
@@ -421,6 +429,29 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
             }
           >
             <div className="flex flex-col items-start gap-4">
+              {Object.entries<string>(values.env).map(([key, value], index) => {
+                return (
+                  <div
+                    key={`${key}-${value}-${index}`}
+                    className="flex flex-col items-start gap-2 md:flex-row md:items-center"
+                  >
+                    <Input name={`${key}-key`} placeholder={key} disabled />
+                    <Input name={`${key}-value`} placeholder={new Array(value.length).fill('*').join('')} disabled />
+                    <Button
+                      disabled={updateFunction.isLoading}
+                      variant="danger"
+                      onClick={() => {
+                        const newEnv = { ...values.env };
+                        delete newEnv[key];
+
+                        form.change('env', newEnv);
+                      }}
+                    >
+                      {t('env.remove')}
+                    </Button>
+                  </div>
+                );
+              })}
               <div className="flex flex-col items-start gap-2 md:flex-row md:items-center">
                 <Input
                   name="envKey"
@@ -473,29 +504,6 @@ const FunctionSettings = ({ func, refetch }: FunctionSettingsProps) => {
                   {t('env.add')}
                 </Button>
               </div>
-              {Object.entries<string>(values.env).map(([key, value], index) => {
-                return (
-                  <div
-                    key={`${key}-${value}-${index}`}
-                    className="flex flex-col items-start gap-2 md:flex-row md:items-center"
-                  >
-                    <Input name={`${key}-key`} placeholder={key} disabled />
-                    <Input name={`${key}-value`} placeholder={new Array(value.length).fill('*').join('')} disabled />
-                    <Button
-                      disabled={updateFunction.isLoading}
-                      variant="danger"
-                      onClick={() => {
-                        const newEnv = { ...values.env };
-                        delete newEnv[key];
-
-                        form.change('env', newEnv);
-                      }}
-                    >
-                      {t('env.remove')}
-                    </Button>
-                  </div>
-                );
-              })}
               <Button variant="primary" disabled={updateFunction.isLoading} submit>
                 {t('env.submit')}
               </Button>
