@@ -26,7 +26,7 @@ tokio-cron-scheduler = "0.9.4"
 # TODO: use a specific version of dashmap when the inline feature is released
 dashmap = { git = "https://github.com/xacrimon/dashmap.git", rev = "7f9522c5286cfbbb78df15f00f87b8331cb875d6", features = ["inline"] }
 futures = "0.3.28"
-clickhouse = "0.11.5"
+clickhouse = "0.11.6"
 bytes = "1.4.0"
 serde = { version = "1.0", features = ["derive"] }
 uuid = { version = "1.4.0", features = ["v4", "fast-rng"] }
