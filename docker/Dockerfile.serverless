@@ -20,10 +20,10 @@ COPY . .
 COPY --from=js-runtime /app/dist/index.js /app/crates/runtime_isolate/runtime.js
 RUN cargo build --release --bin lagon-serverless
 
-FROM debian:bullseye-slim AS runtime
+FROM chef AS runtime
 WORKDIR /app
 RUN apt-get update -y \
-    && apt-get install -y ca-certificates \
+    && apt-get install -y ca-certificates libssl1.0 libssl-dev \
     && apt-get autoremove -y \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
