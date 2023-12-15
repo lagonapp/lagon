@@ -1,6 +1,6 @@
 import { Text, Card, Button } from '@lagon/ui';
 import { GitHubIcon } from 'lib/components/GitHubIcon';
-import { GoogleIcon } from 'lib/components/GoogleIcon';
+// import { GoogleIcon } from 'lib/components/GoogleIcon';
 import { useScopedI18n } from 'locales';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
@@ -37,7 +37,7 @@ const SignIn = () => {
             >
               {t('github')}
             </Button>
-            <Button
+            {/* <Button
               leftIcon={<GoogleIcon className="h-4 w-4" />}
               disabled={isLoading}
               onClick={() => {
@@ -48,7 +48,7 @@ const SignIn = () => {
               }}
             >
               {t('google')}
-            </Button>
+            </Button> */}
           </div>
         </div>
       </Card>
