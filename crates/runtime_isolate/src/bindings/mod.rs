@@ -1,23 +1,25 @@
+use crate::Isolate;
+use compression::{
+    compression_create_binding, compression_finish_binding, compression_write_binding,
+};
 use console::console_binding;
 use crypto::{
     decrypt_binding, decrypt_init, digest_binding, encrypt_binding, encrypt_init,
     get_key_value_binding, random_values_binding, sign_binding, sign_init, uuid_binding,
     verify_binding, verify_init,
 };
+use crypto::{
+    derive_bits_binding, derive_bits_init, digest_init, generate_key_binding, generate_key_init,
+};
 use fetch::{fetch_binding, fetch_init};
-use lagon_runtime_http::{IntoV8, Response};
+use hyper::{body::Bytes, HeaderMap};
+use lagon_runtime_http::response_to_v8;
 use lagon_runtime_v8_utils::{v8_boolean, v8_string, v8_uint8array};
 use pull_stream::pull_stream_binding;
 use queue_microtask::queue_microtask_binding;
 use sleep::{sleep_binding, sleep_init};
 
-use crate::{
-    bindings::crypto::{
-        derive_bits_binding, derive_bits_init, digest_init, generate_key_binding, generate_key_init,
-    },
-    Isolate,
-};
-
+pub mod compression;
 pub mod console;
 pub mod crypto;
 pub mod fetch;
@@ -31,7 +33,7 @@ pub struct BindingResult {
 }
 
 pub enum PromiseResult {
-    Response(Response),
+    Response((u16, HeaderMap, Bytes)),
     ArrayBuffer(Vec<u8>),
     Boolean(bool),
     Error(String),
@@ -41,7 +43,7 @@ pub enum PromiseResult {
 impl PromiseResult {
     pub fn into_value<'a>(self, scope: &mut v8::HandleScope<'a>) -> v8::Local<'a, v8::Value> {
         match self {
-            PromiseResult::Response(response) => response.into_v8(scope).into(),
+            PromiseResult::Response(response) => response_to_v8(response, scope).into(),
             PromiseResult::ArrayBuffer(bytes) => v8_uint8array(scope, bytes).into(),
             PromiseResult::Boolean(boolean) => v8_boolean(scope, boolean).into(),
             PromiseResult::Error(error) => v8_string(scope, &error).into(),
@@ -124,6 +126,27 @@ pub fn bind<'a>(
             lagon_object,
             "queueMicrotask",
             queue_microtask_binding
+        );
+
+        binding!(
+            scope,
+            lagon_object,
+            "compressionCreate",
+            compression_create_binding
+        );
+
+        binding!(
+            scope,
+            lagon_object,
+            "compressionWrite",
+            compression_write_binding
+        );
+
+        binding!(
+            scope,
+            lagon_object,
+            "compressionFinish",
+            compression_finish_binding
         );
 
         global.set(v8_string(scope, "LagonSync").into(), lagon_object.into());

@@ -1,5 +1,23 @@
 # @lagon/wpt-runner
 
+## 0.1.6
+
+### Patch Changes
+
+- [#916](https://github.com/lagonapp/lagon/pull/916) [`a8a02dd`](https://github.com/lagonapp/lagon/commit/a8a02dd0bd244599d9c6be622e79c6f4cb1b3db4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Replace once_cell with std's OnceLock
+
+## 0.1.5
+
+### Patch Changes
+
+- [#835](https://github.com/lagonapp/lagon/pull/835) [`12ff778`](https://github.com/lagonapp/lagon/commit/12ff77821b74bffc483a216c46053e270ddde64a) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add not completed tests to results
+
+## 0.1.4
+
+### Patch Changes
+
+- [#883](https://github.com/lagonapp/lagon/pull/883) [`00c1e66`](https://github.com/lagonapp/lagon/commit/00c1e6630d43f247e8d9893e63ff5de1ca7e64f5) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve performance by always using Hyper types
+
 ## 0.1.3
 
 ### Patch Changes

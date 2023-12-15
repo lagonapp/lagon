@@ -1,4 +1,4 @@
-use lagon_runtime_http::{Request, Response};
+use hyper::{header::CONTENT_TYPE, Body, Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -22,10 +22,12 @@ export function handler() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("true")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("true"),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -47,10 +49,7 @@ export function handler() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::default()
-    );
+    utils::assert_response(&receiver, Response::builder(), Body::empty()).await;
 }
 
 #[tokio::test]
@@ -73,10 +72,7 @@ export function handler() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::default()
-    );
+    utils::assert_response(&receiver, Response::builder(), Body::empty()).await;
 }
 
 #[tokio::test]
@@ -113,10 +109,7 @@ export function handler() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::default()
-    );
+    utils::assert_response(&receiver, Response::builder(), Body::empty()).await;
 }
 
 #[tokio::test]
@@ -165,10 +158,7 @@ export function handler() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::default()
-    );
+    utils::assert_response(&receiver, Response::builder(), Body::empty()).await;
 }
 
 #[tokio::test]
@@ -199,17 +189,21 @@ export async function handler() {
     );
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("2")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("2"),
+    )
+    .await;
 
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("4")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("4"),
+    )
+    .await;
 
     assert_eq!(
         logs_receiver.recv_async().await.unwrap(),

@@ -5,18 +5,22 @@ use dialoguer::console::style;
 use envfile::EnvFile;
 use hyper::server::conn::AddrStream;
 use hyper::service::{make_service_fn, service_fn};
-use hyper::{Body, Request as HyperRequest, Response as HyperResponse, Server};
+use hyper::{Body, Request, Response, Server};
 use lagon_runtime::{options::RuntimeOptions, Runtime};
-use lagon_runtime_http::{Request, Response, RunResult, X_FORWARDED_FOR, X_LAGON_REGION};
+use lagon_runtime_http::{
+    RunResult, X_FORWARDED_FOR, X_FORWARDED_HOST, X_FORWARDED_PROTO, X_LAGON_ID, X_LAGON_REGION,
+    X_REAL_IP,
+};
 use lagon_runtime_isolate::{options::IsolateOptions, Isolate};
 use lagon_runtime_isolate::{IsolateEvent, IsolateRequest};
 use lagon_runtime_utils::assets::{find_asset, handle_asset};
 use lagon_runtime_utils::response::{handle_response, ResponseEvent, FAVICON_URL};
+use lagon_runtime_utils::Deployment;
 use notify::event::ModifyKind;
 use notify::{Config, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
 use std::collections::HashMap;
 use std::convert::Infallible;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::runtime::Handle;
@@ -25,28 +29,41 @@ use tokio::sync::Mutex;
 const LOCAL_REGION: &str = "local";
 
 fn parse_environment_variables(
-    root: &Path,
+    path: Option<PathBuf>,
     env: Option<PathBuf>,
 ) -> Result<HashMap<String, String>> {
     let mut environment_variables = HashMap::new();
 
-    if let Some(path) = env {
-        let envfile = EnvFile::new(root.join(path))?;
+    if let Some(env) = env {
+        let envfile = EnvFile::new(env)?;
 
         for (key, value) in envfile.store {
             environment_variables.insert(key, value);
         }
 
         println!("{}", style("Loaded .env file...").black().bright());
-    } else if let Ok(envfile) = EnvFile::new(root.join(".env")) {
-        for (key, value) in envfile.store {
-            environment_variables.insert(key, value);
-        }
-
-        println!(
-            "{}",
-            style("Automatically loaded .env file...").black().bright()
+    } else {
+        let path = path.map_or_else(
+            || PathBuf::from("."),
+            |path| {
+                if path.is_file() {
+                    PathBuf::from(".")
+                } else {
+                    path
+                }
+            },
         );
+
+        if let Ok(envfile) = EnvFile::new(path.join(".env")) {
+            for (key, value) in envfile.store {
+                environment_variables.insert(key, value);
+            }
+
+            println!(
+                "{}",
+                style("Automatically loaded .env file...").black().bright()
+            );
+        }
     }
 
     Ok(environment_variables)
@@ -56,18 +73,16 @@ fn parse_environment_variables(
 // except that we don't have multiple deployments and such multiple
 // threads to manage, and we don't manager logs and metrics.
 async fn handle_request(
-    req: HyperRequest<Body>,
+    req: Request<Body>,
     public_dir: Option<PathBuf>,
     ip: String,
     assets: Arc<Mutex<Assets>>,
     isolate_tx: flume::Sender<IsolateEvent>,
-) -> Result<HyperResponse<Body>> {
+) -> Result<Response<Body>> {
     let url = req.uri().path();
 
     let (tx, rx) = flume::unbounded();
     let assets = assets.lock().await.to_owned();
-
-    let is_favicon = url == FAVICON_URL;
 
     if let Some(asset) = find_asset(url, &assets.keys().cloned().collect()) {
         println!(
@@ -79,17 +94,15 @@ async fn handle_request(
         );
 
         let run_result = match handle_asset(public_dir.unwrap(), asset) {
-            Ok(response) => RunResult::Response(response, None),
+            Ok((response_builder, body)) => RunResult::Response(response_builder, body, None),
             Err(error) => RunResult::Error(format!("Could not retrieve asset ({asset}): {error}")),
         };
 
         tx.send_async(run_result).await.unwrap_or(());
-    } else if is_favicon {
+    } else if url == FAVICON_URL {
         tx.send_async(RunResult::Response(
-            Response {
-                status: 404,
-                ..Default::default()
-            },
+            Response::builder().status(404),
+            Body::empty(),
             None,
         ))
         .await
@@ -102,37 +115,35 @@ async fn handle_request(
             url
         );
 
-        match Request::from_hyper(req).await {
-            Ok(mut request) => {
-                request.set_header(X_FORWARDED_FOR.to_string(), ip);
-                request.set_header(X_LAGON_REGION.to_string(), LOCAL_REGION.to_string());
+        let (mut parts, body) = req.into_parts();
+        let body = hyper::body::to_bytes(body).await?;
 
-                isolate_tx
-                    .send_async(IsolateEvent::Request(IsolateRequest {
-                        request,
-                        sender: tx,
-                    }))
-                    .await
-                    .unwrap_or(());
-            }
-            Err(error) => {
-                println!("Error while parsing request: {error}");
+        parts.headers.insert(X_FORWARDED_FOR, ip.parse()?);
+        parts.headers.insert(X_FORWARDED_PROTO, "http".parse()?);
+        parts.headers.insert(X_FORWARDED_HOST, "localhost".parse()?);
+        parts.headers.insert(X_REAL_IP, ip.parse()?);
 
-                tx.send_async(RunResult::Error("Error while parsing request".into()))
-                    .await
-                    .unwrap_or(());
-            }
-        };
+        parts.headers.insert(X_LAGON_REGION, LOCAL_REGION.parse()?);
+        parts.headers.insert(X_LAGON_ID, "".parse()?);
+
+        let request = (parts, body);
+
+        isolate_tx
+            .send_async(IsolateEvent::Request(IsolateRequest {
+                request,
+                sender: tx,
+            }))
+            .await
+            .unwrap_or(());
     }
 
-    handle_response(rx, |event| async move {
+    let deployment = Arc::new(Deployment {
+        is_production: false,
+        ..Deployment::default()
+    });
+
+    handle_response(rx, deployment, |event| async move {
         match event {
-            ResponseEvent::StreamDoneNoDataError => {
-                println!(
-                    "{} The stream was done before sending a response/data",
-                    style("✕").red()
-                );
-            }
             ResponseEvent::UnexpectedStreamResult(result) => {
                 println!(
                     "{} Unexpected stream result: {:?}",
@@ -141,7 +152,7 @@ async fn handle_request(
                 );
             }
             ResponseEvent::LimitsReached(result) => {
-                if result == RunResult::Timeout {
+                if result.is_timeout() {
                     println!("{} Function execution timed out", style("✕").red());
                 } else {
                     println!(
@@ -172,10 +183,10 @@ pub async fn dev(
     allow_code_generation: bool,
     prod: bool,
 ) -> Result<()> {
-    let (root, function_config) = resolve_path(path, client, public_dir)?;
+    let (root, function_config) = resolve_path(path.clone(), client, public_dir)?;
     let (index, assets) = bundle_function(&function_config, &root, prod)?;
 
-    let server_index = index.clone();
+    let index = Arc::new(Mutex::new(index));
     let assets = Arc::new(Mutex::new(assets));
 
     let runtime =
@@ -192,41 +203,37 @@ pub async fn dev(
         .as_ref()
         .map(|assets| root.join(assets));
 
-    let environment_variables = match parse_environment_variables(&root, env) {
+    let environment_variables = match parse_environment_variables(path, env) {
         Ok(env) => env,
         Err(err) => return Err(anyhow!("Could not load environment variables: {:?}", err)),
     };
 
-    let (tx, rx) = flume::unbounded();
-    let (index_tx, index_rx) = flume::unbounded();
+    let (isolate_tx, isolate_rx) = flume::unbounded();
     let (log_sender, log_receiver) = flume::unbounded();
+
     let handle = Handle::current();
+    let index_handle = Arc::clone(&index);
 
     std::thread::spawn(move || {
         handle.block_on(async move {
-            let mut index = server_index;
-
             loop {
+                let code = {
+                    let index = index_handle.lock().await;
+                    String::from_utf8(index.to_vec()).expect("Code is not UTF-8")
+                };
+
                 let mut isolate = Isolate::new(
-                    IsolateOptions::new(
-                        String::from_utf8(index.clone()).expect("Code is not UTF-8"),
-                    )
-                    .tick_timeout(Duration::from_millis(500))
-                    .total_timeout(Duration::from_secs(30))
-                    .metadata(Some((String::from(""), String::from(""))))
-                    .environment_variables(environment_variables.clone())
-                    .log_sender(log_sender.clone()),
-                    rx.clone(),
+                    IsolateOptions::new(code)
+                        .tick_timeout(Duration::from_millis(500))
+                        .total_timeout(Duration::from_secs(30))
+                        .metadata(Some((String::from(""), String::from(""))))
+                        .environment_variables(environment_variables.clone())
+                        .log_sender(log_sender.clone()),
+                    isolate_rx.clone(),
                 );
 
                 isolate.evaluate();
-
-                tokio::select! {
-                    _ = isolate.run_event_loop() => {},
-                    new_index = index_rx.recv_async() => {
-                        index = new_index.unwrap();
-                    }
-                }
+                isolate.run_event_loop().await;
             }
         });
     });
@@ -244,11 +251,13 @@ pub async fn dev(
         }
     });
 
-    let server_assets = Arc::clone(&assets);
+    let assets_handle = Arc::clone(&assets);
+    let tx_handle = isolate_tx.clone();
+
     let server = Server::bind(&addr).serve(make_service_fn(move |conn: &AddrStream| {
         let public_dir = server_public_dir.clone();
-        let assets = Arc::clone(&server_assets);
-        let tx = tx.clone();
+        let assets = Arc::clone(&assets_handle);
+        let tx = tx_handle.clone();
 
         let addr = conn.remote_addr();
         let ip = addr.ip().to_string();
@@ -293,7 +302,12 @@ pub async fn dev(
                 let (new_index, new_assets) = bundle_function(&function_config, &root, prod)?;
 
                 *assets.lock().await = new_assets;
-                index_tx.send_async(new_index).await.unwrap();
+                *index.lock().await = new_index;
+
+                isolate_tx
+                    .send_async(IsolateEvent::Terminate(String::from("Hot Reload")))
+                    .await
+                    .unwrap();
 
                 println!();
                 println!(" {} Dev Server ready!", style("◼").magenta());

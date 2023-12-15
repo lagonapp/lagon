@@ -1,8 +1,10 @@
 (globalThis => {
   const SET_COOKIE = 'set-cookie';
+  const CONTENT_TYPE = 'content-type';
 
   globalThis.Headers = class {
-    private readonly h: Map<string, string[]> = new Map();
+    private h: [string, string][] = [];
+    private hasContentType = false;
     immutable = false;
 
     constructor(init?: HeadersInit) {
@@ -12,19 +14,17 @@
 
       if (init) {
         if (Array.isArray(init)) {
-          init.forEach(entry => {
+          for (const entry of init) {
             if (entry.length !== 2) {
               throw new TypeError('HeadersInit must be an array of 2-tuples');
             }
 
-            this.addValue(entry[0], entry[1]);
-          });
+            this.append(entry[0], entry[1]);
+          }
         } else {
           if (init instanceof Headers) {
-            for (const [key, value] of init) {
-              this.addValue(key, value);
-            }
-
+            // @ts-expect-error we access a private field
+            this.h = init.h;
             return;
           }
 
@@ -32,27 +32,23 @@
             throw new TypeError('HeadersInit must be an object or an array of 2-tuples');
           }
 
-          Object.entries(init).forEach(([key, value]) => {
-            this.addValue(key, value);
-          });
+          for (const [key, value] of Object.entries(init)) {
+            this.append(key, value);
+          }
         }
       }
     }
 
-    private addValue(name: string, value: string) {
-      name = name.toLowerCase();
-      value = String(value);
-      const values = this.h.get(name);
-
-      if (values) {
-        values.push(value);
-      } else {
-        this.h.set(name, [value]);
-      }
-    }
-
     getSetCookie(): string[] {
-      return this.h.get(SET_COOKIE) || [];
+      const result: string[] = [];
+
+      for (const [key, value] of this.h) {
+        if (key === SET_COOKIE) {
+          result.push(value);
+        }
+      }
+
+      return result;
     }
 
     append(name: string, value: string) {
@@ -61,7 +57,13 @@
       }
 
       name = name.toLowerCase();
-      this.addValue(name, value);
+      value = String(value);
+
+      if (name === CONTENT_TYPE) {
+        this.hasContentType = true;
+      }
+
+      this.h.push([name, value]);
     }
 
     delete(name: string) {
@@ -70,11 +72,30 @@
       }
 
       name = name.toLowerCase();
-      this.h.delete(name);
+
+      const newHeaders: [string, string][] = [];
+
+      for (const [key, value] of this.h) {
+        if (key !== name) {
+          newHeaders.push([key, value]);
+        }
+      }
+
+      this.h = newHeaders;
     }
 
     *entries(): IterableIterator<[string, string]> {
-      const sorted = [...this.h.entries()].sort(([a], [b]) => a.localeCompare(b));
+      const temp = new Map<string, string[]>();
+
+      for (const [key, value] of this.h) {
+        if (!temp.has(key)) {
+          temp.set(key, []);
+        }
+
+        temp.get(key)!.push(value);
+      }
+
+      const sorted = [...temp.entries()].sort(([a], [b]) => a.localeCompare(b));
 
       for (const [key, values] of sorted) {
         if (key == SET_COOKIE) {
@@ -89,16 +110,34 @@
 
     get(name: string): string | null {
       name = name.toLowerCase();
-      return this.h.get(name)?.join(', ') || null;
+
+      const result: string[] = [];
+
+      for (const [key, value] of this.h) {
+        if (key === name) {
+          result.push(value);
+        }
+      }
+
+      return result.join(', ') || null;
     }
 
     has(name: string): boolean {
       name = name.toLowerCase();
-      return this.h.has(name);
+
+      for (const [key] of this.h) {
+        if (key === name) {
+          return true;
+        }
+      }
+
+      return false;
     }
 
-    keys(): IterableIterator<string> {
-      return this.h.keys();
+    *keys(): IterableIterator<string> {
+      for (const [key] of this.h) {
+        yield key;
+      }
     }
 
     set(name: string, value: string) {
@@ -106,20 +145,17 @@
         throw new TypeError('Headers are immutable');
       }
 
-      name = name.toLowerCase();
-      value = String(value);
-      this.h.set(name, [value]);
+      this.delete(name);
+      this.append(name, value);
     }
 
     *values(): IterableIterator<string> {
-      for (const [, values] of this.h) {
-        for (const value of values) {
-          yield value;
-        }
+      for (const [, value] of this.h) {
+        yield value;
       }
     }
 
-    forEach(callbackfn: (value: string, key: string, parent: Headers) => void, thisArg?: any) {
+    forEach(callbackfn: (value: string, key: string, parent: Headers) => void, thisArg?: unknown) {
       for (const [key, value] of this.entries()) {
         callbackfn.call(thisArg, value, key, this);
       }

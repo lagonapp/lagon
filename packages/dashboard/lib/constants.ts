@@ -32,7 +32,7 @@ export const REGIONS = {
   'nuremberg-eu-central': 'Nuremberg (eu-central)',
   'helsinki-eu-north': 'Helsinki (eu-north)',
   'warsaw-eu-east': 'Warsaw (eu-east)',
-  'bangalore-ap-south': 'Bangalore (ap-south)',
+  'bangalore-ap-west': 'Bangalore (ap-west)',
   'singapore-ap-south': 'Singapore (ap-south)',
   'sydney-ap-south': 'Sydney (ap-south)',
   'tokyo-ap-east': 'Tokyo (ap-east)',

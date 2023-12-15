@@ -339,6 +339,7 @@ export const organizationsRouter = (t: T) =>
       .input(
         z.object({
           priceId: z.string(),
+          priceIdMetered: z.string(),
         }),
       )
       .mutation(async ({ input, ctx }) => {
@@ -354,10 +355,13 @@ export const organizationsRouter = (t: T) =>
               price: input.priceId,
               quantity: 1,
             },
+            {
+              price: input.priceIdMetered,
+            },
           ],
           mode: 'subscription',
-          success_url: `${process.env.NEXTAUTH_URL}/settings`,
-          cancel_url: `${process.env.NEXTAUTH_URL}/settings`,
+          success_url: `${process.env.NEXTAUTH_URL}/settings?tab=billingUsage&updateSucceeded=true`,
+          cancel_url: `${process.env.NEXTAUTH_URL}/settings?tab=billingUsage&updateFailed=true`,
           customer_email: ctx.session.user.email,
           metadata: {
             organizationId: ctx.session.organization.id,
@@ -382,7 +386,7 @@ export const organizationsRouter = (t: T) =>
 
         const session = await stripe.billingPortal.sessions.create({
           customer: input.stripeCustomerId,
-          return_url: `${process.env.NEXTAUTH_URL}/settings`,
+          return_url: `${process.env.NEXTAUTH_URL}/settings?tab=billingUsage`,
         });
 
         return {

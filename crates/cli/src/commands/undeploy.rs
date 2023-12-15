@@ -1,4 +1,4 @@
-use crate::utils::{get_root, print_progress, Config, FunctionConfig, TrpcClient, THEME};
+use crate::utils::{get_root, get_theme, print_progress, Config, FunctionConfig, TrpcClient};
 use anyhow::{anyhow, Result};
 use dialoguer::{console::style, Confirm};
 use serde::{Deserialize, Serialize};
@@ -29,7 +29,7 @@ pub async fn undeploy(deployment_id: String, directory: Option<PathBuf>) -> Resu
     let root = get_root(directory);
     let function_config = FunctionConfig::load(&root, None, None)?;
 
-    match Confirm::with_theme(&*THEME)
+    match Confirm::with_theme(get_theme())
         .with_prompt("Do you really want to delete this Deployment?")
         .default(false)
         .interact()?
@@ -37,6 +37,7 @@ pub async fn undeploy(deployment_id: String, directory: Option<PathBuf>) -> Resu
         true => {
             let end_progress = print_progress("Deleting Deployment");
             TrpcClient::new(config)
+                .set_organization_id(function_config.organization_id.clone())
                 .mutation::<UndeployDeploymentRequest, UndeployDeploymentResponse>(
                     "deploymentUndeploy",
                     UndeployDeploymentRequest {

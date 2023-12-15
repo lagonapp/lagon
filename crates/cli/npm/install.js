@@ -1,12 +1,8 @@
 #!/usr/bin/env node
 
-// Prevent exiting with code 1
+// Prevent exiting with code 1 when
+// the changeset PR is created
 process.exit = () => {};
 
-try {
-  import('./getBinary.js').then(({ getBinary }) => {
-    getBinary().install();
-  });
-} catch (error) {
-  console.error(error);
-}
+import { getBinary } from './getBinary.js';
+getBinary().install();

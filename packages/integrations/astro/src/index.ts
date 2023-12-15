@@ -1,4 +1,4 @@
-import type { AstroAdapter, AstroIntegration } from 'astro';
+import type { AstroAdapter, AstroConfig, AstroIntegration } from 'astro';
 import esbuild from 'esbuild';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
@@ -19,7 +19,8 @@ export function getAdapter(args?: Options): AstroAdapter {
 }
 
 export default function createIntegration(args?: Options): AstroIntegration {
-  let _buildConfig: any;
+  let _buildConfig: AstroConfig['build'];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let _vite: any;
   return {
     name: '@lagon/astro',

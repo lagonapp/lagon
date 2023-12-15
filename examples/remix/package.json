@@ -18,13 +18,12 @@
     "cross-env": "^7.0.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "@lagon/remix": "workspace:*"
+    "@lagon/remix": "file:../../packages/integrations/remix"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.12.0",
     "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
-    "npm-run-all": "^4.1.5",
-    "typescript": "^5.0.2"
+    "npm-run-all": "^4.1.5"
   }
 }

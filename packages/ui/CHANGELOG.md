@@ -1,5 +1,17 @@
 # @lagon/ui
 
+## 0.2.5
+
+### Patch Changes
+
+- [#987](https://github.com/lagonapp/lagon/pull/987) [`51900f3`](https://github.com/lagonapp/lagon/commit/51900f30259dc1830b97257c264040b93ca2513d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add new `Banner` component
+
+## 0.2.4
+
+### Patch Changes
+
+- [#899](https://github.com/lagonapp/lagon/pull/899) [`be0dded`](https://github.com/lagonapp/lagon/commit/be0ddedb0e00da72304360a0647225dc4ff4b204) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Add Copiable component
+
 ## 0.2.3
 
 ### Patch Changes

@@ -30,8 +30,9 @@
       "outputs": [
         "dist/**",
         ".next/**",
+        "out/**",
         "target/debug/**",
-        "storybook-static"
+        "storybook-static/**"
       ]
     },
     "@lagon/dashboard#build": {

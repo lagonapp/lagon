@@ -1,6 +1,5 @@
 import { REGIONS } from '../../constants';
 import { Button } from '../Button';
-import { WorldMapImage } from '../images/WorldMapImage';
 import { Text } from '../Text';
 import { MotionDiv } from '../../client';
 import { WorldMapTooltips } from '../WorldMapTooltips';
@@ -24,7 +23,7 @@ export const EdgeNetworkSection = () => {
         <Text>{REGIONS} regions allowing minimal latency all around the world.</Text>
       </MotionDiv>
       <div className="relative md:-mt-16">
-        <WorldMapImage />
+        <img src="/images/world-map.svg" alt="Map of the world" loading="lazy" />
         <WorldMapTooltips />
       </div>
       <div className="z-10 flex w-full flex-wrap justify-center gap-4 md:-mt-16">

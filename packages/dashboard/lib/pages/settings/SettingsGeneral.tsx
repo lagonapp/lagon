@@ -107,37 +107,30 @@ const SettingsGeneral = () => {
                 {t('delete.submit')}
               </Button>
             }
-          >
-            <Form
-              onSubmit={() =>
-                deleteOrganization.mutateAsync({
-                  organizationId: session?.organization.id || '',
-                })
-              }
-              onSubmitSuccess={() => {
-                toast.success(t('delete.success'));
+            onSubmit={async () => {
+              await deleteOrganization.mutateAsync({
+                organizationId: session?.organization.id || '',
+              });
+            }}
+            onSubmitSuccess={async () => {
+              toast.success(t('delete.success'));
 
-                queryClient.refetchQueries();
-                reloadSession();
-                router.push('/');
-              }}
-            >
-              {({ handleSubmit }) => (
-                <>
-                  <Input
-                    name="confirm"
-                    placeholder={session?.organization.name}
-                    validator={value => (value !== session?.organization.name ? t('delete.modal.error') : undefined)}
-                  />
-                  <Dialog.Buttons>
-                    <Dialog.Cancel disabled={deleteOrganization.isLoading} />
-                    <Dialog.Action variant="danger" onClick={handleSubmit} disabled={deleteOrganization.isLoading}>
-                      {t('delete.modal.submit')}
-                    </Dialog.Action>
-                  </Dialog.Buttons>
-                </>
-              )}
-            </Form>
+              await queryClient.refetchQueries();
+              reloadSession();
+              router.push('/');
+            }}
+          >
+            <Input
+              name="confirm"
+              placeholder={session?.organization.name}
+              validator={value => (value !== session?.organization.name ? t('delete.modal.error') : undefined)}
+            />
+            <Dialog.Buttons>
+              <Dialog.Cancel disabled={deleteOrganization.isLoading} />
+              <Dialog.Action variant="danger" disabled={deleteOrganization.isLoading}>
+                {t('delete.modal.submit')}
+              </Dialog.Action>
+            </Dialog.Buttons>
           </Dialog>
         </div>
       </Card>

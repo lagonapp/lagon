@@ -1,4 +1,4 @@
-use lagon_runtime_http::{Request, Response};
+use hyper::{header::CONTENT_TYPE, Body, Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -15,10 +15,12 @@ return new Response(result)
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("2")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("2"),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -33,8 +35,10 @@ async fn allow_function() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("2")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("2"),
+    )
+    .await;
 }

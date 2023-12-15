@@ -2,8 +2,8 @@ use anyhow::Result;
 use lagon_runtime::{options::RuntimeOptions, Runtime};
 use lagon_serverless::clickhouse::{create_client, run_migrations};
 use lagon_serverless::deployments::get_deployments;
+use lagon_serverless::get_region;
 use lagon_serverless::serverless::start;
-use lagon_serverless::REGION;
 use lagon_serverless_downloader::{get_bucket, S3BucketDownloader};
 use lagon_serverless_logger::init_logger;
 use lagon_serverless_pubsub::RedisPubSub;
@@ -20,13 +20,18 @@ use std::net::SocketAddr;
 use std::path::Path;
 use std::sync::Arc;
 
+// Jemalloc does not work on Windows
+#[cfg(not(target_env = "msvc"))]
+#[global_allocator]
+static GLOBAL: tikv_jemallocator::Jemalloc = tikv_jemallocator::Jemalloc;
+
 #[tokio::main]
 async fn main() -> Result<()> {
     // Only load a .env file on development
     #[cfg(debug_assertions)]
     dotenv::dotenv().expect("Failed to load .env file");
 
-    let _flush_guard = init_logger(REGION.clone()).expect("Failed to init logger");
+    let _flush_guard = init_logger(get_region().clone()).expect("Failed to init logger");
 
     let runtime = Runtime::new(RuntimeOptions::default());
     let addr: SocketAddr = env::var("LAGON_LISTEN_ADDR")
@@ -36,7 +41,9 @@ async fn main() -> Result<()> {
         .expect("PROMETHEUS_LISTEN_ADDR must be set")
         .parse()?;
 
-    let mut builder = PrometheusBuilder::new().with_http_listener(prometheus_addr);
+    let mut builder = PrometheusBuilder::new()
+        .with_http_listener(prometheus_addr)
+        .add_global_label("region", get_region());
 
     if let Ok(allowed_subnet) = env::var("PROMETHEUS_ALLOWED_SUBNET") {
         if !allowed_subnet.is_empty() {
@@ -58,7 +65,6 @@ async fn main() -> Result<()> {
     let pool = Pool::new(opts)?;
     let conn = pool.get_conn()?;
 
-    // let cronjob = Arc::new(Mutex::new(Cronjob::new().await));
     let bucket = get_bucket()?;
     let downloader = Arc::new(S3BucketDownloader::new(bucket));
 
@@ -68,19 +74,8 @@ async fn main() -> Result<()> {
     let client = create_client();
     run_migrations(&client).await?;
 
-    let deployments = get_deployments(
-        conn,
-        Arc::clone(&downloader), /*, Arc::clone(&cronjob)*/
-    )
-    .await?;
-    let serverless = start(
-        deployments,
-        addr,
-        downloader,
-        pubsub,
-        client, /*, cronjob*/
-    )
-    .await?;
+    let deployments = get_deployments(conn, Arc::clone(&downloader)).await?;
+    let serverless = start(deployments, addr, downloader, pubsub, client).await?;
     tokio::spawn(serverless).await?;
 
     runtime.dispose();

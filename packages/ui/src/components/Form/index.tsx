@@ -1,6 +1,6 @@
 import { FormApi } from 'final-form';
 import { ReactNode } from 'react';
-import { Form as FinalFormForm, FormProps as FinalFormFormProps, FormRenderProps } from 'react-final-form';
+import { Form as FinalFormForm, FormProps as FinalFormFormProps } from 'react-final-form';
 import toast from 'react-hot-toast';
 
 type FormProps = {
@@ -8,17 +8,8 @@ type FormProps = {
   onSubmit: FinalFormFormProps['onSubmit'];
   onSubmitSuccess: FinalFormFormProps['onSubmit'];
   onSubmitError?: FinalFormFormProps['onSubmit'];
-  children:
-    | ReactNode
-    | (({
-        handleSubmit,
-        form,
-        values,
-      }: {
-        handleSubmit: FormRenderProps['handleSubmit'];
-        form: FormApi;
-        values: Record<string, any>;
-      }) => ReactNode);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  children: ReactNode | (({ form, values }: { form: FormApi; values: Record<string, any> }) => ReactNode);
 };
 
 export const Form = ({ initialValues, onSubmit, onSubmitSuccess, onSubmitError, children }: FormProps) => {
@@ -34,12 +25,9 @@ export const Form = ({ initialValues, onSubmit, onSubmitSuccess, onSubmitError, 
           await onSubmitError?.(values, form, callback);
         }
       }}
-    >
-      {({ handleSubmit, form, values }) => (
-        <form onSubmit={handleSubmit}>
-          {typeof children === 'function' ? children({ handleSubmit, form, values }) : children}
-        </form>
+      render={({ handleSubmit, form, values }) => (
+        <form onSubmit={handleSubmit}>{typeof children === 'function' ? children({ form, values }) : children}</form>
       )}
-    </FinalFormForm>
+    />
   );
 };

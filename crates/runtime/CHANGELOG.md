@@ -1,5 +1,39 @@
 # @lagon/runtime
 
+## 0.3.19
+
+## 0.3.18
+
+### Patch Changes
+
+- [#932](https://github.com/lagonapp/lagon/pull/932) [`dd96fd0`](https://github.com/lagonapp/lagon/commit/dd96fd0bf692c01023727d12415d737b21035f7d) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Add `CompressionStream` & `DecompressionStream` APIs
+
+## 0.3.17
+
+### Patch Changes
+
+- [#916](https://github.com/lagonapp/lagon/pull/916) [`a8a02dd`](https://github.com/lagonapp/lagon/commit/a8a02dd0bd244599d9c6be622e79c6f4cb1b3db4) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Replace once_cell with std's OnceLock
+
+- [#949](https://github.com/lagonapp/lagon/pull/949) [`d003a29`](https://github.com/lagonapp/lagon/commit/d003a2937775f00c17e1bf6b83d46310355c077d) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve performance of Headers & Body (Request & Response)
+
+- [#941](https://github.com/lagonapp/lagon/pull/941) [`2dcce72`](https://github.com/lagonapp/lagon/commit/2dcce72d3d0033472c36d2817d8e13153aeaa1bf) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Support HTTP/2 (along with HTTP/1.1) in `fetch()`
+
+- [#938](https://github.com/lagonapp/lagon/pull/938) [`0a64b68`](https://github.com/lagonapp/lagon/commit/0a64b68b3616fe70d099af6eb5df8a1a9e7093d2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Forward X-Lagon-Id header
+
+## 0.3.16
+
+## 0.3.15
+
+## 0.3.14
+
+### Patch Changes
+
+- [#868](https://github.com/lagonapp/lagon/pull/868) [`33fa56c`](https://github.com/lagonapp/lagon/commit/33fa56c12b80d091a45fdffac0791c46f760e2e2) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Allow `export as` for handler function
+
+* [#889](https://github.com/lagonapp/lagon/pull/889) [`62447ba`](https://github.com/lagonapp/lagon/commit/62447bac3dbef88eb31a2ade620f478e7c27b538) Thanks [@akitaSummer](https://github.com/akitaSummer)! - Support RSA-OAEP for `SubtleCrypto#encrypt` & `SubtleCrypto#decrypto`
+
+- [#883](https://github.com/lagonapp/lagon/pull/883) [`00c1e66`](https://github.com/lagonapp/lagon/commit/00c1e6630d43f247e8d9893e63ff5de1ca7e64f5) Thanks [@QuiiBz](https://github.com/QuiiBz)! - Improve performance by always using Hyper types
+
 ## 0.3.13
 
 ### Patch Changes

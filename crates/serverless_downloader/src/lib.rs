@@ -1,6 +1,6 @@
 use anyhow::Result;
 use async_trait::async_trait;
-use s3::{creds::Credentials, Bucket};
+use s3::{creds::Credentials, Bucket, Region};
 use std::env;
 
 mod fake;
@@ -20,14 +20,21 @@ pub fn get_bucket() -> Result<Bucket> {
         None,
     )?;
 
-    Ok(Bucket::new(
-        &bucket_name,
-        bucket_region.parse()?,
-        credentials,
-    )?)
+    let region = bucket_region.parse()?;
+    let bucket = match env::var("S3_ENDPOINT") {
+        Ok(endpoint) => Bucket::new(
+            &bucket_name,
+            Region::Custom { region, endpoint },
+            credentials,
+        )?
+        .with_path_style(),
+        Err(_) => Bucket::new(&bucket_name, bucket_region.parse()?, credentials)?,
+    };
+
+    Ok(bucket)
 }
 
 #[async_trait]
 pub trait Downloader {
-    async fn download(&self, path: String) -> Result<Vec<u8>>;
+    async fn download(&self, path: &str) -> Result<Vec<u8>>;
 }

@@ -1,6 +1,6 @@
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
-import { Button, Card, Description, Skeleton, Text } from '@lagon/ui';
+import { Banner, Button, Card, Description, Skeleton, Text } from '@lagon/ui';
 import { trpc } from 'lib/trpc';
 import { useScopedI18n } from 'locales';
 import { getPlanFromPriceId } from 'lib/plans';
@@ -8,6 +8,7 @@ import { Suspense, useState } from 'react';
 import useFunctions from 'lib/hooks/useFunctions';
 import useFunctionsUsage from 'lib/hooks/useFunctionsUsage';
 import useOrganizationMembers from 'lib/hooks/useOrganizationMembers';
+import { useRouter } from 'next/router';
 
 function formatNumber(number = 0) {
   return number.toLocaleString();
@@ -55,7 +56,10 @@ const SettingsBillingUsage = () => {
   const [isLoadingPlan, setIsLoadingPlan] = useState(false);
   const t = useScopedI18n('settings');
   const { data: organizationMembers } = useOrganizationMembers();
+  const { query } = useRouter();
 
+  const hasPlanUpdateSucceeded = !!query.updateSucceeded;
+  const hasPlanUpdateFailed = !!query.updateFailed;
   const isOrganizationOwner = session?.user.id === organizationMembers?.owner.id;
 
   const redirectStripe = async (action: () => Promise<string | undefined | null>) => {
@@ -70,10 +74,11 @@ const SettingsBillingUsage = () => {
     }
   };
 
-  const checkout = async (priceId: string) => {
+  const checkout = async (priceId: string, priceIdMetered: string) => {
     redirectStripe(async () => {
       const result = await organizationCheckout.mutateAsync({
         priceId,
+        priceIdMetered,
       });
 
       return result.url;
@@ -85,6 +90,7 @@ const SettingsBillingUsage = () => {
       const result = await organizationPlan.mutateAsync({
         stripeCustomerId: session?.organization?.stripeCustomerId || '',
       });
+
       return result.url;
     });
   };
@@ -123,8 +129,13 @@ const SettingsBillingUsage = () => {
         </div>
       </Card>
       <Card title={t('subcription.title')} description={t('subcription.description')}>
+        {hasPlanUpdateSucceeded ? (
+          <Banner variant="success">{t('subscription.updateSuccess')}</Banner>
+        ) : hasPlanUpdateFailed ? (
+          <Banner variant="error">{t('subscription.updateFail')}</Banner>
+        ) : null}
         <div className="flex justify-between">
-          <div className="flex gap-1">
+          <div className="flex items-center gap-1">
             <Text>Current plan:</Text>
             <Text strong>{t(`subcription.plan.${plan.type}`)}</Text>
           </div>
@@ -132,7 +143,12 @@ const SettingsBillingUsage = () => {
             <Button
               variant="primary"
               disabled={isLoadingPlan || !isOrganizationOwner}
-              onClick={() => checkout(process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_PRICE_ID as string)}
+              onClick={() =>
+                checkout(
+                  process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_PRICE_ID as string,
+                  process.env.NEXT_PUBLIC_STRIPE_PRO_PLAN_PRICE_ID_METERED as string,
+                )
+              }
             >
               {t('subcription.upgrade.pro')}
             </Button>

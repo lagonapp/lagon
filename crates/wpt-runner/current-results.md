@@ -20,45 +20,16 @@ TEST DONE 0 Headers.prototype.getSetCookie with two equal headers
 TEST DONE 0 Headers.prototype.getSetCookie ignores set-cookie2 headers
 TEST DONE 0 Headers.prototype.getSetCookie preserves header ordering
 TEST DONE 1 Set-Cookie is a forbidden response header
-Running ../../tools/wpt/fetch/api/headers/header-values-normalize.any.js
-TEST DONE 1 XMLHttpRequest with value %00
-TEST DONE 1 XMLHttpRequest with value %01
-TEST DONE 1 XMLHttpRequest with value %02
-TEST DONE 1 XMLHttpRequest with value %03
-TEST DONE 1 XMLHttpRequest with value %04
-TEST DONE 1 XMLHttpRequest with value %05
-TEST DONE 1 XMLHttpRequest with value %06
-TEST DONE 1 XMLHttpRequest with value %07
-TEST DONE 1 XMLHttpRequest with value %08
-TEST DONE 1 XMLHttpRequest with value %09
-TEST DONE 1 XMLHttpRequest with value %0A
-TEST DONE 1 XMLHttpRequest with value %0D
-TEST DONE 1 XMLHttpRequest with value %0E
-TEST DONE 1 XMLHttpRequest with value %0F
-TEST DONE 1 XMLHttpRequest with value %10
-TEST DONE 1 XMLHttpRequest with value %11
-TEST DONE 1 XMLHttpRequest with value %12
-TEST DONE 1 XMLHttpRequest with value %13
-TEST DONE 1 XMLHttpRequest with value %14
-TEST DONE 1 XMLHttpRequest with value %15
-TEST DONE 1 XMLHttpRequest with value %16
-TEST DONE 1 XMLHttpRequest with value %17
-TEST DONE 1 XMLHttpRequest with value %18
-TEST DONE 1 XMLHttpRequest with value %19
-TEST DONE 1 XMLHttpRequest with value %1A
-TEST DONE 1 XMLHttpRequest with value %1B
-TEST DONE 1 XMLHttpRequest with value %1C
-TEST DONE 1 XMLHttpRequest with value %1D
-TEST DONE 1 XMLHttpRequest with value %1E
-TEST DONE 1 XMLHttpRequest with value %1F
-TEST DONE 1 XMLHttpRequest with value %20
-TEST DONE 1 fetch() with value %00
+Skipping ../../tools/wpt/fetch/api/headers/header-values-normalize.any.js
 Running ../../tools/wpt/fetch/api/headers/header-values.any.js
 TEST DONE 1 XMLHttpRequest with value x%00x needs to throw
 TEST DONE 1 XMLHttpRequest with value x%0Ax needs to throw
 TEST DONE 1 XMLHttpRequest with value x%0Dx needs to throw
 TEST DONE 1 XMLHttpRequest with all valid values
 TEST DONE 1 fetch() with value x%00x needs to throw
+TEST DONE 1 fetch() with value x%0Ax needs to throw
+TEST DONE 1 fetch() with value x%0Dx needs to throw
+TEST DONE 1 fetch() with all valid values
 Running ../../tools/wpt/fetch/api/headers/headers-basic.any.js
 TEST DONE 0 Create headers from no parameter
 TEST DONE 0 Create headers from undefined parameter
@@ -68,7 +39,7 @@ TEST DONE 0 Create headers with 1 should throw
 TEST DONE 0 Create headers with sequence
 TEST DONE 0 Create headers with record
 TEST DONE 0 Create headers with existing headers
-TEST DONE 0 Create headers with existing headers with custom iterator
+TEST DONE 1 Create headers with existing headers with custom iterator
 TEST DONE 0 Check append method
 TEST DONE 0 Check set method
 TEST DONE 0 Check has method
@@ -168,120 +139,70 @@ TEST DONE 1 Request() with a forbidden method connect must throw.
 TEST DONE 1 Request() with a forbidden method trace must throw.
 TEST DONE 1 Request() with a forbidden method track must throw.
 Running ../../tools/wpt/fetch/api/request/request-bad-port.any.js
-Running ../../tools/wpt/fetch/api/request/request-cache-default-conditional.any.js
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Modified-Since header is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-None-Match header is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Unmodified-Since header is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Match header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Match header is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Range header (following a request without additional headers) is treated similarly to "no-store" with Last-Modified and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Etag and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode with an If-Range header is treated similarly to "no-store" with Last-Modified and fresh response
-Running ../../tools/wpt/fetch/api/request/request-cache-default.any.js
-TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and goes to the network for stale responses with Etag and stale response
-TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and goes to the network for stale responses with Last-Modified and stale response
-TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and avoids going to the network if a fresh response exists with Etag and fresh response
-TEST DONE 1 RequestCache "default" mode checks the cache for previously cached content and avoids going to the network if a fresh response exists with Last-Modified and fresh response
-TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Etag and stale response
-TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Last-Modified and stale response
-TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Etag and fresh response
-TEST DONE 1 Responses with the "Cache-Control: no-store" header are not stored in the cache with Last-Modified and fresh response
-Running ../../tools/wpt/fetch/api/request/request-cache-force-cache.any.js
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for stale responses with Etag and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for stale responses with Last-Modified and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for fresh responses with Etag and fresh response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and avoid revalidation for fresh responses with Last-Modified and fresh response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Etag and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Last-Modified and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Etag and fresh response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response is not found with Last-Modified and fresh response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Etag and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Last-Modified and stale response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Etag and fresh response
-TEST DONE 1 RequestCache "force-cache" mode checks the cache for previously cached content and goes to the network if a cached response would vary with Last-Modified and fresh response
-TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Etag and stale response
-TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Last-Modified and stale response
-TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Etag and fresh response
-TEST DONE 1 RequestCache "force-cache" stores the response in the cache if it goes to the network with Last-Modified and fresh response
-Running ../../tools/wpt/fetch/api/request/request-cache-no-cache.any.js
-TEST DONE 1 RequestCache "no-cache" mode revalidates stale responses found in the cache with Etag and stale response
-TEST DONE 1 RequestCache "no-cache" mode revalidates stale responses found in the cache with Last-Modified and stale response
-TEST DONE 1 RequestCache "no-cache" mode revalidates fresh responses found in the cache with Etag and fresh response
-TEST DONE 1 RequestCache "no-cache" mode revalidates fresh responses found in the cache with Last-Modified and fresh response
-Running ../../tools/wpt/fetch/api/request/request-cache-no-store.any.js
-TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Etag and stale response
-TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and stale response
-TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Etag and fresh response
-TEST DONE 1 RequestCache "no-store" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and fresh response
-TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Etag and stale response
-TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Last-Modified and stale response
-TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Etag and fresh response
-TEST DONE 1 RequestCache "no-store" mode does not store the response in the cache with Last-Modified and fresh response
-Running ../../tools/wpt/fetch/api/request/request-cache-only-if-cached.any.js
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for stale responses with Etag and stale response
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for stale responses with Last-Modified and stale response
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for fresh responses with Etag and fresh response
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and avoids revalidation for fresh responses with Last-Modified and fresh response
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and does not go to the network if a cached response is not found with Etag and fresh response
-TEST DONE 1 RequestCache "only-if-cached" mode checks the cache for previously cached content and does not go to the network if a cached response is not found with Last-Modified and fresh response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Etag and fresh response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Last-Modified and fresh response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Etag and stale response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") uses cached same-origin redirects to same-origin content with Last-Modified and stale response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Etag and fresh response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Last-Modified and fresh response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Etag and stale response
-TEST DONE 1 RequestCache "only-if-cached" (with "same-origin") does not follow redirects across origins and rejects with Last-Modified and stale response
-Running ../../tools/wpt/fetch/api/request/request-cache-reload.any.js
-TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Etag and stale response
-TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and stale response
-TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Etag and fresh response
-TEST DONE 1 RequestCache "reload" mode does not check the cache for previously cached content and goes to the network regardless with Last-Modified and fresh response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Etag and stale response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Last-Modified and stale response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Etag and fresh response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache with Last-Modified and fresh response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Etag and stale response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Last-Modified and stale response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Etag and fresh response
-TEST DONE 1 RequestCache "reload" mode does store the response in the cache even if a previous response is already stored with Last-Modified and fresh response
-Skipping ../../tools/wpt/fetch/api/request/request-consume-empty.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-consume.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-default-conditional.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-default.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-force-cache.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-no-cache.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-no-store.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-only-if-cached.any.js
+Skipping ../../tools/wpt/fetch/api/request/request-cache-reload.any.js
+Running ../../tools/wpt/fetch/api/request/request-consume-empty.any.js
+TEST DONE 0 Consume request's body as text
+TEST DONE 0 Consume request's body as blob
+TEST DONE 0 Consume request's body as arrayBuffer
+TEST DONE 0 Consume request's body as json (error case)
+TEST DONE 1 Consume request's body as formData with correct multipart type (error case)
+TEST DONE 0 Consume request's body as formData with correct urlencoded type
+TEST DONE 1 Consume request's body as formData without correct type (error case)
+TEST DONE 0 Consume empty blob request body as arrayBuffer
+TEST DONE 0 Consume empty text request body as arrayBuffer
+TEST DONE 0 Consume empty blob request body as text
+TEST DONE 0 Consume empty text request body as text
+TEST DONE 0 Consume empty URLSearchParams request body as text
+TEST DONE 0 Consume empty FormData request body as text
+TEST DONE 0 Consume empty ArrayBuffer request body as text
+Running ../../tools/wpt/fetch/api/request/request-consume.any.js
+TEST DONE 0 Consume String request's body as text
+TEST DONE 0 Consume String request's body as blob
+TEST DONE 0 Consume String request's body as arrayBuffer
+TEST DONE 0 Consume String request's body as JSON
+TEST DONE 0 Consume ArrayBuffer request's body as text
+TEST DONE 0 Consume ArrayBuffer request's body as blob
+TEST DONE 0 Consume ArrayBuffer request's body as arrayBuffer
+TEST DONE 0 Consume ArrayBuffer request's body as JSON
+TEST DONE 0 Consume Uint8Array request's body as text
+TEST DONE 0 Consume Uint8Array request's body as blob
+TEST DONE 0 Consume Uint8Array request's body as arrayBuffer
+TEST DONE 0 Consume Uint8Array request's body as JSON
+TEST DONE 1 Consume Int8Array request's body as text
+TEST DONE 1 Consume Int8Array request's body as blob
+TEST DONE 1 Consume Int8Array request's body as arrayBuffer
+TEST DONE 1 Consume Int8Array request's body as JSON
+TEST DONE 1 Consume Float32Array request's body as text
+TEST DONE 1 Consume Float32Array request's body as blob
+TEST DONE 1 Consume Float32Array request's body as arrayBuffer
+TEST DONE 1 Consume Float32Array request's body as JSON
+TEST DONE 1 Consume DataView request's body as text
+TEST DONE 1 Consume DataView request's body as blob
+TEST DONE 1 Consume DataView request's body as arrayBuffer
+TEST DONE 1 Consume DataView request's body as JSON
+TEST DONE 0 Consume FormData request's body as FormData
+TEST DONE 0 Consume blob response's body as blob
+TEST DONE 0 Consume blob response's body as text
+TEST DONE 0 Consume blob response's body as json
+TEST DONE 0 Consume blob response's body as arrayBuffer
+TEST DONE 0 Consume blob response's body as blob (empty blob as input)
+TEST DONE 0 Consume JSON from text: '"null"'
+TEST DONE 0 Consume JSON from text: '"1"'
+TEST DONE 0 Consume JSON from text: '"true"'
+TEST DONE 0 Consume JSON from text: '"\"string\""'
+TEST DONE 0 Trying to consume bad JSON text as JSON: 'undefined'
+TEST DONE 0 Trying to consume bad JSON text as JSON: '{'
+TEST DONE 0 Trying to consume bad JSON text as JSON: 'a'
+TEST DONE 0 Trying to consume bad JSON text as JSON: '['
 Running ../../tools/wpt/fetch/api/request/request-disturbed.any.js
 TEST DONE 1 Request's body: initial state
-TEST DONE 1 Request without body cannot be disturbed
+TEST DONE 0 Request without body cannot be disturbed
 TEST DONE 1 Check cloning a disturbed request
 TEST DONE 0 Check creating a new request from a disturbed request
 TEST DONE 1 Request construction failure should not set "bodyUsed"
@@ -289,7 +210,29 @@ TEST DONE 1 Check creating a new request with a new body from a disturbed reques
 TEST DONE 1 Input request used for creating new request became disturbed
 TEST DONE 1 Input request used for creating new request became disturbed even if body is not used
 TEST DONE 0 Check consuming a disturbed request
-Skipping ../../tools/wpt/fetch/api/request/request-error.any.js
+Running ../../tools/wpt/fetch/api/request/request-error.any.js
+TEST DONE 1 RequestInit's window is not null
+TEST DONE 1 Input URL is not valid
+TEST DONE 1 Input URL has credentials
+TEST DONE 1 RequestInit's mode is navigate
+TEST DONE 1 RequestInit's referrer is invalid
+TEST DONE 1 RequestInit's method is invalid
+TEST DONE 1 RequestInit's method is forbidden
+TEST DONE 1 RequestInit's mode is no-cors and method is not simple
+TEST DONE 1 RequestInit's cache mode is only-if-cached and mode is not same-origin
+TEST DONE 1 Request with cache mode: only-if-cached and fetch mode cors
+TEST DONE 1 Request with cache mode: only-if-cached and fetch mode no-cors
+TEST DONE 1 Bad referrerPolicy init parameter value
+TEST DONE 1 Bad mode init parameter value
+TEST DONE 1 Bad credentials init parameter value
+TEST DONE 1 Bad cache init parameter value
+TEST DONE 1 Bad redirect init parameter value
+TEST DONE 0 Untitled
+TEST DONE 1 Request should get its content-type from the init request
+TEST DONE 0 Request should not get its content-type from the init request if init headers are provided
+TEST DONE 1 Request should get its content-type from the body if none is provided
+TEST DONE 1 Request should get its content-type from init headers if one is provided
+TEST DONE 0 Request with cache mode: only-if-cached and fetch mode: same-origin
 Running ../../tools/wpt/fetch/api/request/request-headers.any.js
 TEST DONE 0 Adding valid request header "Content-Type: OK"
 TEST DONE 0 Adding valid request header "Potato: OK"
@@ -351,7 +294,7 @@ TEST DONE 1 Request should get its content-type from the body if none is provide
 TEST DONE 1 Request should get its content-type from init headers if one is provided
 TEST DONE 0 Testing request header creations with various objects
 TEST DONE 0 Test that Request.headers has the [SameObject] extended attribute
-TEST DONE 1 Testing empty Request Content-Type header
+TEST DONE 0 Testing empty Request Content-Type header
 Running ../../tools/wpt/fetch/api/request/request-init-002.any.js
 TEST DONE 0 Initialize Request with headers values
 TEST DONE 0 Initialize Request's body with "undefined", undefined
@@ -380,8 +323,36 @@ TEST DONE 0 Can override Content-Type for Request with URLSearchParams body
 TEST DONE 0 Can override Content-Type for Request with string body
 TEST DONE 0 Can override Content-Type for Request with ReadableStream body
 TEST DONE 1 Default Content-Type for Request with FormData body
-Skipping ../../tools/wpt/fetch/api/request/request-init-priority.any.js
-Skipping ../../tools/wpt/fetch/api/request/request-init-stream.any.js
+Running ../../tools/wpt/fetch/api/request/request-init-priority.any.js
+TEST DONE 0 new Request() with a 'high' priority does not throw an error
+TEST DONE 0 new Request() with a 'low' priority does not throw an error
+TEST DONE 0 new Request() with a 'auto' priority does not throw an error
+TEST DONE 1 new Request() throws a TypeError if any of RequestInit's members' values are invalid
+TEST DONE 1 fetch() with a 'high' priority completes successfully
+Running ../../tools/wpt/fetch/api/request/request-init-stream.any.js
+TEST DONE 1 Constructing a Request with a stream holds the original object.
+TEST DONE 1 Constructing a Request with a stream on which getReader() is called
+TEST DONE 1 Constructing a Request with a stream on which read() is called
+TEST DONE 1 Constructing a Request with a Request on which body.getReader() is called
+TEST DONE 1 Constructing a Request with a Request on which body.getReader().read() is called
+TEST DONE 0 It is OK to omit .duplex when the body is null.
+TEST DONE 0 It is OK to omit .duplex when the body is a string.
+TEST DONE 0 It is OK to omit .duplex when the body is a Uint8Array.
+TEST DONE 0 It is OK to omit .duplex when the body is a Blob.
+TEST DONE 1 It is error to omit .duplex when the body is a ReadableStream.
+TEST DONE 0 It is OK to set .duplex = 'half' when the body is null.
+TEST DONE 0 It is OK to set .duplex = 'half' when the body is a string.
+TEST DONE 0 It is OK to set .duplex = 'half' when the body is a Uint8Array.
+TEST DONE 0 It is OK to set .duplex = 'half' when the body is a Blob.
+TEST DONE 0 It is OK to set .duplex = 'half' when the body is a ReadableStream.
+TEST DONE 1 It is error to set .duplex = 'full' when the body is null.
+TEST DONE 1 It is error to set .duplex = 'full' when the body is a string.
+TEST DONE 1 It is error to set .duplex = 'full' when the body is a Uint8Array.
+TEST DONE 1 It is error to set .duplex = 'full' when the body is a Blob.
+TEST DONE 1 It is error to set .duplex = 'full' when the body is a ReadableStream.
+TEST DONE 0 It is OK to omit duplex when init.body is not given and input.body is given.
+TEST DONE 1 Constructing a Request with a stream on which read() and releaseLock() are called
+TEST DONE 1 Constructing a Request with a Request on which read() and releaseLock() are called
 Running ../../tools/wpt/fetch/api/request/request-keepalive.any.js
 TEST DONE 1 keepalive flag
 TEST DONE 1 keepalive flag with stream body
@@ -412,37 +383,52 @@ TEST DONE 0 Request does not expose internalpriority attribute
 TEST DONE 0 Request does not expose blocking attribute
 Running ../../tools/wpt/fetch/api/response/json.any.js
 TEST DONE 1 Ensure the correct JSON parser is used
+TEST DONE 1 Ensure UTF-16 results in an error
 Skipping ../../tools/wpt/fetch/api/response/response-cancel-stream.any.js
 Running ../../tools/wpt/fetch/api/response/response-clone.any.js
 TEST DONE 0 Check Response's clone with default values, without body
 TEST DONE 0 Check Response's clone has the expected attribute values
-TEST DONE 1 Check orginal response's body after cloning
-TEST DONE 1 Check cloned response's body
+TEST DONE 0 Check orginal response's body after cloning
+TEST DONE 0 Check cloned response's body
 TEST DONE 1 Cannot clone a disturbed response
 TEST DONE 1 Cloned responses should provide the same data
+TEST DONE 1 Cancelling stream should not affect cloned one
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Int8Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Int16Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Int32Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (ArrayBufferchunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Uint8Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Uint8ClampedArraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Uint16Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Uint32Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (BigInt64Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (BigUint64Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Float32Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (Float64Arraychunk)
+TEST DONE 1 Check response clone use structureClone for teed ReadableStreams (DataViewchunk)
 Running ../../tools/wpt/fetch/api/response/response-consume-empty.any.js
-TEST DONE 1 Consume response's body as text
-TEST DONE 1 Consume response's body as blob
-TEST DONE 1 Consume response's body as arrayBuffer
-TEST DONE 1 Consume response's body as json (error case)
+TEST DONE 0 Consume response's body as text
+TEST DONE 0 Consume response's body as blob
+TEST DONE 0 Consume response's body as arrayBuffer
+TEST DONE 0 Consume response's body as json (error case)
 TEST DONE 1 Consume response's body as formData with correct multipart type (error case)
-TEST DONE 1 Consume response's body as formData with correct urlencoded type
+TEST DONE 0 Consume response's body as formData with correct urlencoded type
 TEST DONE 1 Consume response's body as formData without correct type (error case)
 TEST DONE 0 Consume empty blob response body as arrayBuffer
 TEST DONE 0 Consume empty text response body as arrayBuffer
 TEST DONE 0 Consume empty blob response body as text
 TEST DONE 0 Consume empty text response body as text
 TEST DONE 0 Consume empty URLSearchParams response body as text
-TEST DONE 1 Consume empty FormData response body as text
+TEST DONE 0 Consume empty FormData response body as text
 TEST DONE 0 Consume empty ArrayBuffer response body as text
 Running ../../tools/wpt/fetch/api/response/response-consume-stream.any.js
 TEST DONE 0 Getting an error Response stream
 TEST DONE 0 Getting a redirect Response stream
 TEST DONE 1 Read empty text response's body as readableStream
-TEST DONE 1 Read empty blob response's body as readableStream
-TEST DONE 1 Read blob response's body as readableStream with mode=undefined
-TEST DONE 1 Read text response's body as readableStream with mode=undefined
-TEST DONE 1 Read URLSearchParams response's body as readableStream with mode=undefined
+TEST DONE 0 Read empty blob response's body as readableStream
+TEST DONE 0 Read blob response's body as readableStream with mode=undefined
+TEST DONE 0 Read text response's body as readableStream with mode=undefined
+TEST DONE 0 Read URLSearchParams response's body as readableStream with mode=undefined
 TEST DONE 1 Read array buffer response's body as readableStream with mode=undefined
 TEST DONE 1 Read form data response's body as readableStream with mode=undefined
 TEST DONE 1 Read blob response's body as readableStream with mode=byob
@@ -453,10 +439,10 @@ TEST DONE 1 Read form data response's body as readableStream with mode=byob
 Skipping ../../tools/wpt/fetch/api/response/response-error-from-stream.any.js
 Running ../../tools/wpt/fetch/api/response/response-error.any.js
 TEST DONE 1 Throws RangeError when responseInit's status is 0
-TEST DONE 1 Throws RangeError when responseInit's status is 100
-TEST DONE 1 Throws RangeError when responseInit's status is 199
-TEST DONE 1 Throws RangeError when responseInit's status is 600
-TEST DONE 1 Throws RangeError when responseInit's status is 1000
+TEST DONE 0 Throws RangeError when responseInit's status is 100
+TEST DONE 0 Throws RangeError when responseInit's status is 199
+TEST DONE 0 Throws RangeError when responseInit's status is 600
+TEST DONE 0 Throws RangeError when responseInit's status is 1000
 TEST DONE 1 Throws TypeError when responseInit's statusText is 
 
 TEST DONE 1 Throws TypeError when responseInit's statusText is Ā
@@ -484,8 +470,8 @@ TEST DONE 0 Initialize Response's body with application/octet-binary
 TEST DONE 1 Initialize Response's body with multipart/form-data
 TEST DONE 0 Initialize Response's body with application/x-www-form-urlencoded;charset=UTF-8
 TEST DONE 0 Initialize Response's body with text/plain;charset=UTF-8
-TEST DONE 1 Read Response's body as readableStream
-TEST DONE 1 Testing empty Response Content-Type header
+TEST DONE 0 Read Response's body as readableStream
+TEST DONE 0 Testing empty Response Content-Type header
 Running ../../tools/wpt/fetch/api/response/response-init-contenttype.any.js
 TEST DONE 0 Default Content-Type for Response with empty body
 TEST DONE 0 Default Content-Type for Response with Blob body (no type set)
@@ -546,23 +532,23 @@ TEST DONE 1 Getting blob after getting the Response body - not disturbed, not lo
 TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: fetch)
 TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: fetch)
 TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: fetch)
-TEST DONE 1 Getting blob after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: stream)
-TEST DONE 1 Getting blob after getting the Response body - not disturbed, not locked (body source: string)
-TEST DONE 1 Getting text after getting the Response body - not disturbed, not locked (body source: string)
-TEST DONE 1 Getting json after getting the Response body - not disturbed, not locked (body source: string)
-TEST DONE 1 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: string)
+TEST DONE 0 Getting blob after getting the Response body - not disturbed, not locked (body source: stream)
+TEST DONE 0 Getting text after getting the Response body - not disturbed, not locked (body source: stream)
+TEST DONE 0 Getting json after getting the Response body - not disturbed, not locked (body source: stream)
+TEST DONE 0 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: stream)
+TEST DONE 0 Getting blob after getting the Response body - not disturbed, not locked (body source: string)
+TEST DONE 0 Getting text after getting the Response body - not disturbed, not locked (body source: string)
+TEST DONE 0 Getting json after getting the Response body - not disturbed, not locked (body source: string)
+TEST DONE 0 Getting arrayBuffer after getting the Response body - not disturbed, not locked (body source: string)
 Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-2.any.js
 TEST DONE 1 Getting blob after getting a locked Response body (body source: fetch)
 TEST DONE 1 Getting text after getting a locked Response body (body source: fetch)
 TEST DONE 1 Getting json after getting a locked Response body (body source: fetch)
 TEST DONE 1 Getting arrayBuffer after getting a locked Response body (body source: fetch)
-TEST DONE 1 Getting blob after getting a locked Response body (body source: stream)
-TEST DONE 1 Getting text after getting a locked Response body (body source: stream)
-TEST DONE 1 Getting json after getting a locked Response body (body source: stream)
-TEST DONE 1 Getting arrayBuffer after getting a locked Response body (body source: stream)
+TEST DONE 0 Getting blob after getting a locked Response body (body source: stream)
+TEST DONE 0 Getting text after getting a locked Response body (body source: stream)
+TEST DONE 0 Getting json after getting a locked Response body (body source: stream)
+TEST DONE 0 Getting arrayBuffer after getting a locked Response body (body source: stream)
 TEST DONE 1 Getting blob after getting a locked Response body (body source: string)
 TEST DONE 1 Getting text after getting a locked Response body (body source: string)
 TEST DONE 1 Getting json after getting a locked Response body (body source: string)
@@ -572,27 +558,15 @@ TEST DONE 1 Getting blob after reading the Response body (body source: fetch)
 TEST DONE 1 Getting text after reading the Response body (body source: fetch)
 TEST DONE 1 Getting json after reading the Response body (body source: fetch)
 TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: fetch)
-TEST DONE 1 Getting blob after reading the Response body (body source: stream)
-TEST DONE 1 Getting text after reading the Response body (body source: stream)
-TEST DONE 1 Getting json after reading the Response body (body source: stream)
-TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: stream)
+TEST DONE 0 Getting blob after reading the Response body (body source: stream)
+TEST DONE 0 Getting text after reading the Response body (body source: stream)
+TEST DONE 0 Getting json after reading the Response body (body source: stream)
+TEST DONE 0 Getting arrayBuffer after reading the Response body (body source: stream)
 TEST DONE 1 Getting blob after reading the Response body (body source: string)
 TEST DONE 1 Getting text after reading the Response body (body source: string)
 TEST DONE 1 Getting json after reading the Response body (body source: string)
 TEST DONE 1 Getting arrayBuffer after reading the Response body (body source: string)
-Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-4.any.js
-TEST DONE 1 Getting blob after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting text after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting json after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: fetch)
-TEST DONE 1 Getting blob after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting text after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting json after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: stream)
-TEST DONE 1 Getting blob after cancelling the Response body (body source: string)
-TEST DONE 1 Getting text after cancelling the Response body (body source: string)
-TEST DONE 1 Getting json after cancelling the Response body (body source: string)
-TEST DONE 1 Getting arrayBuffer after cancelling the Response body (body source: string)
+Skipping ../../tools/wpt/fetch/api/response/response-stream-disturbed-4.any.js
 Running ../../tools/wpt/fetch/api/response/response-stream-disturbed-5.any.js
 TEST DONE 1 Getting a body reader after consuming as blob (body source: fetch)
 TEST DONE 1 Getting a body reader after consuming as text (body source: fetch)
@@ -633,317 +607,57 @@ TEST DONE 0 URL.searchParams getter
 TEST DONE 0 URL.searchParams updating, clearing
 TEST DONE 1 URL.searchParams setter, invalid values
 TEST DONE 1 URL.searchParams and URL.search setters, update propagation
-Running ../../tools/wpt/url/url-setters-stripping.any.js
-TEST DONE 1 Setting protocol with leading U+0000 (https:)
-TEST DONE 1 Setting protocol with U+0000 before inserted colon (https:)
-TEST DONE 1 Setting username with leading U+0000 (https:)
-TEST DONE 1 Setting username with middle U+0000 (https:)
-TEST DONE 1 Setting username with trailing U+0000 (https:)
-TEST DONE 1 Setting password with leading U+0000 (https:)
-TEST DONE 1 Setting password with middle U+0000 (https:)
-TEST DONE 1 Setting password with trailing U+0000 (https:)
-TEST DONE 1 Setting host with leading U+0000 (https:)
-TEST DONE 1 Setting hostname with leading U+0000 (https:)
-TEST DONE 1 Setting host with middle U+0000 (https:)
-TEST DONE 1 Setting hostname with middle U+0000 (https:)
-TEST DONE 1 Setting host with trailing U+0000 (https:)
-TEST DONE 1 Setting hostname with trailing U+0000 (https:)
-TEST DONE 1 Setting port with leading U+0000 (https:)
-TEST DONE 1 Setting port with middle U+0000 (https:)
-TEST DONE 1 Setting port with trailing U+0000 (https:)
-TEST DONE 1 Setting pathname with leading U+0000 (https:)
-TEST DONE 1 Setting pathname with middle U+0000 (https:)
-TEST DONE 1 Setting pathname with trailing U+0000 (https:)
-TEST DONE 1 Setting search with leading U+0000 (https:)
-TEST DONE 1 Setting search with middle U+0000 (https:)
-TEST DONE 1 Setting search with trailing U+0000 (https:)
-TEST DONE 1 Setting hash with leading U+0000 (https:)
-TEST DONE 1 Setting hash with middle U+0000 (https:)
-TEST DONE 1 Setting hash with trailing U+0000 (https:)
-TEST DONE 1 Setting protocol with leading U+0009 (https:)
-TEST DONE 1 Setting protocol with U+0009 before inserted colon (https:)
-TEST DONE 1 Setting username with leading U+0009 (https:)
-TEST DONE 1 Setting username with middle U+0009 (https:)
-TEST DONE 1 Setting username with trailing U+0009 (https:)
-TEST DONE 1 Setting password with leading U+0009 (https:)
-TEST DONE 1 Setting password with middle U+0009 (https:)
-TEST DONE 1 Setting password with trailing U+0009 (https:)
-TEST DONE 1 Setting host with leading U+0009 (https:)
-TEST DONE 1 Setting hostname with leading U+0009 (https:)
-TEST DONE 1 Setting host with middle U+0009 (https:)
-TEST DONE 1 Setting hostname with middle U+0009 (https:)
-TEST DONE 1 Setting host with trailing U+0009 (https:)
-TEST DONE 1 Setting hostname with trailing U+0009 (https:)
-TEST DONE 1 Setting port with leading U+0009 (https:)
-TEST DONE 1 Setting port with middle U+0009 (https:)
-TEST DONE 1 Setting port with trailing U+0009 (https:)
-TEST DONE 1 Setting pathname with leading U+0009 (https:)
-TEST DONE 1 Setting pathname with middle U+0009 (https:)
-TEST DONE 1 Setting pathname with trailing U+0009 (https:)
-TEST DONE 1 Setting search with leading U+0009 (https:)
-TEST DONE 1 Setting search with middle U+0009 (https:)
-TEST DONE 1 Setting search with trailing U+0009 (https:)
-TEST DONE 1 Setting hash with leading U+0009 (https:)
-TEST DONE 1 Setting hash with middle U+0009 (https:)
-TEST DONE 1 Setting hash with trailing U+0009 (https:)
-TEST DONE 1 Setting protocol with leading U+000A (https:)
-TEST DONE 1 Setting protocol with U+000A before inserted colon (https:)
-TEST DONE 1 Setting username with leading U+000A (https:)
-TEST DONE 1 Setting username with middle U+000A (https:)
-TEST DONE 1 Setting username with trailing U+000A (https:)
-TEST DONE 1 Setting password with leading U+000A (https:)
-TEST DONE 1 Setting password with middle U+000A (https:)
-TEST DONE 1 Setting password with trailing U+000A (https:)
-TEST DONE 1 Setting host with leading U+000A (https:)
-TEST DONE 1 Setting hostname with leading U+000A (https:)
-TEST DONE 1 Setting host with middle U+000A (https:)
-TEST DONE 1 Setting hostname with middle U+000A (https:)
-TEST DONE 1 Setting host with trailing U+000A (https:)
-TEST DONE 1 Setting hostname with trailing U+000A (https:)
-TEST DONE 1 Setting port with leading U+000A (https:)
-TEST DONE 1 Setting port with middle U+000A (https:)
-TEST DONE 1 Setting port with trailing U+000A (https:)
-TEST DONE 1 Setting pathname with leading U+000A (https:)
-TEST DONE 1 Setting pathname with middle U+000A (https:)
-TEST DONE 1 Setting pathname with trailing U+000A (https:)
-TEST DONE 1 Setting search with leading U+000A (https:)
-TEST DONE 1 Setting search with middle U+000A (https:)
-TEST DONE 1 Setting search with trailing U+000A (https:)
-TEST DONE 1 Setting hash with leading U+000A (https:)
-TEST DONE 1 Setting hash with middle U+000A (https:)
-TEST DONE 1 Setting hash with trailing U+000A (https:)
-TEST DONE 1 Setting protocol with leading U+000D (https:)
-TEST DONE 1 Setting protocol with U+000D before inserted colon (https:)
-TEST DONE 1 Setting username with leading U+000D (https:)
-TEST DONE 1 Setting username with middle U+000D (https:)
-TEST DONE 1 Setting username with trailing U+000D (https:)
-TEST DONE 1 Setting password with leading U+000D (https:)
-TEST DONE 1 Setting password with middle U+000D (https:)
-TEST DONE 1 Setting password with trailing U+000D (https:)
-TEST DONE 1 Setting host with leading U+000D (https:)
-TEST DONE 1 Setting hostname with leading U+000D (https:)
-TEST DONE 1 Setting host with middle U+000D (https:)
-TEST DONE 1 Setting hostname with middle U+000D (https:)
-TEST DONE 1 Setting host with trailing U+000D (https:)
-TEST DONE 1 Setting hostname with trailing U+000D (https:)
-TEST DONE 1 Setting port with leading U+000D (https:)
-TEST DONE 1 Setting port with middle U+000D (https:)
-TEST DONE 1 Setting port with trailing U+000D (https:)
-TEST DONE 1 Setting pathname with leading U+000D (https:)
-TEST DONE 1 Setting pathname with middle U+000D (https:)
-TEST DONE 1 Setting pathname with trailing U+000D (https:)
-TEST DONE 1 Setting search with leading U+000D (https:)
-TEST DONE 1 Setting search with middle U+000D (https:)
-TEST DONE 1 Setting search with trailing U+000D (https:)
-TEST DONE 1 Setting hash with leading U+000D (https:)
-TEST DONE 1 Setting hash with middle U+000D (https:)
-TEST DONE 1 Setting hash with trailing U+000D (https:)
-TEST DONE 1 Setting protocol with leading U+001F (https:)
-TEST DONE 1 Setting protocol with U+001F before inserted colon (https:)
-TEST DONE 1 Setting username with leading U+001F (https:)
-TEST DONE 1 Setting username with middle U+001F (https:)
-TEST DONE 1 Setting username with trailing U+001F (https:)
-TEST DONE 1 Setting password with leading U+001F (https:)
-TEST DONE 1 Setting password with middle U+001F (https:)
-TEST DONE 1 Setting password with trailing U+001F (https:)
-TEST DONE 1 Setting host with leading U+001F (https:)
-TEST DONE 1 Setting hostname with leading U+001F (https:)
-TEST DONE 1 Setting host with middle U+001F (https:)
-TEST DONE 1 Setting hostname with middle U+001F (https:)
-TEST DONE 1 Setting host with trailing U+001F (https:)
-TEST DONE 1 Setting hostname with trailing U+001F (https:)
-TEST DONE 1 Setting port with leading U+001F (https:)
-TEST DONE 1 Setting port with middle U+001F (https:)
-TEST DONE 1 Setting port with trailing U+001F (https:)
-TEST DONE 1 Setting pathname with leading U+001F (https:)
-TEST DONE 1 Setting pathname with middle U+001F (https:)
-TEST DONE 1 Setting pathname with trailing U+001F (https:)
-TEST DONE 1 Setting search with leading U+001F (https:)
-TEST DONE 1 Setting search with middle U+001F (https:)
-TEST DONE 1 Setting search with trailing U+001F (https:)
-TEST DONE 1 Setting hash with leading U+001F (https:)
-TEST DONE 1 Setting hash with middle U+001F (https:)
-TEST DONE 1 Setting hash with trailing U+001F (https:)
-TEST DONE 1 Setting protocol with leading U+0000 (wpt++:)
-TEST DONE 1 Setting protocol with U+0000 before inserted colon (wpt++:)
-TEST DONE 1 Setting username with leading U+0000 (wpt++:)
-TEST DONE 1 Setting username with middle U+0000 (wpt++:)
-TEST DONE 1 Setting username with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting password with leading U+0000 (wpt++:)
-TEST DONE 1 Setting password with middle U+0000 (wpt++:)
-TEST DONE 1 Setting password with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting host with leading U+0000 (wpt++:)
-TEST DONE 1 Setting hostname with leading U+0000 (wpt++:)
-TEST DONE 1 Setting host with middle U+0000 (wpt++:)
-TEST DONE 1 Setting hostname with middle U+0000 (wpt++:)
-TEST DONE 1 Setting host with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting hostname with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting port with leading U+0000 (wpt++:)
-TEST DONE 1 Setting port with middle U+0000 (wpt++:)
-TEST DONE 1 Setting port with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting pathname with leading U+0000 (wpt++:)
-TEST DONE 1 Setting pathname with middle U+0000 (wpt++:)
-TEST DONE 1 Setting pathname with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting search with leading U+0000 (wpt++:)
-TEST DONE 1 Setting search with middle U+0000 (wpt++:)
-TEST DONE 1 Setting search with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting hash with leading U+0000 (wpt++:)
-TEST DONE 1 Setting hash with middle U+0000 (wpt++:)
-TEST DONE 1 Setting hash with trailing U+0000 (wpt++:)
-TEST DONE 1 Setting protocol with leading U+0009 (wpt++:)
-TEST DONE 1 Setting protocol with U+0009 before inserted colon (wpt++:)
-TEST DONE 1 Setting username with leading U+0009 (wpt++:)
-TEST DONE 1 Setting username with middle U+0009 (wpt++:)
-TEST DONE 1 Setting username with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting password with leading U+0009 (wpt++:)
-TEST DONE 1 Setting password with middle U+0009 (wpt++:)
-TEST DONE 1 Setting password with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting host with leading U+0009 (wpt++:)
-TEST DONE 1 Setting hostname with leading U+0009 (wpt++:)
-TEST DONE 1 Setting host with middle U+0009 (wpt++:)
-TEST DONE 1 Setting hostname with middle U+0009 (wpt++:)
-TEST DONE 1 Setting host with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting hostname with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting port with leading U+0009 (wpt++:)
-TEST DONE 1 Setting port with middle U+0009 (wpt++:)
-TEST DONE 1 Setting port with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting pathname with leading U+0009 (wpt++:)
-TEST DONE 1 Setting pathname with middle U+0009 (wpt++:)
-TEST DONE 1 Setting pathname with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting search with leading U+0009 (wpt++:)
-TEST DONE 1 Setting search with middle U+0009 (wpt++:)
-TEST DONE 1 Setting search with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting hash with leading U+0009 (wpt++:)
-TEST DONE 1 Setting hash with middle U+0009 (wpt++:)
-TEST DONE 1 Setting hash with trailing U+0009 (wpt++:)
-TEST DONE 1 Setting protocol with leading U+000A (wpt++:)
-TEST DONE 1 Setting protocol with U+000A before inserted colon (wpt++:)
-TEST DONE 1 Setting username with leading U+000A (wpt++:)
-TEST DONE 1 Setting username with middle U+000A (wpt++:)
-TEST DONE 1 Setting username with trailing U+000A (wpt++:)
-TEST DONE 1 Setting password with leading U+000A (wpt++:)
-TEST DONE 1 Setting password with middle U+000A (wpt++:)
-TEST DONE 1 Setting password with trailing U+000A (wpt++:)
-TEST DONE 1 Setting host with leading U+000A (wpt++:)
-TEST DONE 1 Setting hostname with leading U+000A (wpt++:)
-TEST DONE 1 Setting host with middle U+000A (wpt++:)
-TEST DONE 1 Setting hostname with middle U+000A (wpt++:)
-TEST DONE 1 Setting host with trailing U+000A (wpt++:)
-TEST DONE 1 Setting hostname with trailing U+000A (wpt++:)
-TEST DONE 1 Setting port with leading U+000A (wpt++:)
-TEST DONE 1 Setting port with middle U+000A (wpt++:)
-TEST DONE 1 Setting port with trailing U+000A (wpt++:)
-TEST DONE 1 Setting pathname with leading U+000A (wpt++:)
-TEST DONE 1 Setting pathname with middle U+000A (wpt++:)
-TEST DONE 1 Setting pathname with trailing U+000A (wpt++:)
-TEST DONE 1 Setting search with leading U+000A (wpt++:)
-TEST DONE 1 Setting search with middle U+000A (wpt++:)
-TEST DONE 1 Setting search with trailing U+000A (wpt++:)
-TEST DONE 1 Setting hash with leading U+000A (wpt++:)
-TEST DONE 1 Setting hash with middle U+000A (wpt++:)
-TEST DONE 1 Setting hash with trailing U+000A (wpt++:)
-TEST DONE 1 Setting protocol with leading U+000D (wpt++:)
-TEST DONE 1 Setting protocol with U+000D before inserted colon (wpt++:)
-TEST DONE 1 Setting username with leading U+000D (wpt++:)
-TEST DONE 1 Setting username with middle U+000D (wpt++:)
-TEST DONE 1 Setting username with trailing U+000D (wpt++:)
-TEST DONE 1 Setting password with leading U+000D (wpt++:)
-TEST DONE 1 Setting password with middle U+000D (wpt++:)
-TEST DONE 1 Setting password with trailing U+000D (wpt++:)
-TEST DONE 1 Setting host with leading U+000D (wpt++:)
-TEST DONE 1 Setting hostname with leading U+000D (wpt++:)
-TEST DONE 1 Setting host with middle U+000D (wpt++:)
-TEST DONE 1 Setting hostname with middle U+000D (wpt++:)
-TEST DONE 1 Setting host with trailing U+000D (wpt++:)
-TEST DONE 1 Setting hostname with trailing U+000D (wpt++:)
-TEST DONE 1 Setting port with leading U+000D (wpt++:)
-TEST DONE 1 Setting port with middle U+000D (wpt++:)
-TEST DONE 1 Setting port with trailing U+000D (wpt++:)
-TEST DONE 1 Setting pathname with leading U+000D (wpt++:)
-TEST DONE 1 Setting pathname with middle U+000D (wpt++:)
-TEST DONE 1 Setting pathname with trailing U+000D (wpt++:)
-TEST DONE 1 Setting search with leading U+000D (wpt++:)
-TEST DONE 1 Setting search with middle U+000D (wpt++:)
-TEST DONE 1 Setting search with trailing U+000D (wpt++:)
-TEST DONE 1 Setting hash with leading U+000D (wpt++:)
-TEST DONE 1 Setting hash with middle U+000D (wpt++:)
-TEST DONE 1 Setting hash with trailing U+000D (wpt++:)
-TEST DONE 1 Setting protocol with leading U+001F (wpt++:)
-TEST DONE 1 Setting protocol with U+001F before inserted colon (wpt++:)
-TEST DONE 1 Setting username with leading U+001F (wpt++:)
-TEST DONE 1 Setting username with middle U+001F (wpt++:)
-TEST DONE 1 Setting username with trailing U+001F (wpt++:)
-TEST DONE 1 Setting password with leading U+001F (wpt++:)
-TEST DONE 1 Setting password with middle U+001F (wpt++:)
-TEST DONE 1 Setting password with trailing U+001F (wpt++:)
-TEST DONE 1 Setting host with leading U+001F (wpt++:)
-TEST DONE 1 Setting hostname with leading U+001F (wpt++:)
-TEST DONE 1 Setting host with middle U+001F (wpt++:)
-TEST DONE 1 Setting hostname with middle U+001F (wpt++:)
-TEST DONE 1 Setting host with trailing U+001F (wpt++:)
-TEST DONE 1 Setting hostname with trailing U+001F (wpt++:)
-TEST DONE 1 Setting port with leading U+001F (wpt++:)
-TEST DONE 1 Setting port with middle U+001F (wpt++:)
-TEST DONE 1 Setting port with trailing U+001F (wpt++:)
-TEST DONE 1 Setting pathname with leading U+001F (wpt++:)
-TEST DONE 1 Setting pathname with middle U+001F (wpt++:)
-TEST DONE 1 Setting pathname with trailing U+001F (wpt++:)
-TEST DONE 1 Setting search with leading U+001F (wpt++:)
-TEST DONE 1 Setting search with middle U+001F (wpt++:)
-TEST DONE 1 Setting search with trailing U+001F (wpt++:)
-TEST DONE 1 Setting hash with leading U+001F (wpt++:)
-TEST DONE 1 Setting hash with middle U+001F (wpt++:)
-TEST DONE 1 Setting hash with trailing U+001F (wpt++:)
+Skipping ../../tools/wpt/url/url-setters-stripping.any.js
 Skipping ../../tools/wpt/url/url-setters.any.js
 Running ../../tools/wpt/url/url-tojson.any.js
 TEST DONE 0 Untitled
 Running ../../tools/wpt/url/urlencoded-parser.any.js
-TEST DONE 1 URLSearchParams constructed with: test
+TEST DONE 0 URLSearchParams constructed with: test
 TEST DONE 0 URLSearchParams constructed with: ﻿test=﻿
-TEST DONE 1 URLSearchParams constructed with: %EF%BB%BFtest=%EF%BB%BF
+TEST DONE 0 URLSearchParams constructed with: %EF%BB%BFtest=%EF%BB%BF
 TEST DONE 1 URLSearchParams constructed with: %FE%FF
 TEST DONE 1 URLSearchParams constructed with: %FF%FE
-TEST DONE 1 URLSearchParams constructed with: †&†=x
+TEST DONE 0 URLSearchParams constructed with: †&†=x
 TEST DONE 1 URLSearchParams constructed with: %C2
 TEST DONE 1 URLSearchParams constructed with: %C2x
 TEST DONE 1 URLSearchParams constructed with: _charset_=windows-1252&test=%C2x
 TEST DONE 0 URLSearchParams constructed with: 
-TEST DONE 1 URLSearchParams constructed with: a
+TEST DONE 0 URLSearchParams constructed with: a
 TEST DONE 0 URLSearchParams constructed with: a=b
 TEST DONE 0 URLSearchParams constructed with: a=
 TEST DONE 0 URLSearchParams constructed with: =b
-TEST DONE 1 URLSearchParams constructed with: &
-TEST DONE 1 URLSearchParams constructed with: &a
-TEST DONE 1 URLSearchParams constructed with: a&
-TEST DONE 1 URLSearchParams constructed with: a&a
-TEST DONE 1 URLSearchParams constructed with: a&b&c
+TEST DONE 0 URLSearchParams constructed with: &
+TEST DONE 0 URLSearchParams constructed with: &a
+TEST DONE 0 URLSearchParams constructed with: a&
+TEST DONE 0 URLSearchParams constructed with: a&a
+TEST DONE 0 URLSearchParams constructed with: a&b&c
 TEST DONE 0 URLSearchParams constructed with: a=b&c=d
-TEST DONE 1 URLSearchParams constructed with: a=b&c=d&
-TEST DONE 1 URLSearchParams constructed with: &&&a=b&&&&c=d&
+TEST DONE 0 URLSearchParams constructed with: a=b&c=d&
+TEST DONE 0 URLSearchParams constructed with: &&&a=b&&&&c=d&
 TEST DONE 0 URLSearchParams constructed with: a=a&a=b&a=c
 TEST DONE 1 URLSearchParams constructed with: a==a
-TEST DONE 1 URLSearchParams constructed with: a=a+b+c+d
-TEST DONE 0 URLSearchParams constructed with: %=a
-TEST DONE 0 URLSearchParams constructed with: %a=a
-TEST DONE 0 URLSearchParams constructed with: %a_=a
-TEST DONE 1 URLSearchParams constructed with: %61=a
-TEST DONE 1 URLSearchParams constructed with: %61+%4d%4D=
+TEST DONE 0 URLSearchParams constructed with: a=a+b+c+d
+TEST DONE 1 URLSearchParams constructed with: %=a
+TEST DONE 1 URLSearchParams constructed with: %a=a
+TEST DONE 1 URLSearchParams constructed with: %a_=a
+TEST DONE 0 URLSearchParams constructed with: %61=a
+TEST DONE 0 URLSearchParams constructed with: %61+%4d%4D=
 TEST DONE 1 URLSearchParams constructed with: id=0&value=%
 TEST DONE 1 URLSearchParams constructed with: b=%2sf%2a
 TEST DONE 1 URLSearchParams constructed with: b=%2%2af%2a
 TEST DONE 1 URLSearchParams constructed with: b=%%2a
-TEST DONE 1 request.formData() with input: test
-TEST DONE 1 response.formData() with input: test
-TEST DONE 1 request.formData() with input: ﻿test=﻿
-TEST DONE 1 response.formData() with input: ﻿test=﻿
-TEST DONE 1 request.formData() with input: %EF%BB%BFtest=%EF%BB%BF
-TEST DONE 1 response.formData() with input: %EF%BB%BFtest=%EF%BB%BF
+TEST DONE 0 request.formData() with input: test
+TEST DONE 0 response.formData() with input: test
+TEST DONE 0 request.formData() with input: ﻿test=﻿
+TEST DONE 0 response.formData() with input: ﻿test=﻿
+TEST DONE 0 request.formData() with input: %EF%BB%BFtest=%EF%BB%BF
+TEST DONE 0 response.formData() with input: %EF%BB%BFtest=%EF%BB%BF
 TEST DONE 1 request.formData() with input: %FE%FF
 TEST DONE 1 response.formData() with input: %FE%FF
 TEST DONE 1 request.formData() with input: %FF%FE
 TEST DONE 1 response.formData() with input: %FF%FE
-TEST DONE 1 request.formData() with input: †&†=x
-TEST DONE 1 response.formData() with input: †&†=x
+TEST DONE 0 request.formData() with input: †&†=x
+TEST DONE 0 response.formData() with input: †&†=x
 TEST DONE 1 request.formData() with input: %C2
 TEST DONE 1 response.formData() with input: %C2
 TEST DONE 1 request.formData() with input: %C2x
@@ -952,46 +666,46 @@ TEST DONE 1 request.formData() with input: _charset_=windows-1252&test=%C2x
 TEST DONE 1 response.formData() with input: _charset_=windows-1252&test=%C2x
 TEST DONE 0 request.formData() with input: 
 TEST DONE 0 response.formData() with input: 
-TEST DONE 1 request.formData() with input: a
-TEST DONE 1 response.formData() with input: a
-TEST DONE 1 request.formData() with input: a=b
-TEST DONE 1 response.formData() with input: a=b
-TEST DONE 1 request.formData() with input: a=
-TEST DONE 1 response.formData() with input: a=
-TEST DONE 1 request.formData() with input: =b
-TEST DONE 1 response.formData() with input: =b
-TEST DONE 1 request.formData() with input: &
-TEST DONE 1 response.formData() with input: &
-TEST DONE 1 request.formData() with input: &a
-TEST DONE 1 response.formData() with input: &a
-TEST DONE 1 request.formData() with input: a&
-TEST DONE 1 response.formData() with input: a&
-TEST DONE 1 request.formData() with input: a&a
-TEST DONE 1 response.formData() with input: a&a
-TEST DONE 1 request.formData() with input: a&b&c
-TEST DONE 1 response.formData() with input: a&b&c
-TEST DONE 1 request.formData() with input: a=b&c=d
-TEST DONE 1 response.formData() with input: a=b&c=d
-TEST DONE 1 request.formData() with input: a=b&c=d&
-TEST DONE 1 response.formData() with input: a=b&c=d&
-TEST DONE 1 request.formData() with input: &&&a=b&&&&c=d&
-TEST DONE 1 response.formData() with input: &&&a=b&&&&c=d&
-TEST DONE 1 request.formData() with input: a=a&a=b&a=c
-TEST DONE 1 response.formData() with input: a=a&a=b&a=c
+TEST DONE 0 request.formData() with input: a
+TEST DONE 0 response.formData() with input: a
+TEST DONE 0 request.formData() with input: a=b
+TEST DONE 0 response.formData() with input: a=b
+TEST DONE 0 request.formData() with input: a=
+TEST DONE 0 response.formData() with input: a=
+TEST DONE 0 request.formData() with input: =b
+TEST DONE 0 response.formData() with input: =b
+TEST DONE 0 request.formData() with input: &
+TEST DONE 0 response.formData() with input: &
+TEST DONE 0 request.formData() with input: &a
+TEST DONE 0 response.formData() with input: &a
+TEST DONE 0 request.formData() with input: a&
+TEST DONE 0 response.formData() with input: a&
+TEST DONE 0 request.formData() with input: a&a
+TEST DONE 0 response.formData() with input: a&a
+TEST DONE 0 request.formData() with input: a&b&c
+TEST DONE 0 response.formData() with input: a&b&c
+TEST DONE 0 request.formData() with input: a=b&c=d
+TEST DONE 0 response.formData() with input: a=b&c=d
+TEST DONE 0 request.formData() with input: a=b&c=d&
+TEST DONE 0 response.formData() with input: a=b&c=d&
+TEST DONE 0 request.formData() with input: &&&a=b&&&&c=d&
+TEST DONE 0 response.formData() with input: &&&a=b&&&&c=d&
+TEST DONE 0 request.formData() with input: a=a&a=b&a=c
+TEST DONE 0 response.formData() with input: a=a&a=b&a=c
 TEST DONE 1 request.formData() with input: a==a
 TEST DONE 1 response.formData() with input: a==a
-TEST DONE 1 request.formData() with input: a=a+b+c+d
-TEST DONE 1 response.formData() with input: a=a+b+c+d
+TEST DONE 0 request.formData() with input: a=a+b+c+d
+TEST DONE 0 response.formData() with input: a=a+b+c+d
 TEST DONE 1 request.formData() with input: %=a
 TEST DONE 1 response.formData() with input: %=a
 TEST DONE 1 request.formData() with input: %a=a
 TEST DONE 1 response.formData() with input: %a=a
 TEST DONE 1 request.formData() with input: %a_=a
 TEST DONE 1 response.formData() with input: %a_=a
-TEST DONE 1 request.formData() with input: %61=a
-TEST DONE 1 response.formData() with input: %61=a
-TEST DONE 1 request.formData() with input: %61+%4d%4D=
-TEST DONE 1 response.formData() with input: %61+%4d%4D=
+TEST DONE 0 request.formData() with input: %61=a
+TEST DONE 0 response.formData() with input: %61=a
+TEST DONE 0 request.formData() with input: %61+%4d%4D=
+TEST DONE 0 response.formData() with input: %61+%4d%4D=
 TEST DONE 1 request.formData() with input: id=0&value=%
 TEST DONE 1 response.formData() with input: id=0&value=%
 TEST DONE 1 request.formData() with input: b=%2sf%2a
@@ -1001,10 +715,10 @@ TEST DONE 1 response.formData() with input: b=%2%2af%2a
 TEST DONE 1 request.formData() with input: b=%%2a
 TEST DONE 1 response.formData() with input: b=%%2a
 Running ../../tools/wpt/url/urlsearchparams-append.any.js
-TEST DONE 1 Append same name
-TEST DONE 1 Append empty strings
-TEST DONE 1 Append null
-TEST DONE 1 Append multiple
+TEST DONE 0 Append same name
+TEST DONE 0 Append empty strings
+TEST DONE 0 Append null
+TEST DONE 0 Append multiple
 Running ../../tools/wpt/url/urlsearchparams-constructor.any.js
 TEST DONE 1 Basic URLSearchParams construction
 TEST DONE 0 URLSearchParams constructor, no arguments
@@ -1015,17 +729,17 @@ TEST DONE 0 URLSearchParams constructor, {} as argument
 TEST DONE 1 URLSearchParams constructor, string.
 TEST DONE 1 URLSearchParams constructor, object.
 TEST DONE 1 URLSearchParams constructor, FormData.
-TEST DONE 1 Parse +
-TEST DONE 1 Parse encoded +
+TEST DONE 0 Parse +
+TEST DONE 0 Parse encoded +
 TEST DONE 0 Parse space
-TEST DONE 1 Parse %20
+TEST DONE 0 Parse %20
 TEST DONE 0 Parse \0
-TEST DONE 1 Parse %00
+TEST DONE 0 Parse %00
 TEST DONE 0 Parse ⎄
-TEST DONE 1 Parse %e2%8e%84
+TEST DONE 0 Parse %e2%8e%84
 TEST DONE 0 Parse 💩
-TEST DONE 1 Parse %f0%9f%92%a9
-TEST DONE 1 Constructor with sequence of sequences of strings
+TEST DONE 0 Parse %f0%9f%92%a9
+TEST DONE 0 Constructor with sequence of sequences of strings
 TEST DONE 0 Construct with object with +
 TEST DONE 0 Construct with object with two keys
 TEST DONE 0 Construct with array with two keys
@@ -1034,59 +748,64 @@ TEST DONE 1 Construct with 3 unpaired surrogates (no leading)
 TEST DONE 1 Construct with object with NULL, non-ASCII, and surrogate keys
 TEST DONE 1 Custom [Symbol.iterator]
 Running ../../tools/wpt/url/urlsearchparams-delete.any.js
-TEST DONE 1 Delete basics
-TEST DONE 1 Deleting appended multiple
+TEST DONE 0 Delete basics
+TEST DONE 0 Deleting appended multiple
 TEST DONE 0 Deleting all params removes ? from URL
-TEST DONE 1 Removing non-existent param removes ? from URL
+TEST DONE 0 Removing non-existent param removes ? from URL
 TEST DONE 1 Changing the query of a URL with an opaque path can impact the path
 TEST DONE 1 Changing the query of a URL with an opaque path can impact the path if the URL has no fragment
 Running ../../tools/wpt/url/urlsearchparams-foreach.any.js
 TEST DONE 0 ForEach Check
+TEST DONE 1 For-of Check
+TEST DONE 0 empty
+TEST DONE 1 delete next param during iteration
+TEST DONE 1 delete current param during iteration
+TEST DONE 1 delete every param seen during iteration
 Running ../../tools/wpt/url/urlsearchparams-get.any.js
-TEST DONE 1 Get basics
-TEST DONE 1 More get() basics
+TEST DONE 0 Get basics
+TEST DONE 0 More get() basics
 Running ../../tools/wpt/url/urlsearchparams-getall.any.js
 TEST DONE 0 getAll() basics
-TEST DONE 1 getAll() multiples
+TEST DONE 0 getAll() multiples
 Running ../../tools/wpt/url/urlsearchparams-has.any.js
-TEST DONE 1 Has basics
+TEST DONE 0 Has basics
 TEST DONE 0 has() following delete()
 Running ../../tools/wpt/url/urlsearchparams-set.any.js
 TEST DONE 0 Set basics
-TEST DONE 1 URLSearchParams.set
+TEST DONE 0 URLSearchParams.set
 Running ../../tools/wpt/url/urlsearchparams-sort.any.js
 TEST DONE 0 Parse and sort: z=b&a=b&z=a&a=a
-TEST DONE 1 URL parse and sort: z=b&a=b&z=a&a=a
-TEST DONE 1 Parse and sort: �=x&￼&�=a
-TEST DONE 1 URL parse and sort: �=x&￼&�=a
-TEST DONE 1 Parse and sort: ﬃ&🌈
-TEST DONE 1 URL parse and sort: ﬃ&🌈
+TEST DONE 0 URL parse and sort: z=b&a=b&z=a&a=a
+TEST DONE 0 Parse and sort: �=x&￼&�=a
+TEST DONE 0 URL parse and sort: �=x&￼&�=a
+TEST DONE 0 Parse and sort: ﬃ&🌈
+TEST DONE 0 URL parse and sort: ﬃ&🌈
 TEST DONE 1 Parse and sort: é&e�&é
 TEST DONE 1 URL parse and sort: é&e�&é
 TEST DONE 0 Parse and sort: z=z&a=a&z=y&a=b&z=x&a=c&z=w&a=d&z=v&a=e&z=u&a=f&z=t&a=g
-TEST DONE 1 URL parse and sort: z=z&a=a&z=y&a=b&z=x&a=c&z=w&a=d&z=v&a=e&z=u&a=f&z=t&a=g
-TEST DONE 1 Parse and sort: bbb&bb&aaa&aa=x&aa=y
-TEST DONE 1 URL parse and sort: bbb&bb&aaa&aa=x&aa=y
+TEST DONE 0 URL parse and sort: z=z&a=a&z=y&a=b&z=x&a=c&z=w&a=d&z=v&a=e&z=u&a=f&z=t&a=g
+TEST DONE 0 Parse and sort: bbb&bb&aaa&aa=x&aa=y
+TEST DONE 0 URL parse and sort: bbb&bb&aaa&aa=x&aa=y
 TEST DONE 0 Parse and sort: z=z&=f&=t&=x
-TEST DONE 1 URL parse and sort: z=z&=f&=t&=x
-TEST DONE 1 Parse and sort: a🌈&a💩
-TEST DONE 1 URL parse and sort: a🌈&a💩
-TEST DONE 1 Sorting non-existent params removes ? from URL
+TEST DONE 0 URL parse and sort: z=z&=f&=t&=x
+TEST DONE 0 Parse and sort: a🌈&a💩
+TEST DONE 0 URL parse and sort: a🌈&a💩
+TEST DONE 0 Sorting non-existent params removes ? from URL
 Running ../../tools/wpt/url/urlsearchparams-stringifier.any.js
 TEST DONE 1 Serialize space
-TEST DONE 1 Serialize empty value
-TEST DONE 1 Serialize empty name
-TEST DONE 1 Serialize empty name and value
-TEST DONE 1 Serialize +
-TEST DONE 1 Serialize =
-TEST DONE 1 Serialize &
+TEST DONE 0 Serialize empty value
+TEST DONE 0 Serialize empty name
+TEST DONE 0 Serialize empty name and value
+TEST DONE 0 Serialize +
+TEST DONE 0 Serialize =
+TEST DONE 0 Serialize &
 TEST DONE 0 Serialize *-._
 TEST DONE 1 Serialize %
-TEST DONE 1 Serialize \0
-TEST DONE 1 Serialize 💩
+TEST DONE 0 Serialize \0
+TEST DONE 0 Serialize 💩
 TEST DONE 1 URLSearchParams.toString
 TEST DONE 1 URLSearchParams connected to URL
-TEST DONE 1 URLSearchParams must not do newline normalization
+TEST DONE 0 URLSearchParams must not do newline normalization
 Running ../../tools/wpt/encoding/api-basics.any.js
 TEST DONE 0 Default encodings
 TEST DONE 0 Default inputs
@@ -1303,21 +1022,7 @@ Running ../../tools/wpt/encoding/textencoder-constructor-non-utf.any.js
 TEST DONE 0 Encoding argument supported for decode: UTF-8
 TEST DONE 0 Encoding argument not considered for encode: UTF-8
 Skipping ../../tools/wpt/encoding/textencoder-utf16-surrogates.any.js
-Running ../../tools/wpt/encoding/unsupported-encodings.any.js
-TEST DONE 1 UTF-7 should not be supported
-TEST DONE 1 utf-7 should not be supported
-TEST DONE 1 UTF-32 with BOM should decode as UTF-16LE
-TEST DONE 1 UTF-32 with no BOM should decode as UTF-8
-TEST DONE 1 utf-32 with BOM should decode as UTF-16LE
-TEST DONE 1 utf-32 with no BOM should decode as UTF-8
-TEST DONE 1 UTF-32LE with BOM should decode as UTF-16LE
-TEST DONE 1 UTF-32LE with no BOM should decode as UTF-8
-TEST DONE 1 utf-32le with BOM should decode as UTF-16LE
-TEST DONE 1 utf-32le with no BOM should decode as UTF-8
-TEST DONE 1 UTF-32be with no BOM should decode as UTF-8
-TEST DONE 1 UTF-32be with BOM should decode as UTF-8
-TEST DONE 1 utf-32be with no BOM should decode as UTF-8
-TEST DONE 1 utf-32be with BOM should decode as UTF-8
+Skipping ../../tools/wpt/encoding/unsupported-encodings.any.js
 Running ../../tools/wpt/FileAPI/blob/Blob-array-buffer.any.js
 TEST DONE 0 Blob.arrayBuffer()
 TEST DONE 0 Blob.arrayBuffer() empty Blob data
@@ -1638,7 +1343,7 @@ Running ../../tools/wpt/FileAPI/reading-data-section/filereader_result.any.js
 TEST DONE 0 readAsText
 TEST DONE 0 readAsDataURL
 TEST DONE 0 readAsArrayBuffer
-TEST DONE 1 readAsBinaryString
+TEST DONE 0 readAsBinaryString
 TEST DONE 1 result is null during "loadstart" event for readAsText
 TEST DONE 1 result is null during "loadstart" event for readAsDataURL
 TEST DONE 1 result is null during "loadstart" event for readAsArrayBuffer
@@ -1700,5 +1405,5 @@ Running ../../tools/wpt/urlpattern/urlpattern-compare.https.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.any.js
 Running ../../tools/wpt/urlpattern/urlpattern.https.any.js
 
-1576 tests, 464 passed, 1103 failed
- -> 29% conformance
+1277 tests, 646 passed, 626 failed (5 not completed)
+ -> 50% conformance

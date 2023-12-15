@@ -13,6 +13,7 @@ import './runtime/global/console';
 import './runtime/global/process';
 import './runtime/global/crypto';
 import './runtime/global/navigator';
+import './runtime/global/compression';
 import './runtime/global/timers';
 import './runtime/http/URLSearchParams';
 import './runtime/http/URL';
@@ -28,6 +29,7 @@ import './runtime/http/fetch';
 //
 // NOTE: we use `var` to that we can refer to these variables
 // using `globalThis.VARIABLE`.
+
 declare global {
   interface AsyncContextConstructor {
     new (): AsyncContext;
@@ -59,6 +61,9 @@ declare global {
     randomValues: <T extends ArrayBufferView | null>(array: T) => void;
     getKeyValue: () => ArrayBuffer;
     queueMicrotask: (callback: () => void) => void;
+    compressionCreate: (format: CompressionFormat, isDecoder: boolean) => string;
+    compressionWrite: (id: string, buf: Uint8Array) => Uint8Array;
+    compressionFinish: (id: string) => Uint8Array;
   };
 
   var LagonAsync: {
@@ -123,7 +128,7 @@ declare global {
       b: RequestInit['body'];
     },
   ) => Promise<{
-    b: string;
+    b?: string;
     h: ResponseInit['headers'];
     s: ResponseInit['status'];
   }>;
@@ -153,7 +158,10 @@ globalThis.masterHandler = async (id, handler, request) => {
   });
 
   const response = await handler(handlerRequest);
-  let body: string;
+
+  if (!(response instanceof Response)) {
+    throw new Error('Handler function should return a Response object');
+  }
 
   if (response.isStream) {
     const responseBody = response.body;
@@ -162,7 +170,6 @@ globalThis.masterHandler = async (id, handler, request) => {
       throw new Error('Got a stream without a body');
     }
 
-    body = responseBody.toString();
     const reader = responseBody.getReader();
 
     const read = () => {
@@ -181,13 +188,16 @@ globalThis.masterHandler = async (id, handler, request) => {
     };
 
     read();
-  } else {
-    body = await response.text();
-  }
 
-  return {
-    b: body,
-    h: response.headers,
-    s: response.status,
-  };
+    return {
+      h: response.headers,
+      s: response.status,
+    };
+  } else {
+    return {
+      b: await response.text(),
+      h: response.headers,
+      s: response.status,
+    };
+  }
 };

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-v8 = "0.71.1"
+v8 = "0.74.3"
 
 [dev-dependencies]
 tokio = { version = "1", features = ["rt", "time", "macros"] }
@@ -12,8 +12,9 @@ flume = "0.10.14"
 httptest = "0.15.4"
 lagon-runtime-http = { path = "../runtime_http" }
 lagon-runtime-isolate = { path = "../runtime_isolate" }
-log = { version = "0.4.17", features = ["std", "kv_unstable", "kv_unstable_serde"] }
+log = { version = "0.4.19", features = ["std", "kv_unstable", "kv_unstable_serde"] }
 serial_test = "2.0.0"
+hyper = "0.14.27"
 
 [features]
 default = []

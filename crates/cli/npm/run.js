@@ -9,7 +9,4 @@ const pkg = customRequire('../package.json');
 
 updateNotifier({ pkg }).notify();
 
-const binary = getBinary();
-
-// Try to install the binary before executing the CLI
-binary.install({}, true).then(() => binary.run());
+getBinary().run();

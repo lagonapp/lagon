@@ -17,3 +17,5 @@ export { Skeleton } from './Skeleton';
 export { TagsInput } from './TagsInput';
 export { Text } from './Text';
 export { Textarea } from './Textarea';
+export { Copiable } from './Copiable';
+export { Banner } from './Banner';

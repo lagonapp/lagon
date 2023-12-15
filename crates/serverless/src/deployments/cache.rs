@@ -1,14 +1,13 @@
+use super::pubsub::clear_deployment_cache;
+use crate::serverless::Workers;
+use dashmap::DashMap;
 use std::{
     env,
     sync::Arc,
     time::{Duration, Instant},
 };
 
-use super::pubsub::clear_deployment_cache;
-use crate::serverless::Workers;
-use dashmap::DashMap;
-
-const CACHE_TASK_INTERVAL: Duration = Duration::from_secs(1);
+const CACHE_TASK_INTERVAL: Duration = Duration::from_secs(5);
 
 pub fn run_cache_clear_task(last_requests: Arc<DashMap<String, Instant>>, workers: Workers) {
     let isolates_cache_seconds = Duration::from_secs(

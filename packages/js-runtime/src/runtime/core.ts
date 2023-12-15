@@ -15,7 +15,7 @@
 
     const contentTypeHeader = headers.get('content-type');
 
-    if (contentTypeHeader === APPLICATION_X_WWW_FORM_URLENCODED) {
+    if (contentTypeHeader?.startsWith(APPLICATION_X_WWW_FORM_URLENCODED)) {
       const params = new URLSearchParams(body);
 
       for (const [key, value] of params) {

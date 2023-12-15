@@ -23,6 +23,7 @@ import useTheme from '../hooks/useTheme';
 import { useChangeLocale, useScopedI18n } from 'locales';
 import { useQueryClient } from '@tanstack/react-query';
 import Image from 'next/image';
+import Footer from './Footer';
 
 type HeaderLinkProps = {
   href: string;
@@ -212,6 +213,7 @@ const Layout = ({ title, anonymous, children }: LayoutProps) => {
                 </div>
               </div>
               <div className="min-h-[calc(100vh-4rem)] bg-stone-50 dark:bg-stone-800">{children}</div>
+              <Footer />
             </>
           ) : (
             <div className="flex h-screen w-screen items-center justify-center">

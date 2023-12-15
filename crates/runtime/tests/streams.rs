@@ -1,5 +1,5 @@
-use httptest::bytes::Bytes;
-use lagon_runtime_http::{Request, Response, RunResult, StreamResult};
+use hyper::{Request, Response};
+use lagon_runtime_http::{RunResult, StreamResult};
 use lagon_runtime_isolate::options::IsolateOptions;
 
 mod utils;
@@ -22,21 +22,19 @@ async fn sync_streaming() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Data(vec![65, 66, 67]))
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Data(vec![65, 66, 67])),
+    )
+    .await;
 
     assert!(receiver.recv_async().await.unwrap().as_stream_done());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response {
-            headers: None,
-            body: Bytes::from("[object ReadableStream]"),
-            status: 200,
-        }))
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Start(Response::builder())),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -64,21 +62,16 @@ async fn queue_multiple() {
     send(Request::default());
 
     for _ in 0..3 {
-        assert_eq!(
-            receiver.recv_async().await.unwrap(),
-            RunResult::Stream(StreamResult::Data(vec![65]))
-        );
+        utils::assert_run_result(&receiver, RunResult::Stream(StreamResult::Data(vec![65]))).await;
     }
 
     assert!(receiver.recv_async().await.unwrap().as_stream_done());
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response {
-            headers: None,
-            body: Bytes::from("[object ReadableStream]"),
-            status: 200,
-        }))
-    );
+
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Start(Response::builder())),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -105,21 +98,21 @@ async fn custom_response() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Data(vec![65, 66, 67]))
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Data(vec![65, 66, 67])),
+    )
+    .await;
 
     assert!(receiver.recv_async().await.unwrap().as_stream_done());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response {
-            body: Bytes::from("[object ReadableStream]"),
-            status: 201,
-            headers: Some(vec![("x-lagon".into(), vec!["test".into()])]),
-        }))
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Start(
+            Response::builder().status(201).header("x-lagon", "test"),
+        )),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -143,28 +136,27 @@ async fn start_and_pull() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
+    utils::assert_run_result(
+        &receiver,
         RunResult::Stream(StreamResult::Data(vec![
-            76, 111, 97, 100, 105, 110, 103, 46, 46, 46
-        ]))
-    );
+            76, 111, 97, 100, 105, 110, 103, 46, 46, 46,
+        ])),
+    )
+    .await;
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111]))
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111])),
+    )
+    .await;
 
     assert!(receiver.recv_async().await.unwrap().as_stream_done());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response {
-            headers: None,
-            body: Bytes::from("[object ReadableStream]"),
-            status: 200,
-        }))
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Start(Response::builder())),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -194,26 +186,25 @@ async fn response_before_write() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
+    utils::assert_run_result(
+        &receiver,
         RunResult::Stream(StreamResult::Data(vec![
-            76, 111, 97, 100, 105, 110, 103, 46, 46, 46
-        ]))
-    );
+            76, 111, 97, 100, 105, 110, 103, 46, 46, 46,
+        ])),
+    )
+    .await;
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response {
-            headers: None,
-            body: Bytes::from("[object ReadableStream]"),
-            status: 200,
-        }))
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Start(Response::builder())),
+    )
+    .await;
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111]))
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Data(vec![72, 101, 108, 108, 111])),
+    )
+    .await;
 
     assert!(receiver.recv_async().await.unwrap().as_stream_done());
 }
@@ -231,16 +222,13 @@ async fn timeout_infinite_streaming() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response {
-            headers: None,
-            body: Bytes::from("[object ReadableStream]"),
-            status: 200,
-        }))
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Start(Response::builder())),
+    )
+    .await;
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Timeout);
+    utils::assert_run_result(&receiver, RunResult::Timeout).await;
 }
 
 #[tokio::test]
@@ -262,7 +250,10 @@ async fn promise_reject_callback() {
     ));
     send(Request::default());
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at trigger (5:9)\n  at handler (8:5)".to_owned()));
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at trigger (5:9)\n  at handler (8:5)".to_owned()
+    )).await;
 }
 
 #[tokio::test]
@@ -294,14 +285,14 @@ async fn promise_reject_callback_after_response() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap(),
-        RunResult::Stream(StreamResult::Start(Response {
-            headers: None,
-            body: Bytes::from("[object ReadableStream]"),
-            status: 200,
-        }))
-    );
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Stream(StreamResult::Start(Response::builder())),
+    )
+    .await;
 
-    assert_eq!(receiver.recv_async().await.unwrap(), RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at 12:17\n  at stream (11:19)".to_owned()));
+    utils::assert_run_result(
+        &receiver,
+        RunResult::Error("Uncaught ReferenceError: doesNotExists is not defined\n  at 12:17\n  at stream (11:19)".to_owned()
+    )).await;
 }

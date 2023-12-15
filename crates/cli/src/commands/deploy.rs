@@ -1,4 +1,6 @@
-use crate::utils::{create_deployment, print_progress, resolve_path, Config, TrpcClient, THEME};
+use crate::utils::{
+    create_deployment, get_theme, print_progress, resolve_path, Config, TrpcClient,
+};
 use anyhow::{anyhow, Result};
 use dialoguer::{console::style, Confirm, Input, Select};
 use serde::{Deserialize, Serialize};
@@ -71,20 +73,22 @@ pub async fn deploy(
         );
         println!();
 
-        let trpc_client = TrpcClient::new(config.clone());
+        let mut trpc_client = TrpcClient::new(config.clone());
+        trpc_client.set_organization_id(function_config.organization_id.clone());
+
         let response = trpc_client
             .query::<(), OrganizationsResponse>("organizationsList", None)
             .await?;
         let organizations = response.result.data;
 
-        let index = Select::with_theme(&*THEME)
+        let index = Select::with_theme(get_theme())
             .items(&organizations)
             .default(0)
             .with_prompt("Which Organization would you like to deploy to?")
             .interact()?;
         let organization = &organizations[index];
 
-        match Confirm::with_theme(&*THEME)
+        match Confirm::with_theme(get_theme())
             .with_prompt("Link to an existing Function?")
             .default(false)
             .interact()?
@@ -95,7 +99,7 @@ pub async fn deploy(
                     .await?;
                 let functions = response.result.data;
 
-                let index = Select::with_theme(&*THEME)
+                let index = Select::with_theme(get_theme())
                     .items(&functions)
                     .default(0)
                     .with_prompt("Which Function would you like to link?")
@@ -110,7 +114,7 @@ pub async fn deploy(
                 create_deployment(config, &function_config, is_production, &root, true).await?;
             }
             false => {
-                let name = Input::<String>::with_theme(&*THEME)
+                let name = Input::<String>::with_theme(get_theme())
                     .with_prompt("What's the name of this new Function?")
                     .interact_text()?;
 

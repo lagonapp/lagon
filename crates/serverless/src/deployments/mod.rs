@@ -1,4 +1,4 @@
-use crate::REGION;
+use crate::get_region;
 use anyhow::{anyhow, Result};
 use dashmap::DashMap;
 use futures::{stream::FuturesUnordered, StreamExt};
@@ -6,6 +6,7 @@ use lagon_runtime_utils::{Deployment, DEPLOYMENTS_DIR};
 use lagon_serverless_downloader::Downloader;
 use log::{error, info, warn};
 use mysql::{prelude::Queryable, PooledConn};
+use serde::Deserialize;
 use std::{
     collections::{HashMap, HashSet},
     fs,
@@ -25,7 +26,9 @@ pub async fn download_deployment<D>(deployment: &Deployment, downloader: Arc<D>)
 where
     D: Downloader,
 {
-    match downloader.download(deployment.id.clone() + ".js").await {
+    let path = format!("{}.js", deployment.id);
+
+    match downloader.download(&path).await {
         Ok(object) => {
             deployment.write_code(&object)?;
             info!(deployment = deployment.id; "Wrote deployment");
@@ -35,8 +38,9 @@ where
 
                 for asset in &deployment.assets {
                     futures.push(async {
-                        let future =
-                            downloader.download(deployment.id.clone() + "/" + asset.as_str());
+                        let path = format!("{}/{}", deployment.id, asset.clone());
+                        let future = downloader.download(&path);
+
                         (future.await, asset.clone())
                     });
                 }
@@ -59,29 +63,29 @@ where
     }
 }
 
+#[derive(Deserialize)]
+struct AssetObj(Vec<String>);
+
 type QueryResult = (
     String,
     bool,
     String,
     String,
+    String,
     usize,
     usize,
     usize,
+    Option<String>,
     Option<String>,
     Option<String>,
     Option<String>,
 );
 
-pub async fn get_deployments<D>(
-    mut conn: PooledConn,
-    downloader: Arc<D>,
-    // cronjob: Arc<Mutex<Cronjob>>,
-) -> Result<Deployments>
+pub async fn get_deployments<D>(mut conn: PooledConn, downloader: Arc<D>) -> Result<Deployments>
 where
     D: Downloader,
 {
     let deployments = Arc::new(DashMap::new());
-
     let mut deployments_list: HashMap<String, Deployment> = HashMap::new();
 
     conn.query_map(
@@ -90,6 +94,7 @@ where
 SELECT
     Deployment.id,
     Deployment.isProduction,
+    Deployment.assets,
     Function.id,
     Function.name,
     Function.memory,
@@ -97,25 +102,27 @@ SELECT
     Function.totalTimeout,
     Function.cron,
     Domain.domain,
-    Asset.name
+    EnvVariable.key,
+    EnvVariable.value
 FROM
     Deployment
 INNER JOIN Function
     ON Deployment.functionId = Function.id
 LEFT JOIN Domain
     ON Function.id = Domain.functionId
-LEFT JOIN Asset
-    ON Deployment.id = Asset.deploymentId
+LEFT JOIN EnvVariable 
+    ON Function.id = EnvVariable.functionId
 WHERE
     Function.cron IS NULL
 OR
     Function.cronRegion = '{}'
 ",
-            REGION.as_str()
+            get_region()
         ),
         |(
             id,
             is_production,
+            assets,
             function_id,
             function_name,
             memory,
@@ -123,8 +130,13 @@ OR
             total_timeout,
             cron,
             domain,
-            asset,
+            env_key,
+            env_value,
         ): QueryResult| {
+            let assets = serde_json::from_str::<AssetObj>(&assets)
+                .map(|asset_obj| asset_obj.0)
+                .unwrap_or_default();
+
             deployments_list
                 .entry(id.clone())
                 .and_modify(|deployment| {
@@ -132,8 +144,12 @@ OR
                         deployment.domains.insert(domain);
                     }
 
-                    if let Some(asset) = asset.clone() {
-                        deployment.assets.insert(asset);
+                    deployment.assets.extend(assets.clone());
+
+                    if let Some(env_key) = env_key.clone() {
+                        deployment
+                            .environment_variables
+                            .insert(env_key, env_value.clone().unwrap_or_default());
                     }
                 })
                 .or_insert(Deployment {
@@ -147,14 +163,14 @@ OR
                             domains
                         })
                         .unwrap_or_default(),
-                    assets: asset
-                        .map(|asset| {
-                            let mut assets = HashSet::new();
-                            assets.insert(asset);
-                            assets
+                    assets: HashSet::from_iter(assets.iter().cloned()),
+                    environment_variables: env_key
+                        .map(|key| {
+                            let mut environment_variables = HashMap::new();
+                            environment_variables.insert(key, env_value.unwrap_or_default());
+                            environment_variables
                         })
                         .unwrap_or_default(),
-                    environment_variables: HashMap::new(),
                     memory,
                     tick_timeout,
                     total_timeout,
@@ -189,12 +205,6 @@ OR
         for domain in deployment.get_domains() {
             deployments.insert(domain, Arc::clone(&deployment));
         }
-
-        // if deployment.should_run_cron() {
-        //     if let Err(error) = cronjob.add(deployment).await {
-        //         error!("Failed to register cron: {}", error);
-        //     }
-        // }
     }))
     .await;
 

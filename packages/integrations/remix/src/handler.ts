@@ -8,6 +8,7 @@ export function createRequestHandler({ build, mode }: { build: ServerBuild; mode
   return async (request: Request) => {
     try {
       return handleRequest(request);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       if (process.env.NODE_ENV === 'development') {
         return new Response(e.message || e.toString(), {

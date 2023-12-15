@@ -2,13 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  redirects: () => [
-    {
-      source: '/cloud/static-files',
-      destination: '/cloud/assets',
-      permanent: true,
-    },
-  ],
+  output: 'export',
+  images: {
+    unoptimized: true,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

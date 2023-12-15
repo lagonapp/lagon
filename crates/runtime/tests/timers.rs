@@ -1,4 +1,4 @@
-use lagon_runtime_http::{Request, Response};
+use hyper::{header::CONTENT_TYPE, Body, Request, Response};
 use lagon_runtime_isolate::options::IsolateOptions;
 use serial_test::serial;
 
@@ -20,10 +20,12 @@ async fn set_timeout() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("test")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("test"),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -52,10 +54,12 @@ async fn set_timeout_not_blocking_response() {
         logs_receiver.recv_async().await.unwrap(),
         ("log".into(), "before".into(), None)
     );
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello!")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello!"),
+    )
+    .await;
     assert_eq!(
         logs_receiver.recv_async().await.unwrap(),
         ("log".into(), "after".into(), None)
@@ -83,10 +87,12 @@ async fn set_timeout_clear() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("second")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("second"),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -109,10 +115,12 @@ async fn set_timeout_clear_correct() {
     ));
     send(Request::default());
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("first")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("first"),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -162,10 +170,12 @@ async fn set_interval() {
         ("log".into(), "res".into(), None)
     );
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello world")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -199,10 +209,12 @@ async fn queue_microtask() {
         ("log".into(), "microtask".into(), None)
     );
 
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello world")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
+    )
+    .await;
 }
 
 #[tokio::test]
@@ -258,8 +270,10 @@ async fn timers_order() {
         logs_receiver.recv_async().await.unwrap(),
         ("log".into(), "main 2".into(), None)
     );
-    assert_eq!(
-        receiver.recv_async().await.unwrap().as_response(),
-        Response::from("Hello world")
-    );
+    utils::assert_response(
+        &receiver,
+        Response::builder().header(CONTENT_TYPE, "text/plain;charset=UTF-8"),
+        Body::from("Hello world"),
+    )
+    .await;
 }
