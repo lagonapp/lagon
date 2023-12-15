@@ -27,11 +27,12 @@ pub struct RequestRow {
 pub fn create_client() -> Client {
     let url = env::var("CLICKHOUSE_URL").expect("CLICKHOUSE_URL must be set");
     let user = env::var("CLICKHOUSE_USER").expect("CLICKHOUSE_USER must be set");
+    let database = env::var("CLICKHOUSE_DATABASE").unwrap_or_else(|_| "default".to_string());
 
     let client = Client::default()
         .with_url(url)
         .with_user(user)
-        .with_database("default");
+        .with_database(database);
 
     if let Ok(password) = env::var("CLICKHOUSE_PASSWORD") {
         return client.with_password(password);
