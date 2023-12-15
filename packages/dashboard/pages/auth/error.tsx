@@ -49,7 +49,7 @@ const Error = () => {
               >
                 {t('github')}
               </Button>
-              <Button
+              {/* <Button
                 leftIcon={<GoogleIcon className="h-4 w-4" />}
                 disabled={isLoading}
                 onClick={() => {
@@ -60,7 +60,7 @@ const Error = () => {
                 }}
               >
                 {t('google')}
-              </Button>
+              </Button> */}
             </div>
           )}
         </div>
