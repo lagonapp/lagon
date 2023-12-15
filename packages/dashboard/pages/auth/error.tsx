@@ -32,7 +32,7 @@ const Error = () => {
             </Text>
           </div>
           {error === 'AccessDenied' ? (
-            <Button variant="primary" href="https://tally.so/r/n9q1Rp">
+            <Button variant="primary" href="https://tally.so/r/wd9eJr">
               {t('error.joinWaitlist')}
             </Button>
           ) : (
