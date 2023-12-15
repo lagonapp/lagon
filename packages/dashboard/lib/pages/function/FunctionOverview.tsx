@@ -1,5 +1,4 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline';
-import * as Sentry from '@sentry/nextjs';
 import { useRouter } from 'next/router';
 import { Suspense, useEffect, useMemo, useState } from 'react';
 import { Button, Card, Chart, Description, Divider, Menu, Skeleton, Text } from '@lagon/ui';
@@ -98,12 +97,6 @@ const Usage = ({ func, timeframe }: UsageProps) => {
             time,
           });
     } catch (err) {
-      Sentry.captureException(err, {
-        tags: {
-          cron: func?.cron,
-        },
-      });
-
       return t('usage.nextCron.label.invalid');
     }
   };

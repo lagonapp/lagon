@@ -3,7 +3,6 @@ import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import prisma from 'lib/prisma';
-import * as Sentry from '@sentry/nextjs';
 import { createOrAssignDefaultOrganization } from 'lib/api/users';
 import { sendWelcomeEmail } from 'lib/smtp';
 
@@ -48,11 +47,6 @@ export const authOptions: NextAuthOptions = {
         return true;
       }
 
-      Sentry.captureMessage('User is not authorized to sign in', {
-        user: {
-          email: user.email,
-        },
-      });
       console.log('User is not authorized to sign in:', user.email);
 
       return false;
@@ -98,12 +92,6 @@ export const authOptions: NextAuthOptions = {
           stripeCurrentPeriodEnd: true,
           createdAt: true,
         },
-      });
-
-      Sentry.setUser({
-        id: userFromDB.id,
-        username: userFromDB.name ?? 'Unknown',
-        email: userFromDB.email ?? 'Unknown',
       });
 
       return {

@@ -1,7 +1,6 @@
 import { createTransport } from 'nodemailer';
 import { ReactElement } from 'react';
 import { render } from '@react-email/render';
-import * as Sentry from '@sentry/nextjs';
 import { Welcome } from './Welcome';
 
 const createTransporter = () => {
@@ -29,7 +28,6 @@ const sendEmail = async ({ to, subject, email }: { to: string; subject: string; 
       html: render(email),
     });
   } catch (error) {
-    Sentry.captureException(error);
     console.error(error);
   }
 };

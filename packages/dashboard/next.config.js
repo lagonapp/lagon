@@ -1,7 +1,5 @@
-const { withSentryConfig } = require('@sentry/nextjs');
-
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+module.exports = {
   reactStrictMode: true,
   swcMinify: true,
   i18n: {
@@ -15,14 +13,5 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  sentry: {
-    tunnelRoute: '/monitoring-tunnel',
-  },
   output: process.env.NEXTJS_OUTPUT,
 };
-
-const sentryWebpackPluginOptions = {
-  silent: true,
-};
-
-module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);

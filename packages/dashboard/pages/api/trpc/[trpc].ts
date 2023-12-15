@@ -7,7 +7,6 @@ import { tokensRouter } from 'lib/trpc/tokensRouter';
 import { deploymentsRouter } from 'lib/trpc/deploymentsRouter';
 import prisma from 'lib/prisma';
 import { Session } from 'next-auth';
-import * as Sentry from '@sentry/nextjs';
 import { accountsRouter } from 'lib/trpc/accountsRouter';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { authOptions } from '../auth/[...nextauth]';
@@ -73,12 +72,6 @@ const createContext = async ({
       },
     });
 
-    Sentry.setUser({
-      id: token.user.id,
-      username: token.user.name ?? 'Unknown',
-      email: token.user.email ?? 'Unknown',
-    });
-
     return {
       req,
       res,
@@ -137,9 +130,5 @@ export default trpcNext.createNextApiHandler({
   createContext,
   onError: ({ error }) => {
     console.error(error);
-
-    if (error.code === 'INTERNAL_SERVER_ERROR') {
-      Sentry.captureException(error);
-    }
   },
 });

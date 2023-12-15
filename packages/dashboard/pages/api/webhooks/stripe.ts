@@ -1,5 +1,4 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import * as Sentry from '@sentry/nextjs';
 import { stripe } from 'lib/stripe';
 import type Stripe from 'stripe';
 import prisma from 'lib/prisma';
@@ -39,8 +38,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     );
   } catch (err) {
     console.log(err);
-    Sentry.captureException(err);
-
     return res.status(400).end();
   }
 
